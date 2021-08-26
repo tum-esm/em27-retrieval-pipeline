@@ -113,6 +113,7 @@ def run():
                                 ),
                             }
                         )
+                        flags_added = True
 
         with open(f"{data_dir}/json-out/{day_string}.json", "w") as f:
-            json.dump(day_plot_data, f, indent=4)
+            json.dump(day_plot_data, f, indent=2)
