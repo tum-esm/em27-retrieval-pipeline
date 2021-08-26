@@ -4,7 +4,7 @@
 *.json
 *.pyc
 automation.log
-src/**/data/*.csv
+data/**/*.csv
 .venv
 !data/test-data/*.csv
 .DS_Store

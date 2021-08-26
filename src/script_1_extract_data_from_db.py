@@ -1,8 +1,7 @@
 import numpy as np
 import mysql.connector
 import pandas as pd
-
-# import matplotlib.pyplot as plt
+import json
 import datetime as datetime
 import sys
 import os
@@ -32,43 +31,34 @@ version_ofDorp = {
     "percent": 0.2,  # [0,1] only needed when 'version' is equal to 'percent'
 }
 
+# same level as pyproject.toml
+project_dir = "/".join(__file__.split("/")[:-2])
+with open(f"{project_dir}/config.json") as f:
+    config = json.load(f)
+    assert type(config["mysql"]) == dict
 
-## Load data from Database --------------
-# get connection to database
-def read_database_from(Date, specific_day=False):
-    mydb = mysql.connector.connect(
-        host="10.195.1.241",
-        user="user_basic",
-        passwd="x32fsaF",
-        database="ghg_measurements",
+
+def read_database(date_string):
+    db_connection = mysql.connector.connect(**config["mysql"])
+    read = lambda sql_string: pd.read_sql(sql_string, con=db_connection)
+
+    df_all = read(
+        f"""
+        SELECT *
+        FROM measuredValues
+        WHERE (Date = {date_string}) AND
+        (ID_Location in ('GEO', 'ROS', 'JOR', 'HAW')) AND
+        ((ID_Location != 'GEO') OR (ID_Spectrometer = 'me17'))
+        ORDER BY Hour
+        """
     )
-    # get data from database
-    if not specific_day:
-        df_all = pd.read_sql(
-            "SELECT * FROM measuredValues WHERE Date > " + str(Date), con=mydb
-        )  # filter new stuff
-    else:
-        df_all = pd.read_sql(
-            f"""
-            SELECT *
-            FROM measuredValues
-            WHERE (Date = {Date}) AND
-            ID_Location in ('TUM_I', 'FEL', 'OBE', 'TAU', 'GRÄ')
-            AND ((NOT ID_Location = 'TUM_I') OR (ID_Spectrometer = 'ma61'))
-            AND (NOT (ID_Spectrometer = 'mb86' AND ID_Location = 'TAU'))
-            ORDER BY Hour
-            """,
-            con=mydb,
-        )  # specific day
-    # df_all = pd.read_sql('SELECT * FROM measuredValues', con=mydb) #filter all
-    df_all.loc[df_all.Date <= 20170410, "xco_ppb"] = 0
-    df_calibration = pd.read_sql(
-        "SELECT * FROM spectrometerCalibrationFactor", con=mydb
-    )
-    df_location = pd.read_sql("SELECT * FROM location", con=mydb)
-    df_spectrometer = pd.read_sql("SELECT * FROM spectrometer", con=mydb)
-    # close connection to database
-    mydb.close()
+    # df_all.loc[df_all.Date <= 20170410, "xco_ppb"] = 0
+    df_calibration = read("SELECT * FROM spectrometerCalibrationFactor")
+    df_location = read("SELECT * FROM location")
+    df_spectrometer = read("SELECT * FROM spectrometer")
+
+    db_connection.close()
+
     return df_all, df_calibration, df_location, df_spectrometer
 
 
@@ -86,13 +76,7 @@ def Time_Stamp(df):
     return df.sort_values(by=["ID_Spectrometer", "TimeStamp"]).reset_index(drop=True)
 
 
-def filter_and_return(df_all, df_calibration, df_location, df_spectrometer):
-    ## Data calibration ---------------------
-    df_calibrated, df_cali = column_functions.hp.calibration(df_all, df_calibration)
-
-    ## Color Definition for Plotting --------
-    # df_color = column_functions.hp.create_colordf(df_spectrometer)
-
+def filter_and_return(df_calibrated, df_location):
     ## Physical Filter ----------------------
     df_filtered = (
         df_calibrated.groupby(["Date", "ID_Spectrometer"])
@@ -232,20 +216,17 @@ def filter_and_return(df_all, df_calibration, df_location, df_spectrometer):
     # =============================================================================
 
 
-def update_dataframe_for_website(date, path="data/website/", one_day=False):
+def run(date_string):
     # Read in Dataframe
-    df_all, df_calibration, df_location, df_spectrometer = read_database_from(
-        str(date), specific_day=one_day
-    )
+    df_all, df_calibration, df_location, df_spectrometer = read_database(date_string)
+
     if not df_all.empty:
-        xco, xco2, xch4 = filter_and_return(
-            df_all, df_calibration, df_location, df_spectrometer
-        )
-        for day, df_day in xco2.groupby("Date"):
-            df_day.round(5).to_csv(path + str(day) + "_xco2.csv")
-        for day, df_day in xch4.groupby("Date"):
-            df_day.round(5).to_csv(path + str(day) + "_xch4.csv")
+        df_calibrated, df_cali = column_functions.hp.calibration(df_all, df_calibration)
+        xco, xco2, xch4 = filter_and_return(df_calibrated, df_location)
+        xco2.round(5).to_csv(f"{project_dir}/data/csv-in/{date_string}_co2.csv")
+        xch4.round(5).to_csv(f"{project_dir}/data/csv-in/{date_string}_ch4.csv")
         return True
+
     else:
         print("No new Data to Fetch yet")
         return False
