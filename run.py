@@ -1,5 +1,5 @@
 import os
-from src import script_1_extract_data_from_db
+from src import script_1_extract_data_from_db, script_2_transform_db_csv
 
 project_dir = "/".join(__file__.split("/")[:-1])
 
@@ -15,8 +15,9 @@ def clear_upload_data():
 
 
 def run(date):
-    clear_upload_data()
-    script_1_extract_data_from_db.run(date)
+    # clear_upload_data()
+    # script_1_extract_data_from_db.run(date)
+    script_2_transform_db_csv.run()
 
 
 if __name__ == "__main__":

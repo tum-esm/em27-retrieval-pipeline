@@ -2,13 +2,15 @@ import os
 import pandas as pd
 from .helpers.utils import ls_ext, str_to_ts, hour_to_ts, concat, unique
 from rich.progress import track
+import sys
+import json
 
-
-PLOT_LOCATIONS = ["TUM_I", "TAU", "GR\u00c4", "OBE", "FEL"]
+LOCATIONS = ["GEO", "ROS", "HAW"]
 GASES = ["co2", "ch4"]
-UNITS = ["ppm", "ppm"]
+UNITS = ["ppm", "ppb"]
 
-data_dir = os.path.join(os.path.dirname(__file__), "../data")
+project_dir = "/".join(__file__.split("/")[:-2])
+data_dir = f"{project_dir}/data"
 
 
 def run():
@@ -18,106 +20,99 @@ def run():
     Examples in the README.md.
     """
 
-    gas_days = [
-        list(map(lambda s: s[:8], ls_ext(f"{data_dir}/csv-in", f"{gas}.csv")))
-        for gas in GASES
-    ]
-    total_days = unique(concat(gas_days))
-    # Now: gas_days = [['20201214', ...], ['20201214', ...]]
-    # Now: total_days = ['20201214', ...]
+    all_day_strings = unique(
+        [s[:8] for s in ls_ext(f"{data_dir}/csv-in", ".csv") if s[:8].isnumeric()]
+    )
+    # all_day_strings = ['20201214', ...]
+    print(all_day_strings)
 
-    for day in track(total_days, description="Transform csv"):
+    for day_string in track(all_day_strings, description="Transform csv"):
 
-        day_timestamp = str_to_ts(day)
+        day_plot_data = {"date": day_string}
+        filtered_dfs, raw_dfs = {}, {}
 
-        # Which gases (with corresponding units) are available for this day
-        day_gases = []
-        day_units = []
-        for i in range(len(GASES)):
-            if day in gas_days[i]:
-                day_gases.append(GASES[i])
-                day_units.append(UNITS[i])
-        if len(day_gases) != len(GASES):
-            print(
-                f"WARNING: On day {day}, only the following "
-                + f"gas-csv's have been found: {day_gases}"
-            )
+        for gas in GASES:
+            for raw in [True, False]:
+                csv_file = (
+                    f"{data_dir}/csv-in/{day_string}_{gas}{'_raw' if raw else ''}.csv"
+                )
+                if os.path.isfile(csv_file):
+                    (raw_dfs if raw else filtered_dfs).update(
+                        {gas: pd.read_csv(csv_file)}
+                    )
 
-        # Load dataframe from csv and get rid of unused columns
-        gas_dfs = list(
-            map(
-                lambda df: df.loc[:, ~df.columns.str.contains("^Unnamed")].drop(
-                    columns=["Date", "xh2o_ppm", "Direction", "TimeStamp"]
-                ),
-                [
-                    pd.read_csv(f"{data_dir}/csv-in/{day}_x{gas}.csv")
-                    for gas in day_gases
-                ],
-            )
+        filtered_hours = unique(
+            concat([list(filtered_dfs[gas]["hour"]) for gas in filtered_dfs])
         )
+        raw_hours = unique(concat([list(raw_dfs[gas]["hour"]) for gas in raw_dfs]))
 
-        # Refactor hour column
-        new_gas_dfs = []
-        for df in gas_dfs:
-            df["Hour"] = df["Hour"].apply(lambda hour: hour_to_ts(day_timestamp, hour))
-            new_gas_dfs.append(df.rename(columns={"Hour": "timestamp"}))
+        filtered_hours.sort()
+        raw_hours.sort()
 
-        gas_dfs = new_gas_dfs
+        filtered_hour_df = pd.DataFrame(filtered_hours, columns=["hour"])
+        raw_hour_df = pd.DataFrame(raw_hours, columns=["hour"])
 
-        # One row for every timestamp where any measurement has been logged
-        merged_df = pd.DataFrame(
-            data={
-                "timestamp": unique(concat([list(df["timestamp"]) for df in gas_dfs]))
-            }
-        ).sort_values(by=["timestamp"])
-
-        for i in range(len(day_gases)):
-            df = gas_dfs[i]
-
-            # If there is more than one spectrometer located at TUM_I
-            # -> Assert that 'ma61' is one of them and get rid of the others
-            tum_spectrometers = list(
-                filter(
-                    lambda s: isinstance(s, str),
-                    pd.unique(
-                        df.where(df["ID_Location"] == "TUM_I")["ID_Spectrometer"]
-                    ),
-                )
+        if len(filtered_dfs) > 0:
+            day_plot_data.update(
+                {
+                    "hours": list(filtered_hour_df["hour"]),
+                    "timeseries": [],
+                }
             )
-            if len(tum_spectrometers) > 1:
-                assert (
-                    "ma61" in tum_spectrometers
-                ), f"More than one sensor at TUM_I but 'ma61' not found: {tum_spectrometers}"
-                df2 = df.where(df["ID_Location"] == "TUM_I").dropna()
-                df3 = df2.where(df2["ID_Spectrometer"] != "ma61").dropna()
-                df = df.drop(df3.index)
-                del df2, df3
+        if len(raw_dfs) > 0:
+            day_plot_data.update(
+                {
+                    "rawHours": list(raw_hour_df["hour"]),
+                    "rawTimeseries": [],
+                    "flagTimeseries": [],
+                }
+            )
 
-            # The spectrometer is now irrelevant
-            df = df.drop(columns=["ID_Spectrometer"])
+        for location in LOCATIONS:
+            for gas in filtered_dfs:
+                timeseries_df = filtered_dfs[gas].loc[
+                    (filtered_dfs[gas]["location"] == location)
+                ]
+                if not timeseries_df.empty:
+                    day_plot_data["timeseries"].append(
+                        {
+                            "gas": gas,
+                            "location": location,
+                            "data": list(
+                                filtered_hour_df.set_index("hour")
+                                .join(timeseries_df.set_index("hour"))
+                                .fillna(0)["x"]
+                            ),
+                        }
+                    )
+            # only one flag timeseries per day (flags are the same for every gas)
+            flags_added = False
 
-            for location in PLOT_LOCATIONS:
+            for gas in raw_dfs:
+                timeseries_df = raw_dfs[gas].loc[(raw_dfs[gas]["location"] == location)]
+                if not timeseries_df.empty:
+                    day_plot_data["rawTimeseries"].append(
+                        {
+                            "gas": gas,
+                            "location": location,
+                            "data": list(
+                                raw_hour_df.set_index("hour")
+                                .join(timeseries_df.set_index("hour"))
+                                .fillna(0)["x"]
+                            ),
+                        }
+                    )
+                    if not flags_added:
+                        day_plot_data["flagTimeseries"].append(
+                            {
+                                "location": location,
+                                "data": list(
+                                    raw_hour_df.set_index("hour")
+                                    .join(timeseries_df.set_index("hour"))
+                                    .fillna(0)["flag"]
+                                ),
+                            }
+                        )
 
-                # Get all not NaN rows at this location
-                location_df = (
-                    df.where(df["ID_Location"] == location)
-                    .dropna()
-                    .drop(columns=["ID_Location"])
-                )
-
-                # Merge this location timeseries into the merged dataframe
-                location = location.replace("\u00c4", "A")
-                location_df = location_df.rename(
-                    columns={
-                        f"x{day_gases[i]}_{day_units[i]}": f"{location}_x{day_gases[i]}"
-                    }
-                )
-                merged_df = merged_df.merge(
-                    location_df, left_on="timestamp", right_on="timestamp", how="left"
-                ).fillna(value=0)
-
-        # Save merged dataframe in csv file
-        merged_df = merged_df.round(5).sort_values(by=["timestamp"])
-        merged_df.to_csv(
-            f"{data_dir}/csv-out/{day}_xco2_xch4.csv", index=False, header=True
-        )
+        with open(f"{data_dir}/json-out/{day_string}.json", "w") as f:
+            json.dump(day_plot_data, f, indent=4)

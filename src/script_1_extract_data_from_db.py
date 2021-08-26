@@ -208,8 +208,17 @@ def filter_and_return(df_calibrated, df_location, filter=True):
             columns_to_drop += ["year", "month", "flag"]
             df_corrected.reset_index()
             df_corrected["Hour"] = df_corrected["Hour"].round(3)
+        df_corrected.rename(
+            columns={
+                "Hour": "hour",
+                "ID_Location": "location",
+                "xco2_ppm": "x",
+                "xch4_ppm": "x",
+            },
+            inplace=True,
+        )
         df_corrected = df_corrected.drop(columns=columns_to_drop)
-        df_corrected = df_corrected.set_index(["Hour"]).sort_index()
+        df_corrected = df_corrected.set_index(["hour"]).sort_index()
 
         # RETURN FILTERED DATAFRAMES FOR FURTHER USE -NEXT FUNCTION  -> CONVERT TO JSON UPLOAD DB
         if gas == "xco":
