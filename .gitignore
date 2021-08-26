@@ -1,0 +1,15 @@
+.DS_Store
+.env
+.vscode
+*.json
+*.pyc
+automation.log
+src/**/data/*.csv
+.venv
+!data/test-data/*.csv
+.DS_Store
+__pycache__
+**.pyc
+notes.md
+rollback.zip
+*.nc
