@@ -175,6 +175,7 @@ def filter_and_return(df_calibrated, df_location, filter=True):
                     "column_h2o",
                     "column_air",
                     "xair",
+                    "xh2o_ppm",
                 ],
                 axis=1,
             )
@@ -191,6 +192,7 @@ def filter_and_return(df_calibrated, df_location, filter=True):
                     "column_h2o",
                     "column_air",
                     "xair",
+                    "xh2o_ppm",
                 ],
                 axis=1,
             )
@@ -200,13 +202,14 @@ def filter_and_return(df_calibrated, df_location, filter=True):
             .set_index(["ID_Location"])
             .join(df_location.set_index(["ID_Location"])[["Direction"]])
             .reset_index()
-            .set_index(["Hour"])
-            .sort_index()
         )
         columns_to_drop = ["Date", "ID_Spectrometer", "Direction"]
         if filter:
             columns_to_drop += ["year", "month", "flag"]
+            df_corrected.reset_index()
+            df_corrected["Hour"] = df_corrected["Hour"].round(3)
         df_corrected = df_corrected.drop(columns=columns_to_drop)
+        df_corrected = df_corrected.set_index(["Hour"]).sort_index()
 
         # RETURN FILTERED DATAFRAMES FOR FURTHER USE -NEXT FUNCTION  -> CONVERT TO JSON UPLOAD DB
         if gas == "xco":
