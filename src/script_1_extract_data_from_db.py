@@ -14,7 +14,7 @@ sia_thold = 0.4  # solar intensity average > value
 sza_thold = 75  # solar zenith angle < value
 o2_error = 0.0005
 step_size = 0.1
-flag = 0
+flag = 1
 
 # advanced filter settings
 cluster_interval = np.round(
@@ -76,21 +76,23 @@ def Time_Stamp(df):
     return df.sort_values(by=["ID_Spectrometer", "TimeStamp"]).reset_index(drop=True)
 
 
-def filter_and_return(df_calibrated, df_location):
+def filter_and_return(df_calibrated, df_location, filter=True):
     ## Physical Filter ----------------------
-    df_filtered = (
-        df_calibrated.groupby(["Date", "ID_Spectrometer"])
-        .apply(
-            lambda x: column_functions.filterData(
-                x, fvsi_thold, sia_thold, sza_thold, step_size, o2_error, flag
+    if filter:
+        df_filtered = (
+            df_calibrated.groupby(["Date", "ID_Spectrometer"])
+            .apply(
+                lambda x: column_functions.filterData(
+                    x, fvsi_thold, sia_thold, sza_thold, step_size, o2_error, flag
+                )
+                if x.empty == False
+                else x
             )
-            if x.empty == False
-            else x
+            .drop(["Date", "ID_Spectrometer"], axis=1)
+            .droplevel(level=2)
         )
-        .drop(["Date", "ID_Spectrometer"], axis=1)
-        .droplevel(level=2)
-    )
-    # df_filtered = df_calibrated.set_index(["Date", "ID_Spectrometer"])
+    else:
+        df_filtered = df_calibrated.set_index(["Date", "ID_Spectrometer"])
 
     ## Gas seperated code ---------
     for gas in ["xco2", "xch4", "xco"]:
@@ -118,18 +120,27 @@ def filter_and_return(df_calibrated, df_location):
             raise Exception
 
         ## Filter based on data statistics ----------------
-        # df_filteredPlus = df_filtered_droped
-        df_filteredPlus = column_functions.filter_DataStat(
-            df_filtered_droped,
-            gas=gas,
-            column=column,
-            clu_int=cluster_interval,
-            drop_clu_info=version_ofDorp,
-            clu_str=cluster_start,
-            clu_end=cluster_end,
-            clu_win=cluster_window,
-            case=["outlier", "rollingMean"],  # , "continuous", "interval"],
-        )
+        if filter:
+            df_filteredPlus = column_functions.filter_DataStat(
+                df_filtered_droped,
+                gas=gas,
+                column=column,
+                clu_int=cluster_interval,
+                drop_clu_info=version_ofDorp,
+                clu_str=cluster_start,
+                clu_end=cluster_end,
+                clu_win=cluster_window,
+                case=["outlier", "rollingMean"],  # , "continuous", "interval"],
+            )
+        else:
+            df_filteredPlus = df_filtered_droped.drop(columns=["ID_Location"])
+
+        # if gas == "xco2":
+        #     print(df_filteredPlus)
+        #     print(sorted(list(df_filteredPlus.columns)))
+
+        # print(sorted(list(df_filtered.columns)))
+
         # if gas == "xco2":
         #     print(df_filtered_droped)
         #     print(df_filteredPlus)
@@ -155,7 +166,6 @@ def filter_and_return(df_calibrated, df_location):
                     "fvsi",
                     "sia_AU",
                     "asza_deg",
-                    "flag",
                     "xch4_ppm_sub_mean",
                     "xo2_error",
                     "pout_hPa",
@@ -174,7 +184,6 @@ def filter_and_return(df_calibrated, df_location):
                     "fvsi",
                     "sia_AU",
                     "asza_deg",
-                    "flag",
                     "xo2_error",
                     "pout_hPa",
                     "pins_mbar",
@@ -191,10 +200,13 @@ def filter_and_return(df_calibrated, df_location):
             .set_index(["ID_Location"])
             .join(df_location.set_index(["ID_Location"])[["Direction"]])
             .reset_index()
-            .set_index(["Date", "Hour"])
+            .set_index(["Hour"])
             .sort_index()
         )
-        df_corrected = Time_Stamp(df_corrected.reset_index())
+        columns_to_drop = ["Date", "ID_Spectrometer", "Direction"]
+        if filter:
+            columns_to_drop += ["year", "month", "flag"]
+        df_corrected = df_corrected.drop(columns=columns_to_drop)
 
         # RETURN FILTERED DATAFRAMES FOR FURTHER USE -NEXT FUNCTION  -> CONVERT TO JSON UPLOAD DB
         if gas == "xco":
@@ -222,9 +234,14 @@ def run(date_string):
 
     if not df_all.empty:
         df_calibrated, df_cali = column_functions.hp.calibration(df_all, df_calibration)
-        xco, xco2, xch4 = filter_and_return(df_calibrated, df_location)
+
+        xco, xco2, xch4 = filter_and_return(df_calibrated, df_location, filter=True)
         xco2.round(5).to_csv(f"{project_dir}/data/csv-in/{date_string}_co2.csv")
         xch4.round(5).to_csv(f"{project_dir}/data/csv-in/{date_string}_ch4.csv")
+
+        xco, xco2, xch4 = filter_and_return(df_calibrated, df_location, filter=False)
+        xco2.round(5).to_csv(f"{project_dir}/data/csv-in/{date_string}_co2_raw.csv")
+        xch4.round(5).to_csv(f"{project_dir}/data/csv-in/{date_string}_ch4_raw.csv")
         return True
 
     else:
