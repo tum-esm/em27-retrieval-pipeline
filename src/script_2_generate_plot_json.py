@@ -5,12 +5,19 @@ from rich.progress import track
 import sys
 import json
 
-LOCATIONS = ["GEO", "ROS", "HAW"]
-GASES = ["co2", "ch4"]
-UNITS = ["ppm", "ppb"]
-
+# same level as pyproject.toml
 project_dir = "/".join(__file__.split("/")[:-2])
 data_dir = f"{project_dir}/data"
+
+with open(f"{project_dir}/config.json") as f:
+    config = json.load(f)
+    assert type(config["locations"]) == list
+    assert all(type(l) == str for l in config["locations"])
+    assert type(config["gases"]) == list
+    assert all(type(g) == dict for g in config["gases"])
+    assert all(type(g["name"]) == str and type(g["unit"]) for g in config["gases"])
+    LOCATIONS = config["locations"]
+    GASES = [g["name"] for g in config["gases"]]
 
 
 def run():

@@ -17,3 +17,25 @@ cd upload_website_data
 git checkout switch-to-firebase
 cd ..
 ```
+
+Example `config.json`:
+```json
+{
+    "mysql": {
+        "host": "...",
+        "user": "...",
+        "passwd": "...",
+        "database": "...",
+    },
+    "startDate": "20210727",
+    "locations": ["GEO", "ROS", "HAW"],
+    "gases": [
+        {"name": "co2", "unit": "ppm"},
+        {"name": "ch4", "unit": "ppm"}
+    ],
+    "strapi": {
+        "username": "...",
+        "password": "...",
+    }
+}
+```
