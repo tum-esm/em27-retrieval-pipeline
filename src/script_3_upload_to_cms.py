@@ -15,8 +15,35 @@ with open(f"{project_dir}/config.json") as f:
         assert type(config["strapi"][key]) == str
 
 
-def run():
+def upload_day(day_object, day_url, headers):
+    r = httpx.post(
+        day_url,
+        headers=headers,
+        data=day_object,
+    )
+    if r.status_code == 500:
+        print(f"{day_object['date']} - day already exists")
+        try:
+            r = httpx.get(
+                day_url + f"?date={day_object['date']}",
+                headers=headers,
+            )
+            assert r.status_code == 200
+            assert len(r.json()) == 1
+            assert len(r.json()) == 1
+            r = httpx.put(
+                day_url + f"/{r.json()[0]['_id']}",
+                headers=headers,
+                data=day_object,
+            )
+            assert r.status_code == 200
+        except AssertionError as e:
+            raise Exception(f"backend is not behaving as expected: {e}")
+    elif r.status_code != 200:
+        raise Exception(f"automation is not behaving as expected: {r.json()}")
 
+
+def run():
     auth_url = f"{config['strapi']['url']}/auth/local"
     day_url = f"{config['strapi']['url']}/plot-days"
     meta_url = f"{config['strapi']['url']}/{config['strapi']['meta-endpoint']}"
@@ -29,19 +56,12 @@ def run():
         },
         timeout=10,
     )
-    # TODO: Add exception for unsuccessful authentication
-    # print(r.status_code)
+    if r.status_code != 200:
+        raise Exception("could not authorize the client, invalid identifier/password")
+
     headers = {
         "Authorization": f"bearer {r.json()['jwt']}",
     }
-
-    r = httpx.post(
-        day_url,
-        headers=headers,
-        data={"date": "20202020", "data": {"some-day": "over the ocean"}},
-    )
-    print(r)
-    return
 
     all_day_strings = unique(
         [
@@ -51,17 +71,16 @@ def run():
         ]
     )
     # all_day_strings = ['20201214', ...]
-    invalid_day_strings = []
+    valid_day_strings = []
 
     # Upload all days
     for day_string in track(all_day_strings, description="Upload days to Strapi"):
         with open(f"{data_dir}/json-out/{day_string}.json", "r") as f:
-            dayObject = json.load(f)
             try:
-                # TODO: Upload dayObject to strapi
-                pass
-            except:
-                invalid_day_strings.append(day_string)
+                upload_day(json.load(f), day_url, headers)
+                valid_day_strings.append(day_string)
+            except Exception as e:
+                print(f"{day_string} could not be uploaded: {e}")
 
     # TODO: Download meta from strapi
     # TODO: append added_days to meta.days
