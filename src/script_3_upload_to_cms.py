@@ -48,6 +48,7 @@ def run():
     day_url = f"{config['strapi']['url']}/plot-days"
     meta_url = f"{config['strapi']['url']}/{config['strapi']['meta-endpoint']}"
 
+    # 1. authorize client
     r = httpx.post(
         auth_url,
         data={
@@ -63,6 +64,7 @@ def run():
         "Authorization": f"bearer {r.json()['jwt']}",
     }
 
+    # 2. determine days to be uploaded
     all_day_strings = unique(
         [
             s[:8]
@@ -70,10 +72,9 @@ def run():
             if s[:8].isnumeric() and len(s) == 13
         ]
     )
-    # all_day_strings = ['20201214', ...]
     valid_day_strings = []
 
-    # Upload all days
+    # 3. upload all days
     for day_string in track(all_day_strings, description="Upload days to Strapi"):
         with open(f"{data_dir}/json-out/{day_string}.json", "r") as f:
             try:
@@ -82,6 +83,22 @@ def run():
             except Exception as e:
                 print(f"{day_string} could not be uploaded: {e}")
 
-    # TODO: Download meta from strapi
-    # TODO: append added_days to meta.days
-    # TODO: Upload meta to strapi
+    # 4. update meta document
+    r = httpx.get(meta_url, headers=headers, timeout=10)
+    if r.status_code != 200:
+        raise Exception("meta could not be fetched")
+    meta = r.json()["data"]
+    r = httpx.put(
+        meta_url,
+        headers=headers,
+        data={
+            "data": {
+                **meta,
+                "gases": config["gases"],
+                "stations": config["stations"],
+                "days": list(sorted(unique(meta["days"] + valid_day_strings))),
+            }
+        },
+        timeout=10,
+    )
+    assert r.status_code == 200
