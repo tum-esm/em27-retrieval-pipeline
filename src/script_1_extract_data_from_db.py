@@ -113,6 +113,13 @@ def filter_and_return(df_calibrated, df_location, filter=True):
             df_filtered_droped = df_filtered.drop(columns=["xco_ppb", "xco2_ppm"])
             # parameter needed for air mass correction
             df_filtered_droped["elevation_angle"] = 90 - df_filtered_droped["asza_deg"]
+
+            # The sub operation below required the index to be unique
+            # This line fixed the issue I experienced. Error message from before:
+            # "cannot handle a non-unique multi-index!"
+            df_filtered_droped = df_filtered_droped.reset_index().set_index(
+                ["Date", "ID_Spectrometer", "Hour"]
+            )
             df_filtered_droped["xch4_ppm_sub_mean"] = df_filtered_droped.sub(
                 df_filtered_droped[["xch4_ppm"]].groupby(level=[0, 1]).mean()
             )["xch4_ppm"]
@@ -120,7 +127,7 @@ def filter_and_return(df_calibrated, df_location, filter=True):
             raise Exception
 
         ## Filter based on data statistics ----------------
-        if filter:
+        if filter and not df_filtered_droped.empty:
             df_filteredPlus = column_functions.filter_DataStat(
                 df_filtered_droped,
                 gas=gas,
@@ -204,7 +211,7 @@ def filter_and_return(df_calibrated, df_location, filter=True):
             .reset_index()
         )
         columns_to_drop = ["Date", "ID_Spectrometer", "Direction"]
-        if filter:
+        if filter and not df_corrected.empty:
             columns_to_drop += ["year", "month", "flag"]
             df_corrected.reset_index()
             df_corrected["Hour"] = df_corrected["Hour"].round(3)
