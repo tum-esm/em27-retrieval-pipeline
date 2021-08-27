@@ -11,12 +11,13 @@ data_dir = f"{project_dir}/data"
 
 with open(f"{project_dir}/config.json") as f:
     config = json.load(f)
-    assert type(config["locations"]) == list
-    assert all(type(l) == str for l in config["locations"])
+    assert type(config["stations"]) == list
+    assert all(type(g) == dict for g in config["stations"])
+    assert all(type(g["location"]) == str and type(g["sensor"]) == str for g in config["stations"])
     assert type(config["gases"]) == list
     assert all(type(g) == dict for g in config["gases"])
-    assert all(type(g["name"]) == str and type(g["unit"]) for g in config["gases"])
-    LOCATIONS = config["locations"]
+    assert all(type(g["name"]) == str and type(g["unit"]) == str for g in config["gases"])
+    LOCATIONS = [s["location"] for s in config["stations"]]
     GASES = [g["name"] for g in config["gases"]]
 
 
@@ -35,7 +36,7 @@ def run():
 
     for day_string in track(all_day_strings, description="Transform csv"):
 
-        day_plot_data = {"date": day_string}
+        day_plot_data = {}
         filtered_dfs, raw_dfs = {}, {}
 
         for gas in GASES:
@@ -123,4 +124,7 @@ def run():
                         flags_added = True
 
         with open(f"{data_dir}/json-out/{day_string}.json", "w") as f:
-            json.dump(day_plot_data, f, indent=2)
+            json.dump({
+                "date": day_string,
+                "data": day_plot_data
+            }, f, indent=2)

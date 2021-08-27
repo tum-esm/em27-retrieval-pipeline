@@ -28,7 +28,12 @@ Example `config.json`:
         "database": "...",
     },
     "startDate": "20210727",
-    "locations": ["GEO", "ROS", "HAW"],
+    "stations": [
+        {
+          "location": "ROS",
+          "sensor": "mb86"
+        }
+    ],
     "gases": [
         {"name": "co2", "unit": "ppm"},
         {"name": "ch4", "unit": "ppm"}
