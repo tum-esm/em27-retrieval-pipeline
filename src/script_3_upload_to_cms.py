@@ -1,23 +1,34 @@
 import os
-from .helpers.utils import load_json, ls_ext
-from .helpers.validator import Validator
-from .helpers.firestore import Firestore
+import json
+from .helpers.utils import load_json, ls_ext, unique
 from rich.progress import track
 
-data_dir = os.path.join(os.path.dirname(__file__), "../data")
+# same level as pyproject.toml
+project_dir = "/".join(__file__.split("/")[:-2])
+data_dir = f"{project_dir}/data"
 
 
 def run():
-    """
-    Upload the files in the local directories `data/json-out`
-    and `data/meta-out` to the database.
-    """
+    all_day_strings = unique(
+        [
+            s[:8]
+            for s in ls_ext(f"{data_dir}/json-out", ".json")
+            if s[:8].isnumeric() and len(s) == 13
+        ]
+    )
+    # all_day_strings = ['20201214', ...]
+    invalid_day_strings = []
 
     # Upload all days
-    for day_json_file in track(
-        ls_ext(f"{data_dir}/json-out", ".json"), description="Upload to Firestore"
-    ):
-        Firestore.set_day(load_json(f"{data_dir}/json-out/{day_json_file}"))
+    for day_string in track(all_day_strings, description="Upload days to Strapi"):
+        with open(f"{data_dir}/json-out/{day_string}.json", "r") as f:
+            dayObject = json.load(f)
+            try:
+                # TODO: Upload dayObject to strapi
+                pass
+            except:
+                invalid_day_strings.append(day_string)
 
-    # Fetch and validate local meta
-    Firestore.set_meta(load_json(f"{data_dir}/meta-out/meta.json"))
+    # TODO: Download meta from strapi
+    # TODO: append added_days to meta.days
+    # TODO: Upload meta to strapi
