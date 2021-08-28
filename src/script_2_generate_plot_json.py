@@ -11,19 +11,10 @@ data_dir = f"{project_dir}/data"
 
 with open(f"{project_dir}/config.json") as f:
     config = json.load(f)
-    assert type(config["stations"]) == list
-    assert all(type(g) == dict for g in config["stations"])
-    assert all(
-        type(g["location"]) == str and type(g["sensor"]) == str
-        for g in config["stations"]
-    )
+    assert type(config["locations"]) == list
+    assert all(type(l) == str for l in config["locations"])
     assert type(config["gases"]) == list
-    assert all(type(g) == dict for g in config["gases"])
-    assert all(
-        type(g["name"]) == str and type(g["unit"]) == str for g in config["gases"]
-    )
-    LOCATIONS = [s["location"] for s in config["stations"]]
-    GASES = [g["name"] for g in config["gases"]]
+    assert all(type(g) == str for g in config["gases"])
 
 
 def run(minify=True):
@@ -44,7 +35,7 @@ def run(minify=True):
         day_plot_data = {}
         filtered_dfs, raw_dfs = {}, {}
 
-        for gas in GASES:
+        for gas in config["gases"]:
             for raw in [True, False]:
                 csv_file = (
                     f"{data_dir}/csv-in/{day_string}_{gas}{'_raw' if raw else ''}.csv"
@@ -68,7 +59,7 @@ def run(minify=True):
                 }
             )
 
-        for location in LOCATIONS:
+        for location in config["locations"]:
             for gas in filtered_dfs:
                 timeseries_df = (
                     filtered_dfs[gas]

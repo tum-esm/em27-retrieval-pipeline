@@ -28,19 +28,12 @@ Example `config.json`:
         "database": "...",
     },
     "startDate": "20210727",
-    "stations": [
-        {
-          "location": "ROS",
-          "sensor": "mb86"
-        }
-    ],
-    "gases": [
-        {"name": "co2", "unit": "ppm"},
-        {"name": "ch4", "unit": "ppm"}
-    ],
+    "locations": ["ROS", "..."],
+    "gases": ["co2", "ch4"],
     "strapi": {
-        "username": "...",
+        "identifier": "...",
         "password": "...",
+        "url": "..."
     }
 }
 ```
