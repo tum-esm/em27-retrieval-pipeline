@@ -1,5 +1,5 @@
 
-# Generate the EM27 plot data for atmosphere.ei.tum.de
+# Retrieval Plots v2 - Python Script for Generating and Uploading Data
 
 Full documentation coming soon! Until then, ask Moritz Makowski (moritz.makowski@tum.de).
 
