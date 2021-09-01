@@ -45,9 +45,6 @@ def upload_day(day_object, day_url, headers):
 def run():
     auth_url = f"{config['strapi']['url']}/auth/local"
     day_url = f"{config['strapi']['url']}/plot-days"
-    meta_url = (
-        f"{config['strapi']['url']}/plot-metas/{config['strapi']['plot-meta-id']}"
-    )
 
     # 1. authorize client
     r = httpx.post(
