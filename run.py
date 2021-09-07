@@ -28,11 +28,13 @@ def run(dates):
 
 
 if __name__ == "__main__":
-    # script_3_upload_to_cms.run()
     dates = []
-    for month in range(8, 9):
+    for month in range(7, 10):
         dates += [
-            f"2021{str(month).zfill(2)}{str(day).zfill(2)}" for day in range(18, 32)
+            f"2021{str(month).zfill(2)}{str(day).zfill(2)}" for day in range(1, 32)
         ]
 
     run(dates)
+
+    # script_1_extract_data_from_db.run("20210812")
+    # script_3_upload_to_cms.run()
