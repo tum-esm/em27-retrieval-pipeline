@@ -299,12 +299,14 @@ def filter_and_return(date_string, df_calibrated, df_location, filter=True):
                 "month",
                 "year",
                 "Date",
+                "elevation_angle",
+                "xch4_ppm_sub_mean",
             ]
-            if gas == "xch4":
-                columns_to_drop += ["elevation_angle", "xch4_ppm_sub_mean"]
 
             df_corrected_inversion = df_corrected_inversion.drop(
-                columns=columns_to_drop
+                columns=[
+                    c for c in columns_to_drop if c in df_corrected_inversion.columns
+                ]
             )
 
             if gas == "xco2":
