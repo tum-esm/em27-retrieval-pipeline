@@ -53,7 +53,7 @@ def run():
             "identifier": config["strapi"]["identifier"],
             "password": config["strapi"]["password"],
         },
-        timeout=10,
+        timeout=20,
     )
     if r.status_code != 200:
         raise Exception("could not authorize the client, invalid identifier/password")
