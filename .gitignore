@@ -5,6 +5,8 @@
 *.pyc
 automation.log
 data/**/*.csv
+!data/inversion-header-template.csv
+!data/inversion-header-example.csv
 .venv
 !data/test-data/*.csv
 .DS_Store
