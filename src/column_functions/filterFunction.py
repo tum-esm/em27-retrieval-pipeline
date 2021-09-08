@@ -10,7 +10,7 @@ last modified: 20.10.2020
 
 
 import numpy as np
-from .helperFunction import helperfunction as hp   # self written .py file
+from .helperFunction import helperfunction as hp  # self written .py file
 from scipy.optimize import curve_fit
 import scipy.stats as sp
 
@@ -27,7 +27,7 @@ def filterData(data, fvsi_thold, sia_thold, sza_thold, step_size, o2_error, flag
     :param step_size:   Number, default: 0.1
     :param o2_error:    Number, default: 0.0005
     :param flag:        0 or 1, if 0 the flag parameter is not considered for filtering (except for no. 24 xair,
-			which shows an oversaturated signal); if 1, only measurements with flag <3 remain
+                        which shows an oversaturated signal); if 1, only measurements with flag <3 remain
 
     Output:
     :return: Pandas DataFrame, containing filtered values
@@ -38,30 +38,39 @@ def filterData(data, fvsi_thold, sia_thold, sza_thold, step_size, o2_error, flag
     """
 
     sia_ref = data[
-        'sia_AU'].values.copy()  # copy is needed here otherwise the values in the database are changed when sia_ref is modifyed
-    time = data['Hour'].values
+        "sia_AU"
+    ].values.copy()  # copy is needed here otherwise the values in the database are changed when sia_ref is modifyed
+    time = data["Hour"].values
 
     # solar intensity reference values are calculated. Values have to be above those reference values
     m = sia_ref.max() * step_size
     for ii in range(0, sia_ref.size - 2):
         dt = time[ii + 1] - time[ii]
-        if (sia_ref[ii] - sia_ref[ii + 1] >= m * dt):
+        if sia_ref[ii] - sia_ref[ii + 1] >= m * dt:
             sia_ref[ii + 1] = sia_ref[ii] - m * dt
 
     for ii in range(sia_ref.size - 1, 1, -1):
         dt = time[ii] - time[ii - 1]
-        if (sia_ref[ii] - sia_ref[ii - 1] >= m * dt):
+        if sia_ref[ii] - sia_ref[ii - 1] >= m * dt:
             sia_ref[ii - 1] = sia_ref[ii] - m * dt
 
     # Filter step
-    if (flag == 1):
+    if flag == 1:
         df_ok = data.loc[
-            (data['sia_AU'] >= sia_ref * sia_thold) & (data['flag'] < 3) & (data['fvsi'] <= fvsi_thold) & (
-                        data['asza_deg'] <= sza_thold) & (data['xo2_error'] < o2_error)]
+            (data["sia_AU"] >= sia_ref * sia_thold)
+            & (data["flag"] < 3)
+            & (data["fvsi"] <= fvsi_thold)
+            & (data["asza_deg"] <= sza_thold)
+            & (data["xo2_error"] < o2_error)
+        ]
     else:
         df_ok = data.loc[
-            (data['sia_AU'] >= sia_ref * sia_thold) & (data['flag'] != 24) & (data['fvsi'] <= fvsi_thold) & (
-			data['asza_deg'] <= sza_thold) & (data['xo2_error'] < o2_error)]
+            (data["sia_AU"] >= sia_ref * sia_thold)
+            & (data["flag"] != 24)
+            & (data["fvsi"] <= fvsi_thold)
+            & (data["asza_deg"] <= sza_thold)
+            & (data["xo2_error"] < o2_error)
+        ]
     return df_ok
 
 
@@ -95,7 +104,7 @@ def getIndexIntervall(x, num, check_day=False):
     np_badindex = np.array([])
     for i in np_indexBigGap:
         # check for end and if the next interval is valide
-        if ((i == np_indexBigGap[-1]) or (np.isin(i + 1, np_indexBigGap, invert=True))):
+        if (i == np_indexBigGap[-1]) or (np.isin(i + 1, np_indexBigGap, invert=True)):
             np_badindex = np.append(np_badindex, np.arange(x[i], x[i + 1] + 1, 1))
         else:
             np_badindex = np.append(np_badindex, np.arange(x[i], x[i + 1], 1))
@@ -123,10 +132,14 @@ def filter_intervall(df, num, gap, check_day=False):
     last modified: 20.10.2020
     """
 
-    df_reset = df.reset_index().drop(columns=['Date', 'ID_Spectrometer'])
-    np_diff = np.diff(df_reset['Hour'].values) # get time difference between measurements
+    df_reset = df.reset_index().drop(columns=["Date", "ID_Spectrometer"])
+    np_diff = np.diff(
+        df_reset["Hour"].values
+    )  # get time difference between measurements
     np_indexGap = np.append(0, np.append((np.argwhere(np_diff > gap)), np_diff.size))
-    np_indexToBeDroped = getIndexIntervall(np_indexGap, num, check_day) # get index which measurements should be dropped
+    np_indexToBeDroped = getIndexIntervall(
+        np_indexGap, num, check_day
+    )  # get index which measurements should be dropped
     return df_reset.drop(np_indexToBeDroped)
 
 
@@ -145,7 +158,7 @@ def filter_day_alone(df):
     last modified: 20.10.2020
     """
 
-    if df.index.get_level_values(1).unique().values.shape[0]>1:
+    if df.index.get_level_values(1).unique().values.shape[0] > 1:
         return df
 
 
@@ -170,8 +183,8 @@ def zscore_move(df, column, interval, stepsize, threshold):
     last modified: 20.10.2020
     """
 
-    df_reset = df.reset_index().drop(columns=['Date', 'ID_Spectrometer'])
-    np_timexch4 = df_reset[['Hour', column]].values
+    df_reset = df.reset_index().drop(columns=["Date", "ID_Spectrometer"])
+    np_timexch4 = df_reset[["Hour", column]].values
     start_time = np_timexch4[:, 0].min()
     end_time = np_timexch4[:, 0].max()
 
@@ -192,7 +205,9 @@ def zscore_move(df, column, interval, stepsize, threshold):
             interval_secound = end_time - s
 
         # get window
-        time_w, index = hp.timewindow_middle(np_timexch4[:, 0], s, interval_first, interval_secound)
+        time_w, index = hp.timewindow_middle(
+            np_timexch4[:, 0], s, interval_first, interval_secound
+        )
 
         # get values
         np_inter = np_timexch4[index, 1]
@@ -211,8 +226,7 @@ def zscore_move(df, column, interval, stepsize, threshold):
     if len(np_TimeDelete) == 0:  # no outliers were detected
         return df_reset
     else:
-        return df_reset.set_index('Hour').drop(np_TimeDelete).reset_index()
-
+        return df_reset.set_index("Hour").drop(np_TimeDelete).reset_index()
 
 
 def filter_DataStat(df, **kwargs):
@@ -246,65 +260,88 @@ def filter_DataStat(df, **kwargs):
     last modified: 20.10.2020
     """
 
-    clu_int = kwargs.get('clu_int', 0.25)
-    clu_drop = kwargs.get('clu_drop', False)
-    clu_win = kwargs.get('clu_win', clu_int * 2)
-    clu_start = kwargs.get('clu_str', None)
-    clu_end = kwargs.get('clu_end', None)
-    gas = kwargs.get('gas', 'xch4')
-    drop_clusterpoints_info = kwargs.get('drop_clu_info',
-                                         {'drop': clu_drop, 'version': 'sigma', 'percent': 0.2})
-    filter_case = kwargs.get('case', ['outlier', 'interval', 'rollingMean', 'continuous', 'singleDay'])
+    clu_int = kwargs.get("clu_int", 0.25)
+    clu_drop = kwargs.get("clu_drop", False)
+    clu_win = kwargs.get("clu_win", clu_int * 2)
+    clu_start = kwargs.get("clu_str", None)
+    clu_end = kwargs.get("clu_end", None)
+    gas = kwargs.get("gas", "xch4")
+    drop_clusterpoints_info = kwargs.get(
+        "drop_clu_info", {"drop": clu_drop, "version": "sigma", "percent": 0.2}
+    )
+    filter_case = kwargs.get(
+        "case", ["outlier", "interval", "rollingMean", "continuous", "singleDay"]
+    )
 
-    if gas == 'xco':
-        column = 'xco_ppb'
-    elif gas == 'xco2':
-        column = 'xco2_ppm'
-    elif gas == 'xch4':
-        column = 'xch4_ppm'
+    if gas == "xco":
+        column = "xco_ppb"
+    elif gas == "xco2":
+        column = "xco2_ppm"
+    elif gas == "xch4":
+        column = "xch4_ppm"
     else:
         print('ERROR: No valid gas is set. Set gas to "xch4", "xco" or "xco2".')
     # Filter Outlier
-    if 'outlier' in filter_case:
-        df_filtered = df.groupby(level=[0, 1]).apply(zscore_move, column, 2, 1, 2.58).reset_index(level=[2],
-                                                                                                     drop=True)
+    if "outlier" in filter_case:
+        df_filtered = (
+            df.groupby(level=[0, 1])
+            .apply(zscore_move, column, 2, 1, 2.58)
+            .reset_index(level=[2], drop=True)
+        )
     else:
         df_filtered = df.copy()
     # filter interval
-    if 'interval' in filter_case:
-        df_filtered = df_filtered.groupby(level=[0, 1]).apply(filter_intervall, 12, 0.005).reset_index(level=2,
-                                                                                                          drop=True)
+    if "interval" in filter_case:
+        df_filtered = (
+            df_filtered.groupby(level=[0, 1])
+            .apply(filter_intervall, 12, 0.005)
+            .reset_index(level=2, drop=True)
+        )
     # Average points to remove noise
-    if 'rollingMean' in filter_case:
-        df_filtered = hp.clusterby(df_filtered, 'Hour',
-                                   int_delta=clu_int, drop_clu_info=drop_clusterpoints_info, int_max=clu_end,
-                                   int_min=clu_start,
-                                   win_size=clu_win).sort_index()
+    if "rollingMean" in filter_case:
+        df_filtered = hp.clusterby(
+            df_filtered,
+            "Hour",
+            int_delta=clu_int,
+            drop_clu_info=drop_clusterpoints_info,
+            int_max=clu_end,
+            int_min=clu_start,
+            win_size=clu_win,
+        ).sort_index()
 
     # filter all days with no 1h continous measurements: filter_intervall (function),
     #   1/clu_int (number of clusterpoints needed in an hour to have continuous measurements),
     #   clu_int+clu_int/2 (allowed gab size between two points, bigger than a normal gab but smaller than two)
-    if 'continuous' in filter_case and 'rollingMean' in filter_case:
-        df_filtered = df_filtered.groupby(['Date', 'ID_Spectrometer']).apply(filter_intervall, int(1 / clu_int),
-                                                                             clu_int + clu_int / 2, True).reset_index(
-            level=[2], drop=True)
-    elif 'continuous' in filter_case:
+    if "continuous" in filter_case and "rollingMean" in filter_case:
+        df_filtered = df_filtered.groupby(["Date", "ID_Spectrometer"]).apply(
+            filter_intervall, int(1 / clu_int), clu_int + clu_int / 2, True
+        )
+        try:
+            df_filtered = df_filtered.reset_index(level=[2], drop=True)
+        except:
+            pass
+    elif "continuous" in filter_case:
         print(
-            'Error: Continuous filter step could not be performed, rolling mean step is needed in addition! Filtering is canceled!')
+            "Error: Continuous filter step could not be performed, rolling mean step is needed in addition! Filtering is canceled!"
+        )
         return df_filtered
-    
+
     # filter all days with just one site measuring
-    if 'singleDay' in filter_case and 'rollingMean' in filter_case:
-        df_filtered = df_filtered.groupby(['Date'], as_index=False).apply(filter_day_alone)#.reset_index(level=0,drop=True)
-    elif 'singleDay' in filter_case:
+    if "singleDay" in filter_case and "rollingMean" in filter_case:
+        df_filtered = df_filtered.groupby(["Date"], as_index=False).apply(
+            filter_day_alone
+        )  # .reset_index(level=0,drop=True)
+    elif "singleDay" in filter_case:
         print(
-            'Error: Single day filter step could not be performed, rolling mean step is needed in addition! Filtering is canceled!')
+            "Error: Single day filter step could not be performed, rolling mean step is needed in addition! Filtering is canceled!"
+        )
         return df_filtered
 
     return df_filtered
 
 
 ################## Air Mass Correction
+
 
 def func(x, a, b, c):
     """
@@ -324,7 +361,6 @@ def func(x, a, b, c):
     on: September 2020
     last modified: 20.10.2020
     """
-
 
     return a * np.abs(x) ** 3 + b * np.abs(x) + c
 
@@ -349,29 +385,31 @@ def correct(df_original, calculation=True):
     df = df_original.copy()
 
     # value shift to get not in trouble with devision thru zero
-    df['xch4_ppm_sub_mean'] = df['xch4_ppm_sub_mean'] + 1
+    df["xch4_ppm_sub_mean"] = df["xch4_ppm_sub_mean"] + 1
 
     # curve fitting -calculate values from big dataset
     if calculation:
-        params, params_covariance = curve_fit(func, df['elevation_angle'], df['xch4_ppm_sub_mean'])
+        params, params_covariance = curve_fit(
+            func, df["elevation_angle"], df["xch4_ppm_sub_mean"]
+        )
     else:
         # saved values when using small dataset
-        params = [-5.39*(10**-10), 9.09*(10**-5), 9.97*(10**-1)]
+        params = [-5.39 * (10 ** -10), 9.09 * (10 ** -5), 9.97 * (10 ** -1)]
 
     # correction
-    x = df['elevation_angle'].values
+    x = df["elevation_angle"].values
     y_pred = func(x, params[0], params[1], params[2])
-    y_real = df['xch4_ppm_sub_mean'].values
-    df['xch4_ppm_sub_mean_corr'] = y_real / y_pred - 1
+    y_real = df["xch4_ppm_sub_mean"].values
+    df["xch4_ppm_sub_mean_corr"] = y_real / y_pred - 1
 
     # undo changes
-    df['xch4_ppm_sub_mean'] = df['xch4_ppm_sub_mean'] - 1
+    df["xch4_ppm_sub_mean"] = df["xch4_ppm_sub_mean"] - 1
 
     # correction of absolute measuremts
-    df['mean'] = df['xch4_ppm'] - df['xch4_ppm_sub_mean']
-    df['xch4_ppm'] = df['mean'] + df['xch4_ppm_sub_mean_corr']
+    df["mean"] = df["xch4_ppm"] - df["xch4_ppm_sub_mean"]
+    df["xch4_ppm"] = df["mean"] + df["xch4_ppm_sub_mean_corr"]
 
-    return df.drop(['mean','xch4_ppm_sub_mean_corr'], axis=1)
+    return df.drop(["mean", "xch4_ppm_sub_mean_corr"], axis=1)
 
 
 def airmass_corr(df, **kwargs):
@@ -392,26 +430,27 @@ def airmass_corr(df, **kwargs):
     on: September 2020
     last modified: 20.10.2020
     """
-    calculate = kwargs.get('clc', True)
-    big_dataSet = kwargs.get('big_dataSet', True)
+    calculate = kwargs.get("clc", True)
+    big_dataSet = kwargs.get("big_dataSet", True)
 
     if calculate:
-        #if big_dataSet:
-            # split dataset if whole dataset is used
-            #df_corr = correct(df.loc[:20190801], True)
-            #df_corr = df_corr.append(correct(df.loc[20190801:], True)).sort_index()
-        #else:
-            # use defined parameter if just a small dataset is used
+        # if big_dataSet:
+        # split dataset if whole dataset is used
+        # df_corr = correct(df.loc[:20190801], True)
+        # df_corr = df_corr.append(correct(df.loc[20190801:], True)).sort_index()
+        # else:
+        # use defined parameter if just a small dataset is used
         #    df_corr = correct(df, False)
         df_corr = correct(df, False)
     else:
         df_corr = df.copy()
         parameter = [-7.05 * (10 ** (-9)), 5.34 * (10 ** (-6)), 1.00059]
-        x = df_corr['asza_deg'].values
+        x = df_corr["asza_deg"].values
         corr = func(x, parameter[0], parameter[1], parameter[2])
-        df_corr['xch4_ppm_corr'] = df_corr['xch4_ppm'] / corr
-        df_corr['xch4_ppm'] = df_corr['xch4_ppm_corr'] - (
-                    df_corr['xch4_ppm'] - df_corr['xch4_ppm_sub_mean'])
-        df_corr = df_corr.drop(['xch4_ppm_corr'], axis=1)
+        df_corr["xch4_ppm_corr"] = df_corr["xch4_ppm"] / corr
+        df_corr["xch4_ppm"] = df_corr["xch4_ppm_corr"] - (
+            df_corr["xch4_ppm"] - df_corr["xch4_ppm_sub_mean"]
+        )
+        df_corr = df_corr.drop(["xch4_ppm_corr"], axis=1)
 
     return df_corr

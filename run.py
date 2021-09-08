@@ -20,11 +20,11 @@ def clear_upload_data():
 
 
 def run(dates):
-    clear_upload_data()
+    # clear_upload_data()
     for date in track(dates, description="Extract data from db"):
         script_1_extract_data_from_db.run(date)
-    script_2_generate_plot_json.run(minify=True)
-    script_3_upload_to_cms.run()
+    # script_2_generate_plot_json.run(minify=True)
+    # script_3_upload_to_cms.run()
 
 
 if __name__ == "__main__":
@@ -33,7 +33,6 @@ if __name__ == "__main__":
         dates += [
             f"2021{str(month).zfill(2)}{str(day).zfill(2)}" for day in range(1, 32)
         ]
-
     run(dates)
 
     # script_1_extract_data_from_db.run("20210812")
