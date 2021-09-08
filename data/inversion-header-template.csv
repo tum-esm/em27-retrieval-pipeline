@@ -13,19 +13,19 @@
 ## 	flag:				 %SETTING_flag%
 ## 	background_filtered:		False
 ## CALIBRATION FACTORS:
-## 	mb86_co2:	0.9999503246232404
-## 	mb86_ch4:	0.9999903376709874
-## 	mb86_co :	0.9929567726526196
-## 	mc15_co2:	0.9992226312831226
-## 	mc15_ch4:	0.9994687766068583
-## 	mc15_co :	0.970791248271184
-## 	md16_co2:	1.0003401592653485
-## 	md16_ch4:	1.000416060324245
-## 	md16_co :	0.9838493699928305
-## 	me17_co2:	1.0
-## 	me17_ch4:	1.0
-## 	me17_co :	1.0
-## 	ma61_co2:	1.0
-## 	ma61_ch4:	1.0
-## 	ma61_co :	1.0
+## 	mb86_co2:	%CALIBRATION_mb_co2%
+## 	mb86_ch4:	%CALIBRATION_mb_ch4%
+## 	mb86_co :	%CALIBRATION_mb_co%
+## 	mc15_co2:	%CALIBRATION_mc_co2%
+## 	mc15_ch4:	%CALIBRATION_mc_ch4%
+## 	mc15_co :	%CALIBRATION_mc_co%
+## 	md16_co2:	%CALIBRATION_md_co2%
+## 	md16_ch4:	%CALIBRATION_md_ch4%
+## 	md16_co :	%CALIBRATION_md_co%
+## 	me17_co2:	%CALIBRATION_me_co2%
+## 	me17_ch4:	%CALIBRATION_me_ch4%
+## 	me17_co :	%CALIBRATION_me_co%
+## 	ma61_co2:	%CALIBRATION_ma_co2%
+## 	ma61_ch4:	%CALIBRATION_ma_ch4%
+## 	ma61_co :	%CALIBRATION_ma_co%
 ###########################################

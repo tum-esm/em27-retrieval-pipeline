@@ -395,6 +395,25 @@ def run(date_string):
     if not df_all.empty:
         df_calibrated, df_cali = column_functions.hp.calibration(df_all, df_calibration)
 
+        df_cali = df_cali.replace([np.inf], 21000101).replace(["me17"], "me")
+        df_cali["StartDate"] = df_cali["StartDate"].astype(int)
+        df_cali["EndDate"] = df_cali["EndDate"].astype(int)
+        df_cali = df_cali[df_cali["StartDate"].astype(str) <= date_string]
+        df_cali = df_cali[df_cali["EndDate"].astype(str) >= date_string]
+        df_cali = df_cali.sort_values(by="StartDate")
+
+        get_cal = lambda s: df_cali[df_cali["ID"].astype(str) == s].iloc[-1]
+
+        for gas in ["co2", "ch4", "co"]:
+            for station in ["ma", "mb", "mc", "md", "me"]:
+                try:
+                    cal = get_cal(station)[f"{gas}_calibrationFactor"]
+                except:
+                    cal = "NaN"
+                replacement_dict.update({f"CALIBRATION_{station}_{gas}": cal})
+
+        print(replacement_dict)
+
         xco, xco2, xch4 = filter_and_return(
             date_string, df_calibrated, df_location, filter=True
         )
