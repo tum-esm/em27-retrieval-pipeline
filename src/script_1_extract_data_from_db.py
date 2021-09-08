@@ -395,7 +395,13 @@ def run(date_string):
     if not df_all.empty:
         df_calibrated, df_cali = column_functions.hp.calibration(df_all, df_calibration)
 
-        df_cali = df_cali.replace([np.inf], 21000101).replace(["me17"], "me")
+        df_calibration["ID"] = df_calibration["ID_SpectrometerCalibration"].map(
+            lambda s: s[9:]
+        )
+
+        df_cali = df_calibration.replace([np.inf, np.nan], 21000101).replace(
+            ["me17"], "me"
+        )
         df_cali["StartDate"] = df_cali["StartDate"].astype(int)
         df_cali["EndDate"] = df_cali["EndDate"].astype(int)
         df_cali = df_cali[df_cali["StartDate"].astype(str) <= date_string]
@@ -410,6 +416,7 @@ def run(date_string):
                     cal = get_cal(station)[f"{gas}_calibrationFactor"]
                 except:
                     cal = "NaN"
+                    count += 1
                 replacement_dict.update({f"CALIBRATION_{station}_{gas}": cal})
 
         xco, xco2, xch4 = filter_and_return(
