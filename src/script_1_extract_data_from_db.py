@@ -412,8 +412,6 @@ def run(date_string):
                     cal = "NaN"
                 replacement_dict.update({f"CALIBRATION_{station}_{gas}": cal})
 
-        print(replacement_dict)
-
         xco, xco2, xch4 = filter_and_return(
             date_string, df_calibrated, df_location, filter=True
         )
