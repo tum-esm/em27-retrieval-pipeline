@@ -164,7 +164,7 @@ def filter_and_return(date_string, df_calibrated, df_location, filter=True):
                 clu_str=cluster_start,
                 clu_end=cluster_end,
                 clu_win=cluster_window,
-                case=["outlier", "rollingMean", "continuous", "interval"],
+                case=["outlier", "rollingMean"],  # , "continuous", "interval"],
             )
         else:
             df_filteredPlus = df_filtered_droped.drop(columns=["ID_Location"])
