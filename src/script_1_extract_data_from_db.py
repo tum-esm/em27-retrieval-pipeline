@@ -65,20 +65,31 @@ replacement_dict = {
 }
 
 
-def read_database(date_string):
+def read_database(date_string, remove_calibration_data=True):
     db_connection = mysql.connector.connect(**config["mysql"])
     read = lambda sql_string: pd.read_sql(sql_string, con=db_connection)
 
-    df_all = read(
-        f"""
-        SELECT *
-        FROM measuredValues
-        WHERE (Date = {date_string}) AND
-        (ID_Location in ('GEO', 'ROS', 'JOR', 'HAW')) AND
-        ((ID_Location != 'GEO') OR (ID_Spectrometer = 'me17'))
-        ORDER BY Hour
-        """
-    )
+    if remove_calibration_data:
+        df_all = read(
+            f"""
+            SELECT *
+            FROM measuredValues
+            WHERE (Date = {date_string}) AND
+            (ID_Location in ('GEO', 'ROS', 'JOR', 'HAW')) AND
+            ((ID_Location != 'GEO') OR (ID_Spectrometer = 'me17'))
+            ORDER BY Hour
+            """
+        )
+    else:
+        df_all = read(
+            f"""
+            SELECT *
+            FROM measuredValues
+            WHERE (Date = {date_string}) AND
+            (ID_Location in ('GEO', 'ROS', 'JOR', 'HAW'))
+            ORDER BY Hour
+            """
+        )
     # df_all.loc[df_all.Date <= 20170410, "xco_ppb"] = 0
     df_calibration = read("SELECT * FROM spectrometerCalibrationFactor")
     df_location = read("SELECT * FROM location")
@@ -103,9 +114,11 @@ def Time_Stamp(df):
     return df.sort_values(by=["ID_Spectrometer", "TimeStamp"]).reset_index(drop=True)
 
 
-def filter_and_return(date_string, df_calibrated, df_location, filter=True):
+def filter_and_return(date_string, df_calibrated, df_location, case):
+    assert case in ["website-raw", "website-filtered", "inversion-filtered"]
+
     ## Physical Filter ----------------------
-    if filter:
+    if case in ["website-filtered", "inversion-filtered"]:
         df_filtered = (
             df_calibrated.groupby(["Date", "ID_Spectrometer"])
             .apply(
@@ -154,7 +167,9 @@ def filter_and_return(date_string, df_calibrated, df_location, filter=True):
             raise Exception
 
         ## Filter based on data statistics ----------------
-        if filter and not df_filtered_droped.empty:
+        if (case in ["website-filtered", "inversion-filtered"]) and (
+            not df_filtered_droped.empty
+        ):
             df_filteredPlus = column_functions.filter_DataStat(
                 df_filtered_droped,
                 gas=gas,
@@ -234,43 +249,43 @@ def filter_and_return(date_string, df_calibrated, df_location, filter=True):
             )
 
         # Website (raw + filtered)
+        if case in ["website-raw", "website-filtered"]:
+            df_corrected_website = (
+                df_corrected_website.reset_index()
+                .set_index(["ID_Location"])
+                .join(df_location.set_index(["ID_Location"])[["Direction"]])
+                .reset_index()
+            )
+            columns_to_drop = ["Date", "ID_Location", "Direction"]
+            if (case == "website-filtered") and (not df_corrected_website.empty):
+                columns_to_drop += ["year", "month", "flag"]
+                df_corrected_website.reset_index()
+                df_corrected_website["Hour"] = df_corrected_website["Hour"].round(3)
+            df_corrected_website.rename(
+                columns={
+                    "Hour": "hour",
+                    "ID_Spectrometer": "sensor",
+                    "xco2_ppm": "x",
+                    "xch4_ppm": "x",
+                },
+                inplace=True,
+            )
+            df_corrected_website = (
+                df_corrected_website.drop(columns=columns_to_drop)
+                .set_index(["hour"])
+                .sort_index()
+            )
 
-        df_corrected_website = (
-            df_corrected_website.reset_index()
-            .set_index(["ID_Location"])
-            .join(df_location.set_index(["ID_Location"])[["Direction"]])
-            .reset_index()
-        )
-        columns_to_drop = ["Date", "ID_Spectrometer", "Direction"]
-        if filter and not df_corrected_website.empty:
-            columns_to_drop += ["year", "month", "flag"]
-            df_corrected_website.reset_index()
-            df_corrected_website["Hour"] = df_corrected_website["Hour"].round(3)
-        df_corrected_website.rename(
-            columns={
-                "Hour": "hour",
-                "ID_Location": "location",
-                "xco2_ppm": "x",
-                "xch4_ppm": "x",
-            },
-            inplace=True,
-        )
-        df_corrected_website = (
-            df_corrected_website.drop(columns=columns_to_drop)
-            .set_index(["hour"])
-            .sort_index()
-        )
-
-        if gas == "xco2":
-            xco2 = df_corrected_website
-        elif gas == "xch4":
-            xch4 = df_corrected_website
-        elif gas == "xco":
-            xco = df_corrected_website
+            if gas == "xco2":
+                xco2 = df_corrected_website
+            elif gas == "xch4":
+                xch4 = df_corrected_website
+            elif gas == "xco":
+                xco = df_corrected_website
 
         # Inversion (only filtered)
 
-        if filter:
+        if case == "inversion-filtered":
             df_corrected_inversion = (
                 df_corrected_inversion.reset_index()
                 .set_index(["ID_Location"])
@@ -314,7 +329,7 @@ def filter_and_return(date_string, df_calibrated, df_location, filter=True):
             elif gas == "xch4":
                 inversion_xch4 = df_corrected_inversion
 
-    if filter:
+    if case == "inversion-filtered":
 
         inversion_hours = unique(
             list(inversion_xco2["Hour"]) + list(inversion_xch4["Hour"])
@@ -376,8 +391,8 @@ def filter_and_return(date_string, df_calibrated, df_location, filter=True):
             for l in file_lines:
                 f.write(l)
 
-    return xco, xco2, xch4
-
+    else:
+        return xco, xco2, xch4
     # maybe edn function here and give 3 dataframes as output
 
     # new functions for saving or uploading into DB after transforming it to json
@@ -389,49 +404,66 @@ def filter_and_return(date_string, df_calibrated, df_location, filter=True):
 
 
 def run(date_string):
-    # Read in Dataframe
-    df_all, df_calibration, df_location, df_spectrometer = read_database(date_string)
 
-    if not df_all.empty:
-        df_calibrated, df_cali = column_functions.hp.calibration(df_all, df_calibration)
+    data_exists = False
 
-        df_calibration["ID"] = df_calibration["ID_SpectrometerCalibration"].map(
-            lambda s: s[9:]
+    for case in ["website-raw", "website-filtered", "inversion-filtered"]:
+        print(f"case = '{case}'")
+        df_all, df_calibration, df_location, df_spectrometer = read_database(
+            date_string, remove_calibration_data=(case == "inversion-filtered")
         )
 
-        df_cali = df_calibration.replace([np.inf, np.nan], 21000101).replace(
-            ["me17"], "me"
-        )
-        df_cali["StartDate"] = df_cali["StartDate"].astype(int)
-        df_cali["EndDate"] = df_cali["EndDate"].astype(int)
-        df_cali = df_cali[df_cali["StartDate"].astype(str) <= date_string]
-        df_cali = df_cali[df_cali["EndDate"].astype(str) >= date_string]
-        df_cali = df_cali.sort_values(by="StartDate")
+        if not df_all.empty:
+            df_calibrated, df_cali = column_functions.hp.calibration(
+                df_all, df_calibration
+            )
 
-        get_cal = lambda s: df_cali[df_cali["ID"].astype(str) == s].iloc[-1]
+            df_calibration["ID"] = df_calibration["ID_SpectrometerCalibration"].map(
+                lambda s: s[9:]
+            )
 
-        for gas in ["co2", "ch4", "co"]:
-            for station in ["ma", "mb", "mc", "md", "me"]:
-                try:
-                    cal = get_cal(station)[f"{gas}_calibrationFactor"]
-                except:
-                    cal = "NaN"
-                    count += 1
-                replacement_dict.update({f"CALIBRATION_{station}_{gas}": cal})
+            df_cali = df_calibration.replace([np.inf, np.nan], 21000101).replace(
+                ["me17"], "me"
+            )
+            df_cali["StartDate"] = df_cali["StartDate"].astype(int)
+            df_cali["EndDate"] = df_cali["EndDate"].astype(int)
+            df_cali = df_cali[df_cali["StartDate"].astype(str) <= date_string]
+            df_cali = df_cali[df_cali["EndDate"].astype(str) >= date_string]
+            df_cali = df_cali.sort_values(by="StartDate")
 
-        xco, xco2, xch4 = filter_and_return(
-            date_string, df_calibrated, df_location, filter=True
-        )
-        xco2.round(5).to_csv(f"{project_dir}/data/csv-in/{date_string}_co2.csv")
-        xch4.round(5).to_csv(f"{project_dir}/data/csv-in/{date_string}_ch4.csv")
+            get_cal = lambda s: df_cali[df_cali["ID"].astype(str) == s].iloc[-1]
 
-        xco, xco2, xch4 = filter_and_return(
-            date_string, df_calibrated, df_location, filter=False
-        )
-        xco2.round(5).to_csv(f"{project_dir}/data/csv-in/{date_string}_co2_raw.csv")
-        xch4.round(5).to_csv(f"{project_dir}/data/csv-in/{date_string}_ch4_raw.csv")
-        return True
+            for gas in ["co2", "ch4", "co"]:
+                for station in ["ma", "mb", "mc", "md", "me"]:
+                    try:
+                        cal = get_cal(station)[f"{gas}_calibrationFactor"]
+                    except:
+                        cal = "NaN"
+                        count += 1
+                    replacement_dict.update({f"CALIBRATION_{station}_{gas}": cal})
+            if case == "inversion-filtered":
+                filter_and_return(date_string, df_calibrated, df_location, case)
+            else:
+                xco, xco2, xch4 = filter_and_return(
+                    date_string, df_calibrated, df_location, case
+                )
+                if case == "website-filtered":
+                    xco2.round(5).to_csv(
+                        f"{project_dir}/data/csv-in/{date_string}_co2.csv"
+                    )
+                    xch4.round(5).to_csv(
+                        f"{project_dir}/data/csv-in/{date_string}_ch4.csv"
+                    )
+                if case == "website-raw":
+                    xco2.round(5).to_csv(
+                        f"{project_dir}/data/csv-in/{date_string}_co2_raw.csv"
+                    )
+                    xch4.round(5).to_csv(
+                        f"{project_dir}/data/csv-in/{date_string}_ch4_raw.csv"
+                    )
+                data_exists = True
 
-    else:
+    if not data_exists:
         print("No new Data to Fetch yet")
-        return False
+
+    return data_exists
