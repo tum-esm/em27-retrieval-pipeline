@@ -10,7 +10,7 @@ project_dir = "/".join(__file__.split("/")[:-1])
 
 
 def clear_upload_data():
-    for subdir in ["csv-in", "json-out"]:
+    for subdir in ["csv-in", "json-out", "csv-out-for-inversion"]:
         d = f"{project_dir}/data/{subdir}"
         filelist = [
             f for f in os.listdir(d) if f.endswith(".json") or f.endswith(".csv")
@@ -29,7 +29,7 @@ def run(dates):
 
 if __name__ == "__main__":
     dates = []
-    for month in range(9, 10):
+    for month in range(7, 10):
         dates += [
             f"2021{str(month).zfill(2)}{str(day).zfill(2)}" for day in range(1, 32)
         ]

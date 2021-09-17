@@ -11,8 +11,8 @@ data_dir = f"{project_dir}/data"
 
 with open(f"{project_dir}/config.json") as f:
     config = json.load(f)
-    assert type(config["locations"]) == list
-    assert all(type(l) == str for l in config["locations"])
+    assert type(config["sensors"]) == list
+    assert all(type(l) == str for l in config["sensors"])
     assert type(config["gases"]) == list
     assert all(type(g) == str for g in config["gases"])
 
@@ -59,11 +59,11 @@ def run(minify=True):
                 }
             )
 
-        for location in config["locations"]:
+        for sensor in config["sensors"]:
             for gas in filtered_dfs:
                 timeseries_df = (
                     filtered_dfs[gas]
-                    .loc[(filtered_dfs[gas]["location"] == location)]
+                    .loc[(filtered_dfs[gas]["sensor"] == sensor)]
                     .set_index("hour")
                     .sort_index()
                     .reset_index()
@@ -72,7 +72,7 @@ def run(minify=True):
                     day_plot_data["timeseries"].append(
                         {
                             "gas": gas,
-                            "location": location,
+                            "sensor": sensor,
                             "count": timeseries_df.shape[0],
                             "data": {
                                 "xs": list(timeseries_df["hour"]),
@@ -86,7 +86,7 @@ def run(minify=True):
             for gas in raw_dfs:
                 timeseries_df = (
                     raw_dfs[gas]
-                    .loc[(raw_dfs[gas]["location"] == location)]
+                    .loc[(raw_dfs[gas]["sensor"] == sensor)]
                     .set_index("hour")
                     .sort_index()
                     .reset_index()
@@ -95,7 +95,7 @@ def run(minify=True):
                     day_plot_data["rawTimeseries"].append(
                         {
                             "gas": gas,
-                            "location": location,
+                            "sensor": sensor,
                             "count": timeseries_df.shape[0],
                             "data": {
                                 "xs": list(timeseries_df["hour"]),
@@ -106,7 +106,7 @@ def run(minify=True):
                     if not flags_added:
                         day_plot_data["flagTimeseries"].append(
                             {
-                                "location": location,
+                                "sensor": sensor,
                                 "count": timeseries_df.shape[0],
                                 "data": {
                                     "xs": list(timeseries_df["hour"]),

@@ -408,7 +408,6 @@ def run(date_string):
     data_exists = False
 
     for case in ["website-raw", "website-filtered", "inversion-filtered"]:
-        print(f"case = '{case}'")
         df_all, df_calibration, df_location, df_spectrometer = read_database(
             date_string, remove_calibration_data=(case == "inversion-filtered")
         )
@@ -462,8 +461,5 @@ def run(date_string):
                         f"{project_dir}/data/csv-in/{date_string}_ch4_raw.csv"
                     )
                 data_exists = True
-
-    if not data_exists:
-        print("No new Data to Fetch yet")
 
     return data_exists
