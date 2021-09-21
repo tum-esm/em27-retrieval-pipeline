@@ -122,5 +122,4 @@ def run(minify=True):
             )
             if minify:
                 json_string = json_string.replace(" ", "").replace("\n", "")
-                print(len(json_string))
             f.write(json_string)
