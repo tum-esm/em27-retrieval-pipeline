@@ -1,0 +1,22 @@
+{
+    "mysql": {
+        "host": "*.*.*.*",
+        "user": "*",
+        "passwd": "*",
+        "database": "*"
+    },
+    "startDate": "20210727",
+    "endDate": "21001231",
+    "sensors": ["*", "*"],
+    "gases": ["co2", "ch4"],
+    "strapi": {
+        "identifier": "*",
+        "password": "*",
+        "url": "*"
+    },
+    "inversionCSV": {
+        "authorNames": "*",
+        "contactEmails": "*",
+        "codeRepository": "https://github.com/tum-esm/filter-retrieval-data-v2"
+    }
+}
