@@ -2,7 +2,7 @@
 
 ## What is it?
 
-This tool can be used to download map-files from `ccycle.gps.caltech.edu`. These map files contain the vertical distribution of pressure, temperature and many other meteorological parameters for a certain location. Here are the first few rows for a sample map-file:
+This tool can be used to download map-files from `ccycle.gps.caltech.edu`. These map files contain the vertical distribution of pressure, temperature and many other meteorological parameters for a certain location and date. Here are the first few rows for a sample map-file:
 
 ```
  11 12
@@ -33,7 +33,7 @@ Dependency management with poetry: https://python-poetry.org/docs/#installation
 Set up project interpreter:
 
 ```bash
-# Create virtual environment (a local copy of python)
+# Create virtual python environment
 python3.9 -m venv .venv
 
 # Activate virtual environment
@@ -58,4 +58,4 @@ python3.9 run.py
 
 <br/>
 
-**Request will be cached** in the `cache/` directory. Please do not remove or empty this directory.
+**Responses from Caltech will be cached** in the `cache/` directory. Please do not remove or empty this directory.
