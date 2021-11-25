@@ -30,7 +30,7 @@ This tool can be used to download map-files from `ccycle.gps.caltech.edu`. These
 
 Dependency management with poetry: https://python-poetry.org/docs/#installation
 
-Set up project interpreter:
+Set up the project interpreter:
 
 ```bash
 # Create virtual python environment
