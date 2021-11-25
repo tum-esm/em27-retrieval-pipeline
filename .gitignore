@@ -1,0 +1,7 @@
+*.map
+.venv
+input_file.txt
+.vscode
+config.json
+.DS_Store
+archive
