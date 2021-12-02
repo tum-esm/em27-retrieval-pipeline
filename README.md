@@ -1,4 +1,8 @@
 
+**IMPORTANT:** In the future this repository will be renamed to **"extract-retrieval-data"**
+
+<br/>
+
 # Filter Retrieval Data v2
 
 Full documentation coming soon! Until then, ask Moritz Makowski (moritz.makowski@tum.de).
