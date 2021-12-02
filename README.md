@@ -1,11 +1,13 @@
 
-# Retrieval Plots v2 - Python Script for Generating and Uploading Data
+# Filter Retrieval Data v2
 
 Full documentation coming soon! Until then, ask Moritz Makowski (moritz.makowski@tum.de).
 
 ## What is it?
 
-The repository contains all the code for extracting measurement data from our SQL database. It combines functionality from https://gitlab.lrz.de/esm/em27-plot-data-upload and https://gitlab.lrz.de/esm/columnmeasurementautomation. However, the automation repo also includes the triggering of gfit and loading stuff into the database. These two processes (loading into database and extracting from database) should be separated in the long run. This repo implements the second process (extraction).
+The repository contains all the code for extracting measurement data from our SQL database. It combines functionality from https://gitlab.lrz.de/esm/em27-plot-data-upload and https://gitlab.lrz.de/esm/columnmeasurementautomation. However, the `columnmeasurementautomation`-repo also includes the triggering of gfit and loading stuff into the database.
+
+**These two processes (1. loading into database, 2. extracting from database) should be separated in the long run!** This repo implements the second process (extraction).
 
 <br/>
 <br/>
