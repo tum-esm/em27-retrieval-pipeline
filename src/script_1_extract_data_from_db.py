@@ -11,6 +11,7 @@ from .helpers.utils import unique, hour_to_timestring, get_commit_sha
 
 # load config
 PROJECT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+CSV_OUT_DIR = f"{PROJECT_DIR}/data/csv-out"
 with open(f"{PROJECT_DIR}/config.json") as f:
     config = json.load(f)
     # TODO: validate config format
@@ -53,7 +54,32 @@ def apply_statistical_filters(df, gas, column):
     )
 
 
-replacement_dict = {
+def save_to_csv(dataframe, date_string, replacement_dict):
+    def replace_from_dict(text):
+        for key in replacement_dict:
+            text = text.replace(f"%{key}%", str(replacement_dict[key]))
+        return text
+
+    # INVERSION_CSV_FILENAME = f"{CSV_OUT_DIR}/{date_string}.csv"
+    # dataframe.to_csv(INVERSION_CSV_FILENAME)
+    #
+    # with open(f"{PROJECT_DIR}/data/inversion-header-template.csv", "r") as f:
+    #     file_lines = list(map(replace_from_dict, f.readlines()))
+    #
+    # with open(INVERSION_CSV_FILENAME, "r") as f:
+    #     file_lines += f.readlines()
+    #
+    # with open(INVERSION_CSV_FILENAME, "w") as f:
+    #     for l in file_lines:
+    #         f.write(l)
+
+    with open(f"{PROJECT_DIR}/data/csv-header-template.csv", "r") as template_file:
+        with open(f"{CSV_OUT_DIR}/{date_string}.csv", "w") as out_file:
+            out_file.writelines(list(map(replace_from_dict, template_file.readlines())))
+            dataframe.to_csv(out_file)
+
+
+REPLACEMENT_DICT = {
     "AUTHOR_NAMES": map(lambda a: a["name"], config["meta"]["authors"]),
     "CONTACT_EMAILS": map(lambda a: a["email"], config["meta"]["authors"]),
     "GENERATION_DATE": str(datetime.datetime.now()) + " UTC",
@@ -353,32 +379,14 @@ def filter_and_return(date_string, df_calibrated, df_location, case):
                     right_on="Hour",
                 )
 
-        # TODO: Move filename for out-file into variable
-        # TODO: Extract svg save into helper function
-        merged_df.fillna("NaN").reset_index().rename(
-            columns={"Hour": "year_day_hour"}
-        ).set_index(["year_day_hour"]).to_csv(
-            f"{PROJECT_DIR}/data/csv-out-for-inversion/HAM{date_string}.csv"
+        save_to_csv(
+            merged_df.fillna("NaN")
+            .reset_index()
+            .rename(columns={"Hour": "year_day_hour"})
+            .set_index(["year_day_hour"]),
+            date_string,
+            REPLACEMENT_DICT,
         )
-
-        def replace_from_dict(text):
-            for key in replacement_dict:
-                text = text.replace(f"%{key}%", str(replacement_dict[key]))
-            return text
-
-        with open(f"{PROJECT_DIR}/data/inversion-header-template.csv", "r") as f:
-            file_lines = list(map(replace_from_dict, f.readlines()))
-
-        with open(
-            f"{PROJECT_DIR}/data/csv-out-for-inversion/HAM{date_string}.csv", "r"
-        ) as f:
-            file_lines += f.readlines()
-
-        with open(
-            f"{PROJECT_DIR}/data/csv-out-for-inversion/HAM{date_string}.csv", "w"
-        ) as f:
-            for l in file_lines:
-                f.write(l)
 
     else:
         return xco, xco2, xch4
@@ -427,8 +435,10 @@ def run(date_string):
                         cal = get_cal(station)[f"{gas}_calibrationFactor"]
                     except:
                         cal = "NaN"
-                    replacement_dict.update({f"CALIBRATION_{station}_{gas}": cal})
+                    REPLACEMENT_DICT.update({f"CALIBRATION_{station}_{gas}": cal})
+
             if case == "inversion-filtered":
+                # TODO: move csv save to this function
                 filter_and_return(date_string, df_calibrated, df_location, case)
             else:
                 # TODO: extract return into dict datastructure

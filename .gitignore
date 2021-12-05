@@ -6,8 +6,8 @@ config.json
 automation.log
 data/**/*.csv
 data/**/*.json
-!data/inversion-header-template.csv
-!data/inversion-header-example.csv
+!data/csv-header-template.csv
+!data/csv-header-example.csv
 .venv
 !data/test-data/*.csv
 .DS_Store
