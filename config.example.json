@@ -1,22 +1,29 @@
 {
-    "mysql": {
-        "host": "*.*.*.*",
-        "user": "*",
-        "passwd": "*",
-        "database": "*"
+    "authentication": {
+        "mysql": {
+            "host": "*.*.*.*",
+            "user": "*",
+            "passwd": "*",
+            "database": "*"
+        },
+        "strapi": {
+            "identifier": "*",
+            "password": "*",
+            "url": "*"
+        }
     },
-    "startDate": "20210727",
-    "endDate": "21001231",
-    "sensors": ["*", "*"],
-    "gases": ["co2", "ch4"],
-    "strapi": {
-        "identifier": "*",
-        "password": "*",
-        "url": "*"
+    "input": {
+        "startDate": "20210727",
+        "endDate": "21001231",
+        "sensors": ["*", "*"],
+        "gases": ["co2", "ch4"]
     },
-    "inversionCSV": {
-        "authorNames": "*",
-        "contactEmails": "*",
+    "output": {
+        "exportToCSV": true,
+        "exportToWebsite": false
+    },
+    "meta": {
+        "authors": [{ "name": "*", "email": "*" }],
         "codeRepository": "https://github.com/tum-esm/filter-retrieval-data-v2"
     }
 }
