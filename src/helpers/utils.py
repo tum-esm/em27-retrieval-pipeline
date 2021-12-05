@@ -3,6 +3,7 @@ import os
 import json
 import math
 from datetime import datetime, timezone
+import subprocess
 
 
 def unique(xs):
@@ -48,3 +49,15 @@ def hour_to_ts(day_ts, hour):
 
 def concat(xss):
     return list(functools.reduce(lambda a, b: a + b, xss, []))
+
+
+def get_commit_sha():
+    commit_sha_process = subprocess.Popen(
+        ["git", "rev-parse", "--verify", "HEAD"],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+    )
+    stdout, stderr = commit_sha_process.communicate()
+    commit_sha = stdout.decode().replace("\n", "").replace(" ", "")
+    assert len(commit_sha) > 0
+    return commit_sha

@@ -5,9 +5,8 @@ import json
 import datetime
 import sys
 import os
-import subprocess
 from src import column_functions
-from .helpers.utils import unique, hour_to_timestring
+from .helpers.utils import unique, hour_to_timestring, get_commit_sha
 
 
 # load config
@@ -54,22 +53,12 @@ def apply_statistical_filters(df, gas, column):
     )
 
 
-# TODO: Move get_commit_sha function to helpers
-commit_sha_process = subprocess.Popen(
-    ["git", "rev-parse", "--verify", "HEAD"],
-    stdout=subprocess.PIPE,
-    stderr=subprocess.STDOUT,
-)
-stdout, stderr = commit_sha_process.communicate()
-COMMIT_SHA = stdout.decode().replace("\n", "").replace(" ", "")
-assert len(COMMIT_SHA) > 0
-
 replacement_dict = {
     "AUTHOR_NAMES": map(lambda a: a["name"], config["meta"]["authors"]),
     "CONTACT_EMAILS": map(lambda a: a["email"], config["meta"]["authors"]),
     "GENERATION_DATE": str(datetime.datetime.now()) + " UTC",
     "CODE_REPOSITORY": config["meta"]["codeRepository"],
-    "COMMIT_SHA": COMMIT_SHA,
+    "COMMIT_SHA": get_commit_sha(),
     "SETTING_fvsi_thold": fvsi_thold,
     "SETTING_sia_thold": sia_thold,
     "SETTING_sza_thold": sza_thold,
