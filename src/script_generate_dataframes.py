@@ -119,7 +119,7 @@ def read_from_database(date_string, remove_calibration_data=True):
     return df_all, df_calibration, df_location, df_spectrometer
 
 
-def filter_dataframes(df_calibrated, case):
+def filter_dataframes(df_calibrated):
     output_dataframes = {
         "raw": {"xco2": None, "xch4": None, "xco": None},
         "filtered": {"xco2": None, "xch4": None, "xco": None},
@@ -451,15 +451,28 @@ def filter_and_return(date_string, df_calibrated, df_location, case):
 
 
 def run(date_string):
+    output_dataframes = {
+        "withCalibrationDays": {
+            "raw": {"xco2": None, "xch4": None, "xco": None},
+            "filtered": {"xco2": None, "xch4": None, "xco": None},
+        },
+        "withoutCalibrationDays": {
+            "raw": {"xco2": None, "xch4": None, "xco": None},
+            "filtered": {"xco2": None, "xch4": None, "xco": None},
+        },
+    }
 
     data_exists = False
 
-    for case in ["website-raw", "website-filtered", "csv-filtered"]:
+    for calibrationCase in output_dataframes.keys():
         df_all, df_calibration, df_location, df_spectrometer = read_from_database(
-            date_string, remove_calibration_data=(case == "inversion-filtered")
+            date_string,
+            remove_calibration_data=(calibrationCase == "withoutCalibrationDays"),
         )
 
         if not df_all.empty:
+            data_exists = True
+
             df_calibrated, df_cali = column_functions.hp.calibration(
                 df_all, df_calibration
             )
@@ -487,28 +500,6 @@ def run(date_string):
                         cal = "NaN"
                     REPLACEMENT_DICT.update({f"CALIBRATION_{station}_{gas}": cal})
 
-            if case == "inversion-filtered":
-                # TODO: move csv save to this function
-                filter_and_return(date_string, df_calibrated, df_location, case)
-            else:
-                # TODO: extract return into dict datastructure
-                xco, xco2, xch4 = filter_and_return(
-                    date_string, df_calibrated, df_location, case
-                )
-                if case == "website-filtered":
-                    xco2.round(5).to_csv(
-                        f"{PROJECT_DIR}/data/csv-in/{date_string}_co2.csv"
-                    )
-                    xch4.round(5).to_csv(
-                        f"{PROJECT_DIR}/data/csv-in/{date_string}_ch4.csv"
-                    )
-                if case == "website-raw":
-                    xco2.round(5).to_csv(
-                        f"{PROJECT_DIR}/data/csv-in/{date_string}_co2_raw.csv"
-                    )
-                    xch4.round(5).to_csv(
-                        f"{PROJECT_DIR}/data/csv-in/{date_string}_ch4_raw.csv"
-                    )
-                data_exists = True
+            output_dataframes[calibrationCase] = filter_dataframes(df_calibrated)
 
     return data_exists
