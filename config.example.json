@@ -20,7 +20,8 @@
     },
     "filter": {
         "movingWindowSize": 10,
-        "outputStepSize": 2
+        "outputStepSize": 2,
+        "cases": ["outlier", "rollingMean", "continuous", "interval"]
     },
     "output": {
         "exportToCSV": true,
