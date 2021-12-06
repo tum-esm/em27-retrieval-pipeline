@@ -37,17 +37,6 @@ def as_csv(day_string, dataframes):
             .reset_index()
         )
 
-        ACTUAL_LOCATIONS = {}
-        for [location, sensor] in list(
-            (df_corrected_inversion[["ID_Location", "ID_Spectrometer"]])
-            .drop_duplicates()
-            .values.tolist()
-        ):
-            ACTUAL_LOCATIONS.update({sensor: location})
-        print(ACTUAL_LOCATIONS)
-
-        # TODO: Figure out station/sensor combination and add to replacement dict
-        # TODO: Mention station/sensor combination in CSV header
         # drop unused columns
         output_dfs[gas] = df_corrected_inversion.drop(
             columns=list(
@@ -121,9 +110,29 @@ def as_csv(day_string, dataframes):
                 right_on="Hour",
             )
 
+    ACTUAL_LOCATIONS = {}
+    for [location, sensor] in list(
+        (df_corrected_inversion[["ID_Location", "ID_Spectrometer"]])
+        .drop_duplicates()
+        .values.tolist()
+    ):
+        ACTUAL_LOCATIONS.update({sensor: location})
+
+    LOCATION_HEADER_ROWS = []
+    for sensor in [DEFAULT_SENSORS[l] for l in config["input"]["locations"]]:
+        if sensor in ACTUAL_LOCATIONS:
+            LOCATION_HEADER_ROWS.append(f"##    {sensor}: {ACTUAL_LOCATIONS[sensor]}")
+        else:
+            LOCATION_HEADER_ROWS.append(f"##    {sensor}: unknown (no data)")
+
     with open(f"{PROJECT_DIR}/data/csv-header-template.csv", "r") as template_file:
         with open(f"{PROJECT_DIR}/data/csv-out/{day_string}.csv", "w") as out_file:
-            fillParameters = replace_from_dict(dataframes["meta"]["replacementDict"])
+            fillParameters = replace_from_dict(
+                {
+                    **dataframes["meta"]["replacementDict"],
+                    "SENSOR_LOCATIONS": "\n".join(LOCATION_HEADER_ROWS),
+                }
+            )
             out_file.writelines(list(map(fillParameters, template_file.readlines())))
             merged_df.fillna("NaN").reset_index().rename(
                 columns={"Hour": "year_day_hour"}
