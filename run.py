@@ -51,9 +51,23 @@ def run(day_strings):
     for day_string in track(day_strings, description="Extracting and exporting data"):
         dataframes = generate_dataframes.run(day_string)
         if config["output"]["exportToCSV"]:
-            export_to_files.as_csv(day_string, dataframes["withoutCalibrationDays"])
+            export_to_files.as_csv(
+                day_string,
+                dataframes[
+                    "withCalibrationDays"
+                    if config["calibrationDays"]["exportToCSV"]
+                    else "withoutCalibrationDays"
+                ],
+            )
         if config["output"]["exportToJSON"]:
-            export_to_files.as_json(day_string, dataframes["withoutCalibrationDays"])
+            export_to_files.as_json(
+                day_string,
+                dataframes[
+                    "withCalibrationDays"
+                    if config["calibrationDays"]["exportToJSON"]
+                    else "withoutCalibrationDays"
+                ],
+            )
 
     if config["output"]["uploadToWebsite"]:
         for day_string in track(day_strings, description="Uploading data to website"):

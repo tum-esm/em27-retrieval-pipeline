@@ -1,6 +1,9 @@
 import json
 import pandas as pd
 import os
+import sys
+
+from src.helpers.constants import DEFAULT_SENSORS
 from .helpers.utils import concat, unique, hour_to_timestring, replace_from_dict
 
 
@@ -34,6 +37,15 @@ def as_csv(day_string, dataframes):
             .reset_index()
         )
 
+        ACTUAL_LOCATIONS = {}
+        for [location, sensor] in list(
+            (df_corrected_inversion[["ID_Location", "ID_Spectrometer"]])
+            .drop_duplicates()
+            .values.tolist()
+        ):
+            ACTUAL_LOCATIONS.update({sensor: location})
+        print(ACTUAL_LOCATIONS)
+
         # TODO: Figure out station/sensor combination and add to replacement dict
         # TODO: Mention station/sensor combination in CSV header
         # drop unused columns
@@ -42,7 +54,7 @@ def as_csv(day_string, dataframes):
                 filter(
                     lambda c: c in df_corrected_inversion.columns,
                     [
-                        "ID_Spectrometer",
+                        "ID_Location",
                         "Direction",
                         "xh2o_ppm",
                         "fvsi",
@@ -88,20 +100,19 @@ def as_csv(day_string, dataframes):
             lambda x: hour_to_timestring(day_string, x)
         )
 
-        # TODO: Use spectrometer as ID
-        for location in config["input"]["locations"]:
+        for spectrometer in [DEFAULT_SENSORS[l] for l in config["input"]["locations"]]:
             df = (
                 (
                     output_dfs[gas]
-                    .loc[(output_dfs[gas]["ID_Location"] == location)]
+                    .loc[(output_dfs[gas]["ID_Spectrometer"] == spectrometer)]
                     .rename(
                         columns={
-                            f"x{gas}_ppm": f"{location}_x{gas}_sc",
+                            f"x{gas}_ppm": f"{spectrometer}_x{gas}_sc",
                         }
                     )
                 )
                 .set_index("Hour")
-                .drop(columns=["ID_Location"])
+                .drop(columns=["ID_Spectrometer"])
             )
             merged_df = merged_df.merge(
                 df,
