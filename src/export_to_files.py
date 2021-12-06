@@ -22,7 +22,6 @@ def as_csv(day_string, dataframes):
     output_dfs = {}
 
     for gas in config["input"]["gases"]:
-        # TODO: what does this do?
         df_corrected_inversion = (
             dataframes["filtered"][gas]
             .reset_index()
@@ -41,7 +40,7 @@ def as_csv(day_string, dataframes):
                 filter(
                     lambda c: c in df_corrected_inversion.columns,
                     [
-                        "ID_Location",
+                        "ID_Spectrometer",
                         "Direction",
                         "xh2o_ppm",
                         "fvsi",
@@ -87,21 +86,19 @@ def as_csv(day_string, dataframes):
             lambda x: hour_to_timestring(day_string, x)
         )
 
-        # TODO: Use spectrometers from config.json
-        # TODO: Use locations instead of spectrometers
-        for spectrometer in ["mb86", "mc15", "md16", "me17"]:
+        for location in config["input"]["locations"]:
             df = (
                 (
                     output_dfs[gas]
-                    .loc[(output_dfs[gas]["ID_Spectrometer"] == spectrometer)]
+                    .loc[(output_dfs[gas]["ID_Location"] == location)]
                     .rename(
                         columns={
-                            f"x{gas}_ppm": f"{spectrometer[:2]}_x{gas}_sc",
+                            f"x{gas}_ppm": f"{location}_x{gas}_sc",
                         }
                     )
                 )
                 .set_index("Hour")
-                .drop(columns=["ID_Spectrometer"])
+                .drop(columns=["ID_Location"])
             )
             merged_df = merged_df.merge(
                 df,

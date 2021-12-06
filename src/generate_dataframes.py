@@ -176,7 +176,6 @@ def filter_dataframes(df_calibrated):
 
         for gas in ["co2", "ch4", "co"]:
             COLUMN = f"x{gas}_{UNITS[gas]}"
-            print(COLUMN)
             df_filtered_dropped = df_filtered.drop(
                 columns=[f"x{g}_{UNITS[g]}" for g in ["co2", "ch4", "co"] if g != gas]
             )
@@ -240,6 +239,7 @@ def filter_dataframes(df_calibrated):
     return output_dataframes
 
 
+"""
 def filter_and_return(date_string, df_calibrated, df_location, case):
 
     # TODO: split function!
@@ -477,6 +477,7 @@ def filter_and_return(date_string, df_calibrated, df_location, case):
     #   read in while csv maybe not to efficient
     #   Maybe later groupby date convert to json
     # =============================================================================
+"""
 
 
 def run(date_string):
