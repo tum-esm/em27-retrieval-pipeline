@@ -61,3 +61,9 @@ def get_commit_sha():
     commit_sha = stdout.decode().replace("\n", "").replace(" ", "")
     assert len(commit_sha) > 0
     return commit_sha
+
+
+def replace_from_dict(text, replacement_dict):
+    for key in replacement_dict:
+        text = text.replace(f"%{key}%", str(replacement_dict[key]))
+    return text

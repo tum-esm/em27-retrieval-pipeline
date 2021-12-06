@@ -6,7 +6,7 @@ import datetime
 import sys
 import os
 from src import column_functions
-from .helpers.utils import unique, hour_to_timestring, get_commit_sha
+from .helpers.utils import unique, hour_to_timestring, get_commit_sha, replace_from_dict
 
 
 # load config
@@ -60,24 +60,6 @@ def apply_statistical_filters(df, gas, column):
 
 
 def save_to_csv(dataframe, date_string, replacement_dict):
-    def replace_from_dict(text):
-        for key in replacement_dict:
-            text = text.replace(f"%{key}%", str(replacement_dict[key]))
-        return text
-
-    # INVERSION_CSV_FILENAME = f"{CSV_OUT_DIR}/{date_string}.csv"
-    # dataframe.to_csv(INVERSION_CSV_FILENAME)
-    #
-    # with open(f"{PROJECT_DIR}/data/inversion-header-template.csv", "r") as f:
-    #     file_lines = list(map(replace_from_dict, f.readlines()))
-    #
-    # with open(INVERSION_CSV_FILENAME, "r") as f:
-    #     file_lines += f.readlines()
-    #
-    # with open(INVERSION_CSV_FILENAME, "w") as f:
-    #     for l in file_lines:
-    #         f.write(l)
-
     with open(f"{PROJECT_DIR}/data/csv-header-template.csv", "r") as template_file:
         with open(f"{CSV_OUT_DIR}/{date_string}.csv", "w") as out_file:
             out_file.writelines(list(map(replace_from_dict, template_file.readlines())))
@@ -99,11 +81,12 @@ REPLACEMENT_DICT = {
 }
 
 
-def read_database(date_string, remove_calibration_data=True):
+def read_from_database(date_string, remove_calibration_data=True):
     db_connection = mysql.connector.connect(**config["authentication"]["mysql"])
     read = lambda sql_string: pd.read_sql(sql_string, con=db_connection)
 
     # TODO: Hardcode calibration station/location combinations
+    # TODO: Use locations from config.json
 
     if remove_calibration_data:
         df_all = read(
@@ -133,11 +116,10 @@ def read_database(date_string, remove_calibration_data=True):
 
     db_connection.close()
 
-    # TODO: Return as dict structure
     return df_all, df_calibration, df_location, df_spectrometer
 
 
-def filter_dataframe(df_calibrated, case):
+def filter_dataframes(df_calibrated, case):
     output_dataframes = {
         "raw": {"xco2": None, "xch4": None, "xco": None},
         "filtered": {"xco2": None, "xch4": None, "xco": None},
@@ -472,8 +454,8 @@ def run(date_string):
 
     data_exists = False
 
-    for case in ["website-raw", "website-filtered", "inversion-filtered"]:
-        df_all, df_calibration, df_location, df_spectrometer = read_database(
+    for case in ["website-raw", "website-filtered", "csv-filtered"]:
+        df_all, df_calibration, df_location, df_spectrometer = read_from_database(
             date_string, remove_calibration_data=(case == "inversion-filtered")
         )
 
