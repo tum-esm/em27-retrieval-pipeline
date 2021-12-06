@@ -34,6 +34,8 @@ def as_csv(day_string, dataframes):
             .reset_index()
         )
 
+        # TODO: Figure out station/sensor combination and add to replacement dict
+        # TODO: Mention station/sensor combination in CSV header
         # drop unused columns
         output_dfs[gas] = df_corrected_inversion.drop(
             columns=list(
@@ -86,6 +88,7 @@ def as_csv(day_string, dataframes):
             lambda x: hour_to_timestring(day_string, x)
         )
 
+        # TODO: Use spectrometer as ID
         for location in config["input"]["locations"]:
             df = (
                 (
