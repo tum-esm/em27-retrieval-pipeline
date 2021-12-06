@@ -18,6 +18,10 @@
         "gases":     ["co2", "ch4"],
         "locations": ["GEO", "HAW"]
     },
+    "filter": {
+        "movingWindowSize": 10,
+        "outputStepSize": 2
+    },
     "output": {
         "exportToCSV": true,
         "exportToJSON": false,

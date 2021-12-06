@@ -16,29 +16,21 @@ CSV_OUT_DIR = f"{PROJECT_DIR}/data/csv-out"
 with open(f"{PROJECT_DIR}/config.json") as f:
     config = json.load(f)
 
-# TODO: Make time windows configurable by parameters
-# 2. advanced filter settings
-cluster_interval = np.round(
-    1 / 30, 6
-)  # [h], moving window step size -> time distance between resulting measurements
-cluster_window = np.round(1 / 6, 6)  # [h], moving window size
+# TODO: document "movingWindowSize" and "outputStepSize"
+# moving window size
+# moving window step size -> time distance between resulting measurements
 
-
-# DROP_CLU_INFO -> version of dropping the averaged points with low information contend
-# drop_clu_info["version"] = 104  # 'calculation' or Number of maximal measurement points per averaged point (10min interval=104)
-# drop_clu_info["percent"] = 0.2  # [0,1] only needed when 'version' is equal to 'percent'
-
-
+# TODO: Make cases configurable
 def apply_statistical_filters(df, gas, column):
     return column_functions.filter_DataStat(
         df,
         gas=gas,
         column=column,
-        clu_int=cluster_interval,
-        drop_clu_info={"drop": True, "version": 104, "percent": 0.2},
+        clu_int=np.round(config["filter"]["outputStepSize"] / 60, 6),
+        drop_clu_info=FILTER_SETTINGS["drop_clu_info"],
         clu_str=FILTER_SETTINGS["cluster_start"],
         clu_end=FILTER_SETTINGS["cluster_end"],
-        clu_win=cluster_window,
+        clu_win=np.round(config["filter"]["movingWindowSize"] / 60, 6),
         case=["outlier", "rollingMean"],  # , "continuous", "interval"],
     )
 
