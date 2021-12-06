@@ -81,6 +81,32 @@ REPLACEMENT_DICT = {
 }
 
 
+def get_calibration_replacement_dict(df_calibration, date_string):
+    CALIBRATION_REPLACEMENT_DICT = {}
+
+    df_calibration["ID"] = df_calibration["ID_SpectrometerCalibration"].map(
+        lambda s: s[9:]
+    )
+    df_cali = df_calibration.replace([np.inf, np.nan], 21000101).replace(["me17"], "me")
+    df_cali["StartDate"] = df_cali["StartDate"].astype(int)
+    df_cali["EndDate"] = df_cali["EndDate"].astype(int)
+    df_cali = df_cali[df_cali["StartDate"].astype(str) <= date_string]
+    df_cali = df_cali[df_cali["EndDate"].astype(str) >= date_string]
+    df_cali = df_cali.sort_values(by="StartDate")
+
+    get_cal = lambda s: df_cali[df_cali["ID"].astype(str) == s].iloc[-1]
+
+    for gas in ["co2", "ch4", "co"]:
+        for station in ["ma", "mb", "mc", "md", "me"]:
+            try:
+                cal = get_cal(station)[f"{gas}_calibrationFactor"]
+            except:
+                cal = "NaN"
+            CALIBRATION_REPLACEMENT_DICT.update({f"CALIBRATION_{station}_{gas}": cal})
+
+    return CALIBRATION_REPLACEMENT_DICT
+
+
 def read_from_database(date_string, remove_calibration_data=True):
     db_connection = mysql.connector.connect(**config["authentication"]["mysql"])
     read = lambda sql_string: pd.read_sql(sql_string, con=db_connection)
@@ -451,21 +477,24 @@ def filter_and_return(date_string, df_calibrated, df_location, case):
 
 
 def run(date_string):
+    # repetitive, but illustrative for how this variable looks like
     output_dataframes = {
         "withCalibrationDays": {
             "raw": {"xco2": None, "xch4": None, "xco": None},
             "filtered": {"xco2": None, "xch4": None, "xco": None},
+            "replacementDict": None,
         },
         "withoutCalibrationDays": {
             "raw": {"xco2": None, "xch4": None, "xco": None},
             "filtered": {"xco2": None, "xch4": None, "xco": None},
+            "replacementDict": None,
         },
     }
 
     data_exists = False
 
     for calibrationCase in output_dataframes.keys():
-        df_all, df_calibration, df_location, df_spectrometer = read_from_database(
+        df_all, df_calibration, _, _ = read_from_database(
             date_string,
             remove_calibration_data=(calibrationCase == "withoutCalibrationDays"),
         )
@@ -473,33 +502,14 @@ def run(date_string):
         if not df_all.empty:
             data_exists = True
 
-            df_calibrated, df_cali = column_functions.hp.calibration(
-                df_all, df_calibration
-            )
+            df_calibrated, _ = column_functions.hp.calibration(df_all, df_calibration)
 
-            df_calibration["ID"] = df_calibration["ID_SpectrometerCalibration"].map(
-                lambda s: s[9:]
-            )
-
-            df_cali = df_calibration.replace([np.inf, np.nan], 21000101).replace(
-                ["me17"], "me"
-            )
-            df_cali["StartDate"] = df_cali["StartDate"].astype(int)
-            df_cali["EndDate"] = df_cali["EndDate"].astype(int)
-            df_cali = df_cali[df_cali["StartDate"].astype(str) <= date_string]
-            df_cali = df_cali[df_cali["EndDate"].astype(str) >= date_string]
-            df_cali = df_cali.sort_values(by="StartDate")
-
-            get_cal = lambda s: df_cali[df_cali["ID"].astype(str) == s].iloc[-1]
-
-            for gas in ["co2", "ch4", "co"]:
-                for station in ["ma", "mb", "mc", "md", "me"]:
-                    try:
-                        cal = get_cal(station)[f"{gas}_calibrationFactor"]
-                    except:
-                        cal = "NaN"
-                    REPLACEMENT_DICT.update({f"CALIBRATION_{station}_{gas}": cal})
-
-            output_dataframes[calibrationCase] = filter_dataframes(df_calibrated)
+            output_dataframes[calibrationCase] = {
+                **filter_dataframes(df_calibrated),
+                "replacementDict": {
+                    **REPLACEMENT_DICT,
+                    **get_calibration_replacement_dict(df_calibration, date_string),
+                },
+            }
 
     return data_exists
