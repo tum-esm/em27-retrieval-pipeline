@@ -18,3 +18,14 @@ SETUPS = [
     ("FEL", "mb86"),
     ("TAU", "me17"),
 ]
+
+FILTER_SETTINGS = {
+    "fvsi_threshold": 5,  # fractional variation in solar intensity
+    "sia_threshold": 0.4,  # solar intensity average
+    "sza_threshold": 75,  # solar zenith angle
+    "o2_error": 0.0005,
+    "step_size": 0.1,
+    "flag": 1,  # a 0 means "ignore all errors (flags) from gfit"
+    "cluster_start": 4,  # Time in UTC, start time for the use of measurements
+    "cluster_end": 18,  # Time in UTC, end time for the use of measurements
+}
