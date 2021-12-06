@@ -6,7 +6,8 @@ import datetime
 import sys
 import os
 from src import column_functions
-from .helpers.utils import unique, hour_to_timestring, get_commit_sha, replace_from_dict
+from src.helpers.constants import SETUPS, UNITS
+from .helpers.utils import get_commit_sha, replace_from_dict
 
 
 # load config
@@ -15,11 +16,8 @@ CSV_OUT_DIR = f"{PROJECT_DIR}/data/csv-out"
 with open(f"{PROJECT_DIR}/config.json") as f:
     config = json.load(f)
 
-UNITS = {
-    "co2": "ppm",
-    "ch4": "ppm",
-    "co": "ppb",
-}
+
+# TODO: Move these parameters to constants
 
 # set parameters
 # 1. basic filter settings
@@ -29,6 +27,8 @@ sza_thold = 75  # solar zenith angle < value
 o2_error = 0.0005
 step_size = 0.1
 flag = 1
+
+# TODO: Make time windows configurable by parameters
 
 # 2. advanced filter settings
 cluster_interval = np.round(
@@ -115,30 +115,29 @@ def read_from_database(date_string, remove_calibration_data=True):
     db_connection = mysql.connector.connect(**config["authentication"]["mysql"])
     read = lambda sql_string: pd.read_sql(sql_string, con=db_connection)
 
-    # TODO: Hardcode calibration station/location combinations
-    # TODO: Use locations from config.json
+    date_query = f"(Date = {date_string})"
+    location_tuple = ", ".join(
+        map(lambda s: '"' + s + '"', config["input"]["locations"])
+    )
+    location_query = f"(ID_Location in ({location_tuple}))"
 
     if remove_calibration_data:
-        df_all = read(
-            f"""
-            SELECT *
-            FROM measuredValues
-            WHERE (Date = {date_string}) AND
-            (ID_Location in ('GEO', 'ROS', 'JOR', 'HAW')) AND
-            ((ID_Location != 'GEO') OR (ID_Spectrometer = 'me17'))
-            ORDER BY Hour
-            """
+        setup_query = " OR ".join(
+            [
+                f'((ID_Location = "{l}") AND (ID_Spectrometer = "{s}"))'
+                for (l, s) in SETUPS
+            ]
         )
-    else:
-        df_all = read(
-            f"""
-            SELECT *
-            FROM measuredValues
-            WHERE (Date = {date_string}) AND
-            (ID_Location in ('GEO', 'ROS', 'JOR', 'HAW'))
-            ORDER BY Hour
-            """
-        )
+        location_query += f" AND ({setup_query})"
+
+    df_all = read(
+        f"""
+        SELECT *
+        FROM measuredValues
+        WHERE {date_query} AND {location_query}
+        ORDER BY Hour
+        """
+    )
     # df_all.loc[df_all.Date <= 20170410, "xco_ppb"] = 0
     df_calibration = read("SELECT * FROM spectrometerCalibrationFactor")
     df_location = read("SELECT * FROM location")
