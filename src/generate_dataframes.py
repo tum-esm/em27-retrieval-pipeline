@@ -9,21 +9,20 @@ from src.helpers.constants import (
     UNITS,
     FILTER_SETTINGS,
     REPLACEMENT_DICT,
+    ALL_GASES,
+    ALL_SENSORS,
 )
 from .helpers.utils import replace_from_dict
 
-
-# load config
 PROJECT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 CSV_OUT_DIR = f"{PROJECT_DIR}/data/csv-out"
 with open(f"{PROJECT_DIR}/config.json") as f:
     config = json.load(f)
 
 # TODO: document "movingWindowSize" and "outputStepSize"
-# moving window size
-# moving window step size -> time distance between resulting measurements
+# (moving window step size = time distance between resulting measurements)
 
-# TODO: Make cases configurable
+
 def apply_statistical_filters(df, gas, column):
     return column_functions.filter_DataStat(
         df,
@@ -61,13 +60,13 @@ def get_calibration_replacement_dict(df_calibration, date_string):
 
     get_cal = lambda s: df_cali[df_cali["ID"].astype(str) == s].iloc[-1]
 
-    for gas in ["co2", "ch4", "co"]:
-        for station in ["ma", "mb", "mc", "md", "me"]:
+    for gas in ALL_GASES:
+        for sensor in ALL_SENSORS:
             try:
-                cal = get_cal(station)[f"{gas}_calibrationFactor"]
+                cal = get_cal(sensor)[f"{gas}_calibrationFactor"]
             except:
                 cal = "NaN"
-            CALIBRATION_REPLACEMENT_DICT.update({f"CALIBRATION_{station}_{gas}": cal})
+            CALIBRATION_REPLACEMENT_DICT.update({f"CALIBRATION_{sensor}_{gas}": cal})
 
     return CALIBRATION_REPLACEMENT_DICT
 
@@ -111,8 +110,8 @@ def read_from_database(date_string, remove_calibration_data=True):
 
 def filter_dataframes(df_calibrated):
     output_dataframes = {
-        "raw": {"co2": None, "ch4": None, "co": None},
-        "filtered": {"co2": None, "ch4": None, "co": None},
+        "raw": {gas: None for gas in ALL_GASES},
+        "filtered": {gas: None for gas in ALL_GASES},
     }
 
     for case in ["raw", "filtered"]:
@@ -140,10 +139,10 @@ def filter_dataframes(df_calibrated):
         else:
             df_filtered = df_calibrated.set_index(["Date", "ID_Spectrometer"])
 
-        for gas in ["co2", "ch4", "co"]:
+        for gas in ALL_GASES:
             COLUMN = f"x{gas}_{UNITS[gas]}"
             df_filtered_dropped = df_filtered.drop(
-                columns=[f"x{g}_{UNITS[g]}" for g in ["co2", "ch4", "co"] if g != gas]
+                columns=[f"x{g}_{UNITS[g]}" for g in ALL_GASES if g != gas]
             )
             if gas == "co":
                 df_tmp = df_filtered.dropna(subset=[COLUMN])
@@ -199,7 +198,7 @@ def filter_dataframes(df_calibrated):
             output_dataframes[case][gas] = df_complete
 
     for case in ["raw", "filtered"]:
-        for gas in ["co2", "ch4", "co"]:
+        for gas in ALL_GASES:
             assert output_dataframes[case][gas] is not None
 
     return output_dataframes
@@ -208,7 +207,6 @@ def filter_dataframes(df_calibrated):
 """
 def filter_and_return(date_string, df_calibrated, df_location, case):
 
-    # TODO: split function!
     assert case in ["website-raw", "website-filtered", "inversion-filtered"]
 
     ## Physical Filter ----------------------
