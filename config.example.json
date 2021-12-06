@@ -15,12 +15,13 @@
     "input": {
         "startDate": "20210727",
         "endDate": "21001231",
-        "sensors": ["*", "*"],
-        "gases": ["co2", "ch4"]
+        "gases": ["co2", "ch4"],
+        "locations": ["*", "*"]
     },
     "output": {
         "exportToCSV": true,
-        "exportToWebsite": false
+        "exportToJSON": true,
+        "uploadToWebsite": false
     },
     "meta": {
         "authors": [{ "name": "*", "email": "*" }],

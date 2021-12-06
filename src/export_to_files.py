@@ -13,7 +13,7 @@ PROJECT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 CSV_OUT_DIR = f"{PROJECT_DIR}/data/csv-out"
 
 
-def save_to_csv(date_string, dataframes, df_location):
+def as_csv(date_string, dataframes, df_location):
 
     # dataframes looks like this:
     # {
@@ -103,7 +103,7 @@ def save_to_csv(date_string, dataframes, df_location):
             ).set_index(["year_day_hour"]).to_csv(out_file)
 
 
-def save_to_json():
+def as_json():
     # TODO: Create tmp directory
     # TODO: Save raw and filtered CSVs
     # TODO: Convert CSVs to JSON
