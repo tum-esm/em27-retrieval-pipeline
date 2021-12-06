@@ -1,26 +1,26 @@
 {
     "authentication": {
         "mysql": {
-            "host": "*.*.*.*",
-            "user": "*",
-            "passwd": "*",
+            "host":     "*.*.*.*",
+            "user":     "*",
+            "passwd":   "*",
             "database": "*"
         },
         "strapi": {
             "identifier": "*",
-            "password": "*",
-            "url": "*"
+            "password":  "*",
+            "url":       "*"
         }
     },
     "input": {
-        "startDate": "20210727",
-        "endDate": "21001231",
-        "gases": ["co2", "ch4"],
-        "locations": ["*", "*"]
+        "startDate": "20210813",
+        "endDate":   "20210813",
+        "gases":     ["co2", "ch4"],
+        "locations": ["GEO", "HAW"]
     },
     "output": {
         "exportToCSV": true,
-        "exportToJSON": true,
+        "exportToJSON": false,
         "uploadToWebsite": false
     },
     "meta": {
