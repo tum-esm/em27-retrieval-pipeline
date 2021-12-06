@@ -160,18 +160,14 @@ def filter_and_return(date_string, df_calibrated, df_location, case):
     for gas in ["xco2", "xch4", "xco"]:
         if gas == "xco":
             column = "xco_ppb"
-            # removing rows which do not contain any CO measurements
             df_temp = df_filtered.dropna(subset=["xco_ppb"])
             df_filtered = df_temp.loc[df_temp["xco_ppb"] < 200].copy()
-            # drop columns of ch4 and co2
             df_filtered_droped = df_filtered.drop(columns=["xch4_ppm", "xco2_ppm"])
         elif gas == "xco2":
             column = "xco2_ppm"
-            # drop columns of ch4 and co
             df_filtered_droped = df_filtered.drop(columns=["xch4_ppm", "xco_ppb"])
         elif gas == "xch4":
             column = "xch4_ppm"
-            # drop columns of co and co2
             df_filtered_droped = df_filtered.drop(columns=["xco_ppb", "xco2_ppm"])
             # parameter needed for air mass correction
             df_filtered_droped["elevation_angle"] = 90 - df_filtered_droped["asza_deg"]
@@ -210,39 +206,31 @@ def filter_and_return(date_string, df_calibrated, df_location, case):
         # df_filteredPlus = df_filtered_droped
 
         # Add Column ID_Location
-        df_locationDay = (
-            df_filtered[["ID_Location"]]
-            .reset_index()
-            .drop_duplicates(ignore_index=True)
-            .set_index(["Date", "ID_Spectrometer"])
-        )
         # print(df_locationDay)
-        df_all_inf = df_filteredPlus.join(df_locationDay)
+        df_all_inf = df_filteredPlus.join(
+            (
+                df_filtered[["ID_Location"]]
+                .reset_index()
+                .drop_duplicates(ignore_index=True)
+                .set_index(["Date", "ID_Spectrometer"])
+            )
+        )
         ## airmass correction and removing useless columns -----------
         if gas == "xch4":
             df_corrected_inversion = column_functions.airmass_corr(
                 df_all_inf, clc=True, big_dataSet=False
-            )
-            df_corrected_website = df_corrected_inversion.drop(
+            ).drop(
                 [
-                    "fvsi",
-                    "sia_AU",
-                    "asza_deg",
                     "xch4_ppm_sub_mean",
-                    "xo2_error",
-                    "pout_hPa",
-                    "pins_mbar",
                     "elevation_angle",
-                    "column_o2",
-                    "column_h2o",
-                    "column_air",
-                    "xair",
-                    "xh2o_ppm",
                 ],
                 axis=1,
             )
         else:
             df_corrected_inversion = df_all_inf
+
+        # Website (raw + filtered)
+        if case in ["website-raw", "website-filtered"]:
             df_corrected_website = df_corrected_inversion.drop(
                 [
                     "fvsi",
@@ -260,8 +248,6 @@ def filter_and_return(date_string, df_calibrated, df_location, case):
                 axis=1,
             )
 
-        # Website (raw + filtered)
-        if case in ["website-raw", "website-filtered"]:
             df_corrected_website = (
                 df_corrected_website.reset_index()
                 .set_index(["ID_Location"])
@@ -305,12 +291,9 @@ def filter_and_return(date_string, df_calibrated, df_location, case):
                 .reset_index()
             )
 
-            # TODO: prettify dropping (only one drop call)
-            df_corrected_inversion = df_corrected_inversion.drop(
-                columns=["ID_Location", "Direction"]
-            )
-
             columns_to_drop = [
+                "ID_Location",
+                "Direction",
                 "xh2o_ppm",
                 "fvsi",
                 "sia_AU",
@@ -326,8 +309,6 @@ def filter_and_return(date_string, df_calibrated, df_location, case):
                 "month",
                 "year",
                 "Date",
-                "elevation_angle",
-                "xch4_ppm_sub_mean",
             ]
 
             df_corrected_inversion = df_corrected_inversion.drop(
@@ -361,6 +342,7 @@ def filter_and_return(date_string, df_calibrated, df_location, case):
 
         merged_df = inversion_hour_df
 
+        # TODO: Use locations from config.json
         for spectrometer in ["mb86", "mc15", "md16", "me17"]:
             for df in [
                 inversion_xch4.loc[(inversion_xch4["ID_Spectrometer"] == spectrometer)],
