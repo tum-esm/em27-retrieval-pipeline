@@ -6,12 +6,12 @@
 ##    Code Repository: %CODE_REPOSITORY%
 ##    Used commit SHA: %COMMIT_SHA%
 ## SETTINGS:
-## 	  fvsi_thold:			%SETTING_fvsi_thold%
-## 	  sia_thold:			%SETTING_sia_thold%
-## 	  sza_thold:			%SETTING_sza_thold%
-## 	  o2_error:			%SETTING_o2_error%
-## 	  step_size:			%SETTING_step_size%
-## 	  flag:				 %SETTING_flag%
+## 	  fvsi_threshold:     %SETTING_fvsi_thold%
+## 	  sia_threshold:      %SETTING_sia_thold%
+## 	  sza_threshold:      %SETTING_sza_thold%
+## 	  o2_error:           %SETTING_o2_error%
+## 	  step_size:          %SETTING_step_size%
+## 	  flag:                %SETTING_flag%
 ## 	  background_filtered: False
 ## CALIBRATION FACTORS:
 ##    mb86_co2: %CALIBRATION_mb_co2%
