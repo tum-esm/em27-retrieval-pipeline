@@ -3,7 +3,7 @@ import pandas as pd
 import os
 import sys
 
-from src.helpers.constants import DEFAULT_SENSORS
+from src.helpers.constants import DEFAULT_SENSORS, UNITS
 from .helpers.utils import concat, unique, hour_to_timestring, replace_from_dict
 
 
@@ -96,7 +96,7 @@ def as_csv(day_string, dataframes):
                     .loc[(output_dfs[gas]["ID_Spectrometer"] == spectrometer)]
                     .rename(
                         columns={
-                            f"x{gas}_ppm": f"{spectrometer}_x{gas}_sc",
+                            f"x{gas}_{UNITS[gas]}": f"{spectrometer}_x{gas}_{UNITS[gas]}_sc",
                         }
                     )
                 )

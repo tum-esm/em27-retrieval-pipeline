@@ -1,19 +1,27 @@
+# Extract Retrieval Data
 
-**IMPORTANT:** In the future this repository will be renamed to **"extract-retrieval-data"**
+_Formerly known as "filter-retrieval-data-v2". Full documentation coming soon! Until then, ask Moritz Makowski (moritz.makowski@tum.de)._
 
 <br/>
-
-# Filter Retrieval Data v2
-
-Full documentation coming soon! Until then, ask Moritz Makowski (moritz.makowski@tum.de).
 
 ## What is it?
 
-The repository contains all the code for extracting measurement data from our SQL database. It combines functionality from https://gitlab.lrz.de/esm/em27-plot-data-upload and https://gitlab.lrz.de/esm/columnmeasurementautomation. However, the `columnmeasurementautomation`-repo also includes the triggering of gfit and loading stuff into the database.
+This repository contains all the code for extracting measurement data from our SQL database. It combines functionality from https://gitlab.lrz.de/esm/em27-plot-data-upload and https://gitlab.lrz.de/esm/columnmeasurementautomation. However, the `columnmeasurementautomation`-repo also includes the triggering of gfit and loading stuff into the database.
 
-**These two processes (1. loading into database, 2. extracting from database) should be separated in the long run!** This repo implements the second process (extraction).
+**These two processes (1. loading into database, 2. extracting from database) should be separated in the long run! This repository implements the second process (extraction).**
 
 <br/>
+
+## IMPORTANT: NOT EVERYTHING WORKS!
+
+This repository is currently undergoing refactoring - that's why this code is not on the main branch. **The CSV export already fully works!** The JSON-export and website-upload is currently not working.
+
+You can clone this specific branch of the repository with:
+
+```bash
+git clone -b general-extraction-tool https://github.com/tum-esm/extract-retrieval-data.git
+```
+
 <br/>
 
 ## How to set it up?
@@ -27,7 +35,7 @@ Set up project interpreter:
 # Create virtual environment (a local copy of python)
 python3.9 -m venv .venv
 
-# Activate virtual environment
+# Switch to virtual environment
 source .venv/bin/activate
 
 # Install dependencies
@@ -35,15 +43,12 @@ poetry install
 ```
 
 <br/>
-<br/>
 
 ## How to run it?
 
 1. Use the file `config.example.json` to create a file `config.json` for your setup
 
-2. Modify `run.py` for your usage
-
-3. Run it with (using the virtual env from before)
-```bash
-python run.py
-```
+2. Run it with (using the virtual env from before):
+    ```bash
+    python run.py
+    ```
