@@ -5,6 +5,7 @@ from src import (
     export_to_files,
     generate_dataframes,
 )
+from src.helpers.constants import ALL_GASES
 from src.helpers.utils import day_string_is_valid
 
 # load config
@@ -17,7 +18,7 @@ with open(f"{PROJECT_DIR}/config.json") as f:
     # input settings
     assert day_string_is_valid(config["input"]["startDate"])
     assert day_string_is_valid(config["input"]["endDate"])
-    assert set(config["input"]["gases"]).issubset(set(["co2", "ch4", "co"]))
+    assert set(config["input"]["gases"]).issubset(set(ALL_GASES))
     assert isinstance(config["input"]["locations"], list)
     assert all(isinstance(l, str) for l in config["input"]["locations"])
 

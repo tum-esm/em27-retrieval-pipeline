@@ -61,3 +61,6 @@ REPLACEMENT_DICT = {
     "SETTING_step_size": FILTER_SETTINGS["step_size"],
     "SETTING_flag": FILTER_SETTINGS["flag"],
 }
+
+ALL_GASES = ["co2", "ch4", "co"]
+ALL_SENSORS = ["ma", "mb", "mc", "md", "me"]
