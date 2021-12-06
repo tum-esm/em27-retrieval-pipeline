@@ -14,7 +14,6 @@ PROJECT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 CSV_OUT_DIR = f"{PROJECT_DIR}/data/csv-out"
 with open(f"{PROJECT_DIR}/config.json") as f:
     config = json.load(f)
-    # TODO: validate config format
 
 UNITS = {
     "xco2": "ppm",
@@ -478,42 +477,40 @@ def filter_and_return(date_string, df_calibrated, df_location, case):
 
 
 def run(date_string):
-    # repetitive, but illustrative for how this variable looks like
-    output_dataframes = {
-        "withCalibrationDays": {
-            "raw": {"xco2": None, "xch4": None, "xco": None},
-            "filtered": {"xco2": None, "xch4": None, "xco": None},
-            "replacementDict": None,
-        },
-        "withoutCalibrationDays": {
-            "raw": {"xco2": None, "xch4": None, "xco": None},
-            "filtered": {"xco2": None, "xch4": None, "xco": None},
-            "replacementDict": None,
-        },
+    # Each of the values of "withCal..."/"withoutCal..." looks like this:
+    # {
+    #    "raw": {"xco2": None, "xch4": None, "xco": None},
+    #    "filtered": {"xco2": None, "xch4": None, "xco": None},
+    #     "meta": {
+    #         "dfLocation": ...,
+    #         "dfSpectrometer": ...,
+    #         "replacementDict": ...,
+    #     }
+    # }
+    dataframes = {
+        "withCalibrationDays": None,
+        "withoutCalibrationDays": None,
     }
 
-    data_exists = False
-
-    for calibrationCase in output_dataframes.keys():
+    for calibrationCase in dataframes.keys():
         df_all, df_calibration, df_location, df_spectrometer = read_from_database(
             date_string,
             remove_calibration_data=(calibrationCase == "withoutCalibrationDays"),
         )
 
         if not df_all.empty:
-            data_exists = True
-
             df_calibrated, _ = column_functions.hp.calibration(df_all, df_calibration)
 
-            output_dataframes[calibrationCase] = {
+            dataframes[calibrationCase] = {
                 **filter_dataframes(df_calibrated),
-                "replacementDict": {
-                    **REPLACEMENT_DICT,
-                    **get_calibration_replacement_dict(df_calibration, date_string),
+                "meta": {
+                    "dfLocation": df_location,
+                    "dfSpectrometer": df_spectrometer,
+                    "replacementDict": {
+                        **REPLACEMENT_DICT,
+                        **get_calibration_replacement_dict(df_calibration, date_string),
+                    },
                 },
             }
-    
-    if data_exists:
-        # TODO: save csv to file
 
-    return data_exists
+    return dataframes

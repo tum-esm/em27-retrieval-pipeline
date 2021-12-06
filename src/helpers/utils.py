@@ -70,3 +70,20 @@ def replace_from_dict(replacement_dict):
         return text
 
     return f
+
+
+def day_string_is_valid(day_string):
+    try:
+        assert len(day_string) == 8
+        assert day_string.isnumeric()
+        year, month, day = (
+            int(day_string[:4]),
+            int(day_string[4:6]),
+            int(day_string[6:]),
+        )
+        assert month < 13
+        assert day < 32
+        datetime(year, month, day)  # throws ValueError when date is invalid
+        return True
+    except:
+        return False
