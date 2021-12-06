@@ -12,12 +12,16 @@ PROJECT_DIR = os.path.dirname(os.path.abspath(__file__))
 with open(f"{PROJECT_DIR}/config.json") as f:
     config = json.load(f)
 
+    # TODO: validate authentication config format
+
     # input settings
     assert day_string_is_valid(config["input"]["startDate"])
     assert day_string_is_valid(config["input"]["endDate"])
     assert set(config["input"]["gases"]).issubset(set(["co2", "ch4", "co"]))
     assert isinstance(config["input"]["locations"], list)
     assert all(isinstance(l, str) for l in config["input"]["locations"])
+
+    # TODO: validate filter format
 
     # output settings
     assert isinstance(config["output"]["exportToCSV"], bool)
@@ -26,7 +30,6 @@ with open(f"{PROJECT_DIR}/config.json") as f:
     if config["output"]["uploadToWebsite"]:
         assert config["output"]["exportToJSON"]
 
-    # TODO: validate authentication config format
     # TODO: validate meta config format
 
 
