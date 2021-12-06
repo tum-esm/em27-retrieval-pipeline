@@ -1,25 +1,21 @@
-import numpy as np
-import mysql.connector
 import pandas as pd
-import json
-import datetime
-import sys
 import os
-from src import column_functions
-from .helpers.utils import unique, hour_to_timestring, get_commit_sha, replace_from_dict
+from .helpers.utils import unique, hour_to_timestring, replace_from_dict
 
 
 PROJECT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 CSV_OUT_DIR = f"{PROJECT_DIR}/data/csv-out"
 
 
-def as_csv(date_string, dataframes, df_location):
-
+def as_csv(date_string, dataframes):
     # dataframes looks like this:
     # {
-    #   "raw": {"xco2": None, "xch4": None, "xco": None},
-    #   "filtered": {"xco2": None, "xch4": None, "xco": None},
-    #   "replacementDict": None,
+    #    "raw": {"xco2": None, "xch4": None, "xco": None},
+    #    "filtered": {"xco2": None, "xch4": None, "xco": None},
+    #     "meta": {
+    #         "dfLocation": ...,
+    #         "replacementDict": ...,
+    #     }
     # }
     filtered_dataframes = dataframes["filtered"]
     output_dfs = {}
@@ -29,7 +25,11 @@ def as_csv(date_string, dataframes, df_location):
         df_corrected_inversion = (
             df_corrected_inversion.reset_index()
             .set_index(["ID_Location"])
-            .join(df_location.set_index(["ID_Location"])[["Direction"]])
+            .join(
+                dataframes["meta"]["dfLocation"].set_index(["ID_Location"])[
+                    ["Direction"]
+                ]
+            )
             .reset_index()
         )
 
@@ -76,7 +76,8 @@ def as_csv(date_string, dataframes, df_location):
             lambda x: hour_to_timestring(date_string, x)
         )
 
-        # TODO: Use locations from config.json
+        # TODO: Use spectrometers from config.json
+        # TODO: Use locations instead of spectrometers
         for spectrometer in ["mb86", "mc15", "md16", "me17"]:
             df = (
                 output_dfs[gas]
