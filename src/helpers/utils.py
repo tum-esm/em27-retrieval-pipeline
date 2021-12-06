@@ -63,7 +63,10 @@ def get_commit_sha():
     return commit_sha
 
 
-def replace_from_dict(text, replacement_dict):
-    for key in replacement_dict:
-        text = text.replace(f"%{key}%", str(replacement_dict[key]))
-    return text
+def replace_from_dict(replacement_dict):
+    def f(text):
+        for key in replacement_dict:
+            text = text.replace(f"%{key}%", str(replacement_dict[key]))
+        return text
+
+    return f
