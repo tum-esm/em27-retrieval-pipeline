@@ -62,7 +62,8 @@ def apply_statistical_filters(df, gas, column):
 def save_to_csv(dataframe, date_string, replacement_dict):
     with open(f"{PROJECT_DIR}/data/csv-header-template.csv", "r") as template_file:
         with open(f"{CSV_OUT_DIR}/{date_string}.csv", "w") as out_file:
-            out_file.writelines(list(map(replace_from_dict, template_file.readlines())))
+            fillParameters = replace_from_dict(replacement_dict)
+            out_file.writelines(list(map(fillParameters, template_file.readlines())))
             dataframe.to_csv(out_file)
 
 
@@ -494,7 +495,7 @@ def run(date_string):
     data_exists = False
 
     for calibrationCase in output_dataframes.keys():
-        df_all, df_calibration, _, _ = read_from_database(
+        df_all, df_calibration, df_location, df_spectrometer = read_from_database(
             date_string,
             remove_calibration_data=(calibrationCase == "withoutCalibrationDays"),
         )
@@ -511,5 +512,8 @@ def run(date_string):
                     **get_calibration_replacement_dict(df_calibration, date_string),
                 },
             }
+    
+    if data_exists:
+        # TODO: save csv to file
 
     return data_exists
