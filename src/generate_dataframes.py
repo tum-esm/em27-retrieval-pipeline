@@ -483,7 +483,6 @@ def run(date_string):
     #    "filtered": {"xco2": None, "xch4": None, "xco": None},
     #     "meta": {
     #         "dfLocation": ...,
-    #         "dfSpectrometer": ...,
     #         "replacementDict": ...,
     #     }
     # }
@@ -493,7 +492,7 @@ def run(date_string):
     }
 
     for calibrationCase in dataframes.keys():
-        df_all, df_calibration, df_location, df_spectrometer = read_from_database(
+        df_all, df_calibration, df_location, _ = read_from_database(
             date_string,
             remove_calibration_data=(calibrationCase == "withoutCalibrationDays"),
         )
@@ -505,7 +504,6 @@ def run(date_string):
                 **filter_dataframes(df_calibrated),
                 "meta": {
                     "dfLocation": df_location,
-                    "dfSpectrometer": df_spectrometer,
                     "replacementDict": {
                         **REPLACEMENT_DICT,
                         **get_calibration_replacement_dict(df_calibration, date_string),
