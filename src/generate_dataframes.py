@@ -2,11 +2,14 @@ import numpy as np
 import mysql.connector
 import pandas as pd
 import json
-import datetime
-import sys
 import os
 from src import column_functions
-from src.helpers.constants import SETUPS, UNITS, FILTER_SETTINGS, REPLACEMENT_DICT
+from src.helpers.constants import (
+    DEFAULT_SENSORS,
+    UNITS,
+    FILTER_SETTINGS,
+    REPLACEMENT_DICT,
+)
 from .helpers.utils import replace_from_dict
 
 
@@ -82,8 +85,8 @@ def read_from_database(date_string, remove_calibration_data=True):
     if remove_calibration_data:
         setup_query = " OR ".join(
             [
-                f'((ID_Location = "{l}") AND (ID_Spectrometer = "{s}"))'
-                for (l, s) in SETUPS
+                f'((ID_Location = "{l}") AND (ID_Spectrometer = "{DEFAULT_SENSORS[l]}"))'
+                for l in DEFAULT_SENSORS.keys()
             ]
         )
         location_query += f" AND ({setup_query})"
