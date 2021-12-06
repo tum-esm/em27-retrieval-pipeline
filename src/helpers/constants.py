@@ -51,7 +51,7 @@ REPLACEMENT_DICT = {
     "CONTACT_EMAILS": ", ".join(
         list(map(lambda a: a["email"], config["meta"]["authors"]))
     ),
-    "GENERATION_DATE": str(datetime.datetime.now()) + " UTC",
+    "GENERATION_DATE": str(datetime.now()) + " UTC",
     "CODE_REPOSITORY": config["meta"]["codeRepository"],
     "COMMIT_SHA": get_commit_sha(),
     "SETTING_fvsi_thold": FILTER_SETTINGS["fvsi_threshold"],
