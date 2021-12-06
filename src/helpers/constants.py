@@ -1,3 +1,14 @@
+from datetime import datetime
+import json
+import os
+from src.helpers.utils import get_commit_sha
+
+PROJECT_DIR = os.path.dirname(
+    os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+)
+with open(f"{PROJECT_DIR}/config.json") as f:
+    config = json.load(f)
+
 UNITS = {
     "co2": "ppm",
     "ch4": "ppm",
@@ -28,4 +39,22 @@ FILTER_SETTINGS = {
     "flag": 1,  # a 0 means "ignore all errors (flags) from gfit"
     "cluster_start": 4,  # Time in UTC, start time for the use of measurements
     "cluster_end": 18,  # Time in UTC, end time for the use of measurements
+}
+
+REPLACEMENT_DICT = {
+    "AUTHOR_NAMES": ", ".join(
+        list(map(lambda a: a["name"], config["meta"]["authors"]))
+    ),
+    "CONTACT_EMAILS": ", ".join(
+        list(map(lambda a: a["email"], config["meta"]["authors"]))
+    ),
+    "GENERATION_DATE": str(datetime.datetime.now()) + " UTC",
+    "CODE_REPOSITORY": config["meta"]["codeRepository"],
+    "COMMIT_SHA": get_commit_sha(),
+    "SETTING_fvsi_thold": FILTER_SETTINGS["fvsi_threshold"],
+    "SETTING_sia_thold": FILTER_SETTINGS["sia_threshold"],
+    "SETTING_sza_thold": FILTER_SETTINGS["sza_threshold"],
+    "SETTING_o2_error": FILTER_SETTINGS["o2_error"],
+    "SETTING_step_size": FILTER_SETTINGS["step_size"],
+    "SETTING_flag": FILTER_SETTINGS["flag"],
 }

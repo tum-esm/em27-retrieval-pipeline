@@ -6,8 +6,8 @@ import datetime
 import sys
 import os
 from src import column_functions
-from src.helpers.constants import SETUPS, UNITS, FILTER_SETTINGS
-from .helpers.utils import get_commit_sha, replace_from_dict
+from src.helpers.constants import SETUPS, UNITS, FILTER_SETTINGS, REPLACEMENT_DICT
+from .helpers.utils import replace_from_dict
 
 
 # load config
@@ -49,25 +49,6 @@ def save_to_csv(dataframe, date_string, replacement_dict):
             fillParameters = replace_from_dict(replacement_dict)
             out_file.writelines(list(map(fillParameters, template_file.readlines())))
             dataframe.to_csv(out_file)
-
-
-REPLACEMENT_DICT = {
-    "AUTHOR_NAMES": ", ".join(
-        list(map(lambda a: a["name"], config["meta"]["authors"]))
-    ),
-    "CONTACT_EMAILS": ", ".join(
-        list(map(lambda a: a["email"], config["meta"]["authors"]))
-    ),
-    "GENERATION_DATE": str(datetime.datetime.now()) + " UTC",
-    "CODE_REPOSITORY": config["meta"]["codeRepository"],
-    "COMMIT_SHA": get_commit_sha(),
-    "SETTING_fvsi_thold": FILTER_SETTINGS["fvsi_threshold"],
-    "SETTING_sia_thold": FILTER_SETTINGS["sia_threshold"],
-    "SETTING_sza_thold": FILTER_SETTINGS["sza_threshold"],
-    "SETTING_o2_error": FILTER_SETTINGS["o2_error"],
-    "SETTING_step_size": FILTER_SETTINGS["step_size"],
-    "SETTING_flag": FILTER_SETTINGS["flag"],
-}
 
 
 def get_calibration_replacement_dict(df_calibration, date_string):
@@ -252,8 +233,6 @@ def filter_and_return(date_string, df_calibrated, df_location, case):
     else:
         df_filtered = df_calibrated.set_index(["Date", "ID_Spectrometer"])
 
-    # TODO: break into smaller loops
-    # TODO: use dict as datastructure
     ## Gas seperated code ---------
     for gas in ["xco2", "xch4", "xco"]:
         COLUMN = f"{gas}_{UNITS[gas]}"
@@ -404,7 +383,6 @@ def filter_and_return(date_string, df_calibrated, df_location, case):
                 ]
             )
 
-            # TODO: Use dict datastructure for different gas-dfs
             if gas == "xco2":
                 inversion_xco2 = df_corrected_inversion
             elif gas == "xch4":
@@ -428,8 +406,7 @@ def filter_and_return(date_string, df_calibrated, df_location, case):
         )
 
         merged_df = inversion_hour_df
-
-        # TODO: Use locations from config.json
+        
         for spectrometer in ["mb86", "mc15", "md16", "me17"]:
             for df in [
                 inversion_xch4.loc[(inversion_xch4["ID_Spectrometer"] == spectrometer)],
