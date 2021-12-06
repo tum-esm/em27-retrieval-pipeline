@@ -31,7 +31,7 @@ def apply_statistical_filters(df, gas, column):
         clu_str=FILTER_SETTINGS["cluster_start"],
         clu_end=FILTER_SETTINGS["cluster_end"],
         clu_win=np.round(config["filter"]["movingWindowSize"] / 60, 6),
-        case=["outlier", "rollingMean"],  # , "continuous", "interval"],
+        case=config["filter"]["cases"],
     )
 
 
