@@ -6,7 +6,7 @@ import datetime
 import sys
 import os
 from src import column_functions
-from src.helpers.constants import SETUPS, UNITS
+from src.helpers.constants import SETUPS, UNITS, FILTER_SETTINGS
 from .helpers.utils import get_commit_sha, replace_from_dict
 
 
@@ -16,27 +16,12 @@ CSV_OUT_DIR = f"{PROJECT_DIR}/data/csv-out"
 with open(f"{PROJECT_DIR}/config.json") as f:
     config = json.load(f)
 
-
-# TODO: Move these parameters to constants
-
-# set parameters
-# 1. basic filter settings
-fvsi_thold = 5  # fractional variation in solar intensity < the value - before: 4
-sia_thold = 0.4  # solar intensity average > value
-sza_thold = 75  # solar zenith angle < value
-o2_error = 0.0005
-step_size = 0.1
-flag = 1
-
 # TODO: Make time windows configurable by parameters
-
 # 2. advanced filter settings
 cluster_interval = np.round(
     1 / 30, 6
 )  # [h], moving window step size -> time distance between resulting measurements
 cluster_window = np.round(1 / 6, 6)  # [h], moving window size
-cluster_start = 4  # Time in UTC, start time for the use of measurements
-cluster_end = 18  # Time in UTC, end time for the use of measurements
 
 
 # DROP_CLU_INFO -> version of dropping the averaged points with low information contend
@@ -51,8 +36,8 @@ def apply_statistical_filters(df, gas, column):
         column=column,
         clu_int=cluster_interval,
         drop_clu_info={"drop": True, "version": 104, "percent": 0.2},
-        clu_str=cluster_start,
-        clu_end=cluster_end,
+        clu_str=FILTER_SETTINGS["cluster_start"],
+        clu_end=FILTER_SETTINGS["cluster_end"],
         clu_win=cluster_window,
         case=["outlier", "rollingMean"],  # , "continuous", "interval"],
     )
@@ -76,12 +61,12 @@ REPLACEMENT_DICT = {
     "GENERATION_DATE": str(datetime.datetime.now()) + " UTC",
     "CODE_REPOSITORY": config["meta"]["codeRepository"],
     "COMMIT_SHA": get_commit_sha(),
-    "SETTING_fvsi_thold": fvsi_thold,
-    "SETTING_sia_thold": sia_thold,
-    "SETTING_sza_thold": sza_thold,
-    "SETTING_o2_error": o2_error,
-    "SETTING_step_size": step_size,
-    "SETTING_flag": flag,
+    "SETTING_fvsi_thold": FILTER_SETTINGS["fvsi_threshold"],
+    "SETTING_sia_thold": FILTER_SETTINGS["sia_threshold"],
+    "SETTING_sza_thold": FILTER_SETTINGS["sza_threshold"],
+    "SETTING_o2_error": FILTER_SETTINGS["o2_error"],
+    "SETTING_step_size": FILTER_SETTINGS["step_size"],
+    "SETTING_flag": FILTER_SETTINGS["flag"],
 }
 
 
@@ -162,7 +147,13 @@ def filter_dataframes(df_calibrated):
                 df_calibrated.groupby(["Date", "ID_Spectrometer"])
                 .apply(
                     lambda x: column_functions.filterData(
-                        x, fvsi_thold, sia_thold, sza_thold, step_size, o2_error, flag
+                        x,
+                        FILTER_SETTINGS["fvsi_threshold"],
+                        FILTER_SETTINGS["sia_threshold"],
+                        FILTER_SETTINGS["sza_threshold"],
+                        FILTER_SETTINGS["step_size"],
+                        FILTER_SETTINGS["o2_error"],
+                        FILTER_SETTINGS["flag"],
                     )
                     if x.empty == False
                     else x
