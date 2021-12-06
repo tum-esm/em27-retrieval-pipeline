@@ -16,6 +16,11 @@ with open(f"{PROJECT_DIR}/config.json") as f:
     config = json.load(f)
     # TODO: validate config format
 
+UNITS = {
+    "xco2": "ppm",
+    "xch4": "ppm",
+    "xco": "ppb",
+}
 
 # set parameters
 # 1. basic filter settings
@@ -132,6 +137,98 @@ def read_database(date_string, remove_calibration_data=True):
     return df_all, df_calibration, df_location, df_spectrometer
 
 
+def filter_dataframe(df_calibrated, case):
+    output_dataframes = {
+        "raw": {"xco2": None, "xch4": None, "xco": None},
+        "filtered": {"xco2": None, "xch4": None, "xco": None},
+    }
+
+    for case in ["raw", "filtered"]:
+
+        ## Physical Filter ----------------------
+        if case == "filtered":
+            df_filtered = (
+                df_calibrated.groupby(["Date", "ID_Spectrometer"])
+                .apply(
+                    lambda x: column_functions.filterData(
+                        x, fvsi_thold, sia_thold, sza_thold, step_size, o2_error, flag
+                    )
+                    if x.empty == False
+                    else x
+                )
+                .drop(["Date", "ID_Spectrometer"], axis=1)
+                .droplevel(level=2)
+            )
+        else:
+            df_filtered = df_calibrated.set_index(["Date", "ID_Spectrometer"])
+
+        ## Gas seperated code ---------
+        for gas in ["xco2", "xch4", "xco"]:
+            COLUMN = f"{gas}_{UNITS[gas]}"
+            if gas == "xco":
+                df_tmp = df_filtered.dropna(subset=["xco_ppb"])
+                df_filtered = df_tmp.loc[df_tmp["xco_ppb"] < 200].copy()
+
+            df_filtered_dropped = df_filtered.drop(
+                columns=[f"{g}_{UNITS[g]}" for g in ["xco2", "xch4", "xco"] if g != gas]
+            )
+
+            ## Filter based on data statistics ----------------
+            if (case == "filtered") and (not df_filtered_dropped.empty):
+                df_filtered_statistical = apply_statistical_filters(
+                    df_filtered_dropped, gas, COLUMN
+                )
+            else:
+                df_filtered_statistical = df_filtered_dropped.drop(
+                    columns=["ID_Location"]
+                )
+
+            # Add Column ID_Location
+            df_complete = df_filtered_statistical.join(
+                (
+                    df_filtered[["ID_Location"]]
+                    .reset_index()
+                    .drop_duplicates(ignore_index=True)
+                    .set_index(["Date", "ID_Spectrometer"])
+                )
+            )
+
+            ## airmass correction for ch4
+            if gas == "xch4":
+                # parameter needed for air mass correction
+                df_filtered_dropped["elevation_angle"] = (
+                    90 - df_filtered_dropped["asza_deg"]
+                )
+
+                # The sub operation below required the index to be unique
+                # This line fixed the issue I experienced. Error message from before:
+                # "cannot handle a non-unique multi-index!"
+                df_filtered_dropped = df_filtered_dropped.reset_index().set_index(
+                    ["Date", "ID_Spectrometer", "Hour"]
+                )
+                df_filtered_dropped["xch4_ppm_sub_mean"] = df_filtered_dropped.sub(
+                    df_filtered_dropped[[COLUMN]].groupby(level=[0, 1]).mean()
+                )[COLUMN]
+
+                df_complete = column_functions.airmass_corr(
+                    df_complete, clc=True, big_dataSet=False
+                ).drop(
+                    [
+                        "xch4_ppm_sub_mean",
+                        "elevation_angle",
+                    ],
+                    axis=1,
+                )
+
+            output_dataframes[case][gas] = df_complete
+
+    for case in ["raw", "filtered"]:
+        for gas in ["xco2", "xch4", "xco"]:
+            assert output_dataframes[case][gas] is not None
+
+    return output_dataframes
+
+
 def filter_and_return(date_string, df_calibrated, df_location, case):
 
     # TODO: split function!
@@ -158,56 +255,43 @@ def filter_and_return(date_string, df_calibrated, df_location, case):
     # TODO: use dict as datastructure
     ## Gas seperated code ---------
     for gas in ["xco2", "xch4", "xco"]:
+        COLUMN = f"{gas}_{UNITS[gas]}"
         if gas == "xco":
-            column = "xco_ppb"
-            df_temp = df_filtered.dropna(subset=["xco_ppb"])
-            df_filtered = df_temp.loc[df_temp["xco_ppb"] < 200].copy()
-            df_filtered_droped = df_filtered.drop(columns=["xch4_ppm", "xco2_ppm"])
-        elif gas == "xco2":
-            column = "xco2_ppm"
-            df_filtered_droped = df_filtered.drop(columns=["xch4_ppm", "xco_ppb"])
-        elif gas == "xch4":
-            column = "xch4_ppm"
-            df_filtered_droped = df_filtered.drop(columns=["xco_ppb", "xco2_ppm"])
+            df_tmp = df_filtered.dropna(subset=["xco_ppb"])
+            df_filtered = df_tmp.loc[df_tmp["xco_ppb"] < 200].copy()
+
+        df_filtered_dropped = df_filtered.drop(
+            columns=[f"{g}_{UNITS[g]}" for g in ["xco2", "xch4", "xco"] if g != gas]
+        )
+
+        if gas == "xch4":
             # parameter needed for air mass correction
-            df_filtered_droped["elevation_angle"] = 90 - df_filtered_droped["asza_deg"]
+            df_filtered_dropped["elevation_angle"] = (
+                90 - df_filtered_dropped["asza_deg"]
+            )
 
             # The sub operation below required the index to be unique
             # This line fixed the issue I experienced. Error message from before:
             # "cannot handle a non-unique multi-index!"
-            df_filtered_droped = df_filtered_droped.reset_index().set_index(
+            df_filtered = df_filtered_dropped.reset_index().set_index(
                 ["Date", "ID_Spectrometer", "Hour"]
             )
-            df_filtered_droped["xch4_ppm_sub_mean"] = df_filtered_droped.sub(
-                df_filtered_droped[["xch4_ppm"]].groupby(level=[0, 1]).mean()
-            )["xch4_ppm"]
-        else:
-            raise Exception
+            df_filtered_dropped["xch4_ppm_sub_mean"] = df_filtered_dropped.sub(
+                df_filtered_dropped[[COLUMN]].groupby(level=[0, 1]).mean()
+            )[COLUMN]
 
         ## Filter based on data statistics ----------------
         if (case in ["website-filtered", "inversion-filtered"]) and (
-            not df_filtered_droped.empty
+            not df_filtered_dropped.empty
         ):
-            df_filteredPlus = apply_statistical_filters(df_filtered_droped, gas, column)
+            df_filtered_statistical = apply_statistical_filters(
+                df_filtered_dropped, gas, COLUMN
+            )
         else:
-            df_filteredPlus = df_filtered_droped.drop(columns=["ID_Location"])
-
-        # if gas == "xco2":
-        #     print(df_filteredPlus)
-        #     print(sorted(list(df_filteredPlus.columns)))
-
-        # print(sorted(list(df_filtered.columns)))
-
-        # if gas == "xco2":
-        #     print(df_filtered_droped)
-        #     print(df_filteredPlus)
-        #     print(sorted(df_filtered_droped.columns))
-        #     print(sorted(df_filteredPlus.columns))
-        # df_filteredPlus = df_filtered_droped
+            df_filtered_statistical = df_filtered_dropped.drop(columns=["ID_Location"])
 
         # Add Column ID_Location
-        # print(df_locationDay)
-        df_all_inf = df_filteredPlus.join(
+        df_all_inf = df_filtered_statistical.join(
             (
                 df_filtered[["ID_Location"]]
                 .reset_index()
@@ -228,6 +312,8 @@ def filter_and_return(date_string, df_calibrated, df_location, case):
             )
         else:
             df_corrected_inversion = df_all_inf
+
+        # TODO: cut here maybe?
 
         # Website (raw + filtered)
         if case in ["website-raw", "website-filtered"]:
