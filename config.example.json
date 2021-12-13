@@ -7,9 +7,8 @@
             "database": "*"
         },
         "strapi": {
-            "identifier": "*",
-            "password":  "*",
-            "url":       "*"
+            "url":    "*",
+            "apiKey": "*"
         }
     },
     "input": {
@@ -19,8 +18,8 @@
         "locations": ["GEO", "HAW"]
     },
     "filter": {
-        "movingWindowSize": 10,
-        "outputStepSize": 2,
+        "movingWindowSizeMinutes": 10,
+        "outputStepSizeMinutes": 2,
         "cases": ["outlier", "rollingMean", "continuous", "interval"]
     },
     "output": {
@@ -34,7 +33,7 @@
     },
     "meta": {
         "authors": [
-            { "name": "Adrian Wenzel",      "email": "adrian.wenzel@tum.de"      },
+            { "name": "Adrian Wenzel",      "email": "a.wenzel@tum.de"      },
             { "name": "Florian Dietrich",   "email": "flo.dietrich@tum.de"        },
             { "name": "Nico Nachtigall",    "email": "nico.nachtigall@tum.de"    },
             { "name": "Andreas Forstmaier", "email": "andreas.forstmaier@tum.de" },
