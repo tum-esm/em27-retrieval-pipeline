@@ -1,10 +1,7 @@
 import json
 import os
 from rich.progress import track
-from src import (
-    export_to_files,
-    generate_dataframes,
-)
+from src import export_to_files, generate_dataframes, upload_to_cms
 from src.helpers.constants import ALL_GASES
 from src.helpers.utils import day_string_is_valid
 
@@ -26,7 +23,7 @@ with open(f"{PROJECT_DIR}/config.json") as f:
     assert (
         len(config["authentication"]["strapi"].keys()) <= 3
     ), f"config.authentication.strapi has unknown options"
-    for key in ["identifier", "password", "url"]:
+    for key in ["url", "apiKey"]:
         assert isinstance(
             config["authentication"]["strapi"][key], str
         ), f"config.authentication.strapi.{key} has to be string"
@@ -53,11 +50,11 @@ with open(f"{PROJECT_DIR}/config.json") as f:
 
     # FILTER CONFIG
     assert isinstance(
-        config["filter"]["movingWindowSize"], int
-    ), "config.filter.movingWindowSize has to be integer"
+        config["filter"]["movingWindowSizeMinutes"], int
+    ), "config.filter.movingWindowSizeMinutes has to be integer"
     assert isinstance(
-        config["filter"]["outputStepSize"], int
-    ), "config.filter.outputStepSize has to be integer"
+        config["filter"]["outputStepSizeMinutes"], int
+    ), "config.filter.outputStepSizeMinutes has to be integer"
     assert isinstance(config["filter"]["cases"], list), "config.filter.cases invalid"
     assert set(["outlier", "rollingMean"]).issubset(
         set(config["filter"]["cases"])
@@ -105,11 +102,6 @@ with open(f"{PROJECT_DIR}/config.json") as f:
             author["email"], str
         ), f"config.meta.authors[i].email has to be string"
 
-    assert not config["output"]["exportToJSON"], "export to JSON does not work yet"
-    assert not config["output"][
-        "uploadToWebsite"
-    ], "upload to website does not work yet"
-
 
 def clear_upload_data(subdir, extension):
     d = f"{PROJECT_DIR}/data/{subdir}"
@@ -148,9 +140,8 @@ def run(day_strings):
             )
 
     if config["output"]["uploadToWebsite"]:
-        for day_string in track(day_strings, description="Uploading data to website"):
-            # upload_to_cms.run(day_string)
-            pass
+        upload_to_cms.run()
+        pass
 
 
 if __name__ == "__main__":
