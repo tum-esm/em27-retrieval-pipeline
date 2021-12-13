@@ -28,11 +28,11 @@ def apply_statistical_filters(df, gas, column):
         df,
         gas=gas,
         column=column,
-        clu_int=np.round(config["filter"]["outputStepSize"] / 60, 6),
+        clu_int=np.round(config["filter"]["outputStepSizeMinutes"] / 60, 6),
         drop_clu_info=FILTER_SETTINGS["drop_clu_info"],
         clu_str=FILTER_SETTINGS["cluster_start"],
         clu_end=FILTER_SETTINGS["cluster_end"],
-        clu_win=np.round(config["filter"]["movingWindowSize"] / 60, 6),
+        clu_win=np.round(config["filter"]["movingWindowSizeMinutes"] / 60, 6),
         case=config["filter"]["cases"],
     )
 

@@ -139,9 +139,141 @@ def as_csv(day_string, dataframes):
             ).set_index(["year_day_hour"]).to_csv(out_file)
 
 
-def as_json():
-    # TODO: Create tmp directory
-    # TODO: Save raw and filtered CSVs
-    # TODO: Convert CSVs to JSON
-    # TODO: Remove tmp directory
-    pass
+def as_json(day_string, dataframes):
+    # dataframes looks like this:
+    # {
+    #    "raw": {"co2": None, "ch4": None, "co": None},
+    #    "filtered": {"co2": None, "ch4": None, "co": None},
+    #     "meta": {
+    #         "dfLocation": ...,
+    #         "replacementDict": ...,
+    #     }
+    # }
+    output_dfs = {"raw": {}, "filtered": {}}
+
+    for gas in config["input"]["gases"]:
+        for case in ["raw", "filtered"]:
+
+            df_corrected_website = dataframes[case][gas].drop(
+                [
+                    "fvsi",
+                    "sia_AU",
+                    "asza_deg",
+                    "xo2_error",
+                    "pout_hPa",
+                    "pins_mbar",
+                    "column_o2",
+                    "column_h2o",
+                    "column_air",
+                    "xair",
+                    "xh2o_ppm",
+                ],
+                axis=1,
+            )
+
+            df_corrected_website = (
+                df_corrected_website.reset_index()
+                .set_index(["ID_Location"])
+                .join(
+                    dataframes["meta"]["dfLocation"].set_index(["ID_Location"])[
+                        ["Direction"]
+                    ]
+                )
+                .reset_index()
+            )
+            columns_to_drop = ["Date", "Direction"]
+            if (case == "website-filtered") and (not df_corrected_website.empty):
+                columns_to_drop += ["year", "month", "flag"]
+                df_corrected_website.reset_index()
+                df_corrected_website["Hour"] = df_corrected_website["Hour"].round(3)
+            df_corrected_website.rename(
+                columns={
+                    "Hour": "hour",
+                    "ID_Location": "location",
+                    "ID_Spectrometer": "spectrometer",
+                    f"x{gas}_{UNITS[gas]}": "x",
+                },
+                inplace=True,
+            )
+            df_corrected_website = (
+                df_corrected_website.drop(columns=columns_to_drop)
+                .set_index(["hour"])
+                .sort_index()
+            )
+
+            output_dfs[case][gas] = df_corrected_website
+
+    # output_dfs = {
+    #    "raw": {"co2": None, "ch4": None, "co": None},
+    #    "filtered": {"co2": None, "ch4": None, "co": None},
+    # }
+
+    output_jsons = []
+    # each json element = {
+    #     "sensor": *,
+    #     "location": *,
+    #     "gas": *,
+    #     "date": "2021-08-01",
+    #     "filteredCount": *,
+    #     "filteredTimeseries": {"xs": *, "ys": *},
+    #     "rawCount": *,
+    #     "rawTimeseries": {"xs": *, "ys": *},
+    #     "flagCount": *,
+    #     "flagTimeseries": {"xs": *, "ys": *},
+    # }
+
+    for gas in config["input"]["gases"]:
+        for location in config["input"]["locations"]:
+            timeseries_filtered = (
+                output_dfs["filtered"][gas]
+                .loc[(output_dfs["filtered"][gas]["location"] == location)]
+                .set_index("hour")
+                .sort_index()
+                .reset_index()
+            )
+            timeseries_raw = (
+                output_dfs["raw"][gas]
+                .loc[(output_dfs["raw"][gas]["location"] == location)]
+                .set_index("hour")
+                .sort_index()
+                .reset_index()
+            )
+            timeseries_flag = (
+                output_dfs["raw"][gas]
+                .loc[(output_dfs["raw"][gas]["location"] == location)]
+                .loc[(output_dfs["raw"][gas]["flag"] != 0)]
+                .set_index("hour")
+                .sort_index()
+                .reset_index()
+            )
+            sensors = unique(
+                list(timeseries_filtered["sensor"]) + list(timeseries_raw["sensor"])
+            )
+            assert len(sensors) == 1, "Sensor not unique"
+
+            output_jsons.append(
+                {
+                    "sensor": sensors[0],
+                    "location": location,
+                    "gas": gas,
+                    "date": f"{day_string[:4]}-{day_string[4:6]}-{day_string[6:]}",
+                    "filteredCount": len(list(timeseries_filtered["hour"])),
+                    "filteredTimeseries": {
+                        "xs": list(timeseries_filtered["hour"]),
+                        "ys": list(timeseries_filtered["x"]),
+                    },
+                    "rawCount": len(list(timeseries_raw["hour"])),
+                    "rawTimeseries": {
+                        "xs": list(timeseries_raw["hour"]),
+                        "ys": list(timeseries_raw["x"]),
+                    },
+                    "flagCount": len(list(timeseries_flag["hour"])),
+                    "flagTimeseries": {
+                        "xs": list(timeseries_flag["hour"]),
+                        "ys": list(timeseries_flag["x"]),
+                    },
+                }
+            )
+
+    with open(f"{PROJECT_DIR}/data/json-out/{day_string}.json", "w") as f:
+        json.dump(output_jsons, f, indent=2)
