@@ -1,7 +1,6 @@
 import json
 import pandas as pd
 import os
-import sys
 
 from src.helpers.constants import DEFAULT_SENSORS, UNITS
 from .helpers.utils import concat, unique, hour_to_timestring, replace_from_dict
@@ -121,7 +120,8 @@ def as_csv(day_string, dataframes):
     LOCATION_HEADER_ROWS = []
     for sensor in [DEFAULT_SENSORS[l] for l in config["input"]["locations"]]:
         if sensor in ACTUAL_LOCATIONS:
-            LOCATION_HEADER_ROWS.append(f"##    {sensor}: {ACTUAL_LOCATIONS[sensor]}")
+            LOCATION_HEADER_ROWS.append(
+                f"##    {sensor}: {ACTUAL_LOCATIONS[sensor]}")
         else:
             LOCATION_HEADER_ROWS.append(f"##    {sensor}: unknown (no data)")
 
@@ -133,7 +133,8 @@ def as_csv(day_string, dataframes):
                     "SENSOR_LOCATIONS": "\n".join(LOCATION_HEADER_ROWS),
                 }
             )
-            out_file.writelines(list(map(fillParameters, template_file.readlines())))
+            out_file.writelines(
+                list(map(fillParameters, template_file.readlines())))
             merged_df.fillna("NaN").reset_index().rename(
                 columns={"Hour": "year_day_hour"}
             ).set_index(["year_day_hour"]).to_csv(out_file)
@@ -185,7 +186,8 @@ def as_json(day_string, dataframes):
             if (case == "website-filtered") and (not df_corrected_website.empty):
                 columns_to_drop += ["year", "month", "flag"]
                 df_corrected_website.reset_index()
-                df_corrected_website["Hour"] = df_corrected_website["Hour"].round(3)
+                df_corrected_website["Hour"] = df_corrected_website["Hour"].round(
+                    3)
             df_corrected_website.rename(
                 columns={
                     "Hour": "hour",
@@ -222,58 +224,51 @@ def as_json(day_string, dataframes):
     #     "flagTimeseries": {"xs": *, "ys": *},
     # }
 
+    spectrometers = unique(concat(list(
+        output_dfs["raw"][gas]["spectrometer"]) for gas in config["input"]["gases"]))
+
     for gas in config["input"]["gases"]:
         for location in config["input"]["locations"]:
-            timeseries_filtered = (
-                output_dfs["filtered"][gas]
-                .loc[(output_dfs["filtered"][gas]["location"] == location)]
-                .set_index("hour")
-                .sort_index()
-                .reset_index()
-            )
-            timeseries_raw = (
-                output_dfs["raw"][gas]
-                .loc[(output_dfs["raw"][gas]["location"] == location)]
-                .set_index("hour")
-                .sort_index()
-                .reset_index()
-            )
-            timeseries_flag = (
-                output_dfs["raw"][gas]
-                .loc[(output_dfs["raw"][gas]["location"] == location)]
-                .loc[(output_dfs["raw"][gas]["flag"] != 0)]
-                .set_index("hour")
-                .sort_index()
-                .reset_index()
-            )
-            sensors = unique(
-                list(timeseries_filtered["sensor"]) + list(timeseries_raw["sensor"])
-            )
-            assert len(sensors) == 1, "Sensor not unique"
+            for spectrometer in spectrometers:
 
-            output_jsons.append(
-                {
-                    "sensor": sensors[0],
-                    "location": location,
-                    "gas": gas,
-                    "date": f"{day_string[:4]}-{day_string[4:6]}-{day_string[6:]}",
-                    "filteredCount": len(list(timeseries_filtered["hour"])),
-                    "filteredTimeseries": {
-                        "xs": list(timeseries_filtered["hour"]),
-                        "ys": list(timeseries_filtered["x"]),
-                    },
-                    "rawCount": len(list(timeseries_raw["hour"])),
-                    "rawTimeseries": {
-                        "xs": list(timeseries_raw["hour"]),
-                        "ys": list(timeseries_raw["x"]),
-                    },
-                    "flagCount": len(list(timeseries_flag["hour"])),
-                    "flagTimeseries": {
-                        "xs": list(timeseries_flag["hour"]),
-                        "ys": list(timeseries_flag["x"]),
-                    },
-                }
-            )
+                def apply_local_filter(df, remove_by_flag=False):
+                    a = df.loc[(df["location"] == location)].loc[(
+                        df["spectrometer"] == spectrometer)]
+                    b = a.loc[(a["flag"] != 0)] if remove_by_flag else a
+                    return b.sort_index().reset_index()
+
+                df_filtered = apply_local_filter(output_dfs["filtered"][gas])
+                df_raw = apply_local_filter(output_dfs["raw"][gas])
+                df_flag = apply_local_filter(
+                    output_dfs["raw"][gas], remove_by_flag=True)
+
+                def round_df_column(c):
+                    return list(map(lambda x: round(x, 3), list(c)))
+
+                if df_raw["x"].count() > 0:
+                    output_jsons.append(
+                        {
+                            "spectrometer": spectrometer,
+                            "location": location,
+                            "gas": gas,
+                            "date": f"{day_string[:4]}-{day_string[4:6]}-{day_string[6:]}",
+                            "filteredCount": df_filtered.shape[0],
+                            "filteredTimeseries": {
+                                "xs": round_df_column(df_filtered["hour"]),
+                                "ys": round_df_column(df_filtered["x"]),
+                            },
+                            "rawCount": df_raw.shape[0],
+                            "rawTimeseries": {
+                                "xs": round_df_column(df_raw["hour"]),
+                                "ys": round_df_column(df_raw["x"]),
+                            },
+                            "flagCount": df_flag.shape[0],
+                            "flagTimeseries": {
+                                "xs": round_df_column(df_flag["hour"]),
+                                "ys": round_df_column(df_flag["flag"]),
+                            },
+                        }
+                    )
 
     with open(f"{PROJECT_DIR}/data/json-out/{day_string}.json", "w") as f:
         json.dump(output_jsons, f, indent=2)
