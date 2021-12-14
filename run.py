@@ -142,7 +142,8 @@ def run(day_strings):
             )
 
     if config["output"]["uploadToWebsite"]:
-        upload_to_cms.run()
+        for day_string in track(day_strings, description="Upload data to CMS"):
+            upload_to_cms.run(day_string)
 
 
 if __name__ == "__main__":
