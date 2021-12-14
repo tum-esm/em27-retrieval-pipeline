@@ -55,7 +55,8 @@ with open(f"{PROJECT_DIR}/config.json") as f:
     assert isinstance(
         config["filter"]["outputStepSizeMinutes"], int
     ), "config.filter.outputStepSizeMinutes has to be integer"
-    assert isinstance(config["filter"]["cases"], list), "config.filter.cases invalid"
+    assert isinstance(config["filter"]["cases"],
+                      list), "config.filter.cases invalid"
     assert set(["outlier", "rollingMean"]).issubset(
         set(config["filter"]["cases"])
     ), 'config.filter.cases have to contain cases from of ["outlier", "rollingMean"]'
@@ -94,7 +95,8 @@ with open(f"{PROJECT_DIR}/config.json") as f:
         config["meta"]["authors"], list
     ), "config.meta.authors has to be a list"
     for author in config["meta"]["authors"]:
-        assert isinstance(author, dict), f"config.meta.authors can only contain dicts"
+        assert isinstance(
+            author, dict), f"config.meta.authors can only contain dicts"
         assert isinstance(
             author["name"], str
         ), f"config.meta.authors[i].name has to be string"
@@ -141,7 +143,6 @@ def run(day_strings):
 
     if config["output"]["uploadToWebsite"]:
         upload_to_cms.run()
-        pass
 
 
 if __name__ == "__main__":
@@ -149,7 +150,8 @@ if __name__ == "__main__":
         [
             str(d)
             for d in range(
-                int(config["input"]["startDate"]), int(config["input"]["endDate"]) + 1
+                int(config["input"]["startDate"]), int(
+                    config["input"]["endDate"]) + 1
             )
             if day_string_is_valid(str(d))
         ]
