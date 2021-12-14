@@ -152,6 +152,9 @@ def as_json(day_string, dataframes):
     # }
     output_dfs = {"raw": {}, "filtered": {}}
 
+    if dataframes is None:
+        return
+
     for gas in config["input"]["gases"]:
         for case in ["raw", "filtered"]:
 
@@ -232,10 +235,10 @@ def as_json(day_string, dataframes):
             for spectrometer in spectrometers:
 
                 def apply_local_filter(df, remove_by_flag=False):
-                    a = df.loc[(df["location"] == location)].loc[(
-                        df["spectrometer"] == spectrometer)]
-                    b = a.loc[(a["flag"] != 0)] if remove_by_flag else a
-                    return b.sort_index().reset_index()
+                    a = df.loc[(df["location"] == location)]
+                    b = a.loc[(a["spectrometer"] == spectrometer)]
+                    c = b.loc[(b["flag"] != 0)] if remove_by_flag else b
+                    return c.sort_index().reset_index()
 
                 df_filtered = apply_local_filter(output_dfs["filtered"][gas])
                 df_raw = apply_local_filter(output_dfs["raw"][gas])

@@ -1,8 +1,6 @@
-import os
+import time
 import json
 import httpx
-from .helpers.utils import load_json, ls_ext, unique
-from rich.progress import track
 from rich.console import Console
 
 console = Console()
@@ -49,23 +47,15 @@ def upload_data(data):
         raise Exception(f"automation is not behaving as expected: {r.json()}")
 
 
-def run():
-    # 1. determine days to be uploaded
-    all_day_strings = unique(
-        [
-            s[:8]
-            for s in ls_ext(f"{data_dir}/json-out", ".json")
-            if s[:8].isnumeric() and len(s) == 13
-        ]
-    )
-
-    # 2. upload all days
-    for day_string in track(all_day_strings, description="Upload days to Strapi"):
+def run(day_string):
+    MAX_ATTEMPTS = 3
+    for i in range(MAX_ATTEMPTS):
         with open(f"{data_dir}/json-out/{day_string}.json", "r") as f:
             try:
                 document = json.load(f)
                 assert isinstance(document, list)
-                assert all([isinstance(timeseries, dict) for timeseries in document])
+                assert all([isinstance(timeseries, dict)
+                           for timeseries in document])
                 assert all(
                     [
                         timeseries["date"]
@@ -75,6 +65,10 @@ def run():
                 )
                 for timeseries in document:
                     upload_data(timeseries)
-            except Exception as e:
-                print(e)
-                print(f"{day_string} could not be uploaded")
+                break
+            except Exception:
+                if i == MAX_ATTEMPTS - 1:
+                    raise Exception(f"{day_string} could not be uploaded")
+                else:
+                    time.sleep(0.3)
+                    continue
