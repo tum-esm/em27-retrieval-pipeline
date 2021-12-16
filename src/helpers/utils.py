@@ -3,6 +3,7 @@ import os
 import json
 import math
 from datetime import datetime, timezone
+import subprocess
 
 
 def unique(xs):
@@ -48,3 +49,41 @@ def hour_to_ts(day_ts, hour):
 
 def concat(xss):
     return list(functools.reduce(lambda a, b: a + b, xss, []))
+
+
+def get_commit_sha():
+    commit_sha_process = subprocess.Popen(
+        ["git", "rev-parse", "--verify", "HEAD"],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+    )
+    stdout, stderr = commit_sha_process.communicate()
+    commit_sha = stdout.decode().replace("\n", "").replace(" ", "")
+    assert len(commit_sha) > 0
+    return commit_sha
+
+
+def replace_from_dict(replacement_dict):
+    def f(text):
+        for key in replacement_dict:
+            text = text.replace(f"%{key}%", str(replacement_dict[key]))
+        return text
+
+    return f
+
+
+def day_string_is_valid(day_string):
+    try:
+        assert len(day_string) == 8
+        assert day_string.isnumeric()
+        year, month, day = (
+            int(day_string[:4]),
+            int(day_string[4:6]),
+            int(day_string[6:]),
+        )
+        assert month < 13
+        assert day < 32
+        datetime(year, month, day)  # throws ValueError when date is invalid
+        return True
+    except:
+        return False
