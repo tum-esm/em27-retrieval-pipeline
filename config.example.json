@@ -28,7 +28,7 @@
         "uploadToWebsite": false
     },
     "calibrationDays": {
-        "exportToCSV":  false,
+        "exportToCSV":  true,
         "exportToJSON": true
     },
     "meta": {

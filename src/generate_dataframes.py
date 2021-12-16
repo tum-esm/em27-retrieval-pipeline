@@ -5,7 +5,7 @@ import json
 import os
 from src import column_functions
 from src.helpers.constants import (
-    DEFAULT_SENSORS,
+    DEFAULT_SPECTROMETERS,
     UNITS,
     FILTER_SETTINGS,
     REPLACEMENT_DICT,
@@ -89,8 +89,8 @@ def read_from_database(date_string, remove_calibration_data=True):
     if remove_calibration_data:
         setup_query = " OR ".join(
             [
-                f'((ID_Location = "{l}") AND (ID_Spectrometer = "{DEFAULT_SENSORS[l]}"))'
-                for l in DEFAULT_SENSORS.keys()
+                f'((ID_Location = "{l}") AND (ID_Spectrometer = "{DEFAULT_SPECTROMETERS[l]}"))'
+                for l in DEFAULT_SPECTROMETERS.keys()
             ]
         )
         location_query += f" AND ({setup_query})"

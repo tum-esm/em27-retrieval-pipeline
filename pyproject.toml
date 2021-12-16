@@ -2,7 +2,7 @@
 name = "generate-website-data"
 version = "0.1.0"
 description = ""
-authors = ["Moritz Makowski <moritz.makowski@tum.de>"]
+authors = ["Moritz Makowski <moritz.makowski@tum.de>", "Nico Nachtigall", "Max Rißmann <max.rissmann@tum.de>", "Florian Dietrich <flo.dietrich@tum.de>"]
 
 [tool.poetry.dependencies]
 python = ">=3.9,<3.10"
