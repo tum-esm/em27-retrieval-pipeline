@@ -14,11 +14,11 @@ This repository contains all the code for extracting measurement data from our S
 
 ## Where to run it?
 
-You have to be inside the TUM network, either physically or via a VPN.
+You have to be inside the TUM network, either physically or via a VPN (https://wiki.tum.de/display/esm/VPN).
 
-As of right now, you have to set up this tool on your machine. In the future, we will have a group VM running Linux, where you can run tools like this and have all dependencies already installed. Details about this will come in January.
+As of right now, you have to set up this tool on your machine. In the future, we might have a group VM running Linux, where you can run tools like this and have all dependencies already installed. Details about this might come in January.
 
-Your system has to have **Python 3** (https://www.python.org/downloads/), **Git** (https://git-scm.com/) and a "Terminal"/"Shell"/"Command Prompt". The instructions here are from a Linux environment. I highly recommend you to work in a Linux environment when working with code.
+Your system has to have **Python 3** (https://www.python.org/downloads/), **Git** (https://git-scm.com/) and a "Terminal"/"Shell"/"Command Prompt" installed. The instructions here are from a Linux environment. I highly recommend you to work in a Linux/MacOS environment when working with code.
 
 <br/>
 
