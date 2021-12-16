@@ -55,7 +55,7 @@ poetry install
 
 ## FAQs
 
-**How does the filtering work?**
+### How does the filtering work?
 
 1. Calibrate the raw measurement data, calibration factors are used from the database
 2. Filter out any data where gfit flagged some anomaly (temperature in the enclosure, rapid concentration drop, etc.)
@@ -63,21 +63,29 @@ poetry install
 4. Compute a rolling mean over the remaining data
 5. Resample the smooth curves at a given rate for the output files
 
-**What do the filter settings do?**
+<br/>
+
+### What do the filter settings do?
 
 -   `filter.movingWindowSizeMinutes` is the size of the window that is used for the rolling average to smooth the data
 -   `filter.outputStepSizeMinutes` is the time between data points in the output data (`2` means there will be a row every two minutes - when there is any data after filtering).
 -   An explanation on the `filter.cases` can be found in the Master Thesis of Nico Nachtigall (NAS: `/tuei/esm/Thesis/Masterarbeiten/2020 MA Nico Nachtigall/Nachtigall_MasterThesis_final.pdf`)
 
-**How do I access the NAS?**
+<br/>
+
+### How do I access the NAS?
 
 See https://wiki.tum.de/display/esm/NAS
 
-**What other settings are there?**
+<br/>
+
+### What other settings are there?
 
 Have a look at `config.example.json`.
 
-**What does the `calibrationDays` setting do?**
+<br/>
+
+### What does the `calibrationDays` setting do?
 
 In an ideal setting, every location has a fixed spectrometer that is used there. Only on calibration days, some locations have other spectrometers measuring there. With `"calibrationDays": {"exportToCSV": false}` the data from a location and a different spectrometer is not considered.
 
@@ -98,6 +106,8 @@ Without that data from calibration, each column in the generated CSV - identifie
 
 **Disclaimer:** The default spectrometer for each location is given in `src/helpers/constants.py`. However, this is not fully working yet, since the default spectrometers might change over time (if spectrometers break for example). This is already being worked on: https://github.com/tum-esm/extract-retrieval-data/issues/11
 
-**What if I exhausted my resources and my question is still not answered?**
+<br/>
+
+### What if I exhausted my resources and my question is still not answered?
 
 Ask Moritz Makowski (moritz.makowski@tum.de).
