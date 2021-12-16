@@ -15,10 +15,10 @@ UNITS = {
     "co": "ppb",
 }
 
-# These are the locations where each sensor has been used permanently.
-# On calibration days sensors where move to other places. On these calibration
+# These are the locations where each spectrometer has been used permanently.
+# On calibration days spectrometers where move to other places. On these calibration
 # days, the data should not be used in the resulting CSV
-DEFAULT_SENSORS = {
+DEFAULT_SPECTROMETERS = {
     "HAW": "mb86",
     "GEO": "me17",
     "ROS": "md16",

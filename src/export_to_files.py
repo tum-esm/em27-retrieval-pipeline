@@ -2,7 +2,7 @@ import json
 import pandas as pd
 import os
 
-from src.helpers.constants import DEFAULT_SENSORS, UNITS
+from src.helpers.constants import DEFAULT_SPECTROMETERS, UNITS
 from .helpers.utils import concat, unique, hour_to_timestring, replace_from_dict
 
 
@@ -88,7 +88,7 @@ def as_csv(day_string, dataframes):
             lambda x: hour_to_timestring(day_string, x)
         )
 
-        for spectrometer in [DEFAULT_SENSORS[l] for l in config["input"]["locations"]]:
+        for spectrometer in [DEFAULT_SPECTROMETERS[l] for l in config["input"]["locations"]]:
             df = (
                 (
                     output_dfs[gas]
@@ -118,7 +118,7 @@ def as_csv(day_string, dataframes):
         ACTUAL_LOCATIONS.update({sensor: location})
 
     LOCATION_HEADER_ROWS = []
-    for sensor in [DEFAULT_SENSORS[l] for l in config["input"]["locations"]]:
+    for sensor in [DEFAULT_SPECTROMETERS[l] for l in config["input"]["locations"]]:
         if sensor in ACTUAL_LOCATIONS:
             LOCATION_HEADER_ROWS.append(
                 f"##    {sensor}: {ACTUAL_LOCATIONS[sensor]}")
