@@ -2,17 +2,12 @@
 name = "generate-website-data"
 version = "0.1.0"
 description = ""
-authors = ["Moritz Makowski <moritz.makowski@tum.de>"]
+authors = ["Moritz Makowski <moritz.makowski@tum.de>", "Nico Nachtigall", "Max Rißmann <max.rissmann@tum.de>", "Florian Dietrich <flo.dietrich@tum.de>"]
 
 [tool.poetry.dependencies]
 python = ">=3.9,<3.10"
 pandas = "^1.1.4"
 tqdm = "^4.53.0"
-faunadb = "^4.0.1"
-Cerberus = "^1.3.2"
-python-dotenv = "^0.15.0"
-firebase-admin = "^5.0.0"
-Pillow = "^8.2.0"
 rich = "^10.6.0"
 scipy = "^1.7.1"
 colorcet = "^2.0.6"
