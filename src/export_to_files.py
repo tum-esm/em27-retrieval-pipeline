@@ -246,7 +246,7 @@ def as_json(day_string, dataframes):
                     output_dfs["raw"][gas], remove_by_flag=True)
 
                 def round_df_column(c):
-                    return list(map(lambda x: round(x, 3), list(c)))
+                    return list(map(lambda x: round(x, {'co2': 3, 'ch4': 5, 'co': 3}[gas]), list(c)))
 
                 if df_raw["x"].count() > 0:
                     output_jsons.append(

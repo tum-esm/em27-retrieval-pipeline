@@ -1,3 +1,4 @@
+import os
 import time
 import json
 import httpx
@@ -50,25 +51,27 @@ def upload_data(data):
 def run(day_string):
     MAX_ATTEMPTS = 3
     for i in range(MAX_ATTEMPTS):
-        with open(f"{data_dir}/json-out/{day_string}.json", "r") as f:
-            try:
-                document = json.load(f)
-                assert isinstance(document, list)
-                assert all([isinstance(timeseries, dict)
-                           for timeseries in document])
-                assert all(
-                    [
-                        timeseries["date"]
-                        == f"{day_string[:4]}-{day_string[4:6]}-{day_string[6:]}"
-                        for timeseries in document
-                    ]
-                )
-                for timeseries in document:
-                    upload_data(timeseries)
-                break
-            except Exception:
-                if i == MAX_ATTEMPTS - 1:
-                    raise Exception(f"{day_string} could not be uploaded")
-                else:
-                    time.sleep(0.3)
-                    continue
+        file_path = f"{data_dir}/json-out/{day_string}.json"
+        if os.path.isfile(file_path):
+            with open(f"{data_dir}/json-out/{day_string}.json", "r") as f:
+                try:
+                    document = json.load(f)
+                    assert isinstance(document, list)
+                    assert all([isinstance(timeseries, dict)
+                                for timeseries in document])
+                    assert all(
+                        [
+                            timeseries["date"]
+                            == f"{day_string[:4]}-{day_string[4:6]}-{day_string[6:]}"
+                            for timeseries in document
+                        ]
+                    )
+                    for timeseries in document:
+                        upload_data(timeseries)
+                    break
+                except Exception:
+                    if i == MAX_ATTEMPTS - 1:
+                        raise Exception(f"{day_string} could not be uploaded")
+                    else:
+                        time.sleep(0.3)
+                        continue
