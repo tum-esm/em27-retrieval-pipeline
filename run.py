@@ -22,7 +22,7 @@ def clear_upload_data(subdir, extension):
         os.remove(f"{d}/{f}")
 
 
-def run(day_strings):
+def run_pipeline(day_strings):
     for day_string in track(day_strings, description="Removing existing output files"):
         if config["output"]["exportToCSV"]:
             clear_upload_data("csv-out", f"{day_string}.csv")
@@ -57,7 +57,7 @@ def run(day_strings):
 
 
 if __name__ == "__main__":
-    run(
+    run_pipeline(
         [
             str(d)
             for d in range(
