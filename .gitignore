@@ -4,6 +4,7 @@
 config.json
 *.pyc
 automation.log
+automatic-report.json
 data/**/*.csv
 data/**/*.json
 !data/csv-header-template.csv

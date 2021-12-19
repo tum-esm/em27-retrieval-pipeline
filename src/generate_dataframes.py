@@ -19,9 +19,6 @@ CSV_OUT_DIR = f"{PROJECT_DIR}/data/csv-out"
 with open(f"{PROJECT_DIR}/config.json") as f:
     config = json.load(f)
 
-# TODO: document "movingWindowSize" and "outputStepSize"
-# (moving window step size = time distance between resulting measurements)
-
 
 def apply_statistical_filters(df, gas, column):
     return column_functions.filter_DataStat(
@@ -41,8 +38,7 @@ def save_to_csv(dataframe, date_string, replacement_dict):
     with open(f"{PROJECT_DIR}/data/csv-header-template.csv", "r") as template_file:
         with open(f"{CSV_OUT_DIR}/{date_string}.csv", "w") as out_file:
             fillParameters = replace_from_dict(replacement_dict)
-            out_file.writelines(
-                list(map(fillParameters, template_file.readlines())))
+            out_file.writelines(list(map(fillParameters, template_file.readlines())))
             dataframe.to_csv(out_file)
 
 
@@ -52,15 +48,15 @@ def get_calibration_replacement_dict(df_calibration, date_string):
     df_calibration["ID"] = df_calibration["ID_SpectrometerCalibration"].map(
         lambda s: s[9:]
     )
-    df_cali = df_calibration.replace(
-        [np.inf, np.nan], 21000101).replace(["me17"], "me")
+    df_cali = df_calibration.replace([np.inf, np.nan], 21000101).replace(["me17"], "me")
     df_cali["StartDate"] = df_cali["StartDate"].astype(int)
     df_cali["EndDate"] = df_cali["EndDate"].astype(int)
     df_cali = df_cali[df_cali["StartDate"].astype(str) <= date_string]
     df_cali = df_cali[df_cali["EndDate"].astype(str) >= date_string]
     df_cali = df_cali.sort_values(by="StartDate")
 
-    def get_cal(s): return df_cali[df_cali["ID"].astype(str) == s].iloc[-1]
+    def get_cal(s):
+        return df_cali[df_cali["ID"].astype(str) == s].iloc[-1]
 
     for gas in ALL_GASES:
         for sensor in ALL_SENSORS:
@@ -68,22 +64,19 @@ def get_calibration_replacement_dict(df_calibration, date_string):
                 cal = get_cal(sensor)[f"{gas}_calibrationFactor"]
             except:
                 cal = "NaN"
-            CALIBRATION_REPLACEMENT_DICT.update(
-                {f"CALIBRATION_{sensor}_{gas}": cal})
+            CALIBRATION_REPLACEMENT_DICT.update({f"CALIBRATION_{sensor}_{gas}": cal})
 
     return CALIBRATION_REPLACEMENT_DICT
 
 
 def read_from_database(date_string, remove_calibration_data=True):
-    db_connection = mysql.connector.connect(
-        **config["authentication"]["mysql"])
+    db_connection = mysql.connector.connect(**config["authentication"]["mysql"])
 
-    def read(sql_string): return pd.read_sql(sql_string, con=db_connection)
+    def read(sql_string):
+        return pd.read_sql(sql_string, con=db_connection)
 
     date_query = f"(Date = {date_string})"
-    location_tuple = ", ".join(
-        map(lambda s: '"' + s + '"', config["input"]["locations"])
-    )
+    location_tuple = ", ".join([f'"{l}"' for l in config["input"]["locations"]])
     location_query = f"(ID_Location in ({location_tuple}))"
 
     if remove_calibration_data:
@@ -227,13 +220,11 @@ def run(date_string):
     for calibrationCase in dataframes.keys():
         df_all, df_calibration, df_location, _ = read_from_database(
             date_string,
-            remove_calibration_data=(
-                calibrationCase == "withoutCalibrationDays"),
+            remove_calibration_data=(calibrationCase == "withoutCalibrationDays"),
         )
 
         if not df_all.empty:
-            df_calibrated, _ = column_functions.hp.calibration(
-                df_all, df_calibration)
+            df_calibrated, _ = column_functions.hp.calibration(df_all, df_calibration)
 
             dataframes[calibrationCase] = {
                 **filter_dataframes(df_calibrated),
