@@ -1,6 +1,7 @@
 import json
 import pandas as pd
 import os
+import mysql.connector
 
 from src.helpers.constants import DEFAULT_SPECTROMETERS, UNITS
 from .helpers.utils import concat, unique, hour_to_timestring, replace_from_dict
@@ -88,7 +89,9 @@ def as_csv(day_string, dataframes):
             lambda x: hour_to_timestring(day_string, x)
         )
 
-        for spectrometer in [DEFAULT_SPECTROMETERS[l] for l in config["input"]["locations"]]:
+        for spectrometer in [
+            DEFAULT_SPECTROMETERS[l] for l in config["input"]["locations"]
+        ]:
             df = (
                 (
                     output_dfs[gas]
@@ -120,10 +123,27 @@ def as_csv(day_string, dataframes):
     LOCATION_HEADER_ROWS = []
     for sensor in [DEFAULT_SPECTROMETERS[l] for l in config["input"]["locations"]]:
         if sensor in ACTUAL_LOCATIONS:
-            LOCATION_HEADER_ROWS.append(
-                f"##    {sensor}: {ACTUAL_LOCATIONS[sensor]}")
+            LOCATION_HEADER_ROWS.append(f"##    {sensor}: {ACTUAL_LOCATIONS[sensor]}")
         else:
             LOCATION_HEADER_ROWS.append(f"##    {sensor}: unknown (no data)")
+
+    db_connection = mysql.connector.connect(**config["authentication"]["mysql"])
+    location_tuple = ", ".join([f'"{l}"' for l in config["input"]["locations"]])
+    coordinates_query_result = pd.read_sql(
+        f"""
+        SELECT ID_Location, Coordinates_Longitude, Coordinates_Latitude, Coordinates_Altitude
+        FROM location
+        WHERE ID_Location in ({location_tuple})
+        """,
+        con=db_connection,
+    ).values.tolist()
+    db_connection.close()
+
+    COORDINATES_HEADER_ROWS = []
+    for row in coordinates_query_result:
+        row[1:] = [format(x, ".3f").rjust(7, " ") for x in row[1:]]
+        row[0] = row[0].rjust(5, " ")
+        COORDINATES_HEADER_ROWS.append(f"##  {row[0]}: {row[1]}, {row[2]}, {row[3]}")
 
     with open(f"{PROJECT_DIR}/data/csv-header-template.csv", "r") as template_file:
         with open(f"{PROJECT_DIR}/data/csv-out/{day_string}.csv", "w") as out_file:
@@ -131,10 +151,10 @@ def as_csv(day_string, dataframes):
                 {
                     **dataframes["meta"]["replacementDict"],
                     "SENSOR_LOCATIONS": "\n".join(LOCATION_HEADER_ROWS),
+                    "LOCATION_COORDINATES": "\n".join(COORDINATES_HEADER_ROWS),
                 }
             )
-            out_file.writelines(
-                list(map(fillParameters, template_file.readlines())))
+            out_file.writelines(list(map(fillParameters, template_file.readlines())))
             merged_df.fillna("NaN").reset_index().rename(
                 columns={"Hour": "year_day_hour"}
             ).set_index(["year_day_hour"]).to_csv(out_file)
@@ -189,8 +209,7 @@ def as_json(day_string, dataframes):
             if (case == "website-filtered") and (not df_corrected_website.empty):
                 columns_to_drop += ["year", "month", "flag"]
                 df_corrected_website.reset_index()
-                df_corrected_website["Hour"] = df_corrected_website["Hour"].round(
-                    3)
+                df_corrected_website["Hour"] = df_corrected_website["Hour"].round(3)
             df_corrected_website.rename(
                 columns={
                     "Hour": "hour",
@@ -227,8 +246,12 @@ def as_json(day_string, dataframes):
     #     "flagTimeseries": {"xs": *, "ys": *},
     # }
 
-    spectrometers = unique(concat(list(
-        output_dfs["raw"][gas]["spectrometer"]) for gas in config["input"]["gases"]))
+    spectrometers = unique(
+        concat(
+            list(output_dfs["raw"][gas]["spectrometer"])
+            for gas in config["input"]["gases"]
+        )
+    )
 
     for gas in config["input"]["gases"]:
         for location in config["input"]["locations"]:
@@ -243,10 +266,16 @@ def as_json(day_string, dataframes):
                 df_filtered = apply_local_filter(output_dfs["filtered"][gas])
                 df_raw = apply_local_filter(output_dfs["raw"][gas])
                 df_flag = apply_local_filter(
-                    output_dfs["raw"][gas], remove_by_flag=True)
+                    output_dfs["raw"][gas], remove_by_flag=True
+                )
 
                 def round_df_column(c):
-                    return list(map(lambda x: round(x, {'co2': 3, 'ch4': 5, 'co': 3}[gas]), list(c)))
+                    return list(
+                        map(
+                            lambda x: round(x, {"co2": 3, "ch4": 5, "co": 3}[gas]),
+                            list(c),
+                        )
+                    )
 
                 if df_raw["x"].count() > 0:
                     output_jsons.append(

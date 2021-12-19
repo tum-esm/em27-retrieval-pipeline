@@ -31,4 +31,7 @@
 ## 	  ma61_co : %CALIBRATION_ma_co%
 ## SENSOR LOCATIONS:
 %SENSOR_LOCATIONS%
+## LOCATION COORDINATES:
+##             lng,     lat,     alt
+%LOCATION_COORDINATES%
 ###########################################
