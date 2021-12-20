@@ -62,7 +62,7 @@ _class: invert
 _backgroundImage: "url(images/dark-forest-bg.jpg)"
 -->
 
-# Workshop - Extract Retrieval Data
+# Overview - Extract Retrieval Data
 
 Moritz Makowski, moritz.makowski@tum.de
 
@@ -77,18 +77,15 @@ footer: '**Extract Retrieval Data**'
 # Agenda
 
 1. What is the goal of this "extraction"?
-2. Where is this data being stored?
-3. What happens during the filter process?
-4. Background knowlegde when using software tools like this
-5. How to use this tool
-6. ~~What `calibrationDays` are & the complication with them~~
-7. ~~How the automation works~~
+2. What happens during the filter process?
+3. Where is the novelty?
+4. How to access this data?
+5. Background knowledge for software tools like this
+6. How to use this tool
+7. ~~What `calibrationDays` are & the complication with them~~
+8. ~~How the automation works~~
 
 ---
-
-<!--
-footer: '**Extract Retrieval Data** - 1 - What is the goal of this "extraction"?'
--->
 
 ## 1. What is the goal of this "extraction"?
 
@@ -96,38 +93,19 @@ https://retrieval.esm.ei.tum.de/hamburg/2021-08-31
 
 <!--
 - Show retrieval plot
-- Raw data is store in a database
+- Raw data is stored in a database
 - The filtered data is easier to use in models
 -->
 
 ---
 
-![w:900](images/example-out.png)
+![w:900 center](images/example-out.png)
 
 https://github.com/tum-esm/extract-retrieval-data/blob/main/docs/example-out.csv
 
 ---
 
-<!--
-footer: '**Extract Retrieval Data** - 2 - Where is this data being stored?'
--->
-
-## 2. Where is this data being stored?
-
-https://wiki.tum.de/display/esm/EM27+Retrievals
-
-<!--
-- MySQL database
-- Raw data only
--->
-
----
-
-<!--
-footer: '**Extract Retrieval Data** - 3 - What happens during the filter process?'
--->
-
-## 3. What happens during the filter process?
+## 2. What happens during the filter process?
 
 1. **Calibrate** the raw measurement data
 2. Filter out data where **GFIT flagged** some anomaly
@@ -148,26 +126,149 @@ Show retrieval page again.
 
 ---
 
-Tweakable filter settings:
+**Tweakable filter settings:**
 
--   `filter.movingWindowSizeMinutes`
--   `filter.outputStepSizeMinutes`
--   `filter.cases`
+-   `movingWindowSizeMinutes`
+-   `outputStepSizeMinutes`
+-   `cases`
 
 <br/>
 
-See Master Thesis of Nico Nachtigall (NAS: `/tuei/esm/Thesis/Masterarbeiten/2020 MA Nico Nachtigall/Nachtigall_MasterThesis_final.pdf`)
+An explanation of the filter cases can be found in the master thesis of Nico Nachtigall (NAS: `/tuei/esm/Thesis/Masterarbeiten/2020 MA Nico Nachtigall/Nachtigall_MasterThesis_final.pdf`)
 
 ---
 
----
+## 3. Where is the novelty?
+
+![w:900 center](https://i.giphy.com/media/3o7aTskHEUdgCQAXde/giphy.webp)
 
 ---
 
+**How it used to be:** https://gitlab.lrz.de/esm/columnmeasurementautomation
+
+_(You should probably not try to understand this code)_
+
+<br/>
+
+**Problem:** One big pile of code that does everything: Triggering GFIT, loading data into the database, generating plots, generating CSV files, uploading data to the website.
+
+<!--
+- Plus: Everyone might want to use the data in a different way
+-->
+
 ---
 
-1. Terminology and Concepts: Git, GitHub, the Python Interpreter Virtual Python Environment, Dependencies
+**Goal:** Split this pipeline into two independent processes!
 
-2. What this tool does: Where the data is coming from, what the filter/interpolation steps are, how the output CSVs look
+<br/>
 
-3. How to use the tool: Where to find the code, how to configure it, how to run it
+1. Fill the database with retrieval data
+2. Use that database to generate certain output files
+
+<br/>
+
+**This project should implement a convenient way for you to generate output files from that database.**
+
+<!--
+- We handle the generation of retrieval data
+- Current and future systems are being/should be built in a similar way
+-->
+
+---
+
+## 4. How to access this data?
+
+https://wiki.tum.de/display/esm/EM27+Retrievals
+
+https://github.com/tum-esm/extract-retrieval-data
+
+<!--
+- MySQL database
+- Raw data only
+- extract-retrieval-data tool
+-->
+
+---
+
+## 5. Background knowledge for software tools like this
+
+---
+
+-   Git (https://wiki.tum.de/display/esm/Version+Control+with+Git)
+
+---
+
+-   GitHub/GitLab (https://wiki.tum.de/display/esm/GitHub+and+GitLab)
+
+![w:650 center ](images/github.com_tum-esm.png)
+
+---
+
+-   Python Interpreter & Dependencies (https://wiki.tum.de/display/esm/Python+Development)
+
+![w:450 center](images/dependencies.png)
+
+---
+
+<br/>
+
+-   Virtual Environments (https://wiki.tum.de/display/esm/Python+Development)
+
+```bash
+which python
+# output: /usr/bin/python
+
+source /Users/moritz/Documents/research/extract-retrieval-data/.venv/bin/activate
+
+which python
+# output: /Users/moritz/Documents/research/extract-retrieval-data/.venv/bin/python
+
+deactivate
+
+which python
+# output: /usr/bin/python
+```
+
+\* UNIX commands\_
+
+---
+
+## 6. How to use this tool
+
+👉 Why this is not a workshop.
+
+<br/>
+
+See setup instructions in the `README.md` at https://github.com/tum-esm/extract-retrieval-data.
+
+<!--
+
+- University machines
+- Different operating systems
+- Different skill levels
+
+-->
+
+---
+
+**`config.example.json`**: https://github.com/tum-esm/extract-retrieval-data/blob/main/config.example.json
+
+**`example-out.csv`**: https://github.com/tum-esm/extract-retrieval-data/blob/main/docs/example-out.csv
+
+---
+
+<!--
+_class: invert
+_backgroundImage: "url(images/dark-forest-bg.jpg)"
+_paginate: false
+-->
+
+# Overview - Extract Retrieval Data
+
+Moritz Makowski, moritz.makowski@tum.de
+
+---
+
+## 7. What `calibrationDays` are & the complication with them
+
+## 8. How the automation works
