@@ -223,6 +223,8 @@ Show issues on GitHub
 
 ## ![w:450 center](images/dependencies.png)
 
+---
+
 <br/>
 
 -   Virtual Environments (https://wiki.tum.de/display/esm/Python+Development)
