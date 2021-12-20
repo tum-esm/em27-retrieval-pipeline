@@ -60,6 +60,11 @@ REPLACEMENT_DICT = {
     "SETTING_o2_error": FILTER_SETTINGS["o2_error"],
     "SETTING_step_size": FILTER_SETTINGS["step_size"],
     "SETTING_flag": FILTER_SETTINGS["flag"],
+    "SETTING_moving_window_size_minutes": str(
+        config["filter"]["movingWindowSizeMinutes"]
+    ),
+    "SETTING_output_step_size_minutes": str(config["filter"]["outputStepSizeMinutes"]),
+    "SETTING_filter_cases": str(config["filter"]["cases"]),
 }
 
 ALL_GASES = ["co2", "ch4", "co"]
