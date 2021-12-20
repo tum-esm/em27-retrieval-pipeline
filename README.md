@@ -47,9 +47,12 @@ poetry install
 1. Use the file `config.example.json` to create a file `config.json` for your setup
 
 2. Run it with (using the virtual env from before):
+
     ```bash
     python run.py
     ```
+
+3. Your output files will be located in `data/csv-out` and `data/json-out`. An example for a generated csv can be found here: https://github.com/tum-esm/extract-retrieval-data/blob/main/docs/example-out.csv
 
 <br/>
 
