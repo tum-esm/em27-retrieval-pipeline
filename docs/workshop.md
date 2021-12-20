@@ -114,6 +114,9 @@ https://github.com/tum-esm/extract-retrieval-data/blob/main/docs/example-out.csv
 5. **Resample** the smooth curves at a given rate
 
 <!--
+
+You can all reread this in the README.md
+
 1. ... calibration factors are used from the database
 2. ... (temperature in the enclosure, rapid concentration drop, etc.)
 3. ... I will mention the filter cases in a minute
@@ -128,9 +131,9 @@ Show retrieval page again.
 
 **Tweakable filter settings:**
 
+-   `cases`
 -   `movingWindowSizeMinutes`
 -   `outputStepSizeMinutes`
--   `cases`
 
 <br/>
 
@@ -167,7 +170,7 @@ _(You should probably not try to understand this code)_
 
 <br/>
 
-**This project should implement a convenient way for you to generate output files from that database.**
+**This project** should implement a convenient way for you to **generate output files** from that database.
 
 <!--
 - We handle the generation of retrieval data
@@ -196,19 +199,29 @@ https://github.com/tum-esm/extract-retrieval-data
 
 -   Git (https://wiki.tum.de/display/esm/Version+Control+with+Git)
 
+<!--
+
+Switch to extract-retrieval-data in VSCode
+
+-->
+
 ---
 
 -   GitHub/GitLab (https://wiki.tum.de/display/esm/GitHub+and+GitLab)
 
 ![w:650 center ](images/github.com_tum-esm.png)
 
+<!--
+
+Show issues on GitHub
+
+-->
+
 ---
 
 -   Python Interpreter & Dependencies (https://wiki.tum.de/display/esm/Python+Development)
 
-![w:450 center](images/dependencies.png)
-
----
+## ![w:450 center](images/dependencies.png)
 
 <br/>
 
@@ -230,6 +243,12 @@ which python
 ```
 
 \* UNIX commands\_
+
+<!--
+
+Show venv in VS Code
+
+-->
 
 ---
 
