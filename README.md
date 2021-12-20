@@ -58,7 +58,7 @@ poetry install
 ### How does the filtering work?
 
 1. Calibrate the raw measurement data, calibration factors are used from the database
-2. Filter out any data where gfit flagged some anomaly (temperature in the enclosure, rapid concentration drop, etc.)
+2. Filter out any data where GFIT flagged some anomaly (temperature in the enclosure, rapid concentration drop, etc.)
 3. Filter out any data according to specific filter cases
 4. Compute a rolling mean over the remaining data
 5. Resample the smooth curves at a given rate for the output files

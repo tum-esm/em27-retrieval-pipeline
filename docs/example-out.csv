@@ -1,0 +1,51 @@
+###########################################
+## ABOUT:
+##    Authors:         Adrian Wenzel, Florian Dietrich, Nico Nachtigall, Andreas Forstmaier, Moritz Makowski
+##    Contact:         adrian.wenzel@tum.de, flo.dietrich@tum.de, nico.nachtigall@tum.de, andreas.forstmaier@tum.de, moritz.makowski@tum.de
+##    File generated:  2021-12-06 18:45:26.896453 UTC
+##    Code Repository: https://github.com/tum-esm/extract-retrieval-data-from-db
+##    Used commit SHA: 093870dfa29b94b32f3f3868f34f55ad6769d7a3
+## SETTINGS:
+## 	  fvsi_threshold:     5
+## 	  sia_threshold:      0.4
+## 	  sza_threshold:      75
+## 	  o2_error:           0.0005
+## 	  step_size:          0.1
+## 	  flag:                1
+## 	  background_filtered: False
+## CALIBRATION FACTORS:
+##    mb86_co2: 0.999542611
+## 	  mb86_ch4: 0.999751255
+## 	  mb86_co : 0.976165677
+## 	  mc15_co2: 0.999410291
+## 	  mc15_ch4: 0.999772659
+## 	  mc15_co : 0.965802141
+## 	  md16_co2: 0.999577834
+## 	  md16_ch4: 1.000035139
+## 	  md16_co : 0.970878877
+## 	  me17_co2: 0.999665509
+## 	  me17_ch4: 1.001556577
+## 	  me17_co : 0.967773823
+## 	  ma61_co2: 1.0
+## 	  ma61_ch4: 1.0
+## 	  ma61_co : 1.0
+## SENSOR LOCATIONS:
+##    me17: GEO
+##    mb86: HAW
+##    mc15: JOR
+##    md16: ROS
+## LOCATION COORDINATES:
+##             lng,     lat,     alt
+##    GEO:   9.974,  53.568,  25.000
+##    HAW:  10.200,  53.495,  41.000
+##    JOR:   9.677,  53.536,   8.000
+##    ROS:   9.892,  53.421,  98.000
+###########################################
+year_day_hour,      mc15_xco2_ppm_sc,   md16_xco2_ppm_sc, mc15_xch4_ppm_sc,   md16_xch4_ppm_sc   mc15_xco_ppb_sc,    md16_xco_ppb_sc
+2021-08-1206:00:59, 412.02071425886874, NaN,              1.9041824076792346, NaN                127.60001081459978, NaN
+2021-08-1206:02:59, 412.0075591602994,  NaN,              1.9042058983160552, NaN                127.5012970187914,  NaN
+2021-08-1206:04:59, 411.99274749780085, NaN,              1.9040060240929118, NaN                127.05500929304733, NaN
+2021-08-1206:06:59, 411.9823147582188,  NaN,              1.9038608421148986, NaN                126.49668502937106, NaN
+2021-08-1206:08:59, 411.95438482122177, NaN,              1.9035472063243717, NaN                125.61935033026604, NaN
+2021-08-1206:10:59, 411.930338382756,   NaN,              1.9031644223403748, NaN                124.95880755245473, NaN
+2021-08-1206:12:59, 411.9066550616497,  NaN,              1.903019380189071,  NaN                124.31807879650029, NaN
