@@ -6,14 +6,17 @@
 ##    Code Repository: https://github.com/tum-esm/extract-retrieval-data-from-db
 ##    Used commit SHA: 093870dfa29b94b32f3f3868f34f55ad6769d7a3
 ## SETTINGS:
-## 	  fvsi_threshold:     5
-## 	  sia_threshold:      0.4
-## 	  sza_threshold:      75
-## 	  o2_error:           0.0005
-## 	  step_size:          0.1
-## 	  flag:                1
-## 	  background_filtered: False
-## CALIBRATION FACTORS:
+## 	  fvsi_threshold:             5
+## 	  sia_threshold:              0.4
+## 	  sza_threshold:              75
+## 	  o2_error:                   0.0005
+## 	  step_size:                  0.1
+## 	  flag:                        1
+## 	  background_filtered:         False
+##    moving_window_size_minutes: 10
+##    output_step_size_minutes:   2
+##    filter_cases:                ['outlier', 'rollingMean']
+## APPLIED CALIBRATION FACTORS:
 ##    mb86_co2: 0.999542611
 ## 	  mb86_ch4: 0.999751255
 ## 	  mb86_co : 0.976165677
@@ -30,14 +33,10 @@
 ## 	  ma61_ch4: 1.0
 ## 	  ma61_co : 1.0
 ## SENSOR LOCATIONS:
-##    me17: GEO
-##    mb86: HAW
 ##    mc15: JOR
 ##    md16: ROS
 ## LOCATION COORDINATES:
 ##             lng,     lat,     alt
-##    GEO:   9.974,  53.568,  25.000
-##    HAW:  10.200,  53.495,  41.000
 ##    JOR:   9.677,  53.536,   8.000
 ##    ROS:   9.892,  53.421,  98.000
 ###########################################
