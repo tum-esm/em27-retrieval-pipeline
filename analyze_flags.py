@@ -5,13 +5,13 @@ flags = {}
 
 for filname in [f for f in os.listdir("data/json-out") if f.endswith(".json")]:
     with open(f"data/json-out/{filname}") as f:
-        tss = json.load(f)["data"]["flagTimeseries"]
-    for ts in tss:
-        for flag in ts["data"]["ys"]:
-            try:
-                flags[flag] += 1
-            except KeyError:
-                flags[flag] = 1
+        sensor_days = json.load(f)
+        for sensor_day in sensor_days:
+            for flag in sensor_day["flagTimeseries"]["ys"]:
+                try:
+                    flags[flag] += 1
+                except KeyError:
+                    flags[flag] = 1
 
 print(
     json.dumps(
