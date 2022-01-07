@@ -31,25 +31,19 @@ def run_pipeline(day_strings):
             clear_upload_data("json-out", f"{day_string}.json")
 
     for day_string in track(day_strings, description="Extracting and exporting data"):
-        dataframes = generate_dataframes.run(day_string)
-        if config["output"]["exportToCSV"]:
-            export_to_files.as_csv(
-                day_string,
-                dataframes[
-                    "withCalibrationDays"
-                    if config["calibrationDays"]["exportToCSV"]
-                    else "withoutCalibrationDays"
-                ],
-            )
-        if config["output"]["exportToJSON"]:
-            export_to_files.as_json(
-                day_string,
-                dataframes[
-                    "withCalibrationDays"
-                    if config["calibrationDays"]["exportToJSON"]
-                    else "withoutCalibrationDays"
-                ],
-            )
+        dataframes = generate_dataframes.run(day_string)[
+            "withCalibrationDays"
+            if config["calibrationDays"]["exportToCSV"]
+            else "withoutCalibrationDays"
+        ]
+
+        if dataframes is None:
+            print(f"No data for {day_string}")
+        else:
+            if config["output"]["exportToCSV"]:
+                export_to_files.as_csv(day_string, dataframes)
+            if config["output"]["exportToJSON"]:
+                export_to_files.as_json(day_string, dataframes)
 
     if config["output"]["uploadToWebsite"]:
         for day_string in track(day_strings, description="Upload data to CMS"):
