@@ -3,7 +3,7 @@
 ##    Authors:         Adrian Wenzel, Florian Dietrich, Nico Nachtigall, Andreas Forstmaier, Moritz Makowski
 ##    Contact:         adrian.wenzel@tum.de, flo.dietrich@tum.de, nico.nachtigall@tum.de, andreas.forstmaier@tum.de, moritz.makowski@tum.de
 ##    File generated:  2021-12-06 18:45:26.896453 UTC
-##    Code Repository: https://github.com/tum-esm/extract-retrieval-data-from-db
+##    Code Repository: https://github.com/tum-esm/extract-retrieval-data
 ##    Used commit SHA: 093870dfa29b94b32f3f3868f34f55ad6769d7a3
 ## SETTINGS:
 ## 	  fvsi_threshold:             5
