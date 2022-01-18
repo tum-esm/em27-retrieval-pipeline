@@ -81,6 +81,9 @@ def run():
             assert config["output"][
                 "exportToJSON"
             ], "config.output.uploadToWebsite requires config.output.exportToJSON to be true"
+        assert isinstance(
+            config["output"]["comment"], str
+        ), "config.output.comment has to be boolean"
 
         # CALIBRATION DAYS CONFIG
         assert isinstance(

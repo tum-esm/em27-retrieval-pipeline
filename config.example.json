@@ -25,7 +25,8 @@
     "output": {
         "exportToCSV": true,
         "exportToJSON": false,
-        "uploadToWebsite": false
+        "uploadToWebsite": false,
+        "comment": "..."
     },
     "calibrationDays": {
         "exportToCSV":  true,
