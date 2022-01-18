@@ -5,6 +5,7 @@
 ##    File generated:  %GENERATION_DATE%
 ##    Code Repository: %CODE_REPOSITORY%
 ##    Used commit SHA: %COMMIT_SHA%
+##    Comment:         %COMMENT%
 ## SETTINGS:
 ## 	  fvsi_threshold:             %SETTING_fvsi_thold%
 ## 	  sia_threshold:              %SETTING_sia_thold%

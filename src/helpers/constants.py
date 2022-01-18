@@ -54,6 +54,7 @@ REPLACEMENT_DICT = {
     "GENERATION_DATE": str(datetime.now()) + " UTC",
     "CODE_REPOSITORY": config["meta"]["codeRepository"],
     "COMMIT_SHA": utilities.get_commit_sha(),
+    "COMMENT": config["output"]["comment"],
     "SETTING_fvsi_thold": FILTER_SETTINGS["fvsi_threshold"],
     "SETTING_sia_thold": FILTER_SETTINGS["sia_threshold"],
     "SETTING_sza_thold": FILTER_SETTINGS["sza_threshold"],
