@@ -2,12 +2,11 @@ import json
 import os
 from rich.progress import track
 from src import (
-    export_to_files,
-    generate_dataframes,
-    upload_to_cms,
-    validate_configuration,
+    script_1_generate_dataframes,
+    script_2_export_to_files,
+    script_3_upload_to_cms,
 )
-from src.helpers.utils import day_string_is_valid
+from src.helpers import utilities, validate_configuration
 
 PROJECT_DIR = os.path.dirname(os.path.abspath(__file__))
 with open(f"{PROJECT_DIR}/config.json") as f:
@@ -31,7 +30,7 @@ def run_pipeline(day_strings):
             clear_upload_data("json-out", f"{day_string}.json")
 
     for day_string in track(day_strings, description="Extracting and exporting data"):
-        dataframes = generate_dataframes.run(day_string)[
+        dataframes = script_1_generate_dataframes.run(day_string)[
             "withCalibrationDays"
             if config["calibrationDays"]["exportToCSV"]
             else "withoutCalibrationDays"
@@ -41,13 +40,13 @@ def run_pipeline(day_strings):
             print(f"No data for {day_string}")
         else:
             if config["output"]["exportToCSV"]:
-                export_to_files.as_csv(day_string, dataframes)
+                script_2_export_to_files.as_csv(day_string, dataframes)
             if config["output"]["exportToJSON"]:
-                export_to_files.as_json(day_string, dataframes)
+                script_2_export_to_files.as_json(day_string, dataframes)
 
     if config["output"]["uploadToWebsite"]:
         for day_string in track(day_strings, description="Upload data to CMS"):
-            upload_to_cms.run(day_string)
+            script_3_upload_to_cms.run(day_string)
 
 
 if __name__ == "__main__":
@@ -57,6 +56,6 @@ if __name__ == "__main__":
             for d in range(
                 int(config["input"]["startDate"]), int(config["input"]["endDate"]) + 1
             )
-            if day_string_is_valid(str(d))
+            if utilities.day_string_is_valid(str(d))
         ]
     )

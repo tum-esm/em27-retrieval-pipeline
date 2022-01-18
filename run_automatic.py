@@ -1,11 +1,9 @@
 import json
 import os
 import datetime
-from src import (
-    update_automation_report,
-    validate_configuration,
-)
+from src.helpers import validate_configuration
 from run import run_pipeline
+from src.helpers import update_automation_report
 
 PROJECT_DIR = os.path.dirname(os.path.abspath(__file__))
 with open(f"{PROJECT_DIR}/config.json") as f:
