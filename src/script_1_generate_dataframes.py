@@ -12,7 +12,7 @@ from src.helpers.constants import (
     ALL_GASES,
     ALL_SENSORS,
 )
-from .helpers.utils import replace_from_dict
+from src.helpers import utilities
 
 PROJECT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 CSV_OUT_DIR = f"{PROJECT_DIR}/data/csv-out"
@@ -37,7 +37,7 @@ def apply_statistical_filters(df, gas, column):
 def save_to_csv(dataframe, date_string, replacement_dict):
     with open(f"{PROJECT_DIR}/data/csv-header-template.csv", "r") as template_file:
         with open(f"{CSV_OUT_DIR}/{date_string}.csv", "w") as out_file:
-            fillParameters = replace_from_dict(replacement_dict)
+            fillParameters = utilities.replace_from_dict(replacement_dict)
             out_file.writelines(list(map(fillParameters, template_file.readlines())))
             dataframe.to_csv(out_file)
 

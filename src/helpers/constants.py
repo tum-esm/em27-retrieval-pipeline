@@ -1,7 +1,7 @@
 from datetime import datetime
 import json
 import os
-from src.helpers.utils import get_commit_sha
+from src.helpers import utilities
 
 PROJECT_DIR = os.path.dirname(
     os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -53,7 +53,7 @@ REPLACEMENT_DICT = {
     ),
     "GENERATION_DATE": str(datetime.now()) + " UTC",
     "CODE_REPOSITORY": config["meta"]["codeRepository"],
-    "COMMIT_SHA": get_commit_sha(),
+    "COMMIT_SHA": utilities.get_commit_sha(),
     "SETTING_fvsi_thold": FILTER_SETTINGS["fvsi_threshold"],
     "SETTING_sia_thold": FILTER_SETTINGS["sia_threshold"],
     "SETTING_sza_thold": FILTER_SETTINGS["sza_threshold"],
