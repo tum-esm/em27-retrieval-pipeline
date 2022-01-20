@@ -1,7 +1,10 @@
 import os
+import sys
 import time
 import json
 import httpx
+import threading
+import queue
 from rich.console import Console
 
 console = Console()
@@ -21,57 +24,65 @@ HEADERS = {
 }
 
 
-def upload_data(data):
-    # data = {
-    #     "sensor": *,
-    #     "location": *,
-    #     "gas": *,
-    #     "date": "2021-08-01",
-    #     "filteredCount": *,
-    #     "filteredTimeseries": {"xs": *, "ys": *},
-    #     "rawCount": *,
-    #     "rawTimeseries": {"xs": *, "ys": *},
-    #     "flagCount": *,
-    #     "flagTimeseries": {"xs": *, "ys": *},
-    # }
+class MonitoredThread(threading.Thread):
+    def __init__(self, data, bucket):
+        threading.Thread.__init__(self)
+        self.data = data
+        self.bucket = bucket
 
-    r = httpx.post(
-        DATA_URL,
-        headers=HEADERS,
-        data=json.dumps({"data": data}),
-    )
+    def run(self):
+        try:
+            upload_data(self.data)
+        except Exception:
+            self.bucket.put(sys.exc_info())
+
+
+def upload_data(data):
+    thread_label = f"thread {data['date']}.{data['gas']}.{data['spectrometer']}"
+    try:
+        r = httpx.post(
+            DATA_URL, headers=HEADERS, data=json.dumps({"data": data}), timeout=60
+        )
+    except httpx.ReadTimeout:
+        raise Exception(f"httpx read timeout in {thread_label}")
     if r.status_code == 400:
-        console.print(
-            f'JSON format invalid: {r.json()["error"]["message"]}', style="bold red"
+        raise Exception(
+            f'JSON format invalid in {thread_label}: {r.json()["error"]["message"]}'
         )
     elif r.status_code != 200:
-        raise Exception(f"automation is not behaving as expected: {r.json()}")
+        raise Exception(
+            f"automation is not behaving as expected in {thread_label}: {r.json()}"
+        )
 
 
 def run(day_string):
-    MAX_ATTEMPTS = 3
-    for i in range(MAX_ATTEMPTS):
-        file_path = f"{data_dir}/json-out/{day_string}.json"
-        if os.path.isfile(file_path):
-            with open(f"{data_dir}/json-out/{day_string}.json", "r") as f:
+    exceptionQueue = queue.Queue()
+
+    file_path = f"{data_dir}/json-out/{day_string}.json"
+    if os.path.isfile(file_path):
+        with open(f"{data_dir}/json-out/{day_string}.json", "r") as f:
+            document = json.load(f)
+            assert isinstance(document, list)
+            assert all([isinstance(timeseries, dict) for timeseries in document])
+            assert all(
+                [
+                    timeseries["date"]
+                    == f"{day_string[:4]}-{day_string[4:6]}-{day_string[6:]}"
+                    for timeseries in document
+                ]
+            )
+            print(f"{day_string} ({len(document)} timeseries)")
+            threads = [
+                MonitoredThread(timeseries, exceptionQueue) for timeseries in document
+            ]
+            for t in threads:
+                t.start()
+            for t in threads:
                 try:
-                    document = json.load(f)
-                    assert isinstance(document, list)
-                    assert all([isinstance(timeseries, dict)
-                                for timeseries in document])
-                    assert all(
-                        [
-                            timeseries["date"]
-                            == f"{day_string[:4]}-{day_string[4:6]}-{day_string[6:]}"
-                            for timeseries in document
-                        ]
-                    )
-                    for timeseries in document:
-                        upload_data(timeseries)
-                    break
-                except Exception:
-                    if i == MAX_ATTEMPTS - 1:
-                        raise Exception(f"{day_string} could not be uploaded")
-                    else:
-                        time.sleep(0.3)
-                        continue
+                    exc = exceptionQueue.get(block=False)
+                except queue.Empty:
+                    t.join()
+                else:
+                    exc_type, exc_obj, exc_trace = exc
+                    print(exc_type, exc_obj)
+                    sys.exit()
