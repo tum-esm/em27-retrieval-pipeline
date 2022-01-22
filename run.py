@@ -35,7 +35,7 @@ def main():
 
         if os.path.isfile(cached_file_path):
             shutil.copyfile(cached_file_path, dst_file_path)
-            console.print(f"[bold blue]Finished {DATE}")
+            console.print(f"[bold blue]Map Download - Finished {DATE} from cache")
             continue
 
         with open(f"input_file.txt", "w") as f:
@@ -93,7 +93,7 @@ def main():
             os.rename(f"L1{DATE}.map", dst_file_path)
             os.remove(map_file)
 
-        console.print(f"[bold blue]{DATE} - Finished map file")
+        console.print(f"[bold blue]Map Download - Finished {DATE}")
 
 
 if __name__ == "__main__":
