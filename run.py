@@ -1,6 +1,5 @@
 import os
 import subprocess
-import logging
 import time
 import json
 from rich.console import Console
@@ -35,7 +34,7 @@ def main():
 
         if os.path.isfile(cached_file_path):
             shutil.copyfile(cached_file_path, dst_file_path)
-            console.print(f"[bold blue]Map Download - Finished {DATE} from cache")
+            console.print(f"[bold blue]{DATE} - Map Download - Finished from cache")
             continue
 
         with open(f"input_file.txt", "w") as f:
@@ -43,7 +42,9 @@ def main():
                 "\n".join(["L1", DATE, DATE, str(round(LAT)), str(round(LNG)), USER])
             )
 
-        with console.status(f"[bold green]{DATE} - Uploading map request") as status:
+        with console.status(
+            f"[bold green]{DATE} - Map Download - Uploading map request"
+        ) as status:
             while True:
                 try:
                     result = subprocess.run(
@@ -57,7 +58,10 @@ def main():
                 except:
                     console.print_exception(show_locals=True)
                     # error, when calling login.sh too fast in a row
-                    logging.error("too frequent file request - cooling down a minute")
+                    console.print(
+                        f"[bold yellow]{DATE} - Map Download - too frequent file "
+                        + "request, cooling down a minute"
+                    )
                     time.sleep(60)
 
             os.remove("input_file.txt")
@@ -82,7 +86,9 @@ def main():
                     break
                 time.sleep(8)
 
-        with console.status(f"[bold green]{DATE} - Processing map file") as status:
+        with console.status(
+            f"[bold green]{DATE} - Map Download - Processing map file"
+        ) as status:
             p = subprocess.run(
                 ["tar", "-xvf", map_file],
                 stderr=subprocess.PIPE,
@@ -93,7 +99,7 @@ def main():
             os.rename(f"L1{DATE}.map", dst_file_path)
             os.remove(map_file)
 
-        console.print(f"[bold blue]Map Download - Finished {DATE}")
+        console.print(f"[bold blue]{DATE} - Map Download - Finished")
 
 
 if __name__ == "__main__":
