@@ -5,3 +5,4 @@ input_file.txt
 config.json
 .DS_Store
 archive
+out/*
