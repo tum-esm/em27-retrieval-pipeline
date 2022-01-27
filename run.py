@@ -7,6 +7,7 @@ import shutil
 
 console = Console()
 PROJECT_DIR = os.path.dirname(os.path.abspath(__file__))
+TIMEOUT = 300  # abort download after 5 minutes
 
 
 def main():
@@ -66,7 +67,7 @@ def main():
                     else:
                         console.print(
                             f"[bold red]{DATE} - Map Download - "
-                            + f"Uploading request failed: {result.stderr}"
+                            + f"Uploading request failed: {result.stderr.decode()}"
                         )
                         return
 
@@ -78,6 +79,7 @@ def main():
             f"[bold blue]{DATE} - Map Download - Downloading file",
             spinner_style="bold blue",
         ):
+            running_time = 0
             while True:
                 result = subprocess.run(
                     [
@@ -91,16 +93,23 @@ def main():
                     stdout=subprocess.PIPE,
                     stderr=subprocess.PIPE,
                 )
-                if result.returncode != 0:
-                    console.print(
-                        f"[bold red]{DATE} - Map Download - "
-                        + f"command 'wget ...' returned "
-                        + f"a non-zero exit code: {result.stderr}"
-                    )
-                    return
                 if os.path.isfile(map_file):
                     break
-                time.sleep(8)
+                else:
+                    if ".tar ... \nNo such file" not in result.stderr.decode():
+                        console.print(
+                            f"[bold red]{DATE} - Map Download - "
+                            + f"command 'wget ...' returned "
+                            + f"a non-zero exit code: {result.stderr.decode()}"
+                        )
+                        return
+                    if running_time > TIMEOUT:
+                        console.print(
+                            f"[bold yellow]{DATE} - Map Download - Timed out after 5 minutes"
+                        )
+                        return
+                    running_time += 8
+                    time.sleep(8)
 
         with console.status(
             f"[bold blue]{DATE} - Map Download - Processing file",
@@ -115,7 +124,7 @@ def main():
                 console.print(
                     f"[bold red]{DATE} - Map Download - "
                     + f"command 'tar ...' returned "
-                    + f"a non-zero exit code: {result.stderr}"
+                    + f"a non-zero exit code: {result.stderr.decode()}"
                 )
                 return
             assert os.path.isfile(f"L1{DATE}.map")
