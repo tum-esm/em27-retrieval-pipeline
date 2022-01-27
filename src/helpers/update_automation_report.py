@@ -7,7 +7,8 @@ from src.helpers import validate_configuration
 
 console = Console()
 
-PROJECT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+dir = os.path.dirname
+PROJECT_DIR = dir(dir(dir(os.path.abspath(__file__))))
 REPORT_PATH = f"{PROJECT_DIR}/automatic-report.json"
 
 with open(f"{PROJECT_DIR}/config.json") as f:
@@ -32,9 +33,11 @@ def generate_report():
     )
     connection.close()
 
-    report = {s: {} for s in LOCATIONS}
+    report = {s.replace("GRÄ", "GRAE"): {} for s in LOCATIONS}
     for index, row in df.iterrows():
-        report[str(row["ID_Location"])][str(row["Date"])] = int(row["COUNT(*)"])
+        report[str(row["ID_Location"]).replace("GRÄ", "GRAE")][str(row["Date"])] = int(
+            row["COUNT(*)"]
+        )
 
     return report
 
@@ -42,6 +45,7 @@ def generate_report():
 def get_dates_to_be_updated(old_report, new_report):
     dates_to_be_updated = {}
     for s in LOCATIONS:
+        s = s.replace("GRÄ", "GRAE")
         for d in new_report[s].keys():
             if d not in old_report[s]:
                 old_report[s][d] = 0
@@ -60,7 +64,7 @@ def run():
             with open(REPORT_PATH) as f:
                 old_report = json.load(f)
         else:
-            old_report = {s: {} for s in LOCATIONS}
+            old_report = {s.replace("GRÄ", "GRAE"): {} for s in LOCATIONS}
 
         # overwrite old report with new report
         with open(REPORT_PATH, "w") as f:

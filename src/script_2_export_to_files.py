@@ -290,7 +290,7 @@ def as_json(day_string, dataframes):
                     output_jsons.append(
                         {
                             "spectrometer": spectrometer,
-                            "location": location,
+                            "location": location.replace("GRÄ", "GRAE"),
                             "gas": gas,
                             "date": f"{day_string[:4]}-{day_string[4:6]}-{day_string[6:]}",
                             "filteredCount": df_filtered.shape[0],
