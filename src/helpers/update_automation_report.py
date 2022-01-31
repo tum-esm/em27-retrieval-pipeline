@@ -27,7 +27,7 @@ def generate_report():
         (Date <= '{config["input"]["endDate"]}') AND
         (ID_Location in ({', '.join([repr(l) for l in LOCATIONS])}))
         GROUP BY Date, ID_Location
-        ORDER BY Count(*) DESC
+        ORDER BY Date DESC
         """,
         con=connection,
     )
@@ -56,7 +56,7 @@ def get_dates_to_be_updated(old_report, new_report):
     return dates_to_be_updated
 
 
-def run():
+def run(update_report_file=False):
     with console.status("[bold green]Updating report"):
         # collect current state in MySQL and state at last automatic run
         new_report = generate_report()
@@ -67,8 +67,9 @@ def run():
             old_report = {s.replace("GRÄ", "GRAE"): {} for s in LOCATIONS}
 
         # overwrite old report with new report
-        with open(REPORT_PATH, "w") as f:
-            json.dump(new_report, f, indent=4)
+        if update_report_file:
+            with open(REPORT_PATH, "w") as f:
+                json.dump(new_report, f, indent=4)
 
         # compare reports and determine changed dates
         dates_to_be_updated = get_dates_to_be_updated(old_report, new_report)

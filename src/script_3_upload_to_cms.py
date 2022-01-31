@@ -1,6 +1,5 @@
 import os
 import sys
-import time
 import json
 import httpx
 import threading
@@ -85,4 +84,4 @@ def run(day_string):
                 else:
                     exc_type, exc_obj, exc_trace = exc
                     print(exc_type, exc_obj)
-                    sys.exit()
+                    raise Exception(f"{exc_type}: {exc_obj}, {exc_trace}")
