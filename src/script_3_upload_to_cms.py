@@ -1,6 +1,7 @@
 import os
 import sys
 import json
+import time
 import httpx
 import threading
 import queue
@@ -38,20 +39,28 @@ class MonitoredThread(threading.Thread):
 
 def upload_data(data):
     thread_label = f"thread {data['date']}.{data['gas']}.{data['spectrometer']}"
-    try:
-        r = httpx.post(
-            DATA_URL, headers=HEADERS, data=json.dumps({"data": data}), timeout=60
-        )
-    except httpx.ReadTimeout:
-        raise Exception(f"httpx read timeout in {thread_label}")
-    if r.status_code == 400:
-        raise Exception(
-            f'JSON format invalid in {thread_label}: {r.json()["error"]["message"]}'
-        )
-    elif r.status_code != 200:
-        raise Exception(
-            f"automation is not behaving as expected in {thread_label}: {r.json()}"
-        )
+    failed_attempts = 0
+
+    while True:
+        try:
+            r = httpx.post(
+                DATA_URL, headers=HEADERS, data=json.dumps({"data": data}), timeout=60
+            )
+            if r.status_code == 400:
+                raise Exception(
+                    f'JSON format invalid in {thread_label}: {r.json()["error"]["message"]}'
+                )
+            assert r.status_code == 200, r.json()
+            return
+        except (AssertionError, json.decoder.JSONDecodeError) as e:
+            failed_attempts += 1
+            if failed_attempts > 4:
+                raise Exception(
+                    f"automation is not behaving as expected in {thread_label}: {e}"
+                )
+            else:
+                # sleeping for 15 seconds until the upload is tried again
+                time.sleep(15)
 
 
 def run(day_string):
