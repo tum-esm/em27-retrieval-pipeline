@@ -6,7 +6,7 @@ authors = ["Moritz Makowski <moritz.makowski@tum.de>", "Nico Nachtigall", "Max R
 
 [tool.poetry.dependencies]
 python = ">=3.9,<3.10"
-pandas = "^1.1.4"
+pandas = "1.1.4"
 tqdm = "^4.53.0"
 rich = "^10.6.0"
 scipy = "^1.7.1"
