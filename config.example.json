@@ -1,7 +1,9 @@
 {
-    "lat": -48.151,
-    "lng": -11.569,
+    "lat": 48.151,
+    "lng": 11.569,
     "dates": ["20210511", "20210512", "20210513"],
     "user": "someone@somecompany.sometld",
-    "dst": "somedir"
+    "dst": "somedir",
+    "downloadMap": true,
+    "downloadMod": true
 }
