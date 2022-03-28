@@ -21,6 +21,8 @@ def main():
         DATES = config["dates"]
         USER = config["user"]
         DST = config["dst"]
+        DOWNLOAD_MAP = config["downloadMap"]
+        DOWNLOAD_MOD = config["downloadMod"]
         assert os.path.isdir(DST)
     except KeyError:
         raise Exception("config.json invalid")
@@ -30,112 +32,147 @@ def main():
     for DATE in DATES:
         lat_str = str(abs(round(LAT))).zfill(2) + ("N" if LAT > 0 else "S")
         lng_str = str(abs(round(LNG))).zfill(3) + ("E" if LNG > 0 else "W")
-        cached_file_path = f"{PROJECT_DIR}/cache/L1_{DATE}_{lat_str}{lng_str}.map"
-        dst_file_path = f"{DST}/L1{DATE}.map"
 
-        if os.path.isfile(cached_file_path):
-            shutil.copyfile(cached_file_path, dst_file_path)
-            console.print(f"[bold green]{DATE} - Map Download - Finished from cache")
-            continue
+        finished_files = {"map": False, "mod": False}
+        filenames = {
+            "map": {
+                "cache": f"{DATE}_{lat_str}_{lng_str}.map",
+                "tar": f"maps_{lat_str}{lng_str}_{DATE}_{DATE}.tar",
+                "dst": f"L1{DATE}.map",
+            },
+            "mod": {
+                "cache": f"{DATE}_{lat_str}_{lng_str}.mod",
+                "tar": f"mods_{lat_str}{lng_str}_{DATE}_{DATE}.tar",
+                "dst": f"NCEP_{DATE}_{lat_str}_{lng_str}.mod",
+            },
+        }
+        filetypes = []
+        if DOWNLOAD_MAP:
+            filetypes.append("map")
+        if DOWNLOAD_MOD:
+            filetypes.append("mod")
 
-        with open(f"input_file.txt", "w") as f:
-            f.write(
-                "\n".join(["L1", DATE, DATE, str(round(LAT)), str(round(LNG)), USER])
-            )
-
-        with console.status(
-            f"[bold blue]{DATE} - Map Download - Uploading request",
-            spinner_style="bold blue",
-        ):
-            while True:
-                try:
-                    result = subprocess.run(
-                        ["bash", f"{PROJECT_DIR}/upload_request.sh"],
-                        stdout=subprocess.PIPE,
-                        stderr=subprocess.PIPE,
-                        env={**os.environ.copy(), "PASSWD": USER},
-                    )
-                    assert result.returncode == 0
-                    break
-                except:
-                    if "Access failed: 553" in result.stderr.decode():
-                        console.print(
-                            f"[bold blue]{DATE} - Map Download - "
-                            + "Request was rate limited, waiting 1 minute"
-                        )
-                        time.sleep(60)
-                    else:
-                        console.print(
-                            f"[bold red]{DATE} - Map Download - "
-                            + f"Uploading request failed: {result.stderr.decode()}"
-                        )
-                        return
-
-            os.remove("input_file.txt")
-
-        map_file = f"maps_{lat_str}{lng_str}_{DATE}_{DATE}.tar"
-
-        with console.status(
-            f"[bold blue]{DATE} - Map Download - Downloading file",
-            spinner_style="bold blue",
-        ):
-            running_time = 0
-            while True:
-                result = subprocess.run(
-                    [
-                        "wget",
-                        "--user",
-                        "anonymous",
-                        "--password",
-                        USER,
-                        f"ftp://ccycle.gps.caltech.edu/upload/modfiles/tar/maps/{map_file}",
-                    ],
-                    stdout=subprocess.PIPE,
-                    stderr=subprocess.PIPE,
+        for filetype in filetypes:
+            file_in_cache = f"{PROJECT_DIR}/cache/{filenames[filetype]['cache']}"
+            file_in_dst = f"{DST}/{filenames[filetype]['dst']}"
+            if os.path.isfile(file_in_cache):
+                shutil.copyfile(
+                    file_in_cache,
+                    file_in_dst,
                 )
-                if os.path.isfile(map_file):
-                    break
-                else:
-                    if ".tar ... \nNo such file" not in result.stderr.decode():
+                console.print(
+                    f"[bold green]{DATE} - {filetype.upper()} Download - Finished from cache"
+                )
+                finished_files[filetype] = True
+
+        if not all([finished_files[k] for k in filetypes]):
+            with open(f"input_file.txt", "w") as f:
+                f.write(
+                    "\n".join(
+                        ["L1", DATE, DATE, str(round(LAT)), str(round(LNG)), USER]
+                    )
+                )
+
+            with console.status(
+                f"[bold blue]{DATE} - Map/Mod Download - Uploading request",
+                spinner_style="bold blue",
+            ):
+                while True:
+                    try:
+                        result = subprocess.run(
+                            ["bash", f"{PROJECT_DIR}/upload_request.sh"],
+                            stdout=subprocess.PIPE,
+                            stderr=subprocess.PIPE,
+                            env={**os.environ.copy(), "PASSWD": USER},
+                        )
+                        assert result.returncode == 0
+                        break
+                    except:
+                        if "Access failed: 553" in result.stderr.decode():
+                            console.print(
+                                f"[bold blue]{DATE} - Map/Mod Download - "
+                                + "Request was rate limited, waiting 1 minute"
+                            )
+                            time.sleep(60)
+                        else:
+                            console.print(
+                                f"[bold red]{DATE} - Map/Mod Download - "
+                                + f"Uploading request failed: {result.stderr.decode()}"
+                            )
+                            return
+
+                os.remove("input_file.txt")
+
+            for filetype in filetypes:
+                with console.status(
+                    f"[bold blue]{DATE} - {filetype.upper()} Download - Downloading file",
+                    spinner_style="bold blue",
+                ):
+                    running_time = 0
+                    while True:
+                        result = subprocess.run(
+                            [
+                                "wget",
+                                "--user",
+                                "anonymous",
+                                "--password",
+                                USER,
+                                f"ftp://ccycle.gps.caltech.edu/upload/modfiles/tar/{filetype}s/{filenames[filetype]['tar']}",
+                            ],
+                            stdout=subprocess.PIPE,
+                            stderr=subprocess.PIPE,
+                        )
+                        if os.path.isfile(filenames[filetype]["tar"]):
+                            break
+                        else:
+                            if ".tar ... \nNo such file" not in result.stderr.decode():
+                                console.print(
+                                    f"[bold red]{DATE} - {filetype.upper()} Download - "
+                                    + f"command 'wget ...' returned "
+                                    + f"a non-zero exit code: {result.stderr.decode()}"
+                                )
+                                return
+                            if running_time > TIMEOUT:
+                                console.print(
+                                    f"[bold yellow]{DATE} - {filetype.upper()} Download - Timed out after 5 minutes"
+                                )
+                                return
+                            running_time += 8
+                            time.sleep(8)
+
+                with console.status(
+                    f"[bold blue]{DATE} - {filetype.upper()} Download - Processing file",
+                    spinner_style="bold blue",
+                ):
+                    result = subprocess.run(
+                        ["tar", "-xvf", filenames[filetype]["tar"]],
+                        stderr=subprocess.PIPE,
+                        stdout=subprocess.PIPE,
+                    )
+                    if result.returncode != 0:
                         console.print(
-                            f"[bold red]{DATE} - Map Download - "
-                            + f"command 'wget ...' returned "
+                            f"[bold red]{DATE} - {filetype.upper()} Download - "
+                            + f"command 'tar ...' returned "
                             + f"a non-zero exit code: {result.stderr.decode()}"
                         )
                         return
-                    if running_time > TIMEOUT:
-                        console.print(
-                            f"[bold yellow]{DATE} - Map Download - Timed out after 5 minutes"
-                        )
-                        return
-                    running_time += 8
-                    time.sleep(8)
+                    assert os.path.isfile(filenames[filetype]["dst"])
 
-        with console.status(
-            f"[bold blue]{DATE} - Map Download - Processing file",
-            spinner_style="bold blue",
-        ):
-            result = subprocess.run(
-                ["tar", "-xvf", map_file],
-                stderr=subprocess.PIPE,
-                stdout=subprocess.PIPE,
-            )
-            if result.returncode != 0:
+                    # store generated file in internal cache
+                    file_in_cache = (
+                        f"{PROJECT_DIR}/cache/{filenames[filetype]['cache']}"
+                    )
+                    if not os.path.isfile(file_in_cache):
+                        shutil.copyfile(filenames[filetype]["dst"], file_in_cache)
+                    os.rename(
+                        filenames[filetype]["dst"],
+                        f"{DST}/{filenames[filetype]['dst']}",
+                    )
+                    os.remove(filenames[filetype]["tar"])
+
                 console.print(
-                    f"[bold red]{DATE} - Map Download - "
-                    + f"command 'tar ...' returned "
-                    + f"a non-zero exit code: {result.stderr.decode()}"
+                    f"[bold green]{DATE} - {filetype.upper()} Download - Finished from source"
                 )
-                return
-            assert os.path.isfile(f"L1{DATE}.map")
-
-            # store generated file in internal cache
-            if not os.path.isfile(cached_file_path):
-                shutil.copyfile(f"L1{DATE}.map", cached_file_path)
-            os.rename(f"L1{DATE}.map", dst_file_path)
-            os.remove(map_file)
-
-        console.print(f"[bold green]{DATE} - Map Download - Finished from source")
 
 
 if __name__ == "__main__":

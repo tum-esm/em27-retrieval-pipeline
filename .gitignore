@@ -1,4 +1,5 @@
 *.map
+*.mod
 .venv
 input_file.txt
 .vscode
