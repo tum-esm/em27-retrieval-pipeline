@@ -1,3 +1,4 @@
+from datetime import datetime
 import os
 import subprocess
 import time
@@ -7,7 +8,19 @@ import shutil
 
 console = Console()
 PROJECT_DIR = os.path.dirname(os.path.abspath(__file__))
+MINIMUM_DELAY_DAYS = 5
+UPLOAD_RETRIES = 1
 TIMEOUT = 300  # abort download after 5 minutes
+
+
+def data_should_be_available(date_string):
+    year, month, day = (
+        int(str(date_string)[:4]),
+        int(str(date_string)[4:6]),
+        int(str(date_string)[6:]),
+    )
+    delta_to_now = datetime.now() - datetime(year, month, day)
+    return delta_to_now.days > MINIMUM_DELAY_DAYS
 
 
 def main():
@@ -30,6 +43,12 @@ def main():
         raise Exception("Destination directory does not exist")
 
     for DATE in DATES:
+        if not data_should_be_available(DATE):
+            console.print(
+                f"[bold blue]{DATE} - Map/Mod Download - "
+                + f"Date is too recent, please try with a {MINIMUM_DELAY_DAYS} days delay"
+            )
+            continue
         lat_str = str(abs(round(LAT))).zfill(2) + ("N" if LAT > 0 else "S")
         lng_str = str(abs(round(LNG))).zfill(3) + ("E" if LNG > 0 else "W")
 
@@ -77,6 +96,7 @@ def main():
                 f"[bold blue]{DATE} - Map/Mod Download - Uploading request",
                 spinner_style="bold blue",
             ):
+                upload_attempts = 0
                 while True:
                     try:
                         result = subprocess.run(
@@ -89,17 +109,28 @@ def main():
                         break
                     except:
                         if "Access failed: 553" in result.stderr.decode():
-                            console.print(
-                                f"[bold blue]{DATE} - Map/Mod Download - "
-                                + "Request was rate limited, waiting 1 minute"
-                            )
-                            time.sleep(60)
+                            upload_attempts += 1
+                            if upload_attempts <= UPLOAD_RETRIES:
+                                console.print(
+                                    f"[bold blue]{DATE} - Map/Mod Download - "
+                                    + "Request was rate limited, waiting 1 minute"
+                                )
+                                time.sleep(60)
+                            else:
+                                break
                         else:
                             console.print(
                                 f"[bold red]{DATE} - Map/Mod Download - "
                                 + f"Uploading request failed: {result.stderr.decode()}"
                             )
                             return
+
+                if upload_attempts > UPLOAD_RETRIES:
+                    console.print(
+                        f"[bold red]{DATE} - Map/Mod Download - "
+                        + f"Uploading request failed {UPLOAD_RETRIES + 1} times"
+                    )
+                    continue
 
                 os.remove("input_file.txt")
 
