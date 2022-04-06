@@ -214,7 +214,9 @@ def main():
 
         # Write request file
         with open(f"input_file.txt", "w") as f:
-            f.writelines(["L1", DATE, DATE, str(round(LAT)), str(round(LNG)), USER])
+            f.write(
+                "\n".join(["L1", DATE, DATE, str(round(LAT)), str(round(LNG)), USER])
+            )
 
         # Upload the request file
         upload_was_successful = upload_request(DATE, USER)
