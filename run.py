@@ -9,19 +9,16 @@ import shutil
 
 console = Console()
 PROJECT_DIR = os.path.dirname(os.path.abspath(__file__))
-MINIMUM_DELAY_DAYS = 5
 UPLOAD_RETRIES = 1
-TIMEOUT = 300  # abort download after 5 minutes
 
 
-def date_is_to_recent(date_string):
+def delta_days_until_now(date_string):
     year, month, day = (
         int(str(date_string)[:4]),
         int(str(date_string)[4:6]),
         int(str(date_string)[6:]),
     )
-    delta_to_now = datetime.now() - datetime(year, month, day)
-    return delta_to_now.days < MINIMUM_DELAY_DAYS
+    return (datetime.now() - datetime(year, month, day)).days
 
 
 def format_coordinates(lat, lng):
@@ -71,7 +68,7 @@ def upload_request(date, user):
         return True
 
 
-def download_file(date, user, filenames, filetype):
+def download_file(date, user, filenames, filetype, download_timeout_seconds):
     with console.status(
         f"[bold blue]{date} - {filetype.upper()} Download - Downloading file",
         spinner_style="bold blue",
@@ -100,9 +97,9 @@ def download_file(date, user, filenames, filetype):
                         + f"a non-zero exit code: {result.stderr.decode()}"
                     )
                     sys.exit()
-                if running_time > TIMEOUT:
+                if running_time > download_timeout_seconds:
                     console.print(
-                        f"[bold yellow]{date} - {filetype.upper()} Download - Timed out after 5 minutes"
+                        f"[bold yellow]{date} - {filetype.upper()} Download - Timed out after {download_timeout_seconds} seconds"
                     )
                     sys.exit()
                 running_time += 8
@@ -163,6 +160,8 @@ def main():
         DST = config["dst"]
         DOWNLOAD_MAP = config["downloadMap"]
         DOWNLOAD_MOD = config["downloadMod"]
+        MINIMUM_DAYS_DELAY = config["minimumDaysDelay"]
+        DOWNLOAD_TIMEOUT_SECONDS = config["downloadTimeoutSeconds"]
         assert os.path.isdir(DST)
     except KeyError:
         raise Exception("config.json invalid")
@@ -170,10 +169,10 @@ def main():
         raise Exception("Destination directory does not exist")
 
     for DATE in DATES:
-        if date_is_to_recent(DATE):
+        if delta_days_until_now(DATE) < MINIMUM_DAYS_DELAY:
             console.print(
                 f"[bold blue]{DATE} - Map/Mod Download - "
-                + f"Date is too recent, data available with {MINIMUM_DELAY_DAYS} days delay"
+                + f"Date is too recent, data available with {MINIMUM_DAYS_DELAY} days delay"
             )
             continue
 
@@ -228,7 +227,7 @@ def main():
         # Download and process all files (since they are
         # computed all, we might as well cache them)
         for filetype in all_filetypes:
-            download_file(DATE, USER, filenames, filetype)
+            download_file(DATE, USER, filenames, filetype, DOWNLOAD_TIMEOUT_SECONDS)
             process_tar_file(DATE, filenames, filetype)
 
         # Move the file to the desired output location

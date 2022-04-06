@@ -5,5 +5,7 @@
     "user": "someone@somecompany.sometld",
     "dst": "somedir",
     "downloadMap": true,
-    "downloadMod": true
+    "downloadMod": true,
+    "minimumDaysDelay": 5,
+    "downloadTimeoutSeconds": 120
 }
