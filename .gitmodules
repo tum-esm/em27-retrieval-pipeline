@@ -1,0 +1,3 @@
+[submodule "proffastpylot"]
+	path = proffastpylot
+	url = https://gitlab.eudat.eu/coccon-kit/proffastpylot.git
