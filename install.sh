@@ -8,13 +8,13 @@ wget https://www.imk-asf.kit.edu/downloads/Coccon-SW/PROFFASTv2.0.1.zip
 unzip PROFFASTv2.0.1.zip
 rm PROFFASTv2.0.1.zip
 
-# compile source code
-cd PROFFASTv2.0.1
-bash install_proffast_linux.sh
-
-# move into prfpylot
-cd ..
+# move proffast into correct subdirectory
 mv PROFFASTv2.0.1 proffastpylot/prf
+
+# compile proffast source code
+cd proffastpylot/prf
+bash install_proffast_linux.sh
+cd ../..
 
 # install python dependencies
 python3.9 -m venv .venv
