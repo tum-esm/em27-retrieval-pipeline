@@ -1,1 +1,4 @@
 .venv
+inputs/*
+outputs/*
+.vscode
