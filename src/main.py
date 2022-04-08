@@ -12,7 +12,7 @@ from src.procedures import (
 def run():
     # Load config, test setup, clear data directories
     CONFIG = load_config.run()
-    initialize_environment.run()
+    initialize_environment.run(CONFIG)
 
     # Determine next day to run proffast for
     site = "ma"
