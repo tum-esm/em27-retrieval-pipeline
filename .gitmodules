@@ -1,3 +1,6 @@
 [submodule "proffastpylot"]
 	path = proffastpylot
 	url = https://gitlab.eudat.eu/coccon-kit/proffastpylot.git
+[submodule "download-map-data"]
+	path = download-map-data
+	url = https://github.com/tum-esm/download-map-data
