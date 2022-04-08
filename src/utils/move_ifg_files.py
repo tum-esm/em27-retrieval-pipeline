@@ -2,12 +2,13 @@
 import os
 import shutil
 
+dir = os.path.dirname
+PROJECT_DIR = dir(dir(dir(os.path.abspath(__file__))))
+
 SRC = "/mnt/measurementData/mu"
-DST = "/home/esm/automated-proffast-pylot/inputs"
+DST = f"{PROJECT_DIR}/inputs"
 
-# TODO: Determine DST dynamically
-
-def move_ifg_files(site: str, date: str):
+def run(site: str, date: str):
     src_date_path = f"{SRC}/{site}_ifg/{date}"
     assert os.path.isdir(src_date_path)
 

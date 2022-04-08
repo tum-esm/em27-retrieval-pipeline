@@ -1,5 +1,5 @@
 
-from src.utils import run_proffast_pylot
+from src.utils import move_ifg_files, run_proffast_pylot
 
 serial_numbers = {
     "ma": "061",
@@ -20,6 +20,7 @@ def run():
     # 3. Move datalogger files
 
     # 4. Move ifg files
+    move_ifg_files.run(site, date)
 
     # 5. Create input yaml file
 
