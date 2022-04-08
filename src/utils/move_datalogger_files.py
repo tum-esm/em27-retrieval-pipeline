@@ -8,8 +8,8 @@ SRC = "/home/esm/datalogger2zeno"
 DST = f"{PROJECT_DIR}/inputs"
 
 
-def run(site: str, serial_number: str, date: str):
-    src_dir = f"{SRC}/{site}_{serial_number[1:]}"
+def run(site: str, date: str, config: dict):
+    src_dir = f'{SRC}/{site}_{str(config["sensor_serial_numbers"][site])[-2:]}'
     dst_dir = f"{DST}/{site}_pressure"
     assert os.path.isdir(src_dir)
 

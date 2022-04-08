@@ -3,3 +3,4 @@ inputs/*
 outputs/*
 .vscode
 *.pyc
+config.json

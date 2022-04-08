@@ -7,7 +7,7 @@ dir = os.path.dirname
 PROJECT_DIR = dir(dir(dir(os.path.abspath(__file__))))
 
 
-def run(site: str, date: str):
+def run(site: str, date: str, config: dict):
 
     # create/empty output directory
     dst_dir = f"{PROJECT_DIR}/inputs/{site}_map"
@@ -16,10 +16,10 @@ def run(site: str, date: str):
     os.mkdir(dst_dir)
 
     download_config = {
-        "lat": 48.151,  # TODO
-        "lng": 11.569,  # TODO
+        "lat": config["sensor_coordinates"][site]["lat"],
+        "lng": config["sensor_coordinates"][site]["lng"],
         "dates": [f"20{date}"],
-        "user": "someone@somecompany.sometld",  # TODO
+        "user": config["download_map_data_email"],
         "dst": dst_dir,
         "downloadMap": True,
         "downloadMod": False,
