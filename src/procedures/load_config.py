@@ -25,6 +25,7 @@ validator = Validator(
             "keysrules": {"type": "string", "regex": "[a-z]+"},
             "valuesrules": {"type": "number"},
         },
+        "clear_data_directories": {"type": "boolean"},
     }
 )
 

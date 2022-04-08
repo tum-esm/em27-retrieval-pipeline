@@ -8,13 +8,7 @@ PROJECT_DIR = dir(dir(dir(os.path.abspath(__file__))))
 
 
 def run(site: str, date: str, config: dict):
-
-    # create/empty output directory
     dst_dir = f"{PROJECT_DIR}/inputs/{site}_map"
-    if os.path.isdir(dst_dir):
-        shutil.rmtree(dst_dir)
-    os.mkdir(dst_dir)
-
     download_config = {
         "lat": config["sensor_coordinates"][site]["lat"],
         "lng": config["sensor_coordinates"][site]["lng"],

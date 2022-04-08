@@ -36,11 +36,5 @@ def run(site: str, date: str, config: dict):
             # TODO: Use logging instead of printing
             print(f"WARNING: Datalogger file only has {line_count} lines")
 
-    # create/empty output directory
-    dst_dir = f"{DST}/{site}_pressure"
-    if os.path.isdir(dst_dir):
-        shutil.rmtree(dst_dir)
-    os.mkdir(dst_dir)
-
     # copy datalogger file
     shutil.copy(src_file, dst_file)

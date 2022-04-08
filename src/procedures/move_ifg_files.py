@@ -4,20 +4,21 @@ import shutil
 dir = os.path.dirname
 PROJECT_DIR = dir(dir(dir(os.path.abspath(__file__))))
 
-SRC = "/mnt/measurementData/mu"
+SRC_CLOUD = "/mnt/measurementData/mu"
+SRC_DSS = "/home/esm/em27_ifg_dss/em27_ifg_dss"
 DST = f"{PROJECT_DIR}/inputs"
 
 
 def run(site: str, date: str):
-    src_date_path = f"{SRC}/{site}_ifg/20{date}"
+    src_date_path = f"{SRC_CLOUD}/{site}_ifg/20{date}"
+    if not os.path.isdir(src_date_path):
+        src_date_path = f"{SRC_DSS}/{site}_ifg/20{date}"
     assert os.path.isdir(src_date_path)
 
-    # create/empty output directory
-    dst_site_path = f"{DST}/{site}_ifg"
-    dst_date_path = f"{dst_site_path}/{date}"
-    if os.path.isdir(dst_site_path):
-        shutil.rmtree(dst_site_path)
-    os.mkdir(dst_site_path)
+    # Create empty output directory for that date
+    dst_date_path = f"{DST}/{site}_ifg/{date}"
+    if os.path.isdir(dst_date_path):
+        shutil.rmtree(dst_date_path)
     os.mkdir(dst_date_path)
 
     # move all valid ifg files and rename them properly

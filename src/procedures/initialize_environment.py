@@ -25,17 +25,25 @@ def run(config: dict):
         f"{PROJECT_DIR}/proffastpylot/prf/pcxs20"
     ), "PROFFAST not compiled completely"
 
-    # clear directory "inputs" and "outputs"
-    for d in ["inputs", "outputs"]:
-        for f in os.listdir(f"{PROJECT_DIR}/{d}"):
-            filepath = f"{PROJECT_DIR}/{d}/{f}"
-            if os.path.isdir(filepath):
-                shutil.rmtree(filepath)
-            else:
-                if not filepath.endswith(".gitkeep"):
-                    os.remove(filepath)
+    # Optionally clear directory "inputs" and "outputs"
+    if config["clear_data_directories"]:
+        for d in ["inputs", "outputs"]:
+            for f in os.listdir(f"{PROJECT_DIR}/{d}"):
+                filepath = f"{PROJECT_DIR}/{d}/{f}"
+                if os.path.isdir(filepath):
+                    shutil.rmtree(filepath)
+                else:
+                    if not filepath.endswith(".gitkeep"):
+                        os.remove(filepath)
 
-    # Create 'coords.csv' file
+    # Make sure all input directories exist
+    for site in config["sensor_coordinates"].keys():
+        for d in ["ifg", "map", "pressure"]:
+            dst_dir = f"{PROJECT_DIR}/inputs/{site}_{d}"
+            if not os.path.isdir(dst_dir):
+                os.mkdir(dst_dir)
+
+    # Update/create 'coords.csv' file
     with open(f"{PROJECT_DIR}/inputs/coords.csv", "w") as f:
         f.write("Site, Latitude, Longitude, Altitude_kmasl, Starttime\n")
         for site, coords in config["sensor_coordinates"].items():
