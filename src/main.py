@@ -1,4 +1,9 @@
-from src.utils import move_datalogger_files, move_ifg_files, run_proffast_pylot
+from src.utils import (
+    move_datalogger_files,
+    move_ifg_files,
+    create_input_file,
+    run_proffast_pylot,
+)
 
 serial_numbers = {
     "ma": "061",
@@ -11,19 +16,28 @@ serial_numbers = {
 
 def run():
 
-    # 1. Determine next day to run proffast for
+    # Test whether everything is set up correctly
+    # TODO
+
+    # Determine next day to run proffast for
     site = "ma"
     date = "220322"
+    # TODO
 
-    # 2. Download map files
+    # Download map files
+    # TODO
 
-    # 3. Move datalogger files
+    # Move datalogger files
     move_datalogger_files.run(site, serial_numbers[site], date)
 
-    # 4. Move ifg files
+    # Move ifg files
     move_ifg_files.run(site, date)
 
-    # 5. Create input yaml file
+    # Create input yaml file
+    create_input_file.run(site, serial_numbers[site], date)
 
-    # 6. Run proffast pylot
+    # Run proffast pylot
     run_proffast_pylot.run(site, date)
+
+    # Check output correctness and move results to DSS
+    # TODO
