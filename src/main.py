@@ -1,5 +1,4 @@
-
-from src.utils import move_ifg_files, run_proffast_pylot
+from src.utils import move_datalogger_files, move_ifg_files, run_proffast_pylot
 
 serial_numbers = {
     "ma": "061",
@@ -8,6 +7,7 @@ serial_numbers = {
     "md": "116",
     "me": "117",
 }
+
 
 def run():
 
@@ -18,6 +18,7 @@ def run():
     # 2. Download map files
 
     # 3. Move datalogger files
+    move_datalogger_files.run(site, serial_numbers[site], date)
 
     # 4. Move ifg files
     move_ifg_files.run(site, date)
