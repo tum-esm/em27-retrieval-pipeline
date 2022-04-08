@@ -1,5 +1,6 @@
 from src.utils import (
     download_map_data,
+    initialize_environment,
     move_datalogger_files,
     move_ifg_files,
     create_input_file,
@@ -18,7 +19,7 @@ serial_numbers = {
 def run():
 
     # Test whether everything is set up correctly
-    # TODO
+    initialize_environment.run()
 
     # Determine next day to run proffast for
     site = "ma"
