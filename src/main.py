@@ -1,4 +1,5 @@
 from src.utils import (
+    download_map_data,
     move_datalogger_files,
     move_ifg_files,
     create_input_file,
@@ -25,7 +26,7 @@ def run():
     # TODO
 
     # Download map files
-    # TODO
+    download_map_data.run(site, date)
 
     # Move datalogger files
     move_datalogger_files.run(site, serial_numbers[site], date)
