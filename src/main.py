@@ -1,4 +1,4 @@
-from src.utils import (
+from src.procedures import (
     download_map_data,
     initialize_environment,
     load_config,
@@ -25,19 +25,13 @@ def run():
         site in CONFIG["sensor_serial_numbers"].keys()
     ), f"No serial number given for site {site}"
 
-    # Download map files
+    # Prepare all required input files for the proffast pylot
     download_map_data.run(site, date, CONFIG)
-
-    # Move datalogger files
     move_datalogger_files.run(site, date, CONFIG)
-
-    # Move ifg files
     move_ifg_files.run(site, date)
-
-    # Create input yaml file
     create_input_file.run(site, date, CONFIG)
 
-    # Run proffast pylot
+    # Run the pylot
     run_proffast_pylot.run(site, date)
 
     # Check output correctness and move results and ifgs to DSS
