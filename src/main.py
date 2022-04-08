@@ -1,12 +1,27 @@
 
-# 1. Determine next day to run proffast for
+from src.utils import run_proffast_pylot
 
-# 2. Download map files
+serial_numbers = {
+    "ma": "061",
+    "mb": "086",
+    "mc": "115",
+    "md": "116",
+    "me": "117",
+}
 
-# 3. Move datalogger files
+def run():
 
-# 4. Move ifg files
+    # 1. Determine next day to run proffast for
+    site = "ma"
+    date = "220322"
 
-# 5. Create input yaml file
+    # 2. Download map files
 
-# 6. Run proffast
+    # 3. Move datalogger files
+
+    # 4. Move ifg files
+
+    # 5. Create input yaml file
+
+    # 6. Run proffast pylot
+    run_proffast_pylot.run(site, date)
