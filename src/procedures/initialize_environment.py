@@ -37,16 +37,16 @@ def run(config: dict):
 
     # Create 'coords.csv' file
     with open(f"{PROJECT_DIR}/inputs/coords.csv", "w") as f:
-        f.write("Site,\tLatitude,\tLongitude,\tAltitude_kmasl,\tStarttime\n")
+        f.write("Site, Latitude, Longitude, Altitude_kmasl, Starttime\n")
         for site, coords in config["sensor_coordinates"].items():
             f.write(
-                ",\t\t".join(
+                ", ".join(
                     [
                         site,
                         str(round(coords["lat"], 3)),
                         str(round(coords["lng"], 3)),
                         str(round(coords["alt"] / 1000, 3)),
-                        "\t2019-01-01",
+                        "2019-01-01",
                     ]
                 )
                 + "\n"

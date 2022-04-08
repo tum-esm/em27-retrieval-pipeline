@@ -11,7 +11,6 @@ SRC = f"{PROJECT_DIR}/src/tueiesm_pylot_template.yml"
 def run(site: str, date: str, config: dict):
     with open(SRC, "r") as f:
         file_content = "".join(f.readlines())
-    print(repr(file_content))
 
     replacements = {
         "SERIAL_NUMBER": str(config["sensor_serial_numbers"][site]).zfill(3),

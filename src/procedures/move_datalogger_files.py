@@ -30,8 +30,11 @@ def run(site: str, date: str, config: dict):
         line_count = len(f.readlines())
         # 1440 minutes per day + 1 header line
         assert (
-            line_count == 1441
+            line_count > 1400
         ), f"Datalogger file is incomplete: Only {line_count} lines"
+        if line_count < 1440:
+            # TODO: Use logging instead of printing
+            print(f"WARNING: Datalogger file only has {line_count} lines")
 
     # create/empty output directory
     dst_dir = f"{DST}/{site}_pressure"

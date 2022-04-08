@@ -35,8 +35,8 @@ proffast_path: %PROJECT_DIR%/proffastpylot/prf
 
 # ifg path containts data like YYMMDD/YYMMDDSN.XXX
 interferogram_path: %PROJECT_DIR%/inputs/%SITE%_ifg
-map_path: %PROJECT_DIR%/inputs/%SITE%_ifg
-pressure_path: %PROJECT_DIR%/inputs/%SITE%_ifg
+map_path: %PROJECT_DIR%/inputs/%SITE%_map
+pressure_path: %PROJECT_DIR%/inputs/%SITE%_pressure
 
 
 
