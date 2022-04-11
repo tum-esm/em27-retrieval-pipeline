@@ -6,9 +6,7 @@ _Formerly known as "filter-retrieval-data-v2"._
 
 ## What is it?
 
-This repository contains all the code for extracting measurement data from our SQL database. It combines functionality from https://gitlab.lrz.de/esm/em27-plot-data-upload and https://gitlab.lrz.de/esm/columnmeasurementautomation. However, the `columnmeasurementautomation`-repo also includes the triggering of gfit and loading stuff into the database.
-
-**These two processes (1. loading into the database, 2. extracting from the database) should be separated! This repository implements the second process (extraction).**
+This repository contains all the code for extracting measurement data from our SQL database. On https://retrieval.esm.ei.tum.de/ one can visually inspect all raw and post-processed data we have since late 2019. Using this extraction tool, one can generate CSV files containing post-processed concentration time series for specific filter settings and dates/sensors.
 
 <br/>
 
@@ -18,7 +16,7 @@ You have to be inside the TUM network, either physically or via a VPN (https://w
 
 As of right now, you have to set up this tool on your machine. In the future, we might have a group VM running Linux, where you can run tools like this and have all dependencies already installed. Details about this might come in January.
 
-Your system has to have **Python 3** (https://www.python.org/downloads/), **Git** (https://git-scm.com/) and a "Terminal"/"Shell"/"Command Prompt" installed. The instructions here are from a Linux environment. I highly recommend you to work in a Linux/MacOS environment when working with code.
+Your system has to have **Python 3** (https://www.python.org/downloads/), **Git** (https://git-scm.com/) and a "Terminal"/"Shell"/"Command Prompt" installed. The instructions here are from a Linux environment. I highly recommend you to work in a Linux/macOS environment when working with code.
 
 <br/>
 
@@ -30,10 +28,10 @@ Dependency management with **poetry**: https://python-poetry.org/docs/#installat
 Set up project interpreter:
 
 ```bash
-# Create virtual environment (a local copy of python)
+# Create a virtual environment (a local copy of python)
 python3.9 -m venv .venv
 
-# Switch to virtual environment
+# Switch to the virtual environment
 source .venv/bin/activate
 
 # Install dependencies
@@ -52,7 +50,7 @@ poetry install
     python run.py
     ```
 
-3. Your output files will be located in `data/csv-out` and `data/json-out`. An example for a generated csv can be found here: https://github.com/tum-esm/extract-retrieval-data/blob/main/docs/example-out.csv
+3. Your output files will be located in `data/csv-out` and `data/json-out`. An example of a generated CSV file can be found here: https://github.com/tum-esm/extract-retrieval-data/blob/main/docs/example-out.csv
 
 <br/>
 
@@ -72,7 +70,7 @@ poetry install
 
 -   `filter.movingWindowSizeMinutes` is the size of the window that is used for the rolling average to smooth the data
 -   `filter.outputStepSizeMinutes` is the time between data points in the output data (`2` means there will be a row every two minutes - when there is any data after filtering).
--   An explanation on the `filter.cases` can be found in the Master Thesis of Nico Nachtigall (NAS: `/tuei/esm/Thesis/Masterarbeiten/2020 MA Nico Nachtigall/Nachtigall_MasterThesis_final.pdf`)
+-   An explanation of the `filter.cases` can be found in the Master Thesis of Nico Nachtigall (NAS: `/tuei/esm/Thesis/Masterarbeiten/2020 MA Nico Nachtigall/Nachtigall_MasterThesis_final.pdf`)
 
 <br/>
 
