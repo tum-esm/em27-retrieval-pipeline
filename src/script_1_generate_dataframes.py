@@ -61,7 +61,7 @@ def _get_calibration_replacement_dict(df_calibration, date_string):
 
 
 def _read_from_database(date_string, remove_calibration_data=True):
-    db_connection = mysql.connector.connect(**config["authentication"]["mysql"])
+    db_connection = mysql.connector.connect(**config["authentication"]["mysql"], auth_plugin='mysql_native_password')
 
     def read(sql_string):
         return pd.read_sql(sql_string, con=db_connection)
