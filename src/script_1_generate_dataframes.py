@@ -12,7 +12,6 @@ from src.helpers.constants import (
     ALL_GASES,
     ALL_SENSORS,
 )
-from src.helpers import utilities
 
 PROJECT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 CSV_OUT_DIR = f"{PROJECT_DIR}/data/csv-out"
@@ -20,7 +19,7 @@ with open(f"{PROJECT_DIR}/config.json") as f:
     config = json.load(f)
 
 
-def apply_statistical_filters(df, gas, column):
+def _apply_statistical_filters(df, gas, column):
     return column_functions.filter_DataStat(
         df,
         gas=gas,
@@ -34,15 +33,7 @@ def apply_statistical_filters(df, gas, column):
     )
 
 
-def save_to_csv(dataframe, date_string, replacement_dict):
-    with open(f"{PROJECT_DIR}/data/csv-header-template.csv", "r") as template_file:
-        with open(f"{CSV_OUT_DIR}/{date_string}.csv", "w") as out_file:
-            fillParameters = utilities.replace_from_dict(replacement_dict)
-            out_file.writelines(list(map(fillParameters, template_file.readlines())))
-            dataframe.to_csv(out_file)
-
-
-def get_calibration_replacement_dict(df_calibration, date_string):
+def _get_calibration_replacement_dict(df_calibration, date_string):
     CALIBRATION_REPLACEMENT_DICT = {}
 
     df_calibration["ID"] = df_calibration["ID_SpectrometerCalibration"].map(
@@ -69,7 +60,7 @@ def get_calibration_replacement_dict(df_calibration, date_string):
     return CALIBRATION_REPLACEMENT_DICT
 
 
-def read_from_database(date_string, remove_calibration_data=True):
+def _read_from_database(date_string, remove_calibration_data=True):
     db_connection = mysql.connector.connect(**config["authentication"]["mysql"])
 
     def read(sql_string):
@@ -106,7 +97,7 @@ def read_from_database(date_string, remove_calibration_data=True):
     return df_all, df_calibration, df_location, df_spectrometer
 
 
-def filter_dataframes(df_calibrated):
+def _filter_dataframes(df_calibrated):
     output_dataframes = {
         "raw": {gas: None for gas in ALL_GASES},
         "filtered": {gas: None for gas in ALL_GASES},
@@ -163,7 +154,7 @@ def filter_dataframes(df_calibrated):
 
             # Filter based on data statistics ----------------
             if (case == "filtered") and (not df_filtered_dropped.empty):
-                df_filtered_statistical = apply_statistical_filters(
+                df_filtered_statistical = _apply_statistical_filters(
                     df_filtered_dropped, f"x{gas}", COLUMN
                 )
             else:
@@ -218,7 +209,7 @@ def run(date_string):
     }
 
     for calibrationCase in dataframes.keys():
-        df_all, df_calibration, df_location, _ = read_from_database(
+        df_all, df_calibration, df_location, _ = _read_from_database(
             date_string,
             remove_calibration_data=(calibrationCase == "withoutCalibrationDays"),
         )
@@ -227,12 +218,12 @@ def run(date_string):
             df_calibrated, _ = column_functions.hp.calibration(df_all, df_calibration)
 
             dataframes[calibrationCase] = {
-                **filter_dataframes(df_calibrated),
+                **_filter_dataframes(df_calibrated),
                 "meta": {
                     "dfLocation": df_location,
                     "replacementDict": {
                         **REPLACEMENT_DICT,
-                        **get_calibration_replacement_dict(df_calibration, date_string),
+                        **_get_calibration_replacement_dict(df_calibration, date_string),
                     },
                 },
             }
