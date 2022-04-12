@@ -32,12 +32,12 @@ class MonitoredThread(threading.Thread):
 
     def run(self):
         try:
-            upload_data(self.data)
+            _upload_data(self.data)
         except Exception:
             self.bucket.put(sys.exc_info())
 
 
-def upload_data(data):
+def _upload_data(data):
     thread_label = f"thread {data['date']}.{data['gas']}.{data['spectrometer']}"
     failed_attempts = 0
 
