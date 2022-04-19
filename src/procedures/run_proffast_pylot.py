@@ -10,5 +10,9 @@ sys.path.insert(0, f"{PROJECT_DIR}/proffastpylot")
 from proffastpylot.prfpylot.pylot import Pylot
 
 
-def run(site: str):
-    Pylot(f"{PROJECT_DIR}/inputs/{site}-pylot-config.yml", logginglevel="info").run()
+def run(sensor: str):
+    print()
+    Pylot(f"{PROJECT_DIR}/inputs/{sensor}-pylot-config.yml", logginglevel="info").run(
+        n_processes=4
+    )
+    print()

@@ -57,11 +57,11 @@ def run(config: dict):
     # Update/create 'coords.csv' file
     with open(f"{PROJECT_DIR}/inputs/coords.csv", "w") as f:
         f.write("Site, Latitude, Longitude, Altitude_kmasl, Starttime\n")
-        for site, coords in config["sensor_coordinates"].items():
+        for sensor, coords in config["coordinates"].items():
             f.write(
                 ", ".join(
                     [
-                        site,
+                        sensor,
                         str(round(coords["lat"], 3)),
                         str(round(coords["lng"], 3)),
                         str(round(coords["alt"] / 1000, 3)),
@@ -71,14 +71,14 @@ def run(config: dict):
                 + "\n"
             )
 
-    # Update/create yaml files for proffast (one per site)
+    # Update/create yaml files for proffast (one per sensor)
     for sensor in config["sensors_to_consider"]:
         with open(YAML_TEMPLATE, "r") as f:
             file_content = "".join(f.readlines())
 
         replacements = {
-            "SERIAL_NUMBER": str(config["sensor_serial_numbers"][sensor]).zfill(3),
-            "SITE": sensor,
+            "SERIAL_NUMBER": str(config["serial_numbers"][sensor]).zfill(3),
+            "SENSOR": sensor,
             "PROJECT_DIR": PROJECT_DIR,
             "COMMIT_SHA": subprocess.check_output(
                 ["git", "rev-parse", "--short", "--verify", "HEAD"]
