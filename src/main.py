@@ -7,7 +7,6 @@ from src.procedures import (
     move_datalogger_files,
     move_ifg_files,
     removed_unfinished_inputs,
-    create_input_file,
     run_proffast_pylot,
 )
 
@@ -63,7 +62,6 @@ def run():
         blue_printer(
             f"{site}/{'-'.join(dates_to_be_pyloted)} - Running the proffast pylot"
         )
-        create_input_file.run(site, CONFIG)
         run_proffast_pylot.run(site, date)
 
         # Check output correctness and move results and ifgs to DSS

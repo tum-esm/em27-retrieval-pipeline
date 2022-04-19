@@ -11,4 +11,4 @@ from proffastpylot.prfpylot.pylot import Pylot
 
 
 def run(site: str):
-    Pylot(f"{PROJECT_DIR}/inputs/{site}.yml", logginglevel="info").run()
+    Pylot(f"{PROJECT_DIR}/inputs/{site}-pylot-config.yml", logginglevel="info").run()

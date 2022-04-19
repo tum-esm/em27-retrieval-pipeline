@@ -1,9 +1,11 @@
 import os
 import shutil
+import subprocess
 
 
 dir = os.path.dirname
 PROJECT_DIR = dir(dir(dir(os.path.abspath(__file__))))
+YAML_TEMPLATE = f"{PROJECT_DIR}/src/tueiesm_pylot_template.yml"
 
 
 def run(config: dict):
@@ -69,3 +71,25 @@ def run(config: dict):
                 )
                 + "\n"
             )
+
+    # Update/create yaml files for proffast (one per site)
+    for sensor in config["sensors_to_consider"]:
+        with open(YAML_TEMPLATE, "r") as f:
+            file_content = "".join(f.readlines())
+
+        replacements = {
+            "SERIAL_NUMBER": str(config["sensor_serial_numbers"][sensor]).zfill(3),
+            "SITE": sensor,
+            "PROJECT_DIR": PROJECT_DIR,
+            "COMMIT_SHA": subprocess.check_output(
+                ["git", "rev-parse", "--short", "--verify", "HEAD"]
+            )
+            .decode()
+            .replace("\n", ""),
+        }
+
+        for key, value in replacements.items():
+            file_content = file_content.replace(f"%{key}%", value)
+
+        with open(f"{PROJECT_DIR}/inputs/{sensor}-pylot-config.yml", "w") as f:
+            f.write(file_content)
