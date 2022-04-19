@@ -6,8 +6,8 @@
 instrument_number: SN%SERIAL_NUMBER%
 site_name: %SITE%
 site_abbrev: %SITE%
-start_date: %DATE%
-end_date: %DATE%
+start_date:
+end_date:
 coords:
   lat:
   lon:

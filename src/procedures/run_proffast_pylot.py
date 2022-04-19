@@ -9,5 +9,6 @@ sys.path.insert(0, f"{PROJECT_DIR}/proffastpylot")
 
 from proffastpylot.prfpylot.pylot import Pylot
 
-def run(site: str, date: str):
-    Pylot(f"{PROJECT_DIR}/inputs/{site}_{date}.yml", logginglevel="info").run()
+
+def run(site: str):
+    Pylot(f"{PROJECT_DIR}/inputs/{site}.yml", logginglevel="info").run()

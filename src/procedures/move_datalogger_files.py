@@ -19,7 +19,7 @@ def run(site: str, date: str, config: dict):
 
     matching_files = list(
         filter(
-            lambda f: f.startswith(f"20{date[:2]}-{date[2:4]}-{date[4:]}_")
+            lambda f: f.startswith(f"{date[:4]}-{date[4:6]}-{date[6:]}_")
             and f.endswith(".dat"),
             os.listdir(src_dir),
         )
