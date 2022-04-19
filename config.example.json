@@ -14,6 +14,5 @@
         "mc": 115,
         "md": 116,
         "me": 117
-    },
-    "clear_data_directories": true
+    }
 }

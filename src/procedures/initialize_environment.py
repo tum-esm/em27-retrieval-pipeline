@@ -32,16 +32,15 @@ def run(config: dict):
         ]
     ), "PROFFAST not compiled completely"
 
-    # Optionally clear directory "inputs" and "outputs"
-    if config["clear_data_directories"]:
-        for d in ["inputs", "outputs"]:
-            for f in os.listdir(f"{PROJECT_DIR}/{d}"):
-                filepath = f"{PROJECT_DIR}/{d}/{f}"
-                if os.path.isdir(filepath):
-                    shutil.rmtree(filepath)
-                else:
-                    if not filepath.endswith(".gitkeep"):
-                        os.remove(filepath)
+    # Clear directory "inputs" and "outputs"
+    for d in ["inputs", "outputs"]:
+        for f in os.listdir(f"{PROJECT_DIR}/{d}"):
+            filepath = f"{PROJECT_DIR}/{d}/{f}"
+            if os.path.isdir(filepath):
+                shutil.rmtree(filepath)
+            else:
+                if not filepath.endswith(".gitkeep"):
+                    os.remove(filepath)
 
     # Make sure all input- and output-directories exist
     for sensor in config["sensors_to_consider"]:
