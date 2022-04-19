@@ -1,8 +1,10 @@
+import sys
 from rich.console import Console
 from src.procedures import (
-    download_map_data,
-    initialize_environment,
     load_config,
+    initialize_environment,
+    determine_next_dates,
+    download_map_data,
     move_datalogger_files,
     move_ifg_files,
     create_input_file,
@@ -22,34 +24,24 @@ def run():
 
     # Determine next day to run proffast for
     blue_printer("Determining the next timeseries to process")
+    next_day = determine_next_dates.run(CONFIG)
+    print_label = f"{next_day['site']}/{'-'.join(next_day['dates'])}"
+    if len(next_day["dates"]) == 0:
+        sys.exit()
 
-    date = "211111"
-    site = "ma"
+    # TODO: Handle dates that could not be processed
 
-    # TODO: Days to be processed marked by:
-    #   1. ifg folder on /mnt/meas... OR
-    #   2. No results folder on DSS yet OR
-    #   3. No ifg folder on DSS
+    blue_printer(f"{print_label} - Preparing all input files")
+    for date in next_day["dates"]:
+        download_map_data.run(next_day["site"], date, CONFIG)
+        move_datalogger_files.run(next_day["site"], date, CONFIG)
+        move_ifg_files.run(next_day["site"], date)
 
-    # 1. Check dates on Cloud (/mnt/measurementData/mu)
-    # 2. Rerun existing archive in the remaining time
+    blue_printer(f"{print_label} - Creating input YAML file")
+    create_input_file.run(next_day["site"], CONFIG)
 
-    assert (
-        site in CONFIG["sensor_coordinates"].keys()
-    ), f"No coordinates given for site {site}"
-    assert (
-        site in CONFIG["sensor_serial_numbers"].keys()
-    ), f"No serial number given for site {site}"
-
-    blue_printer(f"20{date}/{site} - Preparing all input files")
-    download_map_data.run(site, date, CONFIG)
-    move_datalogger_files.run(site, date, CONFIG)
-    move_ifg_files.run(site, date)
-    create_input_file.run(site, date, CONFIG)
-
-    # Run the pylot
-    blue_printer(f"20{date}/{site} - Running the proffast pylot")
-    run_proffast_pylot.run(site, date)
+    blue_printer(f"{print_label} - Running the proffast pylot")
+    run_proffast_pylot.run(next_day["site"], date)
 
     # Check output correctness and move results and ifgs to DSS
     # TODO

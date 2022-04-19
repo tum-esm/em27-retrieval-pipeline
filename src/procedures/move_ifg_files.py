@@ -10,13 +10,13 @@ DST = f"{PROJECT_DIR}/inputs"
 
 
 def run(site: str, date: str):
-    src_date_path = f"{SRC_CLOUD}/{site}_ifg/20{date}"
+    src_date_path = f"{SRC_CLOUD}/{site}_ifg/{date}"
     if not os.path.isdir(src_date_path):
-        src_date_path = f"{SRC_DSS}/{site}_ifg/20{date}"
+        src_date_path = f"{SRC_DSS}/{site}_ifg/{date}"
     assert os.path.isdir(src_date_path)
 
     # Create empty output directory for that date
-    dst_date_path = f"{DST}/{site}/ifg/{date}"
+    dst_date_path = f"{DST}/{site}/ifg/{date[2:]}"
     if os.path.isdir(dst_date_path):
         shutil.rmtree(dst_date_path)
     os.mkdir(dst_date_path)
@@ -28,4 +28,4 @@ def run(site: str, date: str):
             assert len(ifg_file.split(".")) == 3
             ifg_number = ifg_file.split(".")[-1]
             assert ifg_number.isnumeric()
-            shutil.copy(old_path, f"{dst_date_path}/{date}SN.{ifg_number}")
+            shutil.copy(old_path, f"{dst_date_path}/{date[2:]}SN.{ifg_number}")

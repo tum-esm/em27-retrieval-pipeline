@@ -1,6 +1,5 @@
 import json
 import os
-import shutil
 
 
 dir = os.path.dirname
@@ -12,7 +11,7 @@ def run(site: str, date: str, config: dict):
     download_config = {
         "lat": config["sensor_coordinates"][site]["lat"],
         "lng": config["sensor_coordinates"][site]["lng"],
-        "dates": [f"20{date}"],
+        "dates": [date],
         "user": config["download_map_data_email"],
         "dst": dst_dir,
         "downloadMap": True,
@@ -24,9 +23,5 @@ def run(site: str, date: str, config: dict):
         json.dump(download_config, f)
 
     os.system(f"{PROJECT_DIR}/.venv/bin/python {PROJECT_DIR}/download-map-data/run.py")
-
-    assert os.path.isfile(
-        f"{dst_dir}/L120{date}.map"
-    ), "Map file download not successful"
-
-    os.rename(f"{dst_dir}/L120{date}.map", f"{dst_dir}/{site}20{date}.map")
+    assert os.path.isfile(f"{dst_dir}/L1{date}.map"), "Map file download not successful"
+    os.rename(f"{dst_dir}/L1{date}.map", f"{dst_dir}/{site}{date}.map")
