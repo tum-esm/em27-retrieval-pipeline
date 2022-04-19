@@ -12,11 +12,9 @@ This repository contains all the code for extracting measurement data from our S
 
 ## Where to run it?
 
-You have to be inside the TUM network, either physically or via a VPN (https://wiki.tum.de/display/esm/VPN).
+You have to be inside the MWN, either physically or via a VPN (https://wiki.tum.de/display/esm/VPN).
 
-As of right now, you have to set up this tool on your machine. In the future, we might have a group VM running Linux, where you can run tools like this and have all dependencies already installed. Details about this might come in January.
-
-Your system has to have **Python 3** (https://www.python.org/downloads/), **Git** (https://git-scm.com/) and a "Terminal"/"Shell"/"Command Prompt" installed. The instructions here are from a Linux environment. I highly recommend you to work in a Linux/macOS environment when working with code.
+Your system has to have **Python 3** (https://www.python.org/downloads/), **Git** (https://git-scm.com/) and a "Terminal"/"Shell"/"Command Prompt" installed. The instructions here are from a Linux environment. I highly recommend working in a Linux/macOS environment when working with code.
 
 <br/>
 
@@ -70,13 +68,7 @@ poetry install
 
 -   `filter.movingWindowSizeMinutes` is the size of the window that is used for the rolling average to smooth the data
 -   `filter.outputStepSizeMinutes` is the time between data points in the output data (`2` means there will be a row every two minutes - when there is any data after filtering).
--   An explanation of the `filter.cases` can be found in the Master Thesis of Nico Nachtigall (NAS: `/tuei/esm/Thesis/Masterarbeiten/2020 MA Nico Nachtigall/Nachtigall_MasterThesis_final.pdf`)
-
-<br/>
-
-### How do I access the NAS?
-
-See https://wiki.tum.de/display/esm/NAS
+-   An explanation of the `filter.cases` can be found in the Master Thesis of Nico Nachtigall (NAS [?](https://wiki.tum.de/display/esm/NAS): `/tuei/esm/Thesis/Masterarbeiten/2020 MA Nico Nachtigall/Nachtigall_MasterThesis_final.pdf`)
 
 <br/>
 
