@@ -6,7 +6,6 @@ PROJECT_DIR = dir(dir(dir(os.path.abspath(__file__))))
 
 IFG_UPLOAD_DIR = f"/mnt/measurementData/mu"
 START_DATE = "20210101"
-PARALLEL_PROCESSES = 4
 
 
 def is_valid_date(s):
@@ -25,7 +24,7 @@ def take(xs, n):
 
 
 def run(config: dict):
-    next_days = []
+    next_dates = []
     for site in config["sensors_to_consider"]:
 
         # Renaming all folders YYYYMMDD_XX to YYYYMMDD
@@ -41,7 +40,7 @@ def run(config: dict):
                     f"{IFG_UPLOAD_DIR}/{site}_ifg/{d[:8]}",
                 )
 
-        next_days.append(
+        next_dates.append(
             {
                 "site": site,
                 "dates": [
@@ -51,11 +50,7 @@ def run(config: dict):
                 ],
             }
         )
-    next_days.sort(key=lambda x: -len(x["dates"]))
-
-    # TODO: If queue is empty, reprocess archive data
-
-    return {
-        "site": next_days[0]["site"],
-        "dates": take(next_days[0]["dates"], PARALLEL_PROCESSES),
-    }
+    sorted_next_dates = []
+    for x in next_dates:
+        sorted_next_dates.append({"site": x["site"], "dates": list(sorted(x["dates"]))})
+    return sorted_next_dates

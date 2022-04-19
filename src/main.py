@@ -1,12 +1,12 @@
-import sys
 from rich.console import Console
 from src.procedures import (
     load_config,
     initialize_environment,
-    determine_next_dates,
+    determine_unprocessed_dates,
     download_map_data,
     move_datalogger_files,
     move_ifg_files,
+    removed_unfinished_inputs,
     create_input_file,
     run_proffast_pylot,
 )
@@ -14,6 +14,19 @@ from src.procedures import (
 console = Console()
 
 blue_printer = lambda message: console.print(f"[bold blue]{message}")
+yellow_printer = lambda message: console.print(f"[bold yellow]{message}")
+
+MAX_PARALLEL_PROCESSES = 4
+
+
+def dates_queue_is_empty(q):
+    return all([len(x["dates"]) == 0 for x in q])
+
+
+def remove_date_from_queue(q, site, date):
+    assert q[0]["site"] == site
+    q[0]["dates"] = [d for d in q[0]["dates"] if d != date]
+    return q
 
 
 def run():
@@ -24,24 +37,34 @@ def run():
 
     # Determine next day to run proffast for
     blue_printer("Determining the next timeseries to process")
-    next_day = determine_next_dates.run(CONFIG)
-    print_label = f"{next_day['site']}/{'-'.join(next_day['dates'])}"
-    if len(next_day["dates"]) == 0:
-        sys.exit()
+    next_dates = determine_unprocessed_dates.run(CONFIG)
 
-    # TODO: Handle dates that could not be processed
+    while not dates_queue_is_empty(next_dates):
+        next_dates = list(sorted(next_dates, key=lambda x: -len(x["dates"])))
+        site = next_dates[0]["site"]
+        dates_to_be_pyloted = []
 
-    blue_printer(f"{print_label} - Preparing all input files")
-    for date in next_day["dates"]:
-        download_map_data.run(next_day["site"], date, CONFIG)
-        move_datalogger_files.run(next_day["site"], date, CONFIG)
-        move_ifg_files.run(next_day["site"], date)
+        for date in [*next_dates[0]["dates"]]:
+            next_dates = remove_date_from_queue(next_dates, site, date)
 
-    blue_printer(f"{print_label} - Creating input YAML file")
-    create_input_file.run(next_day["site"], CONFIG)
+            blue_printer(f"{site}/{date} - Preparing all input files")
+            try:
+                download_map_data.run(site, date, CONFIG)
+                move_datalogger_files.run(site, date, CONFIG)
+                move_ifg_files.run(site, date)
+                dates_to_be_pyloted.append(date)
+            except AssertionError:
+                yellow_printer(f"{site}/{date} - Inputs incomplete, skipping this date")
+                removed_unfinished_inputs.run(site)
 
-    blue_printer(f"{print_label} - Running the proffast pylot")
-    run_proffast_pylot.run(next_day["site"], date)
+            if len(dates_to_be_pyloted) == MAX_PARALLEL_PROCESSES:
+                break
 
-    # Check output correctness and move results and ifgs to DSS
-    # TODO
+        blue_printer(
+            f"{site}/{'-'.join(dates_to_be_pyloted)} - Running the proffast pylot"
+        )
+        create_input_file.run(site, CONFIG)
+        run_proffast_pylot.run(site, date)
+
+        # Check output correctness and move results and ifgs to DSS
+        # TODO

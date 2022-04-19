@@ -1,0 +1,26 @@
+import os
+import shutil
+
+dir = os.path.dirname
+PROJECT_DIR = dir(dir(dir(os.path.abspath(__file__))))
+
+
+def run(site: str, date: str):
+    map_src = f"{PROJECT_DIR}/inputs/{site}/map/{site}{date}.map"
+    if os.path.isfile(map_src):
+        os.remove(map_src)
+
+    ifg_src = f"{PROJECT_DIR}/inputs/{site}/ifg/{date[2:]}"
+    if os.path.isdir(ifg_src):
+        shutil.rmtree(ifg_src)
+
+    matching_pressure_files = list(
+        filter(
+            lambda f: f.startswith(f"{date[:4]}-{date[4:6]}-{date[6:]}_")
+            and f.endswith(".dat"),
+            os.listdir(f"{PROJECT_DIR}/inputs/{site}/pressure"),
+        )
+    )
+    if len(matching_pressure_files) != 0:
+        assert len(matching_pressure_files) == 1, "Multiple datalogger files found"
+        os.remove(matching_pressure_files[0])
