@@ -1,11 +1,15 @@
 import os
 import shutil
+from rich.console import Console
 
 dir = os.path.dirname
 PROJECT_DIR = dir(dir(dir(os.path.abspath(__file__))))
 
 SRC = "/home/esm/datalogger2zeno"
 DST = f"{PROJECT_DIR}/inputs"
+
+console = Console()
+yellow_printer = lambda message: console.print(f"[bold yellow]{message}")
 
 
 def run(site: str, date: str, config: dict):
@@ -15,7 +19,7 @@ def run(site: str, date: str, config: dict):
 
     matching_files = list(
         filter(
-            lambda f: f.startswith(f"20{date[:2]}-{date[2:4]}-{date[4:]}_00-00-")
+            lambda f: f.startswith(f"20{date[:2]}-{date[2:4]}-{date[4:]}_")
             and f.endswith(".dat"),
             os.listdir(src_dir),
         )
@@ -29,12 +33,9 @@ def run(site: str, date: str, config: dict):
     with open(src_file, "r") as f:
         line_count = len(f.readlines())
         # 1440 minutes per day + 1 header line
-        assert (
-            line_count > 1400
-        ), f"Datalogger file is incomplete: Only {line_count} lines"
-        if line_count < 1440:
+        if line_count < 1441:
             # TODO: Use logging instead of printing
-            print(f"WARNING: Datalogger file only has {line_count} lines")
+            yellow_printer(f"WARNING: Datalogger file only has {line_count}/1441 lines")
 
     # copy datalogger file
     shutil.copy(src_file, dst_file)
