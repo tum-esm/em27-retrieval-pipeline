@@ -25,32 +25,34 @@ def take(xs, n):
 
 def run(config: dict):
     next_dates = []
-    for site in config["sensors_to_consider"]:
+    for sensor in config["sensors_to_consider"]:
 
         # Renaming all folders YYYYMMDD_XX to YYYYMMDD
-        for d in os.listdir(f"{IFG_UPLOAD_DIR}/{site}_ifg"):
+        for d in os.listdir(f"{IFG_UPLOAD_DIR}/{sensor}_ifg"):
             if (
-                os.path.isdir(f"{IFG_UPLOAD_DIR}/{site}_ifg/{d}")
+                os.path.isdir(f"{IFG_UPLOAD_DIR}/{sensor}_ifg/{d}")
                 and is_valid_date(d[:8])
                 and len(d) == 11
                 and d[8] == "_"
             ):
                 os.rename(
-                    f"{IFG_UPLOAD_DIR}/{site}_ifg/{d}",
-                    f"{IFG_UPLOAD_DIR}/{site}_ifg/{d[:8]}",
+                    f"{IFG_UPLOAD_DIR}/{sensor}_ifg/{d}",
+                    f"{IFG_UPLOAD_DIR}/{sensor}_ifg/{d[:8]}",
                 )
 
         next_dates.append(
             {
-                "site": site,
+                "sensor": sensor,
                 "dates": [
                     d
-                    for d in os.listdir(f"{IFG_UPLOAD_DIR}/{site}_ifg")
+                    for d in os.listdir(f"{IFG_UPLOAD_DIR}/{sensor}_ifg")
                     if is_valid_date(d)
                 ],
             }
         )
     sorted_next_dates = []
     for x in next_dates:
-        sorted_next_dates.append({"site": x["site"], "dates": list(sorted(x["dates"]))})
+        sorted_next_dates.append(
+            {"sensor": x["sensor"], "dates": list(sorted(x["dates"]))}
+        )
     return sorted_next_dates

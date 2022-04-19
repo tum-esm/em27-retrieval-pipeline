@@ -1,11 +1,11 @@
 # Variables to be set:
-# SERIAL_NUMBER, SITE, PROJECT_DIR, DATE, COMMIT_SHA
+# SERIAL_NUMBER, SENSOR, PROJECT_DIR, DATE, COMMIT_SHA
 
 
 # SITE AND INSTRUMENT
 instrument_number: SN%SERIAL_NUMBER%
-site_name: %SITE%
-site_abbrev: %SITE%
+site_name: %SENSOR%
+site_abbrev: %SENSOR%
 start_date:
 end_date:
 coords:
@@ -26,11 +26,11 @@ proffast_path: %PROJECT_DIR%/proffastpylot/prf
 
 
 # INPUT PATHS
-interferogram_path: %PROJECT_DIR%/inputs/%SITE%/ifg
-map_path: %PROJECT_DIR%/inputs/%SITE%/map
-pressure_path: %PROJECT_DIR%/inputs/%SITE%/pressure
+interferogram_path: %PROJECT_DIR%/inputs/%SENSOR%/ifg
+map_path: %PROJECT_DIR%/inputs/%SENSOR%/map
+pressure_path: %PROJECT_DIR%/inputs/%SENSOR%/pressure
 
 
 # OUTPUT PATHS
 analysis_path: %PROJECT_DIR%/outputs/analysis
-result_path: %PROJECT_DIR%/outputs/%SITE%
+result_path: %PROJECT_DIR%/outputs/%SENSOR%

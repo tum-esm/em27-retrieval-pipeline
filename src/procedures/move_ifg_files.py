@@ -9,14 +9,14 @@ SRC_DSS = "/home/esm/em27_ifg_dss/em27_ifg_dss"
 DST = f"{PROJECT_DIR}/inputs"
 
 
-def run(site: str, date: str):
-    src_date_path = f"{SRC_CLOUD}/{site}_ifg/{date}"
+def run(sensor: str, date: str):
+    src_date_path = f"{SRC_CLOUD}/{sensor}_ifg/{date}"
     if not os.path.isdir(src_date_path):
-        src_date_path = f"{SRC_DSS}/{site}_ifg/{date}"
+        src_date_path = f"{SRC_DSS}/{sensor}_ifg/{date}"
     assert os.path.isdir(src_date_path)
 
     # Create empty output directory for that date
-    dst_date_path = f"{DST}/{site}/ifg/{date[2:]}"
+    dst_date_path = f"{DST}/{sensor}/ifg/{date[2:]}"
     if os.path.isdir(dst_date_path):
         shutil.rmtree(dst_date_path)
     os.mkdir(dst_date_path)

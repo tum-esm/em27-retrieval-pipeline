@@ -6,11 +6,11 @@ dir = os.path.dirname
 PROJECT_DIR = dir(dir(dir(os.path.abspath(__file__))))
 
 
-def run(site: str, date: str, config: dict):
-    dst_dir = f"{PROJECT_DIR}/inputs/{site}/map"
+def run(sensor: str, date: str, config: dict):
+    dst_dir = f"{PROJECT_DIR}/inputs/{sensor}/map"
     download_config = {
-        "lat": config["sensor_coordinates"][site]["lat"],
-        "lng": config["sensor_coordinates"][site]["lng"],
+        "lat": config["coordinates"][sensor]["lat"],
+        "lng": config["coordinates"][sensor]["lng"],
         "dates": [date],
         "user": config["download_map_data_email"],
         "dst": dst_dir,
@@ -24,4 +24,4 @@ def run(site: str, date: str, config: dict):
 
     os.system(f"{PROJECT_DIR}/.venv/bin/python {PROJECT_DIR}/download-map-data/run.py")
     assert os.path.isfile(f"{dst_dir}/L1{date}.map"), "Map file download not successful"
-    os.rename(f"{dst_dir}/L1{date}.map", f"{dst_dir}/{site}{date}.map")
+    os.rename(f"{dst_dir}/L1{date}.map", f"{dst_dir}/{sensor}{date}.map")
