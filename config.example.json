@@ -1,5 +1,6 @@
 {
     "download_map_data_email": "someone@somecompany.sometld",
+    "sensors_to_consider": ["ma", "mb", "mc", "md", "me"],
     "sensor_coordinates": {
         "ma": { "lat": 48.151, "lng": 11.569, "alt": 539 },
         "mb": { "lat": 48.148, "lng": 11.73, "alt": 536 },
