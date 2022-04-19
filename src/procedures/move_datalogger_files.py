@@ -14,7 +14,7 @@ yellow_printer = lambda message: console.print(f"[bold yellow]{message}")
 
 def run(site: str, date: str, config: dict):
     src_dir = f'{SRC}/{site}_{str(config["sensor_serial_numbers"][site])[-2:]}'
-    dst_dir = f"{DST}/{site}_pressure"
+    dst_dir = f"{DST}/{site}/pressure"
     assert os.path.isdir(src_dir)
 
     matching_files = list(
