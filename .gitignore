@@ -4,3 +4,4 @@ outputs/*
 .vscode
 *.pyc
 config.json
+GeneralLogfile.log

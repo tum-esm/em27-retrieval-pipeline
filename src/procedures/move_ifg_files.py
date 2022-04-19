@@ -16,7 +16,7 @@ def run(site: str, date: str):
     assert os.path.isdir(src_date_path)
 
     # Create empty output directory for that date
-    dst_date_path = f"{DST}/{site}_ifg/{date}"
+    dst_date_path = f"{DST}/{site}/ifg/{date}"
     if os.path.isdir(dst_date_path):
         shutil.rmtree(dst_date_path)
     os.mkdir(dst_date_path)

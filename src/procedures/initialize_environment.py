@@ -19,10 +19,15 @@ def run(config: dict):
         f"{PROJECT_DIR}/proffastpylot/prfpylot/pylot.py"
     ), "Module proffastpylot not initialized"
 
-    assert os.path.isfile(
-        f"{PROJECT_DIR}/proffastpylot/prf/invers20"
-    ) and os.path.isfile(
-        f"{PROJECT_DIR}/proffastpylot/prf/pcxs20"
+    assert all(
+        [
+            os.path.isfile(x)
+            for x in [
+                f"{PROJECT_DIR}/proffastpylot/prf/preprocess/preprocess4",
+                f"{PROJECT_DIR}/proffastpylot/prf/pcxs20",
+                f"{PROJECT_DIR}/proffastpylot/prf/invers20",
+            ]
+        ]
     ), "PROFFAST not compiled completely"
 
     # Optionally clear directory "inputs" and "outputs"
@@ -36,12 +41,17 @@ def run(config: dict):
                     if not filepath.endswith(".gitkeep"):
                         os.remove(filepath)
 
-    # Make sure all input directories exist
-    for site in config["sensor_coordinates"].keys():
+    # Make sure all input- and output-directories exist
+    for sensor in config["sensors_to_consider"]:
+        sensor_input_dir = f"{PROJECT_DIR}/inputs/{sensor}"
+        if not os.path.isdir(sensor_input_dir):
+            os.mkdir(sensor_input_dir)
+        sensor_output_dir = f"{PROJECT_DIR}/outputs/{sensor}"
+        if not os.path.isdir(sensor_output_dir):
+            os.mkdir(sensor_output_dir)
         for d in ["ifg", "map", "pressure"]:
-            dst_dir = f"{PROJECT_DIR}/inputs/{site}_{d}"
-            if not os.path.isdir(dst_dir):
-                os.mkdir(dst_dir)
+            if not os.path.isdir(f"{sensor_input_dir}/{d}"):
+                os.mkdir(f"{sensor_input_dir}/{d}")
 
     # Update/create 'coords.csv' file
     with open(f"{PROJECT_DIR}/inputs/coords.csv", "w") as f:
