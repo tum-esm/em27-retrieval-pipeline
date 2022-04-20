@@ -5,10 +5,10 @@ import subprocess
 
 dir = os.path.dirname
 PROJECT_DIR = dir(dir(dir(os.path.abspath(__file__))))
-YAML_TEMPLATE = f"{PROJECT_DIR}/src/tueiesm_pylot_template.yml"
+YAML_TEMPLATE = f"{PROJECT_DIR}/src/pylot_config_template.yml"
 
 
-def run(config: dict):
+def run(config: dict, sensor: str):
     assert os.path.isfile(
         f"{PROJECT_DIR}/.venv/bin/python"
     ), "Virtual environment does not exist"
@@ -32,63 +32,49 @@ def run(config: dict):
         ]
     ), "PROFFAST not compiled completely"
 
-    # Clear directory "inputs" and "outputs"
-    for d in ["inputs", "outputs"]:
-        for f in os.listdir(f"{PROJECT_DIR}/{d}"):
-            filepath = f"{PROJECT_DIR}/{d}/{f}"
-            if os.path.isdir(filepath):
-                shutil.rmtree(filepath)
-            else:
-                if not filepath.endswith(".gitkeep"):
-                    os.remove(filepath)
+    # Clear directories "inputs" and "outputs"
+    for _d in ["inputs", "outputs"]:
+        shutil.rmtree(f"{PROJECT_DIR}/{_d}")
+        os.mkdir(f"{PROJECT_DIR}/{_d}")
+        os.system(f"touch {PROJECT_DIR}/{_d}/.gitkeep")
+    os.mkdir(f"{PROJECT_DIR}/inputs/{sensor}_ifg")
+    os.mkdir(f"{PROJECT_DIR}/inputs/{sensor}_map")
+    os.mkdir(f"{PROJECT_DIR}/inputs/{sensor}_pressure")
 
-    # Make sure all input- and output-directories exist
-    for sensor in config["sensors_to_consider"]:
-        sensor_input_dir = f"{PROJECT_DIR}/inputs/{sensor}"
-        if not os.path.isdir(sensor_input_dir):
-            os.mkdir(sensor_input_dir)
-        sensor_output_dir = f"{PROJECT_DIR}/outputs/{sensor}"
-        if not os.path.isdir(sensor_output_dir):
-            os.mkdir(sensor_output_dir)
-        for d in ["ifg", "map", "pressure"]:
-            if not os.path.isdir(f"{sensor_input_dir}/{d}"):
-                os.mkdir(f"{sensor_input_dir}/{d}")
-
-    # Update/create 'coords.csv' file
-    with open(f"{PROJECT_DIR}/inputs/coords.csv", "w") as f:
-        f.write("Site, Latitude, Longitude, Altitude_kmasl, Starttime\n")
-        for sensor, coords in config["coordinates"].items():
-            f.write(
+    # Create 'coords.csv' file
+    with open(f"{PROJECT_DIR}/inputs/coords.csv", "w") as _f:
+        _f.write("Site, Latitude, Longitude, Altitude_kmasl, Starttime\n")
+        for _sensor, _coords in config["coordinates"].items():
+            _f.write(
                 ", ".join(
                     [
-                        sensor,
-                        str(round(coords["lat"], 3)),
-                        str(round(coords["lng"], 3)),
-                        str(round(coords["alt"] / 1000, 3)),
+                        _sensor,
+                        str(round(_coords["lat"], 3)),
+                        str(round(_coords["lng"], 3)),
+                        str(round(_coords["alt"] / 1000, 3)),
                         "2019-01-01",
                     ]
                 )
                 + "\n"
             )
 
-    # Update/create yaml files for proffast (one per sensor)
-    for sensor in config["sensors_to_consider"]:
-        with open(YAML_TEMPLATE, "r") as f:
-            file_content = "".join(f.readlines())
+    # Create YAML file for proffast
+    with open(YAML_TEMPLATE, "r") as _f:
+        file_content = "".join(_f.readlines())
 
-        replacements = {
-            "SERIAL_NUMBER": str(config["serial_numbers"][sensor]).zfill(3),
-            "SENSOR": sensor,
-            "PROJECT_DIR": PROJECT_DIR,
-            "COMMIT_SHA": subprocess.check_output(
-                ["git", "rev-parse", "--short", "--verify", "HEAD"]
-            )
-            .decode()
-            .replace("\n", ""),
-        }
+    replacements = {
+        "SERIAL_NUMBER": str(config["serial_numbers"][sensor]).zfill(3),
+        "SENSOR": sensor,
+        "PROJECT_DIR": PROJECT_DIR,
+        "COMMIT_SHA": subprocess.check_output(
+            ["git", "rev-parse", "--short", "--verify", "HEAD"]
+        )
+        .decode()
+        .replace("\n", ""),
+    }
 
-        for key, value in replacements.items():
-            file_content = file_content.replace(f"%{key}%", value)
+    for key, value in replacements.items():
+        file_content = file_content.replace(f"%{key}%", value)
 
-        with open(f"{PROJECT_DIR}/inputs/{sensor}-pylot-config.yml", "w") as f:
-            f.write(file_content)
+    with open(f"{PROJECT_DIR}/inputs/{sensor}-pylot-config.yml", "w") as _f:
+        _f.write(file_content)

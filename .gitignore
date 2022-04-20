@@ -5,3 +5,4 @@ outputs/*
 *.pyc
 config.json
 GeneralLogfile.log
+*.log

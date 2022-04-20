@@ -7,16 +7,15 @@ PROJECT_DIR = dir(dir(dir(os.path.abspath(__file__))))
 
 
 def run(sensor: str, date: str, config: dict):
-    dst_dir = f"{PROJECT_DIR}/inputs/{sensor}/map"
+    dst_dir = f"{PROJECT_DIR}/inputs/{sensor}_map"
     download_config = {
         "lat": config["coordinates"][sensor]["lat"],
         "lng": config["coordinates"][sensor]["lng"],
         "dates": [date],
         "user": config["download_map_data_email"],
         "dst": dst_dir,
-        "downloadMap": True,
-        "downloadMod": False,
-        "minimumDaysDelay": 5,
+        "downloadTypes": {"map": True, "mod": False},
+        "minimumDaysDelay": 21,
         "downloadTimeoutSeconds": 120,
     }
     with open(f"{PROJECT_DIR}/download-map-data/config.json", "w") as f:

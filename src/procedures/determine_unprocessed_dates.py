@@ -1,5 +1,6 @@
 import os
 from datetime import datetime
+import shutil
 
 dir = os.path.dirname
 PROJECT_DIR = dir(dir(dir(os.path.abspath(__file__))))
@@ -35,7 +36,7 @@ def run(config: dict):
                 and len(d) == 11
                 and d[8] == "_"
             ):
-                os.rename(
+                shutil.move(
                     f"{IFG_UPLOAD_DIR}/{sensor}_ifg/{d}",
                     f"{IFG_UPLOAD_DIR}/{sensor}_ifg/{d[:8]}",
                 )
@@ -53,6 +54,6 @@ def run(config: dict):
     sorted_next_dates = []
     for x in next_dates:
         sorted_next_dates.append(
-            {"sensor": x["sensor"], "dates": list(sorted(x["dates"]))}
+            {"sensor": x["sensor"], "dates": list(sorted(x["dates"]))[::-1]}
         )
     return sorted_next_dates
