@@ -13,7 +13,7 @@ get_dir_size = lambda d: int(
     .decode()
     .replace("\t", " ")
     .split(" ")[0]
-)
+) - int(subprocess.check_output(["stat", '--printf="%s"', d]).decode().replace('"', ""))
 
 
 def run(sensor: str, dates: list[str], config: dict):
@@ -51,7 +51,7 @@ def run(sensor: str, dates: list[str], config: dict):
                 )
 
             # move the whole directory
-            shutil.copy(ifg_src, ifg_dst)
+            shutil.copytree(ifg_src, ifg_dst)
 
             # Only remove input src if copy was successful
             if get_dir_size(ifg_src) == get_dir_size(ifg_dst):
