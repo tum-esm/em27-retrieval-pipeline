@@ -1,4 +1,3 @@
-import sys
 from rich.console import Console
 from src.procedures import (
     load_config,
@@ -9,14 +8,14 @@ from src.procedures import (
     move_ifg_files,
     removed_unfinished_inputs,
     run_proffast_pylot,
+    move_outputs,
 )
 
 console = Console()
-
 blue_printer = lambda message: console.print(f"[bold blue]{message}")
 yellow_printer = lambda message: console.print(f"[bold yellow]{message}")
-
-MAX_PARALLEL_PROCESSES = 4
+red_printer = lambda message: console.print(f"[bold red]{message}")
+MAX_PARALLEL_PROCESSES = 1
 
 
 def dates_queue_is_empty(q):
@@ -37,15 +36,16 @@ def run():
     # Determine next day to run proffast for
     blue_printer("Determining the next timeseries to process")
     next_dates = determine_unprocessed_dates.run(CONFIG)
+    # `next_dates` looks like `{"sensor": "mc", "dates": ["20210319"]}`
 
     while not dates_queue_is_empty(next_dates):
         blue_printer(f"Resetting Environment")
         next_dates = list(sorted(next_dates, key=lambda x: -len(x["dates"])))
+        blue_printer(f"next_dates: {next_dates}")
+
         sensor = next_dates[0]["sensor"]
         dates_to_be_pyloted = []
-
         initialize_environment.run(CONFIG, sensor)
-        print("next_dates[0]:", next_dates[0])
 
         for date in [*next_dates[0]["dates"]]:
             next_dates = remove_date_from_queue(next_dates, sensor, date)
@@ -66,11 +66,17 @@ def run():
                 break
 
         blue_printer(
-            f"{sensor}/{'-'.join(dates_to_be_pyloted)} - Running the proffast pylot"
+            f"{sensor}/{','.join(dates_to_be_pyloted)} - Running the proffast pylot"
         )
-        run_proffast_pylot.run(sensor)
+        try:
+            run_proffast_pylot.run(sensor, parallel_processes=MAX_PARALLEL_PROCESSES)
+        except Exception as e:
+            red_printer(
+                f"{sensor}/{','.join(dates_to_be_pyloted)} - Runtime error in pylot: {e}"
+            )
+            continue
 
-        sys.exit()
+        blue_printer(f"{sensor}/{','.join(dates_to_be_pyloted)} - Moving outputs")
+        move_outputs.run(sensor, dates_to_be_pyloted, CONFIG)
 
-        # Check output correctness and move results and ifgs to DSS
-        # TODO
+    blue_printer("Queue is empty, no more dates to process")
