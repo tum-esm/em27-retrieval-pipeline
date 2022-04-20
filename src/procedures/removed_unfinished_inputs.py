@@ -6,11 +6,11 @@ PROJECT_DIR = dir(dir(dir(os.path.abspath(__file__))))
 
 
 def run(sensor: str, date: str):
-    map_src = f"{PROJECT_DIR}/inputs/{sensor}/map/{sensor}{date}.map"
+    map_src = f"{PROJECT_DIR}/inputs/{sensor}_map/{sensor}{date}.map"
     if os.path.isfile(map_src):
         os.remove(map_src)
 
-    ifg_src = f"{PROJECT_DIR}/inputs/{sensor}/ifg/{date[2:]}"
+    ifg_src = f"{PROJECT_DIR}/inputs/{sensor}_ifg/{date[2:]}"
     if os.path.isdir(ifg_src):
         shutil.rmtree(ifg_src)
 
@@ -18,7 +18,7 @@ def run(sensor: str, date: str):
         filter(
             lambda f: f.startswith(f"{date[:4]}-{date[4:6]}-{date[6:]}_")
             and f.endswith(".dat"),
-            os.listdir(f"{PROJECT_DIR}/inputs/{sensor}/pressure"),
+            os.listdir(f"{PROJECT_DIR}/inputs/{sensor}_pressure"),
         )
     )
     if len(matching_pressure_files) != 0:

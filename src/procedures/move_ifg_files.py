@@ -16,7 +16,7 @@ def run(sensor: str, date: str):
     assert os.path.isdir(src_date_path)
 
     # Create empty output directory for that date
-    dst_date_path = f"{DST}/{sensor}/ifg/{date[2:]}"
+    dst_date_path = f"{DST}/{sensor}_ifg/{date[2:]}"
     if os.path.isdir(dst_date_path):
         shutil.rmtree(dst_date_path)
     os.mkdir(dst_date_path)

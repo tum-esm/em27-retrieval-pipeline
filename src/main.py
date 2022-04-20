@@ -40,11 +40,12 @@ def run():
 
     while not dates_queue_is_empty(next_dates):
         blue_printer(f"Resetting Environment")
-        initialize_environment.run(CONFIG)
-
         next_dates = list(sorted(next_dates, key=lambda x: -len(x["dates"])))
         sensor = next_dates[0]["sensor"]
         dates_to_be_pyloted = []
+
+        initialize_environment.run(CONFIG, sensor)
+        print("next_dates[0]:", next_dates[0])
 
         for date in [*next_dates[0]["dates"]]:
             next_dates = remove_date_from_queue(next_dates, sensor, date)
@@ -59,7 +60,7 @@ def run():
                 yellow_printer(
                     f"{sensor}/{date} - Inputs incomplete, skipping this date"
                 )
-                removed_unfinished_inputs.run(sensor)
+                removed_unfinished_inputs.run(sensor, date)
 
             if len(dates_to_be_pyloted) == MAX_PARALLEL_PROCESSES:
                 break

@@ -26,11 +26,11 @@ proffast_path: %PROJECT_DIR%/proffastpylot/prf
 
 
 # INPUT PATHS
-interferogram_path: %PROJECT_DIR%/inputs/%SENSOR%/ifg
-map_path: %PROJECT_DIR%/inputs/%SENSOR%/map
-pressure_path: %PROJECT_DIR%/inputs/%SENSOR%/pressure
+interferogram_path: %PROJECT_DIR%/inputs/%SENSOR%_ifg
+map_path: %PROJECT_DIR%/inputs/%SENSOR%_map
+pressure_path: %PROJECT_DIR%/inputs/%SENSOR%_pressure
 
 
 # OUTPUT PATHS
 analysis_path: %PROJECT_DIR%/outputs/analysis
-result_path: %PROJECT_DIR%/outputs/%SENSOR%
+result_path: %PROJECT_DIR%/outputs
