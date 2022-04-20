@@ -29,8 +29,6 @@ def remove_date_from_queue(q, sensor, date):
 
 
 def run():
-    # Load config, test setup, clear data directories
-    blue_printer("Initializing the environment")
     CONFIG = load_config.run()
 
     # Determine next day to run proffast for
@@ -39,12 +37,13 @@ def run():
     # `next_dates` looks like `{"sensor": "mc", "dates": ["20210319"]}`
 
     while not dates_queue_is_empty(next_dates):
-        blue_printer(f"Resetting Environment")
         next_dates = list(sorted(next_dates, key=lambda x: -len(x["dates"])))
         blue_printer(f"next_dates: {next_dates}")
 
         sensor = next_dates[0]["sensor"]
         dates_to_be_pyloted = []
+
+        blue_printer(f"Resetting Environment")
         initialize_environment.run(CONFIG, sensor)
 
         for date in [*next_dates[0]["dates"]]:
@@ -74,9 +73,12 @@ def run():
             red_printer(
                 f"{sensor}/{','.join(dates_to_be_pyloted)} - Runtime error in pylot: {e}"
             )
-            continue
 
         blue_printer(f"{sensor}/{','.join(dates_to_be_pyloted)} - Moving outputs")
-        move_outputs.run(sensor, dates_to_be_pyloted, CONFIG)
+        move_successful = move_outputs.run(sensor, dates_to_be_pyloted, CONFIG)
+        if not move_successful:
+            red_printer(
+                f"{sensor}/{','.join(dates_to_be_pyloted)} - Data could not be moved"
+            )
 
     blue_printer("Queue is empty, no more dates to process")
