@@ -22,6 +22,9 @@ def run(sensor: str, dates: list[str], config: dict):
     output_src = f"{PROJECT_DIR}/outputs/{sensor}_SN{str(config['serial_numbers'][sensor]).zfill(3)}_{start_date}_{end_date}"
     output_csv = f"{output_src}/combined_invparms_{sensor}_{start_date}-{end_date}.csv"
 
+    if not os.path.isdir(output_src):
+        return False
+
     # determine output directory path on DSS
     day_was_successful = os.path.isfile(output_csv)
     if day_was_successful:
@@ -56,3 +59,5 @@ def run(sensor: str, dates: list[str], config: dict):
             # Only remove input src if copy was successful
             if get_dir_size(ifg_src) == get_dir_size(ifg_dst):
                 shutil.rmtree(ifg_src)
+
+    return True
