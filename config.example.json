@@ -4,7 +4,10 @@
     "dates": ["20210511", "20210512", "20210513"],
     "user": "someone@somecompany.sometld",
     "dst": "somedir",
-    "downloadMap": true,
+    "downloadTypes": {
+        "map": true,
+        "mod": true
+    },
     "downloadMod": true,
     "minimumDaysDelay": 5,
     "downloadTimeoutSeconds": 120
