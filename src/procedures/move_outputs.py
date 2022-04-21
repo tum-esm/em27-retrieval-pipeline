@@ -8,12 +8,34 @@ PROJECT_DIR = dir(dir(dir(os.path.abspath(__file__))))
 IFG_SRC_CLOUD = "/mnt/measurementData/mu"
 DST_DSS = "/home/esm/em27_ifg_dss/proffast-archive"
 
-get_dir_size = lambda d: int(
-    subprocess.check_output(["du", "-d", "0", "-b", d])
-    .decode()
-    .replace("\t", " ")
-    .split(" ")[0]
-) - int(subprocess.check_output(["stat", '--printf="%s"', d]).decode().replace('"', ""))
+
+def get_dir_size(_dir):
+    size = int(
+        subprocess.check_output(["du", "-d", "0", "-b", _dir])
+        .decode()
+        .replace("\t", " ")
+        .split(" ")[0]
+    )
+    size -= int(
+        subprocess.check_output(["stat", '--printf="%s"', _dir])
+        .decode()
+        .replace('"', "")
+    )
+    if os.path.isdir(f"{_dir}/cloudy"):
+        size -= int(
+            subprocess.check_output(["stat", '--printf="%s"', f"{_dir}/cloudy"])
+            .decode()
+            .replace('"', "")
+        )
+    if os.path.isdir(f"{_dir}/incomplete_ifgs"):
+        size -= int(
+            subprocess.check_output(
+                ["stat", '--printf="%s"', f"{_dir}/incomplete_ifgs"]
+            )
+            .decode()
+            .replace('"', "")
+        )
+    return size
 
 
 def run(sensor: str, dates: list[str], config: dict):
