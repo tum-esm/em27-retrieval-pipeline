@@ -23,7 +23,7 @@ def run(sensor: str, dates: list[str], config: dict):
     output_csv = f"{output_src}/combined_invparms_{sensor}_{start_date}-{end_date}.csv"
 
     if not os.path.isdir(output_src):
-        return False
+        return "failed"
 
     # determine output directory path on DSS
     day_was_successful = os.path.isfile(output_csv)
@@ -36,6 +36,8 @@ def run(sensor: str, dates: list[str], config: dict):
     if os.path.isdir(output_dst):
         shutil.rmtree(output_dst)
     shutil.move(output_src, output_dst)
+
+    message = []
 
     # move input data (interferograms)
     for date in dates:
@@ -57,7 +59,17 @@ def run(sensor: str, dates: list[str], config: dict):
             shutil.copytree(ifg_src, ifg_dst)
 
             # Only remove input src if copy was successful
-            if get_dir_size(ifg_src) == get_dir_size(ifg_dst):
+            dir_size_src = get_dir_size(ifg_src)
+            dir_size_dst = get_dir_size(ifg_dst)
+            if dir_size_src == dir_size_dst:
                 shutil.rmtree(ifg_src)
+                message.append(f"{date}: ok (dst-dir: {ifg_dst})")
+            else:
+                message.append(
+                    f"{date}: copy not complete (dst-dir: {ifg_dst}, "
+                    + f"src-size: {dir_size_src}, dst-size: {dir_size_dst})"
+                )
+        else:
+            message.append(f"{date}: src not on cloud, skipping copy")
 
-    return True
+    return ", ".join(message)
