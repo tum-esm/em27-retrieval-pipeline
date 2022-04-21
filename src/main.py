@@ -75,10 +75,14 @@ def run():
             )
 
         blue_printer(f"{sensor}/{','.join(dates_to_be_pyloted)} - Moving outputs")
-        move_successful = move_outputs.run(sensor, dates_to_be_pyloted, CONFIG)
-        if not move_successful:
+        move_output_message = move_outputs.run(sensor, dates_to_be_pyloted, CONFIG)
+        if move_output_message == "failed":
             red_printer(
-                f"{sensor}/{','.join(dates_to_be_pyloted)} - Data could not be moved"
+                f"{sensor}/{','.join(dates_to_be_pyloted)} - Moving outputs failed"
+            )
+        else:
+            blue_printer(
+                f"{sensor}/{','.join(dates_to_be_pyloted)} - Moving outputs: {move_output_message}"
             )
 
     blue_printer("Queue is empty, no more dates to process")
