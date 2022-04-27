@@ -12,9 +12,11 @@ This repository contains all the code for extracting measurement data from our S
 
 ## Where to run it?
 
-You have to be inside the MWN, either physically or via a VPN (https://wiki.tum.de/display/esm/VPN).
+You have to be inside the **MWN**, either physically or via a VPN (https://wiki.tum.de/display/esm/VPN).
 
 Your system has to have **Python 3** (https://www.python.org/downloads/), **Git** (https://git-scm.com/) and a "Terminal"/"Shell"/"Command Prompt" installed. The instructions here are from a Linux environment. I highly recommend working in a Linux/macOS environment when working with code.
+
+You need **access credentials for the SQL database**: Ask your supervisor or Patrick Aigner about them.
 
 <br/>
 
