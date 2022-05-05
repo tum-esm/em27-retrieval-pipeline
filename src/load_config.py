@@ -7,6 +7,7 @@ PROJECT_DIR = dir(dir(os.path.abspath(__file__)))
 
 validator = Validator(
     {
+        "stationId": {"type": "string"},
         "lat": {"type": "float"},
         "lng": {"type": "float"},
         "dates": {"type": "list", "schema": {"type": "string"}},
@@ -23,7 +24,7 @@ validator = Validator(
 )
 
 
-def run():
+def run(validate=False):
     try:
         with open(f"{PROJECT_DIR}/config.json", "r") as f:
             CONFIG = json.load(f)
@@ -32,6 +33,7 @@ def run():
     except json.decoder.JSONDecodeError:
         raise AssertionError("config.json is not in a valid JSON format")
 
-    assert validator.validate(CONFIG), f"Invalid config.json: {validator.errors}"
+    if validate:
+        assert validator.validate(CONFIG), f"Invalid config.json: {validator.errors}"
 
     return CONFIG

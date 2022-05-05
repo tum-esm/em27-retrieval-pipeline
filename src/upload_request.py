@@ -1,65 +1,50 @@
 import os
 import subprocess
-import time
+import tenacity
 from src import utils
 
 dir = os.path.dirname
 PROJECT_DIR = dir(dir(os.path.abspath(__file__)))
+CONFIG = utils.load_config()
 
+class ServerError553(Exception):
+    pass
 
-def _upload(user):
+@tenacity.retry(
+    retry=tenacity.retry_if_exception_type(ServerError553),
+    stop=tenacity.stop_after_attempt(2),
+    wait=tenacity.wait_fixed(60)
+)
+def _upload():
     result = subprocess.run(
         ["bash", f"{PROJECT_DIR}/upload_request.sh"],
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
-        env={**os.environ.copy(), "PASSWD": user},
+        env={**os.environ.copy(), "PASSWD": CONFIG["user"]},
     )
-    if result.returncode == 0:
-        return "ok"
-    elif "Access failed: 553" in result.stderr.decode():
-        return "access"
-    else:
-        return result.stderr.decode()
+    if "Access failed: 553" in result.stderr.decode():
+        raise ServerError553
+    elif result.returncode != 0:
+        raise Exception(result.stderr.decode())
 
 
-def run(date: str = None, config: dict = None):
+def run(start_date: str, end_date: str):  
     # Write request file
     with open(f"input_file.txt", "w") as f:
         f.write(
             "\n".join(
                 [
-                    "L1",
-                    date,
-                    date,
-                    str(round(config["lat"])),
-                    str(round(config["lng"])),
-                    config["user"],
+                    CONFIG["stationId"],
+                    start_date,
+                    end_date,
+                    str(round(CONFIG["lat"])),
+                    str(round(CONFIG["lng"])),
+                    CONFIG["user"],
                 ]
             )
         )
-
-    utils.print_blue(date, "MAP/MOD", "Uploading request")
-    try_a = _upload(config["user"])
-    if try_a == "ok":
-        os.remove("input_file.txt")
-        return True
-
-    if try_a != "access":
-        utils.print_red(date, "MAP/MOD", f"Uploading request failed: {try_a}")
-        return False
-
-    utils.print_blue(
-        date, "MAP/MOD", "Rate limiting or missing data, retrying once in 1 minute"
-    )
-    time.sleep(60)
-
-    try_b = _upload(config["user"])
-    os.remove("input_file.txt")
-    if try_b == "ok":
-        return True
-
-    if try_b != "access":
-        utils.print_red(date, "MAP/MOD", f"Uploading request failed: {try_a}")
-    else:
-        utils.print_blue(date, "MAP/MOD", "Missing data, skipping this date")
-    return False
+    
+    try:
+        _upload()
+    except Exception as e:
+        utils.print_red(f"Request-uploading failed: {e}")
