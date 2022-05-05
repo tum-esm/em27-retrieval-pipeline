@@ -15,10 +15,11 @@ validator = Validator(
         "dst": {"type": "string"},
         "downloadTypes": {
             "type": "dict",
-            "schema": {"map": {"type": "boolean"}, "mod": {"type": "boolean"}},
+            "schema": {
+                "map": {"type": "boolean"},
+                "mod": {"type": "boolean"}
+            },
         },
-        "downloadMod": {"type": "boolean"},
-        "minimumDaysDelay": {"type": "integer", "min": 0},
         "downloadTimeoutSeconds": {"type": "integer", "min": 0},
     }
 )
@@ -27,13 +28,13 @@ validator = Validator(
 def run(validate=False):
     try:
         with open(f"{PROJECT_DIR}/config.json", "r") as f:
-            CONFIG = json.load(f)
+            config = json.load(f)
     except FileNotFoundError:
         raise FileNotFoundError("config.json does not exist")
     except json.decoder.JSONDecodeError:
         raise AssertionError("config.json is not in a valid JSON format")
 
     if validate:
-        assert validator.validate(CONFIG), f"Invalid config.json: {validator.errors}"
+        assert validator.validate(config), f"Invalid config.json: {validator.errors}"
 
-    return CONFIG
+    return config

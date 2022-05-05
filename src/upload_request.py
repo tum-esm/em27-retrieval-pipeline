@@ -1,11 +1,11 @@
 import os
 import subprocess
 import tenacity
-from src import utils
+from src import utils, load_config
 
 dir = os.path.dirname
 PROJECT_DIR = dir(dir(os.path.abspath(__file__)))
-CONFIG = utils.load_config()
+CONFIG = load_config.run()
 
 class ServerError553(Exception):
     pass
@@ -28,8 +28,7 @@ def _upload():
         raise Exception(result.stderr.decode())
 
 
-def run(start_date: str, end_date: str):  
-    # Write request file
+def run(start_date: str, end_date: str):
     with open(f"input_file.txt", "w") as f:
         f.write(
             "\n".join(

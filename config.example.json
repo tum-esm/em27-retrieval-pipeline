@@ -9,6 +9,5 @@
         "map": true,
         "mod": true
     },
-    "minimumDaysDelay": 5,
-    "downloadTimeoutSeconds": 120
+    "downloadTimeoutSeconds": 200
 }
