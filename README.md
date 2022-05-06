@@ -77,3 +77,23 @@ python3.9 run.py
 <br/>
 
 **Responses from Caltech will be cached** in the `cache/` directory. If you want your duplicate requests to be faster and use fewer computing resources, do not remove or empty this directory.
+
+<br/>
+
+## Configuration
+
+**stationId:** Two letters labeling your station's name. For example, with `xx` your map-files will be named like `xx20220403.map`.
+
+**lat/lng:** Self-explaining.
+
+**dates:** List of dates to download files for. You can request single days `"20220401"` or a range of days `"20220404-20220408"`.
+
+**user:** Your user email that is used to log onto `ccycle.gps.caltech.edu`. See: https://tccon-wiki.caltech.edu/Main/CentralizedModMaker
+
+**dst:** The directory where output files will be placed.
+
+**sharedCachePath:** Cached responses will be placed in the `cache` directory in the project's working directory. When using this tool in multiple locations on your system, you make this tool use a different location as a cache location.
+
+**downloadTypes:** Which type of files to put in the `dst` directory.
+
+**downloadTimeoutSeconds:** The `ccycle.gps.caltech.edu` will take a while to generate the profiles. This defines, how long this tool will wait until it aborts trying to download the profiles.
