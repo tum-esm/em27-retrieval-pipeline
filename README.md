@@ -8,7 +8,7 @@ Here are the first few rows for a sample `.map` file:
 
 ```
  11 12
- L120220323.map
+ xx20220323.map
  GSETUP                   Version 3.92     2013-12-20    GCT
  WRITE_AUX                Version 1.11     27-May-2013    DW
  Please see https://tccon-wiki.caltech.edu for a complete description of this file and its usage.

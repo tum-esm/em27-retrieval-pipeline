@@ -4,8 +4,6 @@ import os
 from src import load_config
 
 console = Console()
-dir = os.path.dirname
-PROJECT_DIR = dir(dir(os.path.abspath(__file__)))
 CONFIG = load_config.run()
 
 
@@ -89,7 +87,7 @@ def get_dst_filename(filetype: str, date_string: str):
 def date_is_present_in_cache(date_string: str):
     return all([
         os.path.isfile(
-            f"{PROJECT_DIR}/cache/" +
+            CONFIG["sharedCachePath"] + "/" +
             get_cache_filename(filetype, date_string)
         ) for filetype in ["map", "mod"]
     ])

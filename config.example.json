@@ -5,6 +5,7 @@
     "dates": ["20210511", "20210512", "20210515-20210525"],
     "user": "someone@somecompany.sometld",
     "dst": "somedir",
+    "sharedCachePath": null,
     "downloadTypes": {
         "map": true,
         "mod": true

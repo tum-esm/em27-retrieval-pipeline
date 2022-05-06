@@ -1,8 +1,6 @@
-import os
 import shutil
 from src import utils, load_config, upload_request, download_file, process_tar_file
 
-PROJECT_DIR = os.path.dirname(os.path.abspath(__file__))
 CONFIG = load_config.run(validate=True)
 
 result = {
@@ -26,7 +24,7 @@ def process_query(start_date: str, end_date: str):
         try:
             for filetype in requested_filetypes:
                 shutil.copyfile(
-                    f"{PROJECT_DIR}/cache/" + utils.get_cache_filename(filetype, date_string),
+                    CONFIG["sharedCachePath"] + "/" + utils.get_cache_filename(filetype, date_string),
                     CONFIG["dst"] + "/" + utils.get_dst_filename(filetype, date_string)
                 )
             result["successful"].append(date_string)

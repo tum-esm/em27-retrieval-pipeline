@@ -1,9 +1,8 @@
 import os
 import subprocess
-from src import utils
+from src import load_config, utils
 
-dir = os.path.dirname
-PROJECT_DIR = dir(dir(os.path.abspath(__file__)))
+CONFIG = load_config.run()
 
         
 def run(start_date: str, end_date: str):
@@ -28,7 +27,7 @@ def run(start_date: str, end_date: str):
 
         # store generated file in internal cache
         for date_string in utils.get_date_list_from_range_query(start_date, end_date):
-            cache_filename = f"{PROJECT_DIR}/cache/" + utils.get_cache_filename(filetype, date_string)
+            cache_filename = CONFIG["sharedCachePath"] + "/" + utils.get_cache_filename(filetype, date_string)
             dst_filename = utils.get_dst_filename(filetype, date_string)
             if os.path.isfile(cache_filename):
                 os.remove(cache_filename)

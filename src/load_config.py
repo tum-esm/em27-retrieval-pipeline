@@ -13,6 +13,7 @@ validator = Validator(
         "dates": {"type": "list", "schema": {"type": "string"}},
         "user": {"type": "string"},
         "dst": {"type": "string"},
+        "sharedCachePath": {"type": "string", 'nullable': True},
         "downloadTypes": {
             "type": "dict",
             "schema": {
@@ -37,4 +38,10 @@ def run(validate=False):
     if validate:
         assert validator.validate(config), f"Invalid config.json: {validator.errors}"
 
+    if config["sharedCachePath"] == None:
+        config["sharedCachePath"] = PROJECT_DIR + "/cache"
+    elif config["sharedCachePath"].endswith("/"):
+        config["sharedCachePath"] = config["sharedCachePath"][:-1]
+    
+    assert os.path.isdir(config["sharedCachePath"]), "sharedCachePath directory does not exist"
     return config
