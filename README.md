@@ -1,5 +1,7 @@
 # Download Vertical Profiles
 
+_Formerly: https://github.com/tum-esm/download-map-data_
+
 ## What is it?
 
 This tool can be used to download `.map` and `.mod` files from `ccycle.gps.caltech.edu`. These files contain vertical distributions of meteorological parameters for a certain location and date. The underlying accessing method is described on https://tccon-wiki.caltech.edu/Main/CentralizedModMaker.
