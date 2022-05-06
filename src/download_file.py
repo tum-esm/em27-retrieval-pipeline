@@ -26,6 +26,7 @@ def run(start_date: str, end_date: str):
                     ],
                     stdout=subprocess.PIPE,
                     stderr=subprocess.PIPE,
+                    timeout=60,
                 )
                 
             if any(map(os.path.isfile, possible_tar_filenames)):

@@ -21,6 +21,7 @@ def _upload():
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
         env={**os.environ.copy(), "PASSWD": CONFIG["user"]},
+        timeout=60,
     )
     if "Access failed: 553" in result.stderr.decode():
         raise ServerError553
