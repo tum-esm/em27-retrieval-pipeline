@@ -1,34 +1,36 @@
 import os
 import subprocess
 import time
-from src import utils
+from src import utils, load_config
 
 dir = os.path.dirname
 PROJECT_DIR = dir(dir(os.path.abspath(__file__)))
+CONFIG = load_config.run()
 
 
-def run(date: str = None, config: dict = None, files: dict = None):
-    utils.print_blue(date, files["type"], "Downloading file")
-
+def run(start_date: str, end_date: str):
     running_time = 0
-    while running_time < config["downloadTimeoutSeconds"]:
-        subprocess.run(
-            [
-                "wget",
-                "--user",
-                "anonymous",
-                "--password",
-                config["user"],
-                f"ftp://ccycle.gps.caltech.edu/upload/modfiles/tar/{files['type']}s/{files['tar']}",
-            ],
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-        )
-        if os.path.isfile(files["tar"]):
-            return True
+    for filetype in ["map", "mod"]:
+        possible_tar_filenames = utils.get_possible_tar_filenames(filetype, start_date, end_date)
+        
+        while running_time < CONFIG["downloadTimeoutSeconds"]:
+            for filename in possible_tar_filenames:
+                subprocess.run(
+                    [
+                        "wget",
+                        "--user",
+                        "anonymous",
+                        "--password",
+                        CONFIG["user"],
+                        f"ftp://ccycle.gps.caltech.edu/upload/modfiles/tar/{filetype}s/{filename}",
+                    ],
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.PIPE,
+                    timeout=60,
+                )
+                
+            if any(map(os.path.isfile, possible_tar_filenames)):
+                break
 
-        running_time += 8
-        time.sleep(8)
-
-    utils.print_blue(date, files["type"], "Download timed out")
-    return False
+            running_time += 8
+            time.sleep(8)

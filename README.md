@@ -2,13 +2,13 @@
 
 ## What is it?
 
-This tool can be used to download `.map` and `.mod` files from `ccycle.gps.caltech.edu`. These files contain the vertical distribution of pressure, temperature, and many other meteorological parameters for a certain location and date.
+This tool can be used to download `.map` and `.mod` files from `ccycle.gps.caltech.edu`. These files contain the vertical distribution of pressure, temperature, and many other meteorological parameters for a certain location and date. The underlying accessing method is described on https://tccon-wiki.caltech.edu/Main/CentralizedModMaker.
 
 Here are the first few rows for a sample `.map` file:
 
 ```
  11 12
- L120220323.map
+ xx20220323.map
  GSETUP                   Version 3.92     2013-12-20    GCT
  WRITE_AUX                Version 1.11     27-May-2013    DW
  Please see https://tccon-wiki.caltech.edu for a complete description of this file and its usage.
