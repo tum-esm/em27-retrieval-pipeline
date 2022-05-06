@@ -1,8 +1,8 @@
-# Download `.map` and `.mod` Files from Caltech
+# Download Vertical Profiles
 
 ## What is it?
 
-This tool can be used to download `.map` and `.mod` files from `ccycle.gps.caltech.edu`. These files contain the vertical distribution of pressure, temperature, and many other meteorological parameters for a certain location and date. The underlying accessing method is described on https://tccon-wiki.caltech.edu/Main/CentralizedModMaker.
+This tool can be used to download `.map` and `.mod` files from `ccycle.gps.caltech.edu`. These files contain vertical distributions of meteorological parameters for a certain location and date. The underlying accessing method is described on https://tccon-wiki.caltech.edu/Main/CentralizedModMaker.
 
 Here are the first few rows for a sample `.map` file:
 
