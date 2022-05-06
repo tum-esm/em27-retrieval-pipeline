@@ -17,7 +17,7 @@ class ServerError553(Exception):
 )
 def _upload():
     result = subprocess.run(
-        ["bash", f"{PROJECT_DIR}/upload_request.sh"],
+        ["bash", f"{PROJECT_DIR}/src/upload_request.sh"],
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
         env={**os.environ.copy(), "PASSWD": CONFIG["user"]},
@@ -30,7 +30,7 @@ def _upload():
 
 
 def run(start_date: str, end_date: str):
-    with open(f"input_file.txt", "w") as f:
+    with open("input_file.txt", "w") as f:
         f.write(
             "\n".join(
                 [
@@ -48,3 +48,5 @@ def run(start_date: str, end_date: str):
         _upload()
     except Exception as e:
         utils.print_red(f"Request-uploading failed: {e}")
+    
+    os.remove("input_file.txt")
