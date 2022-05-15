@@ -17,7 +17,7 @@ import numpy as np
 from src.statistical_filters import utils
 
 
-def calculate_Background(df, back_type="smooth", **kwargs):
+def _calculate_Background(df, back_type="smooth", **kwargs):
     ####
     # Function to calculate global background
     # three different backgroundtypes are implemented:
@@ -217,7 +217,7 @@ def calculate_Background(df, back_type="smooth", **kwargs):
     return df_background
 
 
-def extrapolation(np_bkgMatrix, stepsize, window_size):
+def _extrapolation(np_bkgMatrix, stepsize, window_size):
     """
     Function to linear extrapolate day shape
         fits a linear curve to the edges of the day shape
@@ -267,7 +267,7 @@ def extrapolation(np_bkgMatrix, stepsize, window_size):
     return np_nkgMatrixAdd
 
 
-def butter_lowpass_filter(data, cutoff, fs, order):
+def _butter_lowpass_filter(data, cutoff, fs, order):
     # Function to Filter Data for given window
     # function is called from calculate_smooth_background()
     # input:
@@ -333,7 +333,7 @@ def calculate_smooth_background_middle(df, config, column):
 
     # Use extrapolation of the day shape to get a better performance on the edges
     if extrapolate:
-        np_timexch4 = extrapolation(np_timexch4_orig, cluster_interval, interval)
+        np_timexch4 = _extrapolation(np_timexch4_orig, cluster_interval, interval)
         index_orig = np.argwhere(
             (np_timexch4[:, 0] >= start_time) & (np_timexch4[:, 0] <= end_time)
         )
@@ -378,7 +378,9 @@ def calculate_smooth_background_middle(df, config, column):
             np_dummy = np.zeros(len(np_timexch4))
             # to make sure to have engough points for calculation
             if len(np_inter) > (order + 1) * 3:
-                y = butter_lowpass_filter(np_inter, cutoff, 1 / cluster_interval, order)
+                y = _butter_lowpass_filter(
+                    np_inter, cutoff, 1 / cluster_interval, order
+                )
                 # shift y such that threshold % data is above filtered curve
                 # use quantile with threshold
                 y_shift = np.nanquantile(y - np_inter, threshold_quantile)

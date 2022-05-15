@@ -20,7 +20,7 @@ import bokeh.models as bmo
 from src.statistical_filters import utils
 
 
-def plot_day(df_toPlot, df_color, **kwargs):
+def _plot_day(df_toPlot, df_color, **kwargs):
     """
     Function to plot measurements, one plot per day
     :param df_toPlot:   DataFrame that contains all Dates which should be plotted
@@ -119,7 +119,7 @@ def plot_day(df_toPlot, df_color, **kwargs):
             plt.show()
 
 
-def plot_heat_scatter(df, x_column, y_column, **kwargs):
+def _plot_heat_scatter(df, x_column, y_column, **kwargs):
     """
     Function to plot a heat scatter (color is visualizing the point density)
     :param df:          DataFrame with Data
@@ -158,7 +158,7 @@ def plot_heat_scatter(df, x_column, y_column, **kwargs):
     plt.show()
 
 
-def plot_bokeh(df, x_column, y_column, **kwargs):
+def _plot_bokeh(df, x_column, y_column, **kwargs):
     """
     Function to plot a interactive scatter
     :param df:          DataFrame with Data
@@ -197,7 +197,7 @@ def plot_bokeh(df, x_column, y_column, **kwargs):
     show(p)
 
 
-def plot_regressionPlot(df, x_column, y_column, **kwargs):
+def _plot_regressionPlot(df, x_column, y_column, **kwargs):
     """
     Function to plot a scatter with regression line
     :param df:          DataFrame with Data
@@ -230,7 +230,7 @@ def plot_regressionPlot(df, x_column, y_column, **kwargs):
     plt.show()
 
 
-def plot_location(df, df_location):
+def _plot_location(df, df_location):
     """
     Function to plot the location of the measurements
     :param df:          DataFrame, containing the measurement information, columns: 'ID_Location'
@@ -302,7 +302,7 @@ def plot_location(df, df_location):
     show(p)
 
 
-def plot_windrose(df, column, title, **kwargs):
+def _plot_windrose(df, column, title, **kwargs):
     """
     Function to plot data in correlation with wind direction and wind speed
     :param df:      Pandas DataFrame, columns: 'windSpd30m', 'windDir30m', column, opt. compare
@@ -444,7 +444,7 @@ def plot_windrose(df, column, title, **kwargs):
     plt.show()
 
 
-def plot_mult_windrose(df, df2, column, title, df3=None, c_max=None):
+def _plot_mult_windrose(df, df2, column, title, df3=None, c_max=None):
     """
     Function to plot multiple windroses with plot_windrose()
     :param df:      Pandas DataFrame, contains information of the first windrose
@@ -461,9 +461,9 @@ def plot_mult_windrose(df, df2, column, title, df3=None, c_max=None):
         fig, (ax1, ax2) = plt.subplots(
             1, 2, subplot_kw={"projection": "polar"}, figsize=(15, 8)
         )
-        cf = plot_windrose(df, column, title, ax=ax1, fig=fig, c_max=c_max)
+        cf = _plot_windrose(df, column, title, ax=ax1, fig=fig, c_max=c_max)
         fig.colorbar(cf, ax=ax1, fraction=0.046, pad=0.04)
-        cf = plot_windrose(df2, column, title, ax=ax2, fig=fig, c_max=c_max)
+        cf = _plot_windrose(df2, column, title, ax=ax2, fig=fig, c_max=c_max)
         fig.colorbar(cf, ax=ax2, fraction=0.046, pad=0.04)
         fig.suptitle("Windrose -" + title)
         plt.tight_layout()
@@ -472,11 +472,11 @@ def plot_mult_windrose(df, df2, column, title, df3=None, c_max=None):
         fig, (ax1, ax2, ax3) = plt.subplots(
             1, 3, subplot_kw={"projection": "polar"}, figsize=(25, 8)
         )
-        cf = plot_windrose(df, column, title[1], ax=ax1, fig=fig, c_max=c_max)
+        cf = _plot_windrose(df, column, title[1], ax=ax1, fig=fig, c_max=c_max)
         fig.colorbar(cf, ax=ax1, fraction=0.046, pad=0.04)
-        cf = plot_windrose(df2, column, title[2], ax=ax2, fig=fig, c_max=c_max)
+        cf = _plot_windrose(df2, column, title[2], ax=ax2, fig=fig, c_max=c_max)
         fig.colorbar(cf, ax=ax2, fraction=0.046, pad=0.04)
-        cf = plot_windrose(df3, column, title[3], ax=ax3, fig=fig, c_max=c_max)
+        cf = _plot_windrose(df3, column, title[3], ax=ax3, fig=fig, c_max=c_max)
         fig.colorbar(cf, ax=ax3, fraction=0.046, pad=0.04)
         fig.suptitle(title[0], fontsize=16)
         fig.tight_layout()
