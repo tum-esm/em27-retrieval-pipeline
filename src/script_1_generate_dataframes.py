@@ -141,20 +141,15 @@ def _filter_dataframes(df_calibrated):
                 df_tmp = df_filtered.dropna(subset=[COLUMN])
                 df_filtered = df_tmp.loc[df_tmp[COLUMN] < 200].copy()
             if gas == "ch4":
-                # parameter needed for air mass correction
-                df_filtered_dropped["elevation_angle"] = (
-                    90 - df_filtered_dropped["asza_deg"]
-                )
-
                 # The sub operation below required the index to be unique
                 # This line fixed the issue I experienced. Error message from before:
                 # "cannot handle a non-unique multi-index!"
                 df_filtered_dropped = df_filtered_dropped.reset_index().set_index(
                     ["Date", "ID_Spectrometer", "Hour"]
                 )
-                df_filtered_dropped[f"{COLUMN}_sub_mean"] = df_filtered_dropped.sub(
-                    df_filtered_dropped[[COLUMN]].groupby(level=[0, 1]).mean()
-                )[COLUMN]
+                df_filtered_dropped = dataframe_processing.apply_airmass_correction(
+                    df_filtered_dropped
+                )
 
             # Filter based on data statistics ----------------
             if (case == "filtered") and (not df_filtered_dropped.empty):
@@ -178,6 +173,7 @@ def _filter_dataframes(df_calibrated):
                     columns=["ID_Location"]
                 )
 
+            # FIXME:
             try:
                 # Add Column ID_Location
                 df_complete = df_filtered_statistical.join(
@@ -191,18 +187,6 @@ def _filter_dataframes(df_calibrated):
             except Exception:
                 console.print_exception(show_locals=True)
                 sys.exit()
-
-            # airmass correction for ch4
-            if gas == "ch4":
-                df_complete = dataframe_processing.apply_airmass_correction(
-                    df_complete
-                ).drop(
-                    [
-                        f"{COLUMN}_sub_mean",
-                        "elevation_angle",
-                    ],
-                    axis=1,
-                )
 
             output_dataframes[case][gas] = df_complete
 
