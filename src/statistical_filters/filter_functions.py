@@ -10,22 +10,31 @@ last modified: 20.10.2020
 
 
 import numpy as np
+import pandas as pd
 import scipy
 from src.statistical_filters import utils
 
 
-def filterData(data, fvsi_thold, sia_thold, sza_thold, step_size, o2_error, flag):
+def filterData(
+    data: pd.DataFrame,
+    fvsi_thold: float = 5,
+    sia_thold: float = 0.4,
+    sza_thold: float = 75,
+    step_size: float = 0.1,
+    o2_error: float = 0.0005,
+    flag: bool = True,
+) -> pd.DataFrame:
     """
     Function to filter on physical behavior. Based on Jias fitler approach.
     Input:
     :param data:        Pandas DataFrame, containing Data of one day and station
                             need columns: 'Hour', 'sia_AU', 'asza_deg', 'xo2_error', 'flag', 'fvsi'
-    :param fvsi_thold:  Number, fractional variation in solar intensity < the value, default: 5
-    :param sia_thold:   Number, solar intensity average > value, default: 0.4
-    :param sza_thold:   Number, solar zenith angle < value, default: 75
-    :param step_size:   Number, default: 0.1
-    :param o2_error:    Number, default: 0.0005
-    :param flag:        0 or 1, if 0 the flag parameter is not considered for filtering (except for no. 24 xair,
+    :param fvsi_thold:  fractional variation in solar intensity < the value
+    :param sia_thold:   solar intensity average > value
+    :param sza_thold:   solar zenith angle < value
+    :param step_size:
+    :param o2_error:
+    :param flag:        if false the flag parameter is not considered for filtering (except for no. 24 xair,
                         which shows an oversaturated signal); if 1, only measurements with flag <3 remain
 
     Output:
@@ -54,7 +63,7 @@ def filterData(data, fvsi_thold, sia_thold, sza_thold, step_size, o2_error, flag
             sia_ref[ii - 1] = sia_ref[ii] - m * dt
 
     # Filter step
-    if flag == 1:
+    if flag:
         df_ok = data.loc[
             (data["sia_AU"] >= sia_ref * sia_thold)
             & (data["flag"] < 3)
@@ -73,7 +82,7 @@ def filterData(data, fvsi_thold, sia_thold, sza_thold, step_size, o2_error, flag
     return df_ok
 
 
-def _getIndexIntervall(x, num, check_day=False):
+def _getIndexInterval(x, num, check_day=False):
     """
     Helper function for filter_intervall(df)
     Function return index values which should be deleted based on their interval size
@@ -110,7 +119,7 @@ def _getIndexIntervall(x, num, check_day=False):
     return np_badindex
 
 
-def _filter_intervall(df, num, gap, check_day=False):
+def _filter_interval(df, num, gap, check_day=False):
     """
     normally called by: filter_DataStat()
     Function to delete measuring intervals (which are defined as measurments between measuring gaps of time > 'gab')
@@ -136,7 +145,7 @@ def _filter_intervall(df, num, gap, check_day=False):
         df_reset["Hour"].values
     )  # get time difference between measurements
     np_indexGap = np.append(0, np.append((np.argwhere(np_diff > gap)), np_diff.size))
-    np_indexToBeDroped = _getIndexIntervall(
+    np_indexToBeDroped = _getIndexInterval(
         np_indexGap, num, check_day
     )  # get index which measurements should be dropped
     return df_reset.drop(np_indexToBeDroped)
@@ -228,7 +237,26 @@ def _zscore_move(df, column, interval, stepsize, threshold):
         return df_reset.set_index("Hour").drop(np_TimeDelete).reset_index()
 
 
-def filter_DataStat(df, **kwargs):
+def filter_DataStat(
+    df: pd.DataFrame,
+    gas: str,
+    cluster_output_step_size: float = 0.25,
+    cluster_window_size: float = 0.5,
+    cluster_start: float = None,
+    cluster_end: float = None,
+    drop_clusterpoints_info: dict = {
+        "drop": False,
+        "version": "sigma",
+        "percent": 0.2,
+    },
+    filter_cases: list[str] = [
+        "outlier",
+        "interval",
+        "rollingMean",
+        "continuous",
+        "singleDay",
+    ],
+):
     """
     Function to filter measurements based on data statistics
     with in this function the following filter are called:
@@ -259,19 +287,6 @@ def filter_DataStat(df, **kwargs):
     last modified: 20.10.2020
     """
 
-    clu_int = kwargs.get("clu_int", 0.25)
-    clu_drop = kwargs.get("clu_drop", False)
-    clu_win = kwargs.get("clu_win", clu_int * 2)
-    clu_start = kwargs.get("clu_str", None)
-    clu_end = kwargs.get("clu_end", None)
-    gas = kwargs.get("gas", "xch4")
-    drop_clusterpoints_info = kwargs.get(
-        "drop_clu_info", {"drop": clu_drop, "version": "sigma", "percent": 0.2}
-    )
-    filter_case = kwargs.get(
-        "case", ["outlier", "interval", "rollingMean", "continuous", "singleDay"]
-    )
-
     if gas == "xco":
         column = "xco_ppb"
     elif gas == "xco2":
@@ -281,7 +296,7 @@ def filter_DataStat(df, **kwargs):
     else:
         print('ERROR: No valid gas is set. Set gas to "xch4", "xco" or "xco2".')
     # Filter Outlier
-    if "outlier" in filter_case:
+    if "outlier" in filter_cases:
         df_filtered = (
             df.groupby(level=[0, 1])
             .apply(_zscore_move, column, 2, 1, 2.58)
@@ -289,167 +304,56 @@ def filter_DataStat(df, **kwargs):
         )
     else:
         df_filtered = df.copy()
+
     # filter interval
-    if "interval" in filter_case:
+    if "interval" in filter_cases:
         df_filtered = (
             df_filtered.groupby(level=[0, 1])
-            .apply(_filter_intervall, 12, 0.005)
+            .apply(_filter_interval, 12, 0.005)
             .reset_index(level=2, drop=True)
         )
+
     # Average points to remove noise
-    if "rollingMean" in filter_case:
+    if "rollingMean" in filter_cases:
         df_filtered = utils.clusterby(
             df_filtered,
             "Hour",
-            int_delta=clu_int,
+            int_delta=cluster_output_step_size,
             drop_clu_info=drop_clusterpoints_info,
-            int_max=clu_end,
-            int_min=clu_start,
-            win_size=clu_win,
+            int_max=cluster_end,
+            int_min=cluster_start,
+            win_size=cluster_window_size,
         ).sort_index()
 
     # filter all days with no 1h continous measurements: filter_intervall (function),
     #   1/clu_int (number of clusterpoints needed in an hour to have continuous measurements),
     #   clu_int+clu_int/2 (allowed gab size between two points, bigger than a normal gab but smaller than two)
-    if "continuous" in filter_case and "rollingMean" in filter_case:
+    if "continuous" in filter_cases and "rollingMean" in filter_cases:
         df_filtered = df_filtered.groupby(["Date", "ID_Spectrometer"]).apply(
-            _filter_intervall, int(1 / clu_int), clu_int + clu_int / 2, True
+            _filter_interval,
+            int(1 / cluster_output_step_size),
+            1.5 * cluster_output_step_size,
+            True,
         )
         try:
             df_filtered = df_filtered.reset_index(level=[2], drop=True)
         except:
             pass
-    elif "continuous" in filter_case:
+    elif "continuous" in filter_cases:
         print(
             "Error: Continuous filter step could not be performed, rolling mean step is needed in addition! Filtering is canceled!"
         )
         return df_filtered
 
     # filter all days with just one site measuring
-    if "singleDay" in filter_case and "rollingMean" in filter_case:
+    if "singleDay" in filter_cases and "rollingMean" in filter_cases:
         df_filtered = df_filtered.groupby(["Date"], as_index=False).apply(
             _filter_day_alone
         )  # .reset_index(level=0,drop=True)
-    elif "singleDay" in filter_case:
+    elif "singleDay" in filter_cases:
         print(
             "Error: Single day filter step could not be performed, rolling mean step is needed in addition! Filtering is canceled!"
         )
         return df_filtered
 
     return df_filtered
-
-
-################## Air Mass Correction
-
-
-def _func(x, a, b, c):
-    """
-    fitting function for air mass correction
-    called from correct()
-
-    Input:
-    :param x: Number, elevation angle
-    :param a: Number, fitting parameter 1
-    :param b: Number, fitting parameter 2
-    :param c: Number, fitting parameter 3
-
-    Output:
-    :return: Number, calculated measurement
-
-    created by: Nico Nachtigall
-    on: September 2020
-    last modified: 20.10.2020
-    """
-
-    return a * np.abs(x) ** 3 + b * np.abs(x) + c
-
-
-def _correct(df_original, calculation=True):
-    """
-    called from airmass_corr()
-    Function to fit and correct 'xch4_ppm_sub_mean' values from air mass dependency
-
-    Input:
-    :param df_original: Pandas DataFrame, all measurements, needed column: 'xch4_ppm_sub_mean'
-    :param calculation: Boolean, Ture if the parameter should be calculated, False if saved should be used
-
-    Output:
-    :return:            Pandas DataFrame, corrected values are stored in column: 'xch4_ppm_corr'
-
-    created by: Nico Nachtigall
-    on: September 2020
-    last modified: 20.10.2020
-    """
-    # make copy to not change the original input DataFrame
-    df = df_original.copy()
-
-    # value shift to get not in trouble with devision thru zero
-    df["xch4_ppm_sub_mean"] = df["xch4_ppm_sub_mean"] + 1
-
-    # curve fitting -calculate values from big dataset
-    if calculation:
-        params, params_covariance = scipy.optimize.curve_fit(
-            _func, df["elevation_angle"], df["xch4_ppm_sub_mean"]
-        )
-    else:
-        # saved values when using small dataset
-        params = [-5.39 * (10 ** -10), 9.09 * (10 ** -5), 9.97 * (10 ** -1)]
-
-    # correction
-    x = df["elevation_angle"].values
-    y_pred = _func(x, params[0], params[1], params[2])
-    y_real = df["xch4_ppm_sub_mean"].values
-    df["xch4_ppm_sub_mean_corr"] = y_real / y_pred - 1
-
-    # undo changes
-    df["xch4_ppm_sub_mean"] = df["xch4_ppm_sub_mean"] - 1
-
-    # correction of absolute measuremts
-    df["mean"] = df["xch4_ppm"] - df["xch4_ppm_sub_mean"]
-    df["xch4_ppm"] = df["mean"] + df["xch4_ppm_sub_mean_corr"]
-
-    return df.drop(["mean", "xch4_ppm_sub_mean_corr"], axis=1)
-
-
-def airmass_corr(df, **kwargs):
-    """
-    Function for air mass correction of measurements of methane
-    Input:
-    :param df:      Pandas DataFrame, containing all measurements,
-                        columns needed: 'Hour', 'xch4_ppm_sub_mean', 'elevation_angle', 'xch4_ppm'
-    :param kwargs:
-        clc:        Boolean, true when new calculation is wished, false when literature parameter should be used
-        big_dataSet: Boolean, true when the whole dataset is used and the parameter can be calculated, false if just single
-                    days are used, default: True
-
-    Output:
-    :return:        Pandas DataFrame, correced values are stored in columns: 'xch4_ppm_sub_mean_corr', 'xch4_ppm_corr'
-
-    created by: Nico Nachtigall
-    on: September 2020
-    last modified: 20.10.2020
-    """
-    calculate = kwargs.get("clc", True)
-    big_dataSet = kwargs.get("big_dataSet", True)
-
-    if calculate:
-        # if big_dataSet:
-        # split dataset if whole dataset is used
-        # df_corr = correct(df.loc[:20190801], True)
-        # df_corr = df_corr.append(correct(df.loc[20190801:], True)).sort_index()
-        # else:
-        # use defined parameter if just a small dataset is used
-        #    df_corr = correct(df, False)
-        df_corr = _correct(df, False)
-    else:
-        df_corr = df.copy()
-        parameter = [-7.05 * (10 ** (-9)), 5.34 * (10 ** (-6)), 1.00059]
-        x = df_corr["asza_deg"].values
-        corr = _func(x, parameter[0], parameter[1], parameter[2])
-        df_corr["xch4_ppm_corr"] = df_corr["xch4_ppm"] / corr
-        df_corr["xch4_ppm"] = df_corr["xch4_ppm_corr"] - (
-            df_corr["xch4_ppm"] - df_corr["xch4_ppm_sub_mean"]
-        )
-        df_corr = df_corr.drop(["xch4_ppm_corr"], axis=1)
-
-    return df_corr
