@@ -17,20 +17,6 @@ from rich.console import Console
 console = Console()
 
 
-def _apply_statistical_filters(df, gas):
-    return dataframe_processing.apply_statistical_filter(
-        df,
-        gas,
-        cluster_output_step_size=np.round(
-            CONFIG["filter"]["outputStepSizeMinutes"] / 60, 6
-        ),
-        cluster_window_size=np.round(
-            CONFIG["filter"]["movingWindowSizeMinutes"] / 60, 6
-        ),
-        filter_cases=CONFIG["filter"]["cases"],
-    )
-
-
 def _get_calibration_replacement_dict(df_calibration: pd.DataFrame, date_string: str):
     CALIBRATION_REPLACEMENT_DICT = {}
 
@@ -140,8 +126,12 @@ def _filter_dataframes(df_calibrated):
 
             # Filter based on data statistics ----------------
             if (case == "filtered") and (not df_filtered_dropped.empty):
-                df_filtered_statistical = _apply_statistical_filters(
-                    df_filtered_dropped, f"x{gas}"
+                df_filtered_statistical = dataframe_processing.apply_statistical_filter(
+                    df_filtered_dropped,
+                    f"x{gas}",
+                    cluster_output_step_size=CONFIG["filter"]["outputStepSizeMinutes"],
+                    cluster_window_size=CONFIG["filter"]["movingWindowSizeMinutes"],
+                    filter_cases=CONFIG["filter"]["cases"],
                 )
                 if len(list(df_filtered_statistical.columns)) == 0:
                     df_filtered_statistical = (
@@ -160,7 +150,7 @@ def _filter_dataframes(df_calibrated):
                     columns=["ID_Location"]
                 )
 
-            # FIXME:
+            # FIXME: Throws exception for "20210419|ch4|OBE"
             try:
                 # Add Column ID_Location
                 df_complete = df_filtered_statistical.join(

@@ -19,8 +19,8 @@ from src import utils
 def apply_statistical_filter(
     df: pd.DataFrame,
     gas: str,
-    cluster_output_step_size: float = 0.25,
-    cluster_window_size: float = 0.5,
+    cluster_output_step_size: float = 15,
+    cluster_window_size: float = 30,
     filter_cases: list[str] = [
         "outlier",
         "interval",
@@ -40,10 +40,11 @@ def apply_statistical_filter(
       * delete all points where just one site has measured
 
     Input:
-    :param df:      DataFrame containing all measurement data, index: 'Date', 'ID_Spectrometer'
-    :param gas:                        gas for which to filter ['xch4', 'xco2' or 'xco']
-    :param cluster_output_step_size:    Averaging interval in hours
-    :param cluster_window_size:         Averaging window size in hours
+    :param df:                          DataFrame containing all measurement data, index: 'Date',
+                                        'ID_Spectrometer'
+    :param gas:                         gas for which to filter ['xch4', 'xco2' or 'xco']
+    :param cluster_output_step_size:    Averaging interval in minutes
+    :param cluster_window_size:         Averaging window size in minutes
     :param drop_clusterpoints_info:     Dictionary, containing the description of
                                         how to drop averaging points, similar to
                                         clu_drop
@@ -86,9 +87,9 @@ def apply_statistical_filter(
     if "rollingMean" in filter_cases:
         df = utility_functions.cluster_by(
             df,
-            interval_delta=cluster_output_step_size,
+            interval_delta=round(cluster_output_step_size / 60, 6),
             drop_clusterpoints_info={"drop": True, "version": 104, "percent": 0.2},
-            window_size=cluster_window_size,
+            window_size=round(cluster_window_size / 60, 6),
             interval_max=18,
             interval_min=4,
         ).sort_index()
