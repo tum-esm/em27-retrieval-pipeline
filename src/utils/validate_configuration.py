@@ -1,7 +1,7 @@
 import os
 import json
-from src.helpers.constants import ALL_GASES
-from src.helpers import utilities
+from src.utils.constants import ALL_GASES
+from src.utils import functions
 
 PROJECT_DIR = os.path.dirname(
     os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -31,10 +31,10 @@ def run():
             ), f"config.authentication.strapi.{key} has to be string"
 
         # INPUT CONFIG
-        assert utilities.day_string_is_valid(
+        assert functions.day_string_is_valid(
             config["input"]["startDate"]
         ), "config.input.startDate has to be a valid date"
-        assert utilities.day_string_is_valid(
+        assert functions.day_string_is_valid(
             config["input"]["endDate"]
         ), "config.input.endDate has to be a valid date"
         assert (

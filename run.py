@@ -6,7 +6,7 @@ from src import (
     script_2_export_to_files,
     script_3_upload_to_cms,
 )
-from src.helpers import utilities, validate_configuration
+from src.utils import functions, validate_configuration
 
 PROJECT_DIR = os.path.dirname(os.path.abspath(__file__))
 with open(f"{PROJECT_DIR}/config.json") as f:
@@ -56,6 +56,6 @@ if __name__ == "__main__":
             for d in range(
                 int(config["input"]["startDate"]), int(config["input"]["endDate"]) + 1
             )
-            if utilities.day_string_is_valid(str(d))
+            if functions.day_string_is_valid(str(d))
         ]
     )

@@ -3,7 +3,7 @@ import json
 import mysql.connector
 import pandas as pd
 from rich.console import Console
-from src.helpers import validate_configuration
+from src.utils import validate_configuration
 
 console = Console()
 
