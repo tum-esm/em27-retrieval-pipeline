@@ -10,67 +10,6 @@ last modified: 20.10.2020
 
 import numpy as np
 import pandas as pd
-import scipy.stats as sp
-import os
-from datetime import datetime
-import colorcet as cc
-from geographiclib.geodesic import Geodesic
-
-
-def create_colordf(df):
-    """
-    Function to create a DataFrame containing a fixed color for each measurement station.
-
-    :param df:  Pandas DataFrame containing all measurements, no index and column 'ID_Spectrometer'
-    :return:    Pandas DataFrame with columns: 'ID_Spectrometer' and 'Color'
-
-    created by: Nico Nachtigall
-    at: September 2020
-    last modified: 20.10.2020
-    """
-    np_siteID = df["ID_Spectrometer"].unique()
-    # generate a dataframe to link a plotting color with a SiteID
-    df_color = pd.DataFrame(columns=["ID_Spectrometer", "Color"])
-    for i in range(np.size(np_siteID)):
-        df_color = df_color.append(
-            {"ID_Spectrometer": np_siteID[i], "Color": cc.glasbey_light[i]},
-            ignore_index=True,
-        )
-    return df_color
-
-
-def timeFromDateHour(df):
-    """
-    Function to add a new column to the dataFrame df containing a date format
-    :param df:  Pandas DataFrame, needs columns 'Date' and 'Hour'
-    :return:    Pandas DataFrame, with additional column 'date_form'
-
-    created by: Nico Nachtigall, September 2020
-    last modified: 20.10.2020
-    """
-    index = df.index
-    df = df.reset_index()
-    df_time = pd.DataFrame()
-    df_time["Hour"] = df["Hour"].apply(lambda x: int(x))
-    df_time["minute"] = df["Hour"].apply(lambda x: (x * 60) % 60)
-    df_time["secound"] = df["Hour"].apply(lambda x: (x * 3600) % 60)
-    df_time["Date"] = df["Date"]
-    df["date_form"] = df_time.apply(
-        lambda x: datetime.strptime(
-            str(int(x.Date))
-            + str(int(x.Hour))
-            + str(int(x.minute))
-            + str(int(x.secound)),
-            "%Y%m%d%H%M%S",
-        ),
-        axis=1,
-    )
-    return setindex(df, index)
-
-
-def r2(x, y):
-    # calculate r2 value
-    return sp.pearsonr(x, y)[0] ** 2
 
 
 def clusterby(df, clusterBy_str, **kwargs):
@@ -162,7 +101,7 @@ def clusterby(df, clusterBy_str, **kwargs):
             df_temp[clusterBy_str] = s + (interval_delta / 2)
             df_clustered = df_clustered.append(df_temp, ignore_index=True)
         df_clustered["Date"] = df_clustered["Date"].astype(int)
-        df_final = get_month_year(df_clustered)
+        df_final = _get_month_year(df_clustered)
 
     elif np.isin(["ID_Spectrometer"], df.columns)[0]:
         df = df.set_index(["ID_Spectrometer"])
@@ -217,7 +156,7 @@ def clusterby(df, clusterBy_str, **kwargs):
             df_temp[clusterBy_str] = s + (interval_delta / 2)
             df_clustered = df_clustered.append(df_temp, ignore_index=True)
         df_clustered["Date"] = df_clustered["Date"].astype(int)
-        df_final = get_month_year(df_clustered)
+        df_final = _get_month_year(df_clustered)
     else:
         for s in steps:
             # get mean values over time
@@ -241,20 +180,20 @@ def clusterby(df, clusterBy_str, **kwargs):
             df_temp[clusterBy_str] = s + (interval_delta / 2)
             df_clustered = df_clustered.append(df_temp, ignore_index=True)
         df_clustered["Date"] = df_clustered["Date"].astype(int)
-        df_final = get_month_year(df_clustered)
+        df_final = _get_month_year(df_clustered)
 
     # remove all cluster Points which are calculated with too less data points
     if drop_clusterpoints_info["drop"]:
-        df_final = drop_ClusterPoints(
+        df_final = _drop_ClusterPoints(
             df_final,
             drop_clusterpoints_info["version"],
             drop_clusterpoints_info["percent"],
         )
     # reindex with the old index
-    return setindex(df_final, index).drop("count", axis=1)
+    return _setindex(df_final, index).drop("count", axis=1)
 
 
-def drop_ClusterPoints(df, case, percent):
+def _drop_ClusterPoints(df, case, percent):
     """
     Function called from clusterby()
     Function to drop all rows where the averaged Point is not trustworthy
@@ -274,13 +213,13 @@ def drop_ClusterPoints(df, case, percent):
         print('Error dropping untrusted cluster points: "count" has to be a column')
         return df
     if case == "calculation":
-        threshold = get_thresehold_untrustedPoints(df, percent)
+        threshold = _get_thresehold_untrustedPoints(df, percent)
     else:
         threshold = case * percent
     return df[df["count"] > threshold]
 
 
-def get_thresehold_untrustedPoints(df, per):
+def _get_thresehold_untrustedPoints(df, per):
     """
     Function is called by drop_ClusterPoints()
     Function returns a threshold with which the averaged measurement points are dropped
@@ -297,34 +236,6 @@ def get_thresehold_untrustedPoints(df, per):
 
     np_count = df["count"].values
     return np.max(np_count) * per
-
-
-def get_2sigma(df):
-    """
-    Function called by drop_ClusterPoints()
-    Function to calculate the threshold for dropping averaged points based on the Gaussian 2 sigma interval
-    :param df:  Pandas DataFrame, averaged measurements, column 'count' is needed
-    :return:    Number, threshold
-
-    created by: Nico Nachtigall, September 2020
-    last modified: 20.10.2020
-    """
-
-    if np.isin("count", df.columns, invert=True):
-        print('"count" as to be in column')
-        return 0
-
-    np_count = df["count"].values
-    num_points = np.sum(np_count)
-
-    goal = 1
-    i = 1
-    # optimization to get threshold
-    while goal > 0.9545:
-        index = np.argwhere(np_count > i)
-        goal = np.sum(np_count[index]) / num_points
-        i = i + 1
-    return i - 1  # -1 to undo the last step
 
 
 def calibration(df_data_org, df_cali_org):
@@ -411,87 +322,7 @@ def timewindow_middle(
     return np_timeseries[index], index[0]
 
 
-# Helper function for load_weather()
-def f(x):
-    return str(x)[:6]
-
-
-def load_weather(df):
-    """
-    Function to load all LMU weather data which we could need
-    Path where the weather data is stored is hard coded
-    :param df:  Pandas DataFrame, needed to decide which data to load, columns needed: 'Date'
-    :return:    Pandas DataFrame, containing weather information, index is number
-
-    created by: Nico Nachtigall, September 2020
-    last modified: 20.10.2020
-    """
-
-    # get all months
-    D = np.vectorize(f)
-    np_date = df["Date"].unique()
-    np_month = np.unique(D(np_date))
-
-    # get weather data for all months
-    weather_folder = "W:/data/LMU_wind_data/"
-
-    df_weather = pd.DataFrame(
-        columns=[
-            "Date",
-            "Hour",
-            "temp2m",
-            "temp30m",
-            "humidTemp2m",
-            "humidTemp30m",
-            "windSpd30m",
-            "windDir30m",
-            "rain",
-            "globalRadiation",
-            "diffRadiation",
-            "pressure",
-        ]
-    )
-
-    for month in np_month:
-        for file in os.listdir(weather_folder):
-            if file.startswith(month) & file.endswith(".txt"):
-                df_tmpweather = pd.read_csv(
-                    os.path.join(weather_folder, file),
-                    header=0,
-                    sep=" ",
-                    names=[
-                        "year",
-                        "month",
-                        "day",
-                        "Hour",
-                        "minute",
-                        "temp2m",
-                        "temp30m",
-                        "humidTemp2m",
-                        "humidTemp30m",
-                        "windSpd30m",
-                        "windDir30m",
-                        "rain",
-                        "globalRadiation",
-                        "diffRadiation",
-                        "pressure",
-                    ],
-                )
-                # get correct structure
-                df_tmpweather["Date"] = month + df_tmpweather["day"].astype(str).apply(
-                    lambda x: "0" + x if len(x) == 1 else x
-                )
-                df_tmpweather["Hour"] = (
-                    df_tmpweather["Hour"] + df_tmpweather["minute"] / 60 - 0.78
-                )
-                df_tmpweather = df_tmpweather.drop(
-                    ["year", "month", "day", "minute"], axis=1
-                )
-                df_weather = df_weather.append(df_tmpweather, ignore_index=True)
-    return df_weather
-
-
-def get_month_year(df):
+def _get_month_year(df):
     """
     Function to calculate year and month
     :param df:  Pandas DataFrame, column needed: 'Date'
@@ -512,11 +343,11 @@ def get_month_year(df):
     else:
         print('Column "date" is missing. No calculation possible.')
 
-    df = setindex(df, index)
+    df = _setindex(df, index)
     return df
 
 
-def setindex(df, column_array):
+def _setindex(df, column_array):
     """
     Helper function to set the index of the DataFrame to the columns stored in the input array
     :param df:              Pandas DataFrame
@@ -539,71 +370,3 @@ def setindex(df, column_array):
     else:
         df_fin = df.copy()
     return df_fin
-
-
-# ----- Functions for the location calculation
-
-
-def calc_dist(df, x):
-    """
-    Called from gen_df_geo()
-    Function to calculate the distance and angle between measurement locations loc_1 and loc_2
-
-    :param df:  Pandas DataFrame,
-    :param x:   Pandas Data Series (one row of a DataFrame), columns: 'Location_1', 'Location_2'
-    :return:    Pandas Data Series with additional columns 'angle', 'distance_km'
-
-    created by: Nico Nachtigall, September 2020
-    last modified: 20.10.2020
-    """
-
-    df_reset = df.reset_index()
-
-    loc_1 = x["Location_1"]
-    loc_2 = x["Location_2"]
-
-    df_loc1 = df_reset.loc[df_reset["ID_Location"] == loc_1]
-    df_loc2 = df_reset.loc[df_reset["ID_Location"] == loc_2]
-
-    lat1 = df_loc1.Coordinates_Latitude.unique()
-    lon1 = df_loc1.Coordinates_Longitude.unique()
-    lat2 = df_loc2.Coordinates_Latitude.unique()
-    lon2 = df_loc2.Coordinates_Longitude.unique()
-
-    # Distance calculation
-    x["distance_km"] = (
-        Geodesic.WGS84.Inverse(lat1, lon1, lat2, lon2)["s12"] / 1000
-    )  # to get [km]
-    # bearing calculation
-    angle = Geodesic.WGS84.Inverse(lat1, lon1, lat2, lon2)["azi1"]
-    if angle < 0:
-        x["angle"] = 360 + angle
-    else:
-        x["angle"] = angle
-    return x
-
-
-def gen_df_geo(df):
-    """
-    Function to generate a DataFrame which contains all possible location combinations and calculates the distance
-    and angle between them
-    :param df:  DataFrame, needs columns ['ID_Location', 'Coordinates_Latitude', 'Coordinates_Longitude']
-    :return:    DataFrame with columns: 'Location_1', 'Location_2', 'angle', 'distance_km'
-
-    created by: Nico Nachtigall, September 2020
-    last modified: 20.10.2020
-    """
-
-    # drop unknown location
-    df = df.drop(index=df.loc[df["ID_Location"] == "NK"].index)
-
-    # get all possible location combinations
-    np_allCombinations = np.array(
-        np.meshgrid(df["ID_Location"].values, df["ID_Location"].values)
-    ).T.reshape(-1, 2)
-    # initialise dataframe with all possible combinations
-    df_distance = pd.DataFrame(np_allCombinations, columns=["Location_1", "Location_2"])
-    # calculate distance of all possible combinations
-    df_distance = df_distance.apply(lambda x: calc_dist(df, x), axis=1)
-
-    return df_distance
