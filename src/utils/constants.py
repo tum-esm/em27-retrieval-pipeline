@@ -37,12 +37,10 @@ FILTER_SETTINGS = {
     "o2_error": 0.0005,
     "step_size": 0.1,
     "flag": 1,  # a 0 means "ignore all errors (flags) from gfit"
-    "cluster_start": 4,  # Time in UTC, start time for the use of measurements
-    "cluster_end": 18,  # Time in UTC, end time for the use of measurements
     "drop_clusterpoints_info": {"drop": True, "version": 104, "percent": 0.2},
 }
 
-# TODO: document "o2_error", "step_size" and "drop_clu_info"
+# TODO: document "o2_error", "step_size" and "drop_clusterpoints_info"
 
 REPLACEMENT_DICT = {
     "AUTHOR_NAMES": ", ".join(

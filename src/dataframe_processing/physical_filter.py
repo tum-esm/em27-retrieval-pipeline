@@ -3,9 +3,9 @@ import pandas as pd
 
 def apply_physical_filter(
     df: pd.DataFrame,
-    fvsi_thold: float = 5,
-    sia_thold: float = 0.4,
-    sza_thold: float = 75,
+    fvsi_threshold: float = 5,
+    sia_threshold: float = 0.4,
+    sza_threshold: float = 75,
     step_size: float = 0.1,
     o2_error: float = 0.0005,
     flag: bool = True,
@@ -18,9 +18,9 @@ def apply_physical_filter(
     Input:
     :param data:        Pandas DataFrame, containing Data of one day and station
                             need columns: 'Hour', 'sia_AU', 'asza_deg', 'xo2_error', 'flag', 'fvsi'
-    :param fvsi_thold:  fractional variation in solar intensity < the value
-    :param sia_thold:   solar intensity average > value
-    :param sza_thold:   solar zenith angle < value
+    :param fvsi_threshold:  fractional variation in solar intensity < the value
+    :param sia_threshold:   solar intensity average > value
+    :param sza_threshold:   solar zenith angle < value
     :param step_size:
     :param o2_error:
     :param flag:        if false the flag parameter is not considered for filtering (except for no. 24 xair,
@@ -53,9 +53,9 @@ def apply_physical_filter(
 
     # Filter step
     df = df.loc[
-        (df["sia_AU"] >= sia_ref * sia_thold)
-        & (df["fvsi"] <= fvsi_thold)
-        & (df["asza_deg"] <= sza_thold)
+        (df["sia_AU"] >= sia_ref * sia_threshold)
+        & (df["fvsi"] <= fvsi_threshold)
+        & (df["asza_deg"] <= sza_threshold)
         & (df["xo2_error"] < o2_error)
     ]
 

@@ -12,22 +12,28 @@ import numpy as np
 import pandas as pd
 
 
-def cluster_by(df, clusterBy_str, **kwargs):
+def cluster_by(
+    df: pd.DataFrame,
+    interval_max: float = None,
+    interval_min: float = None,
+    interval_delta: float = None,
+    window_size: float = None,
+    drop_clusterpoints_info: dict = {"drop": False, "version": "sigma", "percent": 0.2},
+) -> pd.DataFrame:
     """
     Function to generate averaged measurements
     Averaging is always done with respect to day and site
 
-    :param df:              Pandas DataFrame, contains the measurements which should be averaged
-    :param clusterBy_str:   String, column name on which the averaging should be done, normally 'Hour'
-    :param kwargs:          optional
-        int_max:            Number, averaging end value
-        int_min:            Number, averaging start value
-        int_delta:          Number, step size of the rolling averaging window
-        drop_clu:           Boolean, drop cluster points with too less information
-        drop_clu_info:      Dictionary, additional dropping information for cluster points
-        win_size:           Number, averaging window size
+    :param df:                      DataFrame
+    :param interval_max:            Averaging end value
+    :param interval_min:            Averaging start value
+    :param interval_delta:          Step size of the rolling averaging window
+    :param drop_clusterpoints_info: Dictionary, additional dropping information
+                                    for cluster points
+    :param window_size:             Averaging window size
 
-    :return:                Pandas DataFrame with averaged values, columns remain the same as df
+    :return:                        DataFrame with averaged values, columns
+                                    remain the same as df
 
     created by: Nico Nachtigall, September 2020
     last modified: 20.10.2020
@@ -36,27 +42,18 @@ def cluster_by(df, clusterBy_str, **kwargs):
     # reset index and save original index
     index = df.index.names
     df = df.reset_index()
+    key_to_cluster_by = "Hour"
 
-    interval_max = kwargs.get("int_max", df[clusterBy_str].max())
-    interval_min = kwargs.get("int_min", df[clusterBy_str].min())
     if interval_max is None:
-        interval_max = df[clusterBy_str].max()
+        interval_max = df[key_to_cluster_by].max()
     if interval_min is None:
-        interval_min = df[clusterBy_str].min()
-    interval_delta = kwargs.get("int_delta", (interval_max - interval_min) / 30)
-    drop_clusterpoints = kwargs.get("drop_clu", False)
-    drop_clusterpoints_info = kwargs.get(
-        "drop_clu_info",
-        {"drop": drop_clusterpoints, "version": "sigma", "percent": 0.2},
-    )
-    window_size = kwargs.get("win_size", interval_delta * 2)
+        interval_min = df[key_to_cluster_by].min()
+    if interval_delta is None:
+        interval_delta = (interval_max - interval_min) / 30
+    if window_size is None:
+        window_size = 2 * interval_delta
 
-    # check and calculate values for the window integral
-    if window_size < interval_delta:
-        print(
-            "Window_size has to be bigger or equal than interval_delta. Window size is set to be equal to interval_delta"
-        )
-        window_size = interval_delta
+    assert window_size >= interval_delta
 
     win_add = (window_size - interval_delta) / 2 + interval_delta
     win_sub = (window_size - interval_delta) / 2
@@ -81,8 +78,8 @@ def cluster_by(df, clusterBy_str, **kwargs):
             # get mean values over time
             df_temp = (
                 df.loc[
-                    (df[clusterBy_str] < (s + win_add))
-                    & (df[clusterBy_str] >= (s - win_sub))
+                    (df[key_to_cluster_by] < (s + win_add))
+                    & (df[key_to_cluster_by] >= (s - win_sub))
                 ]
                 .groupby(level=[0, 1])
                 .mean()
@@ -90,15 +87,15 @@ def cluster_by(df, clusterBy_str, **kwargs):
             )
             df_temp["count"] = (
                 df.loc[
-                    (df[clusterBy_str] < (s + win_add))
-                    & (df[clusterBy_str] >= (s - win_sub))
+                    (df[key_to_cluster_by] < (s + win_add))
+                    & (df[key_to_cluster_by] >= (s - win_sub))
                 ]
                 .groupby(level=[0, 1])
                 .count()
-                .reset_index()[clusterBy_str]
+                .reset_index()[key_to_cluster_by]
             )
             # adjust some values
-            df_temp[clusterBy_str] = s + (interval_delta / 2)
+            df_temp[key_to_cluster_by] = s + (interval_delta / 2)
             df_clustered = df_clustered.append(df_temp, ignore_index=True)
         df_clustered["Date"] = df_clustered["Date"].astype(int)
         df_final = _get_month_year(df_clustered)
@@ -109,8 +106,8 @@ def cluster_by(df, clusterBy_str, **kwargs):
             # get mean values over time
             df_temp = (
                 df.loc[
-                    (df[clusterBy_str] < (s + win_add))
-                    & (df[clusterBy_str] >= (s - win_sub))
+                    (df[key_to_cluster_by] < (s + win_add))
+                    & (df[key_to_cluster_by] >= (s - win_sub))
                 ]
                 .groupby(level=[0])
                 .mean()
@@ -118,15 +115,15 @@ def cluster_by(df, clusterBy_str, **kwargs):
             )
             df_temp["count"] = (
                 df.loc[
-                    (df[clusterBy_str] < (s + win_add))
-                    & (df[clusterBy_str] >= (s - win_sub))
+                    (df[key_to_cluster_by] < (s + win_add))
+                    & (df[key_to_cluster_by] >= (s - win_sub))
                 ]
                 .groupby(level=[0])
                 .count()
-                .reset_index()[clusterBy_str]
+                .reset_index()[key_to_cluster_by]
             )
             # adjust some values
-            df_temp[clusterBy_str] = s + (interval_delta / 2)
+            df_temp[key_to_cluster_by] = s + (interval_delta / 2)
             df_clustered = df_clustered.append(df_temp, ignore_index=True)
         df_final = df_clustered
 
@@ -136,8 +133,8 @@ def cluster_by(df, clusterBy_str, **kwargs):
             # get mean values over time
             df_temp = (
                 df.loc[
-                    (df[clusterBy_str] < (s + win_add))
-                    & (df[clusterBy_str] >= (s - win_sub))
+                    (df[key_to_cluster_by] < (s + win_add))
+                    & (df[key_to_cluster_by] >= (s - win_sub))
                 ]
                 .groupby(level=[0])
                 .mean()
@@ -145,15 +142,15 @@ def cluster_by(df, clusterBy_str, **kwargs):
             )
             df_temp["count"] = (
                 df.loc[
-                    (df[clusterBy_str] < (s + win_add))
-                    & (df[clusterBy_str] >= (s - win_sub))
+                    (df[key_to_cluster_by] < (s + win_add))
+                    & (df[key_to_cluster_by] >= (s - win_sub))
                 ]
                 .groupby(level=[0])
                 .count()
-                .reset_index()[clusterBy_str]
+                .reset_index()[key_to_cluster_by]
             )
             # adjust some values
-            df_temp[clusterBy_str] = s + (interval_delta / 2)
+            df_temp[key_to_cluster_by] = s + (interval_delta / 2)
             df_clustered = df_clustered.append(df_temp, ignore_index=True)
         df_clustered["Date"] = df_clustered["Date"].astype(int)
         df_final = _get_month_year(df_clustered)
@@ -162,22 +159,22 @@ def cluster_by(df, clusterBy_str, **kwargs):
             # get mean values over time
             df_temp = (
                 df.loc[
-                    (df[clusterBy_str] < (s + win_add))
-                    & (df[clusterBy_str] >= (s - win_sub))
+                    (df[key_to_cluster_by] < (s + win_add))
+                    & (df[key_to_cluster_by] >= (s - win_sub))
                 ]
                 .mean()
                 .reset_index()
             )
             df_temp["count"] = (
                 df.loc[
-                    (df[clusterBy_str] < (s + win_add))
-                    & (df[clusterBy_str] >= (s - win_sub))
+                    (df[key_to_cluster_by] < (s + win_add))
+                    & (df[key_to_cluster_by] >= (s - win_sub))
                 ]
                 .count()
-                .reset_index()[clusterBy_str]
+                .reset_index()[key_to_cluster_by]
             )
             # adjust some values
-            df_temp[clusterBy_str] = s + (interval_delta / 2)
+            df_temp[key_to_cluster_by] = s + (interval_delta / 2)
             df_clustered = df_clustered.append(df_temp, ignore_index=True)
         df_clustered["Date"] = df_clustered["Date"].astype(int)
         df_final = _get_month_year(df_clustered)

@@ -15,7 +15,109 @@ import scipy
 from src.dataframe_processing import utils
 
 
-def _getIndexInterval(x, num, check_day=False):
+def apply_statistical_filter(
+    df: pd.DataFrame,
+    gas: str,
+    cluster_output_step_size: float = 0.25,
+    cluster_window_size: float = 0.5,
+    drop_clusterpoints_info: dict = {
+        "drop": False,
+        "version": "sigma",
+        "percent": 0.2,
+    },
+    filter_cases: list[str] = [
+        "outlier",
+        "interval",
+        "rollingMean",
+        "continuous",
+        "singleDay",
+    ],
+) -> pd.DataFrame:
+    """
+    Function to filter measurements based on data statistics with in this
+    function the following filter are called:
+      * Outlier filter
+      * Interval filter
+      * Average points to remove noise
+      * delete measurement series if a site has measured too few points
+        per day in a row
+      * delete all points where just one site has measured
+
+    Input:
+    :param df:      DataFrame containing all measurement data, index: 'Date', 'ID_Spectrometer'
+    :param gas:                        gas for which to filter ['xch4', 'xco2' or 'xco']
+    :param cluster_output_step_size:    Averaging interval in hours
+    :param cluster_window_size:         Averaging window size in hours
+    :param drop_clusterpoints_info:     Dictionary, containing the description of
+                                        how to drop averaging points, similar to
+                                        clu_drop
+    :param filter_cases:                List containing the filter steps which
+                                        should be performed, just needed if not
+                                        all steps should be performed, can contain:
+                                        'outlier', 'interval', 'rollingMean',
+                                        'continuous', 'singleDay'
+
+    Output:
+    :return:        DataFrame, index 'Date', 'ID_Spectrometer'
+
+    created by: Nico Nachtigall
+    on: September 2020
+    last modified: 20.10.2020
+    """
+
+    assert list(sorted(list(df.index))) == ["Date", "ID_Spectrometer"]
+    assert gas in ["xco", "xco2", "xch4"]
+
+    if "outlier" in filter_cases:
+        column = gas + "_" + {"xco": "ppb", "xco2": "ppm", "xch4": "ppm"}[gas]
+        df = (
+            df.groupby(level=[0, 1])
+            .apply(_zscore_move, column)
+            .reset_index(level=[2], drop=True)
+        )
+
+    if "interval" in filter_cases:
+        df = (
+            df.groupby(level=[0, 1])
+            .apply(_filter_interval, 12, 0.005)
+            .reset_index(level=2, drop=True)
+        )
+
+    # apply rolling mean to remove noise
+    if "rollingMean" in filter_cases:
+        df = utils.cluster_by(
+            df,
+            interval_delta=cluster_output_step_size,
+            drop_clu_info=drop_clusterpoints_info,
+            window_size=cluster_window_size,
+        ).sort_index()
+
+    # filter all days with no 1h continous measurements: filter_intervall
+    # (function), 1/clu_int (number of clusterpoints needed in an hour to
+    # have continuous measurements), clu_int+clu_int/2 (allowed gap size
+    # between two points, bigger than a normal gap but smaller than two)
+    if "continuous" in filter_cases:
+        assert "rollingMean" in filter_cases
+        df = df.groupby(["Date", "ID_Spectrometer"]).apply(
+            _filter_interval,
+            int(1 / cluster_output_step_size),
+            1.5 * cluster_output_step_size,
+            True,
+        )
+        try:
+            df = df.reset_index(level=[2], drop=True)
+        except:
+            pass
+
+    # filter all days with just one site measuring
+    if "singleDay" in filter_cases:
+        assert "rollingMean" in filter_cases
+        df = df.groupby(["Date"], as_index=False).apply(_filter_day_alone)
+
+    return df
+
+
+def _getIndexInterval(x: np.array, num: float, check_day=False) -> np.array:
     """
     Helper function for filter_intervall(df)
     Function return index values which should be deleted based on their interval size
@@ -23,12 +125,12 @@ def _getIndexInterval(x, num, check_day=False):
     check_day = False, intervals which do not contain num elements will be removed
 
     Input:
-    :param x: numpy array
-    :param num: number, interval size for which to check
-    :param check_day: boolean, changes the behavior of the function
+    :param x
+    :param num:         interval size for which to check
+    :param check_day:   changes the behavior of the function
 
     Output:
-    :return: numpy array, containing the index of all values, which should be removed
+    :return:            array containing the index of all values, which should be removed
 
     created by: Nico Nachtigall
     on: September 2020
@@ -52,7 +154,7 @@ def _getIndexInterval(x, num, check_day=False):
     return np_badindex
 
 
-def _filter_interval(df, num, gap, check_day=False):
+def _filter_interval(df: pd.DataFrame, num: float, gap: float, check_day=False):
     """
     normally called by: filter_DataStat()
     Function to delete measuring intervals (which are defined as measurments between measuring gaps of time > 'gab')
@@ -60,31 +162,30 @@ def _filter_interval(df, num, gap, check_day=False):
     check_day = False, intervals which do not contain num elements will be removed
 
     Input:
-    :param df:          Pandas DataFrame, need columns: 'Date', 'ID_Spectrometer', 'Hour'
-    :param num:         Number, interval size
-    :param gap:         Number, time in second which defines a gap
-    :param check_day:   Boolean
+    :param df:          DataFrame, need columns: 'Date', 'ID_Spectrometer', 'Hour'
+    :param num:         interval size
+    :param gap:         time in second which defines a gap
+    :param check_day:
 
     Output:
-    :return:            Pandas DataFrame, filtered Data
+    :return:            DataFrame, filtered Data
 
     created by: Nico Nachtigall
     on: September 2020
     last modified: 20.10.2020
     """
 
-    df_reset = df.reset_index().drop(columns=["Date", "ID_Spectrometer"])
-    np_diff = np.diff(
-        df_reset["Hour"].values
-    )  # get time difference between measurements
+    df = df.reset_index().drop(columns=["Date", "ID_Spectrometer"])
+
+    np_diff = np.diff(df["Hour"].values)  # get time difference between measurements
     np_indexGap = np.append(0, np.append((np.argwhere(np_diff > gap)), np_diff.size))
     np_indexToBeDroped = _getIndexInterval(
         np_indexGap, num, check_day
     )  # get index which measurements should be dropped
-    return df_reset.drop(np_indexToBeDroped)
+    return df.drop(np_indexToBeDroped)
 
 
-def _filter_day_alone(df):
+def _filter_day_alone(df: pd.DataFrame) -> pd.DataFrame | None:
     """
     normally called by: filter_DataStat()
     Function filters all days on which just one site was measuring
@@ -103,18 +204,24 @@ def _filter_day_alone(df):
         return df
 
 
-def _zscore_move(df, column, interval, stepsize, threshold):
+def _zscore_move(
+    df: pd.DataFrame,
+    column: str,
+    interval: float = 2,
+    stepsize: float = 1,
+    threshold: float = 2.58,
+) -> pd.DataFrame:
     """
     normally called by: filter_DataStat()
     Function to remove outliers
     for outliers detection a zscore algorithmus is used based on a rolling window
 
     Input:
-    :param df:          Pandas DataFrame, containing measurements of one day and one station
-    :param column:      String, label of the column which should be filtered
-    :param interval:    Number, rolling window size in h
-    :param stepsize:    Number, rolling window step in h
-    :param threshold:   Number, zscore threshold above which the point is detected as outlier
+    :param df:          DataFrame, containing measurements of one day and one station
+    :param column:      label of the column which should be filtered
+    :param interval:    rolling window size in h
+    :param stepsize:    rolling window step in h
+    :param threshold:   zscore threshold above which the point is detected as outlier
 
     Output:
     :return:            Pandas DataFrame, where all outlier rows are removed, no index
@@ -168,125 +275,3 @@ def _zscore_move(df, column, interval, stepsize, threshold):
         return df_reset
     else:
         return df_reset.set_index("Hour").drop(np_TimeDelete).reset_index()
-
-
-def apply_statistical_filter(
-    df: pd.DataFrame,
-    gas: str,
-    cluster_output_step_size: float = 0.25,
-    cluster_window_size: float = 0.5,
-    cluster_start: float = None,
-    cluster_end: float = None,
-    drop_clusterpoints_info: dict = {
-        "drop": False,
-        "version": "sigma",
-        "percent": 0.2,
-    },
-    filter_cases: list[str] = [
-        "outlier",
-        "interval",
-        "rollingMean",
-        "continuous",
-        "singleDay",
-    ],
-):
-    """
-    Function to filter measurements based on data statistics
-    with in this function the following filter are called:
-      * Outlier filter
-      * Interval filter
-      * Average points to remove noise
-      * delete measurement series if a site has measured too less Points per day in a row
-      * delete all Points where just one site has measured
-
-    Input:
-    :param df:      Pandas DataFrame, containing all measurement data, index: 'Date', 'ID_Spectrometer'
-    :param kwargs:  optional parameter
-        clu_int:    Number, averaging interval, default: 0.25 [h]
-        clu_drop:   Boolean, averaging point should be dropped if it consists of too less measurements, default: False
-        clu_win:    Number, averaging window size, default: clu_int*2 [h]
-        clu_str:    Number, time when the averaging should start each day, default: None [h]
-        clu_end:    Number, time when the averaging should end, default: None [h]
-        gas:        String, gas for which to filter ['xch4', 'xco2' or 'xco'], default: 'xch4'
-        drop_clu_info:  Dictionary, containing the description of how to drop averaging points, similar to clu_drop
-        case:       List, containing the filter steps which should be performed, just needed if not all steps should be
-                    performed, can contain: 'outlier', 'interval', 'rollingMean', 'continuous', 'singleDay'
-
-    Output:
-    :return:        Pandas DataFrame, index 'Date', 'ID_Spectrometer'
-
-    created by: Nico Nachtigall
-    on: September 2020
-    last modified: 20.10.2020
-    """
-
-    if gas == "xco":
-        column = "xco_ppb"
-    elif gas == "xco2":
-        column = "xco2_ppm"
-    elif gas == "xch4":
-        column = "xch4_ppm"
-    else:
-        print('ERROR: No valid gas is set. Set gas to "xch4", "xco" or "xco2".')
-    # Filter Outlier
-    if "outlier" in filter_cases:
-        df_filtered = (
-            df.groupby(level=[0, 1])
-            .apply(_zscore_move, column, 2, 1, 2.58)
-            .reset_index(level=[2], drop=True)
-        )
-    else:
-        df_filtered = df.copy()
-
-    # filter interval
-    if "interval" in filter_cases:
-        df_filtered = (
-            df_filtered.groupby(level=[0, 1])
-            .apply(_filter_interval, 12, 0.005)
-            .reset_index(level=2, drop=True)
-        )
-
-    # Average points to remove noise
-    if "rollingMean" in filter_cases:
-        df_filtered = utils.cluster_by(
-            df_filtered,
-            "Hour",
-            int_delta=cluster_output_step_size,
-            drop_clu_info=drop_clusterpoints_info,
-            int_max=cluster_end,
-            int_min=cluster_start,
-            win_size=cluster_window_size,
-        ).sort_index()
-
-    # filter all days with no 1h continous measurements: filter_intervall (function),
-    #   1/clu_int (number of clusterpoints needed in an hour to have continuous measurements),
-    #   clu_int+clu_int/2 (allowed gab size between two points, bigger than a normal gab but smaller than two)
-    if "continuous" in filter_cases and "rollingMean" in filter_cases:
-        df_filtered = df_filtered.groupby(["Date", "ID_Spectrometer"]).apply(
-            _filter_interval,
-            int(1 / cluster_output_step_size),
-            1.5 * cluster_output_step_size,
-            True,
-        )
-        try:
-            df_filtered = df_filtered.reset_index(level=[2], drop=True)
-        except:
-            pass
-    elif "continuous" in filter_cases:
-        print(
-            "Error: Continuous filter step could not be performed, rolling mean step is needed in addition! Filtering is canceled!"
-        )
-        return df_filtered
-
-    # filter all days with just one site measuring
-    if "singleDay" in filter_cases and "rollingMean" in filter_cases:
-        df_filtered = df_filtered.groupby(["Date"], as_index=False).apply(
-            _filter_day_alone
-        )  # .reset_index(level=0,drop=True)
-    elif "singleDay" in filter_cases:
-        print(
-            "Error: Single day filter step could not be performed, rolling mean step is needed in addition! Filtering is canceled!"
-        )
-        return df_filtered
-
-    return df_filtered
