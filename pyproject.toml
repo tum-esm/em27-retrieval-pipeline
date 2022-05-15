@@ -1,6 +1,6 @@
 [tool.poetry]
-name = "generate-website-data"
-version = "0.1.0"
+name = "extract-retrieval-data"
+version = "0.1.1"
 description = ""
 authors = ["Moritz Makowski <moritz.makowski@tum.de>", "Nico Nachtigall", "Max Rißmann <max.rissmann@tum.de>", "Florian Dietrich <flo.dietrich@tum.de>"]
 
