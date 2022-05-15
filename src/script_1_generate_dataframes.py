@@ -23,7 +23,7 @@ with open(f"{PROJECT_DIR}/config.json") as f:
     config = json.load(f)
 
 
-def _apply_statistical_filters(df, gas, column):
+def _apply_statistical_filters(df, gas):
     return dataframe_processing.apply_statistical_filter(
         df,
         gas,
@@ -31,8 +31,6 @@ def _apply_statistical_filters(df, gas, column):
             config["filter"]["outputStepSizeMinutes"] / 60, 6
         ),
         drop_clusterpoints_info=FILTER_SETTINGS["drop_clusterpoints_info"],
-        cluster_start=FILTER_SETTINGS["cluster_start"],
-        cluster_end=FILTER_SETTINGS["cluster_end"],
         cluster_window_size=np.round(
             config["filter"]["movingWindowSizeMinutes"] / 60, 6
         ),
@@ -120,9 +118,9 @@ def _filter_dataframes(df_calibrated):
                 .apply(
                     lambda x: dataframe_processing.apply_physical_filter(
                         x,
-                        fvsi_thold=FILTER_SETTINGS["fvsi_threshold"],
-                        sia_thold=FILTER_SETTINGS["sia_threshold"],
-                        sza_thold=FILTER_SETTINGS["sza_threshold"],
+                        fvsi_threshold=FILTER_SETTINGS["fvsi_threshold"],
+                        sia_threshold=FILTER_SETTINGS["sia_threshold"],
+                        sza_threshold=FILTER_SETTINGS["sza_threshold"],
                         step_size=FILTER_SETTINGS["step_size"],
                         o2_error=FILTER_SETTINGS["o2_error"],
                         flag=FILTER_SETTINGS["flag"],
