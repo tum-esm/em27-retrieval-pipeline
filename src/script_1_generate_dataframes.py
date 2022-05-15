@@ -2,13 +2,12 @@ import sys
 import numpy as np
 import mysql.connector
 import pandas as pd
-import json
-import os
 from src import dataframe_processing
 from src.utils.constants import (
+    CONFIG,
     DEFAULT_SPECTROMETERS,
     UNITS,
-    FILTER_SETTINGS,
+    PHYSICAL_FILTER_SETTINGS,
     REPLACEMENT_DICT,
     ALL_GASES,
     ALL_SENSORS,
@@ -17,24 +16,18 @@ from rich.console import Console
 
 console = Console()
 
-PROJECT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-CSV_OUT_DIR = f"{PROJECT_DIR}/data/csv-out"
-with open(f"{PROJECT_DIR}/config.json") as f:
-    config = json.load(f)
-
 
 def _apply_statistical_filters(df, gas):
     return dataframe_processing.apply_statistical_filter(
         df,
         gas,
         cluster_output_step_size=np.round(
-            config["filter"]["outputStepSizeMinutes"] / 60, 6
+            CONFIG["filter"]["outputStepSizeMinutes"] / 60, 6
         ),
-        drop_clusterpoints_info=FILTER_SETTINGS["drop_clusterpoints_info"],
         cluster_window_size=np.round(
-            config["filter"]["movingWindowSizeMinutes"] / 60, 6
+            CONFIG["filter"]["movingWindowSizeMinutes"] / 60, 6
         ),
-        filter_cases=config["filter"]["cases"],
+        filter_cases=CONFIG["filter"]["cases"],
     )
 
 
@@ -66,14 +59,14 @@ def _get_calibration_replacement_dict(df_calibration: pd.DataFrame, date_string:
 
 def _read_from_database(date_string, remove_calibration_data=True):
     db_connection = mysql.connector.connect(
-        **config["authentication"]["mysql"], auth_plugin="mysql_native_password"
+        **CONFIG["authentication"]["mysql"], auth_plugin="mysql_native_password"
     )
 
     def read(sql_string):
         return pd.read_sql(sql_string, con=db_connection)
 
     date_query = f"(Date = {date_string})"
-    location_tuple = ", ".join([f'"{l}"' for l in config["input"]["locations"]])
+    location_tuple = ", ".join([f'"{l}"' for l in CONFIG["input"]["locations"]])
     location_query = f"(ID_Location in ({location_tuple}))"
 
     if remove_calibration_data:
@@ -117,13 +110,7 @@ def _filter_dataframes(df_calibrated):
                 df_calibrated.groupby(["Date", "ID_Spectrometer"])
                 .apply(
                     lambda x: dataframe_processing.apply_physical_filter(
-                        x,
-                        fvsi_threshold=FILTER_SETTINGS["fvsi_threshold"],
-                        sia_threshold=FILTER_SETTINGS["sia_threshold"],
-                        sza_threshold=FILTER_SETTINGS["sza_threshold"],
-                        step_size=FILTER_SETTINGS["step_size"],
-                        o2_error=FILTER_SETTINGS["o2_error"],
-                        flag=FILTER_SETTINGS["flag"],
+                        x, **PHYSICAL_FILTER_SETTINGS
                     )
                 )
                 .drop(["Date", "ID_Spectrometer"], axis=1)

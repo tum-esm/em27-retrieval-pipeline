@@ -21,11 +21,6 @@ def apply_statistical_filter(
     gas: str,
     cluster_output_step_size: float = 0.25,
     cluster_window_size: float = 0.5,
-    drop_clusterpoints_info: dict = {
-        "drop": False,
-        "version": "sigma",
-        "percent": 0.2,
-    },
     filter_cases: list[str] = [
         "outlier",
         "interval",
@@ -94,7 +89,7 @@ def apply_statistical_filter(
         df = utility_functions.cluster_by(
             df,
             interval_delta=cluster_output_step_size,
-            drop_clusterpoints_info=drop_clusterpoints_info,
+            drop_clusterpoints_info={"drop": True, "version": 104, "percent": 0.2},
             window_size=cluster_window_size,
             interval_max=18,
             interval_min=4,
