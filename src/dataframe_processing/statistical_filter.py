@@ -182,6 +182,7 @@ def _filter_interval(df: pd.DataFrame, num: float, gap: float, check_day=False):
     on: September 2020
     last modified: 20.10.2020
     """
+    df = df.copy()
 
     df = df.reset_index().drop(columns=["Date", "ID_Spectrometer"])
 
@@ -238,6 +239,8 @@ def _zscore_move(
     on: September 2020
     last modified: 20.10.2020
     """
+
+    df = df.copy()
 
     df_reset = df.reset_index().drop(columns=["Date", "ID_Spectrometer"])
     np_timexch4 = df_reset[["Hour", column]].values

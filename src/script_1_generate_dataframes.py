@@ -195,7 +195,7 @@ def _filter_dataframes(df_calibrated):
             # airmass correction for ch4
             if gas == "ch4":
                 df_complete = dataframe_processing.apply_airmass_correction(
-                    df_complete, calculate=True
+                    df_complete
                 ).drop(
                     [
                         f"{COLUMN}_sub_mean",
