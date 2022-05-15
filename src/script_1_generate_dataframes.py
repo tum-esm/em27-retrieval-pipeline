@@ -118,17 +118,15 @@ def _filter_dataframes(df_calibrated):
             df_filtered = (
                 df_calibrated.groupby(["Date", "ID_Spectrometer"])
                 .apply(
-                    lambda x: statistical_filters.filterData(
+                    lambda x: statistical_filters.apply_physical_filter(
                         x,
-                        FILTER_SETTINGS["fvsi_threshold"],
-                        FILTER_SETTINGS["sia_threshold"],
-                        FILTER_SETTINGS["sza_threshold"],
-                        FILTER_SETTINGS["step_size"],
-                        FILTER_SETTINGS["o2_error"],
-                        FILTER_SETTINGS["flag"],
+                        fvsi_thold=FILTER_SETTINGS["fvsi_threshold"],
+                        sia_thold=FILTER_SETTINGS["sia_threshold"],
+                        sza_thold=FILTER_SETTINGS["sza_threshold"],
+                        step_size=FILTER_SETTINGS["step_size"],
+                        o2_error=FILTER_SETTINGS["o2_error"],
+                        flag=FILTER_SETTINGS["flag"],
                     )
-                    if x.empty == False
-                    else x
                 )
                 .drop(["Date", "ID_Spectrometer"], axis=1)
                 .droplevel(level=2)
