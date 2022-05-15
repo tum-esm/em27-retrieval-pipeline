@@ -170,7 +170,7 @@ def _zscore_move(df, column, interval, stepsize, threshold):
         return df_reset.set_index("Hour").drop(np_TimeDelete).reset_index()
 
 
-def filter_DataStat(
+def apply_statistical_filter(
     df: pd.DataFrame,
     gas: str,
     cluster_output_step_size: float = 0.25,
@@ -248,7 +248,7 @@ def filter_DataStat(
 
     # Average points to remove noise
     if "rollingMean" in filter_cases:
-        df_filtered = utils.clusterby(
+        df_filtered = utils.cluster_by(
             df_filtered,
             "Hour",
             int_delta=cluster_output_step_size,
