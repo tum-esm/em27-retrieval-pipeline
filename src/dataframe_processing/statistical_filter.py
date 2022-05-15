@@ -11,8 +11,9 @@ last modified: 20.10.2020
 
 import numpy as np
 import pandas as pd
-import scipy
-from src.dataframe_processing import utils
+from scipy import stats as scipy_stats
+from src.dataframe_processing import utility_functions
+from src import utils
 
 
 def apply_statistical_filter(
@@ -65,9 +66,12 @@ def apply_statistical_filter(
     last modified: 20.10.2020
     """
 
-    assert list(sorted(list(df.index))) == ["Date", "ID_Spectrometer"]
+    assert utils.functions.is_subset_of(
+        ["Date", "ID_Spectrometer"], df.index.names
+    ), f"df.index.names = {df.index.names}"
     assert gas in ["xco", "xco2", "xch4"]
 
+    # TODO: Clean up, improve
     if "outlier" in filter_cases:
         column = gas + "_" + {"xco": "ppb", "xco2": "ppm", "xch4": "ppm"}[gas]
         df = (
@@ -76,6 +80,7 @@ def apply_statistical_filter(
             .reset_index(level=[2], drop=True)
         )
 
+    # TODO: Clean up, improve
     if "interval" in filter_cases:
         df = (
             df.groupby(level=[0, 1])
@@ -83,16 +88,18 @@ def apply_statistical_filter(
             .reset_index(level=2, drop=True)
         )
 
+    # TODO: Clean up, improve
     # apply rolling mean to remove noise
     if "rollingMean" in filter_cases:
-        df = utils.cluster_by(
+        df = utility_functions.cluster_by(
             df,
             interval_delta=cluster_output_step_size,
-            drop_clu_info=drop_clusterpoints_info,
+            drop_clusterpoints_info=drop_clusterpoints_info,
             window_size=cluster_window_size,
         ).sort_index()
 
-    # filter all days with no 1h continous measurements: filter_intervall
+    # TODO: Clean up, improve
+    # filter all days with no 1h continous measurements: filter_interval
     # (function), 1/clu_int (number of clusterpoints needed in an hour to
     # have continuous measurements), clu_int+clu_int/2 (allowed gap size
     # between two points, bigger than a normal gap but smaller than two)
@@ -109,10 +116,11 @@ def apply_statistical_filter(
         except:
             pass
 
+    # TODO: Clean up, improve
     # filter all days with just one site measuring
     if "singleDay" in filter_cases:
         assert "rollingMean" in filter_cases
-        df = df.groupby(["Date"], as_index=False).apply(_filter_day_alone)
+        df = df.groupby(["Date"], as_index=False).apply(_filter_single_day)
 
     return df
 
@@ -185,7 +193,7 @@ def _filter_interval(df: pd.DataFrame, num: float, gap: float, check_day=False):
     return df.drop(np_indexToBeDroped)
 
 
-def _filter_day_alone(df: pd.DataFrame) -> pd.DataFrame | None:
+def _filter_single_day(df: pd.DataFrame):
     """
     normally called by: filter_DataStat()
     Function filters all days on which just one site was measuring
@@ -253,7 +261,7 @@ def _zscore_move(
             interval_secound = end_time - s
 
         # get window
-        time_w, index = utils.timewindow_middle(
+        time_w, index = utility_functions.timewindow_middle(
             np_timexch4[:, 0], s, interval_first, interval_secound
         )
 
@@ -262,7 +270,7 @@ def _zscore_move(
 
         # to make sure to have enough points for calculation, 100 is chosen randomly
         if len(np_inter) > 100:
-            np_zscore = scipy.stats.zscore(np_inter)
+            np_zscore = scipy_stats.zscore(np_inter)
             np_indexDelete = np.where(np.abs(np_zscore) > threshold)[0]
 
             np_storeDelete = np.append(np_storeDelete, time_w[np_indexDelete], axis=0)
