@@ -3,7 +3,7 @@ import mysql.connector
 import pandas as pd
 import json
 import os
-from src import column_functions
+from src import statistical_filters
 from src.helpers.constants import (
     DEFAULT_SPECTROMETERS,
     UNITS,
@@ -20,7 +20,7 @@ with open(f"{PROJECT_DIR}/config.json") as f:
 
 
 def _apply_statistical_filters(df, gas, column):
-    return column_functions.filter_DataStat(
+    return statistical_filters.filter_DataStat(
         df,
         gas=gas,
         column=column,
@@ -61,7 +61,9 @@ def _get_calibration_replacement_dict(df_calibration, date_string):
 
 
 def _read_from_database(date_string, remove_calibration_data=True):
-    db_connection = mysql.connector.connect(**config["authentication"]["mysql"], auth_plugin='mysql_native_password')
+    db_connection = mysql.connector.connect(
+        **config["authentication"]["mysql"], auth_plugin="mysql_native_password"
+    )
 
     def read(sql_string):
         return pd.read_sql(sql_string, con=db_connection)
@@ -110,7 +112,7 @@ def _filter_dataframes(df_calibrated):
             df_filtered = (
                 df_calibrated.groupby(["Date", "ID_Spectrometer"])
                 .apply(
-                    lambda x: column_functions.filterData(
+                    lambda x: statistical_filters.filterData(
                         x,
                         FILTER_SETTINGS["fvsi_threshold"],
                         FILTER_SETTINGS["sia_threshold"],
@@ -174,7 +176,7 @@ def _filter_dataframes(df_calibrated):
 
             # airmass correction for ch4
             if gas == "ch4":
-                df_complete = column_functions.airmass_corr(
+                df_complete = statistical_filters.airmass_corr(
                     df_complete, clc=True, big_dataSet=False
                 ).drop(
                     [
@@ -215,7 +217,9 @@ def run(date_string):
         )
 
         if not df_all.empty:
-            df_calibrated, _ = column_functions.hp.calibration(df_all, df_calibration)
+            df_calibrated, _ = statistical_filters.utils.calibration(
+                df_all, df_calibration
+            )
 
             dataframes[calibrationCase] = {
                 **_filter_dataframes(df_calibrated),
@@ -223,7 +227,9 @@ def run(date_string):
                     "dfLocation": df_location,
                     "replacementDict": {
                         **REPLACEMENT_DICT,
-                        **_get_calibration_replacement_dict(df_calibration, date_string),
+                        **_get_calibration_replacement_dict(
+                            df_calibration, date_string
+                        ),
                     },
                 },
             }
