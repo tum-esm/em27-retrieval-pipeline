@@ -11,7 +11,6 @@ last modified: 20.10.2020
 
 import numpy as np
 import scipy
-
 from src.statistical_filters import utils
 
 
@@ -74,7 +73,7 @@ def filterData(data, fvsi_thold, sia_thold, sza_thold, step_size, o2_error, flag
     return df_ok
 
 
-def getIndexIntervall(x, num, check_day=False):
+def _getIndexIntervall(x, num, check_day=False):
     """
     Helper function for filter_intervall(df)
     Function return index values which should be deleted based on their interval size
@@ -111,7 +110,7 @@ def getIndexIntervall(x, num, check_day=False):
     return np_badindex
 
 
-def filter_intervall(df, num, gap, check_day=False):
+def _filter_intervall(df, num, gap, check_day=False):
     """
     normally called by: filter_DataStat()
     Function to delete measuring intervals (which are defined as measurments between measuring gaps of time > 'gab')
@@ -137,13 +136,13 @@ def filter_intervall(df, num, gap, check_day=False):
         df_reset["Hour"].values
     )  # get time difference between measurements
     np_indexGap = np.append(0, np.append((np.argwhere(np_diff > gap)), np_diff.size))
-    np_indexToBeDroped = getIndexIntervall(
+    np_indexToBeDroped = _getIndexIntervall(
         np_indexGap, num, check_day
     )  # get index which measurements should be dropped
     return df_reset.drop(np_indexToBeDroped)
 
 
-def filter_day_alone(df):
+def _filter_day_alone(df):
     """
     normally called by: filter_DataStat()
     Function filters all days on which just one site was measuring
@@ -162,7 +161,7 @@ def filter_day_alone(df):
         return df
 
 
-def zscore_move(df, column, interval, stepsize, threshold):
+def _zscore_move(df, column, interval, stepsize, threshold):
     """
     normally called by: filter_DataStat()
     Function to remove outliers
@@ -285,7 +284,7 @@ def filter_DataStat(df, **kwargs):
     if "outlier" in filter_case:
         df_filtered = (
             df.groupby(level=[0, 1])
-            .apply(zscore_move, column, 2, 1, 2.58)
+            .apply(_zscore_move, column, 2, 1, 2.58)
             .reset_index(level=[2], drop=True)
         )
     else:
@@ -294,7 +293,7 @@ def filter_DataStat(df, **kwargs):
     if "interval" in filter_case:
         df_filtered = (
             df_filtered.groupby(level=[0, 1])
-            .apply(filter_intervall, 12, 0.005)
+            .apply(_filter_intervall, 12, 0.005)
             .reset_index(level=2, drop=True)
         )
     # Average points to remove noise
@@ -314,7 +313,7 @@ def filter_DataStat(df, **kwargs):
     #   clu_int+clu_int/2 (allowed gab size between two points, bigger than a normal gab but smaller than two)
     if "continuous" in filter_case and "rollingMean" in filter_case:
         df_filtered = df_filtered.groupby(["Date", "ID_Spectrometer"]).apply(
-            filter_intervall, int(1 / clu_int), clu_int + clu_int / 2, True
+            _filter_intervall, int(1 / clu_int), clu_int + clu_int / 2, True
         )
         try:
             df_filtered = df_filtered.reset_index(level=[2], drop=True)
@@ -329,7 +328,7 @@ def filter_DataStat(df, **kwargs):
     # filter all days with just one site measuring
     if "singleDay" in filter_case and "rollingMean" in filter_case:
         df_filtered = df_filtered.groupby(["Date"], as_index=False).apply(
-            filter_day_alone
+            _filter_day_alone
         )  # .reset_index(level=0,drop=True)
     elif "singleDay" in filter_case:
         print(
@@ -343,7 +342,7 @@ def filter_DataStat(df, **kwargs):
 ################## Air Mass Correction
 
 
-def func(x, a, b, c):
+def _func(x, a, b, c):
     """
     fitting function for air mass correction
     called from correct()
@@ -365,7 +364,7 @@ def func(x, a, b, c):
     return a * np.abs(x) ** 3 + b * np.abs(x) + c
 
 
-def correct(df_original, calculation=True):
+def _correct(df_original, calculation=True):
     """
     called from airmass_corr()
     Function to fit and correct 'xch4_ppm_sub_mean' values from air mass dependency
@@ -390,7 +389,7 @@ def correct(df_original, calculation=True):
     # curve fitting -calculate values from big dataset
     if calculation:
         params, params_covariance = scipy.optimize.curve_fit(
-            func, df["elevation_angle"], df["xch4_ppm_sub_mean"]
+            _func, df["elevation_angle"], df["xch4_ppm_sub_mean"]
         )
     else:
         # saved values when using small dataset
@@ -398,7 +397,7 @@ def correct(df_original, calculation=True):
 
     # correction
     x = df["elevation_angle"].values
-    y_pred = func(x, params[0], params[1], params[2])
+    y_pred = _func(x, params[0], params[1], params[2])
     y_real = df["xch4_ppm_sub_mean"].values
     df["xch4_ppm_sub_mean_corr"] = y_real / y_pred - 1
 
@@ -441,12 +440,12 @@ def airmass_corr(df, **kwargs):
         # else:
         # use defined parameter if just a small dataset is used
         #    df_corr = correct(df, False)
-        df_corr = correct(df, False)
+        df_corr = _correct(df, False)
     else:
         df_corr = df.copy()
         parameter = [-7.05 * (10 ** (-9)), 5.34 * (10 ** (-6)), 1.00059]
         x = df_corr["asza_deg"].values
-        corr = func(x, parameter[0], parameter[1], parameter[2])
+        corr = _func(x, parameter[0], parameter[1], parameter[2])
         df_corr["xch4_ppm_corr"] = df_corr["xch4_ppm"] / corr
         df_corr["xch4_ppm"] = df_corr["xch4_ppm_corr"] - (
             df_corr["xch4_ppm"] - df_corr["xch4_ppm_sub_mean"]

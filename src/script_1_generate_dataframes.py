@@ -217,9 +217,7 @@ def run(date_string):
         )
 
         if not df_all.empty:
-            df_calibrated, _ = statistical_filters.utils.calibration(
-                df_all, df_calibration
-            )
+            df_calibrated, _ = statistical_filters.calibration(df_all, df_calibration)
 
             dataframes[calibrationCase] = {
                 **_filter_dataframes(df_calibrated),
