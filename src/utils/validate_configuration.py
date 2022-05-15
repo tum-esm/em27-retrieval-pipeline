@@ -8,6 +8,7 @@ PROJECT_DIR = os.path.dirname(
 )
 
 
+# TODO: Validate config with cerberus
 def run():
     with open(f"{PROJECT_DIR}/config.json") as f:
         config = json.load(f)
