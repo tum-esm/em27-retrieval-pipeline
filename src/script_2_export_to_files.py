@@ -3,8 +3,8 @@ import pandas as pd
 import os
 import mysql.connector
 
-from src.helpers.constants import DEFAULT_SPECTROMETERS, UNITS
-from src.helpers import utilities
+from src.utils.constants import DEFAULT_SPECTROMETERS, UNITS
+from src.utils import functions
 
 
 PROJECT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -69,8 +69,8 @@ def as_csv(day_string, dataframes):
     merged_df = (
         pd.DataFrame(
             sorted(
-                utilities.unique(
-                    utilities.concat(
+                functions.unique(
+                    functions.concat(
                         [
                             list(output_dfs[gas]["Hour"])
                             for gas in config["input"]["gases"]
@@ -80,13 +80,13 @@ def as_csv(day_string, dataframes):
             ),
             columns=["Hour"],
         )
-        .applymap(lambda x: utilities.hour_to_timestring(day_string, x))
+        .applymap(lambda x: functions.hour_to_timestring(day_string, x))
         .set_index(["Hour"])
     )
 
     for gas in config["input"]["gases"]:
         output_dfs[gas]["Hour"] = output_dfs[gas]["Hour"].map(
-            lambda x: utilities.hour_to_timestring(day_string, x)
+            lambda x: functions.hour_to_timestring(day_string, x)
         )
 
         for spectrometer in [
@@ -154,7 +154,7 @@ def as_csv(day_string, dataframes):
 
         with open(f"{PROJECT_DIR}/data/csv-header-template.csv", "r") as template_file:
             with open(f"{PROJECT_DIR}/data/csv-out/{day_string}.csv", "w") as out_file:
-                fillParameters = utilities.replace_from_dict(
+                fillParameters = functions.replace_from_dict(
                     {
                         **dataframes["meta"]["replacementDict"],
                         "SENSOR_LOCATIONS": "\n".join(LOCATION_HEADER_ROWS),
@@ -255,8 +255,8 @@ def as_json(day_string, dataframes):
     #     "flagTimeseries": {"xs": *, "ys": *},
     # }
 
-    spectrometers = utilities.unique(
-        utilities.concat(
+    spectrometers = functions.unique(
+        functions.concat(
             list(output_dfs["raw"][gas]["spectrometer"])
             for gas in config["input"]["gases"]
         )
