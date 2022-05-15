@@ -159,7 +159,7 @@ def _filter_dataframes(df_calibrated):
             # Filter based on data statistics ----------------
             if (case == "filtered") and (not df_filtered_dropped.empty):
                 df_filtered_statistical = _apply_statistical_filters(
-                    df_filtered_dropped, f"x{gas}", COLUMN
+                    df_filtered_dropped, f"x{gas}"
                 )
                 if len(list(df_filtered_statistical.columns)) == 0:
                     df_filtered_statistical = (

@@ -87,3 +87,7 @@ def day_string_is_valid(day_string):
         return True
     except:
         return False
+
+
+def is_subset_of(a: list, b: list):
+    return all([c in list(b) for c in a])
