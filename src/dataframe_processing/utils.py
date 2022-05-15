@@ -12,7 +12,7 @@ import numpy as np
 import pandas as pd
 
 
-def clusterby(df, clusterBy_str, **kwargs):
+def cluster_by(df, clusterBy_str, **kwargs):
     """
     Function to generate averaged measurements
     Averaging is always done with respect to day and site
@@ -184,16 +184,29 @@ def clusterby(df, clusterBy_str, **kwargs):
 
     # remove all cluster Points which are calculated with too less data points
     if drop_clusterpoints_info["drop"]:
-        df_final = _drop_ClusterPoints(
+        df_final = _drop_cluster_points(
             df_final,
             drop_clusterpoints_info["version"],
             drop_clusterpoints_info["percent"],
         )
     # reindex with the old index
-    return _setindex(df_final, index).drop("count", axis=1)
+    return _set_index(df_final, index).drop("count", axis=1)
 
 
-def _drop_ClusterPoints(df, case, percent):
+def timewindow_middle(
+    np_timeseries, startPoint, time_interval_first, time_interval_sec
+):
+    # Function to return data window of interest
+    # function is called from calculate_smooth_background()
+    index = np.where(
+        (np_timeseries >= startPoint - time_interval_first)
+        & (np_timeseries < time_interval_sec + startPoint)
+    )
+
+    return np_timeseries[index], index[0]
+
+
+def _drop_cluster_points(df, case, percent):
     """
     Function called from clusterby()
     Function to drop all rows where the averaged Point is not trustworthy
@@ -213,13 +226,13 @@ def _drop_ClusterPoints(df, case, percent):
         print('Error dropping untrusted cluster points: "count" has to be a column')
         return df
     if case == "calculation":
-        threshold = _get_thresehold_untrustedPoints(df, percent)
+        threshold = _get_threshold_untrusted_points(df, percent)
     else:
         threshold = case * percent
     return df[df["count"] > threshold]
 
 
-def _get_thresehold_untrustedPoints(df, per):
+def _get_threshold_untrusted_points(df, per):
     """
     Function is called by drop_ClusterPoints()
     Function returns a threshold with which the averaged measurement points are dropped
@@ -236,90 +249,6 @@ def _get_thresehold_untrustedPoints(df, per):
 
     np_count = df["count"].values
     return np.max(np_count) * per
-
-
-def calibration(df_data_org, df_cali_org):
-    """
-    Function to calibrate measurement data
-    :param df_data_org: Pandas DataFrame, containing all data,
-                        columns needed: 'ID_Spectrometer', 'Date', 'xch4_ppm','xco2_ppm','xco_ppb'
-    :param df_cali_org: Pandas DataFrame, containing the calibration values,
-                        columns needed: 'ID_SpectrometerCalibration', 'EndDate', 'StartDate'
-    :return:            Pandas DataFrame, with calibrated values, same columns as df_data_org
-
-    created by: Nico Nachtigall, September 2020
-    last modified: 20.10.2020
-    """
-
-    df_cali = df_cali_org.copy()
-    # get full siteID
-    df_cali["ID"] = df_cali["ID_SpectrometerCalibration"].apply(lambda x: x[-2:])
-    np_siteID = df_data_org["ID_Spectrometer"].unique()
-    for site in np_siteID:
-        df_cali.loc[df_cali["ID"] == site[:2], "ID"] = site
-    # set all unknown enddates to inf
-    df_cali.loc[df_cali["EndDate"].isnull(), "EndDate"] = np.inf
-
-    # calibrate data
-    df_data = df_data_org.copy()
-    for index, row in df_cali.iterrows():
-        df_data.loc[
-            (df_data["ID_Spectrometer"] == row.ID)
-            & (df_data["Date"] >= row.StartDate)
-            & (df_data["Date"] < row.EndDate),
-            "xch4_ppm",
-        ] = (
-            df_data.loc[
-                (df_data["ID_Spectrometer"] == row.ID)
-                & (df_data["Date"] >= row.StartDate)
-                & (df_data["Date"] < row.EndDate),
-                "xch4_ppm",
-            ]
-            / row.ch4_calibrationFactor
-        )
-        df_data.loc[
-            (df_data["ID_Spectrometer"] == row.ID)
-            & (df_data["Date"] >= row.StartDate)
-            & (df_data["Date"] < row.EndDate),
-            "xco2_ppm",
-        ] = (
-            df_data.loc[
-                (df_data["ID_Spectrometer"] == row.ID)
-                & (df_data["Date"] >= row.StartDate)
-                & (df_data["Date"] < row.EndDate),
-                "xco2_ppm",
-            ]
-            / row.co2_calibrationFactor
-        )
-        df_data.loc[
-            (df_data["ID_Spectrometer"] == row.ID)
-            & (df_data["Date"] >= row.StartDate)
-            & (df_data["Date"] < row.EndDate),
-            "xco_ppb",
-        ] = (
-            df_data.loc[
-                (df_data["ID_Spectrometer"] == row.ID)
-                & (df_data["Date"] >= row.StartDate)
-                & (df_data["Date"] < row.EndDate),
-                "xco_ppb",
-            ]
-            / row.co_calibrationFactor
-        )
-
-    return df_data, df_cali
-
-
-def timewindow_middle(
-    np_timeseries, startPoint, time_interval_first, time_interval_sec
-):
-    # Function to return data window of interest
-    # function is called from calculate_smooth_background()
-    index = np.where(
-        (np_timeseries >= startPoint - time_interval_first)
-        & (np_timeseries < time_interval_sec + startPoint)
-    )
-
-    return np_timeseries[index], index[0]
 
 
 def _get_month_year(df):
@@ -343,11 +272,11 @@ def _get_month_year(df):
     else:
         print('Column "date" is missing. No calculation possible.')
 
-    df = _setindex(df, index)
+    df = _set_index(df, index)
     return df
 
 
-def _setindex(df, column_array):
+def _set_index(df, column_array):
     """
     Helper function to set the index of the DataFrame to the columns stored in the input array
     :param df:              Pandas DataFrame

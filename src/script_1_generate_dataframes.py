@@ -24,7 +24,7 @@ with open(f"{PROJECT_DIR}/config.json") as f:
 
 
 def _apply_statistical_filters(df, gas, column):
-    return dataframe_processing.filter_DataStat(
+    return dataframe_processing.apply_statistical_filter(
         df,
         gas,
         cluster_output_step_size=np.round(
@@ -237,7 +237,9 @@ def run(date_string):
         )
 
         if not df_all.empty:
-            df_calibrated, _ = dataframe_processing.calibration(df_all, df_calibration)
+            df_calibrated, _ = dataframe_processing.apply_calibration(
+                df_all, df_calibration
+            )
 
             dataframes[calibrationCase] = {
                 **_filter_dataframes(df_calibrated),
