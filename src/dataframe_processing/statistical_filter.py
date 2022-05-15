@@ -73,7 +73,7 @@ def apply_statistical_filter(
 
     # TODO: Clean up, improve
     if "outlier" in filter_cases:
-        column = gas + "_" + {"xco": "ppb", "xco2": "ppm", "xch4": "ppm"}[gas]
+        column = gas + "_" + utils.constants.UNITS[gas[1:]]
         df = (
             df.groupby(level=[0, 1])
             .apply(_zscore_move, column)
@@ -96,6 +96,8 @@ def apply_statistical_filter(
             interval_delta=cluster_output_step_size,
             drop_clusterpoints_info=drop_clusterpoints_info,
             window_size=cluster_window_size,
+            interval_max=18,
+            interval_min=4,
         ).sort_index()
 
     # TODO: Clean up, improve
