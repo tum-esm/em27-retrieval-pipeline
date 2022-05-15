@@ -7,7 +7,7 @@ PROJECT_DIR = os.path.dirname(
     os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 )
 with open(f"{PROJECT_DIR}/config.json") as f:
-    config = json.load(f)
+    CONFIG = json.load(f)
 
 UNITS = {
     "co2": "ppm",
@@ -30,40 +30,37 @@ DEFAULT_SPECTROMETERS = {
     "TAU": "me17",
 }
 
-FILTER_SETTINGS = {
+PHYSICAL_FILTER_SETTINGS = {
     "fvsi_threshold": 5,  # fractional variation in solar intensity
     "sia_threshold": 0.4,  # solar intensity average
     "sza_threshold": 75,  # solar zenith angle
     "o2_error": 0.0005,
     "step_size": 0.1,
     "flag": 1,  # a 0 means "ignore all errors (flags) from gfit"
-    "drop_clusterpoints_info": {"drop": True, "version": 104, "percent": 0.2},
 }
-
-# TODO: document "o2_error", "step_size" and "drop_clusterpoints_info"
 
 REPLACEMENT_DICT = {
     "AUTHOR_NAMES": ", ".join(
-        list(map(lambda a: a["name"], config["meta"]["authors"]))
+        list(map(lambda a: a["name"], CONFIG["meta"]["authors"]))
     ),
     "CONTACT_EMAILS": ", ".join(
-        list(map(lambda a: a["email"], config["meta"]["authors"]))
+        list(map(lambda a: a["email"], CONFIG["meta"]["authors"]))
     ),
     "GENERATION_DATE": str(datetime.now()) + " UTC",
-    "CODE_REPOSITORY": config["meta"]["codeRepository"],
+    "CODE_REPOSITORY": CONFIG["meta"]["codeRepository"],
     "COMMIT_SHA": functions.get_commit_sha(),
-    "COMMENT": config["output"]["comment"],
-    "SETTING_fvsi_thold": FILTER_SETTINGS["fvsi_threshold"],
-    "SETTING_sia_thold": FILTER_SETTINGS["sia_threshold"],
-    "SETTING_sza_thold": FILTER_SETTINGS["sza_threshold"],
-    "SETTING_o2_error": FILTER_SETTINGS["o2_error"],
-    "SETTING_step_size": FILTER_SETTINGS["step_size"],
-    "SETTING_flag": FILTER_SETTINGS["flag"],
+    "COMMENT": CONFIG["output"]["comment"],
+    "SETTING_fvsi_thold": PHYSICAL_FILTER_SETTINGS["fvsi_threshold"],
+    "SETTING_sia_thold": PHYSICAL_FILTER_SETTINGS["sia_threshold"],
+    "SETTING_sza_thold": PHYSICAL_FILTER_SETTINGS["sza_threshold"],
+    "SETTING_o2_error": PHYSICAL_FILTER_SETTINGS["o2_error"],
+    "SETTING_step_size": PHYSICAL_FILTER_SETTINGS["step_size"],
+    "SETTING_flag": PHYSICAL_FILTER_SETTINGS["flag"],
     "SETTING_moving_window_size_minutes": str(
-        config["filter"]["movingWindowSizeMinutes"]
+        CONFIG["filter"]["movingWindowSizeMinutes"]
     ),
-    "SETTING_output_step_size_minutes": str(config["filter"]["outputStepSizeMinutes"]),
-    "SETTING_filter_cases": str(config["filter"]["cases"]),
+    "SETTING_output_step_size_minutes": str(CONFIG["filter"]["outputStepSizeMinutes"]),
+    "SETTING_filter_cases": str(CONFIG["filter"]["cases"]),
 }
 
 ALL_GASES = ["co2", "ch4", "co"]

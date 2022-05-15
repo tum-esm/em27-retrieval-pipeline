@@ -7,21 +7,9 @@ import threading
 import queue
 from rich.console import Console
 
+from src.utils.constants import PROJECT_DIR, CONFIG
+
 console = Console()
-
-# same level as pyproject.toml
-project_dir = "/".join(__file__.split("/")[:-2])
-data_dir = f"{project_dir}/data"
-
-with open(f"{project_dir}/config.json") as f:
-    config = json.load(f)
-    STRAPI = config["authentication"]["strapi"]
-
-DATA_URL = f"{STRAPI['url']}/api/sensor-days"
-HEADERS = {
-    "Authorization": f"bearer {STRAPI['apiKey']}",
-    "Content-Type": "application/json",
-}
 
 
 class MonitoredThread(threading.Thread):
@@ -44,7 +32,13 @@ def _upload_data(data):
     while True:
         try:
             r = httpx.post(
-                DATA_URL, headers=HEADERS, data=json.dumps({"data": data}), timeout=60
+                f"{CONFIG['authentication']['strapi']['url']}/api/sensor-days",
+                headers={
+                    "Authorization": f"bearer {CONFIG['authentication']['strapi']['apiKey']}",
+                    "Content-Type": "application/json",
+                },
+                data=json.dumps({"data": data}),
+                timeout=60,
             )
             if r.status_code == 400:
                 raise Exception(
@@ -66,9 +60,9 @@ def _upload_data(data):
 def run(day_string):
     exceptionQueue = queue.Queue()
 
-    file_path = f"{data_dir}/json-out/{day_string}.json"
+    file_path = f"{PROJECT_DIR}/data/json-out/{day_string}.json"
     if os.path.isfile(file_path):
-        with open(f"{data_dir}/json-out/{day_string}.json", "r") as f:
+        with open(f"{PROJECT_DIR}/data/json-out/{day_string}.json", "r") as f:
             document = json.load(f)
             assert isinstance(document, list)
             assert all([isinstance(timeseries, dict) for timeseries in document])

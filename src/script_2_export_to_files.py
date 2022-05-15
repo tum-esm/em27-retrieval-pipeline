@@ -1,15 +1,9 @@
 import json
 import pandas as pd
-import os
 import mysql.connector
 
-from src.utils.constants import DEFAULT_SPECTROMETERS, UNITS
+from src.utils.constants import PROJECT_DIR, CONFIG, DEFAULT_SPECTROMETERS, UNITS
 from src.utils import functions
-
-
-PROJECT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-with open(f"{PROJECT_DIR}/config.json") as f:
-    config = json.load(f)
 
 
 def as_csv(day_string, dataframes):
@@ -24,7 +18,7 @@ def as_csv(day_string, dataframes):
     # }
     output_dfs = {}
 
-    for gas in config["input"]["gases"]:
+    for gas in CONFIG["input"]["gases"]:
         df_corrected_inversion = (
             dataframes["filtered"][gas]
             .reset_index()
@@ -73,7 +67,7 @@ def as_csv(day_string, dataframes):
                     functions.concat(
                         [
                             list(output_dfs[gas]["Hour"])
-                            for gas in config["input"]["gases"]
+                            for gas in CONFIG["input"]["gases"]
                         ]
                     )
                 )
@@ -84,13 +78,13 @@ def as_csv(day_string, dataframes):
         .set_index(["Hour"])
     )
 
-    for gas in config["input"]["gases"]:
+    for gas in CONFIG["input"]["gases"]:
         output_dfs[gas]["Hour"] = output_dfs[gas]["Hour"].map(
             lambda x: functions.hour_to_timestring(day_string, x)
         )
 
         for spectrometer in [
-            DEFAULT_SPECTROMETERS[l] for l in config["input"]["locations"]
+            DEFAULT_SPECTROMETERS[l] for l in CONFIG["input"]["locations"]
         ]:
             df = (
                 (
@@ -124,7 +118,7 @@ def as_csv(day_string, dataframes):
             ACTUAL_LOCATIONS.update({sensor: location})
 
         LOCATION_HEADER_ROWS = []
-        for sensor in [DEFAULT_SPECTROMETERS[l] for l in config["input"]["locations"]]:
+        for sensor in [DEFAULT_SPECTROMETERS[l] for l in CONFIG["input"]["locations"]]:
             if sensor in ACTUAL_LOCATIONS:
                 LOCATION_HEADER_ROWS.append(
                     f"##    {sensor}: {ACTUAL_LOCATIONS[sensor]}"
@@ -132,8 +126,8 @@ def as_csv(day_string, dataframes):
             else:
                 LOCATION_HEADER_ROWS.append(f"##    {sensor}: unknown (no data)")
 
-        db_connection = mysql.connector.connect(**config["authentication"]["mysql"])
-        location_tuple = ", ".join([f'"{l}"' for l in config["input"]["locations"]])
+        db_connection = mysql.connector.connect(**CONFIG["authentication"]["mysql"])
+        location_tuple = ", ".join([f'"{l}"' for l in CONFIG["input"]["locations"]])
         coordinates_query_result = pd.read_sql(
             f"""
             SELECT ID_Location, Coordinates_Longitude, Coordinates_Latitude, Coordinates_Altitude
@@ -184,7 +178,7 @@ def as_json(day_string, dataframes):
     if dataframes is None:
         return
 
-    for gas in config["input"]["gases"]:
+    for gas in CONFIG["input"]["gases"]:
         for case in ["raw", "filtered"]:
 
             df_corrected_website = dataframes[case][gas].drop(
@@ -258,12 +252,12 @@ def as_json(day_string, dataframes):
     spectrometers = functions.unique(
         functions.concat(
             list(output_dfs["raw"][gas]["spectrometer"])
-            for gas in config["input"]["gases"]
+            for gas in CONFIG["input"]["gases"]
         )
     )
 
-    for gas in config["input"]["gases"]:
-        for location in config["input"]["locations"]:
+    for gas in CONFIG["input"]["gases"]:
+        for location in CONFIG["input"]["locations"]:
             for spectrometer in spectrometers:
 
                 def apply_local_filter(df, remove_by_flag=False):
