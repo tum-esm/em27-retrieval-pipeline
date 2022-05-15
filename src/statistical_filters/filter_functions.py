@@ -10,9 +10,9 @@ last modified: 20.10.2020
 
 
 import numpy as np
-from .helperFunction import helperfunction as hp  # self written .py file
-from scipy.optimize import curve_fit
-import scipy.stats as sp
+import scipy
+
+from src.statistical_filters import utils
 
 
 def filterData(data, fvsi_thold, sia_thold, sza_thold, step_size, o2_error, flag):
@@ -205,7 +205,7 @@ def zscore_move(df, column, interval, stepsize, threshold):
             interval_secound = end_time - s
 
         # get window
-        time_w, index = hp.timewindow_middle(
+        time_w, index = utils.timewindow_middle(
             np_timexch4[:, 0], s, interval_first, interval_secound
         )
 
@@ -214,7 +214,7 @@ def zscore_move(df, column, interval, stepsize, threshold):
 
         # to make sure to have enough points for calculation, 100 is chosen randomly
         if len(np_inter) > 100:
-            np_zscore = sp.zscore(np_inter)
+            np_zscore = scipy.stats.zscore(np_inter)
             np_indexDelete = np.where(np.abs(np_zscore) > threshold)[0]
 
             np_storeDelete = np.append(np_storeDelete, time_w[np_indexDelete], axis=0)
@@ -299,7 +299,7 @@ def filter_DataStat(df, **kwargs):
         )
     # Average points to remove noise
     if "rollingMean" in filter_case:
-        df_filtered = hp.clusterby(
+        df_filtered = utils.clusterby(
             df_filtered,
             "Hour",
             int_delta=clu_int,
@@ -389,7 +389,7 @@ def correct(df_original, calculation=True):
 
     # curve fitting -calculate values from big dataset
     if calculation:
-        params, params_covariance = curve_fit(
+        params, params_covariance = scipy.optimize.curve_fit(
             func, df["elevation_angle"], df["xch4_ppm_sub_mean"]
         )
     else:
