@@ -8,20 +8,14 @@ def _calculate_y_prediction(x: float, a: float, b: float, c: float) -> float:
     return a * np.abs(x) ** 3 + b * np.abs(x) + c
 
 
-# TODO: Move calculation of "elevation_angle" and "xch4_ppm_sub_mean" in here because this
-# is the only place where it is being used.
 def apply_airmass_correction(df: pd.DataFrame) -> pd.DataFrame:
     """
     Function to fit and correct 'xch4_ppm_sub_mean' values from air mass dependency
     :return:    Pandas DataFrame, corrected values are stored in column: 'xch4_ppm'
     """
+    utils.functions.assert_df_columns(df, ["xch4_ppm", "asza_deg"])
+
     df = df.copy()
-
-    assert utils.functions.is_subset_of(
-        ["xch4_ppm", "asza_deg"],
-        df.columns,
-    )
-
     df["elevation_angle"] = 90 - df["asza_deg"]
     df[f"xch4_ppm_sub_mean"] = df.sub(df[["xch4_ppm"]].groupby(level=[0, 1]).mean())[
         "xch4_ppm"
