@@ -39,7 +39,7 @@ FILTER_SETTINGS = {
     "flag": 1,  # a 0 means "ignore all errors (flags) from gfit"
     "cluster_start": 4,  # Time in UTC, start time for the use of measurements
     "cluster_end": 18,  # Time in UTC, end time for the use of measurements
-    "drop_clu_info": {"drop": True, "version": 104, "percent": 0.2},
+    "drop_clusterpoints_info": {"drop": True, "version": 104, "percent": 0.2},
 }
 
 # TODO: document "o2_error", "step_size" and "drop_clu_info"

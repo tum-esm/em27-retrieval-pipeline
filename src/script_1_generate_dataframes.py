@@ -1,3 +1,4 @@
+import sys
 import numpy as np
 import mysql.connector
 import pandas as pd
@@ -12,6 +13,9 @@ from src.helpers.constants import (
     ALL_GASES,
     ALL_SENSORS,
 )
+from rich.console import Console
+
+console = Console()
 
 PROJECT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 CSV_OUT_DIR = f"{PROJECT_DIR}/data/csv-out"
@@ -22,18 +26,21 @@ with open(f"{PROJECT_DIR}/config.json") as f:
 def _apply_statistical_filters(df, gas, column):
     return statistical_filters.filter_DataStat(
         df,
-        gas=gas,
-        column=column,
-        clu_int=np.round(config["filter"]["outputStepSizeMinutes"] / 60, 6),
-        drop_clu_info=FILTER_SETTINGS["drop_clu_info"],
-        clu_str=FILTER_SETTINGS["cluster_start"],
-        clu_end=FILTER_SETTINGS["cluster_end"],
-        clu_win=np.round(config["filter"]["movingWindowSizeMinutes"] / 60, 6),
-        case=config["filter"]["cases"],
+        gas,
+        cluster_output_step_size=np.round(
+            config["filter"]["outputStepSizeMinutes"] / 60, 6
+        ),
+        drop_clusterpoints_info=FILTER_SETTINGS["drop_clusterpoints_info"],
+        cluster_start=FILTER_SETTINGS["cluster_start"],
+        cluster_end=FILTER_SETTINGS["cluster_end"],
+        cluster_window_size=np.round(
+            config["filter"]["movingWindowSizeMinutes"] / 60, 6
+        ),
+        filter_cases=config["filter"]["cases"],
     )
 
 
-def _get_calibration_replacement_dict(df_calibration, date_string):
+def _get_calibration_replacement_dict(df_calibration: pd.DataFrame, date_string: str):
     CALIBRATION_REPLACEMENT_DICT = {}
 
     df_calibration["ID"] = df_calibration["ID_SpectrometerCalibration"].map(
@@ -46,13 +53,12 @@ def _get_calibration_replacement_dict(df_calibration, date_string):
     df_cali = df_cali[df_cali["EndDate"].astype(str) >= date_string]
     df_cali = df_cali.sort_values(by="StartDate")
 
-    def get_cal(s):
-        return df_cali[df_cali["ID"].astype(str) == s].iloc[-1]
-
     for gas in ALL_GASES:
         for sensor in ALL_SENSORS:
             try:
-                cal = get_cal(sensor)[f"{gas}_calibrationFactor"]
+                cal = (df_cali[df_cali["ID"].astype(str) == sensor].iloc[-1])[
+                    f"{gas}_calibrationFactor"
+                ]
             except:
                 cal = "NaN"
             CALIBRATION_REPLACEMENT_DICT.update({f"CALIBRATION_{sensor}_{gas}": cal})
@@ -132,7 +138,7 @@ def _filter_dataframes(df_calibrated):
 
         for gas in ALL_GASES:
             COLUMN = f"x{gas}_{UNITS[gas]}"
-            df_filtered_dropped = df_filtered.drop(
+            df_filtered_dropped: pd.DataFrame = df_filtered.drop(
                 columns=[f"x{g}_{UNITS[g]}" for g in ALL_GASES if g != gas]
             )
             if gas == "co":
@@ -159,25 +165,41 @@ def _filter_dataframes(df_calibrated):
                 df_filtered_statistical = _apply_statistical_filters(
                     df_filtered_dropped, f"x{gas}", COLUMN
                 )
+                if len(list(df_filtered_statistical.columns)) == 0:
+                    df_filtered_statistical = (
+                        pd.DataFrame(
+                            columns=[
+                                c
+                                for c in df_filtered_dropped.columns
+                                if c != "ID_Location"
+                            ]
+                        )
+                        .reset_index()
+                        .set_index(["Date", "ID_Spectrometer", "Hour"])
+                    )
             else:
-                df_filtered_statistical = df_filtered_dropped.drop(
+                df_filtered_statistical: pd.DataFrame = df_filtered_dropped.drop(
                     columns=["ID_Location"]
                 )
 
-            # Add Column ID_Location
-            df_complete = df_filtered_statistical.join(
-                (
-                    df_filtered[["ID_Location"]]
-                    .reset_index()
-                    .drop_duplicates(ignore_index=True)
-                    .set_index(["Date", "ID_Spectrometer"])
+            try:
+                # Add Column ID_Location
+                df_complete = df_filtered_statistical.join(
+                    (
+                        df_filtered[["ID_Location"]]
+                        .reset_index()
+                        .drop_duplicates(ignore_index=True)
+                        .set_index(["Date", "ID_Spectrometer"])
+                    )
                 )
-            )
+            except Exception:
+                console.print_exception(show_locals=True)
+                sys.exit()
 
             # airmass correction for ch4
             if gas == "ch4":
-                df_complete = statistical_filters.airmass_corr(
-                    df_complete, clc=True, big_dataSet=False
+                df_complete = statistical_filters.apply_airmass_correction(
+                    df_complete, calculate=True
                 ).drop(
                     [
                         f"{COLUMN}_sub_mean",
