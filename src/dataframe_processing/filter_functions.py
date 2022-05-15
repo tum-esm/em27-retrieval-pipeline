@@ -12,7 +12,7 @@ last modified: 20.10.2020
 import numpy as np
 import pandas as pd
 import scipy
-from src.statistical_filters import utils
+from src.dataframe_processing import utils
 
 
 def _getIndexInterval(x, num, check_day=False):

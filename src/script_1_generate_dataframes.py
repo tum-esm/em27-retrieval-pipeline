@@ -4,7 +4,7 @@ import mysql.connector
 import pandas as pd
 import json
 import os
-from src import statistical_filters
+from src import dataframe_processing
 from src.helpers.constants import (
     DEFAULT_SPECTROMETERS,
     UNITS,
@@ -24,7 +24,7 @@ with open(f"{PROJECT_DIR}/config.json") as f:
 
 
 def _apply_statistical_filters(df, gas, column):
-    return statistical_filters.filter_DataStat(
+    return dataframe_processing.filter_DataStat(
         df,
         gas,
         cluster_output_step_size=np.round(
@@ -118,7 +118,7 @@ def _filter_dataframes(df_calibrated):
             df_filtered = (
                 df_calibrated.groupby(["Date", "ID_Spectrometer"])
                 .apply(
-                    lambda x: statistical_filters.apply_physical_filter(
+                    lambda x: dataframe_processing.apply_physical_filter(
                         x,
                         fvsi_thold=FILTER_SETTINGS["fvsi_threshold"],
                         sia_thold=FILTER_SETTINGS["sia_threshold"],
@@ -196,7 +196,7 @@ def _filter_dataframes(df_calibrated):
 
             # airmass correction for ch4
             if gas == "ch4":
-                df_complete = statistical_filters.apply_airmass_correction(
+                df_complete = dataframe_processing.apply_airmass_correction(
                     df_complete, calculate=True
                 ).drop(
                     [
@@ -237,7 +237,7 @@ def run(date_string):
         )
 
         if not df_all.empty:
-            df_calibrated, _ = statistical_filters.calibration(df_all, df_calibration)
+            df_calibrated, _ = dataframe_processing.calibration(df_all, df_calibration)
 
             dataframes[calibrationCase] = {
                 **_filter_dataframes(df_calibrated),
