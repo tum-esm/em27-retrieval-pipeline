@@ -15,12 +15,17 @@ def apply_airmass_correction(df: pd.DataFrame) -> pd.DataFrame:
     Function to fit and correct 'xch4_ppm_sub_mean' values from air mass dependency
     :return:    Pandas DataFrame, corrected values are stored in column: 'xch4_ppm'
     """
+    df = df.copy()
+
     assert utils.functions.is_subset_of(
-        ["xch4_ppm_sub_mean", "elevation_angle", "xch4_ppm"],
+        ["xch4_ppm", "asza_deg"],
         df.columns,
     )
 
-    df = df.copy()
+    df["elevation_angle"] = 90 - df["asza_deg"]
+    df[f"xch4_ppm_sub_mean"] = df.sub(df[["xch4_ppm"]].groupby(level=[0, 1]).mean())[
+        "xch4_ppm"
+    ]
 
     # value shift to get not in trouble with devision thru zero
     df["tmp"] = df["xch4_ppm_sub_mean"] + 1
@@ -34,8 +39,9 @@ def apply_airmass_correction(df: pd.DataFrame) -> pd.DataFrame:
     )
     y_real = df["tmp"].values
     df["xch4_ppm_sub_mean_corr"] = (y_real / y_pred) - 1
-
-    # correction of absolute measuremts
     df["xch4_ppm"] += df["xch4_ppm_sub_mean_corr"] - df["xch4_ppm_sub_mean"]
 
-    return df.drop(["tmp", "xch4_ppm_sub_mean_corr"], axis=1)
+    return df.drop(
+        ["tmp", "xch4_ppm_sub_mean_corr", "elevation_angle", "xch4_ppm_sub_mean"],
+        axis=1,
+    )
