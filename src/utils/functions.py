@@ -5,6 +5,8 @@ import math
 from datetime import datetime, timezone
 import subprocess
 
+import pandas as pd
+
 
 def unique(xs):
     return list(functools.reduce(lambda ys, y: ys if y in ys else ys + [y], xs, []))
@@ -89,5 +91,15 @@ def day_string_is_valid(day_string):
         return False
 
 
-def is_subset_of(a: list, b: list):
-    return all([c in list(b) for c in a])
+def _is_subset_of(a: list, b: list):
+    return all([c in b for c in a])
+
+
+def assert_df_columns(df: pd.DataFrame, columns: list[str]):
+    assert _is_subset_of(columns, list(df.columns)), f"df.columns: {list(df.columns)}"
+
+
+def assert_df_index(df: pd.DataFrame, columns: list[str]):
+    assert _is_subset_of(
+        columns, list(df.index.names)
+    ), f"df.index: {list(df.index.names)}"

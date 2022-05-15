@@ -61,9 +61,7 @@ def apply_statistical_filter(
     last modified: 20.10.2020
     """
 
-    assert utils.functions.is_subset_of(
-        ["Date", "ID_Spectrometer"], df.index.names
-    ), f"df.index.names = {df.index.names}"
+    utils.functions.assert_df_index(df, ["Date", "ID_Spectrometer"])
     assert gas in ["xco", "xco2", "xch4"]
 
     # TODO: Clean up, improve
@@ -179,9 +177,9 @@ def _filter_interval(df: pd.DataFrame, num: float, gap: float, check_day=False):
     on: September 2020
     last modified: 20.10.2020
     """
-    df = df.copy()
+    utils.functions.assert_df_columns(df, ["Date", "ID_Spectrometer", "Hour"])
 
-    df = df.reset_index().drop(columns=["Date", "ID_Spectrometer"])
+    df = df.copy().reset_index().drop(columns=["Date", "ID_Spectrometer"])
 
     np_diff = np.diff(df["Hour"].values)  # get time difference between measurements
     np_indexGap = np.append(0, np.append((np.argwhere(np_diff > gap)), np_diff.size))
@@ -245,24 +243,26 @@ def _zscore_move(
     end_time = np_timexch4[:, 0].max()
 
     s = start_time
-
     np_storeDelete = np.array([])
-    while s < end_time:  # rolling window
 
+    # rolling window
+    while s < end_time:
         # use full interval by default
         interval_first = interval / 2
-        interval_secound = interval / 2
+        interval_second = interval / 2
+
         # check full interval can be used
         if s < start_time + interval / 2:
             # calculate max possible interval
             interval_first = s - start_time
+
         if s > end_time - interval / 2:
             # calculate max possible interval
-            interval_secound = end_time - s
+            interval_second = end_time - s
 
         # get window
         time_w, index = utility_functions.timewindow_middle(
-            np_timexch4[:, 0], s, interval_first, interval_secound
+            np_timexch4[:, 0], s, interval_first, interval_second
         )
 
         # get values
@@ -275,7 +275,7 @@ def _zscore_move(
 
             np_storeDelete = np.append(np_storeDelete, time_w[np_indexDelete], axis=0)
 
-        s = s + stepsize
+        s += stepsize
 
     np_TimeDelete = np.unique(np_storeDelete)
 

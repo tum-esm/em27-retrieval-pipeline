@@ -17,13 +17,11 @@ def apply_calibration(df_data: pd.DataFrame, df_calibration_factors: pd.DataFram
     last modified: 20.10.2020
     """
 
-    assert utils.functions.is_subset_of(
-        ["ID_Spectrometer", "Date", "xch4_ppm", "xco2_ppm", "xco_ppb"],
-        df_data.columns,
+    utils.functions.assert_df_columns(
+        df_data, ["ID_Spectrometer", "Date", "xch4_ppm", "xco2_ppm", "xco_ppb"]
     )
-    assert utils.functions.is_subset_of(
-        ["ID_SpectrometerCalibration", "EndDate", "StartDate"],
-        df_calibration_factors.columns,
+    utils.functions.assert_df_columns(
+        df_calibration_factors, ["ID_SpectrometerCalibration", "EndDate", "StartDate"]
     )
 
     df_calibration_factors["ID"] = df_calibration_factors[
