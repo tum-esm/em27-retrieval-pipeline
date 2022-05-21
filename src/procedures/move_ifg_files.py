@@ -21,11 +21,25 @@ def run(sensor: str, date: str):
         shutil.rmtree(dst_date_path)
     os.mkdir(dst_date_path)
 
+    copied_ifg_count = 0
+
     # move all valid ifg files and rename them properly
     for ifg_file in os.listdir(src_date_path):
         old_path = f"{src_date_path}/{ifg_file}"
-        if os.path.isfile(old_path):
-            assert len(ifg_file.split(".")) == 3
+
+        # two possible filenames:
+        # ma20201123.ifg.0001
+        # ma20220316s0e00a.0001
+        if all(
+            [
+                os.path.isfile(old_path),
+                len(ifg_file.split(".")) >= 2,
+                ifg_file.startswith(f"{sensor}{date}"),
+                ifg_file.split(".")[-1].isnumeric(),
+            ]
+        ):
             ifg_number = ifg_file.split(".")[-1]
-            assert ifg_number.isnumeric()
             shutil.copy(old_path, f"{dst_date_path}/{date[2:]}SN.{ifg_number}")
+            copied_ifg_count += 1
+
+    assert copied_ifg_count > 0, "No ifgs have been found in src directory"
