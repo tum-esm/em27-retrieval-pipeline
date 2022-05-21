@@ -2,6 +2,8 @@ import subprocess
 import os
 import shutil
 
+from numpy import str_
+
 dir = os.path.dirname
 PROJECT_DIR = dir(dir(dir(os.path.abspath(__file__))))
 
@@ -9,33 +11,13 @@ IFG_SRC_CLOUD = "/mnt/measurementData/mu"
 DST_DSS = "/home/esm/em27_ifg_dss/proffast-archive"
 
 
-def get_dir_size(_dir):
-    size = int(
-        subprocess.check_output(["du", "-d", "0", "-b", _dir])
-        .decode()
-        .replace("\t", " ")
-        .split(" ")[0]
-    )
-    size -= int(
-        subprocess.check_output(["stat", '--printf="%s"', _dir])
-        .decode()
-        .replace('"', "")
-    )
-    if os.path.isdir(f"{_dir}/cloudy"):
-        size -= int(
-            subprocess.check_output(["stat", '--printf="%s"', f"{_dir}/cloudy"])
-            .decode()
-            .replace('"', "")
-        )
-    if os.path.isdir(f"{_dir}/incomplete_ifgs"):
-        size -= int(
-            subprocess.check_output(
-                ["stat", '--printf="%s"', f"{_dir}/incomplete_ifgs"]
-            )
-            .decode()
-            .replace('"', "")
-        )
-    return size
+def directories_are_equal(_dir1: str_, _dir2: str_):
+    return len(
+        subprocess.run(
+            ["diff", "--brief", "--recursive", _dir1, _dir2 ],
+            capture_output=True
+        ).stdout.decode().split("\n")
+    ) == 1
 
 
 def run(sensor: str, dates: list[str], config: dict):
@@ -52,7 +34,10 @@ def run(sensor: str, dates: list[str], config: dict):
     if day_was_successful:
         with open(output_csv, "r") as f:
             day_was_successful = len(f.readlines()) > 1
-    output_dst = f"{DST_DSS}/{sensor}/proffast-outputs{'' if day_was_successful else '-failed'}/{start_date}_{end_date}"
+    output_dst = (
+        f"{DST_DSS}/{sensor}/proffast-outputs"
+        + f"{'' if day_was_successful else '-failed'}/{start_date}_{end_date}"
+    )
 
     # move output data
     if os.path.isdir(output_dst):
@@ -81,17 +66,12 @@ def run(sensor: str, dates: list[str], config: dict):
             shutil.copytree(ifg_src, ifg_dst)
 
             # Only remove input src if copy was successful
-            dir_size_src = get_dir_size(ifg_src)
-            dir_size_dst = get_dir_size(ifg_dst)
-            if dir_size_src == dir_size_dst:
+            if directories_are_equal(ifg_src, ifg_dst):
                 shutil.rmtree(ifg_src)
                 message.append(f"{date}: ok (dst-dir: {ifg_dst})")
             else:
-                message.append(
-                    f"{date}: copy not complete (dst-dir: {ifg_dst}, "
-                    + f"src-size: {dir_size_src}, dst-size: {dir_size_dst})"
-                )
+                message.append(f"{date}: copy not complete because directories differ")
         else:
-            message.append(f"{date}: src not on cloud, skipping copy")
+            message.append(f"{date}: src not on cloud, skipping copy process")
 
     return ", ".join(message)
