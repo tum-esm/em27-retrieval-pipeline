@@ -1,5 +1,6 @@
 import os
 import shutil
+from rich.progress import track
 
 dir = os.path.dirname
 PROJECT_DIR = dir(dir(dir(os.path.abspath(__file__))))
@@ -9,7 +10,10 @@ SRC_DSS = "/home/esm/em27_ifg_dss/em27_ifg_dss"
 DST = f"{PROJECT_DIR}/inputs"
 
 
-def run(sensor: str, date: str):
+def run(session):
+    sensor = session["sensor"]
+    date = str(session["date"])
+
     src_date_path = f"{SRC_CLOUD}/{sensor}_ifg/{date}"
     if not os.path.isdir(src_date_path):
         src_date_path = f"{SRC_DSS}/{sensor}_ifg/{date}"
@@ -23,8 +27,11 @@ def run(sensor: str, date: str):
 
     copied_ifg_count = 0
 
+    # TODO: add progress bar
     # move all valid ifg files and rename them properly
-    for ifg_file in os.listdir(src_date_path):
+    files = os.listdir(src_date_path)
+    print(f"{len(files)} files found in ifg src directory")
+    for ifg_file in track(os.listdir(src_date_path), description="Copying..."):
         old_path = f"{src_date_path}/{ifg_file}"
 
         # two possible filenames:

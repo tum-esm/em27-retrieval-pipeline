@@ -20,15 +20,15 @@ def _date_string_is_valid(date_string: str):
         return False
 
 
-class RetrievalSessionQueue:
+class RetrievalQueue:
     def __init__(self, sensor_names: list[str]):
 
         self.sensor_names = sensor_names
         self.data_directories = self._list_data_directories()
-        self.retrieval_sessions = self._generate_retrieval_sessions()
+        self.queue = self._generate_queue()
 
     def __iter__(self):
-        for s in self.retrieval_sessions:
+        for s in self.queue:
             yield s
 
     def _list_data_directories(self):
@@ -48,8 +48,8 @@ class RetrievalSessionQueue:
             data_directories[s] = list(sorted([int(d[:8]) for d in ds]))
         return data_directories
 
-    def _generate_retrieval_sessions(self):
-        retrieval_sessions = []
+    def _generate_queue(self):
+        queue = []
         for sensor, sensor_dates in self.data_directories.items():
             for sensor_date in sensor_dates:
                 location = LocationData.get_location(sensor, sensor_date)
@@ -57,32 +57,45 @@ class RetrievalSessionQueue:
                     print(f"no location found for {sensor}/{sensor_date}")
                     continue
 
-                if (
-                    (len(retrieval_sessions) == 0)
-                    or (retrieval_sessions[-1]["sensor"] != sensor)
-                    or (retrieval_sessions[-1]["location"] != location)
-                ):
-                    retrieval_sessions.append(
-                        {
-                            "sensor": sensor,
-                            "location": location,
-                            "dates": [],
-                            **LocationData.get_coordinates(location),
-                            "serial_number": LocationData.get_serial_number(sensor),
-                        }
-                    )
-                retrieval_sessions[-1]["dates"].append(sensor_date)
-        return retrieval_sessions
+                queue.append(
+                    {
+                        "sensor": sensor,
+                        "location": location,
+                        "date": sensor_date,
+                        **LocationData.get_coordinates(location),
+                        "serial_number": LocationData.get_serial_number(sensor),
+                    }
+                )
+        return queue
 
 
 if __name__ == "__main__":
-    queue = RetrievalSessionQueue(sensor_names=["ma", "mb", "mc", "md", "me"])
+    queue = RetrievalQueue(sensor_names=["ma", "mb", "mc", "md", "me"])
 
-    for session in queue:
-        print(
-            str(len(session["dates"])).zfill(3),
-            session["dates"][0],
-            session["dates"][-1],
-            session["sensor"],
-            session["location"],
-        )
+    for session in list(queue)[:4]:
+        print(session)
+
+    """
+    The retrieval queue looks like this:
+    [
+        {
+            'sensor': 'mb', 'location': 'FEL', 'date': 20220512, 
+            'lat': 48.148, 'lon': 11.73, 'alt': 536, 'serial_number': 86
+        }, {
+            'sensor': 'mb', 'location': 'FEL', 'date': 20220513,
+            'lat': 48.148, 'lon': 11.73, 'alt': 536, 'serial_number': 86
+        }, {
+            'sensor': 'mb', 'location': 'TUM_I', 'date': 20220514,
+            'lat': 48.151, 'lon': 11.569, 'alt': 539, 'serial_number': 86
+        }, {
+            'sensor': 'mb', 'location': 'TUM_I', 'date': 20220515, 
+            'lat': 48.151, 'lon': 11.569, 'alt': 539, 'serial_number': 86
+        }, {
+            'sensor': 'mc', 'location': 'GRAE', 'date': 20220127, 
+            'lat': 48.121, 'lon': 11.425, 'alt': 556, 'serial_number': 115
+        }, {
+            'sensor': 'mc', 'location': 'GRAE', 'date': 20220404, 
+            'lat': 48.121, 'lon': 11.425, 'alt': 556, 'serial_number': 115
+        }
+    ]
+    """

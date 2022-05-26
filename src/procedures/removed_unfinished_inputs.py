@@ -5,7 +5,10 @@ dir = os.path.dirname
 PROJECT_DIR = dir(dir(dir(os.path.abspath(__file__))))
 
 
-def run(sensor: str, date: str):
+def run(session):
+    sensor = session["sensor"]
+    date = str(session["date"])
+
     map_src = f"{PROJECT_DIR}/inputs/{sensor}_map/{sensor}{date}.map"
     if os.path.isfile(map_src):
         os.remove(map_src)
