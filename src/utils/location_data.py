@@ -12,7 +12,7 @@ with open(f"{PROJECT_DIR}/em27-location-data/data/locations.json") as f:
 
 class LocationData:
     @staticmethod
-    def get_location_for_sensor_date(sensor: str, date: int):
+    def get_location(sensor: str, date: int):
         _locations = _LOCATION_DATA_SENSORS[sensor]["locations"]
         if (date < _locations[0]["from"]) or (date > _locations[-1]["to"]):
             return None
@@ -22,7 +22,7 @@ class LocationData:
         raise Exception("em27-location-data/data/sensors.json is invalid")
 
     @staticmethod
-    def get_coordinates_for_location(location: str):
+    def get_coordinates(location: str):
         try:
             c = _LOCATION_DATA_LOCATIONS[location]
             return {k: c[k] for k in ["lat", "lon", "alt"]}
@@ -30,3 +30,10 @@ class LocationData:
             raise Exception(
                 f'em27-location-data/data/locations.json is invalid, "{location}" not found'
             )
+
+    @staticmethod
+    def get_serial_number(sensor: str):
+        try:
+            return _LOCATION_DATA_SENSORS[sensor]["serialNumber"]
+        except KeyError:
+            raise Exception(f"em27-location-data/data/sensors.json is invalid")

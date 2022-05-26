@@ -52,9 +52,7 @@ class RetrievalSessionQueue:
         retrieval_sessions = []
         for sensor, sensor_dates in self.data_directories.items():
             for sensor_date in sensor_dates:
-                location = LocationData.get_location_for_sensor_date(
-                    sensor, sensor_date
-                )
+                location = LocationData.get_location(sensor, sensor_date)
                 if location is None:
                     print(f"no location found for {sensor}/{sensor_date}")
                     continue
@@ -69,7 +67,8 @@ class RetrievalSessionQueue:
                             "sensor": sensor,
                             "location": location,
                             "dates": [],
-                            **LocationData.get_coordinates_for_location(location),
+                            **LocationData.get_coordinates(location),
+                            "serial_number": LocationData.get_serial_number(sensor),
                         }
                     )
                 retrieval_sessions[-1]["dates"].append(sensor_date)
