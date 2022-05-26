@@ -1,16 +1,15 @@
 from datetime import datetime
-import json
 import os
+import sys
 
 dir = os.path.dirname
 PROJECT_DIR = dir(dir(dir(os.path.abspath(__file__))))
+sys.path.append(PROJECT_DIR)
+
+from src.utils.location_data import LocationData
+
 CLOUD_DATA_ROOT = "/mnt/measurementData/mu"
 IGNORE_DATES_BEFORE = 20220101
-
-with open(f"{PROJECT_DIR}/em27-location-data/data/sensors.json") as f:
-    LOCATION_DATA_SENSORS = json.load(f)
-with open(f"{PROJECT_DIR}/em27-location-data/data/locations.json") as f:
-    LOCATION_DATA_LOCATIONS = json.load(f)
 
 
 def _date_string_is_valid(date_string: str):
@@ -19,16 +18,6 @@ def _date_string_is_valid(date_string: str):
         return int(date_string) >= IGNORE_DATES_BEFORE
     except (ValueError, TypeError):
         return False
-
-
-def _get_location_for_sensor_date(sensor: str, date: int):
-    _locations = LOCATION_DATA_SENSORS[sensor]["locations"]
-    if (date < _locations[0]["from"]) or (date > _locations[-1]["to"]):
-        return None
-    for _l in _locations:
-        if (date >= _l["from"]) and (date <= _l["to"]):
-            return _l["location"]
-    raise Exception("em27-location-data/data/sensors.json is invalid")
 
 
 class RetrievalSessionQueue:
@@ -63,7 +52,9 @@ class RetrievalSessionQueue:
         retrieval_sessions = []
         for sensor, sensor_dates in self.data_directories.items():
             for sensor_date in sensor_dates:
-                location = _get_location_for_sensor_date(sensor, sensor_date)
+                location = LocationData.get_location_for_sensor_date(
+                    sensor, sensor_date
+                )
                 if location is None:
                     print(f"no location found for {sensor}/{sensor_date}")
                     continue
@@ -73,18 +64,12 @@ class RetrievalSessionQueue:
                     or (retrieval_sessions[-1]["sensor"] != sensor)
                     or (retrieval_sessions[-1]["location"] != location)
                 ):
-                    try:
-                        coordinates_dict = LOCATION_DATA_LOCATIONS[location]
-                    except KeyError:
-                        raise Exception(
-                            f'em27-location-data/data/locations.json is invalid, "{location}" not found'
-                        )
                     retrieval_sessions.append(
                         {
                             "sensor": sensor,
                             "location": location,
                             "dates": [],
-                            **coordinates_dict,
+                            **LocationData.get_coordinates_for_location(location),
                         }
                     )
                 retrieval_sessions[-1]["dates"].append(sensor_date)
@@ -95,4 +80,10 @@ if __name__ == "__main__":
     queue = RetrievalSessionQueue(sensor_names=["ma", "mb", "mc", "md", "me"])
 
     for session in queue:
-        print(session["sensor"], session["location"], len(session["dates"]))
+        print(
+            str(len(session["dates"])).zfill(3),
+            session["dates"][0],
+            session["dates"][-1],
+            session["sensor"],
+            session["location"],
+        )
