@@ -8,7 +8,7 @@ PROJECT_DIR = dir(dir(dir(os.path.abspath(__file__))))
 YAML_TEMPLATE = f"{PROJECT_DIR}/src/pylot_config_template.yml"
 
 
-def run(session: dict):
+def run(session):
     session_sensor = session["sensor"]
     session_lat = session["lat"]
     session_lon = session["lon"]

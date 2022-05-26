@@ -6,3 +6,4 @@ outputs/*
 config.json
 GeneralLogfile.log
 *.log
+input_file.txt

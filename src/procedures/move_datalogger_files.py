@@ -12,9 +12,11 @@ console = Console()
 yellow_printer = lambda message: console.print(f"[bold yellow]{message}")
 
 
-def run(sensor: str, date: str, config: dict):
-    src_dir = f'{SRC}/{sensor}_{str(config["serial_numbers"][sensor])[-2:]}'
-    dst_dir = f"{DST}/{sensor}_pressure"
+def run(session):
+    date = str(session["date"])
+
+    src_dir = f'{SRC}/{session["sensor"]}_{str(session["serial_number"])[-2:]}'
+    dst_dir = f'{DST}/{session["sensor"]}_pressure'
     assert os.path.isdir(src_dir)
 
     matching_files = list(
@@ -34,7 +36,6 @@ def run(sensor: str, date: str, config: dict):
         line_count = len(f.readlines())
         # 1440 minutes per day + 1 header line
         if line_count < 1441:
-            # TODO: Use logging instead of printing
             yellow_printer(f"WARNING: Datalogger file only has {line_count}/1441 lines")
 
     # copy datalogger file
