@@ -1,18 +1,4 @@
 {
     "download_map_data_email": "someone@somecompany.sometld",
-    "sensors_to_consider": ["ma", "mb", "mc", "md", "me"],
-    "sensor_coordinates": {
-        "ma": { "lat": 48.151, "lng": 11.569, "alt": 539 },
-        "mb": { "lat": 48.148, "lng": 11.73, "alt": 536 },
-        "mc": { "lat": 48.121, "lng": 11.425, "alt": 556 },
-        "md": { "lat": 48.258, "lng": 11.548, "alt": 483 },
-        "me": { "lat": 48.047, "lng": 11.608, "alt": 579 }
-    },
-    "sensor_serial_numbers": {
-        "ma": 61,
-        "mb": 86,
-        "mc": 115,
-        "md": 116,
-        "me": 117
-    }
+    "sensors_to_consider": ["ma", "mb", "mc", "md", "me"]
 }

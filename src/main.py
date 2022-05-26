@@ -1,6 +1,5 @@
 from rich.console import Console
 from src.procedures import (
-    load_config,
     initialize_session_environment,
     download_map_data,
     move_datalogger_files,
@@ -9,6 +8,7 @@ from src.procedures import (
     run_proffast_pylot,
     move_outputs,
 )
+from src.utils.load_config import load_config
 from src.utils.retrieval_session_queue import RetrievalSessionQueue
 
 console = Console()
@@ -19,7 +19,7 @@ MAX_PARALLEL_PROCESSES = 1
 
 
 def run():
-    CONFIG = load_config.run()
+    CONFIG = load_config()
 
     # Determine next day to run proffast for
     blue_printer("Determining the next timeseries to process")
