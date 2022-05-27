@@ -3,39 +3,39 @@ from src.utils import load_setup
 
 PROJECT_DIR, CONFIG = load_setup(validate=False)
 
-with open(f"{PROJECT_DIR}/em27-location-data/data/sensors.json") as f:
-    _LOCATION_DATA_SENSORS: dict = json.load(f)
-with open(f"{PROJECT_DIR}/em27-location-data/data/locations.json") as f:
-    _LOCATION_DATA_LOCATIONS: dict = json.load(f)
-
 class LocationData:
 
-    @staticmethod
-    def sensor_names() -> list[str]:
-        return _LOCATION_DATA_SENSORS.keys()
-    
-    @staticmethod
-    def get_serial_number(sensor_name: str) -> int:
+    def __init__(self):
         try:
-            return _LOCATION_DATA_SENSORS[sensor_name]["serialNumber"]
+            with open(f"{PROJECT_DIR}/location-data/data/sensors.json") as f:
+                self.sensors: dict = json.load(f)
+            with open(f"{PROJECT_DIR}/location-data/data/locations.json") as f:
+                self.locations: dict = json.load(f)
+        except FileNotFoundError:
+            raise Exception("Please run fetch-location-data.py first")
+
+    def sensor_names(self) -> list[str]:
+        return self.sensors.keys()
+    
+    def get_serial_number(self, sensor_name: str) -> int:
+        try:
+            return self.sensors[sensor_name]["serialNumber"]
         except KeyError:
             raise Exception(
                 f'em27-location-data/data/sensors.json is invalid, "{sensor_name}"'
             )
     
-    @staticmethod
-    def get_location_list(sensor_name: str) -> int:
+    def get_location_list(self, sensor_name: str) -> int:
         try:
-            return _LOCATION_DATA_SENSORS[sensor_name]["locations"]
+            return self.sensors[sensor_name]["locations"]
         except KeyError:
             raise Exception(
                 f'em27-location-data/data/sensors.json is invalid, "{sensor_name}"'
             )
 
-    @staticmethod
-    def get_coordinates(location: str):
+    def get_coordinates(self, location: str):
         try:
-            c = _LOCATION_DATA_LOCATIONS[location]
+            c = self.locations[location]
             return {k: c[k] for k in ["lat", "lon", "alt"]}
         except KeyError:
             raise Exception(

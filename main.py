@@ -1,6 +1,9 @@
 from datetime import datetime
 import json
+from src.utils import load_setup
 from src import QueryList, QueryProcess
+
+PROJECT_DIR, CONFIG = load_setup(validate=True)
 
 query_list = QueryList()
 now = str(datetime.utcnow())

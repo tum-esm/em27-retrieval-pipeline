@@ -27,17 +27,19 @@ class QueryList:
 
     @staticmethod
     def _generate() -> list[Query]:
+        location_data = LocationData()
+
         query_list = []
-        for sensor in LocationData.sensor_names():
-            for time_period in LocationData.get_location_list(sensor):
+        for sensor in location_data.sensor_names():
+            for time_period in location_data.get_location_list(sensor):
                 location = time_period["location"]
-                coordinates = LocationData.get_coordinates(location)
+                coordinates = location_data.get_coordinates(location)
                 query_list.append(
                     Query(
                         t_from_int=time_period["from"],
                         t_to_int=time_period["to"],
                         sensor=sensor,
-                        serial_number=LocationData.get_serial_number(sensor),
+                        serial_number=location_data.get_serial_number(sensor),
                         lat=coordinates["lat"],
                         lon=coordinates["lon"],
                         location=location
