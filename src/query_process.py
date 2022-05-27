@@ -7,18 +7,23 @@ PROJECT_DIR, CONFIG = load_setup(validate=False)
 
 
 class QueryProcess:
+    """
+    This class processes one query.
+
+    If not all query dates are present in the cache yet:
+    1. Upload the request to ccycle.ftp.caltech.edu
+    2. Download generated tar-file
+    3. Extract profiles from tar-file and save them in the cache
+
+    Finally it copies all request profiles from cache to the dst directy.
+    """
     
     def __init__(self, query: Query):
-        self.results = {
-            "successful": [],
-            "skipped": [],
-            "failed": [],
-        }
+        self.failed_dates = []
         self.query = query
         self._start()
-        if len(self.results["failed"]) > 0:
-            print(f'failed days: {self.results["failed"]}')
-
+        if len(self.failed_dates) > 0:
+            print(f'failed days: {self.failed_dates}')
 
     def _start(self):
         if not FileUtils.query_is_present_in_cache(self.query):
@@ -39,6 +44,5 @@ class QueryProcess:
                         f"{PROJECT_DIR}/cache/{cache_file_slug}.{filetype}",
                         f'{dst_dir}/{dst_file_slug}.{filetype}',
                     )
-                self.results["successful"].append(date_string)
             except FileNotFoundError:
-                self.results["failed"].append(date_string)
+                self.failed_dates.append(date_string)

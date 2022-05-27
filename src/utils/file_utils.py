@@ -6,6 +6,9 @@ from src.utils import load_setup
 PROJECT_DIR, CONFIG = load_setup(validate=False)
 
 class FileUtils:
+    """
+    Various utility functions related to filenames, filepaths, etc.
+    """
 
     @staticmethod
     def _format_coordinates(query):

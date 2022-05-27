@@ -47,3 +47,5 @@ def run(query):
         _upload()
     except Exception as e:
         print(f"Request-uploading failed: {e}")
+    
+    os.remove("input_file.txt")

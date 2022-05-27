@@ -6,6 +6,13 @@ PROJECT_DIR, CONFIG = load_setup(validate=False)
 
 @dataclass
 class Query:
+    """
+    This class represents queries for profiles for setup with fixed:
+    * sensor (-> serial_number)
+    * location (-> coordinates)
+    * time period (from, to)
+    """
+    
     t_from_int: int
     t_to_int: int
     sensor: str

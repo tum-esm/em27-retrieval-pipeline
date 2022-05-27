@@ -6,6 +6,11 @@ from src.utils.file_utils import FileUtils
 PROJECT_DIR, CONFIG = load_setup(validate=False)
 
 class QueryList:
+    """
+    This list contains instances of the Query class. Each generated instance
+    spans accross at most 30 days. Only queries where no files have been generated
+    yet are kept.
+    """
 
     def __init__(self):
         self._list = QueryList._generate()
