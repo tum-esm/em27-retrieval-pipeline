@@ -1,8 +1,8 @@
 import sys
 from rich.console import Console
-from src import procedures
-from src.utils.load_config import load_config
-from src.utils.retrieval_queue import RetrievalQueue
+from src import utils, procedures
+
+PROJECT_DIR, CONFIG = utils.load_setup(validate=True)
 
 # TODO: Use logging instead of printing
 console = Console()
@@ -12,11 +12,9 @@ red_printer = lambda message: console.print(f"[bold red]{message}")
 
 
 def run():
-    CONFIG = load_config()
-
     # Determine next day to run proffast for
     blue_printer("Determining the next timeseries to process")
-    retrieval_queue = RetrievalQueue(sensor_names=CONFIG["sensors_to_consider"])
+    retrieval_queue = utils.RetrievalQueue(sensor_names=CONFIG["sensorsToConsider"])
 
     for session in retrieval_queue:
         sensor = session["sensor"]

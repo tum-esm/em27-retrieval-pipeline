@@ -1,12 +1,11 @@
 import os
 import shutil
 from rich.progress import track
+from src import utils
 
-dir = os.path.dirname
-PROJECT_DIR = dir(dir(dir(os.path.abspath(__file__))))
+PROJECT_DIR, CONFIG = utils.load_setup()
 
-SRC_CLOUD = "/mnt/measurementData/mu"
-SRC_DSS = "/home/esm/em27_ifg_dss/em27_ifg_dss"
+SRC = CONFIG["src"]["interferograms"]
 DST = f"{PROJECT_DIR}/inputs"
 
 
@@ -14,9 +13,7 @@ def run(session):
     sensor = session["sensor"]
     date = str(session["date"])
 
-    src_date_path = f"{SRC_CLOUD}/{sensor}_ifg/{date}"
-    if not os.path.isdir(src_date_path):
-        src_date_path = f"{SRC_DSS}/{sensor}_ifg/{date}"
+    src_date_path = f"{SRC}/{sensor}_ifg/{date}"
     assert os.path.isdir(src_date_path)
 
     # Create empty output directory for that date

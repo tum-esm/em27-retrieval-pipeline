@@ -7,3 +7,4 @@ config.json
 GeneralLogfile.log
 *.log
 input_file.txt
+location-data/

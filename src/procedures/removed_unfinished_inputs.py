@@ -1,8 +1,8 @@
 import os
 import shutil
+from src import utils
 
-dir = os.path.dirname
-PROJECT_DIR = dir(dir(dir(os.path.abspath(__file__))))
+PROJECT_DIR, CONFIG = utils.load_setup()
 
 
 def run(session):

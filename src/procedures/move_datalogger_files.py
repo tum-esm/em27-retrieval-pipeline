@@ -1,11 +1,11 @@
 import os
 import shutil
 from rich.console import Console
+from src import utils
 
-dir = os.path.dirname
-PROJECT_DIR = dir(dir(dir(os.path.abspath(__file__))))
+PROJECT_DIR, CONFIG = utils.load_setup()
 
-SRC = "/home/esm/datalogger2zeno"
+SRC = CONFIG["src"]["datalogger"]
 DST = f"{PROJECT_DIR}/inputs"
 
 console = Console()
