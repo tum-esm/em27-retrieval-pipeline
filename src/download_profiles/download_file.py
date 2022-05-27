@@ -1,19 +1,15 @@
 import os
 import subprocess
 import time
-from src import utils, load_config
-
-dir = os.path.dirname
-PROJECT_DIR = dir(dir(os.path.abspath(__file__)))
-CONFIG = load_config.run()
+from src import download_profiles
 
 
-def run(start_date: str, end_date: str):
+def run(start_date: str, end_date: str, config: dict):
     running_time = 0
     for filetype in ["map", "mod"]:
-        possible_tar_filenames = utils.get_possible_tar_filenames(filetype, start_date, end_date)
+        possible_tar_filenames = download_profiles.utils.get_possible_tar_filenames(filetype, start_date, end_date, config)
         
-        while running_time < CONFIG["downloadTimeoutSeconds"]:
+        while running_time < config["downloadTimeoutSeconds"]:
             for filename in possible_tar_filenames:
                 subprocess.run(
                     [
@@ -21,7 +17,7 @@ def run(start_date: str, end_date: str):
                         "--user",
                         "anonymous",
                         "--password",
-                        CONFIG["user"],
+                        config["user"],
                         f"ftp://ccycle.gps.caltech.edu/upload/modfiles/tar/{filetype}s/{filename}",
                     ],
                     stdout=subprocess.PIPE,
