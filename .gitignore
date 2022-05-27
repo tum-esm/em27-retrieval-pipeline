@@ -9,3 +9,4 @@ archive
 out/*
 *.pyc
 dataset/
+queries.json
