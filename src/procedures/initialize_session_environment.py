@@ -20,8 +20,8 @@ def run(session):
     ), "Virtual environment does not exist"
 
     assert os.path.isfile(
-        f"{PROJECT_DIR}/download-map-data/run.py"
-    ), "Module download-map-data not initialized"
+        f"{PROJECT_DIR}/em27-location-data/.gitignore"
+    ), "Module em27-location-data not initialized"
 
     assert os.path.isfile(
         f"{PROJECT_DIR}/proffastpylot/prfpylot/pylot.py"
