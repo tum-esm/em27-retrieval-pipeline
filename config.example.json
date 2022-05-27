@@ -1,7 +1,7 @@
 {
     "stationId": "xx",
     "lat": 48.151,
-    "lng": 11.569,
+    "lon": 11.569,
     "dates": ["20210511", "20210512", "20210515-20210525"],
     "user": "someone@somecompany.sometld",
     "dst": "somedir",

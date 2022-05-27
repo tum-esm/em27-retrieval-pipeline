@@ -3,13 +3,13 @@ import os
 from cerberus import Validator
 
 dir = os.path.dirname
-PROJECT_DIR = dir(dir(os.path.abspath(__file__)))
+PROJECT_DIR = dir(dir(dir(os.path.abspath(__file__))))
 
 validator = Validator(
     {
         "stationId": {"type": "string"},
         "lat": {"type": "float"},
-        "lng": {"type": "float"},
+        "lon": {"type": "float"},
         "dates": {"type": "list", "schema": {"type": "string"}},
         "user": {"type": "string"},
         "dst": {"type": "string"},
