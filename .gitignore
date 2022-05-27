@@ -8,3 +8,4 @@ GeneralLogfile.log
 *.log
 input_file.txt
 location-data/
+retrival-state-report.csv
