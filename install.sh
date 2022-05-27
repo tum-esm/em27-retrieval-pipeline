@@ -9,12 +9,12 @@ unzip PROFFASTv2.0.1.zip
 rm PROFFASTv2.0.1.zip
 
 # move proffast into correct subdirectory
-mv PROFFASTv2.0.1 proffastpylot/prf
+mv PROFFASTv2.0.1 src/pylot/prf
 
 # compile proffast source code
-cd proffastpylot/prf
+cd src/pylot/prf
 bash install_proffast_linux.sh
-cd ../..
+cd ../../..
 
 # install python dependencies
 python3.9 -m venv .venv
