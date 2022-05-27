@@ -1,5 +1,5 @@
 [submodule "proffastpylot"]
-	path = proffastpylot
+	path = src/pylot
 	url = https://gitlab.eudat.eu/coccon-kit/proffastpylot.git
 [submodule "em27-location-data"]
 	path = em27-location-data
