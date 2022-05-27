@@ -1,14 +1,6 @@
 import sys
 from rich.console import Console
-from src.procedures import (
-    initialize_session_environment,
-    download_map_data,
-    move_datalogger_files,
-    move_ifg_files,
-    removed_unfinished_inputs,
-    run_proffast_pylot,
-    move_outputs,
-)
+from src import procedures
 from src.utils.load_config import load_config
 from src.utils.retrieval_queue import RetrievalQueue
 
@@ -29,26 +21,25 @@ def run():
     for session in retrieval_queue:
         sensor = session["sensor"]
         date = session["date"]
-        if sensor != "ma" or date != 20220404:
-            continue
 
         blue_printer(f"Starting retrieval session {sensor}/{date}")
-        initialize_session_environment.run(session)
+        procedures.initialize_session_environment.run(session)
 
         blue_printer("Preparing all input files")
         try:
-            download_map_data.run(session)
-            move_datalogger_files.run(session)
-            move_ifg_files.run(sensor)
+            procedures.move_vertical_profiles.run(session)
+            procedures.move_datalogger_files.run(session)
+            procedures.move_ifg_files.run(session)
         except AssertionError as e:
             yellow_printer(f"Inputs incomplete, skipping this date: {e}")
-            removed_unfinished_inputs.run(session)
+            procedures.removed_unfinished_inputs.run(session)
+            continue
         except KeyboardInterrupt:
             sys.exit()
 
         blue_printer("Running the proffast pylot")
         try:
-            run_proffast_pylot.run(session)
+            procedures.run_proffast_pylot.run(session)
         except Exception as e:
             red_printer(f"Pylot error: {e}")
         except KeyboardInterrupt:
@@ -56,7 +47,7 @@ def run():
 
         blue_printer(f"Moving outputs")
         try:
-            move_outputs.run(session)
+            procedures.move_outputs.run(session)
         except AssertionError as e:
             red_printer(f"Moving outputs failed: {e}")
         except KeyboardInterrupt:
