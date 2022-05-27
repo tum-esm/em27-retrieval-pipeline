@@ -1,13 +1,12 @@
-import os
 import sys
+from src import utils
 
-dir = os.path.dirname
-PROJECT_DIR = dir(dir(dir(os.path.abspath(__file__))))
+PROJECT_DIR, CONFIG = utils.load_setup()
 
 # Required by imports within the proffastpylot project
-sys.path.insert(0, f"{PROJECT_DIR}/proffastpylot")
+sys.path.append(f"{PROJECT_DIR}/src/pylot")
 
-from proffastpylot.prfpylot.pylot import Pylot
+from src.pylot.prfpylot.pylot import Pylot
 
 
 def run(session):

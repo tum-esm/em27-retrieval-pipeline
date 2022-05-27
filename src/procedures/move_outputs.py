@@ -1,17 +1,15 @@
 import subprocess
 import os
 import shutil
+from src import utils
 
-from numpy import str_
+PROJECT_DIR, CONFIG = utils.load_setup()
 
-dir = os.path.dirname
-PROJECT_DIR = dir(dir(dir(os.path.abspath(__file__))))
-
-IFG_SRC_CLOUD = "/mnt/measurementData/mu"
-DST_DSS = "/home/esm/em27_ifg_dss/proffast-archive"
+IFG_SRC = CONFIG["src"]["interferograms"]
+DST = CONFIG["dst"]
 
 
-def _directories_are_equal(_dir1: str_, _dir2: str_):
+def _directories_are_equal(_dir1: str, _dir2: str):
     return (
         len(
             subprocess.run(
@@ -42,9 +40,9 @@ def run(session):
         with open(output_csv, "r") as f:
             day_was_successful = len(f.readlines()) > 1
     if day_was_successful:
-        output_dst = f"{DST_DSS}/{sensor}/proffast-outputs/{date}"
+        output_dst = f"{DST}/{sensor}/proffast-outputs/{date}"
     else:
-        output_dst = f"{DST_DSS}/{sensor}/proffast-outputs-failed/{date}"
+        output_dst = f"{DST}/{sensor}/proffast-outputs-failed/{date}"
 
     # move output data
     if os.path.isdir(output_dst):
@@ -52,8 +50,8 @@ def run(session):
     shutil.move(output_src, output_dst)
 
     # move input data (interferograms)
-    ifg_src = f"{IFG_SRC_CLOUD}/{sensor}_ifg/{date}"
-    ifg_dst = f"{DST_DSS}/{sensor}/ifgs/{date}"
+    ifg_src = f"{IFG_SRC}/{sensor}_ifg/{date}"
+    ifg_dst = f"{DST}/{sensor}/ifgs/{date}"
     assert os.path.isdir(ifg_src), "src not on cloud, skipping copy process"
 
     # Create empty output directory for that date. Do not

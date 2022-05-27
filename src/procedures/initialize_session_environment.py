@@ -1,10 +1,9 @@
 import os
 import shutil
 import subprocess
+from src import utils
 
-
-dir = os.path.dirname
-PROJECT_DIR = dir(dir(dir(os.path.abspath(__file__))))
+PROJECT_DIR, CONFIG = utils.load_setup()
 YAML_TEMPLATE = f"{PROJECT_DIR}/src/pylot_config_template.yml"
 
 
@@ -20,20 +19,20 @@ def run(session):
     ), "Virtual environment does not exist"
 
     assert os.path.isfile(
-        f"{PROJECT_DIR}/em27-location-data/.gitignore"
-    ), "Module em27-location-data not initialized"
+        f"{PROJECT_DIR}/location-data/.gitignore"
+    ), "Module location-data not initialized"
 
     assert os.path.isfile(
-        f"{PROJECT_DIR}/proffastpylot/prfpylot/pylot.py"
+        f"{PROJECT_DIR}/src/pylot/prfpylot/pylot.py"
     ), "Module proffastpylot not initialized"
 
     assert all(
         [
             os.path.isfile(x)
             for x in [
-                f"{PROJECT_DIR}/proffastpylot/prf/preprocess/preprocess4",
-                f"{PROJECT_DIR}/proffastpylot/prf/pcxs20",
-                f"{PROJECT_DIR}/proffastpylot/prf/invers20",
+                f"{PROJECT_DIR}/src/pylot/prf/preprocess/preprocess4",
+                f"{PROJECT_DIR}/src/pylot/prf/pcxs20",
+                f"{PROJECT_DIR}/src/pylot/prf/invers20",
             ]
         ]
     ), "PROFFAST not compiled completely"

@@ -1,12 +1,11 @@
 import os
 import shutil
+from src import utils
 
+PROJECT_DIR, CONFIG = utils.load_setup()
 
-dir = os.path.dirname
-PROJECT_DIR = dir(dir(dir(os.path.abspath(__file__))))
-VERTICAL_PROFILES_DIR = (
-    "/home/esm/fill-vertical-profiles-database/download-map-data/dataset"
-)
+SRC = CONFIG["src"]["verticalProfiles"]
+DST = f"{PROJECT_DIR}/inputs"
 
 
 def run(session):
@@ -14,8 +13,8 @@ def run(session):
     serial_number = str(session["serial_number"])
     date = str(session["date"])
 
-    src_filepath = f"{VERTICAL_PROFILES_DIR}/{sensor}{serial_number}/{sensor}{date}.map"
-    dst_filepath = f"{PROJECT_DIR}/inputs/{sensor}_map/{sensor}{date}.map"
+    src_filepath = f"{SRC}/{sensor}{serial_number}/{sensor}{date}.map"
+    dst_filepath = f"{DST}/{sensor}_map/{sensor}{date}.map"
 
     assert os.path.isfile(src_filepath), "Map file does not exist"
 
