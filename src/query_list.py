@@ -1,13 +1,9 @@
-import os
 from datetime import timedelta
 from src.query import Query
-from src.utils import TimeUtils, LocationData
+from src.utils import TimeUtils, LocationData, load_setup
+from src.utils.file_utils import FileUtils
 
-dir = os.path.dirname
-PROJECT_DIR = dir(dir(os.path.abspath(__file__)))
-
-IGNORE_DATES_BEFORE = 201900101
-IGNORE_DATES_AFTER = None
+PROJECT_DIR, CONFIG = load_setup(validate=False)
 
 class QueryList:
 
@@ -64,43 +60,40 @@ class QueryList:
         if (query.t_to_datetime - query.t_from_datetime).days <= 30:
             return [query]
         else:
-            query.t_to_datetime = query.t_from_datetime + timedelta(days=30)
+            query1 = query.clone()
             query2 = query.clone()
-            query2.t_from_datetime += timedelta(days=31)
-            return [query] + QueryList._split_query(query2)
+            query1.t_to_datetime = query.t_from_datetime + timedelta(days=30)
+            query2.t_from_datetime = query.t_from_datetime + timedelta(days=31)
+            return [query1] + QueryList._split_query(query2)
 
 
     @staticmethod
     def _trim_query(query: Query) -> Query:
         """
         Move the query["from"] date forward if date exists.
+        Move the query["to"] date backward if date exists or too recent
         Return None if all dates exist.
         """
-        d = f"{PROJECT_DIR}/dataset/{query.sensor}{query.serial_number}/"
-
-        t_exists = lambda t: (
-            os.path.isfile(f"{d}/{query.sensor}{t}.map")
-            and
-            os.path.isfile(f"{d}/{query.sensor}{t}.mod")
-        )
-
         while query.t_from_int <= query.t_to_int:
-            if (IGNORE_DATES_BEFORE is not None) and (query.t_from_int < IGNORE_DATES_BEFORE):
+            if (CONFIG["from"] is not None) and (query.t_from_int < CONFIG["from"]):
                 query.t_from_datetime += timedelta(days=1)
                 continue
-            if (IGNORE_DATES_AFTER is not None) and (query.t_to_int > IGNORE_DATES_AFTER):
+            if (CONFIG["to"] is not None) and (query.t_to_int > CONFIG["to"]):
                 query.t_to_datetime -= timedelta(days=1)
                 continue
 
-            t1_exists = t_exists(query.t_from_str)
-            t2_exists = t_exists(query.t_to_str)
-            t2_is_too_recent = TimeUtils.delta_days_until_now(query.t_to_str) < 5
-
-            if t1_exists:
+            changed = False
+            if FileUtils.t_exists_in_dst(query.t_from_str, query):
                 query.t_from_datetime += timedelta(days=1)
-            if t2_exists or t2_is_too_recent:
+                changed = True
+            if (
+                FileUtils.t_exists_in_dst(query.t_to_str, query) or
+                (TimeUtils.delta_days_until_now(query.t_to_str) < 5)
+            ):
                 query.t_to_datetime -= timedelta(days=1)
-            if not (t1_exists or t2_exists or t2_is_too_recent):
+                changed = True
+
+            if not changed:
                 break
 
         if query.t_from_int > query.t_to_int:

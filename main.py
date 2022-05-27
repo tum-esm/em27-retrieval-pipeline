@@ -1,6 +1,6 @@
 from datetime import datetime
 import json
-from src import QueryList
+from src import QueryList, QueryProcess
 
 query_list = QueryList()
 now = str(datetime.utcnow())
@@ -16,4 +16,4 @@ for index, query in enumerate(query_list):
         f'{query.t_from_int}-{query.t_to_int} ' +
         f'{query.sensor} {query.location} '
     )
-    # gd.process_query.run(query)
+    QueryProcess(query)

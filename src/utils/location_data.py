@@ -1,8 +1,7 @@
 import json
-import os
+from src.utils import load_setup
 
-dir = os.path.dirname
-PROJECT_DIR = dir(dir(dir(os.path.abspath(__file__))))
+PROJECT_DIR, CONFIG = load_setup(validate=False)
 
 with open(f"{PROJECT_DIR}/em27-location-data/data/sensors.json") as f:
     _LOCATION_DATA_SENSORS: dict = json.load(f)

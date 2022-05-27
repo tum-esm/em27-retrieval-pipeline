@@ -1,11 +1,13 @@
-import json
+import os
 import shutil
-from src import download_profiles as dp
-from src import Query
+from src import Query, download_steps
+from src.utils import FileUtils, load_setup
+
+PROJECT_DIR, CONFIG = load_setup(validate=False)
 
 
 class QueryProcess:
-
+    
     def __init__(self, query: Query):
         self.results = {
             "successful": [],
@@ -13,40 +15,30 @@ class QueryProcess:
             "failed": [],
         }
         self.query = query
-        self.process()
+        self._start()
+        if len(self.results["failed"]) > 0:
+            print(f'failed days: {self.results["failed"]}')
 
 
     def _start(self):
-        date_list = dp.utils.get_date_list_from_range_query(self.start_date, self.end_date)
-        config = self.config
-        
-        if not dp.utils.query_is_present_in_cache(self.query):
-            dp.upload_request.run(self.query)
-            dp.download_file.run(self.query)
-            dp.process_tar_file.run(self.query)
+        if not FileUtils.query_is_present_in_cache(self.query):
+            download_steps.upload_request.run(self.query)
+            download_steps.download_file.run(self.query)
+            download_steps.process_tar_file.run(self.query)
 
-        # Move the file to the desired output location
-        for date_string in date_list:
+        # Move the files to the desired output location
+        for date_string in self.query.date_string_list:
             try:
+                cache_file_slug = FileUtils.get_cache_file_slug(date_string, self.query)
+                dst_file_slug = FileUtils.get_dst_file_slug(date_string, self.query)
+                dst_dir = f'{CONFIG["dst"]}/{self.query.sensor}{self.query.serial_number}'
+                if not os.path.isdir(dst_dir):
+                    os.mkdir(dst_dir)
                 for filetype in ["mod", "map"]:
                     shutil.copyfile(
-                        config["sharedCachePath"]
-                        + "/"
-                        + dp.utils.get_cache_filename(filetype, date_string, config),
-                        config["dst"] + "/" + dp.utils.get_dst_filename(filetype, date_string, config),
+                        f"{PROJECT_DIR}/cache/{cache_file_slug}.{filetype}",
+                        f'{dst_dir}/{dst_file_slug}.{filetype}',
                     )
                 self.results["successful"].append(date_string)
             except FileNotFoundError:
-                if dp.utils.delta_days_until_now(date_string) < 5:
-                    self.results["skipped"].append(date_string)
-                else:
-                    self.results["failed"].append(date_string)
-
-
-    def main(query):
-        config = dp.load_config.run(validate=True)
-        
-        dp.utils.print_blue(f"Processing: {query}")
-        _results = process_query(*query.split("-"), config)
-
-        dp.utils.print_blue(f"Done: {_results}")
+                self.results["failed"].append(date_string)

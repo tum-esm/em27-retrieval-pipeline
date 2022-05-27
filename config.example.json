@@ -1,14 +1,7 @@
 {
-    "stationId": "xx",
-    "lat": 48.151,
-    "lon": 11.569,
-    "dates": ["20210511", "20210512", "20210515-20210525"],
-    "user": "someone@somecompany.sometld",
-    "dst": "somedir",
-    "sharedCachePath": null,
-    "downloadTypes": {
-        "map": true,
-        "mod": true
-    },
-    "downloadTimeoutSeconds": 200
+    "from": 20190101,
+    "to": null,
+    "user": "person@some.tld",
+    "dst": "path-to-storage-location",
+    "downloadTimeoutSeconds": 600
 }

@@ -1,5 +1,8 @@
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import datetime, timedelta
+from src.utils import load_setup
+
+PROJECT_DIR, CONFIG = load_setup(validate=False)
 
 @dataclass
 class Query:
@@ -34,6 +37,16 @@ class Query:
     @t_to_datetime.setter
     def t_to_datetime(self, t: datetime):
         self.t_to_int = int(datetime.strftime(t, "%Y%m%d"))
+    
+    @property
+    def date_string_list(self) -> list[str]:
+        l = []
+        q = self.clone()
+        while q.t_from_datetime <= self.t_to_datetime:
+            l.append(q.t_from_str)
+            q.t_from_datetime += timedelta(days=1)
+        del q
+        return l
     
     def to_json(self):
         return {
