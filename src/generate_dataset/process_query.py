@@ -1,6 +1,6 @@
 import json
 import os
-import download_profiles_main
+import src.query_process as query_process
 
 dir = os.path.dirname
 PROJECT_DIR = dir(dir(dir(os.path.abspath(__file__))))
@@ -21,4 +21,4 @@ def run(query):
     with open(f"{PROJECT_DIR}/config.json", "w") as f:
         json.dump(c, f)
     
-    download_profiles_main.main()
+    query_process.main()

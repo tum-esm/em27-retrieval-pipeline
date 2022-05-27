@@ -7,7 +7,8 @@ console = Console()
 
 print_red = lambda message: console.print(f"[bold red]{message}")
 print_blue = lambda message: console.print(f"[bold blue]{message}")
-
+dir = os.path.dirname
+PROJECT_DIR = dir(dir(dir(os.path.abspath(__file__))))
 
 def date_string_is_valid(date_string: str):
     try:
@@ -76,6 +77,10 @@ def get_cache_filename(filetype: str, date_string: str, config: dict):
     lat_str, lon_str = _format_coordinates(config["lat"], config["lon"])
     return f"{date_string}_{lat_str}_{lon_str}.{filetype}"
 
+def get_cache_file_slug(date_string: str, query):
+    lat_str, lon_str = _format_coordinates(query["lat"], query["lon"])
+    return f"{date_string}_{lat_str}_{lon_str}"
+
 
 def get_unpacked_filename(filetype: str, date_string: str, config: dict):
     lat_str, lon_str = _format_coordinates(config["lat"], config["lon"])
@@ -89,14 +94,13 @@ def get_dst_filename(filetype: str, date_string: str, config: dict):
     return f"{config['stationId']}{date_string}.{filetype}"
 
 
-def date_is_present_in_cache(date_string: str, config: dict):
-    return all(
-        [
-            os.path.isfile(
-                config["sharedCachePath"]
-                + "/"
-                + get_cache_filename(filetype, date_string, config)
-            )
-            for filetype in ["map", "mod"]
-        ]
-    )
+
+def query_is_present_in_cache(query):
+    ts = query["from"]
+    t = datetime.strptime(str(query["from"]), "%Y%m%d")
+    is_present = True
+    while (ts < query["to"]) and is_present:
+        file_slug = get_cache_file_slug(datetime.strftime(t, "%Y%m%d"), query)
+        is_present &= os.path.isfile(f"{PROJECT_DIR}/cache/{file_slug}.map")
+        is_present &= os.path.isfile(f"{PROJECT_DIR}/cache/{file_slug}.mod")
+    return is_present

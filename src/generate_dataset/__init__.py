@@ -1,1 +1,2 @@
-from . import generate_query_list, process_query
+from .. import query_list
+from . import process_query
