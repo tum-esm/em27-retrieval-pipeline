@@ -41,6 +41,15 @@ poetry install
 python main.py
 ```
 
+3. OR: Run the script in a cron-job to always keep this dataset up-to-date
+
+```bash
+crontab -e
+
+# add the following line to the list
+mm hh * * * .../.venv/bin/python .../main.py
+```
+
 <br/>
 
 **Responses from Caltech will be cached** in the `cache/` directory. If you want your duplicate requests to be faster and use fewer computing resources, do not remove or empty this directory.

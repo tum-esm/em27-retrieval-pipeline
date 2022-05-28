@@ -26,7 +26,7 @@ for index, query in enumerate(query_list):
 
 report_name = datetime.utcnow().strftime("execution-summary-%Y%m%d-%H%M-UTC")
 
-with open(f"reports/{report_name}.json", "w") as f:
+with open(f"{PROJECT_DIR}/reports/{report_name}.json", "w") as f:
     json.dump({
         "executionTime": now,
         "query_count": query_count,
