@@ -1,10 +1,10 @@
 import os
 import subprocess
 import tenacity
-from src import download_profiles
+from src.utils import load_setup
 
-dir = os.path.dirname
-PROJECT_DIR = dir(dir(dir(os.path.abspath(__file__))))
+PROJECT_DIR, CONFIG = load_setup(validate=False)
+
 
 class ServerError553(Exception):
     pass
@@ -14,12 +14,12 @@ class ServerError553(Exception):
     stop=tenacity.stop_after_attempt(2),
     wait=tenacity.wait_fixed(60)
 )
-def _upload(config: dict):
+def _upload():
     result = subprocess.run(
-        ["bash", f"{PROJECT_DIR}/src/upload_request.sh"],
+        ["bash", f"{PROJECT_DIR}/src/download_steps/upload_request.sh"],
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
-        env={**os.environ.copy(), "PASSWD": config["user"]},
+        env={**os.environ.copy(), "PASSWD": CONFIG["user"]},
         timeout=60,
     )
     if "Access failed: 553" in result.stderr.decode():
@@ -28,25 +28,24 @@ def _upload(config: dict):
         raise Exception(result.stderr.decode())
 
 
-
-def run(start_date: str, end_date: str):
-    with open("input_file.txt", "w") as f:
+def run(query):
+    with open(f"input_file.txt", "w") as f:
         f.write(
             "\n".join(
                 [
-                    config["stationId"],
-                    start_date,
-                    end_date,
-                    str(round(config["lat"])),
-                    str(round(config["lon"])),
-                    config["user"],
+                    query.sensor,
+                    query.t_from_str,
+                    query.t_to_str,
+                    str(round(query.lat)),
+                    str(round(query.lon)),
+                    CONFIG["user"],
                 ]
             )
         )
     
     try:
-        _upload(config)
+        _upload()
     except Exception as e:
-        utils.print_red(f"Request-uploading failed: {e}")
+        print(f"Request-uploading failed: {e}")
     
     os.remove("input_file.txt")
