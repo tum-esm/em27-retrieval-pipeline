@@ -34,9 +34,11 @@ def run(session):
     dst_file = f"{dst_dir}/{matching_files[0]}"
     with open(src_file, "r") as f:
         line_count = len(f.readlines())
-        # 1440 minutes per day + 1 header line
-        if line_count < 1441:
-            yellow_printer(f"WARNING: Datalogger file only has {line_count}/1441 lines")
+
+    # 1440 minutes per day + 1 header line
+    if line_count < 1441:
+        yellow_printer(f"WARNING: Datalogger file only has {line_count}/1441 lines")
+    assert line_count >= 30, "datalogger file has less than 30 entries"
 
     # copy datalogger file
     shutil.copy(src_file, dst_file)
