@@ -53,6 +53,4 @@ def run():
 
         # TODO: Upload results to database
 
-    # TODO: if queue is empty, add 40 archived timeseries (only once)
-
     blue_printer("Queue is empty, no more dates to process")
