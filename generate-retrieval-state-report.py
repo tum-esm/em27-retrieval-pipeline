@@ -22,13 +22,25 @@ def unique(xs: list[str]):
     return new_xs
 
 
+def generate_report_name():
+    return datetime.utcnow().strftime("retrival-state-report-%Y%m%d-%H%M-UTC.csv")
+
+
+def get_cell_label(sensor: str, date: str):
+    label = "    "
+    if os.path.isdir(f"{IFG_SRC}/{sensor}_ifg/{date}"):
+        label = str(len(os.listdir(f"{IFG_SRC}/{sensor}_ifg/{date}")))
+        label = (" " * (4 - len(label))) + label
+    return label
+
+
 PROJECT_DIR, CONFIG = utils.load_setup(validate=True)
 DST = f"{PROJECT_DIR}/retrival-state-report.csv"
 IFG_SRC = CONFIG["src"]["interferograms"]
 SENSORS = CONFIG["sensorsToConsider"]
 
 
-rows = [["date"] + SENSORS]
+rows = [["    date"] + [f"  {s}" for s in SENSORS]]
 dates = []
 
 for s in SENSORS:
@@ -41,15 +53,7 @@ dates = list(
 )
 
 for date in dates:
-    rows.append(
-        [
-            date,
-            *[
-                "X" if os.path.isdir(f"{IFG_SRC}/{s}_ifg/{date}") else "-"
-                for s in SENSORS
-            ],
-        ]
-    )
+    rows.append([date, *[get_cell_label(s, date) for s in SENSORS]])
 
-with open(DST, "w") as f:
+with open(f"{PROJECT_DIR}/reports/{generate_report_name()}", "w") as f:
     f.write("\n".join([", ".join(r) for r in rows]))
