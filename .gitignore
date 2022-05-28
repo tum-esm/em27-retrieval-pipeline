@@ -9,3 +9,4 @@ GeneralLogfile.log
 input_file.txt
 location-data/
 reports/*.csv
+main.lock
