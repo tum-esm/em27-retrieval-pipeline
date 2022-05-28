@@ -16,7 +16,7 @@ class ServerError553(Exception):
 )
 def _upload(config: dict):
     result = subprocess.run(
-        ["bash", f"{PROJECT_DIR}/src/download_profiles/upload_request.sh"],
+        ["bash", f"{PROJECT_DIR}/src/upload_request.sh"],
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
         env={**os.environ.copy(), "PASSWD": config["user"]},
@@ -28,8 +28,9 @@ def _upload(config: dict):
         raise Exception(result.stderr.decode())
 
 
-def run(start_date: str, end_date: str, config: dict):
-    with open(f"input_file.txt", "w") as f:
+
+def run(start_date: str, end_date: str):
+    with open("input_file.txt", "w") as f:
         f.write(
             "\n".join(
                 [
@@ -46,4 +47,6 @@ def run(start_date: str, end_date: str, config: dict):
     try:
         _upload(config)
     except Exception as e:
-        download_profiles.utils.print_red(f"Request-uploading failed: {e}")
+        utils.print_red(f"Request-uploading failed: {e}")
+    
+    os.remove("input_file.txt")
