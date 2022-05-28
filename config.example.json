@@ -4,5 +4,5 @@
     "user": "person@some.tld",
     "dst": "path-to-storage-location",
     "downloadTimeoutSeconds": 600,
-    "locationRepository": "https://github.com/tum-esm/em27-location-data"
+    "locationRepository": "https://github.com/tum-esm/em27-location-data-template"
 }

@@ -7,11 +7,9 @@ PROJECT_DIR, CONFIG = load_setup(validate=True)
 
 query_list = QueryList()
 now = str(datetime.utcnow())
-
-with open("queries.json", "w") as f:
-    json.dump({"executionTime": now, "queries": query_list.to_json()}, f, indent=4)
-
 query_count = len(query_list)
+
+failed_queries = []
 
 for index, query in enumerate(query_list):
     print(
@@ -19,4 +17,16 @@ for index, query in enumerate(query_list):
         f'{query.t_from_int}-{query.t_to_int} ' +
         f'{query.sensor} {query.location} '
     )
-    QueryProcess(query)
+    process = QueryProcess(query)
+    if not process.was_successful():
+        failed_queries.append(query.to_json())
+
+report_name = datetime.utcnow().strftime("execution-summary-%Y%m%d-%H%M-UTC")
+
+with open(f"reports/{report_name}.json", "w") as f:
+    json.dump({
+        "executionTime": now,
+        "query_count": query_count,
+        "failed_queries": failed_queries,
+        "queries": query_list.to_json()
+    }, f, indent=4)

@@ -2,6 +2,7 @@
 *.mod
 .venv
 input_file.txt
+*.tar
 .vscode
 config.json
 .DS_Store
@@ -9,3 +10,4 @@ archive
 out/*
 *.pyc
 location-data/
+reports/*.json

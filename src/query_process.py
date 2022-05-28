@@ -46,3 +46,6 @@ class QueryProcess:
                     )
             except FileNotFoundError:
                 self.failed_dates.append(date_string)
+    
+    def was_successful(self):
+        return len(self.failed_dates) == 0
