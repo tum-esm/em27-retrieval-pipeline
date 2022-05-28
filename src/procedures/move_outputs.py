@@ -39,14 +39,18 @@ def run(session):
     if day_was_successful:
         with open(output_csv, "r") as f:
             day_was_successful = len(f.readlines()) > 1
-    if day_was_successful:
-        output_dst = f"{DST}/{sensor}/proffast-outputs/{date}"
-    else:
-        output_dst = f"{DST}/{sensor}/proffast-outputs-failed/{date}"
 
-    # move output data
-    if os.path.isdir(output_dst):
-        shutil.rmtree(output_dst)
+    output_dst_success = f"{DST}/{sensor}/proffast-outputs/{date}"
+    output_dst_failed = f"{DST}/{sensor}/proffast-outputs-failed/{date}"
+
+    # remove old outputs
+    if os.path.isdir(output_dst_success):
+        shutil.rmtree(output_dst_success)
+    if os.path.isdir(output_dst_failed):
+        shutil.rmtree(output_dst_failed)
+
+    # move the output data
+    output_dst = output_dst_success if day_was_successful else output_dst_failed
     shutil.move(output_src, output_dst)
 
     # move input data (interferograms)
