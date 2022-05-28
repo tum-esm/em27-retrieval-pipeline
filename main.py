@@ -11,6 +11,9 @@ query_count = len(query_list)
 
 failed_queries = []
 
+if query_count == 0:
+    print("nothing to process")
+
 for index, query in enumerate(query_list):
     print(
         f'({index+1}/{query_count}): ' +
