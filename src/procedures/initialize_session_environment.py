@@ -46,22 +46,6 @@ def run(session):
     os.mkdir(f"{PROJECT_DIR}/inputs/{session_sensor}_map")
     os.mkdir(f"{PROJECT_DIR}/inputs/{session_sensor}_pressure")
 
-    # Create 'coords.csv' file
-    with open(f"{PROJECT_DIR}/inputs/coords.csv", "w") as _f:
-        _f.write("Site, Latitude, Longitude, Altitude_kmasl, Starttime\n")
-        _f.write(
-            ", ".join(
-                [
-                    session_sensor,
-                    str(round(session_lat, 3)),
-                    str(round(session_lon, 3)),
-                    str(round(session_alt / 1000.0, 3)),
-                    "2015-01-01",
-                ]
-            )
-            + "\n"
-        )
-
     # Create YAML file for proffast
     with open(YAML_TEMPLATE, "r") as _f:
         file_content = "".join(_f.readlines())
@@ -75,6 +59,9 @@ def run(session):
         )
         .decode()
         .replace("\n", ""),
+        "COORDINATES_LAT": str(round(session_lat, 3)),
+        "COORDINATES_LON": str(round(session_lon, 3)),
+        "COORDINATES_ALT": str(round(session_alt / 1000.0, 3)),
     }
 
     for key, value in replacements.items():
