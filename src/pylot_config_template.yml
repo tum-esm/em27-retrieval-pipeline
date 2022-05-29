@@ -9,10 +9,10 @@ site_abbrev: %SENSOR%
 start_date:
 end_date:
 coords:
-  lat:
-  lon:
-  alt:
-coord_file: %PROJECT_DIR%/inputs/coords.csv
+  lat: %COORDINATES_LAT%
+  lon: %COORDINATES_LON%
+  alt: %COORDINATES_ALT%
+coord_file: 
 utc_offset: 0.0
 
 
