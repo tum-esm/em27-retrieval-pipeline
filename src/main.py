@@ -30,7 +30,6 @@ def run():
             procedures.move_ifg_files.run(session)
         except AssertionError as e:
             yellow_printer(f"Inputs incomplete, skipping this date: {e}")
-            procedures.removed_unfinished_inputs.run(session)
             continue
         except KeyboardInterrupt:
             sys.exit()
