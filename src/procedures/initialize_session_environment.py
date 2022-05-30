@@ -1,9 +1,9 @@
 import os
 import shutil
 import subprocess
-from src import utils
+from src.utils import load_setup
 
-PROJECT_DIR, CONFIG = utils.load_setup()
+PROJECT_DIR, CONFIG = load_setup()
 YAML_TEMPLATE = f"{PROJECT_DIR}/src/pylot_config_template.yml"
 
 
@@ -16,15 +16,15 @@ def run(session):
 
     assert os.path.isfile(
         f"{PROJECT_DIR}/.venv/bin/python"
-    ), "Virtual environment does not exist"
+    ), "virtual environment does not exist"
 
     assert os.path.isfile(
         f"{PROJECT_DIR}/location-data/.gitignore"
-    ), "Module location-data not initialized"
+    ), "module location-data not initialized"
 
     assert os.path.isfile(
         f"{PROJECT_DIR}/src/pylot/prfpylot/pylot.py"
-    ), "Module proffastpylot not initialized"
+    ), "module proffastpylot not initialized"
 
     assert all(
         [
@@ -35,7 +35,7 @@ def run(session):
                 f"{PROJECT_DIR}/src/pylot/prf/invers20",
             ]
         ]
-    ), "PROFFAST not compiled completely"
+    ), "proffast is not compiled completely"
 
     # Clear directories "inputs" and "outputs"
     for _d in ["inputs", "outputs"]:

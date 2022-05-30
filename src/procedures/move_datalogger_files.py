@@ -1,23 +1,20 @@
 import os
 import shutil
-from rich.console import Console
-from src import utils
+from src.utils import load_setup, Logger
 
-PROJECT_DIR, CONFIG = utils.load_setup()
+PROJECT_DIR, CONFIG = load_setup()
 
 SRC = CONFIG["src"]["datalogger"]
 DST = f"{PROJECT_DIR}/inputs"
 
-console = Console()
-yellow_printer = lambda message: console.print(f"[bold yellow]{message}")
-
 
 def run(session):
+    sensor = str(session["sensor"])
     date = str(session["date"])
 
-    src_dir = f'{SRC}/{session["sensor"]}_{str(session["serial_number"])[-2:]}'
-    dst_dir = f'{DST}/{session["sensor"]}_pressure'
-    assert os.path.isdir(src_dir)
+    src_dir = f'{SRC}/{sensor}_{str(session["serial_number"])[-2:]}'
+    dst_dir = f"{DST}/{sensor}_pressure"
+    assert os.path.isdir(src_dir), "src path does not exist"
 
     matching_files = list(
         filter(
@@ -27,8 +24,8 @@ def run(session):
         )
     )
 
-    assert len(matching_files) > 0, "No datalogger file found"
-    assert len(matching_files) < 2, f"Multiple datalogger files found: {matching_files}"
+    assert len(matching_files) > 0, "no datalogger file found"
+    assert len(matching_files) < 2, f"multiple datalogger files found: {matching_files}"
 
     src_file = f"{src_dir}/{matching_files[0]}"
     dst_file = f"{dst_dir}/{matching_files[0]}"
@@ -37,7 +34,9 @@ def run(session):
 
     # 1440 minutes per day + 1 header line
     if line_count < 1441:
-        yellow_printer(f"WARNING: Datalogger file only has {line_count}/1441 lines")
+        Logger.warning(
+            f"{sensor}/{date} - datalogger file only has {line_count}/1441 lines"
+        )
     assert line_count >= 30, "datalogger file has less than 30 entries"
 
     # copy datalogger file

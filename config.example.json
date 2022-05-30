@@ -1,4 +1,11 @@
 {
-    "download_map_data_email": "someone@somecompany.sometld",
-    "sensors_to_consider": ["ma", "mb", "mc", "md", "me"]
+    "sensorsToConsider": ["ma", "mb", "mc", "md", "me"],
+    "src": {
+        "datalogger": "/home/esm/datalogger2zeno",
+        "verticalProfiles": "/home/esm/em27_ifg_dss/vertical-profiles",
+        "interferograms": "/mnt/measurementData/mu"
+    },
+    "locationRepository": "https://github.com/tum-esm/em27-location-data",
+    "dst": "/home/esm/em27_ifg_dss/proffast-archive",
+    "startDate": 20190101
 }

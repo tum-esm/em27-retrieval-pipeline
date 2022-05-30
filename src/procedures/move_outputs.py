@@ -1,9 +1,9 @@
 import subprocess
 import os
 import shutil
-from src import utils
+from src.utils import load_setup
 
-PROJECT_DIR, CONFIG = utils.load_setup()
+PROJECT_DIR, CONFIG = load_setup()
 
 IFG_SRC = CONFIG["src"]["interferograms"]
 DST = CONFIG["dst"]
@@ -32,7 +32,7 @@ def run(session):
     )
     output_csv = f"{output_src}/combined_invparms_{sensor}_{date}-{date}.csv"
 
-    assert os.path.isdir(output_src), "output directory missing"
+    assert os.path.isdir(output_src), "pylot output directory missing"
 
     # determine output directory path on DSS
     day_was_successful = os.path.isfile(output_csv)
@@ -56,7 +56,7 @@ def run(session):
     # move input data (interferograms)
     ifg_src = f"{IFG_SRC}/{sensor}_ifg/{date}"
     ifg_dst = f"{DST}/{sensor}/ifgs/{date}"
-    assert os.path.isdir(ifg_src), "src not on cloud, skipping copy process"
+    assert os.path.isdir(ifg_src), "ifg src path not found"
 
     # Create empty output directory for that date. Do not
     # delete overwrite data automatically, add duplicate

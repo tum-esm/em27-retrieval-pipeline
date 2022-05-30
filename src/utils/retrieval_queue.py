@@ -1,8 +1,8 @@
 from datetime import datetime
 import os
-from src import utils
+from src.utils import load_setup, LocationData, Logger
 
-PROJECT_DIR, CONFIG = utils.load_setup()
+PROJECT_DIR, CONFIG = load_setup()
 
 
 def _date_string_is_valid(date_string: str):
@@ -59,13 +59,13 @@ class RetrievalQueue:
         return data_directories
 
     def _generate_queue(self):
-        l = utils.LocationData()
+        l = LocationData()
         queue = []
         for sensor, sensor_dates in self.data_directories.items():
             for sensor_date in sensor_dates:
                 location = l.get_location_for_date(sensor, sensor_date)
                 if location is None:
-                    print(f"no location found for {sensor}/{sensor_date}")
+                    Logger.warning(f"no location found for {sensor}/{sensor_date}")
                     continue
 
                 queue.append(
