@@ -1,55 +1,58 @@
-import sys
-from rich.console import Console
 from src import utils, procedures
+from src.utils import load_setup, Logger
 
-PROJECT_DIR, CONFIG = utils.load_setup(validate=True)
-
-# TODO: Use logging instead of printing
-console = Console()
-blue_printer = lambda message: console.print(f"[bold blue]{message}")
-yellow_printer = lambda message: console.print(f"[bold yellow]{message}")
-red_printer = lambda message: console.print(f"[bold red]{message}")
+PROJECT_DIR, CONFIG = load_setup(validate=True)
 
 
 def run():
-    # Determine next day to run proffast for
-    blue_printer("Determining the next timeseries to process")
+    Logger.info("Starting the automation")
     retrieval_queue = utils.RetrievalQueue(sensor_names=CONFIG["sensorsToConsider"])
 
-    for session in retrieval_queue:
-        sensor = session["sensor"]
-        date = session["date"]
+    try:
+        for session in retrieval_queue:
+            sensor = session["sensor"]
+            date = session["date"]
 
-        blue_printer(f"Starting retrieval session {sensor}/{date}")
-        procedures.initialize_session_environment.run(session)
+            message = lambda t: f"{sensor}/{date} - {t}"
+            info = lambda t: Logger.info(message(t))
+            warning = lambda t: Logger.info(message(t))
+            error = lambda t: Logger.info(message(t))
 
-        blue_printer("Preparing all input files")
-        try:
-            procedures.move_vertical_profiles.run(session)
-            procedures.move_datalogger_files.run(session)
-            procedures.move_ifg_files.run(session)
-        except AssertionError as e:
-            yellow_printer(f"Inputs incomplete, skipping this date: {e}")
-            continue
-        except KeyboardInterrupt:
-            sys.exit()
+            info(f"Starting")
+            procedures.initialize_session_environment.run(session)
 
-        blue_printer("Running the proffast pylot")
-        try:
-            procedures.run_proffast_pylot.run(session)
-        except Exception as e:
-            red_printer(f"Pylot error: {e}")
-        except KeyboardInterrupt:
-            sys.exit()
+            inputs = {
+                "vertical profiles": procedures.move_vertical_profiles,
+                "datalogger": procedures.move_datalogger_files,
+                "ifgs": procedures.move_ifg_files,
+            }
+            try:
+                for label, input_module in inputs.items():
+                    input_module.run(session)
+            except AssertionError as e:
+                if label == "vertical profiles":
+                    info("Inputs incomplete (vertical profiles)")
+                else:
+                    warning(f"Inputs incomplete ({label}): {e}")
+                continue
 
-        blue_printer(f"Moving outputs")
-        try:
-            procedures.move_outputs.run(session)
-        except AssertionError as e:
-            red_printer(f"Moving outputs failed: {e}")
-        except KeyboardInterrupt:
-            sys.exit()
+            info(f"Running the pylot")
+            try:
+                procedures.run_proffast_pylot.run(session)
+            except Exception as e:
+                warning(f"Pylot error: {e}")
 
-        # TODO: Upload results to database
+            info(f"Moving the outputs")
+            try:
+                procedures.move_outputs.run(session)
+                info(f"Finished")
+            except AssertionError as e:
+                error(f"Moving outputs failed: {e}")
+    except KeyboardInterrupt:
+        Logger.info("Keyboard interrupt")
+        return
+    except Exception:
+        info(f"Unhandled exception: {e}")
+        return
 
-    blue_printer("Queue is empty, no more dates to process")
+    Logger.info("Automation is finished")

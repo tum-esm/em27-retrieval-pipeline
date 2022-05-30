@@ -1,7 +1,7 @@
 from datetime import datetime
 import json
 import os
-from cerberus import Validator
+import cerberus
 
 dir = os.path.dirname
 PROJECT_DIR = dir(dir(dir(os.path.abspath(__file__))))
@@ -21,7 +21,7 @@ def check_directory_path(field, value, error):
         error(field, "value has to be a valid date")
 
 
-validator = Validator(
+validator = cerberus.Validator(
     {
         "sensorsToConsider": {"type": "list", "schema": {"type": "string"}},
         "src": {
