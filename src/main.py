@@ -5,6 +5,7 @@ PROJECT_DIR, CONFIG = load_setup(validate=True)
 
 
 def run():
+    Logger.info("-----------------------")
     Logger.info("Starting the automation")
     retrieval_queue = utils.RetrievalQueue(sensor_names=CONFIG["sensorsToConsider"])
 

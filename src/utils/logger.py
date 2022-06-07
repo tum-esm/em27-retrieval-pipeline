@@ -12,7 +12,8 @@ class Logger:
     @staticmethod
     def _print(m: str, level: str):
         t = datetime.utcnow().strftime("%Y%m%d %H:%M:%S")
-        with open(LOG_FILEPATH, "a") as f:
+        log_file_name = datetime.utcnow().strftime("%Y%m%d-automation.log")
+        with open(f"{PROJECT_DIR}/logs/{log_file_name}", "a") as f:
             f.write(f"{t} - {level} - {m}\n")
 
     @staticmethod

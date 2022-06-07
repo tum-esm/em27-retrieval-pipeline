@@ -1,5 +1,5 @@
 import filelock
-from src.utils import load_setup, Logger
+from src.utils import load_setup
 from src import main
 
 PROJECT_DIR, CONFIG = load_setup()
@@ -16,4 +16,4 @@ if __name__ == "__main__":
             lock.release()
     except filelock.Timeout:
         # If you know what you are doing, you can remove the "main.lock" file
-        Logger.warning("process is already running")
+        print("process is already running")
