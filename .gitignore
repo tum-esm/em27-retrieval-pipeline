@@ -11,4 +11,3 @@ location-data/
 reports/*.csv
 main.lock
 hidden
-logs
