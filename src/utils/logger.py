@@ -1,4 +1,5 @@
 from datetime import datetime
+import json
 import os
 
 dir = os.path.dirname
@@ -9,12 +10,14 @@ LOG_FILEPATH = f"{PROJECT_DIR}/logs/automation.log"
 # also uses that and figuring out how to not make these two
 # interfere is not worth it
 
+log_file_name = datetime.utcnow().strftime("%Y%m%d-%H-%M.log")
+queue_file_name = datetime.utcnow().strftime("%Y%m%d-%H-%M-queue.json")
+
 
 class Logger:
     @staticmethod
     def _print(m: str, level: str):
         t = datetime.utcnow().strftime("%Y%m%d %H:%M:%S")
-        log_file_name = datetime.utcnow().strftime("%Y%m%d-automation.log")
         with open(f"{PROJECT_DIR}/logs/automation/{log_file_name}", "a") as f:
             f.write(f"{t} - {level} - {m}\n")
 
@@ -38,3 +41,8 @@ class Logger:
     @staticmethod
     def debug(m: str):
         Logger._print(m, "DEBUG")
+
+    @staticmethod
+    def save_queue_file(queue: dict):
+        with open(f"{PROJECT_DIR}/logs/automation/{queue_file_name}", "w") as f:
+            json.dump(queue, f, indent=4)
