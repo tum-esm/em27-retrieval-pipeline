@@ -77,4 +77,5 @@ class RetrievalQueue:
                         "serial_number": l.get_serial_number(sensor),
                     }
                 )
+        queue = list(sorted(queue, key=lambda x: x["date"], reverse=True))
         return queue
