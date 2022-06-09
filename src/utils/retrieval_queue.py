@@ -7,7 +7,12 @@ PROJECT_DIR, CONFIG = load_setup()
 
 def _date_string_is_valid(date_string: str):
     try:
-        datetime.strptime(date_string, "%Y%m%d")
+        now = datetime.now()
+        then = datetime.strptime(date_string, "%Y%m%d")
+
+        # the vertical profiles are only available with a 5 day delay
+        assert (now - then).days >= 5
+
         return int(date_string) >= CONFIG["startDate"]
     except (ValueError, TypeError):
         return False
