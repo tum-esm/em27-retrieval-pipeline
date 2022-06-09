@@ -1,7 +1,7 @@
 import subprocess
 import os
 import shutil
-from src.utils import load_setup
+from src.utils import load_setup, Logger
 
 PROJECT_DIR, CONFIG = load_setup()
 
@@ -58,15 +58,19 @@ def run(session):
     ifg_dst = f"{DST}/{sensor}/ifgs/{date}"
     assert os.path.isdir(ifg_src), "ifg src path not found"
 
-    # Create empty output directory for that date. Do not
-    # delete overwrite data automatically, add duplicate
-    # folders named "_1", "_2", ... instead
     if os.path.isdir(ifg_dst):
-        ifg_dst += "_1"
-    while os.path.isdir(ifg_dst):
-        ifg_dst = "_".join(
-            [*ifg_dst.split("_")[:-1], str(int(ifg_dst.split("_")[-1]) + 1)]
-        )
+        if _directories_are_equal(ifg_src, ifg_dst):
+            Logger.info("ifg directory is already fully present on DSS")
+            shutil.rmtree(ifg_src)
+            return
+        else:
+            Logger.info("ifg directory is already present on DSS but differs")
+
+            # Add duplicate folders named "..._1", "..._2", ... instead
+            appendix = 1
+            while os.path.isdir(f"{ifg_dst}_{appendix}"):
+                appendix += 1
+            ifg_dst += f"_{appendix}"
 
     # move the whole directory
     shutil.copytree(ifg_src, ifg_dst)
