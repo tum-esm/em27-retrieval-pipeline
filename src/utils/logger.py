@@ -5,7 +5,9 @@ dir = os.path.dirname
 PROJECT_DIR = dir(dir(dir(os.path.abspath(__file__))))
 LOG_FILEPATH = f"{PROJECT_DIR}/logs/automation.log"
 
-# TODO: Use logging module, Problem: The pylot also logs stuff
+# I am not using the logging-library because the proffast-pylot
+# also uses that and figuring out how to not make these two
+# interfere is not worth it
 
 
 class Logger:
@@ -13,11 +15,12 @@ class Logger:
     def _print(m: str, level: str):
         t = datetime.utcnow().strftime("%Y%m%d %H:%M:%S")
         log_file_name = datetime.utcnow().strftime("%Y%m%d-automation.log")
-        with open(f"{PROJECT_DIR}/logs/{log_file_name}", "a") as f:
+        with open(f"{PROJECT_DIR}/logs/automation/{log_file_name}", "a") as f:
             f.write(f"{t} - {level} - {m}\n")
 
     @staticmethod
     def exception(m: str):
+        # TODO: Log traceback (see pyra-4 emails)
         Logger._print(m, "EXCEPTION")
 
     @staticmethod
