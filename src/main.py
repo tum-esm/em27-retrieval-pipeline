@@ -7,7 +7,9 @@ PROJECT_DIR, CONFIG = load_setup(validate=True)
 def run():
     Logger.info("-----------------------")
     Logger.info("Starting the automation")
+
     retrieval_queue = utils.RetrievalQueue(sensor_names=CONFIG["sensorsToConsider"])
+    Logger.save_queue_file(list(retrieval_queue))
 
     try:
         for session in retrieval_queue:

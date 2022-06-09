@@ -4,10 +4,10 @@ outputs/*
 .vscode
 *.pyc
 config.json
-GeneralLogfile.log
-*.log
-input_file.txt
 location-data/
 reports/*.csv
 main.lock
 hidden
+
+logs/**/*.json
+*.log
