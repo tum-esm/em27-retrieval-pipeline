@@ -34,8 +34,27 @@ validator = cerberus.Validator(
                     "check_with": check_directory_path,
                 },
                 "interferograms": {
-                    "type": "string",
-                    "check_with": check_directory_path,
+                    "type": "dict",
+                    "require_all": True,
+                    "schema": {
+                        "upload": {
+                            "type": "dict",
+                            "valuesrule": {
+                                "type": "string",
+                                "check_with": check_directory_path,
+                            },
+                        },
+                        "other": {
+                            "type": "dict",
+                            "valuesrules": {
+                                "type": "list",
+                                "schema": {
+                                    "type": "string",
+                                    "check_with": check_directory_path,
+                                },
+                            },
+                        },
+                    },
                 },
             },
         },
@@ -56,6 +75,20 @@ def load_setup(validate=False) -> tuple[str, dict]:
         raise AssertionError("config.json is not in a valid JSON format")
 
     if validate:
-        assert validator.validate(CONFIG), f"Invalid config.json: {validator.errors}"
+        try:
+            assert validator.validate(CONFIG), validator.errors
+
+            ifg_upload_keys = CONFIG["src"]["interferogram"]["upload"].keys()
+            ifg_other_keys = CONFIG["src"]["interferogram"]["other"].keys()
+            for s in CONFIG["sensorsToConsider"]:
+                assert (
+                    s in ifg_upload_keys
+                ), f'sensor "{s}" does not have an ifg-upload directory'
+                assert (
+                    s in ifg_other_keys
+                ), f'sensor "{s}" does not have a list with other ifg-directories'
+
+        except AssertionError as e:
+            raise AssertionError(f"Invalid config.json: {e}")
 
     return PROJECT_DIR, CONFIG

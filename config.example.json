@@ -3,7 +3,22 @@
     "src": {
         "datalogger": "/home/esm/datalogger2zeno",
         "verticalProfiles": "/home/esm/em27_ifg_dss/vertical-profiles",
-        "interferograms": "/mnt/measurementData/mu"
+        "interferograms": {
+            "upload": {
+                "ma": ["/mnt/measurementData/mu/ma_ifg"],
+                "mb": ["/mnt/measurementData/mu/mb_ifg"],
+                "mc": ["/mnt/measurementData/mu/mc_ifg"],
+                "md": ["/mnt/measurementData/mu/md_ifg"],
+                "me": ["/mnt/measurementData/mu/me_ifg"]
+            },
+            "other": {
+                "ma": ["/home/esm/em27_ifg_dss/proffast-archive/ma/ifgs"],
+                "mb": ["/home/esm/em27_ifg_dss/proffast-archive/mb/ifgs"],
+                "mc": ["/home/esm/em27_ifg_dss/proffast-archive/mc/ifgs"],
+                "md": ["/home/esm/em27_ifg_dss/proffast-archive/md/ifgs"],
+                "me": ["/home/esm/em27_ifg_dss/proffast-archive/me/ifgs"]
+            }
+        }
     },
     "locationRepository": "https://github.com/tum-esm/em27-location-data",
     "dst": "/home/esm/em27_ifg_dss/proffast-archive",
