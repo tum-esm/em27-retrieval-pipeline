@@ -1,3 +1,4 @@
+import json
 import subprocess
 import os
 import shutil
@@ -52,7 +53,7 @@ def run(session):
     # move the output data
     output_dst = output_dst_success if day_was_successful else output_dst_failed
     shutil.copytree(output_src, output_dst)
-    os.remove(output_src)
+    shutil.rmtree(output_src)
 
     # move input data (interferograms)
     ifg_src = f"{IFG_SRC}/{sensor}_ifg/{date}"
@@ -82,3 +83,19 @@ def run(session):
     ), "directories differ, skipped removal"
 
     shutil.rmtree(ifg_src)
+
+    # Possibly remove item from manual queue
+    try:
+        with open(f"{PROJECT_DIR}/manual-queue.json", "r") as f:
+            manual_queue_content = json.load(f)
+        assert isinstance(manual_queue_content, list)
+        manual_queue_content = list(
+            filter(
+                lambda x: not (x["sensor"] == sensor and x["date"] == str(date)),
+                manual_queue_content,
+            )
+        )
+        with open(f"{PROJECT_DIR}/manual-queue.json", "r") as f:
+            json.dump(manual_queue_content, f, indent=4)
+    except:
+        pass
