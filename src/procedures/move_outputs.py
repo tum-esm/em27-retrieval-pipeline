@@ -1,26 +1,16 @@
 import json
-import subprocess
 import os
 import shutil
-from src.utils import load_setup, Logger
+from src.utils import load_setup, Logger, directories_are_equal
+from src.utils.directory_utils import (
+    assert_directory_list_equality,
+    get_existing_src_directories,
+)
 
 PROJECT_DIR, CONFIG = load_setup()
 
 IFG_SRC = CONFIG["src"]["interferograms"]
 DST = CONFIG["dst"]
-
-
-def _directories_are_equal(_dir1: str, _dir2: str):
-    return (
-        len(
-            subprocess.run(
-                ["diff", "--brief", "--recursive", _dir1, _dir2], capture_output=True
-            )
-            .stdout.decode()
-            .split("\n")
-        )
-        == 1
-    )
 
 
 def run(session):
@@ -32,8 +22,9 @@ def run(session):
         + f"SN{str(session['serial_number']).zfill(3)}_{date}_{date}"
     )
     output_csv = f"{output_src}/combined_invparms_{sensor}_{date}-{date}.csv"
-
     assert os.path.isdir(output_src), "pylot output directory missing"
+
+    # --- MOVE OUTPUT DATA ---
 
     # determine output directory path on DSS
     day_was_successful = os.path.isfile(output_csv)
@@ -50,41 +41,30 @@ def run(session):
     if os.path.isdir(output_dst_failed):
         shutil.rmtree(output_dst_failed)
 
-    # move the output data
     output_dst = output_dst_success if day_was_successful else output_dst_failed
     shutil.copytree(output_src, output_dst)
     shutil.rmtree(output_src)
 
-    # move input data (interferograms)
-    ifg_src = f"{IFG_SRC}/{sensor}_ifg/{date}"
+    # --- MOVE INTERFEROGRAMS ---
+
+    existing_src_directories = get_existing_src_directories(CONFIG, sensor, date)
+    assert_directory_list_equality(existing_src_directories)
+
+    ifg_src = existing_src_directories[0]
     ifg_dst = f"{DST}/{sensor}/ifgs/{date}"
-    assert os.path.isdir(ifg_src), "ifg src path not found"
+    if not os.path.isdir(ifg_dst):
+        shutil.copytree(ifg_src, ifg_dst)
 
-    if os.path.isdir(ifg_dst):
-        if _directories_are_equal(ifg_src, ifg_dst):
-            Logger.info("ifg directory is already fully present on DSS")
-            shutil.rmtree(ifg_src)
-            return
-        else:
-            Logger.info("ifg directory is already present on DSS but differs")
+    ifg_src_upload = CONFIG["src"]["interferograms"]["upload"][sensor] + f"/{date}"
+    if os.path.isdir(ifg_src_upload):
+        # this check is actually unnecessary, but I include it for safety reasons
+        assert directories_are_equal(
+            ifg_src_upload, ifg_dst
+        ), "directories differ, skipped removal"
+        shutil.rmtree(ifg_src_upload)
 
-            # Add duplicate folders named "..._1", "..._2", ... instead
-            appendix = 1
-            while os.path.isdir(f"{ifg_dst}_{appendix}"):
-                appendix += 1
-            ifg_dst += f"_{appendix}"
+    # --- POSSIBLY REMOVE ITEMS FROM MANUAL QUEUE ---
 
-    # move the whole directory
-    shutil.copytree(ifg_src, ifg_dst)
-
-    # Only remove input src if copy was successful
-    assert _directories_are_equal(
-        ifg_src, ifg_dst
-    ), "directories differ, skipped removal"
-
-    shutil.rmtree(ifg_src)
-
-    # Possibly remove item from manual queue
     try:
         with open(f"{PROJECT_DIR}/manual-queue.json", "r") as f:
             manual_queue_content = json.load(f)

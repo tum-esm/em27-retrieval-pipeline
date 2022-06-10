@@ -1,10 +1,10 @@
 import os
 import shutil
-from src.utils import load_setup, Logger
+from src.utils import load_setup, Logger, get_existing_src_directories
+from src.utils.directory_utils import assert_directory_list_equality
 
 PROJECT_DIR, CONFIG = load_setup()
 
-SRC = CONFIG["src"]["interferograms"]
 DST = f"{PROJECT_DIR}/inputs"
 
 
@@ -12,16 +12,16 @@ def run(session):
     sensor = session["sensor"]
     date = str(session["date"])
 
-    src_date_path = f"{SRC}/{sensor}_ifg/{date}"
-    assert os.path.isdir(src_date_path), "src path does not exist"
+    existing_src_directories = get_existing_src_directories(CONFIG, sensor, date)
+    assert_directory_list_equality(existing_src_directories)
 
     # Create empty output directory for that date
     dst_date_path = f"{DST}/{sensor}_ifg/{date[2:]}"
-    if os.path.isdir(dst_date_path):
-        shutil.rmtree(dst_date_path)
     os.mkdir(dst_date_path)
 
     copied_ifg_count = 0
+
+    # TODO: Possibly include our own mechanism of detecting corrupt ifgs
 
     # move all valid ifg files and rename them properly
     files = os.listdir(src_date_path)

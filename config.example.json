@@ -5,18 +5,18 @@
         "verticalProfiles": "/home/esm/em27_ifg_dss/vertical-profiles",
         "interferograms": {
             "upload": {
-                "ma": ["/mnt/measurementData/mu/ma_ifg"],
-                "mb": ["/mnt/measurementData/mu/mb_ifg"],
-                "mc": ["/mnt/measurementData/mu/mc_ifg"],
-                "md": ["/mnt/measurementData/mu/md_ifg"],
-                "me": ["/mnt/measurementData/mu/me_ifg"]
+                "ma": ["/path-where-stations-upload-their-ifgs-to"],
+                "mb": ["/path-where-stations-upload-their-ifgs-to"],
+                "mc": ["/path-where-stations-upload-their-ifgs-to"],
+                "md": ["/path-where-stations-upload-their-ifgs-to"],
+                "me": ["/path-where-stations-upload-their-ifgs-to"]
             },
             "other": {
-                "ma": ["/home/esm/em27_ifg_dss/proffast-archive/ma/ifgs"],
-                "mb": ["/home/esm/em27_ifg_dss/proffast-archive/mb/ifgs"],
-                "mc": ["/home/esm/em27_ifg_dss/proffast-archive/mc/ifgs"],
-                "md": ["/home/esm/em27_ifg_dss/proffast-archive/md/ifgs"],
-                "me": ["/home/esm/em27_ifg_dss/proffast-archive/me/ifgs"]
+                "ma": ["/other-paths-with-ifgs-for-manual-retrieval"],
+                "mb": ["/other-paths-with-ifgs-for-manual-retrieval"],
+                "mc": ["/other-paths-with-ifgs-for-manual-retrieval"],
+                "md": ["/other-paths-with-ifgs-for-manual-retrieval"],
+                "me": ["/other-paths-with-ifgs-for-manual-retrieval"]
             }
         }
     },

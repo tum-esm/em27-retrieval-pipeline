@@ -67,13 +67,12 @@ class RetrievalQueue:
 
     def __init__(self, sensor_names: list[str]):
         self.sensor_names = sensor_names
-        self.processed_count = 0
 
     def __iter__(self):
-        regular_queue_index = 0
+        iteration_count = 0
         while True:
-            regular_queue_index += 1
-            if self.processed_count > 50:
+            iteration_count += 1
+            if iteration_count > 50:
                 Logger.info("Scheduler: Already processed 50 items in this execution.")
                 return
 
@@ -85,7 +84,7 @@ class RetrievalQueue:
                 yield next_high_prio_queue_item
                 continue
 
-            next_upload_directory_item = self._next_item_from_upload_directory()
+            next_upload_directory_item = self._next_item_from_upload_directory(self)
             if next_upload_directory_item is not None:
                 Logger.info("Scheduler: Taking next item from upload directory")
                 yield next_upload_directory_item
@@ -131,7 +130,6 @@ class RetrievalQueue:
         """
         Use the dates from manual-queue.json
         """
-        all_sensor_names = LocationData.sensor_names()
 
         try:
             with open(f"{PROJECT_DIR}/manual-queue.json", "r") as f:
@@ -142,7 +140,7 @@ class RetrievalQueue:
 
             for x in sensor_dates:
                 assert (
-                    x["sensor"] in all_sensor_names
+                    x["sensor"] in self.sensor_names
                 ), f"no coordinates found for sensor \"{x['sensor']}\""
                 assert _date_string_is_valid(
                     x["date"], consider_config_start_date=False
