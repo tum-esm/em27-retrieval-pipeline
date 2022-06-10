@@ -1,7 +1,10 @@
 import os
 import shutil
-from src.utils import Logger, get_existing_src_directories
-from src.utils.directory_utils import assert_directory_list_equality
+from src.utils import (
+    Logger,
+    get_existing_src_directories,
+    assert_directory_list_equality,
+)
 
 dir = os.path.dirname
 PROJECT_DIR = dir(dir(dir(os.path.abspath(__file__))))
