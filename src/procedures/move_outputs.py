@@ -1,8 +1,9 @@
 import json
 import os
 import shutil
-from src.utils import Logger, directories_are_equal
-from src.utils.directory_utils import (
+from src.utils import (
+    Logger,
+    directories_are_equal,
     assert_directory_list_equality,
     get_existing_src_directories,
 )
