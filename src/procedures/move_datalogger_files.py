@@ -1,14 +1,15 @@
 import os
 import shutil
-from src.utils import load_setup, Logger
+from src.utils import Logger
 
-PROJECT_DIR, CONFIG = load_setup()
-
-SRC = CONFIG["src"]["datalogger"]
-DST = f"{PROJECT_DIR}/inputs"
+dir = os.path.dirname
+PROJECT_DIR = dir(dir(dir(os.path.abspath(__file__))))
 
 
-def run(session):
+def run(config: dict, session):
+    SRC = config["src"]["datalogger"]
+    DST = f"{PROJECT_DIR}/inputs"
+
     sensor = str(session["sensor"])
     date = str(session["date"])
 

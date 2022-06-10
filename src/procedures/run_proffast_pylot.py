@@ -1,7 +1,8 @@
+import os
 import sys
-from src.utils import load_setup
 
-PROJECT_DIR, CONFIG = load_setup()
+dir = os.path.dirname
+PROJECT_DIR = dir(dir(dir(os.path.abspath(__file__))))
 
 # Required by imports within the proffastpylot project
 sys.path.append(f"{PROJECT_DIR}/src/pylot")

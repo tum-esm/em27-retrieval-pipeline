@@ -1,14 +1,14 @@
 import os
 import shutil
-from src.utils import load_setup
 
-PROJECT_DIR, CONFIG = load_setup()
-
-SRC = CONFIG["src"]["verticalProfiles"]
-DST = f"{PROJECT_DIR}/inputs"
+dir = os.path.dirname
+PROJECT_DIR = dir(dir(dir(os.path.abspath(__file__))))
 
 
-def run(session):
+def run(config: dict, session):
+    SRC = config["src"]["verticalProfiles"]
+    DST = f"{PROJECT_DIR}/inputs"
+
     sensor = str(session["sensor"])
     serial_number = str(session["serial_number"])
     date = str(session["date"])

@@ -68,7 +68,7 @@ validator = cerberus.Validator(
 )
 
 
-def load_setup(validate=False) -> tuple[str, dict]:
+def load_config(validate=False) -> tuple[str, dict]:
     try:
         with open(f"{PROJECT_DIR}/config.json", "r") as f:
             CONFIG = json.load(f)
@@ -94,4 +94,4 @@ def load_setup(validate=False) -> tuple[str, dict]:
         except AssertionError as e:
             raise AssertionError(f"Invalid config.json: {e}")
 
-    return PROJECT_DIR, CONFIG
+    return CONFIG

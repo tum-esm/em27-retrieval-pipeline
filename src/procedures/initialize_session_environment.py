@@ -1,9 +1,9 @@
 import os
 import shutil
 import subprocess
-from src.utils import load_setup
 
-PROJECT_DIR, CONFIG = load_setup()
+dir = os.path.dirname
+PROJECT_DIR = dir(dir(dir(os.path.abspath(__file__))))
 YAML_TEMPLATE = f"{PROJECT_DIR}/src/pylot_config_template.yml"
 
 
