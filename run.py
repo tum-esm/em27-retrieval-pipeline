@@ -1,8 +1,10 @@
+import os
 import filelock
 from src.utils import load_config
 from src import main
 
-PROJECT_DIR, CONFIG = load_config()
+CONFIG = load_config()
+PROJECT_DIR = os.path.dirname(os.path.abspath(__file__))
 lock_path = f"{PROJECT_DIR}/main.lock"
 lock = filelock.FileLock(lock_path, timeout=0)
 
