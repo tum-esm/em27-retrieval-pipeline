@@ -51,7 +51,8 @@ def run(session):
 
     # move the output data
     output_dst = output_dst_success if day_was_successful else output_dst_failed
-    shutil.move(output_src, output_dst)
+    shutil.copytree(output_src, output_dst)
+    os.remove(output_src)
 
     # move input data (interferograms)
     ifg_src = f"{IFG_SRC}/{sensor}_ifg/{date}"

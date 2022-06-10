@@ -55,7 +55,7 @@ def run(session):
         "SENSOR": session_sensor,
         "PROJECT_DIR": PROJECT_DIR,
         "COMMIT_SHA": subprocess.check_output(
-            ["git", "rev-parse", "--short", "--verify", "HEAD"]
+            ["git", "rev-parse", "--short", "--verify", "HEAD"], cwd=PROJECT_DIR
         )
         .decode()
         .replace("\n", ""),
