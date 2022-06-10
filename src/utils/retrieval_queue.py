@@ -67,6 +67,7 @@ class RetrievalQueue:
 
     def __init__(self, sensor_names: list[str]):
         self.sensor_names = sensor_names
+        self.processed_sensor_dates = {}
 
     def __iter__(self):
         iteration_count = 0
@@ -84,7 +85,7 @@ class RetrievalQueue:
                 yield next_high_prio_queue_item
                 continue
 
-            next_upload_directory_item = self._next_item_from_upload_directory(self)
+            next_upload_directory_item = self._next_item_from_upload_directory()
             if next_upload_directory_item is not None:
                 Logger.info("Scheduler: Taking next item from upload directory")
                 yield next_upload_directory_item
@@ -122,7 +123,7 @@ class RetrievalQueue:
         if len(sensor_dates) == 0:
             return None
         else:
-            return RetrievalQueue._generate_process_from_sensor_date(
+            return self._generate_process_from_sensor_date(
                 list(sorted(sensor_dates, key=lambda x: x["date"], reverse=True))[0]
             )
 
@@ -133,9 +134,9 @@ class RetrievalQueue:
 
         try:
             with open(f"{PROJECT_DIR}/manual-queue.json", "r") as f:
-                manual_queue_content = json.load(f)
+                sensor_dates = json.load(f)
             assert manual_queue_validator.validate(
-                sensor_dates
+                {"queue": sensor_dates}
             ), manual_queue_validator.errors
 
             for x in sensor_dates:
@@ -158,7 +159,16 @@ class RetrievalQueue:
         sensor_dates = list(
             filter(
                 lambda x: (x["priority"] > 0) if priority else (x["priority"] < 0),
-                manual_queue_content,
+                sensor_dates,
+            )
+        )
+
+        # Do not take in a sensor multiple times
+        sensor_dates = list(
+            filter(
+                lambda x: x["date"]
+                not in self.processed_sensor_dates.get(x["sensor"], []),
+                sensor_dates,
             )
         )
 
@@ -167,17 +177,22 @@ class RetrievalQueue:
         else:
             # Highest priority first. With the same
             # priority, it prefers the latest dates
-            sensor_dates = list(
+            sensor_date = list(
                 sorted(
                     sensor_dates,
                     key=lambda x: f'{str(x["priority"]).zfill(10)}{x["date"]}',
                     reverse=True,
                 )
-            )
-            return RetrievalQueue._generate_process_from_sensor_date(
+            )[0]
+            sensor, date = sensor_date["sensor"], sensor_date["date"]
+            if sensor not in self.processed_sensor_dates.keys():
+                self.processed_sensor_dates[sensor] = [date]
+            else:
+                self.processed_sensor_dates[sensor].append(date)
+            return self._generate_process_from_sensor_date(
                 {
-                    "sensor": sensor_dates[0]["sensor"],
-                    "date": sensor_dates[0]["date"],
+                    "sensor": sensor_date["sensor"],
+                    "date": sensor_date["date"],
                 }
             )
 

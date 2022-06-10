@@ -65,17 +65,17 @@ def run(session):
 
     # --- POSSIBLY REMOVE ITEMS FROM MANUAL QUEUE ---
 
-    try:
-        with open(f"{PROJECT_DIR}/manual-queue.json", "r") as f:
-            manual_queue_content = json.load(f)
-        assert isinstance(manual_queue_content, list)
-        manual_queue_content = list(
-            filter(
-                lambda x: not (x["sensor"] == sensor and x["date"] == str(date)),
-                manual_queue_content,
-            )
+    with open(f"{PROJECT_DIR}/manual-queue.json", "r") as f:
+        manual_queue_content = json.load(f)
+    assert isinstance(manual_queue_content, list)
+
+    print("before filter: ", manual_queue_content)
+    manual_queue_content = list(
+        filter(
+            lambda x: not ((x["sensor"] == sensor) and (x["date"] == date)),
+            manual_queue_content,
         )
-        with open(f"{PROJECT_DIR}/manual-queue.json", "r") as f:
-            json.dump(manual_queue_content, f, indent=4)
-    except:
-        pass
+    )
+    print("after filter: ", manual_queue_content)
+    with open(f"{PROJECT_DIR}/manual-queue.json", "w") as f:
+        json.dump(manual_queue_content, f, indent=4)
