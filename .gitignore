@@ -11,3 +11,4 @@ hidden
 
 logs/**/*.json
 *.log
+manual-queue.json

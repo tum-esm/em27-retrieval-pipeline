@@ -1,3 +1,4 @@
+import os
 import subprocess
 
 
@@ -16,9 +17,9 @@ def directories_are_equal(_dir1: str, _dir2: str):
 
 def get_existing_src_directories(config: dict, sensor: str, date: int):
     SRC_DIRECTORIES = [
-        [config["src"]["interferograms"]["upload"][sensor]],
+        config["src"]["interferograms"]["upload"][sensor],
         *config["src"]["interferograms"]["other"][sensor],
-        [config["dst"] + f"/{sensor}/ifgs"],
+        config["dst"] + f"/{sensor}/ifgs",
     ]
 
     src_directories = [f"{x}/{date}" for x in SRC_DIRECTORIES]

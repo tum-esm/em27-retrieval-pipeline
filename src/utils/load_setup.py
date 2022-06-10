@@ -39,13 +39,16 @@ validator = cerberus.Validator(
                     "schema": {
                         "upload": {
                             "type": "dict",
-                            "valuesrule": {
+                            "require_all": True,
+                            "keysrules": {"type": "string"},
+                            "valuesrules": {
                                 "type": "string",
                                 "check_with": check_directory_path,
                             },
                         },
                         "other": {
                             "type": "dict",
+                            "require_all": True,
                             "valuesrules": {
                                 "type": "list",
                                 "schema": {
@@ -78,8 +81,8 @@ def load_setup(validate=False) -> tuple[str, dict]:
         try:
             assert validator.validate(CONFIG), validator.errors
 
-            ifg_upload_keys = CONFIG["src"]["interferogram"]["upload"].keys()
-            ifg_other_keys = CONFIG["src"]["interferogram"]["other"].keys()
+            ifg_upload_keys = CONFIG["src"]["interferograms"]["upload"].keys()
+            ifg_other_keys = CONFIG["src"]["interferograms"]["other"].keys()
             for s in CONFIG["sensorsToConsider"]:
                 assert (
                     s in ifg_upload_keys

@@ -10,7 +10,6 @@ def run():
 
     try:
         retrieval_queue = utils.RetrievalQueue(sensor_names=CONFIG["sensorsToConsider"])
-        Logger.save_queue_file(list(retrieval_queue))
 
         for session in retrieval_queue:
             sensor = session["sensor"]
@@ -44,6 +43,10 @@ def run():
                 procedures.run_proffast_pylot.run(session)
             except Exception as e:
                 warning(f"Pylot error: {e}")
+
+            # uncomment the following return if you want to observe the final
+            # proffast outputs of one day in this working directory
+            # return
 
             info(f"Moving the outputs")
             try:

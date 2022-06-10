@@ -15,6 +15,12 @@ def run(session):
     existing_src_directories = get_existing_src_directories(CONFIG, sensor, date)
     assert_directory_list_equality(existing_src_directories)
 
+    assert len(existing_src_directories) > 0, "no ifg directories found"
+    if len(existing_src_directories) > 1:
+        Logger.debug(f"found multiple ifgs directories: {existing_src_directories}")
+
+    ifg_src = existing_src_directories[0]
+
     # Create empty output directory for that date
     dst_date_path = f"{DST}/{sensor}_ifg/{date[2:]}"
     os.mkdir(dst_date_path)
@@ -24,10 +30,10 @@ def run(session):
     # TODO: Possibly include our own mechanism of detecting corrupt ifgs
 
     # move all valid ifg files and rename them properly
-    files = os.listdir(src_date_path)
+    files = os.listdir(ifg_src)
     Logger.info(f"{sensor}/{date} - {len(files)} files found in ifg src directory")
-    for ifg_file in os.listdir(src_date_path):
-        old_path = f"{src_date_path}/{ifg_file}"
+    for ifg_file in os.listdir(ifg_src):
+        old_path = f"{ifg_src}/{ifg_file}"
 
         # two possible filenames:
         # ma20201123.ifg.0001
@@ -41,6 +47,8 @@ def run(session):
             ]
         ):
             ifg_number = ifg_file.split(".")[-1]
+            if ifg_number == "1661":
+                continue
             shutil.copy(old_path, f"{dst_date_path}/{date[2:]}SN.{ifg_number}")
             copied_ifg_count += 1
 
