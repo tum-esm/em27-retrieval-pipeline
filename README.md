@@ -1,6 +1,6 @@
 # Automated Proffast Pylot
 
-This a wrapper around https://gitlab.eudat.eu/coccon-kit/proffastpylot for our setup.
+This is a wrapper around https://gitlab.eudat.eu/coccon-kit/proffastpylot for our setup.
 
 _work in progress, until then, ask Moritz Makowski and Patrick Aigner_
 
@@ -9,6 +9,8 @@ _work in progress, until then, ask Moritz Makowski and Patrick Aigner_
 ## File Movements
 
 ![](/docs/architecture.png)
+
+_This chart only the flow from automatic-upload to retrieval-outputs. The manual queue mentioned in the scheduling-section can take other inputs as well._
 
 <br/>
 
@@ -26,16 +28,50 @@ What the `automated-proffast-pylot` does:
 
 <br/>
 
+## Scheduling
+
+**What day will the automation process next?**
+
+**1.** Look into the file `manual-queue.json`. Take the job with the _highest priority greater than 0_ - inside the same priority class, with the latest date.
+
+_... if there are no high-priority jobs:_
+
+**2.** Look into the directory specified by `config["src"]["interferograms"]["upload"]` and take the latest date from there.
+
+_... if there are no jobs in the upload directory:_
+
+**3.** Take the remaining files from `manual-queue.json` (priority < 0). Order by descending priority and the descending date - same as in step 1.
+
+_... end iteration if no more days to process_
+
+<br/>
+
+Steps 1 and 3 will only be considered, when the file `manual-queue.json` exists and is in a valid format. Only priorities ≠ 0 are valid. If the file was found but is invalid, the logs will contain warnings about that. Example file:
+
+```json
+[
+    { "sensor": "ma", "date": "20220101", "priority": 10 },
+    { "sensor": "mb", "date": "20220101", "priority": 9 },
+    { "sensor": "mc", "date": "20220101", "priority": -10 }
+]
+```
+
+The manual queue (step 1 and 3) will look for files on `config["dst"]`, `config["src"]["interferograms"]["upload"]` as well as all locations specified in `config["src"]["interferograms"]["other"]`. If there are multiple directories containing ifgs files for a day and station, it will check, whether these directories are identical. If not, this sensor-day will be aborted and there will be an error in the logs. If they are identical, the automation can take any of them as input.
+
+This manual queue can be used for **rerunning the retrieval** for certain (failed) days, etc. or to **prioritize certain days** in the upload directory over others.
+
+We will include scripts to automatically add failed proffast-retrieval days to the queue soon.
+
+<br/>
+
 ## Logging & Cron
 
 The automation will log everything in `logs/YYYYMMDD-HH-MM.log`. `YYYYMMDD` is the date, `HH-MM` is the time. The timestamp is determined by the starting date and time of the execution.
 
-Additionally, the retrieval-queue used in that execution will be written to `logs/automation/YYYYMMDD-HH-MM-queue.json`.
-
 Add the script to your crontab with the following line. This will try to start the automation every 3 hours - in case it is not already running.
 
 ```bash
-0 0,3,6,9,12,15,18,21 * * * .../.venv/bin/python .../main.py
+0 0,3,6,9,12,15,18,21 * * * .../.venv/bin/python .../run.py
 ```
 
 <br/>
@@ -45,12 +81,12 @@ Add the script to your crontab with the following line. This will try to start t
 The pylot would allow us to **process multiple days for one sensor in parallel**. However, there are multiple drawbacks to this:
 
 -   If one day fails, the pylot will not finish any of the days
--   There is one merged output file and output folder, which makes naming conventions rather very confusing (without a lot of conversion)
--   The queue-building is unnessecarily complicated because the pylot can only handle days with the same sensor at the same location
+-   There is one merged output file and output folder, which makes naming conventions rather very confusing (without a lot of conversions)
+-   The queue-building is unnecessarily complicated because the pylot can only handle days with the same sensor at the same location
 
 <br/>
 
-The Pylot could actually do more of the file moving than we are using it for. However, this data is very valuable and I don't want PROFFAST or the Pylot to work on the original files. The copying scripts in here are very short and have built-in security-steps so that no data will be deleted. Since PROFFAST and the Pylot do way more than this codebase, verifying them is quite hard.
+The Pylot could do more of the file moving than we are using it for. However, this data is very valuable and I don't want PROFFAST or the Pylot to work on the original files. The copying scripts here are very short and have built-in security steps so that no data will be deleted. Since PROFFAST and the Pylot do way more than this codebase, verifying them is quite hard.
 
 <br/>
 

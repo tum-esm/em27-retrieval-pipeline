@@ -110,6 +110,8 @@ class RetrievalQueue:
 
             return
 
+    # TODO: Only consider dates from upload dir where upload has been finished
+    #       How to tell, whether an upload has been finished?
     def _next_item_from_upload_directory(self):
         """
         Use the dates from /mnt/measurementData/mu
