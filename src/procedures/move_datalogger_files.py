@@ -28,7 +28,7 @@ def run(session):
     assert len(matching_files) < 2, f"multiple datalogger files found: {matching_files}"
 
     src_file = f"{src_dir}/{matching_files[0]}"
-    dst_file = f"{dst_dir}/{matching_files[0]}"
+    dst_file = f"{dst_dir}/{matching_files[0][:10]}.dat"
     with open(src_file, "r") as f:
         line_count = len(f.readlines())
 
