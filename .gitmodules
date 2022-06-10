@@ -1,3 +1,6 @@
 [submodule "proffastpylot"]
 	path = src/pylot_1_0_custom
 	url = https://gitlab.eudat.eu/coccon-kit/proffastpylot.git
+[submodule "src/pylot"]
+	path = src/pylot
+	url = https://gitlab.eudat.eu/coccon-kit/proffastpylot.git
