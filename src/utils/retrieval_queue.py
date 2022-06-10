@@ -4,9 +4,10 @@ import os
 import cerberus
 
 from requests import JSONDecodeError
-from src.utils import load_setup, LocationData, Logger
+from src.utils import LocationData, Logger
 
-PROJECT_DIR, CONFIG = load_setup()
+dir = os.path.dirname
+PROJECT_DIR = dir(dir(dir(os.path.abspath(__file__))))
 
 
 manual_queue_validator = cerberus.Validator(
@@ -27,7 +28,9 @@ manual_queue_validator = cerberus.Validator(
 location_data = LocationData()
 
 
-def _date_string_is_valid(date_string: str, consider_config_start_date: bool = True):
+def _date_string_is_valid(
+    start_date: str, date_string: str, consider_config_start_date: bool = True
+):
     try:
         now = datetime.now()
         then = datetime.strptime(date_string, "%Y%m%d")
@@ -36,7 +39,7 @@ def _date_string_is_valid(date_string: str, consider_config_start_date: bool = T
         assert (now - then).days >= 5
 
         if consider_config_start_date:
-            assert int(date_string) >= CONFIG["startDate"]
+            assert int(date_string) >= start_date
 
         return True
     except (AssertionError, ValueError, TypeError):
@@ -65,8 +68,8 @@ class RetrievalQueue:
     3. Takes all items from manual-queue.json with a priority < 0
     """
 
-    def __init__(self, sensor_names: list[str]):
-        self.sensor_names = sensor_names
+    def __init__(self, config: dict):
+        self.config = config
         self.processed_sensor_dates = {}
 
     def __iter__(self):
@@ -84,20 +87,26 @@ class RetrievalQueue:
                 )
                 yield next_high_prio_queue_item
                 continue
+            else:
+                Logger.info("Scheduler: High priority queue is empty")
 
             next_upload_directory_item = self._next_item_from_upload_directory()
             if next_upload_directory_item is not None:
                 Logger.info("Scheduler: Taking next item from upload directory")
                 yield next_upload_directory_item
                 continue
+            else:
+                Logger.info("Scheduler: Upload directory is empty")
 
             next_low_prio_queue_item = self._next_item_from_manual_queue(priority=False)
             if next_low_prio_queue_item is not None:
                 Logger.info(
-                    "Scheduler: Taking next item from manual queue (high priority)"
+                    "Scheduler: Taking next item from manual queue (low priority)"
                 )
                 yield next_low_prio_queue_item
                 continue
+            else:
+                Logger.info("Scheduler: Low priority queue is empty")
 
             return
 
@@ -106,17 +115,18 @@ class RetrievalQueue:
         Use the dates from /mnt/measurementData/mu
         """
         sensor_dates = []
-        for s in self.sensor_names:
+        for s in self.config["sensorsToConsider"]:
             ds = [
                 x
-                for x in os.listdir(f"{CONFIG['src']['interferograms']}/{s}_ifg")
-                if len(x) >= 8 and _date_string_is_valid(x[:8])
+                for x in os.listdir(f"{self.config['src']['interferograms']}/{s}_ifg")
+                if len(x) >= 8
+                and _date_string_is_valid(self.config["startDate"], x[:8])
             ]
             for d in ds:
                 if len(d) > 8:
                     os.rename(
-                        f"{CONFIG['src']['interferograms']}/{s}_ifg/{d}",
-                        f"{CONFIG['src']['interferograms']}/{s}_ifg/{d[:8]}",
+                        f"{self.config['src']['interferograms']}/{s}_ifg/{d}",
+                        f"{self.config['src']['interferograms']}/{s}_ifg/{d[:8]}",
                     )
             sensor_dates += [{"sensor": s, "date": d} for d in ds]
 
@@ -141,7 +151,7 @@ class RetrievalQueue:
 
             for x in sensor_dates:
                 assert (
-                    x["sensor"] in self.sensor_names
+                    x["sensor"] in self.config["sensorsToConsider"]
                 ), f"no coordinates found for sensor \"{x['sensor']}\""
                 assert _date_string_is_valid(
                     x["date"], consider_config_start_date=False

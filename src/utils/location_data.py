@@ -1,7 +1,8 @@
 import json
-from src.utils import load_setup
+import os
 
-PROJECT_DIR, CONFIG = load_setup()
+dir = os.path.dirname
+PROJECT_DIR = dir(dir(dir(os.path.abspath(__file__))))
 
 
 def check_for_location_data(f):

@@ -1,4 +1,4 @@
-from .load_setup import load_setup
+from .load_config import load_config
 from .logger import Logger
 from .location_data import LocationData
 from .retrieval_queue import RetrievalQueue
