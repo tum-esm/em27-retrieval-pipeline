@@ -20,7 +20,7 @@ class Logger:
     @staticmethod
     def _print(m: str, level: str):
         t = datetime.utcnow().strftime("%Y%m%d %H:%M:%S")
-        with open(f"{PROJECT_DIR}/logs/automation/{log_file_name}", "a") as f:
+        with open(f"{PROJECT_DIR}/logs/{log_file_name}", "a") as f:
             f.write(f"{t} - {level} - {m}\n")
 
     @staticmethod
@@ -48,5 +48,5 @@ class Logger:
 
     @staticmethod
     def save_queue_file(queue: dict):
-        with open(f"{PROJECT_DIR}/logs/automation/{queue_file_name}", "w") as f:
+        with open(f"{PROJECT_DIR}/logs/{queue_file_name}", "w") as f:
             json.dump(queue, f, indent=4)

@@ -26,17 +26,16 @@ What the `automated-proffast-pylot` does:
 
 <br/>
 
-## Logging
+## Logging & Cron
 
-The automation will log everything in `logs/automation/YYYYMMDD-HH-MM.log`. `YYYYMMDD` is the date, `HH-MM` is the time. The timestamp is determined by the starting date and time of the execution.
+The automation will log everything in `logs/YYYYMMDD-HH-MM.log`. `YYYYMMDD` is the date, `HH-MM` is the time. The timestamp is determined by the starting date and time of the execution.
 
 Additionally, the retrieval-queue used in that execution will be written to `logs/automation/YYYYMMDD-HH-MM-queue.json`.
 
-Any print-outs that do not make it to the logs (only "already running"-messages and errors) will land in `logs/cron/YYYYMMDD-HH-MM.log`. You can make a cron job write its outputs in a file names like this:
+Add the script to your crontab with the following line. This will try to start the automation every 3 hours - in case it is not already running.
 
 ```bash
-proffast_error_file = .../logs/cron/`date "+\%Y\%m\%d-\%H\%M"`.log
-0 0,3,6,9,12,15,18,21 * * * .../.venv/bin/python .../main.py > ${proffast_error_file}
+0 0,3,6,9,12,15,18,21 * * * .../.venv/bin/python .../main.py
 ```
 
 <br/>
