@@ -117,19 +117,19 @@ class RetrievalQueue:
         Use the dates from /mnt/measurementData/mu
         """
         sensor_dates = []
-        upload_src = self.config["src"]["interferograms"]["upload"]
         for s in self.config["sensorsToConsider"]:
+            upload_src = self.config["src"]["interferograms"]["upload"][s]
             ds = [
                 x
-                for x in os.listdir(f"{upload_src}/{s}_ifg")
+                for x in os.listdir(upload_src)
                 if len(x) >= 8
                 and _date_string_is_valid(self.config["startDate"], x[:8])
             ]
             for d in ds:
                 if len(d) > 8:
                     os.rename(
-                        f"{upload_src}/{s}_ifg/{d}",
-                        f"{upload_src}/{s}_ifg/{d[:8]}",
+                        f"{upload_src}/{d}",
+                        f"{upload_src}/{d[:8]}",
                     )
             sensor_dates += [{"sensor": s, "date": d} for d in ds]
 
