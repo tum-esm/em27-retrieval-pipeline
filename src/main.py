@@ -8,10 +8,10 @@ def run():
     Logger.info("-----------------------")
     Logger.info("Starting the automation")
 
-    retrieval_queue = utils.RetrievalQueue(sensor_names=CONFIG["sensorsToConsider"])
-    Logger.save_queue_file(list(retrieval_queue))
-
     try:
+        retrieval_queue = utils.RetrievalQueue(sensor_names=CONFIG["sensorsToConsider"])
+        Logger.save_queue_file(list(retrieval_queue))
+
         for session in retrieval_queue:
             sensor = session["sensor"]
             date = session["date"]
@@ -55,7 +55,7 @@ def run():
         Logger.info("Keyboard interrupt")
         return
     except Exception:
-        info(f"Unhandled exception: {e}")
+        Logger.exception()
         return
 
     Logger.info("Automation is finished")
