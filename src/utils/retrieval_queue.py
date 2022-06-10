@@ -14,7 +14,7 @@ def _date_string_is_valid(date_string: str):
         assert (now - then).days >= 5
 
         return int(date_string) >= CONFIG["startDate"]
-    except (ValueError, TypeError):
+    except (AssertionError, ValueError, TypeError):
         return False
 
 
@@ -82,5 +82,15 @@ class RetrievalQueue:
                         "serial_number": l.get_serial_number(sensor),
                     }
                 )
+
+        # take the most recent date first
         queue = list(sorted(queue, key=lambda x: x["date"], reverse=True))
+
+        # take no more than 50 sensor-days at once
+        if len(queue) > 50:
+            queue = queue[:50]
+
+        # TODO: Take items from the archive
+        # archive_count = 50 - len(queue)
+
         return queue

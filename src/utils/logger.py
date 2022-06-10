@@ -1,6 +1,8 @@
 from datetime import datetime
 import json
 import os
+import sys
+import traceback
 
 dir = os.path.dirname
 PROJECT_DIR = dir(dir(dir(os.path.abspath(__file__))))
@@ -22,9 +24,11 @@ class Logger:
             f.write(f"{t} - {level} - {m}\n")
 
     @staticmethod
-    def exception(m: str):
-        # TODO: Log traceback (see pyra-4 emails)
-        Logger._print(m, "EXCEPTION")
+    def exception():
+        exc_type, exc_value, exc_traceback = sys.exc_info()
+        name = f"Unhandeled Exception: {exc_type.__name__}\n"
+        tb = "".join(traceback.format_exception(exc_type, exc_value, exc_traceback))
+        Logger._print(name + tb, "EXCEPTION")
 
     @staticmethod
     def error(m: str):
