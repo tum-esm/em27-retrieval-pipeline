@@ -1,10 +1,11 @@
+import os
 from src import utils, procedures
 from src.utils import load_config, Logger
 
 
 def run():
     Logger.line(variant="=")
-    Logger.info("Starting the automation")
+    Logger.info(f"Starting the automation with PID {os.getpid()}")
 
     try:
         CONFIG = load_config(validate=True)
@@ -41,6 +42,7 @@ def run():
             Logger.info(f"Running the pylot")
             try:
                 procedures.run_proffast_pylot.run(session)
+                Logger.debug(f"Pylot completed without errors")
             except Exception as e:
                 Logger.warning(f"Pylot error: {e}")
 
@@ -61,4 +63,4 @@ def run():
         Logger.exception()
         return
 
-    Logger.info("Automation is finished")
+    Logger.info(f"Automation is finished")

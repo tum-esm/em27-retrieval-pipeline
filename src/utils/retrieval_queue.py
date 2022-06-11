@@ -77,7 +77,7 @@ class RetrievalQueue:
         while True:
             iteration_count += 1
             Logger.line()
-            Logger.info(f"Scheduler: Iteration {iteration_count}")
+            Logger.debug(f"Scheduler: Iteration {iteration_count}")
 
             next_high_prio_queue_item = self._next_item_from_manual_queue(priority=True)
             if next_high_prio_queue_item is not None:
@@ -87,7 +87,7 @@ class RetrievalQueue:
                 yield next_high_prio_queue_item
                 continue
             else:
-                Logger.info("Scheduler: High priority queue is empty")
+                Logger.debug("Scheduler: High priority queue is empty")
 
             next_upload_directory_item = self._next_item_from_upload_directory()
             if next_upload_directory_item is not None:
@@ -95,7 +95,7 @@ class RetrievalQueue:
                 yield next_upload_directory_item
                 continue
             else:
-                Logger.info("Scheduler: Upload directory is empty")
+                Logger.debug("Scheduler: Upload directory is empty")
 
             next_low_prio_queue_item = self._next_item_from_manual_queue(priority=False)
             if next_low_prio_queue_item is not None:
@@ -105,7 +105,7 @@ class RetrievalQueue:
                 yield next_low_prio_queue_item
                 continue
             else:
-                Logger.info("Scheduler: Low priority queue is empty")
+                Logger.debug("Scheduler: Low priority queue is empty")
 
             return
 
