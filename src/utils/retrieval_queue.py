@@ -76,9 +76,7 @@ class RetrievalQueue:
         iteration_count = 0
         while True:
             iteration_count += 1
-            if iteration_count > 50:
-                Logger.info("Scheduler: Already processed 50 items in this execution.")
-                return
+            Logger.info(f"Scheduler: Iteration {iteration_count}")
 
             next_high_prio_queue_item = self._next_item_from_manual_queue(priority=True)
             if next_high_prio_queue_item is not None:
