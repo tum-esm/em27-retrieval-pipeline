@@ -12,6 +12,28 @@ dir = os.path.dirname
 PROJECT_DIR = dir(dir(dir(os.path.abspath(__file__))))
 
 
+def detect_error_type(output_src: str):
+    if not os.path.isdir(f"{output_src}/logfiles"):
+        return None
+
+    known_errors: list[tuple[str, str]] = [
+        ("preprocess_output", "charfilter not found!"),
+        ("preprocess_output", "Zero IFG block size!"),
+        ("inv_output", "CO channel: no natural grid!"),
+    ]
+
+    for o, m in known_errors:
+        try:
+            with open(f"{output_src}/logfiles/{o}.log", "r") as f:
+                file_content = "".join(f.readlines())
+            if m in file_content:
+                return m
+        except FileNotFoundError:
+            pass
+
+    return None
+
+
 def run(config: dict, session):
     sensor = session["sensor"]
     date = str(session["date"])
@@ -35,9 +57,14 @@ def run(config: dict, session):
     output_dst_failed = config["dst"] + f"/{sensor}/proffast-outputs-failed/{date}"
 
     if day_was_successful:
-        Logger.info(f"Retrieval was successful")
+        Logger.debug(f"Retrieval output csv exists")
     else:
-        Logger.info(f"Retrieval failed inside PROFFAST")
+        Logger.warning(f"Retrieval output csv does not exist")
+        error_type = detect_error_type(output_src)
+        if error_type is None:
+            Logger.warning("Unknown error type")
+        else:
+            Logger.warning(f"Known error type: {error_type}")
 
     # remove old outputs
     if os.path.isdir(output_dst_success):
