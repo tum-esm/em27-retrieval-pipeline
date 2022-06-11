@@ -76,6 +76,7 @@ class RetrievalQueue:
         iteration_count = 0
         while True:
             iteration_count += 1
+            Logger.line()
             Logger.info(f"Scheduler: Iteration {iteration_count}")
 
             next_high_prio_queue_item = self._next_item_from_manual_queue(priority=True)

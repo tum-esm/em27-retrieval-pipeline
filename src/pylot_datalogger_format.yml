@@ -9,8 +9,8 @@ filename_parameters:
 
 # the pressure file itself has the structure:
 # """
-# UTCdate_____ UTCtime___ UTCsec____ GPSLong GPSLat GPSAlt GPSTDiff GPShdop BaroYoung
-# "27.11.2019" "00:00:16" 1574812816 -3.4028e+38 -3.4028e+38 -3.4028e+38 -3.4028e+38 -3.4028e+38 +9.4088e+02
+# UTCdate_____ UTCtime___ UTCsec____ BaroYoung
+# "27.11.2019" "00:00:16" 1574812816 +9.4088e+02
 # """
 dataframe_parameters:
   pressure_key: "BaroYoung"

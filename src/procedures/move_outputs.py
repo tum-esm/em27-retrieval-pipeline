@@ -20,6 +20,7 @@ def detect_error_type(output_src: str):
         ("preprocess_output", "charfilter not found!"),
         ("preprocess_output", "Zero IFG block size!"),
         ("inv_output", "CO channel: no natural grid!"),
+        ("GeneralLogfile", "File not found: Could not move pcxs input file"),
     ]
 
     for o, m in known_errors:

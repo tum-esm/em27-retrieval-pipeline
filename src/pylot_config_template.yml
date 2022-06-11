@@ -24,7 +24,7 @@ proffast_path: %PROJECT_DIR%/src/pylot/prf
 
 # TCCON
 tccon_mode: False
-tccon_setting:  1
+tccon_setting:  0
 
 # INPUT PATHS
 interferogram_path: %PROJECT_DIR%/inputs/%SENSOR%_ifg
