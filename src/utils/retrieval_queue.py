@@ -133,12 +133,19 @@ class RetrievalQueue:
                     )
             sensor_dates += [{"sensor": s, "date": d} for d in ds]
 
+        # Do not take in a sensor date multiple times
+        sensor_dates = self._filter_sensor_dates_by_processed_items(sensor_dates)
+
         if len(sensor_dates) == 0:
             return None
-        else:
-            return self._generate_process_from_sensor_date(
-                list(sorted(sensor_dates, key=lambda x: x["date"], reverse=True))[0]
-            )
+
+        sensor_date = self._generate_process_from_sensor_date(
+            list(sorted(sensor_dates, key=lambda x: x["date"], reverse=True))[0]
+        )
+        self._mark_sensor_date_as_processed(
+            sensor_date["sensor"], str(sensor_date["date"])
+        )
+        return sensor_date
 
     def _next_item_from_manual_queue(self, priority: bool = True):
         """
@@ -176,14 +183,8 @@ class RetrievalQueue:
             )
         )
 
-        # Do not take in a sensor multiple times
-        sensor_dates = list(
-            filter(
-                lambda x: x["date"]
-                not in self.processed_sensor_dates.get(x["sensor"], []),
-                sensor_dates,
-            )
-        )
+        # Do not take in a sensor date multiple times
+        sensor_dates = self._filter_sensor_dates_by_processed_items(sensor_dates)
 
         if len(sensor_dates) == 0:
             return None
@@ -197,17 +198,30 @@ class RetrievalQueue:
                     reverse=True,
                 )
             )[0]
-            sensor, date = sensor_date["sensor"], sensor_date["date"]
-            if sensor not in self.processed_sensor_dates.keys():
-                self.processed_sensor_dates[sensor] = [date]
-            else:
-                self.processed_sensor_dates[sensor].append(date)
+            self._mark_sensor_date_as_processed(
+                sensor_date["sensor"], sensor_date["date"]
+            )
             return self._generate_process_from_sensor_date(
                 {
                     "sensor": sensor_date["sensor"],
                     "date": sensor_date["date"],
                 }
             )
+
+    def _mark_sensor_date_as_processed(self, sensor: str, date: str):
+        if sensor not in self.processed_sensor_dates.keys():
+            self.processed_sensor_dates[sensor] = [date]
+        else:
+            self.processed_sensor_dates[sensor].append(date)
+
+    def _filter_sensor_dates_by_processed_items(self, sensor_dates: list):
+        return list(
+            filter(
+                lambda x: x["date"]
+                not in self.processed_sensor_dates.get(x["sensor"], []),
+                sensor_dates,
+            )
+        )
 
     def _generate_process_from_sensor_date(self, sensor_date: dict):
         sensor = sensor_date["sensor"]
