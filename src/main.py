@@ -3,7 +3,7 @@ from src.utils import load_config, Logger
 
 
 def run():
-    Logger.info("-----------------------")
+    Logger.line(variant="=")
     Logger.info("Starting the automation")
 
     try:

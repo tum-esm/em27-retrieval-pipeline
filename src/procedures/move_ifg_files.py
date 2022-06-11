@@ -34,7 +34,7 @@ def run(config: dict, session):
 
     # move all valid ifg files and rename them properly
     file_count = len(os.listdir(ifg_src))
-    Logger.info(f"{file_count} files/directories found in ifg src directory")
+    Logger.debug(f"{file_count} files/directories found in ifg src directory")
     for ifg_file in os.listdir(ifg_src):
         old_path = f"{ifg_src}/{ifg_file}"
 

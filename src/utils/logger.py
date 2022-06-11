@@ -1,5 +1,4 @@
 from datetime import datetime
-import json
 import os
 import sys
 import traceback
@@ -42,5 +41,5 @@ class Logger:
         Logger._print(m, "INFO")
 
     @staticmethod
-    def debug(m: str):
-        Logger._print(m, "DEBUG")
+    def line(variant: str = "-"):
+        Logger._print(variant * 52, "INFO")
