@@ -41,5 +41,9 @@ class Logger:
         Logger._print(m, "INFO")
 
     @staticmethod
+    def debug(m: str):
+        Logger._print(m, "DEBUG")
+
+    @staticmethod
     def line(variant: str = "-"):
         Logger._print(variant * 52, "INFO")

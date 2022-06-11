@@ -60,12 +60,12 @@ def run(config: dict, session):
     if day_was_successful:
         Logger.debug(f"Retrieval output csv exists")
     else:
-        Logger.warning(f"Retrieval output csv does not exist")
+        Logger.debug(f"Retrieval output csv does not exist")
         error_type = detect_error_type(output_src)
         if error_type is None:
-            Logger.warning("Unknown error type")
+            Logger.debug("Unknown error type")
         else:
-            Logger.warning(f"Known error type: {error_type}")
+            Logger.debug(f"Known error type: {error_type}")
 
     # remove old outputs
     if os.path.isdir(output_dst_success):
