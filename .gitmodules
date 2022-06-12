@@ -7,3 +7,6 @@
 [submodule "src/pylot"]
 	path = src/pylot
 	url = https://gitlab.eudat.eu/coccon-kit/proffastpylot.git
+[submodule "src/detect-corrupt-ifgs"]
+	path = src/detect-corrupt-ifgs
+	url = https://github.com/tum-esm/detect-corrupt-ifgs.git

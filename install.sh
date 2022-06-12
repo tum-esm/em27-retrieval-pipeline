@@ -11,7 +11,7 @@ rm PROFFASTv2.1.zip
 # move proffast into correct subdirectory
 mv prf src/pylot/prf
 
-compile proffast source code
+# compile proffast source code
 cd src/pylot/prf
 
 # bash install_proffast_linux.sh
@@ -31,7 +31,7 @@ done
 
 echo "compiling preprocess ..."
 cd ${INSTALL_FOLDER}/source/preprocess/
-${COMPILER} ${COMPILER_OPTIONS} ../../preprocess/preprocess4 glob_prepro4.F90 glob_OPUSparms.F90 preprocess4.F90
+${COMPILER} ${COMPILER_OPTIONS} ./preprocess4 glob_prepro4.F90 glob_OPUSparms.F90 preprocess4.F90
 
 echo 'compiling inverse...'
 cd ${INSTALL_FOLDER}/source/invers
@@ -43,6 +43,9 @@ ${COMPILER} ${COMPILER_OPTIONS} ../../pcxs20 globvar20.f90 globlin20.f90 globlev
 echo 'done.'
 
 cd ../../..
+
+cd src/detect-corrupt-ifgs
+./compile.sh
 
 # install python dependencies
 python3.9 -m venv .venv
