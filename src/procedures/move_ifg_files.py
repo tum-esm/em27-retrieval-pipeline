@@ -57,9 +57,12 @@ def run(config: dict, session):
             copied_ifg_count += 1
 
     # remove corrupt_ifgs
-    corrupt_filed = detect_corrupt_ifgs.main.run(dst_date_path).keys()
-    Logger.debug(f"Removing {len(corrupt_filed)} corrupt files: {corrupt_filed}")
-    for f in corrupt_filed:
-        os.remove(f"{dst_date_path}/{f}")
+    corrupt_files = list(detect_corrupt_ifgs.main.run(dst_date_path).keys())
+    if len(corrupt_files) > 0:
+        Logger.debug(f"Removing {len(corrupt_files)} corrupt files: {corrupt_files}")
+        for f in corrupt_files:
+            os.remove(f"{dst_date_path}/{f}")
+    else:
+        Logger.debug(f"No corrupt files found")
 
     assert copied_ifg_count > 0, "no ifgs in src directory"
