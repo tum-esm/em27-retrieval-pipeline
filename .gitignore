@@ -12,3 +12,6 @@ hidden
 logs/**/*.json
 *.log
 manual-queue.json
+.DS_Store
+example/outputs/*
+!example/outputs/.gitkeep
