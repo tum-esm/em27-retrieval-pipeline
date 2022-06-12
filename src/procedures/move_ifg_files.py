@@ -5,6 +5,7 @@ from src.utils import (
     get_existing_src_directories,
     assert_directory_list_equality,
 )
+from src import detect_corrupt_ifgs
 
 dir = os.path.dirname
 PROJECT_DIR = dir(dir(dir(os.path.abspath(__file__))))
@@ -54,5 +55,11 @@ def run(config: dict, session):
             ifg_number = ifg_file.split(".")[-1]
             shutil.copy(old_path, f"{dst_date_path}/{date[2:]}SN.{ifg_number}")
             copied_ifg_count += 1
+
+    # remove corrupt_ifgs
+    corrupt_filed = detect_corrupt_ifgs.main.run(dst_date_path).keys()
+    Logger.debug(f"Removing {len(corrupt_filed)} corrupt files: {corrupt_filed}")
+    for f in corrupt_filed:
+        os.remove(f"{dst_date_path}/{f}")
 
     assert copied_ifg_count > 0, "no ifgs in src directory"
