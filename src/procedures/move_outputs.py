@@ -20,7 +20,6 @@ def detect_error_type(output_src: str):
         ("preprocess_output", "charfilter not found!"),
         ("preprocess_output", "Zero IFG block size!"),
         ("inv_output", "CO channel: no natural grid!"),
-        ("GeneralLogfile", "File not found: Could not move pcxs input file"),
     ]
 
     for o, m in known_errors:
@@ -52,15 +51,21 @@ def run(config: dict, session):
     day_was_successful = os.path.isfile(output_csv)
     if day_was_successful:
         with open(output_csv, "r") as f:
-            day_was_successful = len(f.readlines()) > 1
+            if len(f.readlines()) > 1:
+                Logger.debug(f"Retrieval output csv exists")
+            else:
+                day_was_successful = False
+                Logger.warning(f"Retrieval output csv is empty")
+    else:
+        Logger.debug(f"Retrieval output csv is missing")
 
     output_dst_success = config["dst"] + f"/{sensor}/proffast-outputs/{date}"
     output_dst_failed = config["dst"] + f"/{sensor}/proffast-outputs-failed/{date}"
 
     if day_was_successful:
-        Logger.debug(f"Retrieval output csv exists")
-    else:
-        Logger.debug(f"Retrieval output csv does not exist")
+        output_dst = output_dst_success
+    if not day_was_successful:
+        output_dst = output_dst_failed
         error_type = detect_error_type(output_src)
         if error_type is None:
             Logger.debug("Unknown error type")
@@ -75,7 +80,7 @@ def run(config: dict, session):
         Logger.debug(f"Removing old failed output")
         shutil.rmtree(output_dst_failed)
 
-    output_dst = output_dst_success if day_was_successful else output_dst_failed
+    # move new outputs
     shutil.copytree(output_src, output_dst)
     shutil.rmtree(output_src)
 
