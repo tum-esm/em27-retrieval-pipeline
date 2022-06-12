@@ -28,9 +28,7 @@ manual_queue_validator = cerberus.Validator(
 location_data = LocationData()
 
 
-def _date_string_is_valid(
-    start_date: str, date_string: str, consider_config_start_date: bool = True
-):
+def _date_string_is_valid(date_string: str, start_date: str = None):
     try:
         now = datetime.now()
         then = datetime.strptime(date_string, "%Y%m%d")
@@ -38,7 +36,7 @@ def _date_string_is_valid(
         # the vertical profiles are only available with a 5 day delay
         assert (now - then).days >= 5
 
-        if consider_config_start_date:
+        if start_date is not None:
             assert int(date_string) >= start_date
 
         return True
@@ -122,7 +120,7 @@ class RetrievalQueue:
                 x
                 for x in os.listdir(upload_src)
                 if len(x) >= 8
-                and _date_string_is_valid(self.config["startDate"], x[:8])
+                and _date_string_is_valid(x[:8], start_date=self.config["startDate"])
             ]
             for d in ds:
                 if len(d) > 8:
@@ -163,7 +161,7 @@ class RetrievalQueue:
                     x["sensor"] in self.config["sensorsToConsider"]
                 ), f"no coordinates found for sensor \"{x['sensor']}\""
                 assert _date_string_is_valid(
-                    x["date"], consider_config_start_date=False
+                    x["date"]
                 ), f"\"{x['date']}\" is not a valid date"
         except AssertionError as e:
             Logger.warning(f"Manual queue in an invalid format: {e}")
