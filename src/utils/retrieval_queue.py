@@ -87,13 +87,18 @@ class RetrievalQueue:
             else:
                 Logger.debug("Scheduler: High priority queue is empty")
 
-            next_upload_directory_item = self._next_item_from_upload_directory()
-            if next_upload_directory_item is not None:
-                Logger.info("Scheduler: Taking next item from upload directory")
-                yield next_upload_directory_item
-                continue
+            if self.config["processUploadsAutomatically"]:
+                next_upload_directory_item = self._next_item_from_upload_directory()
+                if next_upload_directory_item is not None:
+                    Logger.info("Scheduler: Taking next item from upload directory")
+                    yield next_upload_directory_item
+                    continue
+                else:
+                    Logger.debug("Scheduler: Upload directory is empty")
             else:
-                Logger.debug("Scheduler: Upload directory is empty")
+                Logger.debug(
+                    "Scheduler: Skipping upload queue (processUploadsAutomatically == false)"
+                )
 
             next_low_prio_queue_item = self._next_item_from_manual_queue(priority=False)
             if next_low_prio_queue_item is not None:

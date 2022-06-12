@@ -1,5 +1,6 @@
 {
     "sensorsToConsider": ["ma", "mb", "mc", "md", "me"],
+    "processUploadsAutomatically": true,
     "src": {
         "datalogger": "/home/esm/datalogger2zeno",
         "verticalProfiles": "/home/esm/em27_ifg_dss/vertical-profiles",
