@@ -12,4 +12,4 @@ from src.pylot.prfpylot.pylot import Pylot
 
 def run(session):
     yaml_path = f"{PROJECT_DIR}/inputs/{session['sensor']}-pylot-config.yml"
-    Pylot(yaml_path, logginglevel="info").run(n_processes=1)
+    Pylot(yaml_path, logginglevel="debug").run(n_processes=1)

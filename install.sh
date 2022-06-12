@@ -44,8 +44,8 @@ echo 'done.'
 
 cd ../../..
 
-cd src/detect-corrupt-ifgs
-./compile.sh
+cd src/detect_corrupt_ifgs
+bash compile.sh
 
 # install python dependencies
 python3.9 -m venv .venv
