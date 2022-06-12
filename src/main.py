@@ -45,7 +45,6 @@ def run():
                 Logger.debug(f"Pylot completed without errors")
             except Exception as e:
                 Logger.warning(f"Pylot error: {e}")
-                Logger.exception()
 
             # uncomment the following return if you want to observe the final
             # proffast outputs of one day in this working directory
