@@ -24,6 +24,7 @@ def check_directory_path(field, value, error):
 validator = cerberus.Validator(
     {
         "sensorsToConsider": {"type": "list", "schema": {"type": "string"}},
+        "processUploadsAutomatically": {"type": "boolean"},
         "src": {
             "type": "dict",
             "require_all": True,
