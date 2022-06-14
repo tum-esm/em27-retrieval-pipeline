@@ -59,7 +59,7 @@ def run(config: dict, session):
     # remove corrupt_ifgs
     corrupt_files = list(detect_corrupt_ifgs.main.run(dst_date_path).keys())
     if len(corrupt_files) > 0:
-        Logger.debug(f"Removing {len(corrupt_files)} corrupt files: {corrupt_files}")
+        Logger.debug(f"Removing {len(corrupt_files)} corrupt file(s): {corrupt_files}")
         for f in corrupt_files:
             os.remove(f"{dst_date_path}/{f}")
     else:
