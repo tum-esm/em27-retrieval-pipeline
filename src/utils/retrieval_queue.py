@@ -33,9 +33,6 @@ def _date_string_is_valid(date_string: str, start_date: str = None):
         now = datetime.now()
         then = datetime.strptime(date_string, "%Y%m%d")
 
-        # the vertical profiles are only available with a 5 day delay
-        assert (now - then).days >= 5
-
         if start_date is not None:
             assert int(date_string) >= start_date
 
