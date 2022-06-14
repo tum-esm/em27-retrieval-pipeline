@@ -134,8 +134,12 @@ def run(config: dict, session):
 
     with open(f"{output_dst}/about.json", "w") as f:
         now = datetime.utcnow()
-        commit_sha = subprocess.check_output(
-            ["git", "rev-parse", "--short", "--verify", "HEAD"], cwd=PROJECT_DIR
+        commit_sha = (
+            subprocess.check_output(
+                ["git", "rev-parse", "--short", "--verify", "HEAD"], cwd=PROJECT_DIR
+            )
+            .decode()
+            .replace("\n", "")
         )
         about_dict = {
             "pylotVersion": "1.0",
