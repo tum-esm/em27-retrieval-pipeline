@@ -1,6 +1,8 @@
+from datetime import datetime
 import json
 import os
 import shutil
+import subprocess
 from src.utils import (
     Logger,
     directories_are_equal,
@@ -121,3 +123,25 @@ def run(config: dict, session):
         Logger.debug("Removing item from manual queue")
         with open(f"{PROJECT_DIR}/manual-queue.json", "w") as f:
             json.dump(new_manual_queue_content, f, indent=4)
+
+    # --- STORE AUTOMATION LOGS ---
+
+    date_logs = Logger.get_date_logs()
+    with open(f"{output_dst}/automation.log", "w") as f:
+        f.writelines(date_logs)
+
+    # --- STORE AUTOMATION INFO ---
+
+    with open(f"{output_dst}/about.json", "w") as f:
+        now = datetime.utcnow()
+        commit_sha = subprocess.check_output(
+            ["git", "rev-parse", "--short", "--verify", "HEAD"], cwd=PROJECT_DIR
+        )
+        about_dict = {
+            "pylotVersion": "1.0",
+            "proffastVersion": "2.0",
+            "automationVersion": commit_sha,
+            "generationDate": now.strftime("%Y%m%d"),
+            "generationTime": now.strftime("%T"),
+        }
+        json.dump(about_dict, f, indent=4)

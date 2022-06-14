@@ -15,11 +15,15 @@ log_file_name = datetime.utcnow().strftime("%Y%m%d-%H-%M.log")
 
 
 class Logger:
+    _date_logs = []
+
     @staticmethod
     def _print(m: str, level: str):
         t = datetime.utcnow().strftime("%Y%m%d %H:%M:%S")
         with open(f"{PROJECT_DIR}/logs/{log_file_name}", "a") as f:
-            f.write(f"{t} - {level} - {m}\n")
+            log_line = f"{t} - {level} - {m}\n"
+            f.write(log_line)
+            Logger._date_logs.append(log_line)
 
     @staticmethod
     def exception():
@@ -47,3 +51,11 @@ class Logger:
     @staticmethod
     def line(variant: str = "-"):
         Logger._print(variant * 52, "INFO")
+
+    @staticmethod
+    def flush_date_logs():
+        Logger._date_logs = []
+
+    @staticmethod
+    def get_date_logs():
+        return Logger._date_logs

@@ -21,6 +21,8 @@ def run():
             sensor = session["sensor"]
             date = session["date"]
 
+            Logger.flush_date_logs()
+
             Logger.info(f"Starting {sensor}/{date}")
             procedures.initialize_session_environment.run(session)
 
@@ -45,6 +47,7 @@ def run():
                 Logger.debug(f"Pylot completed without errors")
             except Exception as e:
                 Logger.warning(f"Pylot error: {e}")
+                Logger.exception()
 
             # uncomment the following return if you want to observe the final
             # proffast outputs of one day in this working directory
