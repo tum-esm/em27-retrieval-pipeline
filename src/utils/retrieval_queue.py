@@ -236,3 +236,24 @@ class RetrievalQueue:
             **coordinates_dict,
             "serial_number": serial_number,
         }
+
+    @staticmethod
+    def remove_date_from_queue(sensor: str, date: str):
+        queue_file = f"{PROJECT_DIR}/manual-queue.json"
+        if not os.path.isfile(queue_file):
+            return
+
+        with open(queue_file, "r") as f:
+            old_manual_queue_content = json.load(f)
+        assert isinstance(old_manual_queue_content, list)
+
+        new_manual_queue_content = list(
+            filter(
+                lambda x: not ((x["sensor"] == sensor) and (x["date"] == date)),
+                old_manual_queue_content,
+            )
+        )
+        if len(new_manual_queue_content) < len(old_manual_queue_content):
+            Logger.debug("Removing item from manual queue")
+            with open(queue_file, "w") as f:
+                json.dump(new_manual_queue_content, f, indent=4)

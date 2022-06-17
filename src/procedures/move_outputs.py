@@ -9,6 +9,7 @@ from src.utils import (
     assert_directory_list_equality,
     get_existing_src_directories,
 )
+from src.utils.retrieval_queue import RetrievalQueue
 
 dir = os.path.dirname
 PROJECT_DIR = dir(dir(dir(os.path.abspath(__file__))))
@@ -109,20 +110,7 @@ def run(config: dict, session):
 
     # --- POSSIBLY REMOVE ITEMS FROM MANUAL QUEUE ---
 
-    with open(f"{PROJECT_DIR}/manual-queue.json", "r") as f:
-        old_manual_queue_content = json.load(f)
-    assert isinstance(old_manual_queue_content, list)
-
-    new_manual_queue_content = list(
-        filter(
-            lambda x: not ((x["sensor"] == sensor) and (x["date"] == date)),
-            old_manual_queue_content,
-        )
-    )
-    if len(new_manual_queue_content) < len(old_manual_queue_content):
-        Logger.debug("Removing item from manual queue")
-        with open(f"{PROJECT_DIR}/manual-queue.json", "w") as f:
-            json.dump(new_manual_queue_content, f, indent=4)
+    RetrievalQueue.remove_date_from_queue(sensor, date)
 
     # --- STORE AUTOMATION LOGS ---
 
