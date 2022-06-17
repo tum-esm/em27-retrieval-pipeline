@@ -1,6 +1,7 @@
 from datetime import datetime
 import json
 import os
+import sys
 import cerberus
 
 from requests import JSONDecodeError
@@ -138,13 +139,21 @@ class RetrievalQueue:
         if len(sensor_dates) == 0:
             return None
 
-        sensor_date = self._generate_process_from_sensor_date(
-            list(sorted(sensor_dates, key=lambda x: x["date"], reverse=True))[0]
-        )
+        next_sensor_date = max(sensor_dates, key=lambda x: x["date"])
         self._mark_sensor_date_as_processed(
-            sensor_date["sensor"], str(sensor_date["date"])
+            next_sensor_date["sensor"], str(next_sensor_date["date"])
         )
-        return sensor_date
+
+        try:
+            next_process = self._generate_process_from_sensor_date(next_sensor_date)
+            return next_process
+        except:
+            Logger.error(
+                f'Error during "_generate_process_from_sensor_date" '
+                + "for next_sensor_date={next_sensor_date}"
+            )
+            Logger.exception()
+            return self._next_item_from_upload_directory()
 
     def _next_item_from_manual_queue(self, priority: bool = True):
         """
