@@ -1,5 +1,6 @@
 import os
 import shutil
+import subprocess
 from src.utils import (
     Logger,
     get_existing_src_directories,
@@ -39,8 +40,6 @@ def run(config: dict, session):
     for ifg_file in os.listdir(ifg_src):
         old_path = f"{ifg_src}/{ifg_file}"
 
-        # TODO: Possibly include our own mechanism of detecting corrupt ifgs
-
         # two possible filenames:
         # ma20201123.ifg.0001
         # ma20220316s0e00a.0001
@@ -57,7 +56,11 @@ def run(config: dict, session):
             copied_ifg_count += 1
 
     # remove corrupt_ifgs
-    corrupt_files = list(detect_corrupt_ifgs.main.run(dst_date_path).keys())
+    try:
+        corrupt_files = list(detect_corrupt_ifgs.main.run(dst_date_path).keys())
+    except subprocess.CalledProcessError:
+        raise AssertionError("corrupt-files-detection has failed during execution")
+
     if len(corrupt_files) > 0:
         Logger.debug(f"Removing {len(corrupt_files)} corrupt file(s): {corrupt_files}")
         for f in corrupt_files:
