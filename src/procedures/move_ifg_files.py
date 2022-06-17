@@ -7,6 +7,7 @@ from src.utils import (
     assert_directory_list_equality,
 )
 from src import detect_corrupt_ifgs
+from src.utils.retrieval_queue import RetrievalQueue
 
 dir = os.path.dirname
 PROJECT_DIR = dir(dir(dir(os.path.abspath(__file__))))
@@ -18,13 +19,17 @@ def run(config: dict, session):
     date = str(session["date"])
 
     existing_src_directories = get_existing_src_directories(config, sensor, date)
-    assert_directory_list_equality(existing_src_directories)
 
-    assert len(existing_src_directories) > 0, "No ifg directories found"
+    # no data for this sensor/date
+    if len(existing_src_directories) == 0:
+        RetrievalQueue.remove_date_from_queue(sensor, date)
+        raise AssertionError("No ifg directories found")
+
     if len(existing_src_directories) > 1:
         Logger.debug(
             f"Found multiple ifgs directories (identical): {existing_src_directories}"
         )
+        assert_directory_list_equality(existing_src_directories)
 
     ifg_src = existing_src_directories[0]
 
