@@ -1,7 +1,7 @@
 from datetime import datetime
 import json
 import os
-import sys
+import shutil
 import cerberus
 
 from requests import JSONDecodeError
@@ -127,7 +127,7 @@ class RetrievalQueue:
             ]
             for d in ds:
                 if len(d) > 8:
-                    os.rename(
+                    shutil.move(
                         f"{upload_src}/{d}",
                         f"{upload_src}/{d[:8]}",
                     )
