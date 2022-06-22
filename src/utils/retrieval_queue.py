@@ -175,7 +175,7 @@ class RetrievalQueue:
                 date = x["date"]
                 assert (
                     sensor in self.config["sensorsToConsider"]
-                ), f'no coordinates found for sensor "{sensor}"'
+                ), f'sensor "{sensor}" not in config.sensorsToConsider'
                 if not _date_string_is_valid(date):
                     Logger.debug(
                         f"Scheduler: Skipping {sensor}/{date} "
