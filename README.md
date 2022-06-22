@@ -14,6 +14,34 @@ _This chart only the flow from automatic-upload to retrieval-outputs. The manual
 
 <br/>
 
+## Installation
+
+**Only works in Unix systems!**
+
+1. Install Python3.9: https://python.org/
+
+2. Install Poetry: https://python-poetry.org/
+
+3. Install Gfortran: https://fortran-lang.org/learn/os_setup/install_gfortran
+
+4. Install all dependencies for this project
+
+```bash
+bash scripts/install-with-proffast-2.0.sh
+
+# alternative (still need manual workarounds)
+bash scripts/install-with-proffast-2.1.sh
+```
+
+5. Use `config/config.example.json` to generate a file `config/config.json` for your setup
+
+6. Download the location data for your stations
+
+````bash
+python3 scripts/fetch-location-data.py
+
+<br/>
+
 ## Procedure Steps
 
 What the `automated-proffast-pylot` does:
@@ -54,7 +82,7 @@ Steps 1 and 3 will only be considered, when the file `manual-queue.json` exists 
     { "sensor": "mb", "date": "20220101", "priority": 9 },
     { "sensor": "mc", "date": "20220101", "priority": -10 }
 ]
-```
+````
 
 The manual queue (step 1 and 3) will look for files on `config["dst"]`, `config["src"]["interferograms"]["upload"]` as well as all locations specified in `config["src"]["interferograms"]["other"]`. If there are multiple directories containing ifgs files for a day and station, it will check, whether these directories are identical. If not, this sensor-day will be aborted and there will be an error in the logs. If they are identical, the automation can take any of them as input.
 
