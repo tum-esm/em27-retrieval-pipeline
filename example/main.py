@@ -8,5 +8,11 @@ sys.path.append(f"{PROJECT_DIR}/src/pylot")
 from prfpylot.pylot import Pylot
 
 
-yaml_path = f"{PROJECT_DIR}/simulation/mc-pylot-config.yml"
+yaml_template_path = f"{PROJECT_DIR}/example/example-config-template.yml"
+yaml_path = f"{PROJECT_DIR}/example/example-config.yml"
+with open(yaml_template_path, "r") as f:
+    yaml_content = "".join(f.readlines())
+    yaml_content = yaml_content.replace("%PROJECT_DIR%", PROJECT_DIR)
+with open(yaml_path, "w") as f:
+    f.write(yaml_content)
 Pylot(yaml_path, logginglevel="info").run(n_processes=1)

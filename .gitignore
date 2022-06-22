@@ -13,6 +13,7 @@ logs/**/*.json
 *.log
 manual-queue.json
 .DS_Store
+example/example-config.yml
 example/outputs/*
 !example/outputs/.gitkeep
 fortran-validator
