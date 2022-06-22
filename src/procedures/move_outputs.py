@@ -130,8 +130,8 @@ def run(config: dict, session):
             .replace("\n", "")
         )
         about_dict = {
-            "pylotVersion": "1.0",
-            "proffastVersion": "2.0",
+            "pylotVersion": "1.1",
+            "proffastVersion": "2.1.1",
             "automationVersion": commit_sha,
             "generationDate": now.strftime("%Y%m%d"),
             "generationTime": now.strftime("%T"),

@@ -4,7 +4,7 @@ import subprocess
 
 dir = os.path.dirname
 PROJECT_DIR = dir(dir(dir(os.path.abspath(__file__))))
-YAML_TEMPLATE = f"{PROJECT_DIR}/src/pylot_1_0_config_template.yml"
+YAML_TEMPLATE = f"{PROJECT_DIR}/src/pylot_1_1_config_template.yml"
 
 
 def run(session):

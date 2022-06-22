@@ -1,14 +1,15 @@
 #!/bin/bash
 
-# init submodule proffaspylot
+init submodule proffaspylot
 git submodule init
 
 # download and unzip proffast v2.0.1
-wget https://www.imk-asf.kit.edu/downloads/Coccon-SW/PROFFASTv2.1.zip
-unzip PROFFASTv2.1.zip
-rm PROFFASTv2.1.zip
+wget https://www.imk-asf.kit.edu/downloads/Coccon-SW/PROFFASTv2.1.1.zip
+unzip PROFFASTv2.1.1.zip
+rm PROFFASTv2.1.1.zip
 
 # move proffast into correct subdirectory
+rm -r src/pylot/prf
 mv prf src/pylot/prf
 
 # compile proffast source code
@@ -31,7 +32,7 @@ done
 
 echo "compiling preprocess ..."
 cd ${INSTALL_FOLDER}/source/preprocess/
-${COMPILER} ${COMPILER_OPTIONS} ./preprocess4 glob_prepro4.F90 glob_OPUSparms.F90 preprocess4.F90
+${COMPILER} ${COMPILER_OPTIONS} ../../preprocess/preprocess4 glob_prepro4.F90 glob_OPUSparms.F90 preprocess4.F90
 
 echo 'compiling inverse...'
 cd ${INSTALL_FOLDER}/source/invers
