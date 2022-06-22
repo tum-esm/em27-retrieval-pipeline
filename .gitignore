@@ -1,20 +1,28 @@
-.venv
-inputs/*
-outputs/*
+# development
 .vscode
-*.pyc
-config.json
-location-data/
-reports/*.csv
-main.lock
 hidden
 *.out
 
-logs/**/*.json
-*.log
-manual-queue.json
+# system files
+*.pyc
 .DS_Store
+__pycache__
+
+# example inputs and outputs
 example/example-config.yml
 example/outputs/*
 !example/outputs/.gitkeep
-fortran-validator
+
+# dynamic project files
+.venv
+location-data/
+inputs/
+!inputs/.gitkeep
+outputs/
+!outputs/.gitkeep
+*.log
+
+# runtime files
+src/main.lock
+config/config.json
+config/manual-queue.json
