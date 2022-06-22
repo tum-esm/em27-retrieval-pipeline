@@ -1,21 +1,19 @@
 #!/bin/bash
 
-# compile proffast source code
-cd src/pylot/prf
+# The original install script includes invalid line endings,
+# therefore I am just including it here. This script has to 
+# be run inside the src/pylot_x_x/prf directory
 
-# bash install_proffast_linux.sh
-# The install script includes invalid line endings, therefore I am just including it here
 COMPILER="gfortran-8"
 COMPILER_OPTIONS="-nocpp -O3 -o"
 INSTALL_FOLDER=$(pwd)
-
-str_win='character(len=1),parameter\s::\spathstr\s=\s"\\"'
-str_lin='character(len=1),parameter::pathstr="/"'
+STR_WIN='character(len=1),parameter\s::\spathstr\s=\s"\\"'
+STR_LIN='character(len=1),parameter::pathstr="/"'
 
 echo "replace windows specific lines in source code ..."
 for file in source/*/*90; do
 	echo ${file}
-	sed -i 's#'${str_win}'#'${str_lin}'#' $file
+	sed -i 's#'${STR_WIN}'#'${STR_LIN}'#' $file
 done
 
 echo "compiling preprocess ..."
@@ -30,5 +28,3 @@ echo 'compiling pcxs...'
 cd ${INSTALL_FOLDER}/source/pcxs
 ${COMPILER} ${COMPILER_OPTIONS} ../../pcxs20 globvar20.f90 globlin20.f90 globlev20.f90 pcxs20.f90
 echo 'done.'
-
-cd ../../..

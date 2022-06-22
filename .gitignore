@@ -8,6 +8,7 @@ location-data/
 reports/*.csv
 main.lock
 hidden
+*.out
 
 logs/**/*.json
 *.log
