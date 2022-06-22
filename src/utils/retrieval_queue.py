@@ -34,6 +34,9 @@ def _date_string_is_valid(date_string: str, start_date: str = None):
         now = datetime.now()
         then = datetime.strptime(date_string, "%Y%m%d")
 
+        # vertical profiles are only available with 5 days delay
+        assert (now - then).days >= 5
+
         if start_date is not None:
             assert int(date_string) >= start_date
 
@@ -168,12 +171,17 @@ class RetrievalQueue:
             ), manual_queue_validator.errors
 
             for x in sensor_dates:
+                sensor = x["sensor"]
+                date = x["date"]
                 assert (
-                    x["sensor"] in self.config["sensorsToConsider"]
-                ), f"no coordinates found for sensor \"{x['sensor']}\""
-                assert _date_string_is_valid(
-                    x["date"]
-                ), f"\"{x['date']}\" is not a valid date"
+                    sensor in self.config["sensorsToConsider"]
+                ), f'no coordinates found for sensor "{sensor}"'
+                if not _date_string_is_valid(date):
+                    Logger.debug(
+                        f"Scheduler: Skipping {sensor}/{date} "
+                        + "(invalid or too recent date)"
+                    )
+                    self._mark_sensor_date_as_processed(sensor, date)
         except AssertionError as e:
             Logger.warning(f"Manual queue in an invalid format: {e}")
             return None
@@ -206,13 +214,12 @@ class RetrievalQueue:
                     reverse=True,
                 )
             )[0]
-            self._mark_sensor_date_as_processed(
-                sensor_date["sensor"], sensor_date["date"]
-            )
+            sensor, date = sensor_date["sensor"], sensor_date["date"]
+            self._mark_sensor_date_as_processed(sensor, date)
             return self._generate_process_from_sensor_date(
                 {
-                    "sensor": sensor_date["sensor"],
-                    "date": sensor_date["date"],
+                    "sensor": sensor,
+                    "date": date,
                 }
             )
 
