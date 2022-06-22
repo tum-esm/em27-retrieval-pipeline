@@ -23,6 +23,7 @@ def detect_error_type(output_src: str):
         ("preprocess_output", "charfilter not found!"),
         ("preprocess_output", "Zero IFG block size!"),
         ("inv_output", "CO channel: no natural grid!"),
+        ("inv_output", "Cannot access tabellated x-sections!"),
     ]
 
     for o, m in known_errors:
@@ -62,8 +63,12 @@ def run(config: dict, session):
     else:
         Logger.debug(f"Retrieval output csv is missing")
 
-    output_dst_success = config["dst"] + f"/{sensor}/proffast-outputs/{date}"
-    output_dst_failed = config["dst"] + f"/{sensor}/proffast-outputs-failed/{date}"
+    output_directory = {
+        "2.0.1": "proffast-2.0-outputs",
+        "2.1.1": "proffast-2.1-outputs",
+    }[config["proffastVersion"]]
+    output_dst_success = config["dst"] + f"/{sensor}/{output_directory}/{date}"
+    output_dst_failed = config["dst"] + f"/{sensor}/{output_directory}/{date}"
 
     if day_was_successful:
         output_dst = output_dst_success

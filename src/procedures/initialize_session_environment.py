@@ -4,10 +4,9 @@ import subprocess
 
 dir = os.path.dirname
 PROJECT_DIR = dir(dir(dir(os.path.abspath(__file__))))
-YAML_TEMPLATE = f"{PROJECT_DIR}/src/pylot_1_1_config_template.yml"
 
 
-def run(session):
+def run(config: dict, session):
     sensor = session["sensor"]
     lat = session["lat"]
     lon = session["lon"]
@@ -20,22 +19,29 @@ def run(session):
 
     assert os.path.isfile(
         f"{PROJECT_DIR}/location-data/.gitignore"
-    ), "module location-data not initialized"
+    ), "please run fetch-location-data.py first"
+
+    pylot_slug = {
+        "2.0.1": "pylot_1_0",
+        "2.1.1": "pylot_1_1",
+    }[config["proffastVersion"]]
+
+    YAML_TEMPLATE = f"{PROJECT_DIR}/src/config/{pylot_slug}_config_template.yml"
 
     assert os.path.isfile(
-        f"{PROJECT_DIR}/src/pylot/prfpylot/pylot.py"
-    ), "module proffastpylot not initialized"
+        f"{PROJECT_DIR}/src/{pylot_slug}/prfpylot/pylot.py"
+    ), f"submodule src/{pylot_slug} not initialized"
 
     assert all(
         [
             os.path.isfile(x)
             for x in [
-                f"{PROJECT_DIR}/src/pylot/prf/preprocess/preprocess4",
-                f"{PROJECT_DIR}/src/pylot/prf/pcxs20",
-                f"{PROJECT_DIR}/src/pylot/prf/invers20",
+                f"{PROJECT_DIR}/src/{pylot_slug}/prf/preprocess/preprocess4",
+                f"{PROJECT_DIR}/src/{pylot_slug}/prf/pcxs20",
+                f"{PROJECT_DIR}/src/{pylot_slug}/prf/invers20",
             ]
         ]
-    ), "proffast is not compiled completely"
+    ), f"proffast {config['proffastVersion']} is not fully compiled"
 
     # Clear directories "inputs" and "outputs"
     for _d in ["inputs", "outputs"]:
