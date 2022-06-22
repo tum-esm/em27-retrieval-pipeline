@@ -24,26 +24,29 @@ def run():
             Logger.flush_date_logs()
 
             Logger.info(f"Starting {sensor}/{date}")
-            procedures.initialize_session_environment.run(session)
+            procedures.initialize_session_environment.run(CONFIG, session)
 
-            inputs = {
-                "vertical profiles": procedures.move_vertical_profiles,
-                "datalogger": procedures.move_datalogger_files,
-                "ifgs": procedures.move_ifg_files,
-            }
             try:
-                for label, input_module in inputs.items():
-                    input_module.run(CONFIG, session)
+                procedures.move_vertical_profiles.run(CONFIG, session)
+            except AssertionError:
+                Logger.info("Inputs incomplete (vertical profiles)")
+                continue
+
+            try:
+                procedures.move_datalogger_files.run(CONFIG, session)
             except AssertionError as e:
-                if label == "vertical profiles":
-                    Logger.info("Inputs incomplete (vertical profiles)")
-                else:
-                    Logger.warning(f"Inputs incomplete ({label}): {e}")
+                Logger.warning(f"Inputs incomplete (datalogger files): {e}")
+                continue
+
+            try:
+                procedures.move_ifg_files.run(CONFIG, session)
+            except AssertionError as e:
+                Logger.warning(f"Inputs incomplete (ifg files): {e}")
                 continue
 
             Logger.info(f"Running the pylot")
             try:
-                procedures.run_proffast_pylot.run(session)
+                procedures.run_proffast_pylot.run(CONFIG, session)
                 Logger.debug(f"Pylot completed without errors")
             except Exception as e:
                 Logger.warning(f"Pylot error: {e}")
@@ -59,6 +62,7 @@ def run():
                 Logger.info(f"Finished")
             except AssertionError as e:
                 Logger.error(f"Moving outputs failed: {e}")
+
     except KeyboardInterrupt:
         Logger.info("Keyboard interrupt")
         return
