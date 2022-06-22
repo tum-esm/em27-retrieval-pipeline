@@ -23,5 +23,6 @@
     },
     "locationRepository": "https://github.com/tum-esm/em27-location-data",
     "dst": "/home/esm/em27_ifg_dss/proffast-archive",
-    "startDate": 20190101
+    "startDate": 20190101,
+    "proffastVersion": "2.0.1"
 }

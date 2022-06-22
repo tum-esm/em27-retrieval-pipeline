@@ -14,11 +14,12 @@ def check_date_int(field, value, error):
         error(field, "value has to be a valid date")
 
 
-def check_directory_path(field, value, error):
+def check_directory_path(field, value: str, error):
     try:
-        assert os.path.isdir(value)
-    except AssertionError:
-        error(field, "value has to be a valid date")
+        assert os.path.isdir(value), "value has to be a valid directoy"
+        assert not value.endswith("/"), 'path should not end with "/"'
+    except AssertionError as e:
+        error(field, str(e))
 
 
 validator = cerberus.Validator(
@@ -65,6 +66,7 @@ validator = cerberus.Validator(
         "locationRepository": {"type": "string", "regex": "^https://.*$"},
         "dst": {"type": "string", "check_with": check_directory_path},
         "startDate": {"type": "integer", "check_with": check_date_int},
+        "proffastVersion": {"type": "string", "allowed": ["2.0.1", "2.1.1"]},
     }
 )
 
