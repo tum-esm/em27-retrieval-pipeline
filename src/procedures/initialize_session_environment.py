@@ -60,11 +60,6 @@ def run(config: dict, session):
         "SERIAL_NUMBER": str(serial_number).zfill(3),
         "SENSOR": sensor,
         "PROJECT_DIR": PROJECT_DIR,
-        "COMMIT_SHA": subprocess.check_output(
-            ["git", "rev-parse", "--short", "--verify", "HEAD"], cwd=PROJECT_DIR
-        )
-        .decode()
-        .replace("\n", ""),
         "COORDINATES_LAT": str(round(lat, 3)),
         "COORDINATES_LON": str(round(lon, 3)),
         "COORDINATES_ALT": str(round(alt / 1000.0, 3)),
