@@ -5,6 +5,7 @@ import cerberus
 
 dir = os.path.dirname
 PROJECT_DIR = dir(dir(dir(os.path.abspath(__file__))))
+CONFIG_FILE = f"{PROJECT_DIR}/config/config.json"
 
 
 def check_date_int(field, value, error):
@@ -73,7 +74,7 @@ validator = cerberus.Validator(
 
 def load_config(validate=False) -> tuple[str, dict]:
     try:
-        with open(f"{PROJECT_DIR}/config.json", "r") as f:
+        with open(CONFIG_FILE, "r") as f:
             CONFIG = json.load(f)
     except FileNotFoundError:
         raise FileNotFoundError("config.json does not exist")

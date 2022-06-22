@@ -5,7 +5,7 @@ from src import main
 
 CONFIG = load_config()
 PROJECT_DIR = os.path.dirname(os.path.abspath(__file__))
-lock_path = f"{PROJECT_DIR}/main.lock"
+lock_path = f"{PROJECT_DIR}/src/main.lock"
 lock = filelock.FileLock(lock_path, timeout=0)
 
 

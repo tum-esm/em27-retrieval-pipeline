@@ -9,7 +9,7 @@ from src.utils import LocationData, Logger
 
 dir = os.path.dirname
 PROJECT_DIR = dir(dir(dir(os.path.abspath(__file__))))
-
+MANUAL_QUEUE_FILE = f"{PROJECT_DIR}/config/manual-queue.json"
 
 manual_queue_validator = cerberus.Validator(
     {
@@ -164,7 +164,7 @@ class RetrievalQueue:
         """
 
         try:
-            with open(f"{PROJECT_DIR}/manual-queue.json", "r") as f:
+            with open(MANUAL_QUEUE_FILE, "r") as f:
                 sensor_dates = json.load(f)
             assert manual_queue_validator.validate(
                 {"queue": sensor_dates}
@@ -255,11 +255,10 @@ class RetrievalQueue:
 
     @staticmethod
     def remove_date_from_queue(sensor: str, date: str):
-        queue_file = f"{PROJECT_DIR}/manual-queue.json"
-        if not os.path.isfile(queue_file):
+        if not os.path.isfile(MANUAL_QUEUE_FILE):
             return
 
-        with open(queue_file, "r") as f:
+        with open(MANUAL_QUEUE_FILE, "r") as f:
             old_manual_queue_content = json.load(f)
         assert isinstance(old_manual_queue_content, list)
 
@@ -271,5 +270,5 @@ class RetrievalQueue:
         )
         if len(new_manual_queue_content) < len(old_manual_queue_content):
             Logger.debug("Removing item from manual queue")
-            with open(queue_file, "w") as f:
+            with open(MANUAL_QUEUE_FILE, "w") as f:
                 json.dump(new_manual_queue_content, f, indent=4)
