@@ -5,8 +5,8 @@ from src import main
 
 CONFIG = load_config()
 PROJECT_DIR = os.path.dirname(os.path.abspath(__file__))
-lock_path = f"{PROJECT_DIR}/src/main.lock"
-lock = filelock.FileLock(lock_path, timeout=0)
+LOCK_FILE = f"{PROJECT_DIR}/src/main.lock"
+lock = filelock.FileLock(LOCK_FILE, timeout=0)
 
 """
 This script uses a file "src/main.lock" to save the information, whether the
