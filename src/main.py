@@ -1,6 +1,11 @@
 import os
 from src import utils, procedures
-from src.utils import load_config, Logger
+from src.utils import (
+    load_config,
+    Logger,
+    add_to_input_warnings_list,
+    remove_from_input_warnings_list,
+)
 
 
 def run():
@@ -27,22 +32,22 @@ def run():
             procedures.initialize_session_environment.run(CONFIG, session)
 
             try:
+                label = "vertical profiles"
                 procedures.move_vertical_profiles.run(CONFIG, session)
-            except AssertionError:
-                Logger.info("Inputs incomplete (vertical profiles)")
-                continue
-
-            try:
+                label = "datalogger files"
                 procedures.move_datalogger_files.run(CONFIG, session)
-            except AssertionError as e:
-                Logger.warning(f"Inputs incomplete (datalogger files): {e}")
-                continue
-
-            try:
+                label = "ifgs files"
                 procedures.move_ifg_files.run(CONFIG, session)
             except AssertionError as e:
-                Logger.warning(f"Inputs incomplete (ifg files): {e}")
+                message = f"Inputs incomplete ({label})" + (
+                    f": {e}" if "vertical" not in label else ""
+                )
+                Logger.warning(message)
+                add_to_input_warnings_list(sensor, date, message)
                 continue
+
+            # inputs complete no warning to consider anymore
+            remove_from_input_warnings_list(sensor, date)
 
             Logger.info(f"Running the pylot")
             try:

@@ -3,26 +3,29 @@
 hidden
 *.out
 
-# system files
-*.pyc
-.DS_Store
-__pycache__
-
 # example inputs and outputs
 example/*config.yml
 example/pylot_*_outputs/*
 !example/pylot_*_outputs/.gitkeep
 
-# dynamic project files
+# static project files
 .venv
+config/config.json
+config/manual-queue.json
+
+# dynamic project files
 location-data/
 inputs/
 !inputs/.gitkeep
 outputs/
 !outputs/.gitkeep
-*.log
+logs/*
+!logs/**/.gitkeep
+!logs/README.md
 
 # runtime files
 src/main.lock
-config/config.json
-config/manual-queue.json
+GeneralLogfile.log
+*.pyc
+.DS_Store
+__pycache__
