@@ -14,12 +14,13 @@ mv prf src/pylot_1_1/prf
 
 # compile fortran code
 cd src/pylot_1_1/prf
-bash scripts/compile-proffast.sh
+bash ../../../scripts/compile-proffast.sh
 cd ../../..
 
 # compile fortran code
 cd src/detect_corrupt_ifgs
 bash compile.sh
+cd ../..
 
 # install python dependencies
 python3.9 -m venv .venv
