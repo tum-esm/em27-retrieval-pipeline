@@ -63,15 +63,21 @@ def run(config: dict, session):
     else:
         Logger.debug(f"Retrieval output csv is missing")
 
-    output_directory = {
+    output_dirname = {
         "2.0.1": "proffast-2.0-outputs",
         "2.1.1": "proffast-2.1-outputs",
     }[config["proffastVersion"]]
-    output_dst_success = config["dst"] + f"/{sensor}/{output_directory}/{date}"
-    output_dst_failed = config["dst"] + f"/{sensor}/{output_directory}/{date}"
+    output_dst = config["dst"] + f"/{sensor}/{output_dirname}"
+    if not os.path.isdir(output_dst):
+        os.mkdir(f"{output_dst}")
+        os.mkdir(f"{output_dst}/successful")
+        os.mkdir(f"{output_dst}/failed")
+
+    output_dst_successful = f"{output_dst}/successful/{date}"
+    output_dst_failed = f"{output_dst}/failed/{date}"
 
     if day_was_successful:
-        output_dst = output_dst_success
+        output_dst = output_dst_successful
     if not day_was_successful:
         output_dst = output_dst_failed
         error_type = detect_error_type(output_src)
@@ -81,9 +87,9 @@ def run(config: dict, session):
             Logger.debug(f"Known error type: {error_type}")
 
     # remove old outputs
-    if os.path.isdir(output_dst_success):
+    if os.path.isdir(output_dst_successful):
         Logger.debug(f"Removing old successful output")
-        shutil.rmtree(output_dst_success)
+        shutil.rmtree(output_dst_successful)
     if os.path.isdir(output_dst_failed):
         Logger.debug(f"Removing old failed output")
         shutil.rmtree(output_dst_failed)
@@ -135,8 +141,8 @@ def run(config: dict, session):
             .replace("\n", "")
         )
         about_dict = {
-            "pylotVersion": "1.1",
-            "proffastVersion": "2.1.1",
+            "proffastVersion": config["proffastVersion"],
+            "locationRepository": config["locationRepository"],
             "automationVersion": commit_sha,
             "generationDate": now.strftime("%Y%m%d"),
             "generationTime": now.strftime("%T"),
