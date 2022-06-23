@@ -72,7 +72,7 @@ validator = cerberus.Validator(
 )
 
 
-def load_config(validate=False) -> tuple[str, dict]:
+def load_config(validate=False) -> dict:
     try:
         with open(CONFIG_FILE, "r") as f:
             CONFIG = json.load(f)
