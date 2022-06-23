@@ -33,9 +33,20 @@ bash scripts/install-with-proffast-2.0.sh
 bash scripts/install-with-proffast-2.1.sh
 ```
 
-5. Use `config/config.example.json` to generate a file `config/config.json` for your setup
+5. Test the installation
 
-6. Download the location data for your stations
+```bash
+python -m pytest tests/test_pylot_1_0.py
+
+# alternative
+python -m pytest tests/test_pylot_1_1.py
+```
+
+<br/>
+
+6. Use `config/config.example.json` to generate a file `config/config.json` for your setup
+
+7. Download the location data for your stations
 
 ````bash
 python3 scripts/fetch-location-data.py
