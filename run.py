@@ -8,6 +8,12 @@ PROJECT_DIR = os.path.dirname(os.path.abspath(__file__))
 lock_path = f"{PROJECT_DIR}/src/main.lock"
 lock = filelock.FileLock(lock_path, timeout=0)
 
+"""
+This script uses a file "src/main.lock" to save the information, whether the
+automation is already running. If the automation is definitely not running but
+you keep getting the "process is already running" message, you can just delete
+that lock file and try again.
+"""
 
 if __name__ == "__main__":
     try:
@@ -17,5 +23,4 @@ if __name__ == "__main__":
         finally:
             lock.release()
     except filelock.Timeout:
-        # If you know what you are doing, you can remove the "main.lock" file
         print("process is already running")
