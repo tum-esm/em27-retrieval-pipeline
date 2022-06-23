@@ -27,10 +27,10 @@ _This chart only the flow from automatic-upload to retrieval-outputs. The manual
 4. Install all dependencies for this project
 
 ```bash
-bash scripts/install-with-proffast-2.0.sh
+bash scripts/installation/install-with-proffast-2.0.sh
 
 # alternative (still need manual workarounds)
-bash scripts/install-with-proffast-2.1.sh
+bash scripts/installation/install-with-proffast-2.1.sh
 ```
 
 5. Test the installation

@@ -14,7 +14,7 @@ mv PROFFASTv2.0.1 src/pylot_1_0/prf
 
 # compile fortran code
 cd src/pylot_1_0/prf
-bash ../../../scripts/compile-proffast.sh
+bash ../../../scripts/installation/compile-proffast.sh
 cd ../../..
 
 # compile fortran code
