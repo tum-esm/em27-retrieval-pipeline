@@ -35,17 +35,16 @@ with open(MANUAL_QUEUE_PATH, "r") as f:
 
 
 queue_additions = []
-for d in tqdm(range(int(START_DATE), 20300000)):
-    if not date_string_is_valid(d):
+for date in tqdm(range(int(START_DATE), 20300000)):
+    if not date_string_is_valid(date):
         continue
 
-    for s in SENSORS:
+    for sensor in SENSORS:
         try:
-            # conditions: ifgs exist, no outputs exist
-            assert os.path.isdir(f"{DST}/{s}/ifgs/{d}")
-            assert not os.path.isdir(f"{DST}/{s}/{OUTPUT_DIR}/successful/{d}")
-            assert not os.path.isdir(f"{DST}/{s}/{OUTPUT_DIR}/failed/{d}")
-            queue_additions.append((s, d))
+            # conditions: ifgs exist, failed output exists
+            assert os.path.isdir(f"{DST}/{sensor}/ifgs/{date}")
+            assert os.path.isdir(f"{DST}/{sensor}/{OUTPUT_DIR}/failed/{date}")
+            queue_additions.append((sensor, date))
         except AssertionError:
             pass
 
