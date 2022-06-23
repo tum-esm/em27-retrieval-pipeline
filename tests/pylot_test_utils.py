@@ -65,9 +65,11 @@ def run_pylot_test(pylot_slug: str):
     pylot_config_file = _write_pylot_config(pylot_slug)
 
     sys.path.append(f"{PROJECT_DIR}/src/{pylot_slug}")
-    from prfpylot.pylot import Pylot  # type: ignore
+    if pylot_slug == "pylot_1_0":
+        from src.pylot_1_0.prfpylot.pylot import Pylot
+    if pylot_slug == "pylot_1_1":
+        from src.pylot_1_1.prfpylot.pylot import Pylot
 
     Pylot(pylot_config_file, logginglevel="info").run(n_processes=1)
 
     _assert_output_file_integrity(pylot_slug)
-    os.remove(pylot_config_file)
