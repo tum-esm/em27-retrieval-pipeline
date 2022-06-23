@@ -10,7 +10,7 @@ _work in progress, until then, ask Moritz Makowski and Patrick Aigner_
 
 ![](/docs/architecture.png)
 
-_This chart only the flow from automatic-upload to retrieval-outputs. The manual queue mentioned in the scheduling-section can take other inputs as well._
+_This chart only the flow from automatic upload to retrieval outputs. The manual queue mentioned in the scheduling section can take other inputs as well._
 
 <br/>
 
@@ -117,11 +117,11 @@ Add the script to your crontab with the following line. This will try to start t
 
 ## Comments on Architectural Decisions
 
-The pylot would allow us to **process multiple days for one sensor in parallel**. However, there are multiple drawbacks to this:
+The Pylot would allow us to **process multiple days for one sensor in parallel**. However, there are multiple drawbacks to this:
 
--   If one day fails, the pylot will not finish any of the days
+-   If one day fails, the Pylot will not finish any of the days
 -   There is one merged output file and output folder, which makes naming conventions rather very confusing (without a lot of conversions)
--   The queue-building is unnecessarily complicated because the pylot can only handle days with the same sensor at the same location
+-   The queue-building is unnecessarily complicated because the Pylot can only handle days with the same sensor at the same location
 
 <br/>
 

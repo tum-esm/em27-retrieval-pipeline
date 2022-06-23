@@ -12,10 +12,10 @@ Read about "semantic versioning" here: https://semver.org/.
 
 **`add-days-without-outputs-to-queue.py`: For _major_ and _minor_ releases.**
 
-Days where the ifgs exist in the proffast output, but there is no result for the currently configured version yet. Used, when upgrading to a newer proffast version and recomputing things.
+Days where the interferograms exist in the Proffast output, but there is no result for the currently configured version yet. Used, when upgrading to a newer Proffast version and recomputing things.
 
 <br/>
 
 **`add-failed-days-to-queue.py`: For _patch_ releases.**
 
-Days where the ifgs exist in the proffast output and the proffast output for this version has failed. Used when a fix has been deployed in the pylot or the proffast.
+Days where the interferograms exist in the Proffast output and the Proffast output for this version has failed. Used when a fix has been deployed in the Pylot or the Proffast.
