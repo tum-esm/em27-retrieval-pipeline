@@ -9,9 +9,9 @@ hidden
 __pycache__
 
 # example inputs and outputs
-example/example-config.yml
-example/outputs/*
-!example/outputs/.gitkeep
+example/*config.yml
+example/pylot_*_outputs/*
+!example/pylot_*_outputs/.gitkeep
 
 # dynamic project files
 .venv
