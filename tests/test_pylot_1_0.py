@@ -1,14 +1,5 @@
-import os
-import sys
-from tests.write_example_config_file import write_pylot_config
-
-dir = os.path.dirname
-PROJECT_DIR = dir(dir(os.path.abspath(__file__)))
+from tests.pylot_test_utils import run_pylot_test
 
 
 def test_pylot_1_0():
-    sys.path.append(f"{PROJECT_DIR}/src/pylot_1_0")
-    from src.pylot_1_0.prfpylot.pylot import Pylot
-
-    pylot_config_file = write_pylot_config("pylot_1_0")
-    Pylot(pylot_config_file, logginglevel="info").run(n_processes=1)
+    run_pylot_test("pylot_1_0")
