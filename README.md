@@ -37,8 +37,6 @@ bash scripts/installation/install-with-proffast-2.1.sh
 
 ```bash
 python -m pytest tests/test_pylot_1_0.py
-
-# alternative
 python -m pytest tests/test_pylot_1_1.py
 ```
 
@@ -48,8 +46,9 @@ python -m pytest tests/test_pylot_1_1.py
 
 7. Download the location data for your stations
 
-````bash
+```bash
 python3 scripts/fetch-location-data.py
+```
 
 <br/>
 
@@ -93,7 +92,7 @@ Steps 1 and 3 will only be considered, when the file `manual-queue.json` exists 
     { "sensor": "mb", "date": "20220101", "priority": 9 },
     { "sensor": "mc", "date": "20220101", "priority": -10 }
 ]
-````
+```
 
 The manual queue (step 1 and 3) will look for files on `config["dst"]`, `config["src"]["interferograms"]["upload"]` as well as all locations specified in `config["src"]["interferograms"]["other"]`. If there are multiple directories containing ifgs files for a day and station, it will check, whether these directories are identical. If not, this sensor-day will be aborted and there will be an error in the logs. If they are identical, the automation can take any of them as input.
 
@@ -139,4 +138,8 @@ mb
 
 me
 20210415  20210808  20210815  20210827  20210926  20210809  20210821  20210906
+```
+
+```
+
 ```

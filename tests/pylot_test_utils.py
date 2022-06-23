@@ -1,9 +1,13 @@
 import os
-import shutil
 import sys
+import shutil
+import filelock
+import pytest
 
 dir = os.path.dirname
 PROJECT_DIR = dir(dir(os.path.abspath(__file__)))
+LOCK_FILE = f"{PROJECT_DIR}/src/main.lock"
+lock = filelock.FileLock(LOCK_FILE, timeout=0)
 
 
 def clean_output_directory(pylot_slug: str):
@@ -58,6 +62,16 @@ def _assert_output_file_integrity(pylot_slug: str):
     with open(f"{output_dir}/combined_invparms_mc_20220602-20220602.csv", "r") as f:
         result_line_count = len(f.readlines())
         assert result_line_count > 2
+
+
+@pytest.fixture
+def wrap_test_with_mainlock():
+    try:
+        lock.acquire()
+        yield
+        lock.release()
+    except filelock.Timeout:
+        raise Exception("automation is already running")
 
 
 def run_pylot_test(pylot_slug: str):
