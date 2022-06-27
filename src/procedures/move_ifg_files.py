@@ -73,4 +73,6 @@ def run(config: dict, session):
     else:
         Logger.debug(f"No corrupt files found")
 
-    assert copied_ifg_count > 0, "no ifgs in src directory"
+    assert (
+        copied_ifg_count > 0
+    ), f"no ifgs in src directory, sourcing data from {ifg_src}"
