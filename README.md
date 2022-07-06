@@ -103,6 +103,13 @@ Without that data from calibration, each column in the generated CSV - identifie
 
 <br/>
 
+### Available locations and gases
+
+Available gases: `co`, `co2`, `ch4`
+Available locations: campaigns `muccnet` and `hamburg` from https://github.com/tum-esm/em27-location-data/blob/main/data/campaigns.json
+
+<br/>
+
 ### What if I exhausted my resources and my question is still not answered?
 
 Ask Moritz Makowski (moritz.makowski@tum.de).
