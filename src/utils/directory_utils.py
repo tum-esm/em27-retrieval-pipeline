@@ -1,4 +1,5 @@
 import os
+import shutil
 import subprocess
 
 
@@ -26,6 +27,24 @@ def get_existing_src_directories(config: dict, sensor: str, date: int):
     existing_src_directories = [x for x in src_directories if os.path.isdir(x)]
 
     return existing_src_directories
+
+
+def possibly_rename_uploaded_directory(config: dict, sensor: str, date: int):
+    upload_src = config["src"]["interferograms"]["upload"][sensor]
+    upload_dirs = [
+        d
+        for d in os.listdir(upload_src)
+        if d.startswith(str(date)) and len(d.split("/")[-1]) >= 8
+    ]
+    assert (
+        len(upload_dirs) <= 1
+    ), f"multiple uploaded directories found with the same date prefix: {upload_dirs}"
+    for d in upload_dirs:
+        if len(d.split("/")[-1]) > 8:
+            shutil.move(
+                f"{upload_src}/{d}",
+                f"{upload_src}/{d[:8]}",
+            )
 
 
 def assert_directory_equality(directory_list):

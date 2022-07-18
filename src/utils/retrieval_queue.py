@@ -1,11 +1,15 @@
 from datetime import datetime
 import json
 import os
-import shutil
 import cerberus
 
 from requests import JSONDecodeError
-from src.utils import LocationData, Logger
+from src.utils import (
+    LocationData,
+    Logger,
+    possibly_rename_uploaded_directory,
+    add_to_input_warnings_list,
+)
 
 dir = os.path.dirname
 PROJECT_DIR = dir(dir(dir(os.path.abspath(__file__))))
@@ -123,21 +127,22 @@ class RetrievalQueue:
         Use the dates from /mnt/measurementData/mu
         """
         sensor_dates = []
-        for s in self.config["sensorsToConsider"]:
+        for sensor in self.config["sensorsToConsider"]:
             upload_src = self.config["src"]["interferograms"]["upload"][s]
-            ds = [
+            dates = [
                 x
                 for x in os.listdir(upload_src)
                 if len(x) >= 8
                 and _date_string_is_valid(x[:8], start_date=self.config["startDate"])
             ]
-            for d in ds:
-                if len(d) > 8:
-                    shutil.move(
-                        f"{upload_src}/{d}",
-                        f"{upload_src}/{d[:8]}",
-                    )
-            sensor_dates += [{"sensor": s, "date": d} for d in ds]
+            for date in dates:
+                # rename uploaded directories from "20220717_86" to "20220717"
+                try:
+                    possibly_rename_uploaded_directory(self.config, sensor, date)
+                    sensor_dates.append({"sensor": sensor, "date": date})
+                except AssertionError as e:
+                    Logger.warning(e)
+                    add_to_input_warnings_list(sensor, date, str(e))
 
         # Do not take in a sensor date multiple times
         sensor_dates = self._filter_sensor_dates_by_processed_items(sensor_dates)
@@ -179,6 +184,15 @@ class RetrievalQueue:
                 assert (
                     sensor in self.config["sensorsToConsider"]
                 ), f'sensor "{sensor}" not in config.sensorsToConsider'
+
+                # rename uploaded directories from "20220717_86" to "20220717"
+                try:
+                    possibly_rename_uploaded_directory(self.config, sensor, date)
+                except AssertionError as e:
+                    Logger.warning(e)
+                    add_to_input_warnings_list(sensor, date, str(e))
+                    self._mark_sensor_date_as_processed(sensor, date)
+
                 if not _date_string_is_valid(date, ignore_profile_delay=True):
                     Logger.debug(
                         f"Scheduler: Skipping {sensor}/{date} "
