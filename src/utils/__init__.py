@@ -2,6 +2,7 @@ from .directory_utils import (
     directories_are_equal,
     get_existing_src_directories,
     assert_directory_equality,
+    possibly_rename_uploaded_directory,
 )
 from .input_warning_list import (
     add_to_input_warnings_list,
