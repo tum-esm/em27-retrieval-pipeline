@@ -245,6 +245,8 @@ class RetrievalQueue:
         sensor = sensor_date["sensor"]
         date = int(sensor_date["date"])
         location = location_data.get_location_for_date(sensor, date)
+        assert location is not None, f"Please add location data for {sensor}/{date}."
+
         coordinates_dict = location_data.get_coordinates(location)
         serial_number = location_data.get_serial_number(sensor)
 
