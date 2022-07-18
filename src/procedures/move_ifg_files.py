@@ -4,7 +4,7 @@ import subprocess
 from src.utils import (
     Logger,
     get_existing_src_directories,
-    assert_directory_list_equality,
+    assert_directory_equality,
 )
 from src import detect_corrupt_ifgs
 from src.utils.retrieval_queue import RetrievalQueue
@@ -26,10 +26,10 @@ def run(config: dict, session):
         raise AssertionError("No ifg directories found")
 
     if len(existing_src_directories) > 1:
+        assert_directory_equality(existing_src_directories)
         Logger.debug(
             f"Found multiple ifgs directories (identical): {existing_src_directories}"
         )
-        assert_directory_list_equality(existing_src_directories)
 
     ifg_src = existing_src_directories[0]
 
