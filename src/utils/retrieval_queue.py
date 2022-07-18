@@ -29,13 +29,16 @@ manual_queue_validator = cerberus.Validator(
 location_data = LocationData()
 
 
-def _date_string_is_valid(date_string: str, start_date: str = None):
+def _date_string_is_valid(
+    date_string: str, start_date: str = None, ignore_profile_delay=False
+):
     try:
         now = datetime.now()
         then = datetime.strptime(date_string, "%Y%m%d")
 
-        # vertical profiles are only available with 5 days delay
-        assert (now - then).days >= 5
+        if not ignore_profile_delay:
+            # vertical profiles are only available with 5 days delay
+            assert (now - then).days >= 5
 
         if start_date is not None:
             assert int(date_string) >= start_date
@@ -176,7 +179,7 @@ class RetrievalQueue:
                 assert (
                     sensor in self.config["sensorsToConsider"]
                 ), f'sensor "{sensor}" not in config.sensorsToConsider'
-                if not _date_string_is_valid(date):
+                if not _date_string_is_valid(date, ignore_profile_delay=True):
                     Logger.debug(
                         f"Scheduler: Skipping {sensor}/{date} "
                         + "(invalid or too recent date)"
