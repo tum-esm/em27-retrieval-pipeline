@@ -28,7 +28,7 @@ def get_existing_src_directories(config: dict, sensor: str, date: int):
     return existing_src_directories
 
 
-def assert_directory_list_equality(directory_list):
+def assert_directory_equality(directory_list):
     for i in range(len(directory_list) - 1):
         a = directory_list[i]
         b = directory_list[i + 1]

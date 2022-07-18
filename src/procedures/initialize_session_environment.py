@@ -1,6 +1,5 @@
 import os
 import shutil
-import subprocess
 
 dir = os.path.dirname
 PROJECT_DIR = dir(dir(dir(os.path.abspath(__file__))))
