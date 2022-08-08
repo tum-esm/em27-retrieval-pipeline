@@ -128,7 +128,7 @@ class RetrievalQueue:
         """
         sensor_dates = []
         for sensor in self.config["sensorsToConsider"]:
-            upload_src = self.config["src"]["interferograms"]["upload"][s]
+            upload_src = self.config["src"]["interferograms"]["upload"][sensor]
             dates = [
                 x
                 for x in os.listdir(upload_src)
