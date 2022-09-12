@@ -31,40 +31,22 @@ validator = cerberus.Validator(
             "type": "dict",
             "require_all": True,
             "schema": {
-                "datalogger": {"type": "string", "check_with": check_directory_path},
-                "verticalProfiles": {
-                    "type": "string",
-                    "check_with": check_directory_path,
-                },
+                "datalogger": {"type": "string"},
+                "verticalProfiles": {"type": "string"},
                 "interferograms": {
                     "type": "dict",
                     "require_all": True,
                     "schema": {
-                        "upload": {
-                            "type": "dict",
-                            "require_all": True,
-                            "keysrules": {"type": "string"},
-                            "valuesrules": {
-                                "type": "string",
-                                "check_with": check_directory_path,
-                            },
-                        },
+                        "upload": {"type": "string"},
                         "other": {
-                            "type": "dict",
-                            "require_all": True,
-                            "valuesrules": {
-                                "type": "list",
-                                "schema": {
-                                    "type": "string",
-                                    "check_with": check_directory_path,
-                                },
-                            },
+                            "type": "list",
+                            "schema": {"type": "string"},
                         },
                     },
                 },
             },
         },
-        "locationRepository": {"type": "string", "regex": "^https://.*$"},
+        "locationRepository": {"type": "string", "regex": "^(https://.*)|(git@.*)$"},
         "dst": {"type": "string", "check_with": check_directory_path},
         "startDate": {"type": "integer", "check_with": check_date_int},
     }
@@ -83,16 +65,18 @@ def load_config(validate=False) -> dict:
     if validate:
         try:
             assert validator.validate(CONFIG), validator.errors
+            data_src_dirs = [
+                CONFIG["src"]["datalogger"],
+                CONFIG["src"]["verticalProfiles"],
+                CONFIG["src"]["interferograms"]["upload"],
+                *CONFIG["src"]["interferograms"]["other"],
+            ]
 
-            ifg_upload_keys = CONFIG["src"]["interferograms"]["upload"].keys()
-            ifg_other_keys = CONFIG["src"]["interferograms"]["other"].keys()
-            for s in CONFIG["sensorsToConsider"]:
-                assert (
-                    s in ifg_upload_keys
-                ), f'sensor "{s}" does not have an ifg-upload directory'
-                assert (
-                    s in ifg_other_keys
-                ), f'sensor "{s}" does not have a list with other ifg-directories'
+            for data_src_dir in data_src_dirs:
+                assert os.path.isdir(data_src_dir), f'"{data_src_dir}" does not exist'
+                for sensor in CONFIG["sensorsToConsider"]:
+                    sensor_dir = os.path.join(data_src_dir, sensor)
+                    assert os.path.isdir(sensor_dir), f'"{sensor_dir}" does not exist'
 
         except AssertionError as e:
             raise AssertionError(f"Invalid config.json: {e}")
