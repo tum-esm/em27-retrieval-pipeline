@@ -4,12 +4,7 @@ import os
 import cerberus
 
 from requests import JSONDecodeError
-from src.utils import (
-    LocationData,
-    Logger,
-    possibly_rename_uploaded_directory,
-    add_to_input_warnings_list,
-)
+from src.utils import LocationData, Logger
 
 dir = os.path.dirname
 PROJECT_DIR = dir(dir(dir(os.path.abspath(__file__))))
@@ -132,17 +127,9 @@ class RetrievalQueue:
             dates = [
                 x
                 for x in os.listdir(upload_src)
-                if len(x) >= 8
-                and _date_string_is_valid(x[:8], start_date=self.config["startDate"])
+                if _date_string_is_valid(x[:8], start_date=self.config["startDate"])
             ]
-            for date in dates:
-                # rename uploaded directories from "20220717_86" to "20220717"
-                try:
-                    possibly_rename_uploaded_directory(self.config, sensor, date)
-                    sensor_dates.append({"sensor": sensor, "date": date})
-                except AssertionError as e:
-                    Logger.warning(e)
-                    add_to_input_warnings_list(sensor, date, str(e))
+            sensor_dates += [{"sensor": sensor, "date": date} for date in dates]
 
         # Do not take in a sensor date multiple times
         sensor_dates = self._filter_sensor_dates_by_processed_items(sensor_dates)
@@ -171,6 +158,8 @@ class RetrievalQueue:
         Use the dates from manual-queue.json
         """
 
+        # TODO: validate manual queue on load
+
         try:
             with open(MANUAL_QUEUE_FILE, "r") as f:
                 sensor_dates = json.load(f)
@@ -184,14 +173,6 @@ class RetrievalQueue:
                 assert (
                     sensor in self.config["sensorsToConsider"]
                 ), f'sensor "{sensor}" not in config.sensorsToConsider'
-
-                # rename uploaded directories from "20220717_86" to "20220717"
-                try:
-                    possibly_rename_uploaded_directory(self.config, sensor, date)
-                except AssertionError as e:
-                    Logger.warning(e)
-                    add_to_input_warnings_list(sensor, date, str(e))
-                    self._mark_sensor_date_as_processed(sensor, date)
 
                 if not _date_string_is_valid(date, ignore_profile_delay=True):
                     Logger.debug(
@@ -208,7 +189,7 @@ class RetrievalQueue:
         except FileNotFoundError:
             return None
 
-        # priority 0 is not allowed in schema, (0 is the regular queue from /mnt/...)
+        # priority 0 is not allowed in schema, (0 is the regular queue from upload)
         sensor_dates = list(
             filter(
                 lambda x: (x["priority"] > 0) if priority else (x["priority"] < 0),
@@ -240,11 +221,11 @@ class RetrievalQueue:
                 }
             )
 
-    def _mark_sensor_date_as_processed(self, sensor: str, date: str):
+    def _mark_sensor_date_as_processed(self, sensor: str, date: int):
         if sensor not in self.processed_sensor_dates.keys():
-            self.processed_sensor_dates[sensor] = [date]
+            self.processed_sensor_dates[sensor] = [str(date)]
         else:
-            self.processed_sensor_dates[sensor].append(date)
+            self.processed_sensor_dates[sensor].append(str(date))
 
     def _filter_sensor_dates_by_processed_items(self, sensor_dates: list):
         return list(

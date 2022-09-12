@@ -1,20 +1,20 @@
 import os
 import shutil
+from src import types
 
 dir = os.path.dirname
 PROJECT_DIR = dir(dir(dir(os.path.abspath(__file__))))
 
 
-def run(config: dict, session):
-    SRC = config["src"]["verticalProfiles"]
-    DST = f"{PROJECT_DIR}/inputs"
+def run(config: types.ConfigDict, session: types.SessionDict):
+    sensor, date = session["sensor"], session["date"]
 
-    sensor = str(session["sensor"])
-    serial_number = str(session["serial_number"])
-    date = str(session["date"])
-
-    src_filepath = f"{SRC}/{sensor}{serial_number}/{sensor}{date}.map"
-    dst_filepath = f"{DST}/{sensor}_map/{sensor}{date}.map"
+    src_filepath = os.path.join(
+        config["src"]["vertical_profiles"], sensor, f"{sensor}{date}.map"
+    )
+    dst_filepath = os.path.join(
+        PROJECT_DIR, "inputs", f"{sensor}_map", f"{sensor}{date}.map"
+    )
 
     assert os.path.isfile(src_filepath), "map file does not exist"
     shutil.copy(src_filepath, dst_filepath)
