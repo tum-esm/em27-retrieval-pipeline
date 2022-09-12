@@ -5,8 +5,7 @@ hidden
 
 # example inputs and outputs
 example/*config.yml
-example/pylot_*_outputs/*
-!example/pylot_*_outputs/.gitkeep
+example/pylot_outputs
 
 # static project files
 .venv
