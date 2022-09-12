@@ -54,7 +54,7 @@ def _assert_output_file_integrity():
     ]
     missing_output_files = list(
         filter(
-            lambda f: len(glob.glob(f"{output_dir}/{f}")) == 1,
+            lambda f: len(glob.glob(f"{output_dir}/{f}")) == 0,
             expected_output_files,
         )
     )
