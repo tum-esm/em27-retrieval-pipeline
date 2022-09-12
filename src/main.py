@@ -1,11 +1,6 @@
 import os
 from src import utils, procedures
-from src.utils import (
-    load_config,
-    Logger,
-    add_to_input_warnings_list,
-    remove_from_input_warnings_list,
-)
+from src.utils import load_config, Logger
 
 
 def run():
@@ -43,11 +38,11 @@ def run():
                     f": {e}" if "vertical" not in label else ""
                 )
                 Logger.warning(message)
-                add_to_input_warnings_list(sensor, date, message)
+                utils.InputWarningsList.add(sensor, date, message)
                 continue
 
             # inputs complete no warning to consider anymore
-            remove_from_input_warnings_list(sensor, date)
+            utils.InputWarningsList.remove(sensor, date)
 
             Logger.info(f"Running the pylot")
             try:
