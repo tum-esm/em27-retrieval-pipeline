@@ -20,7 +20,7 @@ validator = Validator(
         "user": {"type": "string"},
         "dst": {"type": "string"},
         "downloadTimeoutSeconds": {"type": "integer", "min": 0},
-        "locationRepository": {"type": "string", "regex": '^https://.*$'},
+        "locationRepository": {"type": "string", "regex": '^(https://.*)|(git@.*)$'},
     }
 )
 
