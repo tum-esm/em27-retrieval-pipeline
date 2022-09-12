@@ -1,8 +1,14 @@
+import json
+import os
 import pytest
-from src import utils
-from tests.fixtures import provide_tmp_config
+from src import types
+
+dir = os.path.dirname
+PROJECT_DIR = dir(dir(os.path.abspath(__file__)))
 
 
 @pytest.mark.ci
-def test_default_config(provide_tmp_config):
-    utils.load_config(validate=True, skip_directory_paths=True)
+def test_default_config() -> None:
+    with open(os.path.join(PROJECT_DIR, "config", "config.default.json"), "r") as f:
+        config = json.load(f)
+    types.validate_config_dict(config, skip_filepaths=True)
