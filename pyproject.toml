@@ -5,7 +5,7 @@ description = ""
 authors = ["Moritz Makowski <moritz.makowski@tum.de>"]
 
 [tool.poetry.dependencies]
-python = "3.9"
+python = "^3.9"
 tqdm = "^4.64.0"
 requests = "^2.27.1"
 fortranformat = "^1.2.0"
