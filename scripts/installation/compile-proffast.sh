@@ -4,7 +4,7 @@
 # therefore I am just including it here. This script has to 
 # be run inside the src/pylot_x_x/prf directory
 
-COMPILER="gfortran-8"
+COMPILER="gfortran-9"
 COMPILER_OPTIONS="-nocpp -O3 -o"
 INSTALL_FOLDER=$(pwd)
 STR_WIN='character(len=1),parameter\s::\spathstr\s=\s"\\"'
