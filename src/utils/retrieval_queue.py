@@ -30,7 +30,6 @@ manual_queue_validator = cerberus.Validator(
         }
     }
 )
-location_data = LocationData()
 
 
 def _date_string_is_valid(
@@ -77,6 +76,7 @@ class RetrievalQueue:
     def __init__(self, config: dict):
         self.config = config
         self.processed_sensor_dates = {}
+        self.location_data = LocationData()
 
     def __iter__(self):
         iteration_count = 0
@@ -258,11 +258,11 @@ class RetrievalQueue:
     def _generate_process_from_sensor_date(self, sensor_date: dict):
         sensor = sensor_date["sensor"]
         date = int(sensor_date["date"])
-        location = location_data.get_location_for_date(sensor, date)
+        location = self.location_data.get_location_for_date(sensor, date)
         assert location is not None, f"Please add location data for {sensor}/{date}."
 
-        coordinates_dict = location_data.get_coordinates(location)
-        serial_number = location_data.get_serial_number(sensor)
+        coordinates_dict = self.location_data.get_coordinates(location)
+        serial_number = self.location_data.get_serial_number(sensor)
 
         return {
             "sensor": sensor,
