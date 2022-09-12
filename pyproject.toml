@@ -28,3 +28,9 @@ line-length = 88
 [build-system]
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.pytest.ini_options]
+markers = [
+    "ci: can be run in a CI environment",
+    "integration: can only be run on a configured system",
+]
