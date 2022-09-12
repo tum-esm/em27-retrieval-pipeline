@@ -1,14 +1,13 @@
 import os
 import shutil
-from src.utils import Logger
+from src import utils, types
 
 dir = os.path.dirname
 PROJECT_DIR = dir(dir(dir(os.path.abspath(__file__))))
 
 
-def run(config: dict, session):
-    sensor = str(session["sensor"])
-    date = str(session["date"])
+def run(config: types.ConfigDict, session: types.SessionDict) -> None:
+    sensor, date = session["sensor"], session["date"]
 
     src_dir = os.path.join(config["src"]["datalogger"], sensor)
     dst_dir = os.path.join(PROJECT_DIR, "inputs", f"{sensor}_pressure")
@@ -32,7 +31,7 @@ def run(config: dict, session):
 
     # 1440 minutes per day + 1 header line
     if line_count < 1441:
-        Logger.warning(
+        utils.Logger.warning(
             f"{sensor}/{date} - datalogger file only has {line_count}/1441 lines"
         )
     assert line_count >= 30, "datalogger file has less than 30 entries"
