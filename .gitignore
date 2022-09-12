@@ -10,6 +10,7 @@ example/pylot_outputs
 # static project files
 .venv
 config/config.json
+config/config.tmp.json
 config/manual-queue.json
 
 # dynamic project files
