@@ -12,6 +12,8 @@ def run(config: dict, session):
     alt = session["alt"]
     serial_number = session["serial_number"]
 
+    # TODO: move these checks into config-load
+
     assert os.path.isfile(
         f"{PROJECT_DIR}/.venv/bin/python"
     ), "virtual environment does not exist"
@@ -20,24 +22,19 @@ def run(config: dict, session):
         f"{PROJECT_DIR}/location-data/.gitignore"
     ), "please run fetch-location-data.py first"
 
-    pylot_slug = {
-        "2.0.1": "pylot_1_0",
-        "2.1.1": "pylot_1_1",
-    }[config["proffastVersion"]]
-
-    YAML_TEMPLATE = f"{PROJECT_DIR}/src/config/{pylot_slug}_config_template.yml"
+    YAML_TEMPLATE = f"{PROJECT_DIR}/src/config/pylot_config_template.yml"
 
     assert os.path.isfile(
-        f"{PROJECT_DIR}/src/{pylot_slug}/prfpylot/pylot.py"
-    ), f"submodule src/{pylot_slug} not initialized"
+        f"{PROJECT_DIR}/src/prfpylot/prfpylot/pylot.py"
+    ), f"submodule src/prfpylot not initialized"
 
     assert all(
         [
             os.path.isfile(x)
             for x in [
-                f"{PROJECT_DIR}/src/{pylot_slug}/prf/preprocess/preprocess4",
-                f"{PROJECT_DIR}/src/{pylot_slug}/prf/pcxs20",
-                f"{PROJECT_DIR}/src/{pylot_slug}/prf/invers20",
+                f"{PROJECT_DIR}/src/prfpylot/prf/preprocess/preprocess4",
+                f"{PROJECT_DIR}/src/prfpylot/prf/pcxs20",
+                f"{PROJECT_DIR}/src/prfpylot/prf/invers20",
             ]
         ]
     ), f"proffast {config['proffastVersion']} is not fully compiled"

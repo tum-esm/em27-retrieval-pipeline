@@ -67,7 +67,6 @@ validator = cerberus.Validator(
         "locationRepository": {"type": "string", "regex": "^https://.*$"},
         "dst": {"type": "string", "check_with": check_directory_path},
         "startDate": {"type": "integer", "check_with": check_date_int},
-        "proffastVersion": {"type": "string", "allowed": ["2.0.1", "2.1.1"]},
     }
 )
 

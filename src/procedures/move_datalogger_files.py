@@ -7,14 +7,11 @@ PROJECT_DIR = dir(dir(dir(os.path.abspath(__file__))))
 
 
 def run(config: dict, session):
-    SRC = config["src"]["datalogger"]
-    DST = f"{PROJECT_DIR}/inputs"
-
     sensor = str(session["sensor"])
     date = str(session["date"])
 
-    src_dir = f'{SRC}/{sensor}_{str(session["serial_number"])[-2:]}'
-    dst_dir = f"{DST}/{sensor}_pressure"
+    src_dir = os.path.join(config["src"]["datalogger"], sensor)
+    dst_dir = os.path.join(PROJECT_DIR, "inputs", f"{sensor}_pressure")
     assert os.path.isdir(src_dir), "src path does not exist"
 
     matching_files = list(
@@ -25,7 +22,7 @@ def run(config: dict, session):
         )
     )
 
-    assert len(matching_files) > 0, "no datalogger file found"
+    assert len(matching_files) > 0, "no datalogger files found"
     assert len(matching_files) < 2, f"multiple datalogger files found: {matching_files}"
 
     src_file = f"{src_dir}/{matching_files[0]}"

@@ -63,10 +63,7 @@ def run(config: dict, session):
     else:
         Logger.debug(f"Retrieval output csv is missing")
 
-    output_dirname = {
-        "2.0.1": "proffast-2.0-outputs",
-        "2.1.1": "proffast-2.1-outputs",
-    }[config["proffastVersion"]]
+    output_dirname = "proffast-2.2-outputs"
     output_dst = config["dst"] + f"/{sensor}/{output_dirname}"
     if not os.path.isdir(output_dst):
         os.mkdir(f"{output_dst}")

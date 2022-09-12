@@ -2,6 +2,8 @@ from datetime import datetime
 import json
 import os
 
+# TODO: Refactoring (this should be a class)
+
 dir = os.path.dirname
 PROJECT_DIR = dir(dir(dir(os.path.abspath(__file__))))
 INPUT_WARNINGS_LIST_PATH = f"{PROJECT_DIR}/logs/input-warnings-to-be-resolved.json"
