@@ -66,7 +66,7 @@ class FileUtils:
 
     @staticmethod
     def t_exists_in_dst(date_string: str, query):
-        d = f'{CONFIG["dst"]}/{query.sensor}{query.serial_number}/'
+        d = f'{CONFIG["dst"]}/{query.sensor}/'
         dst_slug = FileUtils.get_dst_file_slug(date_string, query)
         return (
             os.path.isfile(f"{d}/{dst_slug}.map")

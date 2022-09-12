@@ -36,7 +36,7 @@ class QueryProcess:
             try:
                 cache_file_slug = FileUtils.get_cache_file_slug(date_string, self.query)
                 dst_file_slug = FileUtils.get_dst_file_slug(date_string, self.query)
-                dst_dir = f'{CONFIG["dst"]}/{self.query.sensor}{self.query.serial_number}'
+                dst_dir = f'{CONFIG["dst"]}/{self.query.sensor}'
                 if not os.path.isdir(dst_dir):
                     os.mkdir(dst_dir)
                 for filetype in ["mod", "map"]:

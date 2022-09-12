@@ -39,7 +39,6 @@ class QueryList:
                         t_from_int=time_period["from"],
                         t_to_int=time_period["to"],
                         sensor=sensor,
-                        serial_number=location_data.get_serial_number(sensor),
                         lat=coordinates["lat"],
                         lon=coordinates["lon"],
                         location=location

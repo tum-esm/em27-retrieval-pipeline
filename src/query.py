@@ -8,7 +8,7 @@ PROJECT_DIR, CONFIG = load_setup(validate=False)
 class Query:
     """
     This class represents queries for profiles for setup with fixed:
-    * sensor (-> serial_number)
+    * sensor
     * location (-> coordinates)
     * time period (from, to)
     """
@@ -17,7 +17,6 @@ class Query:
     t_to_int: int
     sensor: str
     location: str
-    serial_number: str
     lat: float
     lon: float
 
@@ -61,7 +60,6 @@ class Query:
             "t_to_int": self.t_to_int,
             "sensor": self.sensor,
             "location": self.location,
-            "serial_number": self.serial_number,
             "lat": self.lat,
             "lon": self.lon,
         }
@@ -73,7 +71,6 @@ class Query:
             t_to_int= self.t_to_int,
             sensor= self.sensor,
             location= self.location,
-            serial_number= self.serial_number,
             lat= self.lat,
             lon= self.lon,
         )

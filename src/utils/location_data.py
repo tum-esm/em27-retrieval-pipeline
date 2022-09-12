@@ -17,14 +17,6 @@ class LocationData:
     def sensor_names(self) -> list[str]:
         return self.sensors.keys()
     
-    def get_serial_number(self, sensor_name: str) -> int:
-        try:
-            return self.sensors[sensor_name]["serialNumber"]
-        except KeyError:
-            raise Exception(
-                f'em27-location-data/data/sensors.json is invalid, "{sensor_name}"'
-            )
-    
     def get_location_list(self, sensor_name: str) -> int:
         try:
             return self.sensors[sensor_name]["locations"]
