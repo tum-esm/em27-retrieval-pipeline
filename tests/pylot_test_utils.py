@@ -6,26 +6,28 @@ import pytest
 
 dir = os.path.dirname
 PROJECT_DIR = dir(dir(os.path.abspath(__file__)))
-LOCK_FILE = f"{PROJECT_DIR}/src/main.lock"
-lock = filelock.FileLock(LOCK_FILE, timeout=0)
+lock = filelock.FileLock(os.path.join(PROJECT_DIR, "src", "main.lock"), timeout=0)
+
+sys.path.append(os.path.join(PROJECT_DIR, "src", "prfpylot"))
+from src.prfpylot.prfpylot.pylot import Pylot
 
 
-def clean_output_directory(pylot_slug: str):
-    output_dir = f"{PROJECT_DIR}/example/{pylot_slug}_outputs"
-    for f in os.listdir(output_dir):
-        if os.path.isdir(f"{output_dir}/{f}"):
-            shutil.rmtree(f"{output_dir}/{f}")
+def _clean_output_directory():
+    output_dir = os.path.join(PROJECT_DIR, "example", "pylot_outputs")
+    if os.path.exists(output_dir):
+        shutil.rmtree(output_dir)
+    os.mkdir(output_dir)
 
 
-def _write_pylot_config(pylot_slug: str):
-    yaml_src = f"{PROJECT_DIR}/src/config/{pylot_slug}_config_template.yml"
-    yaml_dst = f"{PROJECT_DIR}/example/{pylot_slug}_config.yml"
+def _write_pylot_config():
+    yaml_src = f"{PROJECT_DIR}/src/config/pylot_config_template.yml"
+    yaml_dst = f"{PROJECT_DIR}/example/pylot_config.yml"
     with open(yaml_src, "r") as f:
         yaml_content = "".join(f.readlines())
     replacements = {
         "%PROJECT_DIR%/src": f"{PROJECT_DIR}/src",
         "%PROJECT_DIR%/inputs": f"{PROJECT_DIR}/example",
-        "%PROJECT_DIR%/outputs": f"{PROJECT_DIR}/example/{pylot_slug}_outputs",
+        "%PROJECT_DIR%/outputs": f"{PROJECT_DIR}/example/pylot_outputs",
         "%SERIAL_NUMBER%": "115",
         "%SENSOR%": "mc",
         "%COORDINATES_LAT%": "48.148",
@@ -40,13 +42,11 @@ def _write_pylot_config(pylot_slug: str):
     return yaml_dst
 
 
-def _assert_output_file_integrity(pylot_slug: str):
+def _assert_output_file_integrity():
     # FIXME: Update "logfiles/pcsx_output.log" to "logfiles/pcxs_output.log" once fixed
-    output_dir = (
-        f"{PROJECT_DIR}/example/{pylot_slug}_outputs/mc_SN115_20220602_20220602"
-    )
+    output_dir = f"{PROJECT_DIR}/example/pylot_outputs/mc_SN115_20220602_20220602"
     for output_file in [
-        f"{pylot_slug}_config.yml",
+        f"pylot_config.yml",
         "input_files/preprocess4mc_220602.inp",
         "input_files/pcxs20mc_220602.inp",
         "input_files/invers20mc_220602.inp",
@@ -74,16 +74,10 @@ def wrap_test_with_mainlock():
         raise Exception("automation is already running")
 
 
-def run_pylot_test(pylot_slug: str):
-    clean_output_directory(pylot_slug)
-    pylot_config_file = _write_pylot_config(pylot_slug)
-
-    sys.path.append(f"{PROJECT_DIR}/src/{pylot_slug}")
-    if pylot_slug == "pylot_1_0":
-        from src.pylot_1_0.prfpylot.pylot import Pylot
-    if pylot_slug == "pylot_1_1":
-        from src.pylot_1_1.prfpylot.pylot import Pylot
+def run_pylot_test():
+    _clean_output_directory()
+    pylot_config_file = _write_pylot_config()
 
     Pylot(pylot_config_file, logginglevel="info").run(n_processes=1)
 
-    _assert_output_file_integrity(pylot_slug)
+    _assert_output_file_integrity()
