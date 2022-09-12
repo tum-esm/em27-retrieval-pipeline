@@ -1,0 +1,15 @@
+{
+    "sensorsToConsider": ["ma", "mb", "mc", "md", "me"],
+    "processUploadsAutomatically": true,
+    "src": {
+        "datalogger": "ath-to-datalogger-datalogger-upload-directory",
+        "verticalProfiles": "path-to-vertical-profiles",
+        "interferograms": {
+            "upload": "path-to-datalogger-ifg-upload-directory",
+            "other": []
+        }
+    },
+    "locationRepository": "git@github.com:tum-esm/em27-location-data",
+    "dst": "path-to-long-term-storage-of-ifgs-and-results",
+    "startDate": 20190101
+}

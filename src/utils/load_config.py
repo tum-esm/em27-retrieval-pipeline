@@ -47,13 +47,13 @@ validator = cerberus.Validator(
             },
         },
         "locationRepository": {"type": "string", "regex": "^(https://.*)|(git@.*)$"},
-        "dst": {"type": "string", "check_with": check_directory_path},
+        "dst": {"type": "string"},
         "startDate": {"type": "integer", "check_with": check_date_int},
     }
 )
 
 
-def load_config(validate=False) -> dict:
+def load_config(validate: bool = False, skip_directory_paths: bool = False) -> dict:
     try:
         with open(CONFIG_FILE, "r") as f:
             CONFIG = json.load(f)
@@ -65,18 +65,28 @@ def load_config(validate=False) -> dict:
     if validate:
         try:
             assert validator.validate(CONFIG), validator.errors
-            data_src_dirs = [
-                CONFIG["src"]["datalogger"],
-                CONFIG["src"]["verticalProfiles"],
-                CONFIG["src"]["interferograms"]["upload"],
-                *CONFIG["src"]["interferograms"]["other"],
-            ]
 
-            for data_src_dir in data_src_dirs:
-                assert os.path.isdir(data_src_dir), f'"{data_src_dir}" does not exist'
-                for sensor in CONFIG["sensorsToConsider"]:
-                    sensor_dir = os.path.join(data_src_dir, sensor)
-                    assert os.path.isdir(sensor_dir), f'"{sensor_dir}" does not exist'
+            if not skip_directory_paths:
+                assert os.path.isdir(
+                    CONFIG["dst"]
+                ), f'directory "{CONFIG["dst"]}" does not exist'
+
+                data_src_dirs = [
+                    CONFIG["src"]["datalogger"],
+                    CONFIG["src"]["verticalProfiles"],
+                    CONFIG["src"]["interferograms"]["upload"],
+                    *CONFIG["src"]["interferograms"]["other"],
+                ]
+
+                for data_src_dir in data_src_dirs:
+                    assert os.path.isdir(
+                        data_src_dir
+                    ), f'directory "{data_src_dir}" does not exist'
+                    for sensor in CONFIG["sensorsToConsider"]:
+                        sensor_dir = os.path.join(data_src_dir, sensor)
+                        assert os.path.isdir(
+                            sensor_dir
+                        ), f'directory "{sensor_dir}" does not exist'
 
         except AssertionError as e:
             raise AssertionError(f"Invalid config.json: {e}")
