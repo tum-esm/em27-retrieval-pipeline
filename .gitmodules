@@ -1,0 +1,3 @@
+[submodule "src/detect-corrupt-ifgs"]
+	path = src/detect-corrupt-ifgs
+	url = git@github.com:tum-esm/detect-corrupt-ifgs
