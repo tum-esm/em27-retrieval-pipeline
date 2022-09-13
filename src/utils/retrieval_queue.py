@@ -3,6 +3,7 @@ import json
 import os
 from typing import Iterator, Optional, TypedDict
 from src import utils, types
+from src.types import manual_queue
 
 dir = os.path.dirname
 PROJECT_DIR = dir(dir(dir(os.path.abspath(__file__))))
@@ -57,7 +58,9 @@ class RetrievalQueue:
 
     def __init__(self, config: types.ConfigDict):
         self.config = config
-        self.processed_sensor_dates: dict[str, list[str]] = {}
+        self.processed_sensor_dates: dict[str, list[str]] = {
+            s: [] for s in config["sensors_to_consider"]
+        }
         self.location_data = utils.LocationData()
 
     def __iter__(self) -> Iterator[types.SessionDict]:
@@ -104,44 +107,71 @@ class RetrievalQueue:
 
             return
 
+    def _generate_session_dict(self, sensor: str, date: str) -> types.SessionDict:
+        self.processed_sensor_dates[sensor].append(date)
+
+        location = self.location_data.get_location_for_date(sensor, date)
+        coordinates_dict = self.location_data.get_coordinates(location)
+        serial_number = self.location_data.get_serial_number(sensor)
+
+        return {
+            "sensor": sensor,
+            "location": location,
+            "date": date,
+            **coordinates_dict,
+            "serial_number": serial_number,
+        }
+
     # TODO: Only consider dates from upload dir where upload has been finished
-    def _next_item_from_upload_directory(self) -> Optional[types.SessionDict]:
+    # def _pyra_upload_is_complete(self, dir_path: str) -> Optional[bool]:
+    #    """
+    #    If the dir_path contains a file "upload-meta.json", then this function
+    #    returns the boolean value of meta.complete and raises an exception if
+    #    that field is not found or not a boolean.
+    #
+    #    If there is no "upload-meta.json" file, the this function returns None.
+    #    """
+    #    upload_meta_path = os.path.join(dir_path, "upload-meta.json")
+    #    if not os.path.isfile(upload_meta_path):
+    #        return None
+    #
+    #    try:
+    #        with open(upload_meta_path) as f:
+    #            upload_meta = json.load(f)
+    #        pyra_upload_is_complete = upload_meta["complete"]
+    #        assert isinstance(
+    #            pyra_upload_is_complete, bool
+    #        ), "upload-meta.complete is not a boolean"
+    #        return pyra_upload_is_complete
+    #    except Exception as e:
+    #        raise Exception(f'upload-meta.json at "{upload_meta_path}" is invalid: {e}')
+
+    def _next_item_from_upload_directory(self) -> Optional[SensorDateDict]:
         """
         Use the dates from /mnt/measurementData/mu
         """
-        sensor_dates = []
-        for sensor in self.config["sensorsToConsider"]:
-            upload_src = self.config["src"]["interferograms"]["upload"][sensor]
-            dates = [
-                x
-                for x in os.listdir(upload_src)
-                if _consider_date_string(
-                    x, start_date=self.config["start_date"], min_days_delay=5
-                )
-            ]
-            sensor_dates += [{"sensor": sensor, "date": date} for date in dates]
+        sensor_dates: list[SensorDateDict] = []
+        for sensor in self.config["sensors_to_consider"]:
+            upload_src = os.path.join(
+                self.config["src"]["interferograms"]["upload"], sensor
+            )
+            for date in os.listdir(upload_src):
+                if not _consider_date_string(
+                    date, start_date=self.config["start_date"], min_days_delay=5
+                ):
+                    continue
 
-        # Do not take in a sensor date multiple times
-        sensor_dates = self._filter_sensor_dates_by_processed_items(sensor_dates)
+                if date in self.processed_sensor_dates.get(sensor, []):
+                    continue
+
+                # TODO: Only consider dates from upload dir where upload has been finished
+
+                sensor_dates.append({"sensor": sensor, "date": date})
 
         if len(sensor_dates) == 0:
             return None
 
-        next_sensor_date = max(sensor_dates, key=lambda x: x["date"])
-        self._mark_sensor_date_as_processed(
-            next_sensor_date["sensor"], str(next_sensor_date["date"])
-        )
-
-        try:
-            next_process = self._generate_process_from_sensor_date(next_sensor_date)
-            return next_process
-        except:
-            utils.Logger.error(
-                f'Error during "_generate_process_from_sensor_date" '
-                + "for next_sensor_date={next_sensor_date}"
-            )
-            utils.Logger.exception()
-            return self._next_item_from_upload_directory()
+        return max(sensor_dates, key=lambda x: x["date"])
 
     def _next_item_from_manual_queue(
         self, consider_priority_items: bool = True
@@ -158,19 +188,19 @@ class RetrievalQueue:
             utils.Logger.warning(f"Manual queue in an invalid format: {e}")
             return None
 
+        # highest priority first then latest date first
+        manual_queue = list(
+            sorted(
+                manual_queue, key=lambda x: f'{x["priority"]}{x["date"]}', reverse=True
+            )
+        )
+
         sensor_dates: list[SensorDateDict] = []
 
         for manual_queue_item in manual_queue:
             sensor = manual_queue_item["sensor"]
             date = manual_queue_item["date"]
             priority = manual_queue_item["priority"]
-
-            if not _consider_date_string(date, min_days_delay=1):
-                utils.Logger.debug(
-                    f"Scheduler: Skipping {sensor}/{date} "
-                    + "(invalid or too recent date)"
-                )
-                self._mark_sensor_date_as_processed(sensor, date)
 
             if date in self.processed_sensor_dates.get(sensor, []):
                 continue
@@ -180,66 +210,17 @@ class RetrievalQueue:
             ):
                 continue
 
+            # TODO: Only consider dates from upload dir where upload has been finished
+
+            if not _consider_date_string(date, min_days_delay=1):
+                utils.Logger.debug(
+                    f"Scheduler: Skipping {sensor}/{date} (invalid or too recent date)"
+                )
+                self._mark_sensor_date_as_processed(sensor, date)
+
             sensor_dates.append({"sensor": sensor, "date": date})
 
-        # TODO: CONTINUE HERE
-
-        if len(sensor_dates) == 0:
-            return None
-        else:
-            # Highest priority first. With the same
-            # priority, it prefers the latest dates
-            sensor_date = list(
-                sorted(
-                    sensor_dates,
-                    key=lambda x: f'{str(x["priority"]).zfill(10)}{x["date"]}',
-                    reverse=True,
-                )
-            )[0]
-            sensor, date = sensor_date["sensor"], sensor_date["date"]
-            self._mark_sensor_date_as_processed(sensor, date)
-            return self._generate_process_from_sensor_date(
-                {
-                    "sensor": sensor,
-                    "date": date,
-                }
-            )
-
-    def _mark_sensor_date_as_processed(self, sensor: str, date: str):
-        if sensor not in self.processed_sensor_dates.keys():
-            self.processed_sensor_dates[sensor] = [date]
-        else:
-            self.processed_sensor_dates[sensor].append(date)
-
-    def _filter_sensor_dates_by_processed_items(
-        self, sensor_dates: list[types.SessionDict]
-    ):
-        return list(
-            filter(
-                lambda x: x["date"]
-                not in self.processed_sensor_dates.get(x["sensor"], []),
-                sensor_dates,
-            )
-        )
-
-    def _generate_process_from_sensor_date(
-        self, sensor_date: dict
-    ) -> types.SessionDict:
-        sensor = sensor_date["sensor"]
-        date = int(sensor_date["date"])
-        location = self.location_data.get_location_for_date(sensor, date)
-        assert location is not None, f"Please add location data for {sensor}/{date}."
-
-        coordinates_dict = self.location_data.get_coordinates(location)
-        serial_number = self.location_data.get_serial_number(sensor)
-
-        return {
-            "sensor": sensor,
-            "location": location,
-            "date": date,
-            **coordinates_dict,
-            "serial_number": serial_number,
-        }
+        return None if (len(sensor_dates) == 0) else sensor_dates[0]
 
     @staticmethod
     def remove_date_from_queue(sensor: str, date: str):
@@ -247,16 +228,16 @@ class RetrievalQueue:
             return
 
         with open(MANUAL_QUEUE_FILE, "r") as f:
-            old_manual_queue_content = json.load(f)
-        assert isinstance(old_manual_queue_content, list)
+            old_manual_queue: list[types.ManualQueueItemDict] = json.load(f)
+            types.validate_manual_queue(old_manual_queue)
 
-        new_manual_queue_content = list(
+        new_manual_queue = list(
             filter(
                 lambda x: not ((x["sensor"] == sensor) and (x["date"] == date)),
-                old_manual_queue_content,
+                old_manual_queue,
             )
         )
-        if len(new_manual_queue_content) < len(old_manual_queue_content):
-            utils.Logger.debug("Removing item from manual queue")
+        if len(new_manual_queue) < len(old_manual_queue):
+            utils.Logger.debug(f"Removing item {sensor}/{date} from manual queue")
             with open(MANUAL_QUEUE_FILE, "w") as f:
-                json.dump(new_manual_queue_content, f, indent=4)
+                json.dump(new_manual_queue, f, indent=4)
