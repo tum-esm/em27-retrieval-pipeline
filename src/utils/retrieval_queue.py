@@ -58,9 +58,7 @@ class RetrievalQueue:
 
     def __init__(self, config: types.ConfigDict):
         self.config = config
-        self.processed_sensor_dates: dict[str, list[str]] = {
-            s: [] for s in config["sensors_to_consider"]
-        }
+        self.processed_sensor_dates: dict[str, list[str]] = {}
         self.location_data = utils.LocationData()
 
     def __iter__(self) -> Iterator[types.SessionDict]:
@@ -75,7 +73,7 @@ class RetrievalQueue:
                 utils.Logger.info(
                     "Scheduler: Taking next item from manual queue (high priority)"
                 )
-                yield next_high_prio_queue_item
+                yield self._generate_session_dict(next_high_prio_queue_item)
                 continue
             else:
                 utils.Logger.debug("Scheduler: High priority queue is empty")
@@ -86,7 +84,7 @@ class RetrievalQueue:
                     utils.Logger.info(
                         "Scheduler: Taking next item from upload directory"
                     )
-                    yield next_upload_directory_item
+                    yield self._generate_session_dict(next_upload_directory_item)
                     continue
                 else:
                     utils.Logger.debug("Scheduler: Upload directory is empty")
@@ -100,12 +98,12 @@ class RetrievalQueue:
                 utils.Logger.info(
                     "Scheduler: Taking next item from manual queue (low priority)"
                 )
-                yield next_low_prio_queue_item
+                yield self._generate_session_dict(**next_low_prio_queue_item)
                 continue
             else:
                 utils.Logger.debug("Scheduler: Low priority queue is empty")
 
-            return
+            break
 
     def _generate_session_dict(self, sensor: str, date: str) -> types.SessionDict:
         self.processed_sensor_dates[sensor].append(date)
@@ -122,33 +120,32 @@ class RetrievalQueue:
             "serial_number": serial_number,
         }
 
-    # TODO: Only consider dates from upload dir where upload has been finished
-    # def _pyra_upload_is_complete(self, dir_path: str) -> Optional[bool]:
-    #    """
-    #    If the dir_path contains a file "upload-meta.json", then this function
-    #    returns the boolean value of meta.complete and raises an exception if
-    #    that field is not found or not a boolean.
-    #
-    #    If there is no "upload-meta.json" file, the this function returns None.
-    #    """
-    #    upload_meta_path = os.path.join(dir_path, "upload-meta.json")
-    #    if not os.path.isfile(upload_meta_path):
-    #        return None
-    #
-    #    try:
-    #        with open(upload_meta_path) as f:
-    #            upload_meta = json.load(f)
-    #        pyra_upload_is_complete = upload_meta["complete"]
-    #        assert isinstance(
-    #            pyra_upload_is_complete, bool
-    #        ), "upload-meta.complete is not a boolean"
-    #        return pyra_upload_is_complete
-    #    except Exception as e:
-    #        raise Exception(f'upload-meta.json at "{upload_meta_path}" is invalid: {e}')
+    def _pyra_upload_is_complete(self, dir_path: str) -> Optional[bool]:
+        """
+        If the dir_path contains a file "upload-meta.json", then this function
+        returns the boolean value of meta.complete and raises an exception if
+        that field is not found or not a boolean.
+
+        If there is no "upload-meta.json" file, the this function returns None.
+        """
+        upload_meta_path = os.path.join(dir_path, "upload-meta.json")
+        if not os.path.isfile(upload_meta_path):
+            return None
+
+        try:
+            with open(upload_meta_path) as f:
+                upload_meta = json.load(f)
+            pyra_upload_is_complete = upload_meta["complete"]
+            assert isinstance(
+                pyra_upload_is_complete, bool
+            ), "upload-meta.complete is not a boolean"
+            return pyra_upload_is_complete
+        except Exception as e:
+            raise Exception(f'upload-meta.json at "{upload_meta_path}" is invalid: {e}')
 
     def _next_item_from_upload_directory(self) -> Optional[SensorDateDict]:
         """
-        Use the dates from /mnt/measurementData/mu
+        Use the dates from upload src directory
         """
         sensor_dates: list[SensorDateDict] = []
         for sensor in self.config["sensors_to_consider"]:
@@ -156,26 +153,37 @@ class RetrievalQueue:
                 self.config["src"]["interferograms"]["upload"], sensor
             )
             for date in os.listdir(upload_src):
-                if not _consider_date_string(
-                    date, start_date=self.config["start_date"], min_days_delay=5
-                ):
-                    continue
-
                 if date in self.processed_sensor_dates.get(sensor, []):
                     continue
 
-                # TODO: Only consider dates from upload dir where upload has been finished
+                if not _consider_date_string(
+                    date, start_date=self.config["start_date"], min_days_delay=5
+                ):
+                    self._mark_as_processed(sensor, date)
+                    continue
+
+                if (
+                    self._pyra_upload_is_complete(os.path.join(upload_src, date))
+                    == False
+                ):
+                    utils.Logger.debug(
+                        f"Scheduler: Skipping {sensor}/{date} (Pyra upload incomplete)"
+                    )
+                    self._mark_as_processed(sensor, date)
+                    continue
 
                 sensor_dates.append({"sensor": sensor, "date": date})
 
         if len(sensor_dates) == 0:
             return None
 
-        return max(sensor_dates, key=lambda x: x["date"])
+        s = max(sensor_dates, key=lambda x: x["date"])
+        self._mark_as_processed(**s)
+        return s
 
     def _next_item_from_manual_queue(
         self, consider_priority_items: bool = True
-    ) -> Optional[types.SessionDict]:
+    ) -> Optional[SensorDateDict]:
         """
         Use the dates from manual-queue.json
         """
@@ -210,20 +218,46 @@ class RetrievalQueue:
             ):
                 continue
 
-            # TODO: Only consider dates from upload dir where upload has been finished
+            # Only consider dates from upload dir where upload has
+            # been finished. Will be ignored if upload dir is empty.
+            if (
+                self._pyra_upload_is_complete(
+                    os.path.join(
+                        self.config["src"]["interferograms"]["upload"], sensor, date
+                    )
+                )
+                == False
+            ):
+                utils.Logger.debug(
+                    f"Scheduler: Skipping {sensor}/{date} (Pyra upload incomplete)"
+                )
+                self._mark_as_processed(sensor, date)
+                continue
 
+            # Do not use data from the current date
             if not _consider_date_string(date, min_days_delay=1):
                 utils.Logger.debug(
                     f"Scheduler: Skipping {sensor}/{date} (invalid or too recent date)"
                 )
-                self._mark_sensor_date_as_processed(sensor, date)
+                self._mark_as_processed(sensor, date)
+                continue
 
             sensor_dates.append({"sensor": sensor, "date": date})
 
-        return None if (len(sensor_dates) == 0) else sensor_dates[0]
+        if len(sensor_dates) == 0:
+            return None
+
+        self._mark_as_processed(**sensor_dates[0])
+        return sensor_dates[0]
+
+    def _mark_as_processed(self, sensor: str, date: str) -> None:
+        try:
+            self.processed_sensor_dates[sensor].append(date)
+        except KeyError:
+            self.processed_sensor_dates[sensor] = [date]
 
     @staticmethod
-    def remove_date_from_queue(sensor: str, date: str):
+    def remove_from_queue_file(sensor: str, date: str):
         if not os.path.isfile(MANUAL_QUEUE_FILE):
             return
 
