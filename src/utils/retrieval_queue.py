@@ -3,7 +3,6 @@ import json
 import os
 from typing import Iterator, Optional, TypedDict
 from src import utils, types
-from src.types import manual_queue
 
 dir = os.path.dirname
 PROJECT_DIR = dir(dir(dir(os.path.abspath(__file__))))
@@ -109,18 +108,22 @@ class RetrievalQueue:
         self.processed_sensor_dates[sensor].append(date)
 
         location = self.location_data.get_location_for_date(sensor, date)
-        coordinates_dict = self.location_data.get_coordinates(location)
-        serial_number = self.location_data.get_serial_number(sensor)
+        assert location is not None, f"location for {sensor}/{date} is unknown"
+
+        coordinates_dict = self.location_data.get_coordinates_for_location(location)
+        serial_number = self.location_data.get_serial_number_for_sensor(sensor)
 
         return {
             "sensor": sensor,
             "location": location,
             "date": date,
-            **coordinates_dict,
+            "lat": coordinates_dict["lat"],
+            "lon": coordinates_dict["lon"],
+            "alt": coordinates_dict["alt"],
             "serial_number": serial_number,
         }
 
-    def _pyra_upload_is_complete(self, dir_path: str) -> Optional[bool]:
+    def _pyra_upload_is_complete(self, sensor: str, date: str) -> Optional[bool]:
         """
         If the dir_path contains a file "upload-meta.json", then this function
         returns the boolean value of meta.complete and raises an exception if
@@ -128,7 +131,12 @@ class RetrievalQueue:
 
         If there is no "upload-meta.json" file, the this function returns None.
         """
-        upload_meta_path = os.path.join(dir_path, "upload-meta.json")
+        upload_meta_path = os.path.join(
+            self.config["src"]["interferograms"]["upload"],
+            sensor,
+            date,
+            "upload-meta.json",
+        )
         if not os.path.isfile(upload_meta_path):
             return None
 
@@ -149,26 +157,29 @@ class RetrievalQueue:
         """
         sensor_dates: list[SensorDateDict] = []
         for sensor in self.config["sensors_to_consider"]:
-            upload_src = os.path.join(
-                self.config["src"]["interferograms"]["upload"], sensor
-            )
-            for date in os.listdir(upload_src):
+            for date in os.listdir(
+                os.path.join(self.config["src"]["interferograms"]["upload"], sensor)
+            ):
                 if date in self.processed_sensor_dates.get(sensor, []):
                     continue
 
-                if not _consider_date_string(
-                    date, start_date=self.config["start_date"], min_days_delay=5
-                ):
-                    self._mark_as_processed(sensor, date)
-                    continue
+                try:
+                    assert _consider_date_string(
+                        date, min_days_delay=5
+                    ), "too recent date"
 
-                if (
-                    self._pyra_upload_is_complete(os.path.join(upload_src, date))
-                    == False
-                ):
-                    utils.Logger.debug(
-                        f"Scheduler: Skipping {sensor}/{date} (Pyra upload incomplete)"
-                    )
+                    assert self._pyra_upload_is_complete(sensor, date) in [
+                        True,
+                        None,
+                    ], "pyra upload incomplete"
+
+                    assert (
+                        self.location_data.get_location_for_date(sensor, date)
+                        is not None
+                    ), "no location data"
+
+                except AssertionError as e:
+                    utils.Logger.debug(f"Scheduler: Skipping {sensor}/{date} ({e})")
                     self._mark_as_processed(sensor, date)
                     continue
 
@@ -210,35 +221,29 @@ class RetrievalQueue:
             date = manual_queue_item["date"]
             priority = manual_queue_item["priority"]
 
-            if date in self.processed_sensor_dates.get(sensor, []):
-                continue
-
-            if (priority > 0 and (not consider_priority_items)) or (
-                priority < 0 and (consider_priority_items)
+            if any(
+                [
+                    (date in self.processed_sensor_dates.get(sensor, [])),
+                    (priority > 0 and (not consider_priority_items)),
+                    (priority < 0 and (consider_priority_items)),
+                ]
             ):
                 continue
 
-            # Only consider dates from upload dir where upload has
-            # been finished. Will be ignored if upload dir is empty.
-            if (
-                self._pyra_upload_is_complete(
-                    os.path.join(
-                        self.config["src"]["interferograms"]["upload"], sensor, date
-                    )
-                )
-                == False
-            ):
-                utils.Logger.debug(
-                    f"Scheduler: Skipping {sensor}/{date} (Pyra upload incomplete)"
-                )
-                self._mark_as_processed(sensor, date)
-                continue
+            try:
+                assert _consider_date_string(date, min_days_delay=1), "too recent date"
 
-            # Do not use data from the current date
-            if not _consider_date_string(date, min_days_delay=1):
-                utils.Logger.debug(
-                    f"Scheduler: Skipping {sensor}/{date} (invalid or too recent date)"
-                )
+                assert self._pyra_upload_is_complete(sensor, date) in [
+                    True,
+                    None,
+                ], "pyra upload incomplete"
+
+                assert (
+                    self.location_data.get_location_for_date(sensor, date) is not None
+                ), "no location data"
+
+            except AssertionError as e:
+                utils.Logger.debug(f"Scheduler: Skipping {sensor}/{date} ({e})")
                 self._mark_as_processed(sensor, date)
                 continue
 
@@ -257,13 +262,15 @@ class RetrievalQueue:
             self.processed_sensor_dates[sensor] = [date]
 
     @staticmethod
-    def remove_from_queue_file(sensor: str, date: str):
+    def remove_from_queue_file(
+        sensor: str, date: str, config: types.ConfigDict
+    ) -> None:
         if not os.path.isfile(MANUAL_QUEUE_FILE):
             return
 
         with open(MANUAL_QUEUE_FILE, "r") as f:
             old_manual_queue: list[types.ManualQueueItemDict] = json.load(f)
-            types.validate_manual_queue(old_manual_queue)
+            types.validate_manual_queue(old_manual_queue, config)
 
         new_manual_queue = list(
             filter(
