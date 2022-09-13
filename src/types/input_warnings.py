@@ -29,11 +29,16 @@ def validate_input_warnings(o: Any) -> None:
     """
     try:
         _ValidationModel(o=o)
+        assert isinstance(o, dict)  # necessary due to pydantics autoconversion
     except pydantic.ValidationError as e:
         pretty_error_messages = []
         for error in e.errors():
             fields = [str(f) for f in error["loc"][1:] if f not in ["__root__"]]
             pretty_error_messages.append(f"{'.'.join(fields)} -> {error['msg']}")
         raise ValidationError(
-            f"input warnings object is invalid: {', '.join(pretty_error_messages)}"
+            f"input warnings file is invalid: {', '.join(pretty_error_messages)}"
+        )
+    except AssertionError:
+        raise ValidationError(
+            f"input warnings file is invalid: has to be a dict not a list"
         )

@@ -1,7 +1,6 @@
 from datetime import datetime
 import json
 import os
-from typing import Any
 from src import types
 
 # TODO: statically type this class
@@ -41,5 +40,6 @@ class InputWarningsList:
     @staticmethod
     def remove(sensor: str, date: str) -> None:
         warnings_list = InputWarningsList._load()
-        del warnings_list[f"{sensor}/{date}"]
-        InputWarningsList._dump(warnings_list)
+        if f"{sensor}/{date}" in warnings_list:
+            del warnings_list[f"{sensor}/{date}"]
+            InputWarningsList._dump(warnings_list)

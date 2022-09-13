@@ -38,9 +38,13 @@ def run(config: types.ConfigDict, session: types.SessionDict) -> None:
 
     output_src = (
         f"{PROJECT_DIR}/outputs/{sensor}_"
-        + f"SN{str(session['serial_number']).zfill(3)}_{date}_{date}"
+        + f"SN{str(session['serial_number']).zfill(3)}_{date[2:]}-{date[2:]}"
     )
-    output_csv = f"{output_src}/combined_invparms_{sensor}_{date}-{date}.csv"
+    output_csv = (
+        f"{output_src}/comb_invparms_{sensor}_"
+        + f"SN{str(session['serial_number']).zfill(3)}_"
+        + f"{date[2:]}-{date[2:]}.csv"
+    )
     assert os.path.isdir(output_src), "pylot output directory missing"
 
     # --- MOVE OUTPUT DATA ---

@@ -1,8 +1,9 @@
 import os
 import pytest
+from src import types, utils
 
 dir = os.path.dirname
-PROJECT_DIR = dir(dir(dir(os.path.abspath(__file__))))
+PROJECT_DIR = dir(dir(os.path.abspath(__file__)))
 
 
 @pytest.mark.integration
@@ -29,3 +30,6 @@ def test_local_setup():
             ]
         ]
     ), f"proffast is not fully compiled"
+
+    config = utils.load_config(validate=True)
+    types.validate_location_data(config)

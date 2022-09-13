@@ -6,6 +6,7 @@ from typing import Any
 # not support strict validation on a whole Model. It converts
 # the input to the datatype, i.e. "23" will not raise an error
 # on int or float data types because it can be converted.
+# Source: https://github.com/pydantic/pydantic/issues/1098#issuecomment-1009762620
 
 # Read https://github.com/pydantic/pydantic/issues/578 on the reason for this decision
 # Watch https://github.com/pydantic/pydantic/issues/1098 for a possible fix
