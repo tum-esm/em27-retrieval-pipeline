@@ -8,6 +8,7 @@ from .validation_error import ValidationError
 dir = os.path.dirname
 PROJECT_DIR = dir(dir(dir(os.path.abspath(__file__))))
 
+
 class LocationCoordinatesDict:
     details: str
     lon: float
@@ -16,12 +17,13 @@ class LocationCoordinatesDict:
 
 
 class _TimeFrame(TypedDict):
-    "from": int
-    to: int
+    from_date: int
+    to_date: int
     location: str
-    
+
+
 class SensorLocationDict:
-    serialNumber: int
+    serial_number: int
     locations: list[_TimeFrame]
 
 
@@ -39,14 +41,16 @@ def validate_location_data(config: dict[str, Any]) -> None:
             ["python -m pytest tests"],
             cwd=os.path.join(PROJECT_DIR, "location-data"),
             stderr=subprocess.PIPE,
-            stdout=subprocess.PIPE
+            stdout=subprocess.PIPE,
         )
-        
-        assert location_repo_pytest.returncode == 0, f"pytests on location repo failed: stdout={location_repo_pytest.stdout}, stderr={location_repo_pytest.stderr}"
-        
+
+        assert (
+            location_repo_pytest.returncode == 0
+        ), f"pytests on location repo failed: stdout={location_repo_pytest.stdout}, stderr={location_repo_pytest.stderr}"
+
         with open(f"{PROJECT_DIR}/location-data/data/sensors.json") as f:
             sensors = json.load(f)
-            
+
         for sensor in config["sensors_to_consider"]:
             assert sensor in sensors.keys(), f'no location data for sensor "{sensor}"'
 

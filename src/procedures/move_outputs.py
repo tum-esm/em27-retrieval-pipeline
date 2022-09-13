@@ -103,9 +103,10 @@ def run(config: types.ConfigDict, session: types.SessionDict) -> None:
     ifg_src_upload = config["src"]["interferograms"]["upload"][sensor] + f"/{date}"
     if os.path.isdir(ifg_src_upload):
         # somewhat redundant - but better check twice
-        assert utils.directories_are_equal(
-            ifg_src_upload, ifg_dst
-        ), "directories differ, skipped removal"
+        try:
+            assert utils.assert_directory_equality([ifg_src_upload, ifg_dst])
+        except AssertionError:
+            raise AssertionError("directories differ, skipped removal")
         utils.Logger.debug("Removing ifgs from cloud")
         shutil.rmtree(ifg_src_upload)
 
@@ -131,8 +132,8 @@ def run(config: types.ConfigDict, session: types.SessionDict) -> None:
             .replace("\n", "")
         )
         about_dict = {
-            "proffastVersion": config["proffastVersion"],
-            "locationRepository": config["locationRepository"],
+            "proffastVersion": "2.2",
+            "locationRepository": config["location_epository"],
             "automationVersion": commit_sha,
             "generationDate": now.strftime("%Y%m%d"),
             "generationTime": now.strftime("%T"),
