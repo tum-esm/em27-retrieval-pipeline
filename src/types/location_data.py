@@ -1,24 +1,31 @@
-from datetime import datetime
+import json
 import os
-import pydantic
+import subprocess
 from typing import Any, TypedDict
 from .validation_error import ValidationError
 
 
-class ManualQueueItemDict(TypedDict):
-    sensor: str
-    date: str
-    priority: int
+dir = os.path.dirname
+PROJECT_DIR = dir(dir(dir(os.path.abspath(__file__))))
+
+class LocationCoordinatesDict:
+    details: str
+    lon: float
+    lat: float
+    alt: int
 
 
-class _ValidationModel(pydantic.BaseModel):
-    o: list[ManualQueueItemDict]
+class _TimeFrame(TypedDict):
+    "from": int
+    to: int
+    location: str
+    
+class SensorLocationDict:
+    serialNumber: int
+    locations: list[_TimeFrame]
 
-    class Config:
-        extra = "forbid"
 
-
-def validate_manual_queue(o: Any, config: dict[str, Any]) -> None:
+def validate_location_data(config: dict[str, Any]) -> None:
     """
     Check, whether a given list is a correct list of ManualQueueItemDicts
     Raises a pydantic.ValidationError if the object is invalid.
@@ -26,27 +33,22 @@ def validate_manual_queue(o: Any, config: dict[str, Any]) -> None:
     This should always be used when loading the object from a
     JSON file!
     """
-    try:
-        _ValidationModel(o=o)
-    except pydantic.ValidationError as e:
-        pretty_error_messages = []
-        for error in e.errors():
-            fields = [str(f) for f in error["loc"][1:] if f not in ["__root__"]]
-            pretty_error_messages.append(f"{'.'.join(fields)} -> {error['msg']}")
-        raise ValidationError(f"config is invalid: {', '.join(pretty_error_messages)}")
-
-    new_manual_queue: list[ManualQueueItemDict] = o
 
     try:
-        for item in new_manual_queue:
-            assert item["priority"] != 0, "priorities cannot be zero"
-            try:
-                datetime.strptime(item["date"], "%Y%m%d")
-            except:
-                raise AssertionError(f"config.start_date is not a valid date")
-            assert (
-                item["sensor"] in config["sensors_to_consider"]
-            ), f'sensor {item["sensor"]} not in config.sensors_to_consider'
+        location_repo_pytest = subprocess.run(
+            ["python -m pytest tests"],
+            cwd=os.path.join(PROJECT_DIR, "location-data"),
+            stderr=subprocess.PIPE,
+            stdout=subprocess.PIPE
+        )
+        
+        assert location_repo_pytest.returncode == 0, f"pytests on location repo failed: stdout={location_repo_pytest.stdout}, stderr={location_repo_pytest.stderr}"
+        
+        with open(f"{PROJECT_DIR}/location-data/data/sensors.json") as f:
+            sensors = json.load(f)
+            
+        for sensor in config["sensors_to_consider"]:
+            assert sensor in sensors.keys(), f'no location data for sensor "{sensor}"'
 
     except AssertionError as e:
-        raise ValidationError(f"config is invalid: {e}")
+        raise ValidationError(f"location repo is invalid: {e}")
