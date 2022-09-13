@@ -43,3 +43,9 @@ markers = [
 strict = true
 implicit_reexport = true
 no_warn_unused_ignores = true
+
+[[tool.mypy.overrides]]
+module = [
+    "src.prfpylot.prfpylot.pylot",
+]
+ignore_missing_imports = true

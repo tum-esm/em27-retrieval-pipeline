@@ -6,7 +6,7 @@ dir = os.path.dirname
 PROJECT_DIR = dir(dir(dir(os.path.abspath(__file__))))
 
 
-def run(session: types.SessionDict):
+def run(session: types.SessionDict) -> None:
     sensor = session["sensor"]
     lat = session["lat"]
     lon = session["lon"]
