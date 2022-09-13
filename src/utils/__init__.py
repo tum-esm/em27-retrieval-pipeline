@@ -1,5 +1,4 @@
 from .directory_utils import (
-    directories_are_equal,
     get_existing_src_directories,
     assert_directory_equality,
 )
