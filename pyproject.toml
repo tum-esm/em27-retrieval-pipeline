@@ -23,6 +23,9 @@ pydantic = "^1.10.2"
 black = "^22.3.0"
 pytest = "^7.1.2"
 
+[tool.poetry.group.dev.dependencies]
+mypy = "^0.971"
+
 [tool.black]
 line-length = 88
 
@@ -35,3 +38,8 @@ markers = [
     "ci: can be run in a CI environment",
     "integration: can only be run on a configured system",
 ]
+
+[tool.mypy]
+strict = true
+implicit_reexport = true
+no_warn_unused_ignores = true
