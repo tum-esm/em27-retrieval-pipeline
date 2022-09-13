@@ -29,7 +29,7 @@ class LocationData:
     def get_location_for_date(self, sensor: str, date: str) -> Optional[str]:
         matching_time_frames = list(
             filter(
-                lambda t: t["from_date"] <= int(date) and t["to_date"] >= int(date),
+                lambda t: t["from_date"] <= date and t["to_date"] >= date,
                 self.sensor_locations[sensor]["locations"],
             )
         )
