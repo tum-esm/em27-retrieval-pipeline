@@ -6,7 +6,7 @@ dir = os.path.dirname
 PROJECT_DIR = dir(dir(dir(os.path.abspath(__file__))))
 
 
-def run(config: types.ConfigDict, session: types.SessionDict):
+def run(config: types.ConfigDict, session: types.SessionDict) -> None:
     sensor, date = session["sensor"], session["date"]
 
     src_filepath = os.path.join(

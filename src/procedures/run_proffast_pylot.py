@@ -9,6 +9,6 @@ sys.path.append(f"{PROJECT_DIR}/src/prfpylot")
 from src.prfpylot.prfpylot.pylot import Pylot
 
 
-def run(session: types.SessionDict):
+def run(session: types.SessionDict) -> None:
     yaml_path = f"{PROJECT_DIR}/inputs/{session['sensor']}-pylot-config.yml"
     Pylot(yaml_path, logginglevel="debug").run(n_processes=1)

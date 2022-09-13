@@ -1,8 +1,8 @@
 from datetime import datetime
-import os
 import pydantic
 from typing import Any, TypedDict
 from .validation_error import ValidationError
+from .config import ConfigDict
 
 
 class ManualQueueItemDict(TypedDict):
@@ -18,7 +18,7 @@ class _ValidationModel(pydantic.BaseModel):
         extra = "forbid"
 
 
-def validate_manual_queue(o: Any, config: dict[str, Any]) -> None:
+def validate_manual_queue(o: Any, config: ConfigDict) -> None:
     """
     Check, whether a given list is a correct list of ManualQueueItemDicts
     Raises a pydantic.ValidationError if the object is invalid.

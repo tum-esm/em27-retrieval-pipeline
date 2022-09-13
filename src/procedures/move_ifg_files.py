@@ -15,7 +15,9 @@ def run(config: types.ConfigDict, session: types.SessionDict) -> None:
 
     # no data for this sensor/date
     if len(existing_src_directories) == 0:
-        utils.retrieval_queue.RetrievalQueue.remove_date_from_queue(sensor, date)
+        utils.retrieval_queue.RetrievalQueue.remove_from_queue_file(
+            sensor, date, config
+        )
         raise AssertionError("No ifg directories found")
 
     if len(existing_src_directories) > 1:

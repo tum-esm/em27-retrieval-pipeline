@@ -16,9 +16,9 @@ class SensorDateDict(TypedDict):
 
 def _consider_date_string(
     date_string: str,
-    start_date: str = None,
+    start_date: Optional[str] = None,
     min_days_delay: int = 1,
-):
+) -> bool:
     try:
         now = datetime.now()
         then = datetime.strptime(date_string, "%Y%m%d")  # will have the time 00:00:00
@@ -58,7 +58,7 @@ class RetrievalQueue:
     def __init__(self, config: types.ConfigDict):
         self.config = config
         self.processed_sensor_dates: dict[str, list[str]] = {}
-        self.location_data = utils.LocationData()
+        self.location_data = utils.LocationData(config)
 
     def __iter__(self) -> Iterator[types.SessionDict]:
         iteration_count = 0
@@ -67,23 +67,25 @@ class RetrievalQueue:
             utils.Logger.line()
             utils.Logger.debug(f"Scheduler: Iteration {iteration_count}")
 
-            next_high_prio_queue_item = self._next_item_from_manual_queue(priority=True)
+            next_high_prio_queue_item = self._next_item_from_manual_queue(
+                consider_priority_items=True
+            )
             if next_high_prio_queue_item is not None:
                 utils.Logger.info(
                     "Scheduler: Taking next item from manual queue (high priority)"
                 )
-                yield self._generate_session_dict(next_high_prio_queue_item)
+                yield self._generate_session_dict(**next_high_prio_queue_item)
                 continue
             else:
                 utils.Logger.debug("Scheduler: High priority queue is empty")
 
-            if self.config["processUploadsAutomatically"]:
+            if self.config["process_uploads_automatically"]:
                 next_upload_directory_item = self._next_item_from_upload_directory()
                 if next_upload_directory_item is not None:
                     utils.Logger.info(
                         "Scheduler: Taking next item from upload directory"
                     )
-                    yield self._generate_session_dict(next_upload_directory_item)
+                    yield self._generate_session_dict(**next_upload_directory_item)
                     continue
                 else:
                     utils.Logger.debug("Scheduler: Upload directory is empty")
@@ -92,7 +94,9 @@ class RetrievalQueue:
                     "Scheduler: Skipping upload queue (processUploadsAutomatically == false)"
                 )
 
-            next_low_prio_queue_item = self._next_item_from_manual_queue(priority=False)
+            next_low_prio_queue_item = self._next_item_from_manual_queue(
+                consider_priority_items=False
+            )
             if next_low_prio_queue_item is not None:
                 utils.Logger.info(
                     "Scheduler: Taking next item from manual queue (low priority)"

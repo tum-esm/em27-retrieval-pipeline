@@ -19,7 +19,7 @@ class LocationData:
             ] = json.load(f)
 
     def get_serial_number_for_sensor(self, sensor: str) -> int:
-        return self.sensors[sensor]["serial_number"]
+        return self.sensor_locations[sensor]["serial_number"]
 
     def get_coordinates_for_location(
         self, location: str
@@ -30,7 +30,7 @@ class LocationData:
         matching_time_frames = list(
             filter(
                 lambda t: t["from_date"] <= int(date) and t["to_date"] >= int(date),
-                self.sensors[sensor]["locations"],
+                self.sensor_locations[sensor]["locations"],
             )
         )
         if len(matching_time_frames) == 0:
@@ -41,4 +41,4 @@ class LocationData:
             + f"{sensor}/{date}: {matching_time_frames}"
         )
 
-        return matching_time_frames[0]
+        return matching_time_frames[0]["location"]
