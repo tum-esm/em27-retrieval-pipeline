@@ -28,12 +28,19 @@ def validate_manual_queue(o: Any, config: ConfigDict) -> None:
     """
     try:
         _ValidationModel(o=o)
+        assert isinstance(o, list)  # necessary due to pydantics autoconversion
     except pydantic.ValidationError as e:
         pretty_error_messages = []
         for error in e.errors():
             fields = [str(f) for f in error["loc"][1:] if f not in ["__root__"]]
             pretty_error_messages.append(f"{'.'.join(fields)} -> {error['msg']}")
-        raise ValidationError(f"config is invalid: {', '.join(pretty_error_messages)}")
+        raise ValidationError(
+            f"manual queue file is invalid: {', '.join(pretty_error_messages)}"
+        )
+    except AssertionError:
+        raise ValidationError(
+            f"manual queue file is invalid: has to be a list not a dict"
+        )
 
     new_manual_queue: list[ManualQueueItemDict] = o
 
@@ -49,4 +56,4 @@ def validate_manual_queue(o: Any, config: ConfigDict) -> None:
             ), f'sensor {item["sensor"]} not in config.sensors_to_consider'
 
     except AssertionError as e:
-        raise ValidationError(f"config is invalid: {e}")
+        raise ValidationError(f"manual queue file is invalid: {e}")
