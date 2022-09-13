@@ -30,6 +30,7 @@ class Logger:
     def exception() -> None:
         """log an exception and its traceback"""
         exc_type, exc_value, exc_traceback = sys.exc_info()
+        assert exc_type is not None, "no exeception is present"
         name = f"Unhandeled Exception: {exc_type.__name__}\n"
         tb = "".join(traceback.format_exception(exc_type, exc_value, exc_traceback))
         Logger._print(name + tb, "EXCEPTION")

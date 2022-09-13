@@ -17,7 +17,7 @@ def check_for_location_data(f):
 
 class LocationData:
     @check_for_location_data
-    def __init__(self):
+    def __init__(self) -> None:
         with open(f"{PROJECT_DIR}/location-data/data/sensors.json") as f:
             self.sensors: dict = json.load(f)
         with open(f"{PROJECT_DIR}/location-data/data/locations.json") as f:

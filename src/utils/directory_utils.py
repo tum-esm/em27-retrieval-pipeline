@@ -1,13 +1,15 @@
 import os
 import subprocess
-
+from src import types
 
 # TODO: Convert this into a class
 # TODO: convert the output structure from "dst/sensor/ifgs/date" to
 #       "dst/ifgs/sensor/date". Then it is the same everywhere
 
 
-def get_existing_src_directories(config: dict, sensor: str, date: str) -> list[str]:
+def get_existing_src_directories(
+    config: types.ConfigDict, sensor: str, date: str
+) -> list[str]:
     src_directories = [
         os.path.join(config["src"]["interferograms"]["upload"], sensor, date),
         *[
