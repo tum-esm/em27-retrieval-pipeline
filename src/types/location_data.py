@@ -38,7 +38,7 @@ def validate_location_data(config: ConfigDict) -> None:
 
     try:
         location_repo_pytest = subprocess.run(
-            ["python -m pytest tests"],
+            ["python", "-m", "pytest", "tests"],
             cwd=os.path.join(PROJECT_DIR, "location-data"),
             stderr=subprocess.PIPE,
             stdout=subprocess.PIPE,

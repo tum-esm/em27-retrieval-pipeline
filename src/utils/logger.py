@@ -21,8 +21,8 @@ class Logger:
     @staticmethod
     def _print(m: str, level: str) -> None:
         t = datetime.utcnow().strftime("%Y%m%d %H:%M:%S")
+        log_line = f"{t} - {level} - {m}\n"
         with open(f"{PROJECT_DIR}/logs/{log_file_name}", "a") as f:
-            log_line = f"{t} - {level} - {m}\n"
             f.write(log_line)
             Logger._session_logs.append(log_line)
 
