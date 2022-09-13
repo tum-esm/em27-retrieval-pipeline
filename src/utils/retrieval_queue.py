@@ -19,15 +19,21 @@ def _consider_date_string(
     start_date: Optional[str] = None,
     min_days_delay: int = 1,
 ) -> bool:
+    date_object = datetime.strptime(
+        date_string, "%Y%m%d"
+    )  # will have the time 00:00:00
     try:
-        now = datetime.now()
-        then = datetime.strptime(date_string, "%Y%m%d")  # will have the time 00:00:00
-
-        assert (now - then).days >= min_days_delay
-
+        assert (datetime.now() - date_object).days >= min_days_delay
         if start_date is not None:
             assert date_string >= start_date
+        return True
+    except AssertionError:
+        return False
 
+
+def _date_string_is_valid(date_string: str) -> bool:
+    try:
+        datetime.strptime(date_string, "%Y%m%d")
         return True
     except (AssertionError, ValueError):
         return False
@@ -164,7 +170,12 @@ class RetrievalQueue:
             for date in os.listdir(
                 os.path.join(self.config["src"]["interferograms"]["upload"], sensor)
             ):
-                if date in self.processed_sensor_dates.get(sensor, []):
+                if any(
+                    [
+                        (date in self.processed_sensor_dates.get(sensor, [])),
+                        (not _date_string_is_valid(date)),
+                    ]
+                ):
                     continue
 
                 try:
