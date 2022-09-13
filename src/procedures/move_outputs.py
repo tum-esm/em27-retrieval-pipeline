@@ -100,11 +100,13 @@ def run(config: types.ConfigDict, session: types.SessionDict) -> None:
         utils.Logger.debug(f"Copying ifgs from {ifg_src} to dst")
         shutil.copytree(ifg_src, ifg_dst)
 
-    ifg_src_upload = config["src"]["interferograms"]["upload"][sensor] + f"/{date}"
+    ifg_src_upload = os.path.join(
+        config["src"]["interferograms"]["upload"], sensor, date
+    )
     if os.path.isdir(ifg_src_upload):
         # somewhat redundant - but better check twice
         try:
-            assert utils.assert_directory_equality([ifg_src_upload, ifg_dst])
+            utils.assert_directory_equality([ifg_src_upload, ifg_dst])
         except AssertionError:
             raise AssertionError("directories differ, skipped removal")
         utils.Logger.debug("Removing ifgs from cloud")
@@ -112,7 +114,7 @@ def run(config: types.ConfigDict, session: types.SessionDict) -> None:
 
     # --- POSSIBLY REMOVE ITEMS FROM MANUAL QUEUE ---
 
-    utils.RetrievalQueue.remove_date_from_queue(sensor, date)
+    utils.RetrievalQueue.remove_from_queue_file(sensor, date, config)
 
     # --- STORE AUTOMATION LOGS ---
 
@@ -133,7 +135,7 @@ def run(config: types.ConfigDict, session: types.SessionDict) -> None:
         )
         about_dict = {
             "proffastVersion": "2.2",
-            "locationRepository": config["location_epository"],
+            "locationRepository": config["location_repository"],
             "automationVersion": commit_sha,
             "generationDate": now.strftime("%Y%m%d"),
             "generationTime": now.strftime("%T"),
