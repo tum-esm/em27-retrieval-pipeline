@@ -130,13 +130,16 @@ def run(config: types.ConfigDict, session: types.SessionDict) -> None:
 
     with open(f"{output_dst}/about.json", "w") as f:
         now = datetime.utcnow()
-        commit_sha = (
-            subprocess.check_output(
-                ["git", "rev-parse", "--short", "--verify", "HEAD"], cwd=PROJECT_DIR
+        try:
+            commit_sha = (
+                subprocess.check_output(
+                    ["git", "rev-parse", "--short", "--verify", "HEAD"], cwd=PROJECT_DIR
+                )
+                .decode()
+                .replace("\n", "")
             )
-            .decode()
-            .replace("\n", "")
-        )
+        except:
+            commit_sha = None
         about_dict = {
             "proffastVersion": "2.2",
             "locationRepository": config["location_repository"],
