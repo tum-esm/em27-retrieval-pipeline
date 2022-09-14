@@ -5,12 +5,12 @@ from datetime import datetime
 
 
 dir = os.path.dirname
-PROJECT_DIR = dir(dir(os.path.abspath(__file__)))
-MANUAL_QUEUE_PATH = f"{PROJECT_DIR}/config/manual-queue.json"
+PROJECT_DIR = dir(dir(dir(os.path.abspath(__file__))))
 sys.path.append(PROJECT_DIR)
-from src import utils
+import src
 
-CONFIG = utils.load_config(validate=True)
+MANUAL_QUEUE_PATH = f"{PROJECT_DIR}/config/manual-queue.json"
+CONFIG = src.utils.load_config(validate=True)
 SENSORS = CONFIG["sensors_to_consider"]
 START_DATE = CONFIG["start_date"]
 PIPELINE_DST = CONFIG["dst"]
