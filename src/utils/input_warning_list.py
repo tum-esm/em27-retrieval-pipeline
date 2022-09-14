@@ -1,45 +1,45 @@
 from datetime import datetime
 import json
 import os
+from src import types
+
+# TODO: statically type this class
 
 dir = os.path.dirname
 PROJECT_DIR = dir(dir(dir(os.path.abspath(__file__))))
-INPUT_WARNINGS_LIST_PATH = f"{PROJECT_DIR}/logs/input-warnings-to-be-resolved.json"
-
-if not os.path.isfile(INPUT_WARNINGS_LIST_PATH):
-    with open(INPUT_WARNINGS_LIST_PATH, "w") as f:
-        json.dump([], f)
+LIST_PATH = f"{PROJECT_DIR}/logs/input-warnings-to-be-resolved.json"
 
 
-def _load_warnings_list():
-    if not os.path.isfile(INPUT_WARNINGS_LIST_PATH):
-        with open(INPUT_WARNINGS_LIST_PATH, "w") as f:
-            json.dump([], f)
+class InputWarningsList:
+    @staticmethod
+    def _load() -> dict[str, types.InputWarningsDict]:
+        try:
+            with open(LIST_PATH, "r") as f:
+                current_object = json.load(f)
+                types.validate_input_warnings(current_object)
+                validated_current_object: dict[
+                    str, types.InputWarningsDict
+                ] = current_object
+                return validated_current_object
+        except FileNotFoundError:
+            InputWarningsList._dump({})
+            return {}
 
-    with open(INPUT_WARNINGS_LIST_PATH, "r") as f:
-        return json.load(f)
+    @staticmethod
+    def _dump(new_warnings_list: dict[str, types.InputWarningsDict]) -> None:
+        with open(LIST_PATH, "w") as f:
+            json.dump(new_warnings_list, f, indent=4)
 
+    @staticmethod
+    def add(sensor: str, date: str, message: str) -> None:
+        warnings_list = InputWarningsList._load()
+        t = datetime.utcnow().strftime("%Y%m%d %H:%M:%S UTC")
+        warnings_list[f"{sensor}/{date}"] = {"message": message, "last_checked": t}
+        InputWarningsList._dump(warnings_list)
 
-def _dump_warnings_list(warnings_list):
-    if not os.path.isfile(INPUT_WARNINGS_LIST_PATH):
-        with open(INPUT_WARNINGS_LIST_PATH, "w") as f:
-            json.dump([], f)
-
-    with open(INPUT_WARNINGS_LIST_PATH, "w") as f:
-        json.dump(warnings_list, f, indent=4)
-
-
-def add_to_input_warnings_list(sensor, date, message):
-    warnings_list = _load_warnings_list()
-    t = datetime.utcnow().strftime("%Y%m%d %H:%M:%S UTC")
-    warnings_list = list(filter(lambda x: x["id"] != f"{sensor}/{date}", warnings_list))
-    warnings_list.append(
-        {"id": f"{sensor}/{date}", "message": message, "last checked": t}
-    )
-    _dump_warnings_list(warnings_list)
-
-
-def remove_from_input_warnings_list(sensor, date):
-    warnings_list = _load_warnings_list()
-    warnings_list = list(filter(lambda x: x["id"] != f"{sensor}/{date}", warnings_list))
-    _dump_warnings_list(warnings_list)
+    @staticmethod
+    def remove(sensor: str, date: str) -> None:
+        warnings_list = InputWarningsList._load()
+        if f"{sensor}/{date}" in warnings_list:
+            del warnings_list[f"{sensor}/{date}"]
+            InputWarningsList._dump(warnings_list)

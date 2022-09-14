@@ -6,7 +6,6 @@ from utils import (
     START_DATE,
     SENSORS,
     PIPELINE_DST,
-    OUTPUT_DIR,
 )
 
 
@@ -19,7 +18,7 @@ for d in tqdm(range(int(START_DATE), 20300000)):
         try:
             # conditions: ifgs exist, failed output exists
             assert os.path.isdir(f"{PIPELINE_DST}/{s}/ifgs/{d}")
-            assert os.path.isdir(f"{PIPELINE_DST}/{s}/{OUTPUT_DIR}/failed/{d}")
+            assert os.path.isdir(f"{PIPELINE_DST}/{s}/proffast-2.2-outputs/failed/{d}")
             queue_additions.append((s, d))
         except AssertionError:
             pass

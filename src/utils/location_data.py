@@ -1,50 +1,44 @@
 import json
 import os
+from typing import Optional
+from src import types
 
 dir = os.path.dirname
 PROJECT_DIR = dir(dir(dir(os.path.abspath(__file__))))
 
 
-def check_for_location_data(f):
-    def wrapped_f(*args, **kwargs):
-        try:
-            return f(*args, **kwargs)
-        except (FileNotFoundError, KeyError):
-            raise Exception("Please run fetch-location-data.py first")
-
-    return wrapped_f
-
-
 class LocationData:
-    @check_for_location_data
-    def __init__(self):
+    def __init__(self, config: types.ConfigDict) -> None:
+        types.validate_location_data(config)
+
         with open(f"{PROJECT_DIR}/location-data/data/sensors.json") as f:
-            self.sensors: dict = json.load(f)
+            self.sensor_locations: dict[str, types.SensorLocationDict] = json.load(f)
         with open(f"{PROJECT_DIR}/location-data/data/locations.json") as f:
-            self.locations: dict = json.load(f)
+            self.location_coordinates: dict[
+                str, types.LocationCoordinatesDict
+            ] = json.load(f)
 
-    def sensor_names(self) -> list[str]:
-        return self.sensors.keys()
+    def get_serial_number_for_sensor(self, sensor: str) -> int:
+        return self.sensor_locations[sensor]["serial_number"]
 
-    @check_for_location_data
-    def get_serial_number(self, sensor_name: str) -> int:
-        return self.sensors[sensor_name]["serialNumber"]
+    def get_coordinates_for_location(
+        self, location: str
+    ) -> types.LocationCoordinatesDict:
+        return self.location_coordinates[location]
 
-    @check_for_location_data
-    def get_location_list(self, sensor_name: str) -> int:
-        return self.sensors[sensor_name]["locations"]
-
-    @check_for_location_data
-    def get_location_for_date(self, sensor_name: str, date: int):
-        _locations = self.sensors[sensor_name]["locations"]
-        if (date < _locations[0]["from"]) or (date > _locations[-1]["to"]):
+    def get_location_for_date(self, sensor: str, date: str) -> Optional[str]:
+        matching_time_frames = list(
+            filter(
+                lambda t: t["from_date"] <= date and t["to_date"] >= date,
+                self.sensor_locations[sensor]["locations"],
+            )
+        )
+        if len(matching_time_frames) == 0:
             return None
-        for _l in _locations:
-            if (date >= _l["from"]) and (date <= _l["to"]):
-                return _l["location"]
-        raise FileNotFoundError()
 
-    @check_for_location_data
-    def get_coordinates(self, location: str):
-        c = self.locations[location]
-        return {k: c[k] for k in ["lat", "lon", "alt"]}
+        assert len(matching_time_frames) == 1, (
+            "multiple matching time frames found for "
+            + f"{sensor}/{date}: {matching_time_frames}"
+        )
+
+        return matching_time_frames[0]["location"]
