@@ -5,20 +5,16 @@ from datetime import datetime
 
 
 dir = os.path.dirname
-PROJECT_DIR = dir(dir(os.path.abspath(__file__)))
-MANUAL_QUEUE_PATH = f"{PROJECT_DIR}/config/manual-queue.json"
+PROJECT_DIR = dir(dir(dir(os.path.abspath(__file__))))
 sys.path.append(PROJECT_DIR)
-from src import utils
+import src
 
-CONFIG = utils.load_config(validate=True)
-SENSORS = CONFIG["sensorsToConsider"]
-START_DATE = CONFIG["startDate"]
+MANUAL_QUEUE_PATH = f"{PROJECT_DIR}/config/manual-queue.json"
+CONFIG = src.utils.load_config(validate=True)
+SENSORS = CONFIG["sensors_to_consider"]
+START_DATE = CONFIG["start_date"]
 PIPELINE_DST = CONFIG["dst"]
-PROFFAST_VERSION = CONFIG["proffastVersion"]
-OUTPUT_DIR = {
-    "2.0.1": "proffast-2.0-outputs",
-    "2.1.1": "proffast-2.1-outputs",
-}[PROFFAST_VERSION]
+OUTPUT_DIR = "proffast-2.2-outputs"
 PRIORITY = -5
 
 
@@ -57,7 +53,7 @@ def process_queue_additions(queue_additions: list):
         queue = _add_to_queue(queue, s, d)
     _save_queue(queue)
     print(
-        f"proffastVersion = {PROFFAST_VERSION}, startDate = {START_DATE}\n"
+        f"proffast_version = 2.2, start_date = {START_DATE}\n"
         f"Added {len(queue_additions)} timeseries to queue:\n"
         + " ".join([f"{s}/{d}" for s, d in queue_additions])
     )

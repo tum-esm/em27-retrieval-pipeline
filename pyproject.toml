@@ -5,7 +5,7 @@ description = ""
 authors = ["Moritz Makowski <moritz.makowski@tum.de>"]
 
 [tool.poetry.dependencies]
-python = "3.9"
+python = "^3.9"
 tqdm = "^4.64.0"
 requests = "^2.27.1"
 fortranformat = "^1.2.0"
@@ -17,10 +17,14 @@ wheel = "^0.37.1"
 rich = "^12.2.0"
 Cerberus = "^1.3.4"
 filelock = "^3.7.0"
+pydantic = "^1.10.2"
 
 [tool.poetry.dev-dependencies]
 black = "^22.3.0"
 pytest = "^7.1.2"
+
+[tool.poetry.group.dev.dependencies]
+mypy = "^0.971"
 
 [tool.black]
 line-length = 88
@@ -28,3 +32,20 @@ line-length = 88
 [build-system]
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.pytest.ini_options]
+markers = [
+    "ci: can be run in a CI environment",
+    "integration: can only be run on a configured system",
+]
+
+[tool.mypy]
+strict = true
+implicit_reexport = true
+no_warn_unused_ignores = true
+
+[[tool.mypy.overrides]]
+module = [
+    "src.prfpylot.prfpylot.pylot",
+]
+ignore_missing_imports = true

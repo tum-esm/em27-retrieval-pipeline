@@ -5,23 +5,24 @@ hidden
 
 # example inputs and outputs
 example/*config.yml
-example/pylot_*_outputs/*
-!example/pylot_*_outputs/.gitkeep
+example/pylot_outputs
 
 # static project files
 .venv
 config/config.json
+config/config.tmp.json
 config/manual-queue.json
 
 # dynamic project files
 location-data/
-inputs/
+inputs/*
 !inputs/.gitkeep
-outputs/
+outputs/*
 !outputs/.gitkeep
 logs/*
 !logs/**/.gitkeep
 !logs/README.md
+*.log
 
 # runtime files
 src/main.lock
