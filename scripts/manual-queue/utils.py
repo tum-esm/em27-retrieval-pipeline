@@ -15,7 +15,7 @@ SENSORS = CONFIG["sensors_to_consider"]
 START_DATE = CONFIG["start_date"]
 PIPELINE_DST = CONFIG["dst"]
 OUTPUT_DIR = "proffast-2.2-outputs"
-PRIORITY = -5
+PRIORITY = 10
 
 
 def _load_queue() -> list:
