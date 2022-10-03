@@ -6,7 +6,7 @@ from .. import utils
 dir = os.path.dirname
 PROJECT_DIR = dir(dir(dir(os.path.abspath(__file__))))
 INTERPRETER_PATH = os.path.join(PROJECT_DIR, ".venv", "bin", "python")
-CORE_SCRIPT_PATH = os.path.join(PROJECT_DIR, "run-pyra-core.py")
+CORE_SCRIPT_PATH = os.path.join(PROJECT_DIR, "run-retrieval.py")
 
 
 @click.command(
