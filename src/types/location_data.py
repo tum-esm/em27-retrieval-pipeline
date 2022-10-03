@@ -16,15 +16,22 @@ class LocationCoordinatesDict(TypedDict):
     alt: int
 
 
-class _TimeFrame(TypedDict):
-    from_date: int
-    to_date: int
+class _LocationTimeFrame(TypedDict):
+    from_date: str
+    to_date: str
     location: str
+
+
+class _UTCOffsetTimeFrame(TypedDict):
+    from_date: str
+    to_date: str
+    utc_offset: float
 
 
 class SensorLocationDict(TypedDict):
     serial_number: int
-    locations: list[_TimeFrame]
+    utc_offsets: list[_UTCOffsetTimeFrame]
+    locations: list[_LocationTimeFrame]
 
 
 def validate_location_data(config: ConfigDict) -> None:

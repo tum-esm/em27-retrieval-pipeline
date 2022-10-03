@@ -118,7 +118,9 @@ class RetrievalQueue:
         self.processed_sensor_dates[sensor].append(date)
 
         location = self.location_data.get_location_for_date(sensor, date)
+        utc_offset = self.location_data.get_utc_offset_for_date(sensor, date)
         assert location is not None, f"location for {sensor}/{date} is unknown"
+        assert utc_offset is not None, f"utc_offset for {sensor}/{date} is unknown"
 
         coordinates_dict = self.location_data.get_coordinates_for_location(location)
         serial_number = self.location_data.get_serial_number_for_sensor(sensor)
@@ -131,6 +133,7 @@ class RetrievalQueue:
             "lon": coordinates_dict["lon"],
             "alt": coordinates_dict["alt"],
             "serial_number": serial_number,
+            "utc_offset": utc_offset,
         }
 
     def _pyra_upload_is_complete(self, sensor: str, date: str) -> Optional[bool]:
