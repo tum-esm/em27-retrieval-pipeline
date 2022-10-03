@@ -12,6 +12,7 @@ def run(session: types.SessionDict) -> None:
     lon = session["lon"]
     alt = session["alt"]
     serial_number = session["serial_number"]
+    utc_offset = session["utc_offset"]
 
     # Clear directories "inputs" and "outputs"
     for subdirectory in ["inputs", "outputs"]:
@@ -33,6 +34,7 @@ def run(session: types.SessionDict) -> None:
         "COORDINATES_LAT": str(round(lat, 3)),
         "COORDINATES_LON": str(round(lon, 3)),
         "COORDINATES_ALT": str(round(alt / 1000.0, 3)),
+        "UTC_OFFSET": str(round(utc_offset, 2)),
     }
 
     for key, value in replacements.items():

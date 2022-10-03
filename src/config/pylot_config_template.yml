@@ -12,7 +12,7 @@ coords:
     lon: %COORDINATES_LON%
     alt: %COORDINATES_ALT%
 coord_file:
-utc_offset: 0.0
+utc_offset: %UTC_OFFSET%
 
 # BEHAVIOUR
 min_interferogram_size: 1.6

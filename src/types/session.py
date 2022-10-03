@@ -1,4 +1,3 @@
-import pydantic
 from typing import TypedDict
 
 
@@ -10,3 +9,4 @@ class SessionDict(TypedDict):
     lon: float
     alt: int
     serial_number: int
+    utc_offset: float

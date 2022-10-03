@@ -42,3 +42,20 @@ class LocationData:
         )
 
         return matching_time_frames[0]["location"]
+
+    def get_utc_offset_for_date(self, sensor: str, date: str) -> Optional[float]:
+        matching_time_frames = list(
+            filter(
+                lambda t: t["from_date"] <= date and t["to_date"] >= date,
+                self.sensor_locations[sensor]["utc_offsets"],
+            )
+        )
+        if len(matching_time_frames) == 0:
+            return None
+
+        assert len(matching_time_frames) == 1, (
+            "multiple matching time frames found for "
+            + f"{sensor}/{date}: {matching_time_frames}"
+        )
+
+        return matching_time_frames[0]["utc_offset"]
