@@ -1,5 +1,6 @@
 config/config.properties
 output-tables/**
+dockerfile_postgres
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
