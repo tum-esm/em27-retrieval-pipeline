@@ -21,7 +21,7 @@ def process_is_running() -> Optional[int]:
     for p in psutil.process_iter():
         try:
             arguments = p.cmdline()
-            if (len(arguments) == 2) and (arguments[1] == CORE_SCRIPT_PATH):
+            if (len(arguments) >= 2) and (arguments[1] == CORE_SCRIPT_PATH):
                 return p.pid
         except (psutil.AccessDenied, psutil.ZombieProcess, psutil.NoSuchProcess):
             pass
@@ -34,7 +34,7 @@ def terminate_processes() -> list[int]:
         try:
             arguments = p.cmdline()
             if len(arguments) > 0:
-                if arguments[-1] == CORE_SCRIPT_PATH:
+                if CORE_SCRIPT_PATH in arguments:
                     termination_pids.append(p.pid)
                     p.terminate()
         except (psutil.AccessDenied, psutil.ZombieProcess, psutil.NoSuchProcess):
