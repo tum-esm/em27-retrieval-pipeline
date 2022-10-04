@@ -140,6 +140,10 @@ me
 20210415  20210808  20210815  20210827  20210926  20210809  20210821  20210906
 ```
 
-```
+## Start/Stop pipeline as a background process
 
+```
+python cli/main.py start
+python cli/main.py is-running
+python cli/main.py stop
 ```
