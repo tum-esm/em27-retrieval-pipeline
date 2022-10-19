@@ -36,8 +36,8 @@ class QueryList:
                 coordinates = location_data.get_coordinates(location)
                 query_list.append(
                     Query(
-                        t_from_int=time_period["from"],
-                        t_to_int=time_period["to"],
+                        t_from_int=int(time_period["from_date"]),
+                        t_to_int=int(time_period["to_date"]),
                         sensor=sensor,
                         lat=coordinates["lat"],
                         lon=coordinates["lon"],
@@ -81,10 +81,10 @@ class QueryList:
         Return None if all dates exist.
         """
         while query.t_from_int <= query.t_to_int:
-            if (CONFIG["from"] is not None) and (query.t_from_int < CONFIG["from"]):
+            if (CONFIG["from_date"] is not None) and (query.t_from_str < CONFIG["from_date"]):
                 query.t_from_datetime += timedelta(days=1)
                 continue
-            if (CONFIG["to"] is not None) and (query.t_to_int > CONFIG["to"]):
+            if (CONFIG["to_date"] is not None) and (query.t_to_str > CONFIG["to_date"]):
                 query.t_to_datetime -= timedelta(days=1)
                 continue
 

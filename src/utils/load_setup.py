@@ -1,12 +1,13 @@
 from datetime import datetime
 import json
 import os
+from typing import Any
 from cerberus import Validator
 
-def check_date_int(field, value, error):
+def check_date_str(field: Any, value: str, error: Any):
     if value is not None:
         try:
-            datetime.strptime(str(value), "%Y%m%d")
+            datetime.strptime(value, "%Y%m%d")
         except ValueError:
             error(field, 'value has to be a valid date')
             
@@ -15,8 +16,8 @@ PROJECT_DIR = dir(dir(dir(os.path.abspath(__file__))))
 
 validator = Validator(
     {
-        "from": {"type": "number", "check_with": check_date_int},
-        "to": {"type": "number", "nullable": True, "check_with": check_date_int},
+        "from_date": {"type": "string", "check_with": check_date_str},
+        "to_date": {"type": "string", "nullable": True, "check_with": check_date_str},
         "user": {"type": "string"},
         "dst": {"type": "string"},
         "downloadTimeoutSeconds": {"type": "integer", "min": 0},
