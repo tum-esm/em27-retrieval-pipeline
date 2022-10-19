@@ -13,3 +13,4 @@ class Config:
         self.retrieval_version = config.get('db', 'retrieval_version')
         self.database_name = config.get('db', 'database_name')
         self.csv_locations = config.get('csv', 'csv_locations').split(',')
+        self.cache_file_location = config.get('csv', 'cache_file_location')
