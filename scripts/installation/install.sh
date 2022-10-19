@@ -1,6 +1,7 @@
 #!/bin/bash
 
 # init submodule proffaspylot
+git submodule update
 git submodule init
 
 # download and unzip proffast v2.0.1
@@ -26,6 +27,5 @@ bash compile.sh
 cd ../..
 
 # install python dependencies
-python3.9 -m venv .venv
 source .venv/bin/activate
 poetry install
