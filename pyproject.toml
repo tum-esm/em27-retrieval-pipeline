@@ -18,6 +18,9 @@ tenacity = "^8.0.1"
 black = "^21.12b0"
 pytest = "^7.1.2"
 
+[tool.poetry.group.dev.dependencies]
+mypy = "^0.982"
+
 [build-system]
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
