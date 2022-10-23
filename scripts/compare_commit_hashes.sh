@@ -1,7 +1,7 @@
 #!/bin/bash
 
-local=$(git -C $local rev-parse HEAD)
-remote=$(git ls-remote --symref $remote | awk 'NR==2{print $1}')
+local=$(git -C $LOCAL rev-parse HEAD)
+remote=$(git ls-remote --symref $REMOTE | awk 'NR==2{print $1}')
 printf "Local : %s\nRemote: %s\n" $local $remote
 
 if [[ $local == $remote ]]; then
