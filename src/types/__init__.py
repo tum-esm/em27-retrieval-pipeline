@@ -1,1 +1,2 @@
-from .config import Configuration
+from .config import ConfigDict
+from .config import validate_config_dict

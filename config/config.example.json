@@ -3,6 +3,6 @@
     "from_date": "20190101",
     "to_date": null,
     "dst_directory": null,
-    "location_data": "git@github.com/tum-esm/em27-location-data",
+    "location_repository": "git@github.com/tum-esm/em27-location-data",
     "max_idle_time": 60
 }
