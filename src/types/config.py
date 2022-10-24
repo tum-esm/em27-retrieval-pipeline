@@ -11,12 +11,6 @@ PROJECT_DIR = Path(os.path.abspath(__file__)).parents[2]
 DST_DIR = os.path.join(PROJECT_DIR, "location_data")
 
 
-class ValidationError(Exception):
-    """
-    Will be raised in any custom checks on config dicts have failed.
-    """
-
-
 class ConfigDict(TypedDict):
     user: StrictStr
     from_date: StrictStr
