@@ -3,7 +3,7 @@ import os
 
 import pandas
 from pandas import DataFrame
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, and_, or_, MetaData, Table
 from sqlalchemy_utils import database_exists, create_database
 
 from config import Config
@@ -104,7 +104,7 @@ def process_csv(properties):
         new_rows.drop(new_rows.filter(regex='_y$').columns, axis=1, inplace=True)
 
         if not new_rows.empty:
-            print('Found new rows, writing to db')
+            print('Found new rows(#{}), writing to db'.format(new_rows.size))
             new_rows.to_sql(
                 'measurements',
                 engine,
@@ -126,7 +126,7 @@ def process_csv(properties):
         modified_rows = modified_rows[~modified_rows.index.isin(new_rows.index)]
 
         if not modified_rows.empty:
-            print('Found modified rows, updating')
+            print('Found modified rows(#{}), updating'.format(modified_rows.size))
             modified_rows.to_sql(
                 'measurements',
                 engine,
@@ -139,9 +139,33 @@ def process_csv(properties):
                 method=None
             )
 
+        removed_rows = pandas.merge(df, cached_data_frame, indicator=True, how='right',
+                                    on=['utc', 'sensor', 'retrieval_software'], suffixes=('_y', '')) \
+            .query('_merge=="right_only"') \
+            .drop('_merge', axis=1)
+
+        removed_rows.drop(removed_rows.filter(regex='_y$').columns, axis=1, inplace=True)
+
+        if not removed_rows.empty:
+            print('Found deleted rows(#{}), deleting them from the database either'.format(removed_rows.size))
+
+            meta = MetaData()
+
+            measurements_table = Table('measurements', meta, autoload=True, autoload_with=engine)
+
+            cond = removed_rows.apply(
+                lambda row: and_(measurements_table.c['utc'] == row['utc'],
+                                 measurements_table.c['sensor'] == row['sensor'],
+                                 measurements_table.c['retrieval_software'] == row['retrieval_software']), axis=1)
+            cond = or_(*cond)
+
+            delete = measurements_table.delete().where(cond)
+            with engine.connect() as conn:
+                conn.execute(delete)
+
         print('Refreshing cache.')
 
-        df.to_hdf(properties.cache_file_location, key='df', mode='a')
+        df.to_hdf(properties.cache_file_location, key='df', mode='w')
 
         print('Done refreshing cache.')
 
