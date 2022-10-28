@@ -1,9 +1,11 @@
 import glob
+from typing import List
 
 
 class CsvIterator:
+    files: List[str]
 
-    def __init__(self, locations):
+    def __init__(self, locations: List[str]):
         self.locations = locations
         self.files = []
 
@@ -13,13 +15,13 @@ class CsvIterator:
             files = glob.glob(path)
             self.files.extend(files)
 
-    def has_next_file(self):
-        return self.files
+    def has_next_file(self) -> bool:
+        return not self.files
 
-    def read_next_file(self):
+    def read_next_file(self) -> str:
         if self.has_next_file():
             first_elem = self.files[0]
             self.files.remove(first_elem)
             return first_elem
         else:
-            return None
+            raise ValueError('There are no more files')

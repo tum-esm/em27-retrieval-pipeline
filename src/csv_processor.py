@@ -1,4 +1,6 @@
+import numpy as np
 import pandas
+from pandas import DataFrame
 
 dictionary_columns = {
     'UTC': 'utc',
@@ -23,17 +25,18 @@ dictionary_columns = {
 }
 
 
-def rename_columns(column):
+def rename_columns(column) -> str:
     return dictionary_columns[column]
 
 
-def get_sensor_type(filepath):
+def get_sensor_type(filepath: str) -> str:
     for s in ["ma", "mb", "mc", "md", "me"]:
         if filepath.endswith(f'{s}.csv'):
             return s
+    raise ValueError('Invalid sensor type')
 
 
-def build_data_frame_from(filepath, version):
+def build_data_frame_from(filepath: str, version: str) -> DataFrame:
     df = pandas.read_csv(filepath, header=0)
     df.rename(columns=lambda x: x.strip(), inplace=True)
 
@@ -53,7 +56,7 @@ def build_data_frame_from(filepath, version):
     return df
 
 
-def detect_new(df_from_csv, df_from_cache):
+def detect_new(df_from_csv: DataFrame, df_from_cache: DataFrame) -> DataFrame:
     new_rows = pandas.merge(df_from_csv, df_from_cache, indicator=True, how='left',
                             on=['utc', 'sensor', 'retrieval_software'], suffixes=('', '_y')) \
         .query('_merge=="left_only"') \
@@ -63,7 +66,7 @@ def detect_new(df_from_csv, df_from_cache):
     return new_rows
 
 
-def detect_modified(df_from_csv, df_from_cache, new_rows):
+def detect_modified(df_from_csv: DataFrame, df_from_cache: DataFrame, new_rows: DataFrame) -> DataFrame:
     modified_rows = pandas.merge(df_from_csv, df_from_cache, indicator=True, how='left', suffixes=('', '_y')) \
         .query('_merge=="left_only"') \
         .drop('_merge', axis=1)
@@ -75,7 +78,7 @@ def detect_modified(df_from_csv, df_from_cache, new_rows):
     return modified_rows
 
 
-def detect_deleted(df_from_csv, df_from_cache):
+def detect_deleted(df_from_csv: DataFrame, df_from_cache: DataFrame) -> DataFrame:
     removed_rows = pandas.merge(df_from_csv, df_from_cache, indicator=True, how='right',
                                 on=['utc', 'sensor', 'retrieval_software'], suffixes=('_y', '')) \
         .query('_merge=="right_only"') \
@@ -85,10 +88,10 @@ def detect_deleted(df_from_csv, df_from_cache):
     return removed_rows
 
 
-def detect_all_years_in_dataframe(df):
+def detect_all_years_in_dataframe(df: DataFrame) -> np.ndarray:
     df['year'] = pandas.DatetimeIndex(df['utc']).year
     return df['year'].unique()
 
 
-def filter_dataframe(df, year):
+def filter_dataframe(df: DataFrame, year: int) -> DataFrame:
     return df.loc[(pandas.DatetimeIndex(df['utc']).year == year)]

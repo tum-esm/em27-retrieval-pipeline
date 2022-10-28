@@ -1,10 +1,13 @@
+from pandas import DataFrame
 from sqlalchemy import create_engine, MetaData, Table, and_, or_
 from sqlalchemy_utils import database_exists, create_database
+
+from src.config import Config
 
 
 class SqlManager:
 
-    def __init__(self, properties):
+    def __init__(self, properties: Config):
         self.properties = properties
         self.__create_engine()
 
@@ -15,7 +18,7 @@ class SqlManager:
                                                           properties.db_ip,
                                                           properties.db_port, properties.database_name))
 
-    def insert_from_df(self, new_rows):
+    def insert_from_df(self, new_rows: DataFrame):
         if not new_rows.empty:
             print('Found new rows(#{}), writing to db'.format(len(new_rows.index)))
             new_rows.to_sql(
@@ -30,7 +33,7 @@ class SqlManager:
                 method=None
             )
 
-    def update_dataframe(self, modified_rows):
+    def update_dataframe(self, modified_rows: DataFrame):
         if not modified_rows.empty:
             print('Found modified rows(#{}), updating'.format(len(modified_rows.index)))
             modified_rows.to_sql(
@@ -45,7 +48,7 @@ class SqlManager:
                 method=None
             )
 
-    def delete_rows(self, removed_rows):
+    def delete_rows(self, removed_rows: DataFrame):
         if not removed_rows.empty:
             print('Found deleted rows(#{}), deleting them from the database either'.format(len(removed_rows.index)))
 
