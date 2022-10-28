@@ -24,24 +24,21 @@ def run() -> None:
             config = json.load(f, object_hook=lambda d: Configuration(**d))
             logging.info(f"Configuration ✅")
 
-        # Async. request locations and sensor locations
+        # Request locations and sensors
         tasks = ["locations.json", "sensors.json"]
         urls = [os.path.join(config.location_data, task) for task in tasks]
         responses = asyncio.run(
             utils.git_request(urls, config.git_username, config.git_token)
         )
 
-        # Parse locations and sensor locations
+        # Parse locations and sensors
         for task, response in zip(tasks, responses):
             response.raise_for_status()
 
             if task == "locations.json":
-                """Example
-                locations = {
-                    "TUM_G": Location(details="...", lon=11.671, lat=48.261, alt=491),
-                    "TUM_I": Location(details="...", lon=11.569, lat=48.151, alt=539),
-                    ...
-                }
+                """locations = {
+                "TUM_G": Location(details="...", lon=11.671, lat=48.261, alt=491),
+                "TUM_I": Location(details="...", lon=11.569, lat=48.151, alt=539)}
                 """
                 locations: dict[str, Location] = {
                     location_tag: Location(**data)
@@ -50,25 +47,18 @@ def run() -> None:
                 logging.info(f"Locations ✅")
 
             elif task == "sensors.json":
-                """Example
-                sensor_locations = {
+                """sensor_locations = {
                     "ma": (
                         Sensor(from_date=date(2019, 1, 1), to_date=date(2019, 31, 12), location="TUM_G",
-                        Sensor(from_date=date(2020, 1, 1), to_date=date(2020, 31, 12), location="TUM_I",
-                        ...
-                    ),
+                        Sensor(from_date=date(2020, 1, 1), to_date=date(2020, 31, 12), location="TUM_I"),
                     ...
                 }
                 """
                 sensor_locations: dict[str, tuple[Sensor, ...]] = {
-                    sensor_tag: tuple(
-                        Sensor(**location_data) for location_data in data["locations"]
-                    )
-                    for sensor_tag, data in response.json().items()
+                    sensor_tag: tuple(Sensor(**data) for data in sensor["locations"])
+                    for sensor_tag, sensor in response.json().items()
                 }
                 logging.info(f"Sensors ✅")
-
-
 
     except Exception as e:
         print(e)

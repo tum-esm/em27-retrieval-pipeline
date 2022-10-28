@@ -1,6 +1,7 @@
 from datetime import date
 from datetime import datetime
 
+
 def str_to_date(value: str | date) -> date:
     match value:
         case date():
