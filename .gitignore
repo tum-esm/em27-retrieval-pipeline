@@ -5,6 +5,7 @@ input_file.txt
 *.tar
 .vscode
 config.json
+config.json.lock
 .DS_Store
 archive
 out/*
