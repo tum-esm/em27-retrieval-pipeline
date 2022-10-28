@@ -1,184 +1,49 @@
-import glob
-import os
-
-import pandas
 from pandas import DataFrame
-from sqlalchemy import create_engine, and_, or_, MetaData, Table
-from sqlalchemy_utils import database_exists, create_database
-
-from config import Config
-
-dictionary_columns = {
-    'UTC': 'utc',
-    'gndP': 'gnd_p',
-    'gndT': 'gnd_t',
-    'appSZA': 'app_sza',
-    'azimuth': 'azimuth',
-    'XH2O': 'xh2o',
-    'XAIR': 'xair',
-    'XCO2': 'xco2',
-    'XCH4': 'xch4',
-    'XCO': 'xco',
-    'XCH4_S5P': 'xch4_s5p',
-    'H2O': 'h2o',
-    'O2': 'o2',
-    'CO2': 'co2',
-    'CH4': 'ch4',
-    'CO': 'co',
-    'CH4_S5P': 'ch4_s5p',
-    'sensor': 'sensor',
-    'retrieval_software': 'retrieval_software'
-}
+from src.csv_processor import dictionary_columns, detect_new, detect_modified, detect_deleted
+from src.cache_manager import CacheProxy
+from src.config import Config
+from src.directory_manager import DirectoryManager
+from src.sql_manager import SqlManager
 
 
-def build_data_frame_from(filepath, version):
-    df = pandas.read_csv(filepath, header=0)
-    df.rename(columns=lambda x: x.strip(), inplace=True)
+def process_measurements(properties):
+    cache_proxy = CacheProxy(properties.cache_folder_location)
+    directory_manager = DirectoryManager(properties.csv_locations, properties.retrieval_version)
+    sql_manager = SqlManager(properties)
 
-    df.drop('LocalTime', axis=1, inplace=True)
-    df.drop('spectrum', axis=1, inplace=True)
-    df.drop('JulianDate', axis=1, inplace=True)
-    df.drop('UTtimeh', axis=1, inplace=True)
-    df.drop('latdeg', axis=1, inplace=True)
-    df.drop('londeg', axis=1, inplace=True)
-    df.drop('altim', axis=1, inplace=True)
+    all_years_in_cache = cache_proxy.get_all_years_in_cache()
 
-    df['sensor'] = get_sensor_type(filepath)
-    df['retrieval_software'] = version
+    all_years_in_files = directory_manager.retrieve_mapping_years_to_files()
 
-    df.rename(columns=lambda x: rename_columns(x), inplace=True)
+    for year in all_years_in_files:
+        df = directory_manager.get_dataframe_for_year(year, all_years_in_files)
+        cached_data_frame = DataFrame(columns=list(dictionary_columns.values()))
+        if year in all_years_in_cache:
+            print('Reading cache dataframe for year {}'.format(year))
+            cached_data_frame = cache_proxy.load_cache_in_memory_for(year)
+        new_rows = detect_new(df, cached_data_frame)
+        sql_manager.insert_from_df(new_rows)
+        modified_rows = detect_modified(df, cached_data_frame, new_rows)
+        sql_manager.update_dataframe(modified_rows)
+        deleted_rows = detect_deleted(df, cached_data_frame)
+        sql_manager.delete_rows(deleted_rows)
+        cache_proxy.refresh_contents(df, year)
 
-    return df
+        if year in all_years_in_cache:
+            all_years_in_cache.remove(year)
 
+    if all_years_in_cache:
+        print('There is still obsolete data in cache, cleaning...')
+        for year in all_years_in_cache:
+            cache_proxy.remove_for_year(year)
 
-def get_sensor_type(filepath):
-    for s in ["ma", "mb", "mc", "md", "me"]:
-        if filepath.endswith(f'{s}.csv'):
-            return s
+        print('Ready...')
 
-
-def rename_columns(column):
-    return dictionary_columns[column]
-
-
-def process_csv(properties):
-    cached_data_frame = DataFrame(columns=list(dictionary_columns.values()))
-
-    if os.path.isfile(properties.cache_file_location):
-        cached_data_frame = pandas.read_hdf(properties.cache_file_location)
-        print('Cache found.')
-        print(cached_data_frame)
-
-    for location in properties.csv_locations:
-        print('Started reading CSVs from a new location')
-        # path = '../{}/comb_invparms_*_SN???_??????-??????.csv'.format(location)
-        path = '{}/proffast-?.?-outputs-????????-??.csv'.format(location)
-
-        files = glob.glob(path)
-
-        dfs = list()
-
-        engine = create_engine(
-            'postgresql+psycopg2://{}:{}@{}:{}/{}'.format(properties.db_username, properties.db_password,
-                                                          properties.db_ip,
-                                                          properties.db_port, properties.database_name))
-
-        for f in files:
-            df = build_data_frame_from(f, settings.retrieval_version)
-
-            dfs.append(df)
-
-        if not dfs:
-            print('Nothing found.')
-            continue
-
-        print('Done reading CSVs, started to analyze data.')
-
-        df = pandas.concat(dfs, ignore_index=True)
-
-        new_rows = pandas.merge(df, cached_data_frame, indicator=True, how='left',
-                                on=['utc', 'sensor', 'retrieval_software'], suffixes=('', '_y')) \
-            .query('_merge=="left_only"') \
-            .drop('_merge', axis=1)
-
-        new_rows.drop(new_rows.filter(regex='_y$').columns, axis=1, inplace=True)
-
-        if not new_rows.empty:
-            print('Found new rows(#{}), writing to db'.format(new_rows.size))
-            new_rows.to_sql(
-                'measurements',
-                engine,
-                schema='public',
-                if_exists='append',
-                index=False,
-                index_label=None,
-                chunksize=None,
-                dtype=None,
-                method=None
-            )
-
-        modified_rows = pandas.merge(df, cached_data_frame, indicator=True, how='left', suffixes=('', '_y')) \
-            .query('_merge=="left_only"') \
-            .drop('_merge', axis=1)
-
-        modified_rows.drop(modified_rows.filter(regex='_y$').columns, axis=1, inplace=True)
-
-        modified_rows = modified_rows[~modified_rows.index.isin(new_rows.index)]
-
-        if not modified_rows.empty:
-            print('Found modified rows(#{}), updating'.format(modified_rows.size))
-            modified_rows.to_sql(
-                'measurements',
-                engine,
-                schema='public',
-                if_exists='replace',
-                index=False,
-                index_label=None,
-                chunksize=None,
-                dtype=None,
-                method=None
-            )
-
-        removed_rows = pandas.merge(df, cached_data_frame, indicator=True, how='right',
-                                    on=['utc', 'sensor', 'retrieval_software'], suffixes=('_y', '')) \
-            .query('_merge=="right_only"') \
-            .drop('_merge', axis=1)
-
-        removed_rows.drop(removed_rows.filter(regex='_y$').columns, axis=1, inplace=True)
-
-        if not removed_rows.empty:
-            print('Found deleted rows(#{}), deleting them from the database either'.format(removed_rows.size))
-
-            meta = MetaData()
-
-            measurements_table = Table('measurements', meta, autoload=True, autoload_with=engine)
-
-            cond = removed_rows.apply(
-                lambda row: and_(measurements_table.c['utc'] == row['utc'],
-                                 measurements_table.c['sensor'] == row['sensor'],
-                                 measurements_table.c['retrieval_software'] == row['retrieval_software']), axis=1)
-            cond = or_(*cond)
-
-            delete = measurements_table.delete().where(cond)
-            with engine.connect() as conn:
-                conn.execute(delete)
-
-        print('Refreshing cache.')
-
-        df.to_hdf(properties.cache_file_location, key='df', mode='w')
-
-        print('Done refreshing cache.')
+    return
 
 
 def init_db(properties):
-    engine = create_engine(
-        'postgresql+psycopg2://{}:{}@{}:{}/{}'.format(properties.db_username, properties.db_password, properties.db_ip,
-                                                      properties.db_port, properties.database_name))
-    if not database_exists(engine.url):
-        create_database(engine.url)
-
-    with open('scripts/init_db.sql', 'r') as sql_file:
-        engine.execute(sql_file.read())
+    SqlManager(properties).init_db()
 
 
 if __name__ == '__main__':
@@ -189,4 +54,4 @@ if __name__ == '__main__':
     if option == '1':
         init_db(settings)
     elif option == '2':
-        process_csv(settings)
+        process_measurements(settings)
