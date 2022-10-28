@@ -88,3 +88,7 @@ def detect_deleted(df_from_csv, df_from_cache):
 def detect_all_years_in_dataframe(df):
     df['year'] = pandas.DatetimeIndex(df['utc']).year
     return df['year'].unique()
+
+
+def filter_dataframe(df, year):
+    return df.loc[(pandas.DatetimeIndex(df['utc']).year == year)]

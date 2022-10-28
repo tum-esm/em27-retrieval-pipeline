@@ -1,7 +1,7 @@
 import pandas
 
 from src.csv_iterator import CsvIterator
-from src.csv_processor import build_data_frame_from, detect_all_years_in_dataframe
+from src.csv_processor import build_data_frame_from, detect_all_years_in_dataframe, filter_dataframe
 
 
 class DirectoryManager:
@@ -36,6 +36,6 @@ class DirectoryManager:
             df = build_data_frame_from(file, self.retrieval_version)
             dfs.append(df)
 
-        df = pandas.concat(dfs, ignore_index=True)
+        df = filter_dataframe(pandas.concat(dfs, ignore_index=True), year)
         print('Done reading for year {}, {} rows available'.format(year, len(df.index)))
         return df

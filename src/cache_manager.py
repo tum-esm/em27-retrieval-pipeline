@@ -42,7 +42,7 @@ class CacheProxy:
             if not self.cache_files:
                 print('No cache file found')
                 return []
-            print('Cache files found. Loading...')
+            print('Cache files found.')
             years_in_cache = [self.__map_filename_to_year(filename.removeprefix(self.location + '/')) for filename in
                               self.cache_files]
             return years_in_cache
