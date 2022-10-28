@@ -3,7 +3,7 @@ import configparser
 
 class Config:
 
-    def __init__(self, directory):
+    def __init__(self, directory: str):
         config = configparser.RawConfigParser()
         config.read(directory)
         self.db_ip = config.get('db', 'ip')

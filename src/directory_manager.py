@@ -1,4 +1,7 @@
+from typing import Dict, List
+
 import pandas
+from pandas import DataFrame
 
 from src.csv_iterator import CsvIterator
 from src.csv_processor import build_data_frame_from, detect_all_years_in_dataframe, filter_dataframe
@@ -6,13 +9,13 @@ from src.csv_processor import build_data_frame_from, detect_all_years_in_datafra
 
 class DirectoryManager:
 
-    def __init__(self, directory_locations, retrieval_version):
+    def __init__(self, directory_locations: List[str], retrieval_version: str):
         self.locations = directory_locations
         self.retrieval_version = retrieval_version
 
-    def retrieve_mapping_years_to_files(self):
+    def retrieve_mapping_years_to_files(self) -> Dict[int, List[str]]:
         print('Started scanning data')
-        mapping = {}
+        mapping: Dict[int, List[str]] = {}
         iterator = CsvIterator(self.locations)
         count = 1
         while iterator.has_next_file():
@@ -29,7 +32,7 @@ class DirectoryManager:
         print('Done scanning data')
         return mapping
 
-    def get_dataframe_for_year(self, year, map_years_to_files):
+    def get_dataframe_for_year(self, year: int, map_years_to_files: Dict[int, List[str]]) -> DataFrame:
         print('Reading in main memory dataframe for year {}'.format(year))
         dfs = []
         for file in map_years_to_files[year]:
