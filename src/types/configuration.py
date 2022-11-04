@@ -4,11 +4,23 @@ from pathlib import Path
 from datetime import datetime, date, timedelta
 
 from attrs import validators as val
+from attrs import converters as conv
 from attrs import Attribute, frozen, field
 
 TODAY = datetime.utcnow().date()
 PROJECT_DIR = Path(os.path.abspath(__file__)).parents[2]
 DST_DIR = os.path.join(PROJECT_DIR, "vertical-profiles")
+
+
+def str_to_date(value: str | date) -> date:
+    match value:
+        case str():
+            try:
+                return datetime.strptime(value, "%Y%m%d").date()
+            except ValueError as e:
+                raise ValueError(f"Date format must be %Y%m%d") from e
+        case _:
+            raise TypeError(f"Date must be <class 'str'>")
 
 
 @frozen
@@ -24,30 +36,27 @@ class Configuration:
     )
     git_username: str = field(validator=val.instance_of(str))
     git_token: str = field(validator=val.instance_of(str))
-    from_date: str = field(default="", validator=val.instance_of(str))
-    to_date: str = field(default=(TODAY-timedelta(5)).strftime("%Y%m%d"), validator=val.instance_of(str))
+    from_date: date = field(default=None, converter=conv.optional(str_to_date))
+    to_date: date = field(
+        default=None,
+        converter=[
+            conv.optional(str_to_date),
+            conv.default_if_none(TODAY - timedelta(5)),
+        ],
+    )
     dst_directory: str = field(default=DST_DIR, validator=val.instance_of(str))
     max_idle_time: int = field(default=60, validator=[val.instance_of(int), val.gt(0)])
 
     @from_date.validator
-    def _(self, _: Attribute, value: str) -> None:
-        if value != "": 
-            try:
-                date = datetime.strptime(value, "%Y%m%d").date()
-                if (TODAY - date).days < 5:
-                    raise ValueError(f"Date from_date too recent or in the future")
-            except ValueError as e:
-                raise ValueError(f"Date from_date must be %Y%m%d") from e
+    def _(self, _: Attribute, value: date) -> None:
+        if value is not None and (TODAY - value).days < 5:
+            raise ValueError(f"Date from_date too recent or in the future")
 
     @to_date.validator
-    def _(self, _: Attribute, value: str) -> None:
-        try:
-            date = datetime.strptime(value, "%Y%m%d").date()
-            if (TODAY - date).days < 5:
-                raise ValueError(f"Date to_date too recent or in the future")
-        except ValueError as e:
-            raise ValueError(f"Date to_date must be %Y%m%d") from e
-        if self.from_date > value:
+    def _(self, _: Attribute, value: date) -> None:
+        if (TODAY - value).days < 5:
+            raise ValueError(f"Date to_date too recent or in the future")
+        if self.from_date is not None and self.from_date > value:
             raise ValueError(f"Date from_date after to_date")
 
     @dst_directory.validator
