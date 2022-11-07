@@ -1,108 +1,264 @@
-from datetime import timedelta
-from src.query import Query
-from src.utils import TimeUtils, LocationData, load_setup
-from src.utils.file_utils import FileUtils
+# type: ignore
 
-PROJECT_DIR, CONFIG = load_setup(validate=False)
+from __future__ import annotations
+
+import os
+from pathlib import Path
+from attrs import define
+from typing import Iterator
+from datetime import date, datetime, timedelta
+
+PROJECT_DIR = Path(os.path.abspath(__file__)).parent
+
+
+@define(on_setattr=False)
+class _Node:
+    sensors: set[str]
+    start: date
+    end: date
+    _prev: _Node | None
+    _next: _Node | None
+
 
 class QueryList:
+
+    """A doubly linked list that administers future requests for one location.
+
+    Nodes are stored in an ordered manner and cover mutually exclusive dates.
+    Each node is assigned to a start date, an end date as well as a sensor set.
+    The set consists of all sensors requesting the data for the respective date range.
     """
-    This list contains instances of the Query class. Each generated instance
-    spans accross at most 30 days. Only queries where no files have been generated
-    yet are kept.
-    """
 
-    def __init__(self):
-        self._list = QueryList._generate()
-    
-    def __iter__(self):
-        for query in self._list:
-            yield query
+    def __init__(self, coord: str) -> None:
+        self.coord = coord
+        self._head: _Node | None = None
+        self._tail: _Node | None = None
 
-    def to_json(self):
-        return [q.to_json() for q in self._list]
-    
-    def __len__(self):
-        return len(self._list)
+    def __iter__(self) -> Iterator[_Node]:
+        node = self._head
+        while node is not None:
+            yield node
+            node = node._next
 
-    @staticmethod
-    def _generate() -> list[Query]:
-        location_data = LocationData()
+    def __str__(self) -> str:
+        rep = []
+        for i, n in enumerate(self):
+            rep.append(f"({self.coord}-{i}) {n.start} {n.end} {n.sensors}")
+        return "\n".join(rep)
 
-        query_list = []
-        for sensor in location_data.sensor_names():
-            for time_period in location_data.get_location_list(sensor):
-                location = time_period["location"]
-                coordinates = location_data.get_coordinates(location)
-                query_list.append(
-                    Query(
-                        t_from_int=int(time_period["from_date"]),
-                        t_to_int=int(time_period["to_date"]),
-                        sensor=sensor,
-                        lat=coordinates["lat"],
-                        lon=coordinates["lon"],
-                        location=location
-                    )
-                )
-        return QueryList._optimize_query_list(query_list)
+    def insert(self, sensor: str, start: date, end: date) -> None:
 
-    @staticmethod
-    def _optimize_query_list(query_list: list[Query]) -> list[Query]:
-        new_query_list_1 = []
-        for query in query_list:
-            new_query_list_1 += QueryList._split_query(query)
+        """Insert a new node into the (ordered) query list.
 
-        new_query_list_2 = []
-        for query in new_query_list_1:
-            reduced_query = QueryList._trim_query(query)
-            if reduced_query is not None:
-                new_query_list_2.append(reduced_query)
+        To insert a new node, this method uses the boundary nodes, i.e.,
+        the outermost nodes that still overlap with the given start and end dates.
+        The boundary nodes might get split in order to add the new sensor
+        to an sub-interval of an already existing node. Inner nodes, i.e.,
+        nodes in between the boundary nodes, are fully contained in the date range.
+        Thus, their sensor set just needs to be extended by the new sensor.
+        Finally, new nodes, with the sensor set just being the new sensor,
+        are allocated to uncovered dates in between the boundary nodes.
+        """
 
-        return new_query_list_2
+        if self._head is None:
+            self._head = _Node({sensor}, start, end, None, None)
+            self._tail = self._head
+            return
 
+        # Boundary nodes
+        left = self._get_leftmost(start)
+        right = self._get_rightmost(end)
 
-    @staticmethod
-    def _split_query(query: Query) -> list[Query]:
-        if (query.t_to_datetime - query.t_from_datetime).days <= 30:
-            return [query]
+        if right is None:
+            # New node is leftmost node
+            self._insert_left(self._head, {sensor}, start, end)
+        elif left is None:
+            # New node is rightmost node
+            self._insert_right(self._tail, {sensor}, start, end)
+        elif right.end < left.start:
+            # New node only has non-overlapping neighbors
+            self._insert_right(right, {sensor}, start, end)
         else:
-            query1 = query.clone()
-            query2 = query.clone()
-            query1.t_to_datetime = query.t_from_datetime + timedelta(days=30)
-            query2.t_from_datetime = query.t_from_datetime + timedelta(days=31)
-            return [query1] + QueryList._split_query(query2)
+            # Process overlap with leftmost node
+            if start < left.start:
+                self._insert_left(left, {sensor}, start, left.start - timedelta(1))
+            elif start > left.start and start <= left.end:
+                self._insert_left(
+                    left, left.sensors.copy(), left.start, start - timedelta(1)
+                )
+                left.start = start
 
+            # Process inner nodes
+            curr_node = left
+            while curr_node is not right:
+                curr_node.sensors.add(sensor)
+                if curr_node.end + timedelta(1) < curr_node._next.start:
+                    self._insert_right(
+                        curr_node,
+                        {sensor},
+                        curr_node.end + timedelta(1),
+                        curr_node._next.start - timedelta(1),
+                    )
+                    curr_node = curr_node._next
+                curr_node = curr_node._next
 
-    @staticmethod
-    def _trim_query(query: Query) -> Query:
+            # Process overlap with rightmost node
+            if end >= right.start and end < right.end:
+                self._insert_right(
+                    right, right.sensors.copy(), end + timedelta(1), right.end
+                )
+                right.end = end
+            elif end > right.end:
+                self._insert_right(right, {sensor}, right.end + timedelta(1), end)
+
+            # Add sensor to remaining node
+            right.sensors.add(sensor)
+
+    def optimize(self, from_date: date | None, to_date: date) -> None:
+
+        """Optimizes the query list.
+
+        First, nodes with dates outside of the requested range are removed.
+        Note that this step is necessary as node splitting during insertion might occur.
+        Furthermore, dates that are already present in the output directory are excluded.
+        In a second iteration, nodes with a time delta greater than 30 days are split
+        and/or consecutive nodes that share the same sensor set are joined.
         """
-        Move the query["from"] date forward if date exists.
-        Move the query["to"] date backward if date exists or too recent
-        Return None if all dates exist.
-        """
-        while query.t_from_int <= query.t_to_int:
-            if (CONFIG["from_date"] is not None) and (query.t_from_str < CONFIG["from_date"]):
-                query.t_from_datetime += timedelta(days=1)
-                continue
-            if (CONFIG["to_date"] is not None) and (query.t_to_str > CONFIG["to_date"]):
-                query.t_to_datetime -= timedelta(days=1)
-                continue
 
-            changed = False
-            if FileUtils.t_exists_in_dst(query.t_from_str, query):
-                query.t_from_datetime += timedelta(days=1)
-                changed = True
-            if (
-                FileUtils.t_exists_in_dst(query.t_to_str, query) or
-                (TimeUtils.delta_days_until_now(query.t_to_str) < 5)
+        node = self._head
+        # Remove nodes to the left
+        if from_date is not None:
+            while node.end < from_date:
+                node = node._next
+                self._delete_to_left(node)
+            node.start = from_date
+
+        # Filter dates based on output directory
+        while node is not self._tail and node.start <= to_date:
+            self._filter(node)
+            node = node._next
+
+        # Remove nodes to the right
+        if node is not self._tail:
+            self._tail = node
+            node._next = None
+        node.end = to_date
+
+        # Filter remaining node
+        self._filter(node)
+
+        node = self._head
+        while node is not self._tail:
+            # Split nodes a time delta > 30 days
+            if (node.end - node.start).days > 30:
+                self._insert_left(
+                    node, node.sensors.copy(), node.start, node.start + timedelta(30)
+                )
+                node.start += timedelta(31)
+            # Join consecutive nodes
+            elif (
+                node.end + timedelta(1) == node._next.start
+                and node.sensors == node._next.sensors
             ):
-                query.t_to_datetime -= timedelta(days=1)
-                changed = True
+                node.end = node._next.end
+                self._delete_to_right(node)
+            else:
+                node = node._next
 
-            if not changed:
-                break
+    def _filter(self, node: _Node) -> None:
+        """Filters a node's dates based on the output directory."""
 
-        if query.t_from_int > query.t_to_int:
-            return None
+        split_date = None
+        curr_date = node.start
 
-        return query
+        while curr_date <= node.end:
+
+            path = (
+                f"{PROJECT_DIR}/{datetime.strftime(curr_date, '%Y%m%d')}_{self.coord}"
+            )
+            # Check if curr_date in output directory
+            if os.path.isfile(f"{path}.map") and os.path.isfile(f"{path}.mod"):
+                # All dates already present
+                if node.start == node.end:
+                    if self._head is self._tail:
+                        self._head = None
+                        self._tail = None
+                    else:
+                        self._delete_to_left(node._next)
+                # Shift the start forward
+                elif curr_date == node.start:
+                    node.start += timedelta(1)
+                # Shift the end backwards
+                elif curr_date == node.end:
+                    if split_date is None:
+                        node.end -= timedelta(1)
+                    else:
+                        node.end = split_date
+                    break
+                # Mark an inner split position
+                elif split_date is None:
+                    split_date = curr_date - timedelta(1)
+
+            # Split iff marked and curr_date not in output directory
+            elif split_date is not None:
+                self._insert_left(node, node.sensors.copy(), node.start, split_date)
+                node.start = curr_date
+                split_date = None
+
+            curr_date += timedelta(1)
+
+    def _get_leftmost(self, start: date) -> _Node | None:
+        """Returns the first node from the left whose end date is not earlier than the given date."""
+        node = self._head
+        while node is not None and node.end < start:
+            node = node._next
+        return node
+
+    def _get_rightmost(self, end: date) -> _Node | None:
+        """Returns the first node from the right whose start date is not later than the given date."""
+        node = self._tail
+        while node is not None and end < node.start:
+            node = node._prev
+        return node
+
+    def _insert_left(
+        self, node: _Node, sensors: set[str], start: date, end: date
+    ) -> None:
+        """Inserts a new node to the left of the given node."""
+        if node is self._head:
+            node._prev = _Node(sensors, start, end, None, node)
+            self._head = node._prev
+        else:
+            new_node = _Node(sensors, start, end, node._prev, node)
+            node._prev._next = new_node
+            node._prev = new_node
+
+    def _insert_right(
+        self, node: _Node, sensors: set[str], start: date, end: date
+    ) -> None:
+        """Inserts a new node to the right of the given node."""
+        if node is self._tail:
+            node._next = _Node(sensors, start, end, node, None)
+            self._tail = node._next
+        else:
+            new_node = _Node(sensors, start, end, node, node._next)
+            node._next._prev = new_node
+            node._next = new_node
+
+    def _delete_to_left(self, node: _Node) -> None:
+        """Deletes the node to the left of the given node."""
+        if node._prev is self._head:
+            self._head = node
+            node._prev = None
+        else:
+            node._prev = node._prev._prev
+            node._prev._next = node
+
+    def _delete_to_right(self, node: _Node) -> None:
+        """Deletes the node to the right of the given node."""
+        if node._next is self._tail:
+            self._tail = node
+            node._next = None
+        else:
+            node._next = node._next._next
+            node._next._prev = node
