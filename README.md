@@ -23,15 +23,15 @@ poetry install
 
 Create a file `config/config.json` to configure your setup. An example `config.example.json` can be found in `config/`.
 
-|       Name        | Type  |             Default             |                               Description                               |
-| :---------------: | :---: | :-----------------------------: | :---------------------------------------------------------------------: |
-|     `"email"`     |  str  |                -                |      Email granting access to <span>ccycle.gps.caltech.edu</span>       |
-| `"location_data"` |  str  |                -                | GitHub **directory** containing `locations.json` and `sensors.json`[^4] |
-| `"git_username"`  |  str  |                -                |                             GitHub username                             |
-|   `"git_token"`   |  str  |                -                |                    GitHub personal access token[^5]                     |
-|   `"from_date"`   |  str  |    `None` (= all past data)     |                     Start date in _YYYYMMDD_ format                     |
-|    `"to_date"`    |  str  | Five days prior to current date |                      End date in _YYYYMMDD_ format                      |
-| `"dst_directory"` |  str  |      `"vertical-profiles"`      |                            Output directory                             |
+|       Name        | Type  |                                 Default                                 |           Description           |
+| :---------------: | :---: | :---------------------------------------------------------------------: | :-----------------------------: |
+|     `"email"`     |  str  |      Email granting access to <span>ccycle.gps.caltech.edu</span>       |                -                |
+| `"location_data"` |  str  | GitHub **directory** containing `locations.json` and `sensors.json`[^4] |                -                |
+| `"git_username"`  |  str  |                             GitHub username                             |                -                |
+|   `"git_token"`   |  str  |                    GitHub personal access token[^5]                     |                -                |
+|   `"from_date"`   |  str  |                     Start date in _YYYYMMDD_ format                     |    `None` (= all past data)     |
+|    `"to_date"`    |  str  |                      End date in _YYYYMMDD_ format                      | Five days prior to current date |
+| `"dst_directory"` |  str  |                            Output directory                             |      `"vertical-profiles"`      |
 
 
 ### 🚀 Operation
@@ -51,6 +51,8 @@ crontab -e
 mm hh * * * .../.venv/bin/python .../download_vertical_profiles.py
 ```
 
+_**TBD** examples, dst_dir_
+
 ## 🏛 Architecture
 <a href="url"><img src="docs/architecture.excalidraw.png" align="center" width="100%" ></a>
 ## 🗄 Structure
@@ -59,6 +61,8 @@ mm hh * * * .../.venv/bin/python .../download_vertical_profiles.py
 ├── config/
 │   └── config.example.json
 ├── docs/
+│   ├── ma20200101.map
+│   ├── ma20200101.mod
 │   └── architecture.drawio.svg
 ├── reports/
 ├── src/
