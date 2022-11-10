@@ -1,25 +1,16 @@
 # Download Vertical Profiles
 
-_Formerly: https://github.com/tum-esm/download-map-data_
+Used to download __`.map`__ and __`.mod`__ files from __<span>ccycle.gps.caltech.edu</span>__.[^1] [^2] <br /> Individual files contain vertical distributions of meteorological parameters for a certain location and date.
 
-## 🔍 What is it?
+## Getting Started
+Requires __Python 3.10+__. Dependency management with __Poetry__.[^3]
 
-This tool can be used to download `.map` and `.mod` files from `ccycle.gps.caltech.edu`. These files contain vertical distributions of meteorological parameters for a certain location and date. The underlying accessing method is described on https://tccon-wiki.caltech.edu/Main/CentralizedModMaker. A sample `.map` and `.mod` can be found in `docs/`.
+### :electric_plug: Installation
 
-It uses the template repository https://github.com/tum-esm/em27-location-data-template for location management. Running the script `fetch-location-data.py` will clone the respective repository and run its integrity checks.
-
-<br/>
-<br/>
-
-## 🔌 How to run it?
-
-Dependency management with poetry: https://python-poetry.org/docs/#installation
-
-1. Set up the project interpreter:
-
+Clone the repository and set up the project interpreter
 ```bash
-# Create a virtual python environment
-python3.9 -m venv .venv
+# Create a virtual environment
+python3.10 -m venv .venv
 
 # Activate virtual environment
 source .venv/bin/activate
@@ -28,53 +19,65 @@ source .venv/bin/activate
 poetry install
 ```
 
-2. Use the file `config.example.json` to create a `config.json` file in your project directory for your setup
+### :gear: Configuration
 
-3. Download location data
+Create a file `config/config.json` to configure your setup. An example `config.example.json` can be found in `config/`.
+
+|       Name        | Type  |             Default              |                               Description                               |
+| :---------------: | :---: | :------------------------------: | :---------------------------------------------------------------------: |
+|     `"email"`     |  str  |                -                 |      Email granting access to <span>ccycle.gps.caltech.edu</span>       |
+| `"location_data"` |  str  |                -                 | GitHub **directory** containing `locations.json` and `sensors.json`[^4] |
+| `"git_username"`  |  str  |                -                 |                             GitHub username                             |
+|   `"git_token"`   |  str  |                -                 |                    GitHub personal access token[^5]                     |
+|   `"from_date"`   |  str  |     `None` (= all past data)     |                     Start date in _YYYYMMDD_ format                     |
+|    `"to_date"`    |  str  | Five days prior to current date |                      End date in _YYYYMMDD_ format                      |
+| `"dst_directory"` |  str  |      `"vertical-profiles"`       |                            Output directory                             |
+
+
+### 🚀 Operation
+
+Run `download_vertical_profiles.py` manually
 
 ```bash
-python fetch-location-data.py
+python download_vertical_profiles.py
 ```
 
-4. Run the script and wait for the result
-
-```bash
-python main.py
-```
-
-5. OR: Run the script in a cron-job to always keep this dataset up-to-date
+**OR** configure a cron job schedule
 
 ```bash
 crontab -e
 
-# add the following line to the list
-mm hh * * * .../.venv/bin/python .../main.py
+# Add the following line
+mm hh * * * .../.venv/bin/python .../download_vertical_profiles.py
 ```
 
-<br/>
-
-**Responses from Caltech will be cached** in the `cache/` directory. If you want your duplicate requests to be faster and use fewer computing resources, do not remove or empty this directory.
-
-<br/>
-<br/>
-
-## ⚙️ Configuration
-
-**from/to:** Self-explaining.
-
-**user:** Your user email that is used to log onto `ccycle.gps.caltech.edu`. See: https://tccon-wiki.caltech.edu/Main/CentralizedModMaker
-
-**dst:** The directory where output files will be placed.
-
-**downloadTimeoutSeconds:** The `ccycle.gps.caltech.edu` will take a while to generate the profiles. This defines, how long this tool will wait until it aborts trying to download the profiles.
-
-**locationRepository:** A repository structured like https://github.com/tum-esm/em27-location-data-template
-
-<br/>
-<br/>
-
 ## 🏛 Architecture
-
+<a href="url"><img src="docs/architecture.drawio.svg" align="center" width="100%" ></a>
+## 🗄 Structure
+```
+./
+├── config/
+│   └── config.example.json
+├── docs/
+│   └── architecture.drawio.svg
+├── reports/
+├── src/
+│   ├── types/
+│   │   ├── configuration.py
+│   │   └── location.py
+│   ├── utils/
+│   │   └── network.py
+│   └── query_list.py
+├── vertical-profiles/
+├── .gitignore
+├── download_vertical_profiles.py
+├── poetry.lock
+├── pyproject.toml
+└── README.md
+```
 ![](/docs/architecture.png)
-
-_For more details, please look into the code itself._
+[^1]: CentralizedModMaker: https://tccon-wiki.caltech.edu/Main/CentralizedModMaker
+[^2]: Predecessor: https://github.com/tum-esm/download-map-data.
+[^3]: Poetry: https://python-poetry.org/docs/#installation
+[^4]: Example Repository: https://github.com/tum-esm/em27-location-data
+[^5]: GitHub Tokens:https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token
