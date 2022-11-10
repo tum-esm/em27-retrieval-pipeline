@@ -52,7 +52,7 @@ mm hh * * * .../.venv/bin/python .../download_vertical_profiles.py
 ```
 
 ## 🏛 Architecture
-<a href="url"><img src="docs/architecture.excalidraw.svg" align="center" width="100%" ></a>
+<a href="url"><img src="docs/architecture.excalidraw.png" align="center" width="100%" ></a>
 ## 🗄 Structure
 ```
 ./
