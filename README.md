@@ -23,7 +23,7 @@ poetry install
 
 Create a file `config/config.json` to configure your setup. An example `config.example.json` can be found in `config/`.
 
-|       Name        | Type  |                                 Default                                 |           Description           |
+|       Name        | Type  |                               Description                               |             Default             |
 | :---------------: | :---: | :---------------------------------------------------------------------: | :-----------------------------: |
 |     `"email"`     |  str  |      Email granting access to <span>ccycle.gps.caltech.edu</span>       |                -                |
 | `"location_data"` |  str  | GitHub **directory** containing `locations.json` and `sensors.json`[^4] |                -                |
