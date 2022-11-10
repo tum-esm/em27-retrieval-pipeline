@@ -52,7 +52,7 @@ mm hh * * * .../.venv/bin/python .../download_vertical_profiles.py
 ```
 
 ## 🏛 Architecture
-<a href="url"><img src="docs/architecture.drawio.svg" align="center" width="100%" ></a>
+<a href="url"><img src="docs/architecture.excalidraw.svg" align="center" width="100%" ></a>
 ## 🗄 Structure
 ```
 ./
@@ -70,10 +70,10 @@ mm hh * * * .../.venv/bin/python .../download_vertical_profiles.py
 │   └── query_list.py
 ├── vertical-profiles/
 ├── .gitignore
+├── README.md
 ├── download_vertical_profiles.py
 ├── poetry.lock
-├── pyproject.toml
-└── README.md
+└── pyproject.toml
 ```
 ![](/docs/architecture.png)
 [^1]: CentralizedModMaker: https://tccon-wiki.caltech.edu/Main/CentralizedModMaker
