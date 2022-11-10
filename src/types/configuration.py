@@ -13,6 +13,7 @@ DST_DIR = os.path.join(PROJECT_DIR, "vertical-profiles")
 
 
 def str_to_date(value: str | date) -> date:
+    """Converts a string to datetime.date."""
     match value:
         case str():
             try:
@@ -25,6 +26,18 @@ def str_to_date(value: str | date) -> date:
 
 @frozen
 class Configuration:
+    """Validates and represents the user's configuration.
+
+    Configuration
+    * email: user email granting access to ccycle.gps.caltech.edu ,
+    * location_data: raw GitHub directory containing locations/sensors.json ,
+    * git_username and git_token: GitHub credentials ,
+    * from_date: start date of data; defaults to None (=all past data) ,
+    * to_date: end date of data; defaults to five days prior to the current date ,
+    * dst_directory: output directory; defaults to PROJECT_DIR/vertical-profiles , 
+    * max_idle_time: ... .
+    """
+
     email: str = field(
         validator=[val.instance_of(str), val.matches_re(r"[^@]+@[^@]+\.[^@]+")]
     )

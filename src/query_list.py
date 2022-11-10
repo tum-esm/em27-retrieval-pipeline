@@ -1,17 +1,15 @@
-# type: ignore
-
 from __future__ import annotations
 
 import os
 from pathlib import Path
 from attrs import define
-from typing import Iterator
+from typing import Iterator, Any
 from datetime import date, datetime, timedelta
 
-PROJECT_DIR = Path(os.path.abspath(__file__)).parent
+PROJECT_DIR = Path(os.path.abspath(__file__)).parents[1]
 
 
-@define(on_setattr=False)
+@define(on_setattr=False) #type: ignore
 class _Node:
     sensors: set[str]
     start: date
@@ -43,7 +41,7 @@ class QueryList:
     def __str__(self) -> str:
         rep = []
         for i, n in enumerate(self):
-            rep.append(f"({self.coord}-{i}) {n.start} {n.end} {n.sensors}")
+            rep.append(f"({self.coord}-{i:03d}) {n.start} {n.end} {n.sensors}")
         return "\n".join(rep)
 
     def insert(self, sensor: str, start: date, end: date) -> None:
@@ -89,7 +87,7 @@ class QueryList:
                 left.start = start
 
             # Process inner nodes
-            curr_node = left
+            curr_node:Any = left
             while curr_node is not right:
                 curr_node.sensors.add(sensor)
                 if curr_node.end + timedelta(1) < curr_node._next.start:
@@ -125,7 +123,7 @@ class QueryList:
         and/or consecutive nodes that share the same sensor set are joined.
         """
 
-        node = self._head
+        node:Any = self._head
         # Remove nodes to the left
         if from_date is not None:
             while node.end < from_date:
@@ -173,8 +171,8 @@ class QueryList:
 
         while curr_date <= node.end:
 
-            path = (
-                f"{PROJECT_DIR}/{datetime.strftime(curr_date, '%Y%m%d')}_{self.coord}"
+            path = ( #FIXME - 
+                f"{PROJECT_DIR}/vertical-profiles/{datetime.strftime(curr_date, '%Y%m%d')}_{self.coord}"
             )
             # Check if curr_date in output directory
             if os.path.isfile(f"{path}.map") and os.path.isfile(f"{path}.mod"):
@@ -222,7 +220,7 @@ class QueryList:
         return node
 
     def _insert_left(
-        self, node: _Node, sensors: set[str], start: date, end: date
+        self, node: Any, sensors: set[str], start: date, end: date
     ) -> None:
         """Inserts a new node to the left of the given node."""
         if node is self._head:
@@ -234,7 +232,7 @@ class QueryList:
             node._prev = new_node
 
     def _insert_right(
-        self, node: _Node, sensors: set[str], start: date, end: date
+        self, node: Any, sensors: set[str], start: date, end: date
     ) -> None:
         """Inserts a new node to the right of the given node."""
         if node is self._tail:
@@ -245,7 +243,7 @@ class QueryList:
             node._next._prev = new_node
             node._next = new_node
 
-    def _delete_to_left(self, node: _Node) -> None:
+    def _delete_to_left(self, node: Any) -> None:
         """Deletes the node to the left of the given node."""
         if node._prev is self._head:
             self._head = node
@@ -254,7 +252,7 @@ class QueryList:
             node._prev = node._prev._prev
             node._prev._next = node
 
-    def _delete_to_right(self, node: _Node) -> None:
+    def _delete_to_right(self, node: Any) -> None:
         """Deletes the node to the right of the given node."""
         if node._next is self._tail:
             self._tail = node
