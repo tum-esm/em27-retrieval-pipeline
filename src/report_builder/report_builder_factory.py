@@ -12,4 +12,4 @@ def create_report_builder(chosen_type: builders, directory_name: str, file_name:
         return SvgReportBuilder(directory_name, file_name)
     if chosen_type == 'csv':
         return CsvReportBuilder(directory_name, file_name)
-    raise ValueError('There is no builder option for type {}'.format(type))
+    raise ValueError('There is no builder option for type {}'.format(chosen_type))
