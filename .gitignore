@@ -129,3 +129,6 @@ dmypy.json
 .pyre/
 
 data/
+
+reports/
+config.properties

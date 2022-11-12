@@ -1,46 +1,39 @@
-import datetime
 import glob
 import os
-import numpy as np
 import pandas
 import pandas as pd
 
+from report_builder.report_builder_factory import builders, create_report_builder
+from report_generator.abs_report_generator import AbsReportGenerator
+from reporting_config.config import Config
 
-class StationDataCollector:
+
+class StationDataGenerator(AbsReportGenerator):
+    SUCCESSFUL = 'successful'
+    FAILED = 'failed'
+
     df: pd.DataFrame
+    report_type: builders
 
-    def __init__(self, archive_dir_location):
-        self.archive_dir_location = archive_dir_location
-
-    def print_dataframe(self):
-        sensors = self._get_sensor_types()
-        self.__build_dataframe()
-        print(self.__report_all_stations('proffast-2.1-outputs'))
-
-        for sensor in sensors:
-            series = self.__report_for_station_sensor('proffast-2.1-outputs', sensor)
-            # series = series.index[3].floor('D')
-            print(series[0])
-            print(series.index[0])
-
-    def __report_all_stations(self, station: str) -> pd.DataFrame:
-        df = self.df
-        return df.loc[df['version'] == station].groupby(['version', 'status', 'date'])['count'].sum()
+    def __init__(self, config: Config, report_name: str, report_type: builders):
+        super().__init__(config, report_name)
+        self.report_type = report_type
+        self.archive_dir_location = config.archive_dir_location
 
     def __build_dataframe(self):
-        versions = self._get_versions()
-        sensor_types = self._get_sensor_types()
+        versions = self.__get_versions()
+        sensor_types = self.__get_sensor_types()
         archive_df = pd.DataFrame(columns=['sensor', 'version', 'status', 'date', 'count'])
         for sensor in sensor_types:
             for version in versions:
-                for status in ['successful', 'failed']:
+                for status in [self.SUCCESSFUL, self.FAILED]:
                     available_dates = glob.glob(
                         '{}/{}/{}/{}/*'.format(self.archive_dir_location, sensor, version, status))
                     for date in available_dates:
-                        dir_name = os.path.basename(os.path.basename(date))
-                        date_as_numpy = np.datetime64(datetime.datetime.strptime(dir_name, "%Y%m%d").date())
+                        dir_name = AbsReportGenerator.get_file_name(date)
+                        date_as_numpy = AbsReportGenerator.convert_date_to_numpy(dir_name)
                         count_in_date = len(glob.glob(
-                            '{}/m?????????.ifg.????'.format(date)))
+                            '{}/{}'.format(date, self.ifg_pattern)))
                         archive_df = pandas.concat([pd.DataFrame.from_dict({
                             'sensor': [sensor],
                             'version': [version],
@@ -51,23 +44,48 @@ class StationDataCollector:
 
         self.df = archive_df
 
-    def _get_versions(self):
+    def __get_versions(self):
         path = '{}/*/proffast-?.?-outputs'.format(self.archive_dir_location)
-        return set([os.path.basename(os.path.basename(dir_name)) for dir_name in glob.glob(path)])
+        return set([AbsReportGenerator.get_file_name(dir_name) for dir_name in glob.glob(path)])
 
-    def _get_sensor_types(self):
-        return set([os.path.basename(os.path.basename(dir_name)) for dir_name in
+    def __get_sensor_types(self):
+        return set([os.path.basename(AbsReportGenerator.get_file_name(dir_name)) for dir_name in
                     glob.glob('{}/*'.format(self.archive_dir_location))])
 
-    def __get_dir_name(self):
-        pass
-
-    def __convert_date_to_numpy(self):
-        pass
-
-    def __report_for_station_sensor(self, version, sensor) -> pd.DataFrame:
+    def __report_for_station_sensor(self, version, sensor, status) -> pd.Series:
         df = self.df
         return \
-            df.loc[(df['version'] == version) & (df['sensor'] == sensor)].groupby(
-                ['version', 'sensor', 'date', 'status'])[
+            df.loc[(df['version'] == version) & (df['sensor'] == sensor) & (df['status'] == status)].groupby(
+                ['date'])[
                 'count'].sum()
+
+    def __report_all_stations(self, version: str, status: str) -> pd.Series:
+        df = self.df
+        return \
+            df.loc[(df['version'] == version) & (df['status'] == status)].groupby(['date'])[
+                'count'].sum()
+
+    def generate_report(self):
+        self.__build_dataframe()
+        sensors = self.__get_sensor_types()
+        versions = self.__get_versions()
+
+        for version in sorted(versions):
+            self.report_builder = create_report_builder(self.report_type, self.directory_name,
+                                                        '{}_{}'.format(self.report_name, version))
+            all_sensors_series_success = self.__report_all_stations(version, self.SUCCESSFUL)
+            all_sensors_series_failure = self.__report_all_stations(version, self.FAILED)
+
+            self.report_builder.create_output('{}_all_sensors_success'.format(version), all_sensors_series_success)
+            self.report_builder.create_output('{}_all_sensors_failure'.format(version), all_sensors_series_failure)
+
+            for sensor in sorted(sensors):
+                one_sensor_series_success = self.__report_for_station_sensor(version, sensor, self.SUCCESSFUL)
+                one_sensor_series_failure = self.__report_for_station_sensor(version, sensor, self.FAILED)
+
+                self.report_builder.create_output('{}_sensor_{}_success'.format(version, sensor),
+                                                  one_sensor_series_success)
+                self.report_builder.create_output('{}_sensor_{}_failure'.format(version, sensor),
+                                                  one_sensor_series_failure)
+
+            self.report_builder.save_file()
