@@ -1,9 +1,8 @@
-from src.config import Config
-from src.report_generator.upload_dir_data_collector import UploadDirDataCollector
-from src.report_generator.station_data_generator import StationDataCollector
-from src.report_builder.svg_generator import date_heatmap
-import pandas as pd
+from report_generator.station_data_generator import StationDataGenerator
+from src.reporting_config.config import Config
+from src.report_generator.summary_data_generator import SummaryDataGenerator
 
 if __name__ == '__main__':
     config = Config('./config/config.properties')
-    StationDataCollector(config.archive_root).print_dataframe()
+    # SummaryDataGenerator(config, 'summary', 'md').generate_report()
+    StationDataGenerator(config, 'version', 'md').generate_report()

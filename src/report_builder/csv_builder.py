@@ -5,10 +5,16 @@ import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
 
-from abs_report_builder import AbsReportBuilder
+from report_builder.abs_report_builder import AbsReportBuilder
 
 
 class CsvReportBuilder(AbsReportBuilder):
+    def create_output(self, subreport_name: str, series: pd.Series):
+        pass
+
+    def save_file(self):
+        pass
+
     data = {
         "date": [],
         "sensor": [],
