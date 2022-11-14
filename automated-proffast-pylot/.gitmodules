@@ -1,6 +1,0 @@
-[submodule "src/prfpylot"]
-	path = src/prfpylot
-	url = git@gitlab.eudat.eu:coccon-kit/proffastpylot.git
-[submodule "src/detect_corrupt_ifgs"]
-	path = src/detect_corrupt_ifgs
-	url = git@github.com:tum-esm/detect-corrupt-ifgs
