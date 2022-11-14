@@ -25,7 +25,3 @@ cd ../../..
 cd src/detect_corrupt_ifgs
 bash compile.sh
 cd ../..
-
-# install python dependencies
-source .venv/bin/activate
-poetry install
