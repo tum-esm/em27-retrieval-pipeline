@@ -28,7 +28,7 @@ source .venv/bin/activate
 poetry install
 ```
 
-2. Use the file `config.example.json` to create a `config.json` file in your project directory for your setup
+2. Use the file `config.default.json` to create a `config.json` file in your project directory for your setup
 
 3. Download location data
 
