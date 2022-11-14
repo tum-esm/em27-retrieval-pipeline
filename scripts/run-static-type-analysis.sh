@@ -1,0 +1,1 @@
+python -m mypy run-retrieval.py

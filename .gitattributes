@@ -1,0 +1,2 @@
+*.png filter=lfs diff=lfs merge=lfs -text
+*SN.* filter=lfs diff=lfs merge=lfs -text
