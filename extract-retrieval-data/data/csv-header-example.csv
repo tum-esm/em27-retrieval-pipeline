@@ -1,0 +1,38 @@
+###########################################
+## ABOUT:
+##    Authors:         Someone, Another one
+##    Contact:         someone@tum.de, anotherone@tum.de
+##    File generated:  2021-12-06 17:39:28.001438 UTC
+##    Code Repository: https://github.com/tum-esm/extract-retrieval-data
+##    Used commit SHA: 023b9cd33791ac2b53f9beac3cf17d9d630e355e
+##    Comment:         ...
+## SETTINGS:
+## 	  fvsi_threshold:     5
+## 	  sia_threshold:      0.4
+## 	  sza_threshold:      75
+## 	  o2_error:           0.0005
+## 	  step_size:          0.1
+## 	  flag:                1
+## 	  background_filtered: False
+## CALIBRATION FACTORS:
+##    mb86_co2: 0.999542611
+## 	  mb86_ch4: 0.999751255
+## 	  mb86_co : 0.976165677
+## 	  mc15_co2: 0.999410291
+## 	  mc15_ch4: 0.999772659
+## 	  mc15_co : 0.965802141
+## 	  md16_co2: 0.999577834
+## 	  md16_ch4: 1.000035139
+## 	  md16_co : 0.970878877
+## 	  me17_co2: 0.999665509
+## 	  me17_ch4: 1.001556577
+## 	  me17_co : 0.967773823
+## 	  ma61_co2: 1.0
+## 	  ma61_ch4: 1.0
+## 	  ma61_co : 1.0
+## SENSOR LOCATIONS:
+##    me17: unknown (no data)
+##    mb86: HAW
+##    mc15: JOR
+##    md16: ROS
+###########################################
