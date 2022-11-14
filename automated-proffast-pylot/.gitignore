@@ -1,1 +1,14 @@
 config.json
+
+logs/**/*
+!logs/.gitkeep
+
+inputs/**/*
+!inputs/.gitkeep
+
+outputs/**/*
+!outputs/.gitkeep
+
+main.lock
+
+manual-queue.json
