@@ -24,20 +24,18 @@ _This chart only the flow from automatic upload to retrieval outputs. The manual
 
 3. Install Gfortran: https://fortran-lang.org/learn/os_setup/install_gfortran
 
-4. Install all dependencies for this project
+4. Download and compile all proffast for this project
 
 ```bash
-bash scripts/installation/install-with-proffast-2.0.sh
-
-# alternative (still need manual workarounds)
-bash scripts/installation/install-with-proffast-2.1.sh
+bash scripts/installation/install-prf-submodules.sh
 ```
 
-5. Test the installation
+5. Install python dependencies
 
 ```bash
-python -m pytest tests/test_pylot_1_0.py
-python -m pytest tests/test_pylot_1_1.py
+python3.10 -m venv .venv
+source .venv/bin/activate
+poetry install
 ```
 
 <br/>
@@ -47,7 +45,7 @@ python -m pytest tests/test_pylot_1_1.py
 7. Download the location data for your stations
 
 ```bash
-python3 scripts/fetch-location-data.py
+python scripts/installation/fetch-location-data.py
 ```
 
 <br/>
