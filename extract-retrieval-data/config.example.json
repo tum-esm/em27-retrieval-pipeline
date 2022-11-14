@@ -1,0 +1,45 @@
+{
+    "authentication": {
+        "mysql": {
+            "host":     "*.*.*.*",
+            "user":     "*",
+            "passwd":   "*",
+            "database": "*"
+        },
+        "strapi": {
+            "url":    "*",
+            "apiKey": "*"
+        }
+    },
+    "input": {
+        "startDate": "20210812",
+        "endDate":   "20210816",
+        "gases":     ["co2", "ch4"],
+        "locations": ["GEO", "HAW"]
+    },
+    "filter": {
+        "movingWindowSizeMinutes": 10,
+        "outputStepSizeMinutes": 2,
+        "cases": ["outlier", "rollingMean", "continuous", "interval"]
+    },
+    "output": {
+        "exportToCSV": true,
+        "exportToJSON": false,
+        "uploadToWebsite": false,
+        "comment": "..."
+    },
+    "calibrationDays": {
+        "exportToCSV":  true,
+        "exportToJSON": true
+    },
+    "meta": {
+        "authors": [
+            { "name": "Adrian Wenzel",      "email": "a.wenzel@tum.de"      },
+            { "name": "Florian Dietrich",   "email": "flo.dietrich@tum.de"        },
+            { "name": "Nico Nachtigall",    "email": "nico.nachtigall@tum.de"    },
+            { "name": "Andreas Forstmaier", "email": "andreas.forstmaier@tum.de" },
+            { "name": "Moritz Makowski",    "email": "moritz.makowski@tum.de"    }
+        ],
+        "codeRepository": "https://github.com/tum-esm/extract-retrieval-data"
+    }
+}
