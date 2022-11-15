@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "download-vertical-profiles"
 version = "0.5.0"
-description = "Download .map and .mod files from ccycle.gps.caltech.edu"
+description = "Download .map, .vmr and .mod files from ccycle.gps.caltech.edu"
 authors = [
     "Florian Dietrich <flo.dietrich@tum.de>",
     "Xinxu Zhao <xinxu.zhao@tum.de>",
@@ -9,7 +9,6 @@ authors = [
     "Marlon Müller <marlon.mueller@tum.de>"
 ]
 readme = "README.md"
-packages = [{include = "download_vertical_profiles"}]
 
 [tool.poetry.dependencies]
 python = "^3.10"

@@ -30,7 +30,7 @@ jobs:
           cache: 'poetry'
 
       - name: Install missed dependencies
-        run: poetry install --no-interaction
+        run: poetry install
 
       - name: Format with black
         run: poetry run black . --check --diff
