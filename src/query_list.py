@@ -9,7 +9,7 @@ from datetime import date, datetime, timedelta
 PROJECT_DIR = Path(os.path.abspath(__file__)).parents[1]
 
 
-@define(on_setattr=False) #type: ignore
+@define(on_setattr=False)  # type: ignore
 class _Node:
     sensors: set[str]
     start: date
@@ -81,13 +81,11 @@ class QueryList:
             if start < left.start:
                 self._insert_left(left, {sensor}, start, left.start - timedelta(1))
             elif start > left.start and start <= left.end:
-                self._insert_left(
-                    left, left.sensors.copy(), left.start, start - timedelta(1)
-                )
+                self._insert_left(left, left.sensors.copy(), left.start, start - timedelta(1))
                 left.start = start
 
             # Process inner nodes
-            curr_node:Any = left
+            curr_node: Any = left
             while curr_node is not right:
                 curr_node.sensors.add(sensor)
                 if curr_node.end + timedelta(1) < curr_node._next.start:
@@ -102,9 +100,7 @@ class QueryList:
 
             # Process overlap with rightmost node
             if end >= right.start and end < right.end:
-                self._insert_right(
-                    right, right.sensors.copy(), end + timedelta(1), right.end
-                )
+                self._insert_right(right, right.sensors.copy(), end + timedelta(1), right.end)
                 right.end = end
             elif end > right.end:
                 self._insert_right(right, {sensor}, right.end + timedelta(1), end)
@@ -123,7 +119,7 @@ class QueryList:
         and/or consecutive nodes that share the same sensor set are joined.
         """
 
-        node:Any = self._head
+        node: Any = self._head
         # Remove nodes to the left
         if from_date is not None:
             while node.end < from_date:
@@ -132,7 +128,7 @@ class QueryList:
             node.start = from_date
 
         # Filter dates based on output directory
-        while node is not self._tail and node.start <= to_date:
+        while node is not self._tail and node._next.start <= to_date:
             self._filter(node)
             node = node._next
 
@@ -171,9 +167,7 @@ class QueryList:
 
         while curr_date <= node.end:
 
-            path = ( #FIXME - 
-                f"{PROJECT_DIR}/vertical-profiles/{datetime.strftime(curr_date, '%Y%m%d')}_{self.coord}"
-            )
+            path = f"{PROJECT_DIR}/vertical-profiles/{datetime.strftime(curr_date, '%Y%m%d')}_{self.coord}"  # FIXME -
             # Check if curr_date in output directory
             if os.path.isfile(f"{path}.map") and os.path.isfile(f"{path}.mod"):
                 # All dates already present
@@ -219,9 +213,7 @@ class QueryList:
             node = node._prev
         return node
 
-    def _insert_left(
-        self, node: Any, sensors: set[str], start: date, end: date
-    ) -> None:
+    def _insert_left(self, node: Any, sensors: set[str], start: date, end: date) -> None:
         """Inserts a new node to the left of the given node."""
         if node is self._head:
             node._prev = _Node(sensors, start, end, None, node)
@@ -231,9 +223,7 @@ class QueryList:
             node._prev._next = new_node
             node._prev = new_node
 
-    def _insert_right(
-        self, node: Any, sensors: set[str], start: date, end: date
-    ) -> None:
+    def _insert_right(self, node: Any, sensors: set[str], start: date, end: date) -> None:
         """Inserts a new node to the right of the given node."""
         if node is self._tail:
             node._next = _Node(sensors, start, end, node, None)
