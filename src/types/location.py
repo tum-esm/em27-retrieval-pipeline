@@ -11,6 +11,7 @@ class Location:
         "alt": 528
     }.
     """
+
     details: str
     lon: float
     lat: float

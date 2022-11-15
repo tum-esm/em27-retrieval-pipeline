@@ -1,5 +1,6 @@
 import os
 import logging
+from typing import Any
 from pathlib import Path
 from datetime import datetime, date, timedelta
 
@@ -34,13 +35,10 @@ class Configuration:
     * git_username and git_token: GitHub credentials ,
     * from_date: start date of data; defaults to None (=all past data) ,
     * to_date: end date of data; defaults to five days prior to the current date ,
-    * dst_directory: output directory; defaults to PROJECT_DIR/vertical-profiles , 
-    * max_idle_time: ... .
+    * dst_directory: output directory; defaults to PROJECT_DIR/vertical-profiles ,
     """
 
-    email: str = field(
-        validator=[val.instance_of(str), val.matches_re(r"[^@]+@[^@]+\.[^@]+")]
-    )
+    email: str = field(validator=[val.instance_of(str), val.matches_re(r"[^@]+@[^@]+\.[^@]+")])
     location_data: str = field(
         validator=[
             val.instance_of(str),
@@ -52,28 +50,28 @@ class Configuration:
     from_date: date = field(default=None, converter=conv.optional(str_to_date))
     to_date: date = field(
         default=None,
-        converter=[
+        converter=conv.pipe(  # type: ignore
             conv.optional(str_to_date),
             conv.default_if_none(TODAY - timedelta(5)),
-        ],
+        ),
     )
     dst_directory: str = field(default=DST_DIR, validator=val.instance_of(str))
     max_idle_time: int = field(default=60, validator=[val.instance_of(int), val.gt(0)])
 
     @from_date.validator
-    def _(self, _: Attribute, value: date) -> None:
+    def _(self, _: Attribute[Any], value: date) -> None:
         if value is not None and (TODAY - value).days < 5:
             raise ValueError(f"Date from_date too recent or in the future")
 
     @to_date.validator
-    def _(self, _: Attribute, value: date) -> None:
+    def _(self, _: Attribute[Any], value: date) -> None:
         if (TODAY - value).days < 5:
             raise ValueError(f"Date to_date too recent or in the future")
         if self.from_date is not None and self.from_date > value:
             raise ValueError(f"Date from_date after to_date")
 
     @dst_directory.validator
-    def _(self, _: Attribute, value: str) -> None:
+    def _(self, _: Attribute[Any], value: str) -> None:
         if not os.path.isdir(value):
             logging.info(f"Creating empty directory {value}")
             os.makedirs(value)

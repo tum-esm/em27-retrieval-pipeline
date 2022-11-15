@@ -1,13 +1,18 @@
-import asyncio
 import os
+import re
 import json
 import logging
+import asyncio
+
+from io import BytesIO
+from ftplib import FTP
 
 from pathlib import Path
 from filelock import FileLock
+from datetime import datetime, timedelta
 
-from src import utils
-from src.types import Configuration, Location, Sensor
+from src import utils, types
+from src import QueryList
 
 
 def run() -> None:
@@ -19,46 +24,95 @@ def run() -> None:
         project_path = Path(os.path.abspath(__file__)).parent
 
         # Load and parse the configuration
+        camel_to_snake = re.compile(r"(?<!^)(?=[A-Z])")
         config_path = os.path.join(project_path, "config", "config.json")
         with FileLock(config_path + ".lock", timeout=10), open(config_path, "r") as f:
-            config = json.load(f, object_hook=lambda d: Configuration(**d))
-            logging.info(f"Configuration ✅")
+            config: types.Configuration = json.load(
+                fp=f,
+                object_hook=lambda cfg: types.Configuration(
+                    # Convert camelCase to snake_case
+                    **{
+                        (camel_to_snake.sub("_", key).lower()): value
+                        for key, value in cfg.items()
+                    }
+                ),
+            )
 
         # Request locations and sensors
-        tasks = ["locations.json", "sensors.json"]
-        urls = [os.path.join(config.location_data, task) for task in tasks]
-        responses = asyncio.run(
-            utils.git_request(urls, config.git_username, config.git_token)
+        urls = [
+            os.path.join(config.location_data, task)
+            for task in ("locations.json", "sensors.json")
+        ]
+        locations_response, sensors_response = asyncio.run(
+            utils.get_git_urls(urls, config.git_username, config.git_token)
         )
 
-        # Parse locations and sensors
-        for task, response in zip(tasks, responses):
-            response.raise_for_status()
+        # Parse locations
+        locations: dict[str, types.Location] = {
+            location_tag: types.Location(**data)
+            for location_tag, data in locations_response.json().items()
+        }
 
-            if task == "locations.json":
-                """locations = {
-                "TUM_G": Location(details="...", lon=11.671, lat=48.261, alt=491),
-                "TUM_I": Location(details="...", lon=11.569, lat=48.151, alt=539)}
-                """
-                locations: dict[str, Location] = {
-                    location_tag: Location(**data)
-                    for location_tag, data in response.json().items()
-                }
-                logging.info(f"Locations ✅")
+        # Parse sensors and build query lists
+        query_lists: dict[str, QueryList] = {}
+        for sensor, data in sensors_response.json().items():
+            for interval in data["locations"]:
 
-            elif task == "sensors.json":
-                """sensor_locations = {
-                    "ma": (
-                        Sensor(from_date=date(2019, 1, 1), to_date=date(2019, 31, 12), location="TUM_G",
-                        Sensor(from_date=date(2020, 1, 1), to_date=date(2020, 31, 12), location="TUM_I"),
-                    ...
-                }
-                """
-                sensor_locations: dict[str, tuple[Sensor, ...]] = {
-                    sensor_tag: tuple(Sensor(**data) for data in sensor["locations"])
-                    for sensor_tag, sensor in response.json().items()
-                }
-                logging.info(f"Sensors ✅")
+                from_date = datetime.strptime(interval["from_date"], "%Y%m%d").date()
+                to_date = datetime.strptime(interval["to_date"], "%Y%m%d").date()
+
+                # Remove sensor locations outside of the requested range
+                if (config.from_date is None or config.from_date <= to_date) and (
+                    config.to_date >= from_date
+                ):
+
+                    lat = round(locations[interval["location"]].lat)
+                    lon = round(locations[interval["location"]].lon)
+                    coord = str(lat) + "\n" + str(lon)
+
+                    if coord not in query_lists:
+                        query_lists[coord] = QueryList(
+                            str(abs(lat)).zfill(2)
+                            + ("S_" if lat < 0 else "N_")  # FIXME - Check
+                            + str(abs(lon)).zfill(3)
+                            + ("W" if lon < 0 else "E")
+                        )
+                    query_lists[coord].insert(sensor, from_date, to_date)
+
+        # Optimize query lists and request data #FIXME - None
+        for coord, query_list in query_lists.items():
+            query_list.optimize(config.from_date, config.to_date)
+            with FTP(
+                host="ccycle.gps.caltech.edu",
+                user="anonymous",
+                passwd=config.email,
+                timeout=60,
+            ) as ftp:
+
+                ftp.cwd("upload")
+                ftp.set_debuglevel(9)
+                for query in query_list:
+
+                    site = query.sensors.pop()
+                    bio = BytesIO(
+                        "\n".join(
+                            (
+                                site,
+                                datetime.strftime(query.start, "%Y%m%d"),
+                                datetime.strftime(
+                                    query.end + timedelta(1), "%Y%m%d"
+                                ),  # FIXME -  Exclusive?
+                                coord,
+                                config.email,
+                            )
+                        ).encode("utf-8")
+                    )
+                    # ftp.storbinary("STOR input_file_2020.txt", bio)
+                    # äftp.storbinary("STOR input_file.txt", bio)
+
+                    # Group and do multiple requests by renaming input.txt?
+
+                    # Features: CRONJOB IF FAILED AUTO, LOG
 
     except Exception as e:
         print(e)

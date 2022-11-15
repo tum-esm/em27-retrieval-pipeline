@@ -32,3 +32,4 @@ line-length = 95
 
 [tool.mypy]
 strict = true
+implicit_reexport = true
