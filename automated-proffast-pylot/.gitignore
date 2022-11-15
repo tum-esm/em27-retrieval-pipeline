@@ -10,6 +10,8 @@ inputs/**/*
 outputs/**/*
 !outputs/.gitkeep
 
-example/**/*
+example/outputs/**/*
+example/inputs/*.yml
+!example/outputs/.gitkeep
 
 main.lock
