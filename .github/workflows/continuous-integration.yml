@@ -8,33 +8,35 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
     strategy:
+      fail-fast: False
       matrix:
         python-version: ["3.10"]
     
-    - name: Check out repository
-      uses: actions/checkout@v3
-    
-    - name: Install poetry
-      run: pipx install poetry
+    runs-on: ubuntu-latest
 
-    - name: Set up python ${{ matrix.python-version }}
-      uses: actions/setup-python@v4
-      with:
-        python-version: ${{ matrix.python-version }}
-        cache: 'poetry'
+    steps:
 
-    - name: Install missed dependencies
-      run: poetry install --no-interaction
+      - name: Check out repository
+        uses: actions/checkout@v3
+      
+      - name: Install poetry
+        run: pipx install poetry
 
-    - name: Format with black
-      run: poetry run black . --check --diff
+      - name: Set up python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: 'poetry'
 
-    - name: Type check with mypy
-      run: poetry run mypy . --strict
-    
-    - name: Test with pytest
-      run: poetry run pytest tests
-    
-   
+      - name: Install missed dependencies
+        run: poetry install --no-interaction
+
+      - name: Format with black
+        run: poetry run black . --check --diff
+
+      - name: Type check with mypy
+        run: poetry run mypy . --strict
+      
+      - name: Test with pytest
+        run: poetry run pytest tests
