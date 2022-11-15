@@ -1,4 +1,5 @@
 config.json
+manual-queue.json
 
 logs/**/*
 !logs/.gitkeep
@@ -9,6 +10,6 @@ inputs/**/*
 outputs/**/*
 !outputs/.gitkeep
 
-main.lock
+example/**/*
 
-manual-queue.json
+main.lock
