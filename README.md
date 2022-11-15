@@ -2,7 +2,7 @@
 
 <div align="center">
 
-[![Continuous Integration](https://github.com/tum-esm/download-vertical-profiles/actions/workflows/continuous-integration.yml/badge.svg)](https://github.com/tum-esm/continuous-integration/actions/workflows/continuous-integration.yml)
+[![Continuous Integration](https://github.com/tum-esm/download-vertical-profiles/actions/workflows/continuous-integration.yml/badge.svg)](https://github.com/tum-esm/download-vertical-profiles/actions/workflows/continuous-integration.yml)
 
 Used to download __`.map`__, __`.vmr`__ and __`.mod`__ files from __<span>ccycle.gps.caltech.edu</span>__.[^1] [^2] <br />
 
@@ -25,7 +25,7 @@ poetry install
 
 ### :gear: Configuration
 
-Create a file `config/config.json` to configure your setup. An example `config.example.json` can be found in `config/`.
+Create a file `config/config.json` to configure your setup.<br/>An example `config.example.json` can be found in `config/`.
 
 |      Name      | Type  |                             Description                             |             Default             |
 | :------------: | :---: | :-----------------------------------------------------------------: | :-----------------------------: |
