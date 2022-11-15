@@ -9,7 +9,6 @@ on:
 jobs:
   build:
     strategy:
-      fail-fast: False
       matrix:
         python-version: ["3.10"]
     
@@ -36,7 +35,7 @@ jobs:
         run: poetry run black . --check --diff
 
       - name: Type check with mypy
-        run: poetry run mypy . --strict
+        run: poetry run mypy . --strict --implicit-reexport
       
       - name: Test with pytest
         run: poetry run pytest tests
