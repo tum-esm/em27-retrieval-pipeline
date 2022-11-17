@@ -3,6 +3,7 @@
 *.tar
 .vscode
 .DS_Store
+.coverage
 
 *.map
 *.mod
