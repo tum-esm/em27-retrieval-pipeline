@@ -33,7 +33,7 @@ Create a file `config/config.json` to configure your setup.<br/>An example `conf
 | `locationData` |  str  | GitHub directory containing `locations.json` and `sensors.json`[^4] |                -                |
 | `gitUsername`  |  str  |                           GitHub username                           |                -                |
 |   `gitToken`   |  str  |                  GitHub personal access token[^5]                   |                -                |
-|  `from_date`   |  str  |                   Start date in _YYYYMMDD_ format                   |    `None` (= all past data)     |
+|  `from_date`   |  str  |                   Start date in _YYYYMMDD_ format                   |           `00010101`            |
 |   `to_date`    |  str  |                    End date in _YYYYMMDD_ format                    | Five days prior to current date |
 | `dstDirectory` |  str  |                          Output directory                           |       `vertical-profiles`       |
 
