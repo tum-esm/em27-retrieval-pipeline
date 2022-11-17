@@ -6,7 +6,7 @@ from datetime import datetime, date, timedelta
 
 from attrs import validators as val
 from attrs import converters as conv
-from attrs import Attribute, frozen, field
+from attrs import frozen, field
 
 TODAY = datetime.utcnow().date()
 PROJECT_DIR = Path(os.path.abspath(__file__)).parents[2]
@@ -30,12 +30,12 @@ class Configuration:
     """Validates and represents the user's configuration.
 
     Configuration
-    * email: user email granting access to ccycle.gps.caltech.edu ,
-    * location_data: raw GitHub directory containing locations/sensors.json ,
-    * git_username and git_token: GitHub credentials ,
-    * from_date: start date of data; defaults to None (=all past data) ,
-    * to_date: end date of data; defaults to five days prior to the current date ,
-    * dst_directory: output directory; defaults to PROJECT_DIR/vertical-profiles ,
+    * email: email granting access to ccycle.gps.caltech.edu ,
+    * locationData: GitHub directory containing 'locations.json' and 'sensors.json' ,
+    * gitUsername and gitToken: GitHub username and GitHub personal access token ,
+    * from_date: start date in _YYYYMMDD_ format; defaults to '00010101' ,
+    * to_date: end date in _YYYYMMDD_ format; defaults to five days prior to current date ,
+    * dstDirectory: output directory; defaults to 'vertical-profiles' ,
     """
 
     email: str = field(validator=[val.instance_of(str), val.matches_re(r"[^@]+@[^@]+\.[^@]+")])
@@ -47,7 +47,13 @@ class Configuration:
     )
     git_username: str = field(validator=val.instance_of(str))
     git_token: str = field(validator=val.instance_of(str))
-    from_date: date = field(default=None, converter=conv.optional(str_to_date))
+    from_date: date = field(
+        default=None,
+        converter=conv.pipe(  # type: ignore
+            conv.optional(str_to_date),
+            conv.default_if_none(date(1, 1, 1)),
+        ),
+    )
     to_date: date = field(
         default=None,
         converter=conv.pipe(  # type: ignore
@@ -59,19 +65,19 @@ class Configuration:
     max_idle_time: int = field(default=60, validator=[val.instance_of(int), val.gt(0)])
 
     @from_date.validator
-    def _(self, _: Attribute[Any], value: date) -> None:
-        if value is not None and (TODAY - value).days < 5:
+    def _(self, _: Any, value: date) -> None:
+        if (TODAY - value).days < 5:
             raise ValueError(f"Date from_date too recent or in the future")
 
     @to_date.validator
-    def _(self, _: Attribute[Any], value: date) -> None:
+    def _(self, _: Any, value: date) -> None:
         if (TODAY - value).days < 5:
             raise ValueError(f"Date to_date too recent or in the future")
-        if self.from_date is not None and self.from_date > value:
+        if self.from_date > value:
             raise ValueError(f"Date from_date after to_date")
 
     @dst_directory.validator
-    def _(self, _: Attribute[Any], value: str) -> None:
+    def _(self, _: Any, value: str) -> None:
         if not os.path.isdir(value):
             logging.info(f"Creating empty directory {value}")
             os.makedirs(value)
