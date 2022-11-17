@@ -14,6 +14,11 @@ from datetime import datetime, timedelta
 from src import utils, types
 from src import QueryList
 
+# NOTE - dst_dir rename
+# NOTE - camelCase
+# NOTE - globally share config
+# NOTE - Check slug <0
+
 
 def run() -> None:
 
@@ -62,26 +67,26 @@ def run() -> None:
                 to_date = datetime.strptime(interval["to_date"], "%Y%m%d").date()
 
                 # Remove sensor locations outside of the requested range
-                if (config.from_date is None or config.from_date <= to_date) and (
-                    config.to_date >= from_date
-                ):
+                start = max(from_date, config.from_date)
+                end = min(to_date, config.to_date)
+                if start <= end:
 
                     lat = round(locations[interval["location"]].lat)
                     lon = round(locations[interval["location"]].lon)
-                    coord = str(lat) + "\n" + str(lon)
+                    lat_lon = str(lat) + "\n" + str(lon)
 
-                    if coord not in query_lists:
-                        query_lists[coord] = QueryList(
+                    if lat_lon not in query_lists:
+                        query_lists[lat_lon] = QueryList(
                             str(abs(lat)).zfill(2)
-                            + ("S_" if lat < 0 else "N_")  # FIXME - Check
+                            + ("S_" if lat < 0 else "N_")
                             + str(abs(lon)).zfill(3)
                             + ("W" if lon < 0 else "E")
                         )
-                    query_lists[coord].insert(sensor, from_date, to_date)
+                    query_lists[lat_lon].insert(sensor, start, end)
 
-        # Optimize query lists and request data #FIXME - None
-        for coord, query_list in query_lists.items():
-            query_list.optimize(config.from_date, config.to_date)
+        # Optimize query lists and request data
+        for lat_lon, query_list in query_lists.items():
+            query_list.optimize(config.dst_directory)
             with FTP(
                 host="ccycle.gps.caltech.edu",
                 user="anonymous",
@@ -102,7 +107,7 @@ def run() -> None:
                                 datetime.strftime(
                                     query.end + timedelta(1), "%Y%m%d"
                                 ),  # FIXME -  Exclusive?
-                                coord,
+                                lat_lon,
                                 config.email,
                             )
                         ).encode("utf-8")
