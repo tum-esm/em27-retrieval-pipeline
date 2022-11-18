@@ -1,32 +1,13 @@
 import pytest
+import os.path
 from src import QueryList
 from datetime import date
 from typing import Any, Callable
 from src.query_list import _Node
+from unittest.mock import patch
 
 
 class TestQueryList:
-    def _is_valid_query_list(self, query_list: Any) -> None:
-        assert query_list._head._prev is None
-        assert query_list._tail._next is None
-
-        length = 1
-        node: Any = query_list._head
-        while node is not query_list._tail:
-            assert node.end < node._next.start
-            assert node._next._prev == node
-            assert node.start <= node.end
-            node = node._next
-            length += 1
-
-        assert len(query_list) == length
-
-    def _is_query_list_expected(self, query_list: QueryList, expected: QueryList) -> None:
-        assert query_list.slug == expected.slug
-        assert len(query_list) == len(expected)
-        for n, o in zip(query_list, expected):
-            assert n.sensors == o.sensors and n.start == o.start and n.end == o.end
-
     @pytest.fixture
     def gen_query_list(self) -> Callable[[list[tuple[set[str], date, date]]], QueryList]:
         """Generates a query list from a list of tuples containing _Node information.
@@ -70,6 +51,28 @@ class TestQueryList:
             )
 
         return _gen_fix_query_list
+
+    def _is_valid_query_list(self, query_list: Any) -> None:
+        assert query_list._head._prev is None
+        assert query_list._tail._next is None
+
+        length = 1
+        node: Any = query_list._head
+        while node is not query_list._tail:
+            assert node.end < node._next.start
+            assert node._next._prev == node
+            assert node.start <= node.end
+            node = node._next
+            length += 1
+
+        assert len(query_list) == length
+
+    def _is_query_list_expected(self, query_list: QueryList, expected: QueryList) -> None:
+        print(query_list, expected)
+        assert query_list.slug == expected.slug
+        assert len(query_list) == len(expected)
+        for n, o in zip(query_list, expected):
+            assert n.sensors == o.sensors and n.start == o.start and n.end == o.end
 
     def test_insert_no_overlap(self, gen_fix_query_list: Any) -> None:
         query_list = QueryList("")
@@ -133,11 +136,124 @@ class TestQueryList:
         # fmt: on
         self._is_query_list_expected(query_list, expected)
 
-    def test_optimize(self, gen_fix_query_list: Any) -> None:
-        pass
+    def test_insert_short_interval(self, gen_query_list: Any) -> None:
+        query_list = QueryList("")
+        query_list.insert("H", date(1, 1, 11), date(1, 1, 11))
+        query_list.insert("U", date(1, 1, 20), date(1, 1, 20))
+        query_list.insert("I", date(1, 1, 15), date(1, 1, 16))
+        query_list.insert("I", date(1, 1, 15), date(1, 1, 16))
+        query_list.insert("J", date(1, 1, 12), date(1, 1, 12))
+        query_list.insert("Z", date(1, 1, 19), date(1, 1, 19))
+        query_list.insert("L", date(1, 1, 14), date(1, 1, 14))
+        query_list.insert("R", date(1, 1, 17), date(1, 1, 17))
+        query_list.insert("K", date(1, 1, 13), date(1, 1, 13))
+        query_list.insert("T", date(1, 1, 18), date(1, 1, 18))
+        query_list.insert("O", date(1, 1, 10), date(1, 1, 21))
+        query_list.insert("H", date(1, 1, 14), date(1, 1, 15))
+        query_list.insert("U", date(1, 1, 16), date(1, 1, 17))
+        query_list.insert("X", date(1, 1, 14), date(1, 1, 17))
+        query_list.insert("Y", date(1, 1, 15), date(1, 1, 16))
+        self._is_valid_query_list(query_list)
+        # fmt: off
+        expected = gen_query_list([
+            ({"O"}, date(1, 1, 10), date(1, 1, 10)),
+            ({"O", "H"}, date(1, 1, 11), date(1, 1, 11)),
+            ({"O", "J"}, date(1, 1, 12), date(1, 1, 12)),
+            ({"O", "K"}, date(1, 1, 13), date(1, 1, 13)),
+            ({"O", "L", "H", "X"}, date(1, 1, 14), date(1, 1, 14)),
+            ({"O", "H", "X", "Y", "I"}, date(1, 1, 15), date(1, 1, 15)),
+            ({"O", "U", "X", "Y", "I"}, date(1, 1, 16), date(1, 1, 16)),
+            ({"O", "R", "U", "X"}, date(1, 1, 17), date(1, 1, 17)),
+            ({"O", "T"}, date(1, 1, 18), date(1, 1, 18)),
+            ({"O", "Z"}, date(1, 1, 19), date(1, 1, 19)),
+            ({"O", "U"}, date(1, 1, 20), date(1, 1, 20)),
+            ({"O"}, date(1, 1, 21), date(1, 1, 21)),
+            
+        ])
+        # fmt: on
+        self._is_query_list_expected(query_list, expected)
 
-    def test_filter(self, gen_fix_query_list: Any) -> None:
-        pass
+    @patch("src.query_list.os.path.isfile")
+    def test_filter(self, mock_isfile: Any, gen_query_list: Any) -> None:
+        query_list = QueryList("")
+        query_list.insert("", date(1, 1, 1), date(1, 1, 10))
+        mock_isfile.side_effect = 2 * (2 * [True] + 2 * [False]) + 2 * [True]
+        query_list._filter("")
+        self._is_valid_query_list(query_list)
+        # fmt: off
+        expected = gen_query_list([
+            ({""}, date(1, 1, 3), date(1, 1, 4)),
+            ({""}, date(1, 1, 7), date(1, 1, 8)),
+        ])
+        # fmt: on
+        self._is_query_list_expected(query_list, expected)
+
+    @patch("src.query_list.os.path.isfile")
+    def test_filter_collapse(self, mock_isfile: Any, gen_query_list: Any) -> None:
+        query_list = QueryList("")
+        query_list.insert("", date(1, 1, 1), date(1, 1, 1))
+        query_list.insert("", date(1, 1, 2), date(1, 1, 3))
+        query_list.insert("", date(1, 1, 4), date(1, 1, 4))
+        mock_isfile.side_effect = [True, False, False, True]
+        query_list._filter("")
+        self._is_valid_query_list(query_list)
+        # fmt: off
+        expected = gen_query_list([
+            ({""}, date(1, 1, 2), date(1, 1, 3)),
+        ])
+        # fmt: on
+        self._is_query_list_expected(query_list, expected)
+        mock_isfile.side_effect = [True, True]
+        query_list._filter("")
+        assert len(query_list) == 0
+        assert query_list._head == query_list._tail
+
+    @patch("src.query_list.os.path.isfile")
+    def test_filter_boundary(self, mock_isfile: Any, gen_query_list: Any) -> None:
+        query_list = QueryList("")
+        query_list.insert("", date(1, 1, 1), date(1, 1, 4))
+        query_list.insert("", date(1, 1, 5), date(1, 1, 8))
+        query_list.insert("", date(1, 1, 9), date(1, 1, 12))
+        # fmt: off
+        mock_isfile.side_effect = [True, False, False, True,
+                                   True, False, True, False,
+                                   False, True, False, True]
+        # fmt: on
+        query_list._filter("")
+        self._is_valid_query_list(query_list)
+        # fmt: off
+        expected = gen_query_list([
+            ({""}, date(1, 1, 2), date(1, 1, 3)),
+            ({""}, date(1, 1, 6), date(1, 1, 6)),
+            ({""}, date(1, 1, 8), date(1, 1, 8)),
+            ({""}, date(1, 1, 9), date(1, 1, 9)),
+            ({""}, date(1, 1, 11), date(1, 1, 11)),
+        ])
+        # fmt: on
+        self._is_query_list_expected(query_list, expected)
+
+    def test_split_and_combine(self, gen_query_list: Any) -> None:
+        query_list = QueryList("")
+        query_list.insert("A", date(1, 7, 1), date(1, 7, 2))
+        query_list.insert("A", date(1, 7, 3), date(1, 9, 1))
+        query_list.insert("A", date(1, 9, 3), date(1, 9, 3))
+        query_list.insert("A", date(1, 9, 4), date(1, 9, 4))
+        query_list.insert("B", date(1, 9, 5), date(1, 9, 5))
+        query_list.insert("B", date(1, 10, 1), date(1, 10, 10))
+        query_list.insert("B", date(1, 10, 11), date(1, 10, 31))
+        query_list._split_and_combine()
+        self._is_valid_query_list(query_list)
+        # fmt: off
+        expected = gen_query_list([
+            ({"A"}, date(1, 7, 1), date(1, 7, 31)),
+            ({"A"}, date(1, 8, 1), date(1, 8, 31)),
+            ({"A"}, date(1, 9, 1), date(1, 9, 1)),
+            ({"A"}, date(1, 9, 3), date(1, 9, 4)),
+            ({"B"}, date(1, 9, 5), date(1, 9, 5)) ,
+            ({"B"}, date(1, 10, 1), date(1, 10, 31))   
+        ])
+        # fmt: on
+        self._is_query_list_expected(query_list, expected)
 
     def test_get_leftmost(self, gen_fix_query_list: Any) -> None:
         query_list = gen_fix_query_list(num_nodes=3, init_year=2)

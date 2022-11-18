@@ -128,17 +128,20 @@ class QueryList:
                 path = (
                     f"{PROJECT_DIR}/{dst_dir}/{datetime.strftime(_date, '%Y%m%d')}_{self.slug}"
                 )
-                if os.path.isfile(f"{path}.map") and os.path.isfile(f"{path}.mod"):
+                if os.path.isfile(f"{path}.map"):
+                    # if os.path.isfile(f"{path}.map") and os.path.isfile(f"{path}.mod"):
 
                     if node.start == node.end:
-                        # Collapse node
+                        # Remove node
                         if self._size == 1:
                             self._head = None
                             self._tail = None
                             self._size = 0
-                        else:
+                        elif node is self._head:
                             self._delete_to_left(node._next)
-
+                        else:
+                            self._delete_to_right(node._prev)
+                            
                     elif _date == node.start:
                         # Shift start forward
                         node.start += timedelta(1)

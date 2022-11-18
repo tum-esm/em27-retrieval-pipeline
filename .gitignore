@@ -4,6 +4,7 @@
 .vscode
 .DS_Store
 .coverage
+cov.xml
 
 *.map
 *.mod
