@@ -37,6 +37,8 @@ def terminate_processes() -> list[int]:
                 if CORE_SCRIPT_PATH in arguments:
                     termination_pids.append(p.pid)
                     p.terminate()
-        except (psutil.AccessDenied, psutil.ZombieProcess, psutil.NoSuchProcess):
-            pass
+        except psutil.AccessDenied:
+            print_red(f"Error terminating process: Access denied, switch to the user which contains the process: {p.pid}, user: {p.username}") 
+        except (psutil.ZombieProcess, psutil.NoSuchProcess):
+            print_red("Error terminating process: Zombie Process / No Such Process")
     return termination_pids
