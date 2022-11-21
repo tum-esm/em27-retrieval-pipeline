@@ -1,58 +1,69 @@
 from __future__ import annotations
 
 import os
+import shutil
 from pathlib import Path
 from attrs import define, field
 from typing import Iterator, Any
 from datetime import date, datetime, timedelta
 
-PROJECT_DIR = Path(os.path.abspath(__file__)).parents[1]
-
 
 @define
-class _Node:
-    sensors: set[str]
+class Query:
+    """A query represents a node within a QueryList.
+
+    Assigned to a start date, an end date as well as a sensor set.
+    The set consists of all sensors requesting the data for the date range.
+    """
+
     start: date
     end: date
-    _prev: _Node | None
-    _next: _Node | None
+    sensors: set[str]
+    _prev: Query | None
+    _next: Query | None
+
+    def __str__(self) -> str:
+        return f"{self.start}-{self.end}; {self.sensors}"
 
 
 class QueryList:
 
-    """A doubly linked list that administers future requests for one location.
-
-    Nodes are stored in an ordered manner and cover mutually exclusive dates.
-    Each node is assigned to a start date, an end date as well as a sensor set.
-    The set consists of all sensors requesting the data for the respective date range.
+    """A doubly linked list that administers future queries for one location.
+    Queries are stored in an ordered manner and cover mutually exclusive dates.
     """
 
-    def __init__(self, slug: str) -> None:
-        self.slug = slug
-        self._head: _Node | None = None
-        self._tail: _Node | None = None
+    def __init__(self, lat: float, lon: float) -> None:
+        self.lat = lat
+        self.lon = lon
+        self._head: Query | None = None
+        self._tail: Query | None = None
         self._size: int = 0
 
     def __len__(self) -> int:
         return self._size
 
-    def __iter__(self) -> Iterator[_Node]:
+    def __iter__(self) -> Iterator[Query]:
         node = self._head
         while node is not None:
             yield node
             node = node._next
 
     def __str__(self) -> str:
-        rep = [f"\nQuery List {self.slug}"]
-        for i, n in enumerate(self):
-            rep.append(f"({i:03d}) [{n.start},{n.end}] {n.sensors}")
-        return "\n".join(rep)
+        return "\n".join([f"({self.loc_str()}-{i:03d}) {q}" for i, q in enumerate(self)])
 
-    def insert(self, sensor: str, start: date, end: date) -> None:
+    def loc_str(self) -> str:
+        return (
+            str(abs(self.lat)).zfill(2)
+            + ("S_" if self.lat < 0 else "N_")
+            + str(abs(self.lon)).zfill(3)
+            + ("W" if self.lon < 0 else "E")
+        )
 
-        """Inserts a new node into the query list.
+    def insert(self, start: date, end: date, sensor: str) -> None:
 
-        This method uses the boundary nodes, i.e., the outermost nodes that
+        """Inserts a new query (node) into the query list.
+
+        Works using boundary nodes, i.e., the outermost nodes that
         still overlap with the given start and end dates. The boundary nodes
         might get split in order to add the new sensor to an sub-interval of
         an already existing node. Inner nodes, i.e., nodes in between the boundary
@@ -62,7 +73,7 @@ class QueryList:
         """
 
         if self._size == 0:
-            self._head = _Node({sensor}, start, end, None, None)
+            self._head = Query(start, end, {sensor}, None, None)
             self._tail = self._head
             self._size += 1
             return
@@ -111,25 +122,57 @@ class QueryList:
             # Add sensor to remaining node
             right.sensors.add(sensor)
 
-    def optimize(self, dst_dir: str) -> None:
-        self._filter(dst_dir)
-        self._split_and_combine()
-
-    def _filter(self, dst_dir: str) -> None:
-        """Filters out dates already present in dst_dir."""
-
+    def filter(self, dst_path: str) -> None:
+        """Filters out query dates already present in dst_path."""
         node: Any = self._head
         while node is not None:
 
-            _split = None
-            _date = node.start
-            while _date <= node.end:
+            split = None
+            date = node.start
+            while date <= node.end:
 
-                path = (
-                    f"{PROJECT_DIR}/{dst_dir}/{datetime.strftime(_date, '%Y%m%d')}_{self.slug}"
-                )
-                if os.path.isfile(f"{path}.map"):
-                    # if os.path.isfile(f"{path}.map") and os.path.isfile(f"{path}.mod"):
+                name = f"{datetime.strftime(date, '%Y%m%d')}_{self.loc_str()}"
+
+                exists = set()
+                for sensor in node.sensors:
+                    if (
+                        os.path.isfile(f"{dst_path}/GGG2014/{sensor}/map/{name}.map")
+                        and os.path.isfile(f"{dst_path}/GGG2014/{sensor}/mod/{name}.mod")
+                        and os.path.isdir(f"{dst_path}/GGG2020/{sensor}/map/{name}")
+                        and os.path.isdir(f"{dst_path}/GGG2020/{sensor}/mod/{name}")
+                        and os.path.isdir(f"{dst_path}/GGG2020/{sensor}/vmr/{name}")
+                    ):
+                        exists.add(sensor)
+
+                if exists:
+
+                    if missing := node.sensors - exists:
+                        exist = exists.pop()
+                        for sensor in missing:
+                            # FIXME - Remove old
+                            shutil.copyfile(
+                                f"{dst_path}/GGG2014/{exist}/map/{name}.map",
+                                f"{dst_path}/GGG2014/{sensor}/map/{name}.map",
+                            )
+                            shutil.copyfile(
+                                f"{dst_path}/GGG2014/{exist}/mod/{name}.mod",
+                                f"{dst_path}/GGG2014/{sensor}/mod/{name}.mod",
+                            )
+                            shutil.copytree(
+                                f"{dst_path}/GGG2020/{exist}/map/{name}",
+                                f"{dst_path}/GGG2020/{sensor}/map/{name}",
+                                dirs_exist_ok=True,
+                            )
+                            shutil.copytree(
+                                f"{dst_path}/GGG2020/{exist}/mod/{name}",
+                                f"{dst_path}/GGG2020/{sensor}/mod/{name}",
+                                dirs_exist_ok=True,
+                            )
+                            shutil.copytree(
+                                f"{dst_path}/GGG2020/{exist}/vmr/{name}",
+                                f"{dst_path}/GGG2020/{sensor}/vmr/{name}",
+                                dirs_exist_ok=True,
+                            )
 
                     if node.start == node.end:
                         # Remove node
@@ -141,34 +184,34 @@ class QueryList:
                             self._delete_to_left(node._next)
                         else:
                             self._delete_to_right(node._prev)
-                            
-                    elif _date == node.start:
+
+                    elif date == node.start:
                         # Shift start forward
                         node.start += timedelta(1)
 
-                    elif _date == node.end:
+                    elif date == node.end:
                         # Shift end backward
-                        if _split is None:
+                        if split is None:
                             node.end -= timedelta(1)
                         else:
-                            node.end = _split
+                            node.end = split
 
-                    elif _split is None:
+                    elif split is None:
                         # Mark inner split
-                        _split = _date - timedelta(1)
+                        split = date - timedelta(1)
 
                 # Split if marked
-                elif _split is not None:
-                    self._insert_left(node, node.sensors.copy(), node.start, _split)
-                    node.start = _date
-                    _split = None
+                elif split is not None:
+                    self._insert_left(node, node.sensors.copy(), node.start, split)
+                    node.start = date
+                    split = None
 
-                _date += timedelta(1)
+                date += timedelta(1)
 
             node = node._next
 
-    def _split_and_combine(self) -> None:
-        """Split nodes with time delta > 30 and combines consecutive nodes."""
+    def split_and_combine(self) -> None:
+        """Split queries with time delta > 30 and combines consecutive nodes."""
         node: Any = self._head
         while node is not None:
 
@@ -189,14 +232,14 @@ class QueryList:
             else:
                 node = node._next
 
-    def _get_leftmost(self, start: date) -> _Node | None:
+    def _get_leftmost(self, start: date) -> Query | None:
         """Returns the first node from the left whose end date is not earlier than the given date."""
         node = self._head
         while node is not None and node.end < start:
             node = node._next
         return node
 
-    def _get_rightmost(self, end: date) -> _Node | None:
+    def _get_rightmost(self, end: date) -> Query | None:
         """Returns the first node from the right whose start date is not later than the given date."""
         node = self._tail
         while node is not None and end < node.start:
@@ -206,10 +249,10 @@ class QueryList:
     def _insert_left(self, node: Any, sensors: set[str], start: date, end: date) -> None:
         """Inserts a new node to the left of the given node."""
         if node is self._head:
-            node._prev = _Node(sensors, start, end, None, node)
+            node._prev = Query(start, end, sensors, None, node)
             self._head = node._prev
         else:
-            new_node = _Node(sensors, start, end, node._prev, node)
+            new_node = Query(start, end, sensors, node._prev, node)
             node._prev._next = new_node
             node._prev = new_node
         self._size += 1
@@ -217,10 +260,10 @@ class QueryList:
     def _insert_right(self, node: Any, sensors: set[str], start: date, end: date) -> None:
         """Inserts a new node to the right of the given node."""
         if node is self._tail:
-            node._next = _Node(sensors, start, end, node, None)
+            node._next = Query(start, end, sensors, node, None)
             self._tail = node._next
         else:
-            new_node = _Node(sensors, start, end, node, node._next)
+            new_node = Query(start, end, sensors, node, node._next)
             node._next._prev = new_node
             node._next = new_node
         self._size += 1

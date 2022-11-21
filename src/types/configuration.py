@@ -9,8 +9,7 @@ from attrs import converters as conv
 from attrs import frozen, field
 
 TODAY = datetime.utcnow().date()
-PROJECT_DIR = Path(os.path.abspath(__file__)).parents[2]
-DST_DIR = os.path.join(PROJECT_DIR, "vertical-profiles")
+PROJECT_PATH = Path(os.path.abspath(__file__)).parents[2]
 
 
 def str_to_date(value: str | date) -> date:
@@ -61,7 +60,9 @@ class Configuration:
             conv.default_if_none(TODAY - timedelta(5)),
         ),
     )
-    dst_directory: str = field(default=DST_DIR, validator=val.instance_of(str))
+    dst_directory: str = field(
+        default=os.path.join(PROJECT_PATH, "vertical-profiles"), validator=val.instance_of(str)
+    )
     max_idle_time: int = field(default=60, validator=[val.instance_of(int), val.gt(0)])
 
     @from_date.validator
@@ -78,6 +79,13 @@ class Configuration:
 
     @dst_directory.validator
     def _(self, _: Any, value: str) -> None:
-        if not os.path.isdir(value):
-            logging.info(f"Creating empty directory {value}")
-            os.makedirs(value)
+        for subdir in (
+            "GGG2014/map",
+            "GGG2014/mod",
+            "GGG2020/map",
+            "GGG2020/mod",
+            "GGG2020/vmr",
+        ):
+            if not os.path.isdir(f"{value}/{subdir}"):
+                logging.info(f"Creating empty directory {value}/{subdir}")
+                os.makedirs(f"{value}/{subdir}")
