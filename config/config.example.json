@@ -1,10 +1,9 @@
 {
     "email": "person@some.tld",
-    "location_data": "https://raw.githubusercontent.com/tum-esm/em27-location-data/main/data",
-    "git_username": "person",
-    "git_token": "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",
-    "from_date": "20190101",
-    "to_date": "20200101",
-    "dst_directory": "vertical-profiles",
-    "max_idle_time": 100
+    "locationData": "https://raw.githubusercontent.com/tum-esm/em27-location-data/main/data",
+    "gitUsername": "person",
+    "gitToken": "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",
+    "fromDate": "20190101",
+    "toDate": "20200101",
+    "dstDirectory": "vertical-profiles"
 }
