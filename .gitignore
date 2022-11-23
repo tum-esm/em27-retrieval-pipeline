@@ -17,4 +17,4 @@ config.json
 config.json.lock
 
 vertical-profiles/
-reports/*.json
+reports/
