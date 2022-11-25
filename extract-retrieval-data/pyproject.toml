@@ -2,7 +2,7 @@
 name = "extract-retrieval-data"
 version = "0.1.0"
 description = ""
-authors = ["Vyas Giridharan <vyas.giridharan@tum.de>","Moritz Makowski <moritz.makowski@tum.de>"]
+authors = ["Marlon Mueller <marlon.mueller@tum.de>","Moritz Makowski <moritz.makowski@tum.de>"]
 
 [tool.poetry.dependencies]
 python = "^3.10"
