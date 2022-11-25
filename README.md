@@ -4,7 +4,7 @@
 
 [![Continuous Integration](https://github.com/tum-esm/download-vertical-profiles/actions/workflows/continuous-integration.yml/badge.svg)](https://github.com/tum-esm/download-vertical-profiles/actions/workflows/continuous-integration.yml)
 
-Used to download __`.map`__, __`.vmr`__ and __`.mod`__ files from __<span>ccycle.gps.caltech.edu</span>__.[^1] [^2] <br />
+Used to download __`.map`__, __`.mod`__ and __`.vmr`__ files from __<span>ccycle.gps.caltech.edu</span>__.[^1] [^2] <br />
 
 </div>
 
@@ -27,15 +27,15 @@ poetry install
 
 Create a file `config/config.json` to configure your setup.<br/>An example `config.example.json` can be found in `config/`.
 
-|      Name      | Type  |                             Description                             |             Default             |
-| :------------: | :---: | :-----------------------------------------------------------------: | :-----------------------------: |
-|    `email`     |  str  |    Email granting access to <span>ccycle.gps.caltech.edu</span>     |                -                |
-| `locationData` |  str  | GitHub directory containing `locations.json` and `sensors.json`[^4] |                -                |
-| `gitUsername`  |  str  |                           GitHub username                           |                -                |
-|   `gitToken`   |  str  |                  GitHub personal access token[^5]                   |                -                |
-|  `from_date`   |  str  |                   Start date in _YYYYMMDD_ format                   |           `00010101`            |
-|   `to_date`    |  str  |                    End date in _YYYYMMDD_ format                    | Five days prior to current date |
-| `dstDirectory` |  str  |                          Output directory                           |       `vertical-profiles`       |
+|      Name      | Type  |                             Description                             |             Default              |
+| :------------: | :---: | :-----------------------------------------------------------------: | :------------------------------: |
+|    `email`     |  str  |    Email granting access to <span>ccycle.gps.caltech.edu</span>     |                -                 |
+| `locationData` |  str  | GitHub directory containing `locations.json` and `sensors.json`[^4] |                -                 |
+| `gitUsername`  |  str  |                           GitHub username                           |                -                 |
+|   `gitToken`   |  str  |                  GitHub personal access token[^5]                   |                -                 |
+|  `from_date`   |  str  |                   Start date in _YYYYMMDD_ format                   |            `00010101`            |
+|   `to_date`    |  str  |                    End date in _YYYYMMDD_ format                    |       `datetime.utcnow()`        |
+| `dstDirectory` |  str  |                          Output directory                           | `PROJECT_PATH/vertical-profiles` |
 
 
 ### 🚀 Operation
@@ -58,7 +58,7 @@ mm hh * * * .../.venv/bin/python .../download_vertical_profiles.py
 _**TBD** examples, dst_dir_
 
 ## 🏛 Architecture
-<a href="url"><img src="docs/architecture.excalidraw.png" align="center" width="100%" ></a>
+<a href="docs/architecture.png"><img src="docs/architecture.excalidraw.png" align="center" width="100%" ></a>
 ## 🗄 Structure
 ```
 ./
@@ -69,8 +69,8 @@ _**TBD** examples, dst_dir_
 ├── docs/
 │   ├── example-profiles/
 │   │   ├── GGG2014/
-│   │   ├── GGG2020/
-│   └── architecture.drawio.svg
+│   │   └── GGG2020/
+│   └── architecture.png
 ├── reports/
 ├── src/
 │   ├── types/
@@ -79,7 +79,6 @@ _**TBD** examples, dst_dir_
 │   ├── utils/
 │   │   └── network.py
 │   └── query_list.py
-├── vertical-profiles/
 ├── .gitattributes
 ├── .gitignore
 ├── README.md

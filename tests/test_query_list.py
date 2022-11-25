@@ -1,10 +1,11 @@
 import pytest
-from src import QueryList
 from datetime import date
 from itertools import chain
-from typing import Any, Callable
-from src.query_list import Query
 from unittest.mock import patch
+from typing import Any, Callable
+
+from src.query_list import Query
+from src import QueryList
 
 
 class TestQueryList:

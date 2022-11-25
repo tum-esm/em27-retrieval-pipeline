@@ -15,6 +15,8 @@ python = "^3.10"
 httpx = "^0.23.0"
 attrs = "^22.1.0"
 filelock = "^3.8.0"
+tenacity = "^8.1.0"
+tqdm = "^4.64.1"
 
 
 [tool.poetry.group.dev.dependencies]
@@ -22,6 +24,7 @@ mypy = "^0.991"
 black = "^22.10.0"
 pytest = "^7.2.0"
 pytest-cov = "^4.0.0"
+types-tqdm = "^4.64.7.9"
 
 [build-system]
 requires = ["poetry-core"]

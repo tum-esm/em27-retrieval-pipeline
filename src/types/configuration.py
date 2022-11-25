@@ -57,35 +57,24 @@ class Configuration:
         default=None,
         converter=conv.pipe(  # type: ignore
             conv.optional(str_to_date),
-            conv.default_if_none(TODAY - timedelta(5)),
+            conv.default_if_none(TODAY),
         ),
     )
     dst_directory: str = field(
         default=os.path.join(PROJECT_PATH, "vertical-profiles"), validator=val.instance_of(str)
     )
-    max_idle_time: int = field(default=60, validator=[val.instance_of(int), val.gt(0)])
+    max_delay: int = field(default=7, validator=[val.instance_of(int), val.ge(0)])
+    max_await_2014: int = field(default=600, validator=[val.instance_of(int), val.gt(0)])
+    max_await_2020: int = field(default=10_000, validator=[val.instance_of(int), val.gt(0)])
 
     @from_date.validator
     def _(self, _: Any, value: date) -> None:
-        if (TODAY - value).days < 5:
-            raise ValueError(f"Date from_date too recent or in the future")
+        if value > TODAY:
+            raise ValueError(f"Date from_date in the future")
 
     @to_date.validator
     def _(self, _: Any, value: date) -> None:
-        if (TODAY - value).days < 5:
-            raise ValueError(f"Date to_date too recent or in the future")
+        if value > TODAY:
+            raise ValueError(f"Date to_date in the future")
         if self.from_date > value:
             raise ValueError(f"Date from_date after to_date")
-
-    @dst_directory.validator
-    def _(self, _: Any, value: str) -> None:
-        for subdir in (
-            "GGG2014/map",
-            "GGG2014/mod",
-            "GGG2020/map",
-            "GGG2020/mod",
-            "GGG2020/vmr",
-        ):
-            if not os.path.isdir(f"{value}/{subdir}"):
-                logging.info(f"Creating empty directory {value}/{subdir}")
-                os.makedirs(f"{value}/{subdir}")

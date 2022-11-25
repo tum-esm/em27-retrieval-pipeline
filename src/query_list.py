@@ -21,9 +21,18 @@ class Query:
     sensors: set[str]
     _prev: Query | None
     _next: Query | None
+    status: dict[str, Any] = field(init=False, factory=dict)
 
     def __str__(self) -> str:
         return f"{self.start}-{self.end}; {self.sensors}"
+
+    def to_json(self) -> dict[str, Any]:
+        return {
+            "start": str(self.start),
+            "end": str(self.end),
+            "sensors": str(self.sensors),
+            "status": self.status,
+        }
 
 
 class QueryList:
@@ -51,13 +60,19 @@ class QueryList:
     def __str__(self) -> str:
         return "\n".join([f"({self.loc_str()}-{i:03d}) {q}" for i, q in enumerate(self)])
 
-    def loc_str(self) -> str:
-        return (
-            str(abs(self.lat)).zfill(2)
-            + ("S_" if self.lat < 0 else "N_")
-            + str(abs(self.lon)).zfill(3)
-            + ("W" if self.lon < 0 else "E")
-        )
+    def to_json(self) -> dict[str, Any]:
+        return {
+            "location": self.loc_str(decimals=True),
+            "queries": [q.to_json() for q in self],
+        }
+
+    def loc_str(self, separate: bool = True, decimals: bool = False) -> str:
+        s = f"{abs(self.lat):.2f}" if decimals else f"{abs(self.lat):02}"
+        s += "S" if self.lat < 0 else "N"
+        s += "_" if separate else ""
+        s += f"{abs(self.lon):.2f}" if decimals else f"{abs(self.lon):03}"
+        s += "W" if self.lon < 0 else "E"
+        return s
 
     def insert(self, start: date, end: date, sensor: str) -> None:
 
@@ -136,11 +151,11 @@ class QueryList:
                 exists = set()
                 for sensor in node.sensors:
                     if (
-                        os.path.isfile(f"{dst_path}/GGG2014/{sensor}/map/{name}.map")
-                        and os.path.isfile(f"{dst_path}/GGG2014/{sensor}/mod/{name}.mod")
-                        and os.path.isdir(f"{dst_path}/GGG2020/{sensor}/map/{name}")
-                        and os.path.isdir(f"{dst_path}/GGG2020/{sensor}/mod/{name}")
-                        and os.path.isdir(f"{dst_path}/GGG2020/{sensor}/vmr/{name}")
+                        os.path.isfile(f"{dst_path}/GGG2014/map/{sensor}/{name}.map")
+                        and os.path.isfile(f"{dst_path}/GGG2014/mod/{sensor}/{name}.mod")
+                        and os.path.isdir(f"{dst_path}/GGG2020/map/{sensor}/{name}")
+                        and os.path.isdir(f"{dst_path}/GGG2020/mod/{sensor}/{name}")
+                        and os.path.isdir(f"{dst_path}/GGG2020/vmr/{sensor}/{name}")
                     ):
                         exists.add(sensor)
 
@@ -149,30 +164,18 @@ class QueryList:
                     if missing := node.sensors - exists:
                         exist = exists.pop()
                         for sensor in missing:
-                            # FIXME - Remove old
-                            shutil.copyfile(
-                                f"{dst_path}/GGG2014/{exist}/map/{name}.map",
-                                f"{dst_path}/GGG2014/{sensor}/map/{name}.map",
-                            )
-                            shutil.copyfile(
-                                f"{dst_path}/GGG2014/{exist}/mod/{name}.mod",
-                                f"{dst_path}/GGG2014/{sensor}/mod/{name}.mod",
-                            )
-                            shutil.copytree(
-                                f"{dst_path}/GGG2020/{exist}/map/{name}",
-                                f"{dst_path}/GGG2020/{sensor}/map/{name}",
-                                dirs_exist_ok=True,
-                            )
-                            shutil.copytree(
-                                f"{dst_path}/GGG2020/{exist}/mod/{name}",
-                                f"{dst_path}/GGG2020/{sensor}/mod/{name}",
-                                dirs_exist_ok=True,
-                            )
-                            shutil.copytree(
-                                f"{dst_path}/GGG2020/{exist}/vmr/{name}",
-                                f"{dst_path}/GGG2020/{sensor}/vmr/{name}",
-                                dirs_exist_ok=True,
-                            )
+                            for type_ in ("map", "mod"):
+                                shutil.copyfile(
+                                    f"{dst_path}/GGG2014/{type_}/{exist}/{name}.{type_}",
+                                    f"{dst_path}/GGG2014/{type_}/{sensor}/{name}.{type_}",
+                                )
+
+                            for type_ in ("map", "mod", "vmr"):
+                                shutil.copytree(
+                                    f"{dst_path}/GGG2020/{type_}/{exist}/{name}",
+                                    f"{dst_path}/GGG2020/{type_}/{sensor}/{name}",
+                                    dirs_exist_ok=True,
+                                )
 
                     if node.start == node.end:
                         # Remove node
