@@ -4,14 +4,14 @@
 
 [![Continuous Integration](https://github.com/tum-esm/download-vertical-profiles/actions/workflows/continuous-integration.yml/badge.svg)](https://github.com/tum-esm/download-vertical-profiles/actions/workflows/continuous-integration.yml)
 
-Used to download __`.map`__, __`.mod`__ and __`.vmr`__ files from __<span>ccycle.gps.caltech.edu</span>__.[^1] [^2] <br />
+Used to download __`.map`__, __`.mod`__ and __`.vmr`__ files from __<span>ccycle.gps.caltech.edu</span>__.[^1] [^2] <br /> Sample files can be found in `docs/example-profiles`.
 
 </div>
 
 <hr />
 
 ## Getting Started
-Requires __Python 3.10+__. Dependency management with __Poetry__.[^3]
+Requires __Python 3.10+__. Dependency management with __Poetry__.[^3] 
 
 ### :electric_plug: Installation
 Clone the repository and set up the project interpreter
@@ -36,7 +36,9 @@ Create a file `config/config.json` to configure your setup.<br/>An example `conf
 |  `from_date`   |  str  |                   Start date in _YYYYMMDD_ format                   |            `00010101`            |
 |   `to_date`    |  str  |                    End date in _YYYYMMDD_ format                    |       `datetime.utcnow()`        |
 | `dstDirectory` |  str  |                          Output directory                           | `PROJECT_PATH/vertical-profiles` |
-
+| `maxAwait2014` |  int  |                          Wall time awaiting GGG2014 data until abortion in seconds                           | `600` |
+| `maxAwait2020` |  int  |                          Wall time awaiting GGG2020 data until abortion in seconds                           | `10_000` |
+| `maxDelay` |  int  |                          Maximum days of data lag                           | `7` |
 
 ### 🚀 Operation
 
@@ -55,10 +57,12 @@ crontab -e
 mm hh * * * .../.venv/bin/python .../download_vertical_profiles.py
 ```
 
-_**TBD** examples, dst_dir_
+`GGG2020` data takes a long time to generate, thus make sure to set a proper `from_date`.
+
+Execution summaries are stored within `reports/`.
 
 ## 🏛 Architecture
-<a href="docs/architecture.png"><img src="docs/architecture.excalidraw.png" align="center" width="100%" ></a>
+<a href="docs/architecture.png"><img src="docs/architecture.png" align="center" width="100%" ></a>
 ## 🗄 Structure
 ```
 ./
@@ -79,6 +83,9 @@ _**TBD** examples, dst_dir_
 │   ├── utils/
 │   │   └── network.py
 │   └── query_list.py
+├── tests/
+│   └── test_query_list.py
+├── vertical-profiles/
 ├── .gitattributes
 ├── .gitignore
 ├── README.md
@@ -86,7 +93,6 @@ _**TBD** examples, dst_dir_
 ├── poetry.lock
 └── pyproject.toml
 ```
-![](/docs/architecture.png)
 [^1]: TCCON: https://tccon-wiki.caltech.edu/Main/DataUsePolicy, https://tccon-wiki.caltech.edu/Main/ObtainingGinputData
 [^2]: Predecessor: https://github.com/tum-esm/download-map-data.
 [^3]: Poetry Installation: https://python-poetry.org/docs/#installation

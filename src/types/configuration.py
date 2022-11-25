@@ -35,6 +35,9 @@ class Configuration:
     * from_date: start date in _YYYYMMDD_ format; defaults to '00010101' ,
     * to_date: end date in _YYYYMMDD_ format; defaults to five days prior to current date ,
     * dstDirectory: output directory; defaults to 'vertical-profiles' ,
+    * maxAwait2014: wall time awaiting GGG2014 data until abortion in seconds; defaults to 600
+    * maxAwait2020: wall time awaiting GGG2020 data until abortion in seconds; defaults to 10_000
+    * maxDelay: maximum days of data lag; defaults to 7
     """
 
     email: str = field(validator=[val.instance_of(str), val.matches_re(r"[^@]+@[^@]+\.[^@]+")])
@@ -63,9 +66,9 @@ class Configuration:
     dst_directory: str = field(
         default=os.path.join(PROJECT_PATH, "vertical-profiles"), validator=val.instance_of(str)
     )
-    max_delay: int = field(default=7, validator=[val.instance_of(int), val.ge(0)])
     max_await_2014: int = field(default=600, validator=[val.instance_of(int), val.gt(0)])
     max_await_2020: int = field(default=10_000, validator=[val.instance_of(int), val.gt(0)])
+    max_delay: int = field(default=7, validator=[val.instance_of(int), val.ge(0)])
 
     @from_date.validator
     def _(self, _: Any, value: date) -> None:
