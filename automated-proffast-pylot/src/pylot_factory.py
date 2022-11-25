@@ -60,7 +60,7 @@ class PylotFactory:
         spec.loader.exec_module(prfpylot)
         rel_module_name = self.rel_module_name.substitute(path=container_id)
         sys.modules[rel_module_name] = prfpylot
-        print(f"importing pylot from {prfpylot.__file__}")
+        print(f"importing pylot from {prfpylot.__file__}, {prfpylot.__module__}, {sys.modules.get(prfpylot.__module__)}")
         try:
             from prfpylot.pylot import Pylot
             if tag:
