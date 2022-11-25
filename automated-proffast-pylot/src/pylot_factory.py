@@ -16,6 +16,7 @@ from clint.textui import progress
 from zipfile import ZipFile
 from tqdm import tqdm
 import checksumdir
+import inspect
 
 
 class PylotFactory:
@@ -64,6 +65,7 @@ class PylotFactory:
             from prfpylot.pylot import Pylot
             if tag:
                 self.tag()
+            print(inspect.getmodule(Pylot).__file__)
             return Pylot
         except ImportError as e:
             print("Unable to import pylot", e)
