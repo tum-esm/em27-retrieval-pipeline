@@ -1,0 +1,8 @@
+{
+    "from_date": "20190101",
+    "to_date": "21000101",
+    "user": "person@some.tld",
+    "dst": "path-to-storage-location",
+    "downloadTimeoutSeconds": 600,
+    "locationRepository": "https://github.com/tum-esm/em27-location-data-template"
+}
