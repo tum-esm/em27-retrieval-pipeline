@@ -33,8 +33,8 @@ class Configuration:
     * locationData: GitHub directory containing 'locations.json' and 'sensors.json' ,
     * gitUsername and gitToken: GitHub username and GitHub personal access token ,
     * fromDate: start date in YYYYMMDD format; defaults to '00010101' ,
-    * toDate: end date in YYYYMMDD format; defaults to five days prior to current date ,
-    * dstDirectory: output directory; defaults to 'vertical-profiles' ,
+    * toDate: end date in YYYYMMDD format; defaults to datetime.utcnow() ,
+    * dstDirectory: output directory; defaults to 'PROJECT_PATH/vertical-profiles' ,
     * maxAwait2014: wall time awaiting GGG2014 data until abortion in seconds; defaults to 600
     * maxAwait2020: wall time awaiting GGG2020 data until abortion in seconds; defaults to 10_000
     * maxDelay: maximum days of data lag; defaults to 7
