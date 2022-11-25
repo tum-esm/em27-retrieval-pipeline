@@ -11,20 +11,20 @@ from src import QueryList
 class TestQueryList:
     @pytest.fixture
     def gen_query_list(self) -> Callable[[list[tuple[date, date, set[str]]]], QueryList]:
-        """Generates a query list from a list of tuples containing _Node information.
+        """Generates a query list from a list of tuples containing Query information.
 
-        gen_nodes = [
+        gen_queries = [
             (date(...), date(...), {sensors}),
             (date(...), date(...), {sensors}), ...]
         """
 
-        def _gen_query_list(gen_nodes: list[tuple[date, date, set[str]]]) -> QueryList:
+        def _gen_query_list(gen_queries: list[tuple[date, date, set[str]]]) -> QueryList:
             query_list = QueryList(0, 0)
-            query_list._size = len(gen_nodes)
-            start, end, sensors = gen_nodes[0]
+            query_list._size = len(gen_queries)
+            start, end, sensors = gen_queries[0]
             node = Query(start, end, sensors, None, None)
             query_list._head = node
-            for n in gen_nodes[1:]:
+            for n in gen_queries[1:]:
                 start, end, sensors = n
                 next_node = Query(start, end, sensors, node, None)
                 node._next = next_node
@@ -38,7 +38,7 @@ class TestQueryList:
     def gen_fix_query_list(self, gen_query_list: Any) -> Callable[[int, int], Any]:
         """Generates a query list with fix dates.
 
-        gen_nodes = [
+        gen_queries = [
             (date(init_year + 0, 1, 1), date(init_year + 0, 2, 2), {""}),
             (date(init_year + 1, 1, 1), date(init_year + 1, 2, 2), {""}), ...]
         """
