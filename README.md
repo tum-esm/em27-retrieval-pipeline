@@ -33,8 +33,8 @@ Create a file `config/config.json` to configure your setup.<br/>An example `conf
 | `locationData` |  str  | GitHub directory containing `locations.json` and `sensors.json`[^4] |                -                 |
 | `gitUsername`  |  str  |                           GitHub username                           |                -                 |
 |   `gitToken`   |  str  |                  GitHub personal access token[^5]                   |                -                 |
-|  `from_date`   |  str  |                   Start date in _YYYYMMDD_ format                   |            `00010101`            |
-|   `to_date`    |  str  |                    End date in _YYYYMMDD_ format                    |       `datetime.utcnow()`        |
+|  `fromDate`   |  str  |                   Start date in _YYYYMMDD_ format                   |            `00010101`            |
+|   `toDate`    |  str  |                    End date in _YYYYMMDD_ format                    |       `datetime.utcnow()`        |
 | `dstDirectory` |  str  |                          Output directory                           | `PROJECT_PATH/vertical-profiles` |
 | `maxAwait2014` |  int  |                          Wall time awaiting GGG2014 data until abortion in seconds                           | `600` |
 | `maxAwait2020` |  int  |                          Wall time awaiting GGG2020 data until abortion in seconds                           | `10_000` |

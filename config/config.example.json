@@ -3,7 +3,5 @@
     "locationData": "https://raw.githubusercontent.com/tum-esm/em27-location-data/main/data",
     "gitUsername": "person",
     "gitToken": "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",
-    "fromDate": "20190101",
-    "toDate": "20200101",
-    "dstDirectory": "vertical-profiles"
+    "fromDate": "20221125"
 }
