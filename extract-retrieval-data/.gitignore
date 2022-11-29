@@ -1,0 +1,10 @@
+.venv
+*.pyc
+.vscode
+.DS_Store
+
+config.json
+config.json.lock
+
+retrieval-data/*
+!retrieval-data/.gitkeep
