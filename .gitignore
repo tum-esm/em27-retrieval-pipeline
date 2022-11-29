@@ -1,6 +1,5 @@
 .venv
 *.pyc
-*.tar
 .vscode
 .DS_Store
 .coverage
@@ -16,5 +15,8 @@ cov.xml
 config.json
 config.json.lock
 
-vertical-profiles/
-reports/
+vertical-profiles/*
+!vertical-profiles/.gitkeep
+
+reports/*
+!reports/.gitkeep
