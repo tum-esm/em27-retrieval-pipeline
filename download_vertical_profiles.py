@@ -28,19 +28,9 @@ def run() -> None:
     try:
     
         # Load and parse the configuration
-        camel_to_snake = re.compile(r"(?<!^)(?=[A-Z])")
         config_path = os.path.join(PROJECT_PATH, "config", "config.json")
         with FileLock(config_path + ".lock", timeout=10), open(config_path, "r") as f:
-            config: types.Configuration = json.load(
-                fp=f,
-                object_hook=lambda cfg: types.Configuration(
-                    # Convert camelCase to snake_case
-                    **{
-                        (camel_to_snake.sub("_", key).lower()): value
-                        for key, value in cfg.items()
-                    }
-                ),
-            )
+            config = json.load(f, object_hook=lambda c: types.Configuration(**c))
 
         # Request locations and sensors
         urls = [

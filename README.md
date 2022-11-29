@@ -2,9 +2,9 @@
 
 <div align="center">
 
-[![Continuous Integration](https://github.com/tum-esm/download-vertical-profiles/actions/workflows/continuous-integration.yml/badge.svg)](https://github.com/tum-esm/download-vertical-profiles/actions/workflows/continuous-integration.yml)
+[![Continuous Integration](https://github.com/tum-esm/download-vertical-profiles/actions/workflows/continuous_integration.yml/badge.svg)](https://github.com/tum-esm/download-vertical-profiles/actions/workflows/continuous_integration.yml)
 
-Used to download __`.map`__, __`.mod`__ and __`.vmr`__ files from __<span>ccycle.gps.caltech.edu</span>__.[^1] [^2] <br /> Sample files can be found in `docs/example-profiles`.
+Used to download __`.map`__, __`.mod`__ and __`.vmr`__ files from __<span>ccycle.gps.caltech.edu</span>__.[^1] [^2] <br /> Sample files can be found in `docs/example_profiles`.
 
 </div>
 
@@ -30,15 +30,15 @@ Create a file `config/config.json` to configure your setup.<br/>An example `conf
 |      Name      | Type  |                             Description                             |             Default              |
 | :------------: | :---: | :-----------------------------------------------------------------: | :------------------------------: |
 |    `email`     |  str  |    Email granting access to <span>ccycle.gps.caltech.edu</span>     |                -                 |
-| `locationData` |  str  | GitHub directory containing `locations.json` and `sensors.json`[^4] |                -                 |
-| `gitUsername`  |  str  |                           GitHub username                           |                -                 |
-|   `gitToken`   |  str  |                  GitHub personal access token[^5]                   |                -                 |
-|  `fromDate`   |  str  |                   Start date in _YYYYMMDD_ format                   |            `00010101`            |
-|   `toDate`    |  str  |                    End date in _YYYYMMDD_ format                    |       `datetime.utcnow()`        |
-| `dstDirectory` |  str  |                          Output directory                           | `PROJECT_PATH/vertical-profiles` |
-| `maxAwait2014` |  int  |                          Wall time awaiting GGG2014 data until abortion in seconds                           | `600` |
-| `maxAwait2020` |  int  |                          Wall time awaiting GGG2020 data until abortion in seconds                           | `10_000` |
-| `maxDelay` |  int  |                          Maximum days of data lag                           | `7` |
+| `location_data` |  str  | GitHub directory containing `locations.json` and `sensors.json`[^4] |                -                 |
+| `git_username`  |  str  |                           GitHub username                           |                -                 |
+|   `git_token`   |  str  |                  GitHub personal access token[^5]                   |                -                 |
+|  `from_date`   |  str  |                   Start date in _YYYYMMDD_ format                   |            `00010101`            |
+|   `to_date`    |  str  |                    End date in _YYYYMMDD_ format                    |       `datetime.utcnow()`        |
+| `dst_directory` |  str  |                          Output directory                           | `PROJECT_PATH/vertical_profiles` |
+| `max_await_2014` |  int  |                          Wall time awaiting GGG2014 data until abortion in seconds                           | `600` |
+| `max_await_2020` |  int  |                          Wall time awaiting GGG2020 data until abortion in seconds                           | `10_000` |
+| `max_delay` |  int  |                          Maximum days of data lag                           | `7` |
 
 ### 🚀 Operation
 
@@ -67,11 +67,11 @@ Execution summaries are stored within `reports/`.
 ```
 ./
 ├── .github/workflows
-│   └── continuous-integration.yml
+│   └── continuous_integration.yml
 ├── config/
 │   └── config.example.json
 ├── docs/
-│   ├── example-profiles/
+│   ├── example_profiles/
 │   │   ├── GGG2014/
 │   │   └── GGG2020/
 │   └── architecture.png
@@ -85,7 +85,7 @@ Execution summaries are stored within `reports/`.
 │   └── query_list.py
 ├── tests/
 │   └── test_query_list.py
-├── vertical-profiles/
+├── vertical_profiles/
 ├── .gitattributes
 ├── .gitignore
 ├── README.md

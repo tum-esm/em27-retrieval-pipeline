@@ -9,14 +9,14 @@ cov.xml
 *.mod
 *.vmr
 
-!docs/example-profiles/GGG2014/*
-!docs/example-profiles/GGG2020/*
+!docs/example_profiles/GGG2014/*
+!docs/example_profiles/GGG2020/*
 
 config.json
 config.json.lock
 
-vertical-profiles/*
-!vertical-profiles/.gitkeep
+vertical_profiles/*
+!vertical_profiles/.gitkeep
 
 reports/*
 !reports/.gitkeep

@@ -30,14 +30,14 @@ class Configuration:
 
     Configuration
     * email: email granting access to ccycle.gps.caltech.edu ,
-    * locationData: GitHub directory containing 'locations.json' and 'sensors.json' ,
-    * gitUsername and gitToken: GitHub username and GitHub personal access token ,
-    * fromDate: start date in YYYYMMDD format; defaults to '00010101' ,
-    * toDate: end date in YYYYMMDD format; defaults to datetime.utcnow() ,
-    * dstDirectory: output directory; defaults to 'PROJECT_PATH/vertical-profiles' ,
-    * maxAwait2014: wall time awaiting GGG2014 data until abortion in seconds; defaults to 600
-    * maxAwait2020: wall time awaiting GGG2020 data until abortion in seconds; defaults to 10_000
-    * maxDelay: maximum days of data lag; defaults to 7
+    * location_data: GitHub directory containing 'locations.json' and 'sensors.json' ,
+    * git_username and gitToken: GitHub username and GitHub personal access token ,
+    * from_date: start date in YYYYMMDD format; defaults to '00010101' ,
+    * to_date: end date in YYYYMMDD format; defaults to datetime.utcnow() ,
+    * dst_directory: output directory; defaults to 'PROJECT_PATH/vertical-profiles' ,
+    * max_await_2014: wall time awaiting GGG2014 data until abortion in seconds; defaults to 600
+    * max_await_2020: wall time awaiting GGG2020 data until abortion in seconds; defaults to 10_000
+    * max_delay: maximum days of data lag; defaults to 7
     """
 
     email: str = field(validator=[val.instance_of(str), val.matches_re(r"[^@]+@[^@]+\.[^@]+")])
