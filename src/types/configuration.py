@@ -32,7 +32,7 @@ class Configuration:
     * git_username and gitToken: GitHub username and GitHub personal access token ,
     * from_date: start date in YYYYMMDD format; defaults to '00010101' ,
     * to_date: end date in YYYYMMDD format; defaults to datetime.utcnow() ,
-    * dst_directory: output directory; defaults to 'PROJECT_PATH/vertical_profiles' ,
+    * dst_directory: output directory; defaults to 'PROJECT_PATH/vertical-profiles' ,
     * max_await_2014: wall time awaiting GGG2014 data until abortion in seconds; defaults to 600
     * max_await_2020: wall time awaiting GGG2020 data until abortion in seconds; defaults to 10_000
     * max_delay: maximum days of data lag; defaults to 7
@@ -50,7 +50,7 @@ class Configuration:
     from_date: date = field(default="00010101", converter=str_to_date)  # type: ignore
     to_date: date = field(default=datetime.strftime(TODAY, "%Y%m%d"), converter=str_to_date)  # type: ignore
     dst_directory: str = field(
-        default=os.path.join(PROJECT_PATH, "vertical_profiles"), validator=val.instance_of(str)
+        default=os.path.join(PROJECT_PATH, "vertical-profiles"), validator=val.instance_of(str)
     )
     max_await_2014: int = field(default=600, validator=[val.instance_of(int), val.gt(0)])
     max_await_2020: int = field(default=10_000, validator=[val.instance_of(int), val.gt(0)])
