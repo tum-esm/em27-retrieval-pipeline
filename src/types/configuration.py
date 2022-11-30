@@ -1,11 +1,9 @@
 import os
-import logging
 from typing import Any
 from pathlib import Path
-from datetime import datetime, date, timedelta
+from datetime import datetime, date
 
 from attrs import validators as val
-from attrs import converters as conv
 from attrs import frozen, field
 
 TODAY = datetime.utcnow().date()
@@ -49,20 +47,8 @@ class Configuration:
     )
     git_username: str = field(validator=val.instance_of(str))
     git_token: str = field(validator=val.instance_of(str))
-    from_date: date = field(
-        default=None,
-        converter=conv.pipe(  # type: ignore
-            conv.optional(str_to_date),
-            conv.default_if_none(date(1, 1, 1)),
-        ),
-    )
-    to_date: date = field(
-        default=None,
-        converter=conv.pipe(  # type: ignore
-            conv.optional(str_to_date),
-            conv.default_if_none(TODAY),
-        ),
-    )
+    from_date: date = field(default="00010101", converter=str_to_date)  # type: ignore
+    to_date: date = field(default=datetime.strftime(TODAY, "%Y%m%d"), converter=str_to_date)  # type: ignore
     dst_directory: str = field(
         default=os.path.join(PROJECT_PATH, "vertical-profiles"), validator=val.instance_of(str)
     )
