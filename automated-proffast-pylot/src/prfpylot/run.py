@@ -17,8 +17,8 @@ if __name__ == "__main__":
         sys.exit(2)
 
     container_id = sys.argv[1]
-    config_path = sys.argv[1]
-
+    config_path = sys.argv[2]
+    print(f"executing in container_id: {container_id}")
     container_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), container_id)
     if os.path.exists(container_path) != True:
         sys.stderr.write("Container does not exist.")

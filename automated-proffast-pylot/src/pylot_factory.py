@@ -58,6 +58,7 @@ class PylotFactory:
 
     def _verify_main_pylot(self):
         """TODO: Needs to Change"""
+        """
         if os.path.exists(self.tag_file) and os.path.exists(self.main):
             hash = checksumdir.dirhash(self.main)
             with open(self.tag_file, 'r') as f:
@@ -72,6 +73,7 @@ class PylotFactory:
                     self._clone_pylot_repo()
         else:
             self._clone_pylot_repo()
+        """
 
     def _clone_pylot_repo(self):
         """
