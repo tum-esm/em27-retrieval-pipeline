@@ -25,53 +25,39 @@ class PylotFactory:
         # Load Config
         self.config = load_proffast_config()
         self.working_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), "prfpylot")
-
-        # Template relative module name for importing
-        self.rel_module_name = Template('src.prfpylot.$path.prfpylot')
+        self.container_runner = self.config['container_runner']
 
         self.main = os.path.join(self.working_dir, 'main')
         self.tag_file = os.path.join(self.working_dir, 'tag')
-        self.containers = []
+        self.containers = {}
 
         if os.path.exists(self.working_dir) == False:
             os.makedirs(self.working_dir)
         self._verify_main_pylot()       # import version of Pylot for this container
         print(f"setup prfpylot at {self.main} successfuly")
 
-        Pylot_instance = self.import_pylot('main', tag=True)
-        print(f"Main Pylot instance {Pylot_instance}")
-
-    def create_pylot_instance(self):
-        self._verify_main_pylot()
+    def create_pylot_instance(self) -> str:
+        #self._verify_main_pylot()
+        # Generate random container_id
         container_id = PylotFactory.get_random_string(10)
+        container_path = os.path.join(self.working_dir, container_id)
         # Create new prfpylot instance
-        shutil.copytree(self.main, os.path.join(self.working_dir, container_id))
-        return self.import_pylot(container_id=container_id)
+        shutil.copytree(self.main, container_path)
+        # Register Container
+        self.containers[container_id] = container_path
 
+        return container_id
 
-    def import_pylot(self, container_id, tag=False):
-        MODULE_PATH = os.path.join(self.working_dir, container_id, "prfpylot", "__init__.py")
-        MODULE_NAME = "prfpylot"
-        # Create spec for module
-        spec = importlib.util.spec_from_file_location(MODULE_NAME, MODULE_PATH)
-        prfpylot = importlib.util.module_from_spec(spec)
+    def execute_pylot(self, container_id: str, config_path: str, num_threads: int):
+        runner = os.path.join(self.working_dir, self.container_runner)
+        subprocess.run(['python', runner, container_id, config_path])
 
-        sys.modules[MODULE_NAME] = prfpylot
-        spec.loader.exec_module(prfpylot)
-        rel_module_name = self.rel_module_name.substitute(path=container_id)
-        sys.modules[rel_module_name] = prfpylot
-        print(f"importing pylot from {prfpylot.__file__}, {prfpylot.__module__}, {sys.modules.get(prfpylot.__module__)}")
-        try:
-            from prfpylot.pylot import Pylot
-            if tag:
-                self.tag()
-            print(inspect.getmodule(Pylot).__file__)
-            return Pylot
-        except ImportError as e:
-            print("Unable to import pylot", e)
-        return None 
+    def clean_up(self):
+        for _, item in self.containers:
+            shutil.rmtree(item)
 
     def _verify_main_pylot(self):
+        """TODO: Needs to Change"""
         if os.path.exists(self.tag_file) and os.path.exists(self.main):
             hash = checksumdir.dirhash(self.main)
             with open(self.tag_file, 'r') as f:

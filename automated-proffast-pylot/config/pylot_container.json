@@ -2,5 +2,6 @@
     "container_dir": "/tmp/proffast",
     "proffast_url": "https://www.imk-asf.kit.edu/downloads/Coccon-SW/PROFFASTv2.2.zip",
     "compile_script": "install_proffast_linux.sh",
-    "ifgs_compile_script": "compile.sh"
+    "ifgs_compile_script": "compile.sh",
+    "container_runner": "run.py"
 }
