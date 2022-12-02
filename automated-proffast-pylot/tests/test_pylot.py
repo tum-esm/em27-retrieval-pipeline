@@ -5,8 +5,8 @@ import os
 import sys
 from tests.fixtures import wrap_test_with_mainlock, PROJECT_DIR
 
-sys.path.append(os.path.join(PROJECT_DIR, "src", "prfpylot"))
-from src.prfpylot.prfpylot.pylot import Pylot
+#sys.path.append(os.path.join(PROJECT_DIR, "src", "prfpylot"))
+#from src.prfpylot.prfpylot.pylot import Pylot
 
 
 def _set_up_empty_output_directory():
