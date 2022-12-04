@@ -1,1 +1,1 @@
-from .get_campaign_data import get_campaign_sensors, get_campaign_dates
+from .get_campaign_data import get_campaign_stations, get_campaign_dates
