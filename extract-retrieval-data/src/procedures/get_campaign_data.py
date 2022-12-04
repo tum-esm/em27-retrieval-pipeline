@@ -1,15 +1,11 @@
 from src import custom_types
 
-# 1. Download the campaigns.json file
-# 2. Raise Exception if the requested campaign doesn't exist
-# 3. Return a dict of dates with a list of sensors for each day
-
 
 def get_campaign_stations(
     campaign_name: str,
 ) -> list[custom_types.CampaignStation]:
     # 1. Download the campaigns.json file
-    # 3. Return a dict of dates with a list of sensors for each day
+    # 3. Return a list of the campaigns sensors
 
     return [
         custom_types.CampaignStation(
@@ -17,8 +13,10 @@ def get_campaign_stations(
                 "station_id": "ma",
                 "default_location": "TUM_I",
                 "direction": "center",
-                "lat": 0.0,
-                "lon": 0.0,
+                "details": "TUM Dach Innenstadt",
+                "lon": 11.569,
+                "lat": 48.151,
+                "alt": 539,
             }
         ),
         custom_types.CampaignStation(
@@ -26,8 +24,10 @@ def get_campaign_stations(
                 "station_id": "mb",
                 "default_location": "FEL",
                 "direction": "east",
-                "lat": 0.0,
-                "lon": 0.0,
+                "details": "Feldkirchen",
+                "lon": 11.73,
+                "lat": 48.148,
+                "alt": 536,
             }
         ),
     ]
