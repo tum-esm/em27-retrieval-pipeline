@@ -8,4 +8,8 @@ def run() -> None:
     print(campaign_stations)
     print(campaign_dates)
 
-    procedures.get_raw_station_data(config.database, "2.2", "ma", "20210109")
+    df = procedures.get_daily_dataframe(
+        config.database, "2.2", ["ma", "mb"], "20210109"
+    )
+    print(df)
+    df.to_csv("some.csv")
