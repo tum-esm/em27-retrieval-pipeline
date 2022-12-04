@@ -1,0 +1,13 @@
+[tool.poetry]
+name = "extract-retrieval-data"
+version = "0.2.0"
+description = ""
+authors = ["Moritz Makowski <moritz.makowski@tum.de>"]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
