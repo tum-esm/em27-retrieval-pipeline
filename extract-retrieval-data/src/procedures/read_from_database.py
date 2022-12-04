@@ -59,7 +59,7 @@ def _get_raw_station_data(
             SELECT
                 utc, gnd_p, gnd_t, app_sza,
                 xh2o, xair, xco2, xch4, xco
-            FROM measurements
+            FROM {database_config.table_name}
             WHERE
                 retrieval_software = '{proffast_version}' AND
                 sensor = '{station_id}' AND
