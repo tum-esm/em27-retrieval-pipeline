@@ -6,5 +6,11 @@
         "password": "",
         "database_name": "",
         "table_name": "measurements"
+    },
+    "request": {
+        "campaign_name": "",
+        "from_date": "20220101",
+        "to_date": "20220107",
+        "dst_dir": "/some-dir-to-put-the-results-into"
     }
 }
