@@ -8,6 +8,7 @@ from src import custom_types
 def _run_database_request(
     database_config: custom_types.DatabaseConfig, sql_query_string: str
 ) -> list[Any]:
+    """run a single SQL "SELECT" query"""
     with psycopg.connect(
         f"host={database_config.host} "
         + f"port={database_config.port} "
@@ -28,6 +29,10 @@ def _get_raw_station_data(
     date_string: custom_types.Date,
 ) -> pd.DataFrame:
     """
+    Get a pd.DataFrame for a single station id and a single date.
+    The returned table will have one row every exact minute where
+    data exists.
+
     returned column names: utc, gnd_p, gnd_t, app_sza, xh2o, xair,
     xco2, xch4, xco (all columns except for utc are prefixed with
     the station id, e.g. "ma_...")
@@ -92,6 +97,11 @@ def get_daily_dataframe(
     date_string: custom_types.Date,
 ) -> pd.DataFrame:
     """
+    Get a pd.DataFrame for a list of station ids and a single date.
+    The returned table will have one row every exact minute where
+    data exists. Rows can contain "NaN" values, when not all stations
+    sent anything in that minute.
+
     returned column names (all columns for each station id): utc, gnd_p,
     gnd_t, app_sza, xh2o, xair, xco2, xch4, xco (all columns except for
     utc are prefixed with their station id, e.g. "ma_...")

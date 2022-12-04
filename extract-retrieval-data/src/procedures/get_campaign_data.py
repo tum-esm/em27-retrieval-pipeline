@@ -4,8 +4,10 @@ from src import custom_types
 def get_campaign_stations(
     campaign_name: str,
 ) -> list[custom_types.CampaignStation]:
-    # 1. Download the campaigns.json file
-    # 3. Return a list of the campaigns sensors
+    """
+    1. Download the campaigns.json file
+    2. Return a list of the campaigns stations (meta data)
+    """
 
     return [
         custom_types.CampaignStation(
@@ -36,9 +38,15 @@ def get_campaign_stations(
 def get_campaign_dates(
     campaign_name: str,
 ) -> dict[custom_types.Date, list[custom_types.StationId]]:
-    # 1. Download the campaigns.json file
-    # 2. Raise Exception if the requested campaign doesn't exist
-    # 3. Return a dict of dates with a list of sensors for each day
+    """
+    1. Download the campaigns.json file
+    2. Raise Exception if the requested campaign doesn't exist
+    3. Return a dict of dates with a list of sensors for each day
+
+    Each day's "list of stations" is the list of stations that were
+    located at their default location (defined for each campaign) on
+    that day.
+    """
 
     return {
         "20220101": ["ma"],
