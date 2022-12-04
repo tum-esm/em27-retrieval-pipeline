@@ -1,6 +1,7 @@
-from . import utils
+from . import utils, procedures
 
 
 def run() -> None:
     config = utils.load_config()
-    print(config)
+
+    campaign_stations = procedures.get_campaign_stations("sda")

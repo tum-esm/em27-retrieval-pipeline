@@ -5,14 +5,14 @@ from src import custom_types
 # 3. Return a dict of dates with a list of sensors for each day
 
 
-def get_campaign_sensors(
+def get_campaign_stations(
     campaign_name: str,
-) -> list[custom_types.CampaignSensor]:
+) -> list[custom_types.CampaignStation]:
     # 1. Download the campaigns.json file
     # 3. Return a dict of dates with a list of sensors for each day
 
     return [
-        custom_types.CampaignSensor(
+        custom_types.CampaignStation(
             **{
                 "station_id": "ma",
                 "default_location": "TUM_I",
@@ -21,7 +21,7 @@ def get_campaign_sensors(
                 "lon": 0.0,
             }
         ),
-        custom_types.CampaignSensor(
+        custom_types.CampaignStation(
             **{
                 "station_id": "mb",
                 "default_location": "FEL",

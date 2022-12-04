@@ -11,7 +11,13 @@ pydantic = "^1.10.2"
 
 [tool.poetry.group.dev.dependencies]
 black = "^22.10.0"
+mypy = "^0.991"
 
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.mypy]
+strict = true
+implicit_reexport = true
+no_warn_unused_ignores = true
