@@ -1,0 +1,10 @@
+{
+    "database": {
+        "host": "",
+        "port": "",
+        "username": "",
+        "password": "",
+        "database_name": "",
+        "table_name": "measurements"
+    }
+}
