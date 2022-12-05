@@ -2,9 +2,8 @@ name: "Continuous Integration"
 
 on:
   push:
-    #branches: [ $default-branch ]
+    branches: [ $default-branch ]
   pull_request:
-    #branches: [ $default-branch ]
 
 jobs:
   build:
@@ -32,11 +31,11 @@ jobs:
       - name: Install missed dependencies
         run: poetry install
 
-      #- name: Format with black
-      #  run: poetry run black . --check --diff
+      - name: Format with black
+        run: poetry run black . --check --diff
 
-      #- name: Type check with mypy
-      #  run: poetry run mypy . --strict --implicit-reexport
+      - name: Type check with mypy
+        run: poetry run mypy . --strict --implicit-reexport
       
       #- name: Test with pytest
       #  run: poetry run pytest --cov=.
