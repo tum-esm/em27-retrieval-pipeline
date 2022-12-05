@@ -7,8 +7,17 @@ readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.10"
-attrs = "^22.1.0"
+filelock = "^3.8.0"
+pandas = "^1.5.2"
+types-requests = "^2.28.11.5"
+pydantic = "^1.10.2"
+psycopg = {extras = ["binary"], version = "^3.1.4"}
+httpx = "^0.23.1"
 
+
+[tool.poetry.group.dev.dependencies]
+black = "^22.10.0"
+mypy = "^0.991"
 
 [build-system]
 requires = ["poetry-core"]
