@@ -1,0 +1,22 @@
+{
+    "location_data": {
+        "git_username": "",
+        "git_token": "",
+        "git_data_dir": ""
+    },
+    "database": {
+        "host": "",
+        "port": "",
+        "username": "",
+        "password": "",
+        "database_name": "",
+        "table_name": ""
+    },
+    "request": {
+        "proffast_version": "",
+        "campaign_name": "",
+        "from_date": "",
+        "to_date": "",
+        "dst_dir": ""
+    }
+}
