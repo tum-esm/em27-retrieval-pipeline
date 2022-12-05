@@ -3,6 +3,9 @@
 .vscode
 .DS_Store
 
+*.csv
+!docs/*
+
 config.json
 config.json.lock
 
