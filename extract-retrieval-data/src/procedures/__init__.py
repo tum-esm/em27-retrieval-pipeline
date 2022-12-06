@@ -1,1 +1,1 @@
-from .get_location_data import get_location_data
+from .get_campaign_data import get_campaign_data
