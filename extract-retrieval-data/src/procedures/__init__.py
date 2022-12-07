@@ -1,1 +1,1 @@
-from .get_campaign_data import get_campaign_data
+from .build_query_list import build_query_list
