@@ -2,16 +2,18 @@ from pydantic import BaseModel
 
 
 class Location(BaseModel):
-    """A location, e.g., "BRU":
+    """A station's location, e.g.,
     {
-        "details": "Industriegelände an der Brudermühlstraße",
-        "lon": 11.547,
-        "lat": 48.111,
-        "alt": 528
+        "location_id": "TUM_G",
+        "details": "TUM in Garching",
+        "lon": 11.671,
+        "lat": 48.261,
+        "alt": 491
     }.
     """
 
+    location_id: str
     details: str
     lat: float
     lon: float
-    alt: float
+    alt: int
