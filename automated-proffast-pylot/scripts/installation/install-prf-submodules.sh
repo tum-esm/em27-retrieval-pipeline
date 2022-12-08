@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# exit on errors
+set -o errexit
+
 # init submodule proffaspylot
 git submodule update
 git submodule init
