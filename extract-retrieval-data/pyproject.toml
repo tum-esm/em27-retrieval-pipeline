@@ -2,30 +2,28 @@
 name = "extract-retrieval-data"
 version = "0.1.0"
 description = ""
-authors = ["Marlon Mueller <marlon.mueller@tum.de>","Moritz Makowski <moritz.makowski@tum.de>"]
+authors = [
+    "Marlon Mueller <marlon.mueller@tum.de>",
+    "Moritz Makowski <moritz.makowski@tum.de>"
+]
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "^3.10"
-filelock = "^3.8.0"
-pandas = "^1.5.2"
-types-requests = "^2.28.11.5"
+python = "^3.11"
 pydantic = "^1.10.2"
+requests = "^2.28.1"
 psycopg = {extras = ["binary"], version = "^3.1.4"}
-httpx = "^0.23.1"
-attrs = "^22.1.0"
-
+pandas = "^1.5.2"
+rich = "^12.6.0"
 
 [tool.poetry.group.dev.dependencies]
 black = "^22.10.0"
 mypy = "^0.991"
-
-[build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
+types-requests = "^2.28.11.5"
+pandas-stubs = {version = "^1.5.2.221124", python = ">=3.11,<3.12"}
 
 [tool.black]
-line-length = 95
+line-length = 100
 
 [tool.mypy]
 strict = true
