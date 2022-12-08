@@ -8,7 +8,7 @@ _work in progress, until then, ask Moritz Makowski and Patrick Aigner_
 
 ## File Movements
 
-![](/docs/architecture.png)
+![](docs/architecture.png)
 
 _This chart only the flow from automatic upload to retrieval outputs. The manual queue mentioned in the scheduling section can take other inputs as well._
 
