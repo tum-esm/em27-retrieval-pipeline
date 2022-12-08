@@ -5,9 +5,21 @@ import os
 from datetime import datetime
 
 
-def validate_strict_str(cls: Any, v: Any) -> str:
+def validate_strict_str(cls: Any, v: str) -> str:
     if not isinstance(v, str):
         raise TypeError(f'"{v}" is not a string')
+    return v
+
+
+def validate_strict_int(cls: Any, v: int) -> int:
+    if not isinstance(v, int):
+        raise TypeError(f'"{v}" is not a int')
+    return v
+
+
+def validate_strict_bool(cls: Any, v: bool) -> bool:
+    if not isinstance(v, bool):
+        raise ValueError(f'"{v}" is not a boolean')
     return v
 
 
@@ -17,7 +29,7 @@ def validate_dir_path(cls: Any, v: str) -> str:
     return v
 
 
-def validate_date_string(cls: Any, v: str) -> str:
+def validate_date_str(cls: Any, v: str) -> str:
     try:
         datetime.strptime(v, "%Y%m%d")
     except:
@@ -27,5 +39,5 @@ def validate_date_string(cls: Any, v: str) -> str:
 
 def validate_raw_repository(cls: Any, v: str) -> str:
     if not re.match(r"(https://raw.githubusercontent.com/.*)", v):
-        raise ValueError(f'"{v}" is not a valid repository')
+        raise ValueError(f'"{v}" is not a repository')
     return v

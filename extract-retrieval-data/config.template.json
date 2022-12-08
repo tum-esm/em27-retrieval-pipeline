@@ -1,22 +1,25 @@
 {
-    "location_data": {
-        "git_username": "",
-        "git_token": "",
-        "git_data_dir": ""
+    "git": {
+        "username": "",
+        "token": "",
+        "data_dir": ""
     },
     "database": {
         "host": "",
-        "port": "",
+        "port": 5432,
         "username": "",
         "password": "",
         "database_name": "",
         "table_name": ""
     },
     "request": {
-        "proffast_version": "",
         "campaign_name": "",
         "from_date": "",
         "to_date": "",
+        "proffast_version": "",
+        "data_types": [],
+        "sampling_rate": "",
+        "override_data": false,
         "dst_dir": ""
     }
 }
