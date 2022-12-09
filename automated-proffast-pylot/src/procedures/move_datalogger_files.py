@@ -7,11 +7,11 @@ PROJECT_DIR = dir(dir(dir(os.path.abspath(__file__))))
 
 
 def run(config: types.ConfigDict, session: types.SessionDict) -> None:
-    sensor, date = session["sensor"], session["date"]
+    sensor, date, container_id = session["sensor"], session["date"], session['container_id']
 
     filename = f"datalogger-{sensor}-{date}.csv"
     src_filepath = os.path.join(config["src"]["datalogger"], sensor, filename)
-    dst_filepath = os.path.join(PROJECT_DIR, "inputs", f"{sensor}_pressure", filename)
+    dst_filepath = os.path.join(PROJECT_DIR, "inputs", container_id, f"{sensor}_pressure", filename)
 
     assert os.path.isfile(src_filepath), "no datalogger file found"
 

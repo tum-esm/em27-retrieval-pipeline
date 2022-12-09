@@ -3,6 +3,7 @@ import json
 import os
 from typing import Iterator, Optional, TypedDict
 from src import utils, types
+from src.types.pylot_factory import PylotFactory
 
 dir = os.path.dirname
 PROJECT_DIR = dir(dir(dir(os.path.abspath(__file__))))
@@ -61,10 +62,11 @@ class RetrievalQueue:
     3. Takes all items from manual-queue.json with a priority < 0
     """
 
-    def __init__(self, config: types.ConfigDict):
+    def __init__(self, config: types.ConfigDict, pylot_factory: PylotFactory):
         self.config = config
         self.processed_sensor_dates: dict[str, list[str]] = {}
         self.location_data = utils.LocationData(config)
+        self.factory = pylot_factory
 
     def __iter__(self) -> Iterator[types.SessionDict]:
         iteration_count = 0
@@ -124,6 +126,9 @@ class RetrievalQueue:
 
         coordinates_dict = self.location_data.get_coordinates_for_location(location)
         serial_number = self.location_data.get_serial_number_for_sensor(sensor)
+        # Create new container for session
+        container_id = self.factory.create_pylot_instance()
+        container_path = self.factory.containers[container_id]
 
         return {
             "sensor": sensor,
@@ -134,6 +139,8 @@ class RetrievalQueue:
             "alt": coordinates_dict["alt"],
             "serial_number": serial_number,
             "utc_offset": utc_offset,
+            "container_id": container_id,
+            "container_path": container_path
         }
 
     def _pyra_upload_is_complete(self, sensor: str, date: str) -> Optional[bool]:

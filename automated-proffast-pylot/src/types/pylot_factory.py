@@ -21,12 +21,20 @@ import inspect
 
 class PylotFactory:
 
-    def __init__(self):
+    config = {}
+    working_dir = ""
+    container_runner = ""
+    main = ""
+    tag_file = ""
+    containers = {}
+    logger = None
+
+    def __init__(self, logger: Logger):
         # Load Config
         self.config = load_proffast_config()
         self.working_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), "prfpylot")
         self.container_runner = self.config['container_runner']
-
+        self.logger = logger
         self.main = os.path.join(self.working_dir, 'main')
         self.tag_file = os.path.join(self.working_dir, 'tag')
         self.containers = {}
@@ -48,11 +56,13 @@ class PylotFactory:
 
         return container_id
 
-    def execute_pylot(self, container_id: str, config_path: str, num_threads: int):
+    def execute_pylot(self, container_id: str, config_path: str, num_threads: int) -> subprocess.CompletedProcess:
+        # Do we need a timeout?
         runner = os.path.join(self.working_dir, self.container_runner)
-        subprocess.run(['python', runner, container_id, config_path])
+        result = subprocess.run(['python', runner, container_id, config_path, num_threads], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+        return result
 
-    def clean_up(self):
+    def clean_up(self) -> None:
         for _, item in self.containers:
             shutil.rmtree(item)
 
@@ -80,8 +90,7 @@ class PylotFactory:
         Clones the pylot repository. Stores a master copy in the folder self.master
         Do a shallow copy to reduce size.
         """
-        Logger.info(f"Loading Proffast.. from {self.config['proffast_url']}")
-        print(self.main)
+        self.logger.info(f"Loading Proffast.. from {self.config['proffast_url']}")
         proffast_url = self.config['proffast_url']
 
         proffast_archive = os.path.join(self.working_dir, 'proffast.zip')
@@ -107,7 +116,7 @@ class PylotFactory:
         compilation = subprocess.run(
             ['bash', f'{compile_script}'], cwd=proffast_dir)
         if compilation.returncode == 0:
-            Logger.info("Compiled proffast")
+            self.logger.info("Compiled proffast")
         
         compile_script = self.config['ifgs_compile_script']
         detect_corrupt_ifgs_dir = os.path.join(self.main, '..', '..', 'detect_corrupt_ifgs')
@@ -115,7 +124,7 @@ class PylotFactory:
         compilation = subprocess.run(
             ['bash', f'{compile_script}'], cwd=detect_corrupt_ifgs_dir)
         if compilation.returncode == 0:
-            Logger.info("Compiled Detect corrupt ifgs")
+            self.logger.info("Compiled Detect corrupt ifgs")
         
 
     def tag(self):  
@@ -131,12 +140,3 @@ class PylotFactory:
         letters = string.ascii_lowercase
         result_str = ''.join(random.choice(letters) for i in range(length))
         return result_str
-
-    def create(self):
-        """
-        Creates a copy of the main Pylot Proffast repository and returns a version of the Pylot class
-        that is to be later instanciated by the consumer with config.
-        """
-        # Src: self.main
-        # Destination: random id in the self.working_dir.
-        pass

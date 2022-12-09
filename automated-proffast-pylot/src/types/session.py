@@ -10,3 +10,5 @@ class SessionDict(TypedDict):
     alt: int
     serial_number: int
     utc_offset: float
+    container_id: str
+    container_path: str
