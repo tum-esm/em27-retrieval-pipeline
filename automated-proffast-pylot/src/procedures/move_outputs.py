@@ -33,7 +33,7 @@ def detect_error_type(output_src: str) -> Optional[str]:
     return None
 
 
-def run(config: types.ConfigDict, session: types.SessionDict) -> None:
+def run(config: types.ConfigDict, session: types.SessionDict, container_id: str) -> None:
     sensor, date = session["sensor"], session["date"]
 
     output_src = (
@@ -99,7 +99,7 @@ def run(config: types.ConfigDict, session: types.SessionDict) -> None:
     utils.assert_directory_equality(existing_src_directories)
 
     ifg_src = existing_src_directories[0]
-    ifg_dst = config["dst"] + f"/{sensor}/ifgs/{date}"
+    ifg_dst = f"{config['dst']}/{sensor}/ifgs/{date}"
     if not os.path.isdir(ifg_dst):
         utils.Logger.debug(f"Copying ifgs from {ifg_src} to dst")
         shutil.copytree(ifg_src, ifg_dst)
@@ -123,7 +123,7 @@ def run(config: types.ConfigDict, session: types.SessionDict) -> None:
     # --- STORE AUTOMATION LOGS ---
 
     date_logs = utils.Logger.get_session_logs()
-    with open(f"{output_dst}/automation.log", "w") as f:
+    with open(f"{output_dst}/automation_{container_id}.log", "w") as f:
         f.writelines(date_logs)
 
     # --- STORE AUTOMATION INFO ---
@@ -148,3 +148,9 @@ def run(config: types.ConfigDict, session: types.SessionDict) -> None:
             "generationTime": now.strftime("%T"),
         }
         json.dump(about_dict, f, indent=4)
+    
+    # Clear directories "inputs" and "outputs"
+    for subdir in ["inputs", "outputs"]:
+        shutil.rmtree(f"{PROJECT_DIR}/{subdir}")
+        os.mkdir(f"{PROJECT_DIR}/{subdir}")
+        os.system(f"touch {PROJECT_DIR}/{subdir}/.gitkeep")
