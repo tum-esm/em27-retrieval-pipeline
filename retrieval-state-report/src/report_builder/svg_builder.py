@@ -1,3 +1,5 @@
+from typing import Union, Dict
+
 import numpy as np
 import pandas as pd
 import matplotlib as mpl
@@ -5,21 +7,42 @@ import matplotlib.pyplot as plt
 from mdutils.mdutils import MdUtils
 from mdutils import Html
 
-from report_builder.abs_report_builder import AbsReportBuilder
 
-
-class SvgReportBuilder(AbsReportBuilder):
-    DAYS = ['Mo.', 'Di.', 'Mi.', 'Do.', 'Fr.', 'Sa.', 'So.']
-    MONTHS = ['Jan.', 'Feb.', 'Mär.', 'Apr.', 'Mai', 'Juni', 'Juli', 'Aug.', 'Sept.', 'Okt.', 'Nov.', 'Dez.']
+class SvgReportBuilder:
+    DAYS = ["Mo.", "Di.", "Mi.", "Do.", "Fr.", "Sa.", "So."]
+    MONTHS = [
+        "Jan.",
+        "Feb.",
+        "Mär.",
+        "Apr.",
+        "Mai",
+        "Juni",
+        "Juli",
+        "Aug.",
+        "Sept.",
+        "Okt.",
+        "Nov.",
+        "Dez.",
+    ]
 
     md_file: MdUtils
 
     def __init__(self, directory_name: str, file_name: str):
-        super().__init__(directory_name, file_name)
-        self.md_file = MdUtils(file_name='{}/{}'.format(directory_name, file_name), title=file_name)
+        self.file_name = file_name
+        self.directory_name = directory_name
+        self.md_file = MdUtils(
+            file_name="{}/{}".format(directory_name, file_name), title=file_name
+        )
 
     @staticmethod
-    def __plot_heatmap(series, start=None, end=None, mean=False, ax=None, **kwargs):
+    def __plot_heatmap(
+        series: pd.Series,
+        start: pd.Series.dt = None,
+        end: pd.Series.dt = None,
+        mean: bool = False,
+        ax: Union[mpl.Axes, None] = None,
+        **kwargs: str,
+    ) -> mpl.collections.Axes:
         """Plot a calendar heatmap given a datetime series.
 
         Arguments:
@@ -49,28 +72,28 @@ class SvgReportBuilder(AbsReportBuilder):
                 axes in the `~matplotlib.pyplot` API.
         """
 
-        dates = series.index.floor('D')
+        dates = series.index.floor("D")
         group = series.groupby(dates)
         series = group.mean() if mean else group.sum()
 
         start = pd.to_datetime(start or series.index.min())
         end = pd.to_datetime(end or series.index.max())
 
-        end += np.timedelta64(1, 'D')
+        end += np.timedelta64(1, "D")
 
-        start_mon = start - np.timedelta64((start.dayofweek + 0) % 7, 'D')
-        end_mon = end + np.timedelta64(7 - end.dayofweek - 0, 'D')
+        start_mon = start - np.timedelta64((start.dayofweek + 0) % 7, "D")
+        end_mon = end + np.timedelta64(7 - end.dayofweek - 0, "D")
 
         num_weeks = (end_mon - start_mon).days // 7
         heatmap = np.zeros((7, num_weeks))
         ticks = {}
         for week in range(num_weeks):
             for day in range(7):
-                date = start_mon + np.timedelta64(7 * week + day, 'D')
+                date = start_mon + np.timedelta64(7 * week + day, "D")
                 if date.day == 1:
                     ticks[week] = SvgReportBuilder.MONTHS[date.month - 1]
                 if date.dayofyear == 1:
-                    ticks[week] += f'\n{date.year}'
+                    ticks[week] += f"\n{date.year}"
                 if start <= date < end:
                     heatmap[day, week] = series.get(date, 0)
 
@@ -91,39 +114,45 @@ class SvgReportBuilder(AbsReportBuilder):
 
         return ax
 
-    def __generate_svg(self, subreport_name: str, series: pd.Series):
+    def __generate_svg(self, subreport_name: str, series: pd.Series) -> None:
         figsize = plt.figaspect(7 / 56)
         fig = plt.figure(figsize=figsize)
 
-        ax = SvgReportBuilder.__plot_heatmap(series, edgecolor='black')
+        ax = SvgReportBuilder.__plot_heatmap(series, edgecolor="black")
         plt.colorbar(ticks=range(5), pad=0.02)
 
-        cmap = mpl.cm.get_cmap('Reds', 5)
+        cmap = mpl.cm.get_cmap("Reds", 5)
         plt.set_cmap(cmap)
         plt.clim(-0.5, 4.5)
 
-        ax.set_aspect('equal')
+        ax.set_aspect("equal")
 
-        fig.savefig('{}/{}.svg'.format(self.directory_name, subreport_name), bbox_inches='tight', format='svg')
+        fig.savefig(
+            "{}/{}.svg".format(self.directory_name, subreport_name),
+            bbox_inches="tight",
+            format="svg",
+        )
 
         plt.close(fig)
 
-    def create_output(self, subreport_name: str, series: pd.Series):
+    def create_output(
+        self, subreport_name: str, series: pd.Series, sensor: str = "", status: str = ""
+    ) -> None:
         if series.empty:
             self.__create_empty_output(subreport_name)
             return
         self.__generate_svg(subreport_name, series)
 
-        self.md_file.new_header(1, 'Subreport: {}'.format(subreport_name))
+        self.md_file.new_header(1, "Subreport: {}".format(subreport_name))
         path = subreport_name
 
-        self.md_file.new_paragraph(Html.image(path='{}.svg'.format(path), size='300'))
-        self.md_file.write('\n')
+        self.md_file.new_paragraph(Html.image(path="{}.svg".format(path), size="300"))
+        self.md_file.write("\n")
 
-    def __create_empty_output(self, subreport_name: str):
-        self.md_file.new_header(1, 'Subreport: {}'.format(subreport_name))
-        self.md_file.new_paragraph('There is no data for this report')
-        self.md_file.write('\n')
+    def __create_empty_output(self, subreport_name: str) -> None:
+        self.md_file.new_header(1, "Subreport: {}".format(subreport_name))
+        self.md_file.new_paragraph("There is no data for this report")
+        self.md_file.write("\n")
 
-    def save_file(self):
+    def save_file(self) -> None:
         self.md_file.create_md_file()

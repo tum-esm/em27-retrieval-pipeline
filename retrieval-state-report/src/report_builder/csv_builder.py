@@ -1,57 +1,34 @@
-from datetime import datetime
-
-import numpy as np
 import pandas as pd
-import seaborn as sns
-import matplotlib.pyplot as plt
-
-from report_builder.abs_report_builder import AbsReportBuilder
+import os
 
 
-class CsvReportBuilder(AbsReportBuilder):
-    def create_output(self, subreport_name: str, series: pd.Series):
-        pass
+class CsvReportBuilder:
 
-    def save_file(self):
-        pass
+    df: pd.DataFrame = None
+    DAYS = ["Mo.", "Di.", "Mi.", "Do.", "Fr.", "Sa.", "So."]
 
-    data = {
-        "date": [],
-        "sensor": [],
-        "count": []
-    }
+    def __init__(self, directory_name: str, file_name: str):
+        self.file_name = file_name
+        self.directory_name = directory_name
 
-    def save_heatmap(self):
-        dates = np.asarray([datetime(2021, 5, 17), datetime(2021, 5, 17), datetime(2021, 5, 17), 7, 9]).reshape(6, 5)
-        perchange = np.asarray([1, 3, 5, 7, 9]).reshape(6, 5)
+    def create_output(
+        self, report_name: str, series: pd.Series, sensor: str, status: str
+    ) -> None:
+        series.name = sensor + " " + status
+        series.index.name = "sensor"
+        cdf = pd.DataFrame(series).transpose()
+        if self.df is None:
+            self.df = cdf
+        else:
+            self.df = self.df.append(cdf)
+            self.df.fillna(0, inplace=True)
 
-        # result = df.pivot(index='Yrows', columns='Xcols', values='Change')
-
-        labels = (np.asarray(["{0} \n {1:.2f}".format(symb, value)
-                              for symb, value in zip(symbol.flatten(),
-                                                     perchange.flatten())])
-                  ).reshape(6, 5)
-
-        # Define the plot
-        fig, ax = plt.subplots(figsize=(13, 7))
-
-        # Add title to the Heat map
-        title = "Pharma Sector Heat Map"
-
-        # Set the font size and the distance of the title from the plot
-        plt.title(title, fontsize=18)
-        ttl = ax.title
-        ttl.set_position([0.5, 1.05])
-
-        # Hide ticks for X & Y axis
-        ax.set_xticks([])
-        ax.set_yticks([])
-
-        # Remove the axes
-        ax.axis('off')
-
-        # Use the heatmap function from the seaborn package
-        sns.heatmap(result, annot=labels, fmt="", cmap='RdYlGn', linewidths=0.30, ax=ax)
-
-        # Display the Pharma Sector Heatmap
-        plt.show()
+    def save_file(self) -> None:
+        days_of_week = []
+        for col in self.df.columns:
+            days_of_week.append(self.DAYS[col.weekday()])
+        self.df.loc["Tag"] = days_of_week
+        os.makedirs(self.directory_name, exist_ok=True)
+        self.df.transpose().to_csv(
+            "{}/{}.csv".format(self.directory_name, self.file_name)
+        )
