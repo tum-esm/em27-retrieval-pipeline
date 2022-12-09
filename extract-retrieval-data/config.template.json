@@ -1,25 +1,16 @@
 {
-    "git": {
+    "github": {
         "username": "",
         "token": "",
         "data_dir": ""
     },
     "database": {
         "host": "",
-        "port": 5432,
         "username": "",
         "password": "",
-        "database_name": "",
-        "table_name": ""
+        "database_name": ""
     },
     "request": {
-        "campaign_name": "",
-        "from_date": "",
-        "to_date": "",
-        "proffast_version": "",
-        "data_types": [],
-        "sampling_rate": "",
-        "override_data": false,
-        "dst_dir": ""
+        "campaign_name": ""
     }
 }

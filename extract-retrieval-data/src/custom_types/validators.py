@@ -1,43 +1,39 @@
-from typing import Any
+from typing import Any, Callable
 
 import re
 import os
 from datetime import datetime
 
 
-def validate_strict_str(cls: Any, v: str) -> str:
-    if not isinstance(v, str):
-        raise TypeError(f'"{v}" is not a string')
-    return v
+def validate_bool() -> Callable[[Any, bool], bool]:
+    def f(cls: Any, v: Any) -> bool:
+        if not isinstance(v, bool):
+            raise ValueError(f'"{v}" is not a boolean')
+        return v
+
+    return f
 
 
-def validate_strict_int(cls: Any, v: int) -> int:
-    if not isinstance(v, int):
-        raise TypeError(f'"{v}" is not a int')
-    return v
+def validate_str(
+    regex: str | None = None,
+    is_numeric: bool = False,
+    is_date: bool = False,
+    is_dir: bool = False,
+) -> Callable[[Any, str], str]:
+    def f(cls: Any, v: str) -> str:
+        if not isinstance(v, str):
+            raise ValueError(f'"{v}" is not a string')
+        if regex is not None and re.compile(regex).match(v) is None:
+            raise ValueError(f'"{v}" does not match the regex "{regex}"')
+        if is_numeric and not v.isnumeric():
+            raise ValueError(f'"{v}" is not numeric')
+        if is_dir and not os.path.isdir(v):
+            raise ValueError(f'"{v}" is not a directory')
+        if is_date:
+            try:
+                datetime.strptime(v, "%Y%m%d")
+            except:
+                raise ValueError(f'"{v}" is not a valid date')
+        return v
 
-
-def validate_strict_bool(cls: Any, v: bool) -> bool:
-    if not isinstance(v, bool):
-        raise ValueError(f'"{v}" is not a boolean')
-    return v
-
-
-def validate_dir_path(cls: Any, v: str) -> str:
-    if not os.path.isdir(v):
-        raise ValueError(f'"{v}" is not a directory')
-    return v
-
-
-def validate_date_str(cls: Any, v: str) -> str:
-    try:
-        datetime.strptime(v, "%Y%m%d")
-    except:
-        raise ValueError(f'"{v}" is not a valid date')
-    return v
-
-
-def validate_raw_repository(cls: Any, v: str) -> str:
-    if not re.match(r"(https://raw.githubusercontent.com/.*)", v):
-        raise ValueError(f'"{v}" is not a repository')
-    return v
+    return f

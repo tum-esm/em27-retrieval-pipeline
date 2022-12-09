@@ -1,8 +1,9 @@
-from typing import Literal
+from typing import Literal, get_args
 
 Rate = Literal[
     "10 min", "5 min", "2 min", "1 min", "30 sec", "15 sec", "10 sec", "5 sec", "2 sec", "1 sec"
 ]
+
 
 DataType = Literal[
     "gnd_p",
@@ -15,12 +16,6 @@ DataType = Literal[
     "xch4",
     "xco",
     "xch4_s5p",
-    "h2o",
-    "o2",
-    "co2",
-    "ch4",
-    "co",
-    "ch4_s5p",
 ]
 
 
@@ -28,7 +23,7 @@ from .config import (
     Config,
     RequestConfig,
     DatabaseConfig,
-    GitConfig,
+    GitHubConfig,
 )
 
 from .location_data_types import (
