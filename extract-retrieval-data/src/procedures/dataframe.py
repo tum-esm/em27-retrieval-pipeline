@@ -3,7 +3,7 @@ import pandas as pd
 from psycopg import sql
 
 from src import utils
-from src.custom_types import Config, RequestConfig, Date, SensorId, Campaign, Rate, DataType
+from src.custom_types import Config, RequestConfig, Date, SensorId, Campaign, Rate
 
 
 def get_sensor_dataframe(config: Config, date: Date, sensor: SensorId) -> pd.DataFrame:
@@ -27,28 +27,23 @@ def get_sensor_dataframe(config: Config, date: Date, sensor: SensorId) -> pd.Dat
         config.database,
         sql.SQL(
             """
-            SELECT utc, gnd_p, gnd_t, app_sza, xh2o, xair, xco2, xch4, xco
-            FROM {table}
-            WHERE 
-                utc >= %(date)s AND utc < %(date)s + INTERVAL '1 day'
-                AND retrieval_software = %(version)s
-                AND sensor = %(sensor)s;
+            SELECT utc, {data_types} FROM {table}
+            WHERE utc >= %(date)s AND utc < %(date)s + INTERVAL '1 day'
+            AND retrieval_software = %(version)s
+            AND sensor = %(sensor)s;
             """
-        ).format(table=sql.Identifier(config.database.table_name)),
+        ).format(
+            data_types=sql.SQL(", ").join(map(sql.Identifier, config.request.data_types)),
+            table=sql.Identifier(config.database.table_name),
+        ),
         {
+            "date": date,
             "version": config.request.proffast_version,
             "sensor": sensor,
-            "date": date,
         },
     )
-    return (
-        pd.DataFrame(
-            result,
-            columns=["utc"] + [f"{sensor}_{data_type}" for data_type in config.request.data_types],
-        )
-        .set_index("utc")
-        .astype(float)
-    )
+    columns = ["utc"] + [f"{sensor}_{type_}" for type_ in config.request.data_types]
+    return pd.DataFrame(result, columns=columns).set_index("utc").astype(float)
 
 
 def post_process_dataframe(
@@ -74,7 +69,7 @@ def post_process_dataframe(
     
     ✗ get_daily_dataframe (see below) will be called afterwards and joins the dataframes on "utc".
     """
-    
+
     return sensor_dataframe.groupby(pd.Grouper(freq="1min")).mean()
 
 
@@ -89,9 +84,9 @@ def get_daily_dataframe(
     # Get missing stations
     sensors = {station.sensor for station in campaign.stations}
     missing_columns = [
-        f"{missing_sensor}_{data_type}"
+        f"{missing_sensor}_{type_}"
         for missing_sensor in sensors - sensor_dataframes.keys()
-        for data_type in config.data_types
+        for type_ in config.data_types
     ]
 
     # Sorted merge and remove empty rows

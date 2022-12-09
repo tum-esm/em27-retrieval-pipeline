@@ -3,7 +3,7 @@ import json
 from src import utils
 
 from src.custom_types import (
-    GitConfig,
+    GitHubConfig,
     CampaignId,
     LocationId,
     SensorId,
@@ -14,7 +14,7 @@ from src.custom_types import (
 
 
 def get_campaign_data(
-    config: GitConfig,
+    config: GitHubConfig,
 ) -> dict[CampaignId, Campaign]:
     """
     Requests campaigns.json from GitHub.
@@ -25,7 +25,7 @@ def get_campaign_data(
     return {campaign_id: Campaign(**data) for campaign_id, data in json.loads(response).items()}
 
 
-def get_location_data(config: GitConfig) -> dict[LocationId, Location]:
+def get_location_data(config: GitHubConfig) -> dict[LocationId, Location]:
     """
     Requests locations.json from GitHub.
     Returns a dictionary that maps a location_id to its location.
@@ -35,7 +35,7 @@ def get_location_data(config: GitConfig) -> dict[LocationId, Location]:
     return {location_id: Location(**data) for location_id, data in json.loads(response).items()}
 
 
-def get_sensor_data(config: GitConfig) -> dict[SensorId, Sensor]:
+def get_sensor_data(config: GitHubConfig) -> dict[SensorId, Sensor]:
     """
     Requests sensors.json from GitHub.
     Returns a dictionary that maps a sensors_id to its sensor.

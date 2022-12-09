@@ -1,15 +1,10 @@
-from enum import StrEnum
+from typing import Literal
 from pydantic import BaseModel
 
 from src.custom_types.location_data_types import Date, SensorId, LocationId
 
 
-class Direction(StrEnum):
-    CENTER = ("center",)
-    NORTH = ("north",)
-    SOUTH = ("south",)
-    EAST = ("east",)
-    WEST = ("west",)
+Direction = Literal["center", "north", "south", "east", "west"]
 
 
 class CampaignStation(BaseModel):

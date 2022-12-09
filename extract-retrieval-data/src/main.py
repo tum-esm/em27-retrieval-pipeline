@@ -15,9 +15,9 @@ def run() -> None:
         config = custom_types.Config(**json.load(f))
 
     # Request campaign, sensor and location data
-    campaigns = procedures.get_campaign_data(config.git)
-    # locations = procedures.get_location_data(config.git)
-    sensors = procedures.get_sensor_data(config.git)
+    campaigns = procedures.get_campaign_data(config.github)
+    # locations = procedures.get_location_data(config.github)
+    sensors = procedures.get_sensor_data(config.github)
 
     # Extract campaign
     campaign_name = config.request.campaign_name
