@@ -22,7 +22,7 @@ def get_daily_sensor_set(
 
     daily_sensor_set = defaultdict(set)
 
-    # Overlap and campaign dates with requested dates
+    # Overlap campaign dates with requested dates
     req_from_date = max(config.from_date, campaign.from_date)
     req_to_date = min(config.to_date, campaign.to_date)
 
