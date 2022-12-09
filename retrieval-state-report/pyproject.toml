@@ -1,0 +1,27 @@
+[tool.poetry]
+name = "retrieval-state-report"
+version = "0.2.0"
+description = ""
+authors = ["Dmytro Polityka <dmytro.polityka@tum.de>"]
+readme = "README.md"
+packages = [{include = "retrieval_state_report"}]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+mypy = "^0.991"
+black = "^22.10.0"
+pandas = "^1.5.1"
+numpy = "^1.23.4"
+mdutils = "^1.4.0"
+matplotlib = "^3.6.2"
+seaborn = "^0.12.1"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.mypy]
+strict = true
+implicit_reexport = true
+no_warn_unused_ignores = true
