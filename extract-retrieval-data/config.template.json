@@ -1,0 +1,16 @@
+{
+    "github": {
+        "username": "",
+        "token": "",
+        "data_dir": ""
+    },
+    "database": {
+        "host": "",
+        "username": "",
+        "password": "",
+        "database_name": ""
+    },
+    "request": {
+        "campaign_name": ""
+    }
+}
