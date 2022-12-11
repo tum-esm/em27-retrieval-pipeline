@@ -11,7 +11,7 @@ from src.custom_types import (
 )
 
 
-def get_daily_sensor_set(
+def get_daily_sensor_sets(
     config: RequestConfig, campaign: Campaign, sensors: dict[SensorId, Sensor]
 ) -> dict[Date, set[SensorId]]:
     """
@@ -20,7 +20,7 @@ def get_daily_sensor_set(
     default location (defined for each campaign) on that day.
     """
 
-    daily_sensor_set = defaultdict(set)
+    daily_sensor_sets = defaultdict(set)
 
     # Overlap campaign dates with requested dates
     req_from_date = max(config.from_date, campaign.from_date)
@@ -43,23 +43,23 @@ def get_daily_sensor_set(
             stop = datetime.strptime(to_date, "%Y%m%d").date()
 
             while date <= stop:
-                daily_sensor_set[date.strftime("%Y%m%d")].add(station.sensor)
+                daily_sensor_sets[date.strftime("%Y%m%d")].add(station.sensor)
                 date += timedelta(+1)
 
-    return daily_sensor_set
+    return daily_sensor_sets
 
 
-def filter_daily_sensor_set(
-    config: RequestConfig, campaign_name: CampaignId, daily_sensor_set: dict[Date, set[SensorId]]
+def filter_daily_sensor_sets(
+    config: RequestConfig, campaign_name: CampaignId, daily_sensor_sets: dict[Date, set[SensorId]]
 ) -> dict[Date, set[SensorId]]:
     """
-    Removes entries from the daily_sensor_set for
+    Removes sensor sets from daily_sensor_sets for
     which an according file exists in the dst_dir.
     """
 
     return {
         date: sensors
-        for date, sensors in daily_sensor_set.items()
+        for date, sensors in daily_sensor_sets.items()
         if not os.path.isfile(
             os.path.join(config.dst_dir, f"{campaign_name}_em27_export_{date}.csv")
         )
