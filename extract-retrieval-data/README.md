@@ -82,14 +82,13 @@ poetry run python run.py
 ```
 For the requested period, the tool generates one `<campaign_name>_em27_export_<date>.csv` file per day.
 
-_TBD_
-
 ## :hammer_and_wrench: Post-processing
 
 _TBD_
 
 ## 🏛 Architecture
-<a href="docs/architecture.png"><img src="docs/architecture.png" align="center" width="100%" ></a>
+Note that the following depicts a high-level overview - not the full picture.
+<a href="docs/architecture.png"><img src="docs/architecture.png" align="center" width="80%" ></a>
 ## 🗄 Structure
 ```
 ./
