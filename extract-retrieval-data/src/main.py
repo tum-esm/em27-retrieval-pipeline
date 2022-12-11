@@ -25,17 +25,17 @@ def run() -> None:
         raise ValueError(f'"{campaign_name}" not in campaigns.json')
     campaign = campaigns[campaign_name]
 
-    # Generate daily sensor set
-    daily_sensor_set = procedures.get_daily_sensor_set(config.request, campaign, sensors)
+    # Generate daily sensor sets
+    daily_sensor_sets = procedures.get_daily_sensor_sets(config.request, campaign, sensors)
 
     if not config.request.override_data:
         # Filter out existing files
-        daily_sensor_set = procedures.filter_daily_sensor_set(
-            config.request, campaign_name, daily_sensor_set
+        daily_sensor_sets = procedures.filter_daily_sensor_sets(
+            config.request, campaign_name, daily_sensor_sets
         )
 
     # For each day, query database and produce .csv
-    for date, sensor_set in track(daily_sensor_set.items(), description="Processing..."):
+    for date, sensor_set in track(daily_sensor_sets.items(), description="Processing..."):
 
         sensor_dataframes = {}
         for sensor in sensor_set:
