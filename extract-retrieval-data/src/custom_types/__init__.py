@@ -1,4 +1,4 @@
-from typing import Literal, get_args
+from typing import Literal
 
 Rate = Literal[
     "10 min", "5 min", "2 min", "1 min", "30 sec", "15 sec", "10 sec", "5 sec", "2 sec", "1 sec"
