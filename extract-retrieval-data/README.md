@@ -87,7 +87,7 @@ For the requested period, the tool generates one `<campaign_name>_em27_export_<d
 _TBD_
 
 ## 🏛 Architecture
-Note that the following depicts a high-level overview - not the full picture.
+Note that the following gives a high-level overview - not the full picture.
 <div align="center">
 <a href="docs/architecture.png"><img src="docs/architecture.png" align="center" width="80%" ></a>
 </div>
