@@ -91,6 +91,7 @@ Note that the following depicts a high-level overview - not the full picture.
 <div align="center">
 <a href="docs/architecture.png"><img src="docs/architecture.png" align="center" width="80%" ></a>
 </div>
+
 ## 🗄 Structure
 ```
 ./
