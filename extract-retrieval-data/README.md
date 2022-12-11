@@ -75,10 +75,10 @@ dst_dir: str = ./retrieval-data
 
 ### 🚀 Operation
 
-Run `extract_retrieval_data.py`
+Run `run.py`
 
 ```bash
-poetry run python extract_retrieval_data.py
+poetry run python run.py
 ```
 For the requested period, the tool generates one `<campaign_name>_em27_export_<date>.csv` file per day.
 
@@ -119,7 +119,6 @@ _TBD_
 ├── .gitignore
 ├── README.md
 ├── config.example.json
-├── extract_retrieval_data.py
 ├── poetry.lock
 ├── pyproject.toml
 └── run.py

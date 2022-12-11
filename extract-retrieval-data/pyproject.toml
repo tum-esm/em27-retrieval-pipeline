@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "extract-retrieval-data"
 version = "0.2.0"
-description = ""
+description = "Generates CSV files containing post-processed concentration time series."
 authors = [
     "Marlon Mueller <marlon.mueller@tum.de>",
     "Moritz Makowski <moritz.makowski@tum.de>"
