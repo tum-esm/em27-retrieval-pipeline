@@ -58,7 +58,7 @@ def filter_daily_sensor_sets(
     """
 
     return {
-        date: sensors
+        date: sensors.copy()
         for date, sensors in daily_sensor_sets.items()
         if not os.path.isfile(
             os.path.join(config.dst_dir, f"{campaign_name}_em27_export_{date}.csv")
