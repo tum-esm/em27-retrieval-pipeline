@@ -20,7 +20,7 @@ start_with_spectra: False
 delete_abscosbin_files: True
 delete_input_files: False
 note:
-proffast_path: %PROJECT_DIR%/src/prfpylot/prf
+proffast_path: %PROFFAST_PATH%
 
 # TCCON
 tccon_mode: False

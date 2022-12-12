@@ -23,3 +23,10 @@ def load_config(
     new_config: types.ConfigDict = config
 
     return new_config
+
+def load_proffast_config(
+) -> dict:
+    with open(os.path.join(PROJECT_DIR, "config", "pylot_container.json"), "r") as f:
+        config = json.load(f)
+        return config
+    return {}

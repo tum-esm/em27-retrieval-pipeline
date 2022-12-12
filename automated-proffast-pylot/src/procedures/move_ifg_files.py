@@ -10,6 +10,7 @@ DST = f"{PROJECT_DIR}/inputs"
 
 def run(config: types.ConfigDict, session: types.SessionDict) -> None:
     sensor, date = session["sensor"], session["date"]
+    container_id = session["container_id"]
 
     existing_src_directories = utils.get_existing_src_directories(config, sensor, date)
 
@@ -29,7 +30,7 @@ def run(config: types.ConfigDict, session: types.SessionDict) -> None:
     ifg_src = existing_src_directories[0]
 
     # Create empty output directory for that date
-    dst_date_path = f"{DST}/{sensor}_ifg/{date[2:]}"
+    dst_date_path = f"{DST}/{container_id}/{sensor}_ifg/{date[2:]}"
     os.mkdir(dst_date_path)
 
     copied_ifg_count = 0
