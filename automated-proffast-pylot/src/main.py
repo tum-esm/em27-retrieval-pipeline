@@ -21,7 +21,7 @@ def run() -> None:
 
 
     try:
-        retrieval_queue = utils.RetrievalQueue(config, pylot_factory)
+        retrieval_queue = utils.RetrievalQueue(config, main_logger, pylot_factory)
 
         for session in retrieval_queue:
             sensor = session["sensor"]
