@@ -1,15 +1,10 @@
-import importlib.util
 import importlib
 import os
 import random
 import shutil
-from string import Template
 import string
 import subprocess
-import uuid
 import requests
-import sys
-import json
 from src.utils import load_proffast_config
 from src import proffast_path
 from src.utils.logger import Logger
@@ -17,7 +12,6 @@ from clint.textui import progress
 from zipfile import ZipFile
 from tqdm import tqdm
 import checksumdir
-import inspect
 
 
 class PylotFactory:
@@ -59,7 +53,7 @@ class PylotFactory:
     def execute_pylot(self, container_id: str, config_path: str, num_threads: int) -> subprocess.CompletedProcess:
         # Do we need a timeout?
         runner = os.path.join(proffast_path, self.container_runner)
-        result = subprocess.run(['python', runner, container_id, config_path, num_threads], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+        result = subprocess.run(['python', runner, container_id, config_path, str(num_threads)], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
         return result
 
     def clean_up(self) -> None:
