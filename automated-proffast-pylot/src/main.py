@@ -42,9 +42,9 @@ def run() -> None:
             try:
                 procedures.move_vertical_profiles.run(config, session)
                 label = "datalogger files"
-                procedures.move_datalogger_files.run(config, session)
+                procedures.move_datalogger_files.run(config, logger, session)
                 label = "ifgs files"
-                procedures.move_ifg_files.run(config, session)
+                procedures.move_ifg_files.run(config, logger, session)
             except AssertionError as e:
                 message = f"Inputs incomplete ({label})" + (
                     f": {e}" if "vertical" not in label else ""
@@ -58,7 +58,7 @@ def run() -> None:
 
             logger.info(f"Running the pylot")
             try:
-                procedures.run_proffast_pylot.run(session)
+                procedures.run_proffast_pylot.run(session, pylot_factory)
                 logger.debug(f"Pylot completed without errors")
             except Exception as e:
                 logger.warning(f"Pylot error: {e}")
@@ -70,7 +70,7 @@ def run() -> None:
 
             logger.info(f"Moving the outputs")
             try:
-                procedures.move_outputs.run(config, session)
+                procedures.move_outputs.run(config, logger, session)
                 logger.info(f"Finished")
             except AssertionError as e:
                 logger.error(f"Moving outputs failed: {e}")
