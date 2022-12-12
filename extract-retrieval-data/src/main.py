@@ -10,8 +10,8 @@ from src import custom_types, procedures
 def run() -> None:
 
     # Configuration
-    PROJECT_PATH = pathlib.Path(os.path.abspath(__file__)).parents[1]
-    with open(os.path.join(PROJECT_PATH, "config.json"), "r") as f:
+    project_path = pathlib.Path(os.path.abspath(__file__)).parents[1]
+    with open(os.path.join(project_path, "config.json"), "r") as f:
         config = custom_types.Config(**json.load(f))
 
     # Request campaign, sensor and location data
