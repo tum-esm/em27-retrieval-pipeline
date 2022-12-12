@@ -24,12 +24,13 @@ checksumdir = "1.0.5"
 clint = "0.5.1"
 
 
-[tool.poetry.dev-dependencies]
-black = "^22.3.0"
-pytest = "^7.1.2"
+[tool.poetry.group.dev]
+optional = true
 
 [tool.poetry.group.dev.dependencies]
 mypy = "^0.971"
+black = "^22.3.0"
+pytest = "^7.1.2"
 
 [tool.black]
 line-length = 88
