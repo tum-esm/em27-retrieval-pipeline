@@ -48,7 +48,7 @@ class PylotFactory:
         #self._verify_main_pylot()
         # Generate random container_id
         container_id = PylotFactory.get_random_string(10)
-        container_path = os.path.join(self.working_dir, container_id)
+        container_path = os.path.join(proffast_path, container_id)
         # Create new prfpylot instance
         shutil.copytree(self.main, container_path)
         # Register Container
@@ -58,7 +58,7 @@ class PylotFactory:
 
     def execute_pylot(self, container_id: str, config_path: str, num_threads: int) -> subprocess.CompletedProcess:
         # Do we need a timeout?
-        runner = os.path.join(self.working_dir, self.container_runner)
+        runner = os.path.join(proffast_path, self.container_runner)
         result = subprocess.run(['python', runner, container_id, config_path, num_threads], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
         return result
 
@@ -80,7 +80,7 @@ class PylotFactory:
         self.logger.info(f"Loading Proffast.. from {self.config['proffast_url']}")
         proffast_url = self.config['proffast_url']
 
-        proffast_archive = os.path.join(self.working_dir, 'proffast.zip')
+        proffast_archive = os.path.join(self.main, 'proffast.zip')
         r = requests.get(proffast_url, stream=True)
         with open(proffast_archive, 'wb') as f:
             total_length = int(r.headers.get('content-length'))
