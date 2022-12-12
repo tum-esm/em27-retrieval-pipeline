@@ -35,8 +35,8 @@ class Sensor(BaseModel):
     """A sensor, e.g., "ma":
     {
         "serial_number": 61,
-        "utc_offsets": [UTCOffest, ...],
-        "locations": [SensorLocation, ...],
+        "utc_offsets": list[<class 'UTCOffest'>],
+        "locations": list[<class 'SensorLocation'>],
     }.
     """
 
