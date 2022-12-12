@@ -5,8 +5,8 @@ import os
 import sys
 from tests.fixtures import wrap_test_with_mainlock, PROJECT_DIR
 
-sys.path.append(os.path.join(PROJECT_DIR, "src", "prfpylot"))
-from src.prfpylot.prfpylot.pylot import Pylot
+#sys.path.append(os.path.join(PROJECT_DIR, "src", "prfpylot"))
+#from src.prfpylot.prfpylot.pylot import Pylot
 
 
 def _set_up_empty_output_directory():
@@ -32,7 +32,7 @@ def _insert_replacements(content: str, replacements: dict[str, str]) -> str:
     return content
 
 
-def _generate_pylot_config() -> str:
+def _generate_pylot_config(proffast_path: str = None) -> str:
     file_content = _load(f"{PROJECT_DIR}/src/config/pylot_config_template.yml")
     replacements = {
         "%SERIAL_NUMBER%": "115",
@@ -45,6 +45,8 @@ def _generate_pylot_config() -> str:
         "%COORDINATES_ALT%": "0.180",
         "%UTC_OFFSET%": "0",
     }
+    if proffast_path:
+        replacements['%PROFFAST_PATH%'] = proffast_path
     file_content = _insert_replacements(file_content, replacements)
     file_path = f"{PROJECT_DIR}/example/inputs/mc-pylot-config.yml"
     _dump(file_path, file_content)
