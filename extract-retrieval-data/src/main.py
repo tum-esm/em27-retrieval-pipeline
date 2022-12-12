@@ -27,6 +27,8 @@ def run() -> None:
 
     # Generate daily sensor sets
     daily_sensor_sets = procedures.get_daily_sensor_sets(config.request, campaign, sensors)
+    if not daily_sensor_sets:
+        return
 
     if not config.request.override_data:
         # Filter out existing files
