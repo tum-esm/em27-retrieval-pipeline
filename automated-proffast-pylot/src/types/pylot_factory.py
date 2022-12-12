@@ -11,6 +11,7 @@ import requests
 import sys
 import json
 from src.utils import load_proffast_config
+from src import proffast_path
 from src.utils.logger import Logger
 from clint.textui import progress
 from zipfile import ZipFile
@@ -22,7 +23,6 @@ import inspect
 class PylotFactory:
 
     config = {}
-    working_dir = ""
     container_runner = ""
     main = ""
     tag_file = ""
@@ -32,16 +32,16 @@ class PylotFactory:
     def __init__(self, logger: Logger):
         # Load Config
         self.config = load_proffast_config()
-        self.working_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), "prfpylot")
         self.container_runner = self.config['container_runner']
         self.logger = logger
-        self.main = os.path.join(self.working_dir, 'main')
-        self.tag_file = os.path.join(self.working_dir, 'tag')
+        self.main = os.path.join(proffast_path, 'main')
         self.containers = {}
 
-        if os.path.exists(self.working_dir) == False:
-            os.makedirs(self.working_dir)
-        self._verify_main_pylot()       # import version of Pylot for this container
+        if os.path.exists(self.main) and len(os.listdir(self.main)) > 0:
+            self._verify_main_pylot()       # import version of Pylot for this container
+        else:
+            logger.error("Pylot submodule not initialized. please setup submodule and rerun")
+            raise RuntimeError("Pylot submodule not initialized")
         print(f"setup prfpylot at {self.main} successfuly")
 
     def create_pylot_instance(self) -> str:
@@ -67,23 +67,10 @@ class PylotFactory:
             shutil.rmtree(item)
 
     def _verify_main_pylot(self):
-        """TODO: Needs to Change"""
-        """
-        if os.path.exists(self.tag_file) and os.path.exists(self.main):
-            hash = checksumdir.dirhash(self.main)
-            with open(self.tag_file, 'r') as f:
-                stored_hash = f.read()
-                if hash == stored_hash:
-                    Logger.info(
-                        "no changes done to the main proffast pylot version")
-                else:
-                    Logger.error(
-                        "Changes detected in the main proffast pylot version, creating fresh main instance")
-                    shutil.rmtree(self.main)
-                    self._clone_pylot_repo()
+        if os.path.exists(os.path.join(self.main, "prf")):
+            self.logger.info("Proffast setup, continuing program")
         else:
             self._clone_pylot_repo()
-        """
 
     def _clone_pylot_repo(self):
         """
