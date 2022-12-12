@@ -54,7 +54,7 @@ def run(session: types.SessionDict) -> None:
 
     os.makedirs(f"{PROJECT_DIR}/inputs/{container_id}/{session['sensor']}_ifg")
     os.makedirs(f"{PROJECT_DIR}/inputs/{container_id}/{session['sensor']}_map")
-    os.mkdirs(f"{PROJECT_DIR}/inputs/{container_id}/{session['sensor']}_pressure")
+    os.makedirs(f"{PROJECT_DIR}/inputs/{container_id}/{session['sensor']}_pressure")
 
     _generate_pylot_config(session=session, container_id=container_id, container_path=container_path)
-    _generate_pylot_log_format(session)
+    _generate_pylot_log_format(session, container_id)
