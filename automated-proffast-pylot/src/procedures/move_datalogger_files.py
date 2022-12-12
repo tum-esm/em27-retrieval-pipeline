@@ -6,7 +6,7 @@ dir = os.path.dirname
 PROJECT_DIR = dir(dir(dir(os.path.abspath(__file__))))
 
 
-def run(config: types.ConfigDict, session: types.SessionDict) -> None:
+def run(config: types.ConfigDict, logger: utils.Logger, session: types.SessionDict) -> None:
     sensor, date, container_id = session["sensor"], session["date"], session['container_id']
 
     filename = f"datalogger-{sensor}-{date}.csv"
@@ -21,7 +21,7 @@ def run(config: types.ConfigDict, session: types.SessionDict) -> None:
 
     # 1440 minutes per day + 1 header line
     if line_count < 1441:
-        utils.Logger.warning(
+        logger.warning(
             f"{sensor}/{date} - datalogger file only has {line_count}/1441 lines"
         )
     assert line_count >= 30, "datalogger file has less than 30 entries"
