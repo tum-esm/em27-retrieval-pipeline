@@ -5,17 +5,12 @@ from ftplib import FTP
 from rich.progress import track
 from datetime import datetime
 
-from src import custom_types, procedures
+from src import custom_types, procedures, utils
 
 
 def run() -> None:
 
     project_path = pathlib.Path(os.path.abspath(__file__)).parents[1]
-
-    # Prepare report summary
-    report_name = datetime.utcnow().strftime("%Y%m%d%H%M")
-    with open(f"{project_path}/ftp-reports/{report_name}.json", "w+") as report:
-        json.dump({"queries": []}, report)
 
     # Configuration
     with open(os.path.join(project_path, "config.json"), "r") as f:
@@ -51,31 +46,30 @@ def run() -> None:
             # Combine sensor sets to query intervals
             query_list = procedures.get_query_list(sensor_sets)
 
-            for query in track(query_list, description=f"Downloading {version}..."):
-                # Check if data already exists on FTP server
-                up_status, up_time = True, -1.0
-                down_status, down_time = procedures.download_data(config.ftp, query, ftp, version)
-                if not down_status:
-                    # Request data and download_data
-                    up_status, up_time = procedures.upload_request(config.ftp, query, ftp, version)
+            with utils.Reporter(query_list, version) as reporter:
+
+                for query in track(query_list, description=f"Downloading {version}..."):
+                    # Check if data already exists on FTP server
+                    up_status, up_time = True, 0.0
                     down_status, down_time = procedures.download_data(
-                        config.ftp, query, ftp, version, wait=True
+                        config.ftp, query, ftp, version
                     )
+                    if not down_status:
+                        # Request data
+                        up_status, up_time = procedures.upload_request(
+                            config.ftp, query, ftp, version
+                        )
+                        if up_status:
+                            # Await data if upload successful
+                            down_status, down_time = procedures.download_data(
+                                config.ftp, query, ftp, version, wait=True
+                            )
 
-                # Append query statistics to report summary
-                with open(f"{project_path}/ftp-reports/{report_name}.json", "r+") as report:
-                    data = json.load(report)
-                    data["queries"].append(
-                        query.to_json()
-                        | {
-                            "up_status": up_status,
-                            "up_time": round(up_time),
-                            "down_status": down_status,
-                            "down_time": round(down_time),
-                        }
-                    )
-                    report.seek(0)
-                    json.dump(data, report, indent=4)
+                    # Append query statistics to report
+                    reporter.report_query(query, up_status, up_time, down_status, down_time)
 
-            # Export data to dst_dir
-            procedures.export_data(config.request, daily_sensor_sets, version)
+                    if not down_status:
+                        return
+
+                # Export data to dst_dir
+                procedures.export_data(config.request, daily_sensor_sets, version)

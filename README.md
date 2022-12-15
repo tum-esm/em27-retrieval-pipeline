@@ -88,10 +88,8 @@ mm hh * * * .../.venv/bin/python .../run.py
 ├── .github/workflows
 │   └── continuous_integration.yml
 ├── docs/
-│   ├── GGG2014/
-│   ├── GGG2020/
 │   └── architecture.png
-├── ftp-reports/
+├── reports/
 ├── src/
 │   ├── custom_types/
 │   │   ├── location_data_types/

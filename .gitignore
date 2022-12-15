@@ -22,5 +22,7 @@ vertical-profiles/GGG2020/*
 !vertical-profiles/GGG2014/.gitkeep
 !vertical-profiles/GGG2020/.gitkeep
 
-ftp-reports/*
-!ftp-reports/.gitkeep
+reports/GGG2014/*
+reports/GGG2020/*
+!reports/GGG2014/.gitkeep
+!reports/GGG2020/.gitkeep
