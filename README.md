@@ -41,7 +41,7 @@ token: str
 data_dir: str
 ```
 ####  :floppy_disk: FTP
-Access to and.
+Settings for accessing `ccycle.gps.caltech.edu`.
 ```python
 email: str
 max_day_delay: int = 7
@@ -51,7 +51,7 @@ download_sleep: int = 60
 download_timeout: int = 600
 ```
 ####  :mag_right: Request
-Settings for the retrieval process. Note that the date format is **YYYYMMDD**.
+Settings for the request. Note that the date format is **YYYYMMDD**.
 ```python
 
 versions: list[Version] = ["GGG2014"]
@@ -88,21 +88,26 @@ mm hh * * * .../.venv/bin/python .../run.py
 ├── .github/workflows
 │   └── continuous_integration.yml
 ├── docs/
-│   ├── 
+│   ├── GGG2014/
+│   ├── GGG2020/
 │   └── architecture.png
-├── vertical-profiles/
+├── ftp-reports/
 ├── src/
 │   ├── custom_types/
 │   │   ├── location_data_types/
 │   │   │   ├── location.py
 │   │   │   └── sensor.py
 │   │   ├── config.py
+│   │   ├── query.py
 │   │   └── validators.py
 │   ├── procedures/
 │   │   ├── location_data.py
+│   │   ├── query.py
+│   │   └── sensor_set.py
 │   ├── utils/
 │   │   └── network.py
 │   └── main.py
+├── vertical-profiles/
 ├── .gitattributes
 ├── .gitignore
 ├── README.md
@@ -111,28 +116,30 @@ mm hh * * * .../.venv/bin/python .../run.py
 ├── pyproject.toml
 └── run.py
 ```
+####  :floppy_disk: `ccycle.gps.caltech.edu`
+**GGG2014**
+```
+Directories
+- upload/modfiles/tar/maps/
+- upload/modfiles/tar/mods/
+Archives
+- maps_48N012E_20211110_20211110.tar
+- mods_48N012E_20211110_20211110.tar
+Files
+- 2021111021_48N012E.map
+- NCEP_20221209_19N_099W.mod
+```
+**GGG2020**
+```
+Directory
+- ginput-jobs/
+Archive
+- job_000022748_tu_48.00N_12.00E_20211110-20211111.tgz
+Files
+- fpit/tu/maps-vertical/tu_48N_012E_2021111000Z.map 
+- fpit/tu/vertical/FPIT_2021111000Z_48N_012E.mod
+- fpit/tu/vmrs-vertical/JL1_2021111000Z_48N_012E.vmr
+```
 [^1]: TCCON: https://tccon-wiki.caltech.edu/Main/ObtainingGinputData
 [^2]: Poetry Installation: https://python-poetry.org/docs/#installation
 [^3]: Example Repository: https://github.com/tum-esm/em27-location-data
-
-```
-GGG2014
-* Directories
-    - upload/modfiles/tar/maps/
-    - upload/modfiles/tar/mods/
-* Archives
-    - maps_48N012E_20211110_20211110.tar
-    - mods_48N012E_20211110_20211110.tar
-* Files
-    - 2021111021_48N012E.map
-    - NCEP_20221209_19N_099W.mod
-GGG2020
-* Directory
-    - ginput-jobs/
-* Archive
-    - job_000022748_tu_48.00N_12.00E_20211110-20211111.tgz
-* Files
-    - fpit/tu/maps-vertical/tu_48N_012E_2021111000Z.map 
-    - fpit/tu/vertical/FPIT_2021111000Z_48N_012E.mod
-    - fpit/tu/vmrs-vertical/JL1_2021111000Z_48N_012E.vmr
-```
