@@ -5,15 +5,6 @@ import os
 from datetime import datetime
 
 
-def validate_bool() -> Callable[[Any, bool], bool]:
-    def f(cls: Any, v: Any) -> bool:
-        if not isinstance(v, bool):
-            raise ValueError(f'"{v}" is not a boolean')
-        return v
-
-    return f
-
-
 def validate_str(
     regex: str | None = None,
     is_date: bool = False,

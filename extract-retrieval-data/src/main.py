@@ -27,17 +27,17 @@ def run() -> None:
 
     # Generate daily sensor sets
     daily_sensor_sets = procedures.get_daily_sensor_sets(config.request, campaign, sensors)
+
+    # Filter out existing files
+    daily_sensor_sets = procedures.filter_daily_sensor_sets(
+        config.request, campaign_name, daily_sensor_sets
+    )
+
     if not daily_sensor_sets:
         return
 
-    if not config.request.override_data:
-        # Filter out existing files
-        daily_sensor_sets = procedures.filter_daily_sensor_sets(
-            config.request, campaign_name, daily_sensor_sets
-        )
-
     # For each day, query database and produce .csv
-    for date, sensor_set in track(daily_sensor_sets.items(), description="Processing..."):
+    for date, sensor_set in track(daily_sensor_sets.items(), description="Downloading..."):
 
         sensor_dataframes = {}
         for sensor in sensor_set:

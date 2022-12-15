@@ -1,14 +1,7 @@
 import os
 from collections import defaultdict
 from datetime import datetime, timedelta
-from src.custom_types import (
-    RequestConfig,
-    CampaignId,
-    SensorId,
-    Campaign,
-    Sensor,
-    Date,
-)
+from src.custom_types import *
 
 
 def get_daily_sensor_sets(
@@ -39,11 +32,11 @@ def get_daily_sensor_sets(
                 continue
 
             # Iterate over individual days and add sensor
-            date = datetime.strptime(from_date, "%Y%m%d").date()
-            stop = datetime.strptime(to_date, "%Y%m%d").date()
+            date = str_to_dt(from_date)
+            stop = str_to_dt(to_date)
 
             while date <= stop:
-                daily_sensor_sets[date.strftime("%Y%m%d")].add(station.sensor)
+                daily_sensor_sets[dt_to_str(date)].add(station.sensor)
                 date += timedelta(+1)
 
     return daily_sensor_sets
