@@ -3,7 +3,7 @@ name = "download-vertical-profiles"
 version = "0.5.0"
 description = "Download .map, .vmr and .mod files from ccycle.gps.caltech.edu"
 authors = [
-    "Marlon Müller <marlon.mueller@tum.de>",
+    "Marlon Mueller <marlon.mueller@tum.de>",
     "Moritz Makowski <moritz.makowski@tum.de>",
     "Xinxu Zhao <xinxu.zhao@tum.de>",
     "Florian Dietrich <flo.dietrich@tum.de>"
@@ -11,27 +11,18 @@ authors = [
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "^3.10"
-httpx = "^0.23.0"
-attrs = "^22.1.0"
-filelock = "^3.8.0"
-tenacity = "^8.1.0"
-tqdm = "^4.64.1"
-
+python = "^3.11"
+pydantic = "^1.10.2"
+requests = "^2.28.1"
+rich = "^12.6.0"
 
 [tool.poetry.group.dev.dependencies]
-mypy = "^0.991"
 black = "^22.10.0"
-pytest = "^7.2.0"
-pytest-cov = "^4.0.0"
-types-tqdm = "^4.64.7.9"
-
-[build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
+mypy = "^0.991"
+types-requests = "^2.28.11.5"
 
 [tool.black]
-line-length = 95
+line-length = 100
 
 [tool.mypy]
 strict = true

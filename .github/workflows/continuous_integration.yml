@@ -4,7 +4,6 @@ on:
   push:
     branches: [ $default-branch ]
   pull_request:
-    #branches: [ $default-branch ]
 
 jobs:
   build:
@@ -23,7 +22,6 @@ jobs:
         run: |
           pipx install poetry
           poetry config virtualenvs.in-project true
-
       - name: Set up python ${{ matrix.python-version }}
         uses: actions/setup-python@v4
         with:
@@ -33,11 +31,11 @@ jobs:
       - name: Install missed dependencies
         run: poetry install
 
-      #- name: Format with black
-      #  run: poetry run black . --check --diff
+      - name: Format with black
+        run: poetry run black . --check --diff
 
       - name: Type check with mypy
-        run: poetry run mypy . --strict --implicit-reexport
+        run: poetry run mypy .
       
-      - name: Test with pytest
-        run: poetry run pytest --cov=.
+      #- name: Test with pytest
+      #  run: poetry run pytest --cov=.

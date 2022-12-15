@@ -1,1 +1,1 @@
-from .network import get_git_urls
+from . import network

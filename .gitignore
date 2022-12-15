@@ -2,21 +2,25 @@
 *.pyc
 .vscode
 .DS_Store
-.coverage
-cov.xml
 
 *.map
 *.mod
 *.vmr
 
-!docs/example-profiles/GGG2014/*
-!docs/example-profiles/GGG2020/*
+!docs/GGG2014/20200810_48N012E/*
+!docs/GGG2020/20200810_48N012E/*
 
 config.json
-config.json.lock
 
-vertical-profiles/*
-!vertical-profiles/.gitkeep
+.cache/GGG2014/*
+.cache/GGG2014/*
+!.cache/GGG2014/.gitkeep
+!.cache/GGG2020/.gitkeep
 
-reports/*
-!reports/.gitkeep
+vertical-profiles/GGG2014/*
+vertical-profiles/GGG2020/*
+!vertical-profiles/GGG2014/.gitkeep
+!vertical-profiles/GGG2020/.gitkeep
+
+ftp-reports/*
+!ftp-reports/.gitkeep
