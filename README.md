@@ -2,7 +2,7 @@
 
 <div align="center">
 
-[![Continuous Integration](https://github.com/tum-esm/automated-retrieval-pipeline/tree/main/extract-retrieval-data/actions/workflows/continuous-integration.yml/badge.svg)](https://github.com/tum-esm/automated-retrieval-pipeline/tree/main/extract-retrieval-data/actions/workflows/continuous_integration.yml)
+[![Continuous Integration](https://github.com/tum-esm/download-vertical-profiles/actions/workflows/continuous_integration.yml/badge.svg)](https://github.com/tum-esm/download-vertical-profiles/actions/workflows/continuous_integration.yml)
 
 Used to download __`.map`__, __`.mod`__ and __`.vmr`__ files from __<span>ccycle.gps.caltech.edu</span>__.[^1]<br/>Samples can be found in **`docs/`**.
 
