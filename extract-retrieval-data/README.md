@@ -13,7 +13,7 @@ Generates CSV files containing post-processed concentration time series.<br/>A s
 <hr />
 
 ## :sparkles: Getting Started
-Requires __Python 3.11+__. Dependency management with __Poetry__.[^1] 
+Requires __Python 3.10+__. Dependency management with __Poetry__.[^1] 
 
 ### :electric_plug: Installation
 Clone the repository and set up the project interpreter
@@ -69,7 +69,6 @@ data_types: DataType = [
     "xch4_s5p",
 ]
 sampling_rate: Rate = "1 min"
-override_data: bool = False
 dst_dir: str = ./retrieval-data
 ```
 
