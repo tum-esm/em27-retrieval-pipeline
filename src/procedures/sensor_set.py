@@ -41,9 +41,9 @@ def get_daily_sensor_sets(
 
             # Iterate over individual days and add sensor
             date, stop = str_to_dt(from_date), str_to_dt(to_date)
+            query_location = QueryLocation(lat=round(location.lat), lon=round(location.lon))
 
             while date <= stop:
-                query_location = QueryLocation(lat=round(location.lat), lon=round(location.lon))
                 daily_sensor_sets[query_location][dt_to_str(date)].add(sensor_id)
                 date += timedelta(+1)
 

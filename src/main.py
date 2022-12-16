@@ -3,7 +3,6 @@ import pathlib
 import os, copy
 from ftplib import FTP
 from rich.progress import track
-from datetime import datetime
 
 from src import custom_types, procedures, utils
 
