@@ -110,15 +110,16 @@ def upload_request(
 
 def download_data(
     config: FTPConfig, query: Query, ftp: FTP, version: Version, wait: bool = False
-) -> tuple[bool, float]:
+) -> tuple[bool, float, str | None]:
     """
     Downloads .map, .mod and .vmr data and stores it in .cache/{version}.
 
     Searches exclusively for archive suffixes on the FTP server, given that
     job identifiers are unknown and sensor prefixes are irrelevant. Set 'wait'
-    to True to attempt until the data is found or config.download_timeout is
+    to True to attempt until the is found or config.download_timeout is
     exceeded. Sleeps config.download_sleep seconds in between each attempt.
-    Returns whether successful and time.time() - upload_start.
+    Returns whether successful, time.time() - upload_start and retrieved
+    to date (as the server might truncate too recent requests).
     """
 
     response: set[str] = set()
@@ -131,6 +132,7 @@ def download_data(
         remote_dirs = {"upload/modfiles/tar/maps", "upload/modfiles/tar/mods"}
         suffixes = [f"{query.location.slug()}_{d}.tar" for d in date_suffixes]
 
+    to_date = None
     download_start = time.time()
     while response != remote_dirs and time.time() - download_start < config.download_timeout:
 
@@ -140,22 +142,32 @@ def download_data(
         for remote_dir in remote_dirs - response:
             nlst = ftp.nlst(remote_dir)
             # Retrieve archive with largest date range
-            tar_str = next((f for s in suffixes for f in nlst if f.endswith(s)), None)
-            if tar_str is not None:
+            suffix, archive_str = next(
+                (
+                    (suffix, archive_str)
+                    for suffix in suffixes
+                    for archive_str in nlst
+                    if archive_str.endswith(suffix)
+                ),
+                (None, None),
+            )
+
+            if suffix is not None:
                 # Retrieve data in-memory
                 with BytesIO() as archive:
                     ftp.retrbinary(
-                        f"RETR {tar_str}",
+                        f"RETR {archive_str}",
                         archive.write,
                     )
                     archive.seek(0)
                     response.add(remote_dir)
+                    to_date = suffix[-12:-4]
                     _extract_archive(archive, query, version)
 
         if not wait:
             break
 
-    return response == remote_dirs, time.time() - download_start
+    return response == remote_dirs, time.time() - download_start, to_date
 
 
 def _get_date_suffixes(config: FTPConfig, query: Query, version: Version) -> list[str]:

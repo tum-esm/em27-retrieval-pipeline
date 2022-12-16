@@ -50,7 +50,7 @@ def run() -> None:
                 for query in track(query_list, description=f"Downloading {version}..."):
                     # Check if data already exists on FTP server
                     up_status, up_time = True, 0.0
-                    down_status, down_time = procedures.download_data(
+                    down_status, down_time, to_date = procedures.download_data(
                         config.ftp, query, ftp, version
                     )
                     if not down_status:
@@ -60,12 +60,19 @@ def run() -> None:
                         )
                         if up_status:
                             # Await data if upload successful
-                            down_status, down_time = procedures.download_data(
+                            down_status, down_time, to_date = procedures.download_data(
                                 config.ftp, query, ftp, version, wait=True
                             )
 
                     # Append query statistics to report
-                    reporter.report_query(query, up_status, up_time, down_status, down_time)
+                    reporter.report_query(
+                        query,
+                        up_status,
+                        up_time,
+                        down_status,
+                        down_time,
+                        to_date,
+                    )
 
                     if not down_status:
                         return
