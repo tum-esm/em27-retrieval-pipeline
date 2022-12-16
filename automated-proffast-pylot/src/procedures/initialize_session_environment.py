@@ -32,6 +32,7 @@ def _generate_pylot_config(session: types.SessionDict, container_path: str, cont
         "COORDINATES_LON": str(round(session["lon"], 3)),
         "COORDINATES_ALT": str(round(session["alt"] / 1000.0, 3)),
         "UTC_OFFSET": str(round(session["utc_offset"], 2)),
+        "CONTAINER_ID": container_id,
         "PROFFAST_PATH": container_path
     }
     file_content = _insert_replacements(file_content, replacements)

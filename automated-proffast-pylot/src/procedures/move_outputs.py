@@ -33,8 +33,8 @@ def detect_error_type(output_src: str) -> Optional[str]:
     return None
 
 
-def run(config: types.ConfigDict, logger: utils.Logger, session: types.SessionDict, container_id: str) -> None:
-    sensor, date = session["sensor"], session["date"]
+def run(config: types.ConfigDict, logger: utils.Logger, session: types.SessionDict) -> None:
+    sensor, date, container_id = session["sensor"], session["date"], sensor["container_id"]
 
     output_src = (
         f"{PROJECT_DIR}/outputs/{sensor}_"

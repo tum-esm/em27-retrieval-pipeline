@@ -27,10 +27,10 @@ tccon_mode: False
 tccon_setting:
 
 # INPUT PATHS
-interferogram_path: %PROJECT_DIR%/inputs/%SENSOR%_ifg
-map_path: %PROJECT_DIR%/inputs/%SENSOR%_map
-pressure_path: %PROJECT_DIR%/inputs/%SENSOR%_pressure
-pressure_type_file: %PROJECT_DIR%/inputs/%SENSOR%-log-format.yml
+interferogram_path: %PROJECT_DIR%/inputs/%CONTAINER_ID%/%SENSOR%_ifg
+map_path: %PROJECT_DIR%/inputs/%CONTAINER_ID%/%SENSOR%_map
+pressure_path: %PROJECT_DIR%/inputs/%CONTAINER_ID%/%SENSOR%_pressure
+pressure_type_file: %PROJECT_DIR%/inputs/%CONTAINER_ID%/%SENSOR%-log-format.yml
 
 # OUTPUT PATHS
 analysis_path: %PROJECT_DIR%/outputs/analysis
