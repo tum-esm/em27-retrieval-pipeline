@@ -44,7 +44,7 @@ def __process_session(config: ConfigDict, session: SessionDict, pylot_factory: P
 
     logger.info(f"Running the pylot")
     try:
-        procedures.run_proffast_pylot.run(session, pylot_factory)
+        procedures.run_proffast_pylot.run(session, pylot_factory, logger)
         logger.debug(f"Pylot completed without errors")
     except Exception as e:
         logger.warning(f"Pylot error: {e}")
