@@ -15,38 +15,38 @@ def test_get_query_list() -> None:
 
     daily_sensor_sets: dict[QueryLocation, dict[Date, set[SensorId]]] = {
         l_0: {
-            "00010101": set(),
+            "10000101": set(),
         },
         l_1: {
-            "00010101": set(),
-            "00010102": set(),
+            "10000101": set(),
+            "10000102": set(),
         },
         l_2: {
-            "00010101": set(),
-            "00010102": set(),
-            "00010103": set(),
+            "10000101": set(),
+            "10000102": set(),
+            "10000103": set(),
         },
         l_3: {
-            "00010101": set(),
-            "00010103": set(),
+            "10000101": set(),
+            "10000103": set(),
         },
         l_4: {
-            "00010101": set(),
-            "00010103": set(),
-            "00010104": set(),
-            "00010106": set(),
+            "10000101": set(),
+            "10000103": set(),
+            "10000104": set(),
+            "10000106": set(),
         },
     }
 
     query_list = [
-        Query(from_date="00010101", to_date="00010101", location=l_0),
-        Query(from_date="00010101", to_date="00010102", location=l_1),
-        Query(from_date="00010101", to_date="00010103", location=l_2),
-        Query(from_date="00010101", to_date="00010101", location=l_3),
-        Query(from_date="00010103", to_date="00010103", location=l_3),
-        Query(from_date="00010101", to_date="00010101", location=l_4),
-        Query(from_date="00010103", to_date="00010104", location=l_4),
-        Query(from_date="00010106", to_date="00010106", location=l_4),
+        Query(from_date="10000101", to_date="10000101", location=l_0),
+        Query(from_date="10000101", to_date="10000102", location=l_1),
+        Query(from_date="10000101", to_date="10000103", location=l_2),
+        Query(from_date="10000101", to_date="10000101", location=l_3),
+        Query(from_date="10000103", to_date="10000103", location=l_3),
+        Query(from_date="10000101", to_date="10000101", location=l_4),
+        Query(from_date="10000103", to_date="10000104", location=l_4),
+        Query(from_date="10000106", to_date="10000106", location=l_4),
     ]
 
     assert query_list == get_query_list(daily_sensor_sets)
@@ -55,32 +55,32 @@ def test_get_query_list() -> None:
 @patch("src.procedures.query.datetime")
 def test_get_date_suffixes(mock_dt: Any) -> None:
 
-    mock_dt.utcnow.return_value = datetime(1, 1, 10)
+    mock_dt.utcnow.return_value = datetime(1000, 1, 10)
     c = FTPConfig(email="_@_._", max_day_delay=7)
     l = QueryLocation(lat=0, lon=0)
 
     v: Version = "GGG2014"
 
-    q = Query(from_date="00010101", to_date="00010101", location=l)
-    assert ["00010101_00010101"] == _get_date_suffixes(c, q, v)
-    q = Query(from_date="00010101", to_date="00010103", location=l)
-    assert ["00010101_00010103"] == _get_date_suffixes(c, q, v)
-    q = Query(from_date="00010101", to_date="00010104", location=l)
-    assert ["00010101_00010104", "00010101_00010103"] == _get_date_suffixes(c, q, v)
-    q = Query(from_date="00010103", to_date="00010104", location=l)
-    assert ["00010103_00010104", "00010103_00010103"] == _get_date_suffixes(c, q, v)
-    q = Query(from_date="00010105", to_date="00010106", location=l)
-    assert ["00010105_00010106", "00010105_00010105"] == _get_date_suffixes(c, q, v)
+    q = Query(from_date="10000101", to_date="10000101", location=l)
+    assert ["10000101_10000101"] == _get_date_suffixes(c, q, v)
+    q = Query(from_date="10000101", to_date="10000103", location=l)
+    assert ["10000101_10000103"] == _get_date_suffixes(c, q, v)
+    q = Query(from_date="10000101", to_date="10000104", location=l)
+    assert ["10000101_10000104", "10000101_10000103"] == _get_date_suffixes(c, q, v)
+    q = Query(from_date="10000103", to_date="10000104", location=l)
+    assert ["10000103_10000104", "10000103_10000103"] == _get_date_suffixes(c, q, v)
+    q = Query(from_date="10000105", to_date="10000106", location=l)
+    assert ["10000105_10000106", "10000105_10000105"] == _get_date_suffixes(c, q, v)
 
     v = "GGG2020"
 
-    q = Query(from_date="00010101", to_date="00010101", location=l)
-    assert ["00010101-00010102"] == _get_date_suffixes(c, q, v)
-    q = Query(from_date="00010101", to_date="00010103", location=l)
-    assert ["00010101-00010104"] == _get_date_suffixes(c, q, v)
-    q = Query(from_date="00010101", to_date="00010104", location=l)
-    assert ["00010101-00010105", "00010101-00010104"] == _get_date_suffixes(c, q, v)
-    q = Query(from_date="00010103", to_date="00010104", location=l)
-    assert ["00010103-00010105", "00010103-00010104"] == _get_date_suffixes(c, q, v)
-    q = Query(from_date="00010105", to_date="00010106", location=l)
-    assert ["00010105-00010107", "00010105-00010106"] == _get_date_suffixes(c, q, v)
+    q = Query(from_date="10000101", to_date="10000101", location=l)
+    assert ["10000101-10000102"] == _get_date_suffixes(c, q, v)
+    q = Query(from_date="10000101", to_date="10000103", location=l)
+    assert ["10000101-10000104"] == _get_date_suffixes(c, q, v)
+    q = Query(from_date="10000101", to_date="10000104", location=l)
+    assert ["10000101-10000105", "10000101-10000104"] == _get_date_suffixes(c, q, v)
+    q = Query(from_date="10000103", to_date="10000104", location=l)
+    assert ["10000103-10000105", "10000103-10000104"] == _get_date_suffixes(c, q, v)
+    q = Query(from_date="10000105", to_date="10000106", location=l)
+    assert ["10000105-10000107", "10000105-10000106"] == _get_date_suffixes(c, q, v)
