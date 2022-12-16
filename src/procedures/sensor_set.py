@@ -93,5 +93,6 @@ def export_data(
     for location, location_sensor_sets in daily_sensor_sets.items():
         for date, sensors in location_sensor_sets.items():
             for sensor in sensors:
-                dirname = f"{date}_{location.slug()}"
-                copy_tree(f"{cache_path}/{dirname}", f"{dst_path}/{sensor}/{dirname}")
+                dir_ = f"{date}_{location.slug()}"
+                if os.path.isdir(f"{cache_path}/{dir_}"):
+                    copy_tree(f"{cache_path}/{dir_}", f"{dst_path}/{sensor}/{dir_}")
