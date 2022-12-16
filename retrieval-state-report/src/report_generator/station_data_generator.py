@@ -1,5 +1,6 @@
 import glob
 import os
+from datetime import datetime
 from typing import List, Set, Union
 
 import pandas
@@ -146,6 +147,7 @@ class StationDataGenerator:
         )
 
     def generate_report(self) -> None:
+
         self.__build_dataframe_for_archive()
         sensors_archive = self.__get_sensor_types_for_archive()
         versions = self.__get_versions_for_archive()
@@ -165,16 +167,12 @@ class StationDataGenerator:
 
             if self.report_type == "md":
                 self.report_builder.create_output(
-                    "{}_all_sensors_success".format(version),
-                    all_sensors_series_success,
-                    "",
-                    "",
+                    subreport_name="{}_all_sensors_success".format(version),
+                    series=all_sensors_series_success,
                 )
                 self.report_builder.create_output(
-                    "{}_all_sensors_failure".format(version),
-                    all_sensors_series_failure,
-                    "",
-                    "",
+                    subreport_name="{}_all_sensors_failure".format(version),
+                    series=all_sensors_series_failure,
                 )
 
             for sensor in sorted(sensors_archive):
@@ -190,16 +188,16 @@ class StationDataGenerator:
                 )
 
                 self.report_builder.create_output(
-                    "{}_sensor_{}_success".format(version, sensor),
-                    one_sensor_series_success,
-                    sensor,
-                    self.SUCCESSFUL,
+                    subreport_name="{}_sensor_{}_success".format(version, sensor),
+                    series=one_sensor_series_success,
+                    sensor=sensor,
+                    status=self.SUCCESSFUL,
                 )
                 self.report_builder.create_output(
-                    "{}_sensor_{}_failure".format(version, sensor),
-                    one_sensor_series_failure,
-                    sensor,
-                    self.FAILED,
+                    subreport_name="{}_sensor_{}_failure".format(version, sensor),
+                    series=one_sensor_series_failure,
+                    sensor=sensor,
+                    status=self.FAILED,
                 )
 
             self.report_builder.save_file()
@@ -215,9 +213,8 @@ class StationDataGenerator:
         sensors_upload = self.__get_sensor_types_for_upload()
         for sensor in sorted(sensors_upload):
             self.report_builder.create_output(
-                "upload",
-                self.__report_for_station_sensor_for_upload(sensor),
-                sensor,
-                "",
+                report_name="upload",
+                series=self.__report_for_station_sensor_for_upload(sensor),
+                sensor=sensor,
             )
         self.report_builder.save_file()

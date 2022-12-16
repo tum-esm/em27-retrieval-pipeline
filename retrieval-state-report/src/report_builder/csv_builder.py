@@ -1,3 +1,5 @@
+from datetime import datetime
+
 import pandas as pd
 import os
 
@@ -12,7 +14,11 @@ class CsvReportBuilder:
         self.directory_name = directory_name
 
     def create_output(
-        self, report_name: str, series: pd.Series, sensor: str, status: str
+        self,
+        series: pd.Series,
+        sensor: str,
+        status: str,
+        report_name: str = None,
     ) -> None:
         series.name = sensor + " " + status
         series.index.name = "sensor"

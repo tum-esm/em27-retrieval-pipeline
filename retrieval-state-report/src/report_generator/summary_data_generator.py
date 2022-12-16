@@ -60,11 +60,13 @@ class SummaryDataGenerator:
         upload_map = self.__map_days_to_ifgs_in_upload()
 
         self.report_builder.create_output(
-            "{}_archive".format(self.report_name), pd.Series(archive_map), "", ""
+            subreport_name="{}_archive".format(self.report_name),
+            series=pd.Series(archive_map, dtype=float),
         )
 
         self.report_builder.create_output(
-            "{}_upload".format(self.report_name), pd.Series(upload_map), "", ""
+            subreport_name="{}_upload".format(self.report_name),
+            series=pd.Series(upload_map),
         )
 
         self.report_builder.save_file()

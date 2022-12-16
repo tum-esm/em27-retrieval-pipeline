@@ -1,4 +1,4 @@
-from typing import Union, Dict
+from typing import Union, Dict, overload
 
 import numpy as np
 import pandas as pd
@@ -6,6 +6,7 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 from mdutils.mdutils import MdUtils
 from mdutils import Html
+from datetime import datetime
 
 
 class SvgReportBuilder:
@@ -40,9 +41,9 @@ class SvgReportBuilder:
         start: pd.Series.dt = None,
         end: pd.Series.dt = None,
         mean: bool = False,
-        ax: Union[mpl.Axes, None] = None,
+        ax: Union[mpl.axes.Axes, None] = None,
         **kwargs: str,
-    ) -> mpl.collections.Axes:
+    ) -> mpl.axes.Axes:
         """Plot a calendar heatmap given a datetime series.
 
         Arguments:
@@ -136,7 +137,29 @@ class SvgReportBuilder:
         plt.close(fig)
 
     def create_output(
-        self, subreport_name: str, series: pd.Series, sensor: str = "", status: str = ""
+        self,
+        series: pd.Series,
+        subreport_name: str = None,
+        sensor: str = None,
+        status: str = None,
+    ) -> None:
+        if series.empty:
+            self.__create_empty_output(subreport_name)
+            return
+        self.__generate_svg(subreport_name, series)
+
+        self.md_file.new_header(1, "Subreport: {}".format(subreport_name))
+        path = subreport_name
+
+        self.md_file.new_paragraph(Html.image(path="{}.svg".format(path), size="300"))
+        self.md_file.write("\n")
+
+    def create_output(
+        self,
+        subreport_name: str,
+        series: pd.Series,
+        sensor: str = "",
+        status: str = "",
     ) -> None:
         if series.empty:
             self.__create_empty_output(subreport_name)
