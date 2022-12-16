@@ -56,10 +56,15 @@ class SqlManager:
 
             measurements_table = Table('measurements', meta, autoload=True, autoload_with=self.engine)
 
-            cond = removed_rows.apply(
-                lambda row: and_(measurements_table.c['utc'] == row['utc'],
-                                 measurements_table.c['sensor'] == row['sensor'],
-                                 measurements_table.c['retrieval_software'] == row['retrieval_software']), axis=1)
+            cond = removed_rows.apply(lambda row: and_(
+                    measurements_table.c["utc"] == row["utc"],
+                    measurements_table.c["sensor"] == row["sensor"],
+                    measurements_table.c["retrieval_software"]
+                    == row["retrieval_software"],
+                ),
+                axis=1,
+            )
+
             cond = or_(*cond)
 
             delete = measurements_table.delete().where(cond)

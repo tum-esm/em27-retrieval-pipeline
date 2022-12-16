@@ -1,0 +1,25 @@
+[tool.poetry]
+name = "fill-retrieval-database"
+version = "0.2.0"
+description = ""
+authors = ["Dmytro Polityka <dmytro.polityka@tum.de>"]
+readme = "README.md"
+packages = [{include = "fill_retrieval_database"}]
+
+[tool.poetry.dependencies]
+python = ">=3.10,<3.12"
+pandas = "^1.5.1"
+SQLAlchemy = "^1.4.44"
+sqlalchemy-utils = "^0.38.3"
+psycopg2-binary = "^2.9.5"
+sqlalchemy-stubs = "^0.4"
+types-sqlalchemy-utils = "^1.0.1"
+pandas-stubs = "^1.5.2.221213"
+mypy = "^0.991"
+
+[tool.poetry.group.dev.dependencies]
+black = "^22.10.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
