@@ -83,9 +83,9 @@ def run() -> None:
         results: List[AsyncResult] = []
         for session in retrieval_queue:
             main_logger.info(m=f"Running session: {session['sensor']}, {session['date']} in container {session['container_id']} at path {session['container_path']}")
-            result: AsyncResult = pool.apply_async(target=__process_session, args=(config, session, pylot_factory))
+            result: AsyncResult = pool.apply_async(func=__process_session, args=(config, session, pylot_factory))
             results.append(result)
-
+        [result.get() for result in results]
     except KeyboardInterrupt:
         main_logger.info("Keyboard interrupt")
         pylot_factory.clean_up()

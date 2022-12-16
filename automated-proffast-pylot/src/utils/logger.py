@@ -27,6 +27,7 @@ class Logger:
         log_line = f"{t} - {level} - {m}\n"
         with open(f"{PROJECT_DIR}/logs/{self.container_id}_{log_file_name}", "a") as f:
             f.write(log_line)
+            print(log_line)
             Logger._session_logs.append(log_line)
 
     def exception(self) -> None:

@@ -57,7 +57,7 @@ class PylotFactory:
         return result
 
     def clean_up(self) -> None:
-        for _, item in self.containers:
+        for _, item in self.containers.items():
             shutil.rmtree(item)
 
     def _verify_main_pylot(self):
