@@ -61,9 +61,9 @@ class Logger:
         """
         self._session_logs = []
 
-    def get_session_logs() -> list[str]:
+    def get_session_logs(self) -> list[str]:
         """
         Return the current session-logs (= log lines from
         one sensor-date-combination)
         """
-        return Logger._session_logs
+        return self._session_logs
