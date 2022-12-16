@@ -49,8 +49,8 @@ class Reporter:
             json.dump(
                 {
                     "success": success,
-                    "executionStart": exec_start_str,
-                    "executionTime": execution_time,
+                    "execution_start": exec_start_str,
+                    "execution_time": execution_time,
                     "successful_queries": self._successful_queries,
                     "failed_queries": [query.to_json() for query in self._query_list],
                 },
