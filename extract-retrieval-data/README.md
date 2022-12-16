@@ -116,6 +116,7 @@ Note that the following gives a high-level overview - not the full picture.
 │   ├── utils/
 │   │   └── network.py
 │   └── main.py
+├── tests/
 ├── .gitattributes
 ├── .gitignore
 ├── README.md
