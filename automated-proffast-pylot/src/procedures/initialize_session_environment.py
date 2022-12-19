@@ -22,7 +22,7 @@ def _insert_replacements(content: str, replacements: dict[str, str]) -> str:
     return content
 
 
-def _generate_pylot_config(session: types.SessionDict) -> None:
+def _generate_pylot_config(session: types.SessionDict, container_path: str, container_id: str) -> None:
     file_content = _load(f"{PROJECT_DIR}/src/config/pylot_config_template.yml")
     replacements = {
         "SERIAL_NUMBER": str(session["serial_number"]).zfill(3),
@@ -32,31 +32,30 @@ def _generate_pylot_config(session: types.SessionDict) -> None:
         "COORDINATES_LON": str(round(session["lon"], 3)),
         "COORDINATES_ALT": str(round(session["alt"] / 1000.0, 3)),
         "UTC_OFFSET": str(round(session["utc_offset"], 2)),
+        "CONTAINER_ID": container_id,
+        "PROFFAST_PATH": os.path.join(container_path, "prf")
     }
     file_content = _insert_replacements(file_content, replacements)
-    _dump(f"{PROJECT_DIR}/inputs/{session['sensor']}-pylot-config.yml", file_content)
+    _dump(f"{PROJECT_DIR}/inputs/{container_id}/{session['sensor']}-pylot-config.yml", file_content)
 
 
-def _generate_pylot_log_format(session: types.SessionDict) -> None:
+def _generate_pylot_log_format(session: types.SessionDict, container_id: str) -> None:
     file_content = _load(f"{PROJECT_DIR}/src/config/pylot_log_format_template.yml")
     replacements = {
         "SENSOR": session["sensor"],
         "UTC_OFFSET": str(round(session["utc_offset"], 2)),
     }
     file_content = _insert_replacements(file_content, replacements)
-    _dump(f"{PROJECT_DIR}/inputs/{session['sensor']}-log-format.yml", file_content)
+    _dump(f"{PROJECT_DIR}/inputs/{container_id}/{session['sensor']}-log-format.yml", file_content)
 
 
 def run(session: types.SessionDict) -> None:
-    # Clear directories "inputs" and "outputs"
-    for subdir in ["inputs", "outputs"]:
-        shutil.rmtree(f"{PROJECT_DIR}/{subdir}")
-        os.mkdir(f"{PROJECT_DIR}/{subdir}")
-        os.system(f"touch {PROJECT_DIR}/{subdir}/.gitkeep")
+    container_id = session['container_id']
+    container_path = session["container_path"] 
 
-    os.mkdir(f"{PROJECT_DIR}/inputs/{session['sensor']}_ifg")
-    os.mkdir(f"{PROJECT_DIR}/inputs/{session['sensor']}_map")
-    os.mkdir(f"{PROJECT_DIR}/inputs/{session['sensor']}_pressure")
+    os.makedirs(f"{PROJECT_DIR}/inputs/{container_id}/{session['sensor']}_ifg")
+    os.makedirs(f"{PROJECT_DIR}/inputs/{container_id}/{session['sensor']}_map")
+    os.makedirs(f"{PROJECT_DIR}/inputs/{container_id}/{session['sensor']}_pressure")
 
-    _generate_pylot_config(session)
-    _generate_pylot_log_format(session)
+    _generate_pylot_config(session=session, container_id=container_id, container_path=container_path)
+    _generate_pylot_log_format(session, container_id)

@@ -33,8 +33,8 @@ def detect_error_type(output_src: str) -> Optional[str]:
     return None
 
 
-def run(config: types.ConfigDict, session: types.SessionDict) -> None:
-    sensor, date = session["sensor"], session["date"]
+def run(config: types.ConfigDict, logger: utils.Logger, session: types.SessionDict) -> None:
+    sensor, date, container_id = session["sensor"], session["date"], session["container_id"]
 
     output_src = (
         f"{PROJECT_DIR}/outputs/{sensor}_"
@@ -54,12 +54,12 @@ def run(config: types.ConfigDict, session: types.SessionDict) -> None:
     if day_was_successful:
         with open(output_csv, "r") as f:
             if len(f.readlines()) > 1:
-                utils.Logger.debug(f"Retrieval output csv exists")
+                logger.debug(f"Retrieval output csv exists")
             else:
                 day_was_successful = False
-                utils.Logger.warning(f"Retrieval output csv is empty")
+                logger.warning(f"Retrieval output csv is empty")
     else:
-        utils.Logger.debug(f"Retrieval output csv is missing")
+        logger.debug(f"Retrieval output csv is missing")
 
     output_dirname = "proffast-2.2-outputs"
     output_dst = config["dst"] + f"/{sensor}/{output_dirname}"
@@ -77,16 +77,16 @@ def run(config: types.ConfigDict, session: types.SessionDict) -> None:
         output_dst = output_dst_failed
         error_type = detect_error_type(output_src)
         if error_type is None:
-            utils.Logger.debug("Unknown error type")
+            logger.debug("Unknown error type")
         else:
-            utils.Logger.debug(f"Known error type: {error_type}")
+            logger.debug(f"Known error type: {error_type}")
 
     # remove old outputs
     if os.path.isdir(output_dst_successful):
-        utils.Logger.debug(f"Removing old successful output")
+        logger.debug(f"Removing old successful output")
         shutil.rmtree(output_dst_successful)
     if os.path.isdir(output_dst_failed):
-        utils.Logger.debug(f"Removing old failed output")
+        logger.debug(f"Removing old failed output")
         shutil.rmtree(output_dst_failed)
 
     # move new outputs
@@ -99,9 +99,9 @@ def run(config: types.ConfigDict, session: types.SessionDict) -> None:
     utils.assert_directory_equality(existing_src_directories)
 
     ifg_src = existing_src_directories[0]
-    ifg_dst = config["dst"] + f"/{sensor}/ifgs/{date}"
+    ifg_dst = f"{config['dst']}/{sensor}/ifgs/{date}"
     if not os.path.isdir(ifg_dst):
-        utils.Logger.debug(f"Copying ifgs from {ifg_src} to dst")
+        logger.debug(f"Copying ifgs from {ifg_src} to dst")
         shutil.copytree(ifg_src, ifg_dst)
 
     ifg_src_upload = os.path.join(
@@ -113,17 +113,17 @@ def run(config: types.ConfigDict, session: types.SessionDict) -> None:
             utils.assert_directory_equality([ifg_src_upload, ifg_dst])
         except AssertionError:
             raise AssertionError("directories differ, skipped removal")
-        utils.Logger.debug("Removing ifgs from cloud")
+        logger.debug("Removing ifgs from cloud")
         shutil.rmtree(ifg_src_upload)
 
     # --- POSSIBLY REMOVE ITEMS FROM MANUAL QUEUE ---
 
-    utils.RetrievalQueue.remove_from_queue_file(sensor, date, config)
+    utils.RetrievalQueue.remove_from_queue_file(sensor, date, config, logger)
 
     # --- STORE AUTOMATION LOGS ---
 
-    date_logs = utils.Logger.get_session_logs()
-    with open(f"{output_dst}/automation.log", "w") as f:
+    date_logs = logger.get_session_logs()
+    with open(f"{output_dst}/automation_{container_id}.log", "w") as f:
         f.writelines(date_logs)
 
     # --- STORE AUTOMATION INFO ---
@@ -148,3 +148,9 @@ def run(config: types.ConfigDict, session: types.SessionDict) -> None:
             "generationTime": now.strftime("%T"),
         }
         json.dump(about_dict, f, indent=4)
+    
+    # Clear directories "inputs" and "outputs"
+    for subdir in ["inputs", "outputs"]:
+        shutil.rmtree(f"{PROJECT_DIR}/{subdir}")
+        os.mkdir(f"{PROJECT_DIR}/{subdir}")
+        os.system(f"touch {PROJECT_DIR}/{subdir}/.gitkeep")

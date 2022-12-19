@@ -3,6 +3,7 @@ import json
 import os
 from typing import Iterator, Optional, TypedDict
 from src import utils, types
+from src.types.pylot_factory import PylotFactory
 
 dir = os.path.dirname
 PROJECT_DIR = dir(dir(dir(os.path.abspath(__file__))))
@@ -61,42 +62,44 @@ class RetrievalQueue:
     3. Takes all items from manual-queue.json with a priority < 0
     """
 
-    def __init__(self, config: types.ConfigDict):
+    def __init__(self, config: types.ConfigDict, logger: utils.Logger, pylot_factory: PylotFactory):
         self.config = config
         self.processed_sensor_dates: dict[str, list[str]] = {}
         self.location_data = utils.LocationData(config)
+        self.factory = pylot_factory
+        self.logger = logger
 
     def __iter__(self) -> Iterator[types.SessionDict]:
         iteration_count = 0
         while True:
             iteration_count += 1
-            utils.Logger.line()
-            utils.Logger.debug(f"Scheduler: Iteration {iteration_count}")
+            self.logger.line()
+            self.logger.debug(f"Scheduler: Iteration {iteration_count}")
 
             next_high_prio_queue_item = self._next_item_from_manual_queue(
                 consider_priority_items=True
             )
             if next_high_prio_queue_item is not None:
-                utils.Logger.info(
+                self.logger.info(
                     "Scheduler: Taking next item from manual queue (high priority)"
                 )
                 yield self._generate_session_dict(**next_high_prio_queue_item)
                 continue
             else:
-                utils.Logger.debug("Scheduler: High priority queue is empty")
+                self.logger.debug("Scheduler: High priority queue is empty")
 
             if self.config["process_uploads_automatically"]:
                 next_upload_directory_item = self._next_item_from_upload_directory()
                 if next_upload_directory_item is not None:
-                    utils.Logger.info(
+                    self.logger.info(
                         "Scheduler: Taking next item from upload directory"
                     )
                     yield self._generate_session_dict(**next_upload_directory_item)
                     continue
                 else:
-                    utils.Logger.debug("Scheduler: Upload directory is empty")
+                    self.logger.debug("Scheduler: Upload directory is empty")
             else:
-                utils.Logger.debug(
+                self.logger.debug(
                     "Scheduler: Skipping upload queue (processUploadsAutomatically == false)"
                 )
 
@@ -104,13 +107,13 @@ class RetrievalQueue:
                 consider_priority_items=False
             )
             if next_low_prio_queue_item is not None:
-                utils.Logger.info(
+                self.logger.info(
                     "Scheduler: Taking next item from manual queue (low priority)"
                 )
                 yield self._generate_session_dict(**next_low_prio_queue_item)
                 continue
             else:
-                utils.Logger.debug("Scheduler: Low priority queue is empty")
+                self.logger.debug("Scheduler: Low priority queue is empty")
 
             break
 
@@ -124,6 +127,9 @@ class RetrievalQueue:
 
         coordinates_dict = self.location_data.get_coordinates_for_location(location)
         serial_number = self.location_data.get_serial_number_for_sensor(sensor)
+        # Create new container for session
+        container_id = self.factory.create_pylot_instance()
+        container_path = self.factory.containers[container_id]
 
         return {
             "sensor": sensor,
@@ -134,6 +140,8 @@ class RetrievalQueue:
             "alt": coordinates_dict["alt"],
             "serial_number": serial_number,
             "utc_offset": utc_offset,
+            "container_id": container_id,
+            "container_path": container_path
         }
 
     def _pyra_upload_is_complete(self, sensor: str, date: str) -> Optional[bool]:
@@ -197,7 +205,7 @@ class RetrievalQueue:
                     ), "no location data"
 
                 except AssertionError as e:
-                    utils.Logger.debug(f"Scheduler: Skipping {sensor}/{date} ({e})")
+                    self.logger.debug(f"Scheduler: Skipping {sensor}/{date} ({e})")
                     self._mark_as_processed(sensor, date)
                     continue
 
@@ -222,7 +230,7 @@ class RetrievalQueue:
                 manual_queue: list[types.ManualQueueItemDict] = json.load(f)
                 types.validate_manual_queue(manual_queue, self.config)
         except Exception as e:
-            utils.Logger.warning(f"Manual queue in an invalid format: {e}")
+            self.logger.warning(f"Manual queue in an invalid format: {e}")
             return None
 
         # highest priority first then latest date first
@@ -261,7 +269,7 @@ class RetrievalQueue:
                 ), "no location data"
 
             except AssertionError as e:
-                utils.Logger.debug(f"Scheduler: Skipping {sensor}/{date} ({e})")
+                self.logger.debug(f"Scheduler: Skipping {sensor}/{date} ({e})")
                 self._mark_as_processed(sensor, date)
                 continue
 
@@ -281,7 +289,7 @@ class RetrievalQueue:
 
     @staticmethod
     def remove_from_queue_file(
-        sensor: str, date: str, config: types.ConfigDict
+        sensor: str, date: str, config: types.ConfigDict, logger: utils.Logger
     ) -> None:
         if not os.path.isfile(MANUAL_QUEUE_FILE):
             return
@@ -297,6 +305,6 @@ class RetrievalQueue:
             )
         )
         if len(new_manual_queue) < len(old_manual_queue):
-            utils.Logger.debug(f"Removing item {sensor}/{date} from manual queue")
+            logger.debug(f"Removing item {sensor}/{date} from manual queue")
             with open(MANUAL_QUEUE_FILE, "w") as f:
                 json.dump(new_manual_queue, f, indent=4)

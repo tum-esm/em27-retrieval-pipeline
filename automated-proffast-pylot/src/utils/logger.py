@@ -17,57 +17,53 @@ log_file_name = datetime.utcnow().strftime("%Y%m%d-%H-%M.log")
 
 class Logger:
     _session_logs: list[str] = []
+    container_id = ""
 
-    @staticmethod
-    def _print(m: str, level: str) -> None:
+    def __init__(self, container_id: str) -> None:
+        self.container_id = container_id
+
+    def _print(self, m: str, level: str) -> None:
         t = datetime.utcnow().strftime("%Y%m%d %H:%M:%S")
         log_line = f"{t} - {level} - {m}\n"
-        with open(f"{PROJECT_DIR}/logs/{log_file_name}", "a") as f:
+        with open(f"{PROJECT_DIR}/logs/{self.container_id}_{log_file_name}", "a") as f:
             f.write(log_line)
+            print(log_line)
             Logger._session_logs.append(log_line)
 
-    @staticmethod
-    def exception() -> None:
+    def exception(self) -> None:
         """log an exception and its traceback"""
         exc_type, exc_value, exc_traceback = sys.exc_info()
         assert exc_type is not None, "no exeception is present"
         name = f"Unhandeled Exception: {exc_type.__name__}\n"
         tb = "".join(traceback.format_exception(exc_type, exc_value, exc_traceback))
-        Logger._print(name + tb, "EXCEPTION")
+        self._print(name + tb, "EXCEPTION")
 
-    @staticmethod
-    def error(m: str) -> None:
-        Logger._print(m, "ERROR")
+    def error(self, m: str) -> None:
+        self._print(m, "ERROR")
 
-    @staticmethod
-    def warning(m: str) -> None:
-        Logger._print(m, "WARNING")
+    def warning(self, m: str) -> None:
+        self._print(m, "WARNING")
 
-    @staticmethod
-    def info(m: str) -> None:
-        Logger._print(m, "INFO")
+    def info(self, m: str) -> None:
+        self._print(m, "INFO")
 
-    @staticmethod
-    def debug(m: str) -> None:
-        Logger._print(m, "DEBUG")
+    def debug(self, m: str) -> None:
+        self._print(m, "DEBUG")
 
-    @staticmethod
-    def line(variant: str = "-") -> None:
+    def line(self, variant: str = "-") -> None:
         """log a vertical line with 52 characters"""
-        Logger._print(variant * 52, "INFO")
+        self._print(variant * 52, "INFO")
 
-    @staticmethod
-    def flush_session_logs() -> None:
+    def flush_session_logs(self) -> None:
         """
         Reset the current session-logs (= log lines from
         one sensor-date-combination)
         """
-        Logger._session_logs = []
+        self._session_logs = []
 
-    @staticmethod
-    def get_session_logs() -> list[str]:
+    def get_session_logs(self) -> list[str]:
         """
         Return the current session-logs (= log lines from
         one sensor-date-combination)
         """
-        return Logger._session_logs
+        return self._session_logs
