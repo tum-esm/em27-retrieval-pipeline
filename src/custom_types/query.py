@@ -1,5 +1,4 @@
 from typing import Any
-from datetime import datetime
 from pydantic import BaseModel
 from .location_data_types import Date
 
@@ -19,6 +18,10 @@ class QueryLocation(BaseModel):
         frozen = True
 
     def slug(self, verbose: bool = False) -> str:
+        """E.g.,
+        48N012E (verbose=False)
+        48.00N_12.00E (verbose=True)
+        """
         str_ = f"{abs(self.lat):.2f}" if verbose else f"{abs(self.lat):02}"
         str_ += "S" if self.lat < 0 else "N"
         str_ += "_" if verbose else ""
@@ -39,7 +42,7 @@ class Query(BaseModel):
     to_date: Date
     location: QueryLocation
 
-    def to_json(self) -> dict[str, Any]:
+    def to_slugged_json(self) -> dict[str, Any]:
         return {
             "location": self.location.slug(),
             "from_date": self.from_date,

@@ -36,7 +36,7 @@ class Reporter:
         """Appends query statistics to the report."""
         truncated = False if to_date is None or query.to_date == to_date else to_date
         self._successful_queries.append(
-            query.to_json()
+            query.to_slugged_json()
             | {
                 "up_status": up_status,
                 "up_time": str(timedelta(seconds=up_time)),
@@ -60,7 +60,7 @@ class Reporter:
                     "execution_start": exec_start_str,
                     "execution_time": execution_time,
                     "successful_queries": self._successful_queries,
-                    "failed_queries": [query.to_json() for query in self._query_list],
+                    "failed_queries": [query.to_slugged_json() for query in self._query_list],
                 },
                 report,
                 indent=4,
