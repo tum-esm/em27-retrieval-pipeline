@@ -46,7 +46,7 @@ class CacheProxy:
         print('The directory with supposed cache files does not exist')
         return []
 
-    def refresh_contents(self, dataframe: DataFrame, year: int):
+    def refresh_contents(self, dataframe: DataFrame, year: int) -> None:
         print('Refreshing cache for year {}.'.format(year))
 
         dataframe.to_hdf(self.__build_filename_from_year(year), key=self.__KEY_VALUE, mode='w')

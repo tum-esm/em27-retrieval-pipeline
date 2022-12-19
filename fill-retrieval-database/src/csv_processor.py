@@ -1,3 +1,4 @@
+from typing import Any
 import numpy as np
 import pandas
 from pandas import DataFrame
@@ -25,7 +26,7 @@ dictionary_columns = {
 }
 
 
-def rename_columns(column) -> str:
+def rename_columns(column: str) -> str:
     return dictionary_columns[column]
 
 
@@ -88,7 +89,7 @@ def detect_deleted(df_from_csv: DataFrame, df_from_cache: DataFrame) -> DataFram
     return removed_rows
 
 
-def detect_all_years_in_dataframe(df: DataFrame) -> np.ndarray:
+def detect_all_years_in_dataframe(df: DataFrame) -> Any:
     df['year'] = pandas.DatetimeIndex(df['utc']).year
     return df['year'].unique()
 
