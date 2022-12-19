@@ -1,3 +1,4 @@
+from typing import Any
 from pandas import DataFrame
 from src.csv_processor import dictionary_columns, detect_new, detect_modified, detect_deleted
 from src.cache_manager import CacheProxy
@@ -6,7 +7,7 @@ from src.directory_manager import DirectoryManager
 from src.sql_manager import SqlManager
 
 
-def process_measurements(properties) -> None:
+def process_measurements(properties: Any) -> None:
     cache_proxy = CacheProxy(properties.cache_folder_location)
     directory_manager = DirectoryManager(properties.csv_locations, properties.retrieval_version)
     sql_manager = SqlManager(properties)

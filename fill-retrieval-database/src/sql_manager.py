@@ -7,18 +7,18 @@ from src.config import Config
 
 class SqlManager:
 
-    def __init__(self, properties: Config):
+    def __init__(self, properties: Config) -> None:
         self.properties = properties
         self.__create_engine()
 
-    def __create_engine(self):
+    def __create_engine(self) -> None:
         properties = self.properties
         self.engine = create_engine(
             'postgresql+psycopg2://{}:{}@{}:{}/{}'.format(properties.db_username, properties.db_password,
                                                           properties.db_ip,
                                                           properties.db_port, properties.database_name))
 
-    def insert_from_df(self, new_rows: DataFrame):
+    def insert_from_df(self, new_rows: DataFrame) -> None:
         if not new_rows.empty:
             print('Found new rows(#{}), writing to db'.format(len(new_rows.index)))
             new_rows.to_sql(
@@ -33,7 +33,7 @@ class SqlManager:
                 method=None
             )
 
-    def update_dataframe(self, modified_rows: DataFrame):
+    def update_dataframe(self, modified_rows: DataFrame) -> None:
         if not modified_rows.empty:
             print('Found modified rows(#{}), updating'.format(len(modified_rows.index)))
             modified_rows.to_sql(
@@ -48,7 +48,7 @@ class SqlManager:
                 method=None
             )
 
-    def delete_rows(self, removed_rows: DataFrame):
+    def delete_rows(self, removed_rows: DataFrame) -> None:
         if not removed_rows.empty:
             print('Found deleted rows(#{}), deleting them from the database either'.format(len(removed_rows.index)))
 
@@ -71,10 +71,9 @@ class SqlManager:
             with self.engine.connect() as conn:
                 conn.execute(delete)
 
-    def init_db(self):
+    def init_db(self) -> None:
         if not database_exists(self.engine.url):
             create_database(self.engine.url)
 
         with open('scripts/init_db.sql', 'r') as sql_file:
             self.engine.execute(sql_file.read())
-        return
