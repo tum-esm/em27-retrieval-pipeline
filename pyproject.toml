@@ -1,12 +1,10 @@
 [tool.poetry]
 name = "download-vertical-profiles"
 version = "0.5.0"
-description = "Download .map, .vmr and .mod files from ccycle.gps.caltech.edu"
+description = "Download vertical profiles (GGG2014 and GGG2020) from ccycle.gps.caltech.edu"
 authors = [
     "Marlon Mueller <marlon.mueller@tum.de>",
     "Moritz Makowski <moritz.makowski@tum.de>",
-    "Xinxu Zhao <xinxu.zhao@tum.de>",
-    "Florian Dietrich <flo.dietrich@tum.de>"
 ]
 readme = "README.md"
 
