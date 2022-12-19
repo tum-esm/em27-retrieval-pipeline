@@ -11,7 +11,7 @@ class CsvIterator:
 
         for location in locations:
             # path = '../{}/comb_invparms_*_SN???_??????-??????.csv'.format(location)
-            path = '{}/proffast-?.?-outputs-????????-??.csv'.format(location)
+            path = "{}/proffast-?.?-outputs-????????-??.csv".format(location)
             files = glob.glob(path)
             self.files.extend(files)
 
@@ -24,4 +24,4 @@ class CsvIterator:
             self.files.remove(first_elem)
             return first_elem
         else:
-            raise ValueError('There are no more files')
+            raise ValueError("There are no more files")

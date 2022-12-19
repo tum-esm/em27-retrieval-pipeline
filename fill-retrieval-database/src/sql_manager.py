@@ -64,7 +64,6 @@ class SqlManager:
                 ),
                 axis=1,
             )
-
             cond = or_(*cond)
 
             delete = measurements_table.delete().where(cond)
