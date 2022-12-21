@@ -213,8 +213,8 @@ class StationDataGenerator:
         sensors_upload = self.__get_sensor_types_for_upload()
         for sensor in sorted(sensors_upload):
             self.report_builder.create_output(
-                report_name="upload",
+                subreport_name="upload",
                 series=self.__report_for_station_sensor_for_upload(sensor),
-                sensor=sensor,
+                sensor=sensor
             )
         self.report_builder.save_file()

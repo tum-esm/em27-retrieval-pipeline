@@ -189,17 +189,6 @@ pytz = ">=2020.1"
 test = ["hypothesis (>=5.5.3)", "pytest (>=6.0)", "pytest-xdist (>=1.31)"]
 
 [[package]]
-name = "pandas-stubs"
-version = "1.5.2.221213"
-description = "Type annotations for pandas"
-category = "main"
-optional = false
-python-versions = ">=3.8,<3.12"
-
-[package.dependencies]
-types-pytz = ">=2022.1.1"
-
-[[package]]
 name = "pathspec"
 version = "0.10.2"
 description = "Utility library for gitignore style pattern matching of file paths."
@@ -327,14 +316,6 @@ optional = false
 python-versions = ">=3.7"
 
 [[package]]
-name = "types-pytz"
-version = "2022.6.0.1"
-description = "Typing stubs for pytz"
-category = "main"
-optional = false
-python-versions = "*"
-
-[[package]]
 name = "typing-extensions"
 version = "4.4.0"
 description = "Backported and Experimental Type Hints for Python 3.7+"
@@ -345,7 +326,7 @@ python-versions = ">=3.7"
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.8,<3.12"
-content-hash = "5c3a08c7ed29d1c55ff27da20be508ccee3dc114009c290370babbe9be2ec964"
+content-hash = "a1a40415584594c736309448cb2b5056d5a5f87138eed908414405cb232f5b7d"
 
 [metadata.files]
 black = [
@@ -673,10 +654,6 @@ pandas = [
     {file = "pandas-1.5.1-cp39-cp39-win_amd64.whl", hash = "sha256:6bb391659a747cf4f181a227c3e64b6d197100d53da98dcd766cc158bdd9ec68"},
     {file = "pandas-1.5.1.tar.gz", hash = "sha256:249cec5f2a5b22096440bd85c33106b6102e0672204abd2d5c014106459804ee"},
 ]
-pandas-stubs = [
-    {file = "pandas_stubs-1.5.2.221213-py3-none-any.whl", hash = "sha256:3551177a44eec5945b4e47131b6a545a564b3d41dfd4e50e06ba1a736e7d695d"},
-    {file = "pandas_stubs-1.5.2.221213.tar.gz", hash = "sha256:0cbc1dbdf5dddb4d67ebc851b9cfb265bf62fe317b043bd37ee5a4a2659421f2"},
-]
 pathspec = [
     {file = "pathspec-0.10.2-py3-none-any.whl", hash = "sha256:88c2606f2c1e818b978540f73ecc908e13999c6c3a383daf3705652ae79807a5"},
     {file = "pathspec-0.10.2.tar.gz", hash = "sha256:8f6bf73e5758fd365ef5d58ce09ac7c27d2833a8d7da51712eac6e27e35141b0"},
@@ -779,10 +756,6 @@ six = [
 tomli = [
     {file = "tomli-2.0.1-py3-none-any.whl", hash = "sha256:939de3e7a6161af0c887ef91b7d41a53e7c5a1ca976325f429cb46ea9bc30ecc"},
     {file = "tomli-2.0.1.tar.gz", hash = "sha256:de526c12914f0c550d15924c62d72abc48d6fe7364aa87328337a31007fe8a4f"},
-]
-types-pytz = [
-    {file = "types-pytz-2022.6.0.1.tar.gz", hash = "sha256:d078196374d1277e9f9984d49373ea043cf2c64d5d5c491fbc86c258557bd46f"},
-    {file = "types_pytz-2022.6.0.1-py3-none-any.whl", hash = "sha256:bea605ce5d5a5d52a8e1afd7656c9b42476e18a0f888de6be91587355313ddf4"},
 ]
 typing-extensions = [
     {file = "typing_extensions-4.4.0-py3-none-any.whl", hash = "sha256:16fa4864408f655d35ec496218b85f79b3437c829e93320c7c9215ccfd92489e"},

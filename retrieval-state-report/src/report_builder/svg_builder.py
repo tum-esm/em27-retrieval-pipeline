@@ -139,27 +139,9 @@ class SvgReportBuilder:
     def create_output(
         self,
         series: pd.Series,
-        subreport_name: str = None,
-        sensor: str = None,
-        status: str = None,
-    ) -> None:
-        if series.empty:
-            self.__create_empty_output(subreport_name)
-            return
-        self.__generate_svg(subreport_name, series)
-
-        self.md_file.new_header(1, "Subreport: {}".format(subreport_name))
-        path = subreport_name
-
-        self.md_file.new_paragraph(Html.image(path="{}.svg".format(path), size="300"))
-        self.md_file.write("\n")
-
-    def create_output(
-        self,
         subreport_name: str,
-        series: pd.Series,
-        sensor: str = "",
-        status: str = "",
+        sensor: str | None = None,
+        status: str | None = None,
     ) -> None:
         if series.empty:
             self.__create_empty_output(subreport_name)

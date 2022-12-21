@@ -15,7 +15,6 @@ numpy = "^1.23.4"
 mdutils = "^1.4.0"
 matplotlib = "^3.6.2"
 seaborn = "^0.12.1"
-pandas-stubs = "^1.5.2.221213"
 
 
 [build-system]
@@ -26,3 +25,15 @@ build-backend = "poetry.core.masonry.api"
 strict = true
 implicit_reexport = true
 no_warn_unused_ignores = true
+
+[[tool.mypy.overrides]]
+module = "mdutils.*"
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "matplotlib.*"
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "pandas.*"
+ignore_missing_imports = true

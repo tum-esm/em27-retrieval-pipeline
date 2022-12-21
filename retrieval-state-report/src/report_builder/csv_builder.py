@@ -16,10 +16,12 @@ class CsvReportBuilder:
     def create_output(
         self,
         series: pd.Series,
-        sensor: str,
-        status: str,
-        report_name: str = None,
+        subreport_name: str,
+        sensor: str | None = None,
+        status: str | None = None
     ) -> None:
+        if sensor is None or status is None:
+            raise ValueError('Sensor and status cannot be None')
         series.name = sensor + " " + status
         series.index.name = "sensor"
         cdf = pd.DataFrame(series).transpose()
