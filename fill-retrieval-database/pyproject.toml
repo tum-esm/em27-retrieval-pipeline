@@ -30,3 +30,11 @@ no_warn_unused_ignores = true
 [[tool.mypy.overrides]]
 module = ["pandas"]
 ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "sqlalchemy.*"
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "sqlalchemy_utils.*"
+ignore_missing_imports = true
