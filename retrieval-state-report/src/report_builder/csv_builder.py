@@ -28,7 +28,7 @@ class CsvReportBuilder:
         if self.df is None:
             self.df = cdf
         else:
-            self.df = self.df.append(cdf)
+            self.df = pd.concat([self.df, cdf])
             self.df.fillna(0, inplace=True)
 
     def save_file(self) -> None:
