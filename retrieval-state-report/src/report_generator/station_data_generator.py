@@ -215,6 +215,7 @@ class StationDataGenerator:
             self.report_builder.create_output(
                 subreport_name="upload",
                 series=self.__report_for_station_sensor_for_upload(sensor),
-                sensor=sensor
+                sensor=sensor,
+                status=""
             )
         self.report_builder.save_file()
