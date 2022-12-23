@@ -16,7 +16,7 @@ class CsvIterator:
             self.files.extend(files)
 
     def has_next_file(self) -> bool:
-        return not self.files
+        return self.files
 
     def read_next_file(self) -> str:
         if self.has_next_file():
