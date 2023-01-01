@@ -95,6 +95,8 @@ class SvgReportBuilder:
                     ticks[week] = SvgReportBuilder.MONTHS[date.month - 1]
                 if date.dayofyear == 1:
                     ticks[week] += f"\n{date.year}"
+                if week == 0 and day == 0 and date.dayofyear != 1:
+                    ticks[week] += f"\n{date.year}"
                 if start <= date < end:
                     heatmap[day, week] = series.get(date, 0)
 
