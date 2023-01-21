@@ -1,83 +1,64 @@
-from datetime import datetime
-import os
-import pydantic
-from typing import Any, TypedDict
-from .validation_error import ValidationError
+from pydantic import BaseModel, validator
+from .validators import validate_str, validate_list, validate_bool
 
 
-class _ConfigDictSrcIfgs(TypedDict):
-    upload: str
-    other: list[str]
-
-
-class _ConfigDictSrc(TypedDict):
-    datalogger: str
-    vertical_profiles: str
-    interferograms: _ConfigDictSrcIfgs
-
-
-class ConfigDict(TypedDict):
+class DataFilterConfig(BaseModel):
     sensors_to_consider: list[str]
-    process_uploads_automatically: bool
-    src: _ConfigDictSrc
-    location_repository: str
-    dst: str
     start_date: str
+    end_date: str
+
+    # validators
+    _val_sensors_to_consider = validator(
+        "sensors_to_consider", pre=True, allow_reuse=True
+    )(
+        validate_list(min_len=1),
+    )
+    _val_date_string = validator(
+        *["start_date", "end_date"],
+        pre=True,
+        allow_reuse=True,
+    )(
+        validate_str(is_date_string=True),
+    )
 
 
-class _ValidationModel(pydantic.BaseModel):
-    o: ConfigDict
+class DataSrcConfig(BaseModel):
+    location_repository: str
+    datalogger_dir: str
+    vertical_profiles_dir: str
+    interferograms_dir: str
 
-    class Config:
-        extra = "forbid"
+    # validators
+    _val_location_repository = validator(
+        "location_repository", pre=True, allow_reuse=True
+    )(
+        validate_str(regex=r"^git@.+:.+/.+$"),
+    )
+    _val_dir = validator(
+        *["datalogger_dir", "vertical_profiles_dir", "interferograms_dir"],
+        pre=True,
+        allow_reuse=True,
+    )(
+        validate_str(is_directory=True),
+    )
 
 
-def validate_config_dict(o: Any, skip_filepaths: bool = False) -> None:
-    """
-    Check, whether a given object is a correct ConfigDict
-    Raises a pydantic.ValidationError if the object is invalid.
+class DataDstConfig(BaseModel):
+    results_dir: str
 
-    This should always be used when loading the object from a
-    JSON file!
-    """
-    try:
-        _ValidationModel(o=o)
-    except pydantic.ValidationError as e:
-        pretty_error_messages = []
-        for error in e.errors():
-            fields = [str(f) for f in error["loc"][1:] if f not in ["__root__"]]
-            pretty_error_messages.append(f"{'.'.join(fields)} -> {error['msg']}")
-        raise ValidationError(f"config is invalid: {', '.join(pretty_error_messages)}")
+    # validators
+    _val_dir = validator("results_dir", pre=True, allow_reuse=True)(
+        validate_str(is_directory=True)
+    )
 
-    new_config: ConfigDict = o
 
-    try:
-        if not skip_filepaths:
-            assert os.path.isdir(
-                new_config["dst"]
-            ), f'directory "{new_config["dst"]}" does not exist'
+class ConfigDict(BaseModel):
+    process_data_automatically: bool
+    data_filter: DataFilterConfig
+    data_src: DataSrcConfig
+    data_dst: DataDstConfig
 
-            data_src_dirs = [
-                new_config["src"]["datalogger"],
-                new_config["src"]["vertical_profiles"],
-                new_config["src"]["interferograms"]["upload"],
-                *new_config["src"]["interferograms"]["other"],
-            ]
-
-            for data_src_dir in data_src_dirs:
-                assert os.path.isdir(
-                    data_src_dir
-                ), f'directory "{data_src_dir}" does not exist'
-                for sensor in new_config["sensors_to_consider"]:
-                    sensor_dir = os.path.join(data_src_dir, sensor)
-                    assert os.path.isdir(
-                        sensor_dir
-                    ), f'directory "{sensor_dir}" does not exist'
-
-        try:
-            datetime.strptime(new_config["start_date"], "%Y%m%d")
-        except:
-            raise AssertionError(f"config.start_date is not a valid date")
-
-    except AssertionError as e:
-        raise ValidationError(f"config is invalid: {e}")
+    # validators
+    _val_dir = validator("process_data_automatically", pre=True, allow_reuse=True)(
+        validate_bool()
+    )

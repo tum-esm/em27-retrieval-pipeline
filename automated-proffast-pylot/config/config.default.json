@@ -1,12 +1,17 @@
 {
-    "sensors_to_consider": ["ma", "mb", "mc", "md", "me"],
-    "process_uploads_automatically": true,
-    "src": {
-        "datalogger": "path-to-datalogger-datalogger-upload-directory",
-        "vertical_profiles": "path-to-vertical-profiles",
-        "interferograms": "path-to-datalogger-ifg-upload-directory"
+    "process_data_automatically": true,
+    "data_filter": {
+        "sensors_to_consider": ["ma", "mb", "mc", "md", "me"],
+        "start_date": "20190101",
+        "end_date": "20991231"
     },
-    "location_repository": "git@github.com:tum-esm/em27-location-data",
-    "dst": "path-to-long-term-storage-of-ifgs-and-results",
-    "start_date": "20190101"
+    "data_src": {
+        "location_repository": "git@github.com:tum-esm/em27-location-data",
+        "datalogger_dir": "path-to-datalogger-datalogger-upload-directory",
+        "vertical_profiles_dir": "path-to-vertical-profiles",
+        "interferograms_dir": "path-to-datalogger-ifg-upload-directory"
+    },
+    "data_dst": {
+        "results_dir": "path-to-results-storage"
+    }
 }

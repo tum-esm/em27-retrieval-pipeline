@@ -1,7 +1,7 @@
-from typing import TypedDict
+from pydantic import BaseModel
 
 
-class SessionDict(TypedDict):
+class SessionDict(BaseModel):
     sensor: str
     location: str
     date: str
