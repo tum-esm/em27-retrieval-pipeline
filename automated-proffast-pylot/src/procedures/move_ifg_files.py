@@ -17,9 +17,9 @@ def run(
     # find all filenames of interferograms
     # possible file name patterns: ma20201123.ifg.0001, ma20220316s0e00a.0001
     ifg_src_directory = os.path.join(
-        config.data_src_dirs.interferograms, session.sensor, session.date
+        config.data_src_dirs.interferograms, session.sensor_id, session.date
     )
-    expected_ifg_pattern = re.compile(f"^{session.sensor}\\d{{8}}.*\\.ifg\\.\d+$")
+    expected_ifg_pattern = re.compile(f"^{session.sensor_id}\\d{{8}}.*\\.ifg\\.\d+$")
     filenames = [
         f
         for f in os.listdir(ifg_src_directory)
@@ -29,7 +29,7 @@ def run(
 
     # Create empty output directory for that date
     dst_date_path = (
-        f"{DST}/{session.container_id}/{session.sensor}_ifg/{session.date[2:]}"
+        f"{DST}/{session.container_id}/{session.sensor_id}_ifg/{session.date[2:]}"
     )
     os.mkdir(dst_date_path)
 

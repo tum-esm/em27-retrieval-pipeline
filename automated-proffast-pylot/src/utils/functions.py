@@ -1,3 +1,4 @@
+from datetime import datetime
 import os
 import subprocess
 from typing import Optional
@@ -35,3 +36,21 @@ def insert_replacements(content: str, replacements: dict[str, str]) -> str:
     for key, value in replacements.items():
         content = content.replace(f"%{key}%", value)
     return content
+
+
+def is_date_string(date_string: str) -> bool:
+    try:
+        datetime.strptime(date_string, "%Y%m%d")
+        return True
+    except (AssertionError, ValueError):
+        return False
+
+
+def date_is_too_recent(
+    date_string: str,
+    min_days_delay: int = 1,
+) -> bool:
+    date_object = datetime.strptime(
+        date_string, "%Y%m%d"
+    )  # will have the time 00:00:00
+    return (datetime.now() - date_object).days >= min_days_delay

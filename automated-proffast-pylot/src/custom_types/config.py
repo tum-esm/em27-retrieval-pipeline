@@ -1,12 +1,13 @@
 from typing import Optional
 from pydantic import BaseModel, validator
-from .validators import validate_str, validate_list, validate_bool
+from .validators import validate_str, validate_list, validate_bool, validate_int
 
 
 class DataFilterConfig(BaseModel):
-    sensors_to_consider: list[str]
+    sensor_ids_to_consider: list[str]
     start_date: str
     end_date: str
+    min_days_delay: int
 
     # validators
     _val_sensors_to_consider = validator(
@@ -20,6 +21,9 @@ class DataFilterConfig(BaseModel):
         allow_reuse=True,
     )(
         validate_str(is_date_string=True),
+    )
+    _val_min_days_delay = validator("min_days_delay", pre=True, allow_reuse=True)(
+        validate_int(minimum=0, maximum=60),
     )
 
 

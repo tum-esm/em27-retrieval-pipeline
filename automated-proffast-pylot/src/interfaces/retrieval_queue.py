@@ -1,7 +1,10 @@
 from datetime import datetime
 import json
 import os
-from typing import Iterator, Optional, TypedDict
+import re
+from typing import Iterator, Optional
+
+from pydantic import BaseModel
 from src import utils, custom_types
 from src.custom_types.pylot_factory import PylotFactory
 
@@ -10,8 +13,8 @@ PROJECT_DIR = dir(dir(dir(os.path.abspath(__file__))))
 MANUAL_QUEUE_FILE = f"{PROJECT_DIR}/config/manual-queue.json"
 
 
-class SensorDateDict(TypedDict):
-    sensor: str
+class SensorDate(BaseModel):
+    sensor_id: str
     date: str
 
 
@@ -29,14 +32,6 @@ def _consider_date_string(
             assert date_string >= start_date
         return True
     except AssertionError:
-        return False
-
-
-def _date_string_is_valid(date_string: str) -> bool:
-    try:
-        datetime.strptime(date_string, "%Y%m%d")
-        return True
-    except (AssertionError, ValueError):
         return False
 
 
@@ -64,7 +59,7 @@ class RetrievalQueue:
 
     def __init__(
         self,
-        config: custom_types.ConfigDict,
+        config: custom_types.Config,
         logger: utils.Logger,
         pylot_factory: PylotFactory,
     ):
@@ -151,79 +146,44 @@ class RetrievalQueue:
             "container_path": container_path,
         }
 
-    def _pyra_upload_is_complete(self, sensor: str, date: str) -> Optional[bool]:
-        """
-        If the dir_path contains a file "upload-meta.json", then this function
-        returns the boolean value of meta.complete and raises an exception if
-        that field is not found or not a boolean.
+    def _next_item_from_storage_directory(self) -> Optional[SensorDate]:
+        """Use the dates from the storage directory"""
 
-        If there is no "upload-meta.json" file, the this function returns None.
-        """
-        upload_meta_path = os.path.join(
-            self.config["src"]["interferograms"]["upload"],
-            sensor,
-            date,
-            "upload-meta.json",
-        )
-        if not os.path.isfile(upload_meta_path):
-            return None
+        # determine date_strings with data
+        date_strings: list[str] = []
+        for sensor in self.config.data_filter.sensor_ids_to_consider:
+            date_strings += [
+                ds
+                for ds in os.path.join(self.config.data_src_dirs.interferograms, sensor)
+                if utils.is_date_string(ds)
+            ]
+        date_strings = list(sorted(set(date_strings), reverse=True))
 
-        try:
-            with open(upload_meta_path) as f:
-                upload_meta = json.load(f)
-            pyra_upload_is_complete = upload_meta["complete"]
-            assert isinstance(
-                pyra_upload_is_complete, bool
-            ), "upload-meta.complete is not a boolean"
-            return pyra_upload_is_complete
-        except Exception as e:
-            raise Exception(f'upload-meta.json at "{upload_meta_path}" is invalid: {e}')
+        for date in date_strings:
+            for sensor_id in self.config.data_filter.sensor_ids_to_consider:
+                # TODO: continue if marked as processed
 
-    def _next_item_from_upload_directory(self) -> Optional[SensorDateDict]:
-        """
-        Use the dates from upload src directory
-        """
-        sensor_dates: list[SensorDateDict] = []
-        for sensor in self.config["sensors_to_consider"]:
-            for date in os.listdir(
-                os.path.join(self.config["src"]["interferograms"]["upload"], sensor)
-            ):
-                if any(
-                    [
-                        (date in self.processed_sensor_dates.get(sensor, [])),
-                        (not _date_string_is_valid(date)),
-                    ]
+                if (
+                    self.outputs_exist(sensor_id, date)
+                    # location data does not exist
+                    # utc offset does not exist
+                ):
+                    # TODO: mark as processed
+                    continue
+
+                if (
+                    (self.config.data_filter.start_date > date)
+                    or (self.config.data_filter.end_date < date)
+                    or self.date_is_too_recent(date)
+                    or self.upload_is_incomplete(sensor_id, date)
+                    or self.ifgs_exist(sensor_id, date)
                 ):
                     continue
 
-                try:
-                    assert _consider_date_string(
-                        date, min_days_delay=5
-                    ), "too recent date"
+                # TODO: mark as processed
+                return SensorDate(sensor_id=sensor_id, date=date)
 
-                    assert self._pyra_upload_is_complete(sensor, date) in [
-                        True,
-                        None,
-                    ], "pyra upload incomplete"
-
-                    assert (
-                        self.location_data.get_location_for_date(sensor, date)
-                        is not None
-                    ), "no location data"
-
-                except AssertionError as e:
-                    self.logger.debug(f"Scheduler: Skipping {sensor}/{date} ({e})")
-                    self._mark_as_processed(sensor, date)
-                    continue
-
-                sensor_dates.append({"sensor": sensor, "date": date})
-
-        if len(sensor_dates) == 0:
-            return None
-
-        s = max(sensor_dates, key=lambda x: x["date"])
-        self._mark_as_processed(**s)
-        return s
+        return None
 
     def _next_item_from_manual_queue(
         self, consider_priority_items: bool = True
@@ -315,3 +275,80 @@ class RetrievalQueue:
             logger.debug(f"Removing item {sensor}/{date} from manual queue")
             with open(MANUAL_QUEUE_FILE, "w") as f:
                 json.dump(new_manual_queue, f, indent=4)
+
+    def ifgs_exist(self, sensor_id: str, date: str) -> bool:
+        """for a given sensor_id and date, determine whether the
+        interferograms exist in the src directory"""
+        ifg_src_directory = os.path.join(
+            self.config.data_src_dirs.interferograms,
+            sensor_id,
+            date,
+        )
+        if not os.path.isdir(ifg_src_directory):
+            return False
+
+        expected_ifg_pattern = re.compile(f"^{sensor_id}\\d{{8}}.*\\.ifg\\.\d+$")
+        ifg_file_count = len(
+            [
+                f
+                for f in os.listdir(ifg_src_directory)
+                if expected_ifg_pattern.match(f) is not None
+            ]
+        )
+        return ifg_file_count > 0
+
+    def outputs_exist(self, sensor_id: str, date: str) -> bool:
+        """for a given sensor_id and date, determine whether the
+        outputs exist in the src directory"""
+        successful_output_exists = os.path.isdir(
+            os.path.join(
+                self.config.data_dst.results_dir,
+                "proffast-2.2-outputs",
+                sensor_id,
+                "successful",
+                date,
+            )
+        )
+        failed_output_exists = os.path.isdir(
+            os.path.join(
+                self.config.data_dst.results_dir,
+                "proffast-2.2-outputs",
+                sensor_id,
+                "failed",
+                date,
+            )
+        )
+        return successful_output_exists or failed_output_exists
+
+    def date_is_too_recent(self, date_string: str) -> bool:
+        # will have the time 00:00:00
+        date_object = datetime.strptime(date_string, "%Y%m%d")
+        return (
+            datetime.now() - date_object
+        ).days < self.config.data_filter.min_days_delay
+
+    def upload_is_incomplete(self, sensor_id: str, date: str) -> bool:
+        """
+        If the dir_path contains a file "upload-meta.json", then this
+        function returns whether the internally used format indicates
+        a completed upload. Otherwise it will just return True
+        """
+        upload_meta_path = os.path.join(
+            self.config.data_src_dirs.interferograms,
+            sensor_id,
+            date,
+            "upload-meta.json",
+        )
+        if not os.path.isfile(upload_meta_path):
+            return True
+
+        try:
+            with open(upload_meta_path) as f:
+                upload_meta = json.load(f)
+            pyra_upload_is_complete = upload_meta["complete"]
+            assert isinstance(
+                pyra_upload_is_complete, bool
+            ), "upload-meta.complete is not a boolean"
+            return pyra_upload_is_complete
+        except Exception as e:
+            raise Exception(f'upload-meta.json at "{upload_meta_path}" is invalid: {e}')
