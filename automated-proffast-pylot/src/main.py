@@ -2,14 +2,16 @@ from multiprocessing.pool import AsyncResult
 import os
 from typing import List
 from src import utils, procedures
-from src.types.pylot_factory import PylotFactory
-from src.types.session import SessionDict
-from src.types.config import ConfigDict
+from src.custom_types.pylot_factory import PylotFactory
+from src.custom_types.session import SessionDict
+from src.custom_types.config import ConfigDict
 import multiprocessing as mp
 import signal
 
 
-def __process_session(config: ConfigDict, session: SessionDict, pylot_factory: PylotFactory):
+def __process_session(
+    config: ConfigDict, session: SessionDict, pylot_factory: PylotFactory
+):
     # Handle sig int
     signal.signal(signal.SIGINT, signal.SIG_IGN)
 
@@ -63,7 +65,7 @@ def __process_session(config: ConfigDict, session: SessionDict, pylot_factory: P
 
 
 def run() -> None:
-    main_logger = utils.Logger('main')
+    main_logger = utils.Logger("main")
     pylot_factory = PylotFactory(main_logger)
     pool = mp.Pool(4)
 
@@ -77,13 +79,16 @@ def run() -> None:
         main_logger.exception()
         return
 
-
     try:
         retrieval_queue = utils.RetrievalQueue(config, main_logger, pylot_factory)
         results: List[AsyncResult] = []
         for session in retrieval_queue:
-            main_logger.info(m=f"Running session: {session['sensor']}, {session['date']} in container {session['container_id']} at path {session['container_path']}")
-            result: AsyncResult = pool.apply_async(func=__process_session, args=(config, session, pylot_factory))
+            main_logger.info(
+                m=f"Running session: {session['sensor']}, {session['date']} in container {session['container_id']} at path {session['container_path']}"
+            )
+            result: AsyncResult = pool.apply_async(
+                func=__process_session, args=(config, session, pylot_factory)
+            )
             results.append(result)
         [result.get() for result in results]
     except KeyboardInterrupt:

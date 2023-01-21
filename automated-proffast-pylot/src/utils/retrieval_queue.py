@@ -2,8 +2,8 @@ from datetime import datetime
 import json
 import os
 from typing import Iterator, Optional, TypedDict
-from src import utils, types
-from src.types.pylot_factory import PylotFactory
+from src import utils, custom_types
+from src.custom_types.pylot_factory import PylotFactory
 
 dir = os.path.dirname
 PROJECT_DIR = dir(dir(dir(os.path.abspath(__file__))))
@@ -62,14 +62,19 @@ class RetrievalQueue:
     3. Takes all items from manual-queue.json with a priority < 0
     """
 
-    def __init__(self, config: types.ConfigDict, logger: utils.Logger, pylot_factory: PylotFactory):
+    def __init__(
+        self,
+        config: custom_types.ConfigDict,
+        logger: utils.Logger,
+        pylot_factory: PylotFactory,
+    ):
         self.config = config
         self.processed_sensor_dates: dict[str, list[str]] = {}
         self.location_data = utils.LocationData(config)
         self.factory = pylot_factory
         self.logger = logger
 
-    def __iter__(self) -> Iterator[types.SessionDict]:
+    def __iter__(self) -> Iterator[custom_types.SessionDict]:
         iteration_count = 0
         while True:
             iteration_count += 1
@@ -117,7 +122,9 @@ class RetrievalQueue:
 
             break
 
-    def _generate_session_dict(self, sensor: str, date: str) -> types.SessionDict:
+    def _generate_session_dict(
+        self, sensor: str, date: str
+    ) -> custom_types.SessionDict:
         self.processed_sensor_dates[sensor].append(date)
 
         location = self.location_data.get_location_for_date(sensor, date)
@@ -141,7 +148,7 @@ class RetrievalQueue:
             "serial_number": serial_number,
             "utc_offset": utc_offset,
             "container_id": container_id,
-            "container_path": container_path
+            "container_path": container_path,
         }
 
     def _pyra_upload_is_complete(self, sensor: str, date: str) -> Optional[bool]:
@@ -227,8 +234,8 @@ class RetrievalQueue:
 
         try:
             with open(MANUAL_QUEUE_FILE, "r") as f:
-                manual_queue: list[types.ManualQueueItemDict] = json.load(f)
-                types.validate_manual_queue(manual_queue, self.config)
+                manual_queue: list[custom_types.ManualQueueItemDict] = json.load(f)
+                custom_types.validate_manual_queue(manual_queue, self.config)
         except Exception as e:
             self.logger.warning(f"Manual queue in an invalid format: {e}")
             return None
@@ -289,14 +296,14 @@ class RetrievalQueue:
 
     @staticmethod
     def remove_from_queue_file(
-        sensor: str, date: str, config: types.ConfigDict, logger: utils.Logger
+        sensor: str, date: str, config: custom_types.ConfigDict, logger: utils.Logger
     ) -> None:
         if not os.path.isfile(MANUAL_QUEUE_FILE):
             return
 
         with open(MANUAL_QUEUE_FILE, "r") as f:
-            old_manual_queue: list[types.ManualQueueItemDict] = json.load(f)
-            types.validate_manual_queue(old_manual_queue, config)
+            old_manual_queue: list[custom_types.ManualQueueItemDict] = json.load(f)
+            custom_types.validate_manual_queue(old_manual_queue, config)
 
         new_manual_queue = list(
             filter(

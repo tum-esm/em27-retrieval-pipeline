@@ -4,7 +4,7 @@ import os
 import shutil
 import subprocess
 from typing import Optional
-from src import utils, types
+from src import utils, custom_types
 
 dir = os.path.dirname
 PROJECT_DIR = dir(dir(dir(os.path.abspath(__file__))))
@@ -33,8 +33,16 @@ def detect_error_type(output_src: str) -> Optional[str]:
     return None
 
 
-def run(config: types.ConfigDict, logger: utils.Logger, session: types.SessionDict) -> None:
-    sensor, date, container_id = session["sensor"], session["date"], session["container_id"]
+def run(
+    config: custom_types.ConfigDict,
+    logger: utils.Logger,
+    session: custom_types.SessionDict,
+) -> None:
+    sensor, date, container_id = (
+        session["sensor"],
+        session["date"],
+        session["container_id"],
+    )
 
     output_src = (
         f"{PROJECT_DIR}/outputs/{sensor}_"
@@ -148,7 +156,7 @@ def run(config: types.ConfigDict, logger: utils.Logger, session: types.SessionDi
             "generationTime": now.strftime("%T"),
         }
         json.dump(about_dict, f, indent=4)
-    
+
     # Clear directories "inputs" and "outputs"
     for subdir in ["inputs", "outputs"]:
         shutil.rmtree(f"{PROJECT_DIR}/{subdir}")

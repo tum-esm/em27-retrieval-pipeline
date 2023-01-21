@@ -1,6 +1,6 @@
 import os
 import shutil
-from src import types
+from src import custom_types
 
 dir = os.path.dirname
 PROJECT_DIR = dir(dir(dir(os.path.abspath(__file__))))
@@ -22,7 +22,9 @@ def _insert_replacements(content: str, replacements: dict[str, str]) -> str:
     return content
 
 
-def _generate_pylot_config(session: types.SessionDict, container_path: str, container_id: str) -> None:
+def _generate_pylot_config(
+    session: custom_types.SessionDict, container_path: str, container_id: str
+) -> None:
     file_content = _load(f"{PROJECT_DIR}/src/config/pylot_config_template.yml")
     replacements = {
         "SERIAL_NUMBER": str(session["serial_number"]).zfill(3),
@@ -33,29 +35,39 @@ def _generate_pylot_config(session: types.SessionDict, container_path: str, cont
         "COORDINATES_ALT": str(round(session["alt"] / 1000.0, 3)),
         "UTC_OFFSET": str(round(session["utc_offset"], 2)),
         "CONTAINER_ID": container_id,
-        "PROFFAST_PATH": os.path.join(container_path, "prf")
+        "PROFFAST_PATH": os.path.join(container_path, "prf"),
     }
     file_content = _insert_replacements(file_content, replacements)
-    _dump(f"{PROJECT_DIR}/inputs/{container_id}/{session['sensor']}-pylot-config.yml", file_content)
+    _dump(
+        f"{PROJECT_DIR}/inputs/{container_id}/{session['sensor']}-pylot-config.yml",
+        file_content,
+    )
 
 
-def _generate_pylot_log_format(session: types.SessionDict, container_id: str) -> None:
+def _generate_pylot_log_format(
+    session: custom_types.SessionDict, container_id: str
+) -> None:
     file_content = _load(f"{PROJECT_DIR}/src/config/pylot_log_format_template.yml")
     replacements = {
         "SENSOR": session["sensor"],
         "UTC_OFFSET": str(round(session["utc_offset"], 2)),
     }
     file_content = _insert_replacements(file_content, replacements)
-    _dump(f"{PROJECT_DIR}/inputs/{container_id}/{session['sensor']}-log-format.yml", file_content)
+    _dump(
+        f"{PROJECT_DIR}/inputs/{container_id}/{session['sensor']}-log-format.yml",
+        file_content,
+    )
 
 
-def run(session: types.SessionDict) -> None:
-    container_id = session['container_id']
-    container_path = session["container_path"] 
+def run(session: custom_types.SessionDict) -> None:
+    container_id = session["container_id"]
+    container_path = session["container_path"]
 
     os.makedirs(f"{PROJECT_DIR}/inputs/{container_id}/{session['sensor']}_ifg")
     os.makedirs(f"{PROJECT_DIR}/inputs/{container_id}/{session['sensor']}_map")
     os.makedirs(f"{PROJECT_DIR}/inputs/{container_id}/{session['sensor']}_pressure")
 
-    _generate_pylot_config(session=session, container_id=container_id, container_path=container_path)
+    _generate_pylot_config(
+        session=session, container_id=container_id, container_path=container_path
+    )
     _generate_pylot_log_format(session, container_id)

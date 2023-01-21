@@ -1,7 +1,7 @@
 from datetime import datetime
 import json
 import os
-from src import types
+from src import custom_types
 
 # TODO: statically type this class
 
@@ -12,13 +12,13 @@ LIST_PATH = f"{PROJECT_DIR}/logs/input-warnings-to-be-resolved.json"
 
 class InputWarningsList:
     @staticmethod
-    def _load() -> dict[str, types.InputWarningsDict]:
+    def _load() -> dict[str, custom_types.InputWarningsDict]:
         try:
             with open(LIST_PATH, "r") as f:
                 current_object = json.load(f)
-                types.validate_input_warnings(current_object)
+                custom_types.validate_input_warnings(current_object)
                 validated_current_object: dict[
-                    str, types.InputWarningsDict
+                    str, custom_types.InputWarningsDict
                 ] = current_object
                 return validated_current_object
         except FileNotFoundError:
@@ -26,7 +26,7 @@ class InputWarningsList:
             return {}
 
     @staticmethod
-    def _dump(new_warnings_list: dict[str, types.InputWarningsDict]) -> None:
+    def _dump(new_warnings_list: dict[str, custom_types.InputWarningsDict]) -> None:
         with open(LIST_PATH, "w") as f:
             json.dump(new_warnings_list, f, indent=4)
 

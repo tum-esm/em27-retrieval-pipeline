@@ -1,21 +1,23 @@
 import json
 import os
 from typing import Optional
-from src import types
+from src import custom_types
 
 dir = os.path.dirname
 PROJECT_DIR = dir(dir(dir(os.path.abspath(__file__))))
 
 
 class LocationData:
-    def __init__(self, config: types.ConfigDict) -> None:
-        types.validate_location_data(config)
+    def __init__(self, config: custom_types.ConfigDict) -> None:
+        custom_types.validate_location_data(config)
 
         with open(f"{PROJECT_DIR}/location-data/data/sensors.json") as f:
-            self.sensor_locations: dict[str, types.SensorLocationDict] = json.load(f)
+            self.sensor_locations: dict[
+                str, custom_types.SensorLocationDict
+            ] = json.load(f)
         with open(f"{PROJECT_DIR}/location-data/data/locations.json") as f:
             self.location_coordinates: dict[
-                str, types.LocationCoordinatesDict
+                str, custom_types.LocationCoordinatesDict
             ] = json.load(f)
 
     def get_serial_number_for_sensor(self, sensor: str) -> int:
@@ -23,7 +25,7 @@ class LocationData:
 
     def get_coordinates_for_location(
         self, location: str
-    ) -> types.LocationCoordinatesDict:
+    ) -> custom_types.LocationCoordinatesDict:
         return self.location_coordinates[location]
 
     def get_location_for_date(self, sensor: str, date: str) -> Optional[str]:

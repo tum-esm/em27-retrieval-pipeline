@@ -1,6 +1,6 @@
 import os
 import subprocess
-from src import types
+from src import custom_types
 
 # TODO: Convert this into a class
 # TODO: convert the output structure from "dst/sensor/ifgs/date" to
@@ -8,7 +8,7 @@ from src import types
 
 
 def get_existing_src_directories(
-    config: types.ConfigDict, sensor: str, date: str
+    config: custom_types.ConfigDict, sensor: str, date: str
 ) -> list[str]:
     src_directories = [
         os.path.join(config["src"]["interferograms"]["upload"], sensor, date),

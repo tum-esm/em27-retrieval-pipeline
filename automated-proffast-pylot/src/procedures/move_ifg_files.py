@@ -1,14 +1,18 @@
 import os
 import shutil
 import subprocess
-from src import utils, types, detect_corrupt_ifgs
+from src import utils, custom_types, detect_corrupt_ifgs
 
 dir = os.path.dirname
 PROJECT_DIR = dir(dir(dir(os.path.abspath(__file__))))
 DST = f"{PROJECT_DIR}/inputs"
 
 
-def run(config: types.ConfigDict, logger: utils.Logger, session: types.SessionDict) -> None:
+def run(
+    config: custom_types.ConfigDict,
+    logger: utils.Logger,
+    session: custom_types.SessionDict,
+) -> None:
     sensor, date = session["sensor"], session["date"]
     container_id = session["container_id"]
 
@@ -63,9 +67,7 @@ def run(config: types.ConfigDict, logger: utils.Logger, session: types.SessionDi
         raise AssertionError("corrupt-files-detection has failed during execution")
 
     if len(corrupt_files) > 0:
-        logger.debug(
-            f"Removing {len(corrupt_files)} corrupt file(s): {corrupt_files}"
-        )
+        logger.debug(f"Removing {len(corrupt_files)} corrupt file(s): {corrupt_files}")
         for f in corrupt_files:
             os.remove(f"{dst_date_path}/{f}")
     else:
