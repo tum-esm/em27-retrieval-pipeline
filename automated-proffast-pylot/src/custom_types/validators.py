@@ -48,6 +48,7 @@ def validate_int(
     minimum: Optional[int] = None,
     maximum: Optional[int] = None,
     allowed: Optional[list[int]] = None,
+    forbidden: Optional[list[int]] = None,
 ) -> Callable[[Any, Optional[int]], Optional[int]]:
     def f(cls: Any, v: Optional[int]) -> Optional[int]:
         if v is None:
@@ -62,7 +63,9 @@ def validate_int(
         if maximum is not None and v > maximum:
             raise ValueError(f'"{v}" is larger than {maximum}')
         if allowed is not None and v not in allowed:
-            raise ValueError(f'"{v}" is not a allowed (not one of {allowed})')
+            raise ValueError(f'"{v}" is not allowed (not one of {allowed})')
+        if forbidden is not None and v in forbidden:
+            raise ValueError(f'"{v}" is forbidden)')
         return v
 
     return f

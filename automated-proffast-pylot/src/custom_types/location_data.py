@@ -1,67 +1,113 @@
-import json
-import os
-import subprocess
-from typing import Any, TypedDict
-from .validation_error import ValidationError
-from .config import ConfigDict
-
-dir = os.path.dirname
-PROJECT_DIR = dir(dir(dir(os.path.abspath(__file__))))
+from pydantic import BaseModel, validator
+from typing import Literal
+from .validators import validate_float, validate_int, validate_str
 
 
-class LocationCoordinatesDict(TypedDict):
+class Location(BaseModel):
+    location_id: str
     details: str
     lon: float
     lat: float
-    alt: int
+    alt: float
+
+    # validators
+    _val_location_id = validator("location_id", pre=True, allow_reuse=True)(
+        validate_str(min_len=1, max_len=64, regex="^[A-Z0-9_]+$"),
+    )
+    _val_details = validator("details", pre=True, allow_reuse=True)(
+        validate_str(min_len=3),
+    )
+    _val_lon = validator("lon", pre=True, allow_reuse=True)(
+        validate_float(minimum=-180, maximum=180),
+    )
+    _val_lat = validator("lat", pre=True, allow_reuse=True)(
+        validate_float(minimum=-90, maximum=90),
+    )
+    _val_alt = validator("alt", pre=True, allow_reuse=True)(
+        validate_float(minimum=-20, maximum=10000),
+    )
 
 
-class _LocationTimeFrame(TypedDict):
-    from_date: str
-    to_date: str
-    location: str
-
-
-class _UTCOffsetTimeFrame(TypedDict):
+class SensorUTCOffset(BaseModel):
     from_date: str
     to_date: str
     utc_offset: float
 
+    # validators
+    _val_date_string = validator(
+        *["from_date", "to_date"],
+        pre=True,
+        allow_reuse=True,
+    )(
+        validate_str(is_date_string=True),
+    )
+    _val_utc_offset = validator("utc_offset", pre=True, allow_reuse=True)(
+        validate_float(minimum=-12, maximum=12),
+    )
 
-class SensorLocationDict(TypedDict):
+
+class SensorLocation(BaseModel):
+    from_date: str
+    to_date: str
+    location_id: str
+
+    # validators
+    _val_date_string = validator(
+        *["from_date", "to_date"],
+        pre=True,
+        allow_reuse=True,
+    )(
+        validate_str(is_date_string=True),
+    )
+    _val_location_id = validator("location_id", pre=True, allow_reuse=True)(
+        validate_str(),
+    )
+
+
+class Sensor(BaseModel):
+    sensor_id: str
     serial_number: int
-    utc_offsets: list[_UTCOffsetTimeFrame]
-    locations: list[_LocationTimeFrame]
+    utc_offsets: list[SensorUTCOffset]
+    locations: list[SensorLocation]
+
+    # validators
+    _val_sensor_id = validator("sensor_id", pre=True, allow_reuse=True)(
+        validate_str(min_len=1, max_len=64, regex="^[a-z0-9_]+$"),
+    )
+    _val_serial_number = validator("serial_number", pre=True, allow_reuse=True)(
+        validate_int(minimum=1),
+    )
 
 
-def validate_location_data(config: ConfigDict) -> None:
-    """
-    Check, whether a given list is a correct list of ManualQueueItemDicts
-    Raises a pydantic.ValidationError if the object is invalid.
+class CampaignStation(BaseModel):
+    sensor_id: str
+    default_location_id: str
+    direction: Literal["north", "east", "south", "west", "center"]
 
-    This should always be used when loading the object from a
-    JSON file!
-    """
+    # validators
+    _val_str = validator(
+        *["sensor_id", "default_location_id"],
+        pre=True,
+        allow_reuse=True,
+    )(
+        validate_str(),
+    )
 
-    try:
-        location_repo_pytest = subprocess.run(
-            ["python", "-m", "pytest", "tests"],
-            cwd=os.path.join(PROJECT_DIR, "location-data"),
-            stderr=subprocess.PIPE,
-            stdout=subprocess.PIPE,
-        )
 
-        assert location_repo_pytest.returncode == 0, (
-            f"pytests on location repo failed: "
-            + f"stdout={location_repo_pytest.stdout.decode()}, "
-            + f"stderr={location_repo_pytest.stderr.decode()}"
-        )
+class Campaign(BaseModel):
+    campaign_id: str
+    from_date: str
+    to_date: str
+    stations: list[CampaignStation]
 
-        with open(f"{PROJECT_DIR}/location-data/data/sensors.json") as f:
-            sensors = json.load(f)
-
-        for sensor in config["sensors_to_consider"]:
-            assert sensor in sensors.keys(), f'no location data for sensor "{sensor}"'
-
-    except AssertionError as e:
-        raise ValidationError(f"location repo is invalid: {e}")
+    # validators
+    _val_campaign_id = validator("campaign_id", pre=True, allow_reuse=True)(
+        validate_str(min_len=1, max_len=64, regex="^[a-z0-9_]+$"),
+    )
+    _val_date_string = validator(
+        *["from_date", "to_date"],
+        pre=True,
+        allow_reuse=True,
+    )(
+        validate_str(is_date_string=True),
+    )
