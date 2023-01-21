@@ -70,3 +70,20 @@ clint = "^0.5.1"
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.pytest.ini_options]
+markers = [
+    "ci: can be run in a CI environment",
+    "integration: can only be run on a configured system",
+]
+
+[tool.mypy]
+strict = true
+implicit_reexport = true
+no_warn_unused_ignores = true
+
+[[tool.mypy.overrides]]
+module = [
+    "src.prfpylot.prfpylot.pylot",
+]
+ignore_missing_imports = true
