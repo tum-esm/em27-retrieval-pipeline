@@ -1,3 +1,4 @@
+from typing import Optional
 from pydantic import BaseModel, validator
 from .validators import validate_str, validate_list, validate_bool
 
@@ -22,18 +23,25 @@ class DataFilterConfig(BaseModel):
     )
 
 
-class DataSrcConfig(BaseModel):
-    location_repository: str
-    datalogger_dir: str
-    vertical_profiles_dir: str
-    interferograms_dir: str
+class LocationDataConfig(BaseModel):
+    repository: str
+    access_token: Optional[str]
 
     # validators
-    _val_location_repository = validator(
-        "location_repository", pre=True, allow_reuse=True
-    )(
-        validate_str(regex=r"^git@.+:.+/.+$"),
+    _val_repository = validator("repository", pre=True, allow_reuse=True)(
+        validate_str(regex=r"^[a-z0-9-_]+/[a-z0-9-_]+$"),
     )
+    _val_access_token = validator("access_token", pre=True, allow_reuse=True)(
+        validate_str(nullable=True),
+    )
+
+
+class DataSrcDirsConfig(BaseModel):
+    datalogger: str
+    vertical_profiles: str
+    interferograms: str
+
+    # validators
     _val_dir = validator(
         *["datalogger_dir", "vertical_profiles_dir", "interferograms_dir"],
         pre=True,
@@ -43,8 +51,8 @@ class DataSrcConfig(BaseModel):
     )
 
 
-class DataDstConfig(BaseModel):
-    results_dir: str
+class DataDstDirsConfig(BaseModel):
+    results: str
 
     # validators
     _val_dir = validator("results_dir", pre=True, allow_reuse=True)(
@@ -55,8 +63,9 @@ class DataDstConfig(BaseModel):
 class ConfigDict(BaseModel):
     process_data_automatically: bool
     data_filter: DataFilterConfig
-    data_src: DataSrcConfig
-    data_dst: DataDstConfig
+    location_data: LocationDataConfig
+    data_src_dirs: DataSrcDirsConfig
+    data_dst_dirs: DataDstDirsConfig
 
     # validators
     _val_dir = validator("process_data_automatically", pre=True, allow_reuse=True)(
