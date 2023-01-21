@@ -4,8 +4,8 @@
 set -o errexit
 
 # init submodule proffaspylot
-git submodule update
 git submodule init
+git submodule update
 
 # download and unzip proffast v2.0.1
 wget https://www.imk-asf.kit.edu/downloads/Coccon-SW/PROFFASTv2.2.zip
