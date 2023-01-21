@@ -1,9 +1,9 @@
 from pydantic import BaseModel
 
 
-class SessionDict(BaseModel):
-    sensor: str
-    location: str
+class Session(BaseModel):
+    sensor_id: str
+    location_id: str
     date: str
     lat: float
     lon: float

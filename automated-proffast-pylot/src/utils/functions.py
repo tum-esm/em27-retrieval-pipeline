@@ -19,3 +19,12 @@ def get_commit_sha() -> Optional[str]:
         )
     except:
         return None
+
+def load_file(path: str) -> str:
+    with open(path, "r") as f:
+        return "".join(f.readlines())
+
+
+def dump_file(path: str, content: str) -> None:
+    with open(path, "w") as f:
+        f.write(content)

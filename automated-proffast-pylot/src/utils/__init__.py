@@ -9,4 +9,4 @@ from .retrieval_queue import RetrievalQueue
 
 from .input_warning_list import InputWarningsList
 
-from .functions import get_commit_sha
+from .functions import get_commit_sha, load_file, dump_file
