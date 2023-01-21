@@ -1,21 +1,20 @@
 import os
-import sys
-from src import custom_types
-from src.custom_types.pylot_factory import PylotFactory
-from src.utils.logger import Logger
+from src import custom_types, utils
 
-dir = os.path.dirname
-PROJECT_DIR = dir(dir(dir(os.path.abspath(__file__))))
-
-sys.path.append(f"{PROJECT_DIR}/src/prfpylot")
-# from src.prfpylot.prfpylot.pylot import Pylot
+dirname = os.path.dirname
+PROJECT_DIR = dirname(dirname(dirname(os.path.abspath(__file__))))
 
 
 def run(
-    session: custom_types.SessionDict, pylot_factory: PylotFactory, logger: Logger
+    session: custom_types.Session,
+    pylot_factory: custom_types.PylotFactory,
+    logger: utils.Logger,
 ) -> None:
-    yaml_path = f"{PROJECT_DIR}/inputs/{session['container_id']}/{session['sensor']}-pylot-config.yml"
-    result = pylot_factory.execute_pylot(session["container_id"], yaml_path, 1)
+    yaml_path = (
+        f"{PROJECT_DIR}/inputs/{session.container_id}/"
+        + f"{session.sensor_id}-pylot-config.yml"
+    )
+    result = pylot_factory.execute_pylot(session.container_id, yaml_path, 1)
     logger.info(f"Pylot instance result {result.returncode}")
     logger.info(f"Pylot Execution Logs: {result.stdout}")
     logger.error(f"Pylot Execution Logs: {result.stderr}")

@@ -10,14 +10,14 @@ DST = f"{PROJECT_DIR}/inputs"
 
 
 def run(
-    config: custom_types.ConfigDict,
+    config: custom_types.Config,
     logger: utils.Logger,
-    session: custom_types.SessionDict,
+    session: custom_types.Session,
 ) -> None:
     # find all filenames of interferograms
     # possible file name patterns: ma20201123.ifg.0001, ma20220316s0e00a.0001
     ifg_src_directory = os.path.join(
-        config.data_src.interferograms_dir, session.sensor, session.date
+        config.data_src_dirs.interferograms, session.sensor, session.date
     )
     expected_ifg_pattern = re.compile(f"^{session.sensor}\\d{{8}}.*\\.ifg\\.\d+$")
     filenames = [

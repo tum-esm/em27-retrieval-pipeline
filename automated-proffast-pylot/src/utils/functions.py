@@ -20,6 +20,7 @@ def get_commit_sha() -> Optional[str]:
     except:
         return None
 
+
 def load_file(path: str) -> str:
     with open(path, "r") as f:
         return "".join(f.readlines())
@@ -28,3 +29,9 @@ def load_file(path: str) -> str:
 def dump_file(path: str, content: str) -> None:
     with open(path, "w") as f:
         f.write(content)
+
+
+def insert_replacements(content: str, replacements: dict[str, str]) -> str:
+    for key, value in replacements.items():
+        content = content.replace(f"%{key}%", value)
+    return content

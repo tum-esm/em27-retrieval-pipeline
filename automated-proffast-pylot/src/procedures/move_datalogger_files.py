@@ -7,20 +7,22 @@ PROJECT_DIR = dir(dir(dir(os.path.abspath(__file__))))
 
 
 def run(
-    config: custom_types.ConfigDict,
+    config: custom_types.Config,
     logger: utils.Logger,
-    session: custom_types.SessionDict,
+    session: custom_types.Session,
 ) -> None:
-    sensor, date, container_id = (
-        session["sensor"],
-        session["date"],
-        session["container_id"],
+    filename = f"datalogger-{session.sensor_id}-{session.date}.csv"
+    src_filepath = os.path.join(
+        config["src"]["datalogger"],
+        session.sensor_id,
+        filename,
     )
-
-    filename = f"datalogger-{sensor}-{date}.csv"
-    src_filepath = os.path.join(config["src"]["datalogger"], sensor, filename)
     dst_filepath = os.path.join(
-        PROJECT_DIR, "inputs", container_id, f"{sensor}_pressure", filename
+        PROJECT_DIR,
+        "inputs",
+        session.container_id,
+        f"{session.sensor_id}_pressure",
+        filename,
     )
 
     assert os.path.isfile(src_filepath), "no datalogger file found"
@@ -32,7 +34,7 @@ def run(
     # 1440 minutes per day + 1 header line
     if line_count < 1441:
         logger.warning(
-            f"{sensor}/{date} - datalogger file only has {line_count}/1441 lines"
+            f"{session.sensor_id}/{session.date} - datalogger file only has {line_count}/1441 lines"
         )
     assert line_count >= 30, "datalogger file has less than 30 entries"
 

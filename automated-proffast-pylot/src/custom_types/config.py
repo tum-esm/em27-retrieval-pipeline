@@ -60,7 +60,7 @@ class DataDstDirsConfig(BaseModel):
     )
 
 
-class ConfigDict(BaseModel):
+class Config(BaseModel):
     process_data_automatically: bool
     data_filter: DataFilterConfig
     location_data: LocationDataConfig

@@ -2,7 +2,6 @@ from datetime import datetime
 import json
 import os
 import shutil
-import subprocess
 from typing import Optional
 from src import utils, custom_types
 
@@ -33,39 +32,33 @@ def detect_error_type(output_src: str) -> Optional[str]:
 
 
 def run(
-    config: custom_types.ConfigDict,
+    config: custom_types.Config,
     logger: utils.Logger,
-    session: custom_types.SessionDict,
+    session: custom_types.Session,
 ) -> None:
-    sensor, date, container_id = (
-        session["sensor"],
-        session["date"],
-        session["container_id"],
+    output_src_dir = (
+        f"{PROJECT_DIR}/outputs/{session.sensor_id}_"
+        + f"SN{str(session.serial_number).zfill(3)}_{session.date[2:]}-{session.date[2:]}"
     )
-
-    output_src = (
-        f"{PROJECT_DIR}/outputs/{sensor}_"
-        + f"SN{str(session['serial_number']).zfill(3)}_{date[2:]}-{date[2:]}"
+    output_csv_path = (
+        f"{output_src_dir}/comb_invparms_{session.sensor_id}_"
+        + f"SN{str(session.serial_number).zfill(3)}_"
+        + f"{session.date[2:]}-{session.date[2:]}.csv"
     )
-    output_csv = (
-        f"{output_src}/comb_invparms_{sensor}_"
-        + f"SN{str(session['serial_number']).zfill(3)}_"
-        + f"{date[2:]}-{date[2:]}.csv"
-    )
-    assert os.path.isdir(output_src), "pylot output directory missing"
+    assert os.path.isdir(output_src_dir), "pylot output directory missing"
 
     # DETERMINE WHETHER RETRIEVAL HAS BEEN SUCCESSFUL OR NOT
 
-    day_was_successful = os.path.isfile(output_csv)
+    day_was_successful = os.path.isfile(output_csv_path)
     if day_was_successful:
-        with open(output_csv, "r") as f:
+        with open(output_csv_path, "r") as f:
             if len(f.readlines()) > 1:
                 logger.debug(f"Retrieval output csv exists")
             else:
                 day_was_successful = False
                 logger.warning(f"Retrieval output csv exists but is empty")
 
-        error_type = detect_error_type(output_src)
+        error_type = detect_error_type(output_src_dir)
         if error_type is None:
             logger.debug("Unknown error type")
         else:
@@ -78,16 +71,16 @@ def run(
     output_dst_successful = os.path.join(
         config.data_dst.results_dir,
         "proffast-2.2-outputs",
-        sensor,
+        session.sensor_id,
         "successful",
-        date,
+        session.date,
     )
     output_dst_failed = os.path.join(
         config.data_dst.results_dir,
         "proffast-2.2-outputs",
-        sensor,
+        session.sensor_id,
         "failed",
-        date,
+        session.date,
     )
 
     # REMOVE OLD OUTPUTS
@@ -106,22 +99,24 @@ def run(
         os.makedirs(output_dst_successful, exist_ok=True)
     else:
         output_dst = output_dst_failed
-        output_dst_failed = f"{output_dst}/failed/{date}"
+        output_dst_failed = f"{output_dst}/failed/{session.date}"
 
     # MOVE NEW OUTPUTS
 
-    shutil.copytree(output_src, output_dst)
-    shutil.rmtree(output_src)
+    shutil.copytree(output_src_dir, output_dst)
+    shutil.rmtree(output_src_dir)
 
     # STORE AUTOMATION LOGS
 
     date_logs = logger.get_session_logs()
-    with open(f"{output_dst}/automation_{container_id}.log", "w") as f:
+    with open(f"{output_dst}/automation_{session.container_id}.log", "w") as f:
         f.writelines(date_logs)
 
     # POSSIBLY REMOVE ITEMS FROM MANUAL QUEUE
 
-    utils.RetrievalQueue.remove_from_queue_file(sensor, date, config, logger)
+    utils.RetrievalQueue.remove_from_queue_file(
+        session.sensor_id, session.date, config, logger
+    )
 
     # STORE AUTOMATION INFO
 
