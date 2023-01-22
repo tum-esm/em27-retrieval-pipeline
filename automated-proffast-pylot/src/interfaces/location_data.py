@@ -18,46 +18,52 @@ class LocationDataInterface:
         self.locations: list[custom_types.Location] = [
             custom_types.Location(**l) for l in locations
         ]
+        self.location_ids = [s.location_id for s in self.locations]
+
         self.sensors: list[custom_types.Sensor] = [
             custom_types.Sensor(**s) for s in sensors
         ]
+        self.sensor_ids = [s.sensor_id for s in self.sensors]
+
         self.campaigns: list[custom_types.Campaign] = [
             custom_types.Campaign(**c) for c in campaigns
         ]
+        self.campaign_ids = [s.campaign_id for s in self.campaigns]
 
         self.check_integrity()
 
     def check_integrity(self) -> None:
         # unique location ids
-        location_ids = [s.location_id for s in self.locations]
-        assert len(set(location_ids)) == len(
-            location_ids
+        assert len(set(self.location_ids)) == len(
+            self.location_ids
         ), "location ids are not unique"
 
         # unique sensor ids
-        sensor_ids = [s.sensor_id for s in self.sensors]
-        assert len(set(sensor_ids)) == len(sensor_ids), "sensor ids are not unique"
+        assert len(set(self.sensor_ids)) == len(
+            self.sensor_ids
+        ), "sensor ids are not unique"
 
         # unique campaign ids
-        campaign_ids = [s.campaign_id for s in self.campaigns]
-        assert len(set(campaign_ids)) == len(
-            campaign_ids
+        assert len(set(self.campaign_ids)) == len(
+            self.campaign_ids
         ), "campaign ids are not unique"
 
         # reference existence in sensors.json
         for s in self.sensors:
             for l in s.locations:
                 assert (
-                    l.location_id in location_ids
+                    l.location_id in self.location_ids
                 ), f"unknown location id {l.location_id}"
 
         # reference existence in campaigns.json
         for c in self.campaigns:
             for s2 in c.stations:
                 assert (
-                    s2.default_location_id in location_ids
+                    s2.default_location_id in self.location_ids
                 ), f"unknown location id {s2.default_location_id}"
-                assert s2.sensor_id in sensor_ids, f"unknown sensor id {s2.sensor_id}"
+                assert (
+                    s2.sensor_id in self.sensor_ids
+                ), f"unknown sensor id {s2.sensor_id}"
 
         # integrity of time series in sensors.json
         for s in self.sensors:
@@ -93,6 +99,32 @@ class LocationDataInterface:
                 assert (
                     o1.utc_offset != o2.utc_offset
                 ), "two neighboring date ranges should not have the same utc_offset"
+
+    def get_sensor_data_context(
+        self, sensor_id: str, date: str
+    ) -> custom_types.SensorDataContext:
+
+        assert (
+            sensor_id in self.sensor_ids
+        ), f'No location data for sensor_id "{sensor_id}"'
+        sensor = list(filter(lambda s: s.sensor_id == sensor_id, self.sensors))[0]
+        serial_number = sensor.serial_number
+
+        location_matches = list(
+            filter(lambda l: l.from_date <= date <= l.to_date, sensor.locations)
+        )
+        assert len(location_matches) == 1, f"no location data for {sensor_id}/{date}"
+        location_id = location_matches[0].location_id
+        location = list(filter(lambda l: l.location_id == location_id, self.locations))[
+            0
+        ]
+
+        return custom_types.SensorDataContext(
+            sensor_id=sensor_id,
+            serial_number=serial_number,
+            date=date,
+            location=location,
+        )
 
 
 def request_github_file(

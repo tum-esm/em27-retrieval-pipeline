@@ -111,3 +111,10 @@ class Campaign(BaseModel):
     )(
         validate_str(is_date_string=True),
     )
+
+
+class SensorDataContext(BaseModel):
+    sensor_id: str
+    serial_number: int
+    date: str
+    location: Location
