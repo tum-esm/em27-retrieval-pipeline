@@ -110,7 +110,7 @@ def run(
 
     shutil.copyfile(
         logger.logfile_path,
-        os.path.join(output_dst, "automation_container.log"),
+        os.path.join(output_dst, "logfiles", "container.log"),
     )
 
     # POSSIBLY REMOVE ITEMS FROM MANUAL QUEUE
@@ -126,7 +126,7 @@ def run(
             "automationVersion": utils.get_commit_sha(),
             "generationDate": now.strftime("%Y%m%d"),
             "generationTime": now.strftime("%T"),
-            "config": config,
-            "session": session,
+            "config": config.dict(),
+            "session": session.dict(),
         }
         json.dump(about_dict, f, indent=4)

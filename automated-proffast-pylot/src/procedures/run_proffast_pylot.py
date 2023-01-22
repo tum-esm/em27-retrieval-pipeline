@@ -1,5 +1,4 @@
 import os
-import subprocess
 from src import custom_types, utils
 
 dirname = os.path.dirname
@@ -14,17 +13,13 @@ PYLOT_ROOT_DIR = os.path.join(PROJECT_DIR, "src", "prfpylot")
 
 
 def run(session: custom_types.Session, logger: utils.Logger) -> None:
-    result = subprocess.run(
-        [
-            VENV_PATH,
-            os.path.join(PYLOT_ROOT_DIR, "run.py"),
-            session.container_id,
-            session.pylot_config_path,
-        ],
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-        text=True,
+    utils.run_shell_command(
+        " ".join(
+            [
+                VENV_PATH,
+                os.path.join(PYLOT_ROOT_DIR, "run.py"),
+                session.container_id,
+                session.pylot_config_path,
+            ]
+        )
     )
-    logger.info(f"Pylot instance result {result.returncode}")
-    logger.info(f"Pylot Execution Logs: {result.stdout}")
-    logger.error(f"Pylot Execution Logs: {result.stderr}")

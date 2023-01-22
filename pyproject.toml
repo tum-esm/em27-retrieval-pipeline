@@ -68,6 +68,7 @@ psutil = "^5.9.4"
 click = "^8.1.3"
 checksumdir = "^1.2.0"
 clint = "^0.5.1"
+fortranformat = "^1.2.2"
 
 [build-system]
 requires = ["poetry-core"]

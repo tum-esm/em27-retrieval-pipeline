@@ -12,23 +12,30 @@ from . import (
 
 def run(config: custom_types.Config, session: custom_types.Session):
     signal.signal(signal.SIGINT, signal.SIG_IGN)
-
     logger = utils.Logger(container_id=session.container_id)
-    logger.info(f"Starting {session.sensor_id}/{session.date}")
+    logger.info(f"Starting session {session.sensor_id}/{session.date}")
 
-    label = "vertical profiles"
+    def log_input_warning(message: str):
+        interfaces.InputWarningsInterface.add(session.sensor_id, session.date, message)
+        logger.warning(message)
+        logger.archive()
+
     try:
         move_vertical_profiles.run(config, session)
-        label = "datalogger files"
+    except AssertionError as e:
+        log_input_warning(f"Inputs incomplete (vertical profiles)")
+        return
+
+    try:
         move_datalogger_files.run(config, logger, session)
-        label = "ifgs files"
+    except AssertionError as e:
+        log_input_warning(f"Inputs incomplete (datalogger files): {e}")
+        return
+
+    try:
         move_ifg_files.run(config, logger, session)
     except AssertionError as e:
-        message = f"Inputs incomplete ({label})" + (
-            f": {e}" if "vertical" not in label else ""
-        )
-        logger.warning(message)
-        interfaces.InputWarningsInterface.add(session.sensor_id, session.date, message)
+        log_input_warning(f"Inputs incomplete (ifg files): {e}")
         return
 
     # inputs complete no warning to consider anymore
@@ -37,10 +44,9 @@ def run(config: custom_types.Config, session: custom_types.Session):
     logger.info(f"Running the pylot")
     try:
         run_proffast_pylot.run(session, logger)
-        logger.debug(f"Pylot completed without errors")
+        logger.debug("Pylot execution was successful")
     except Exception as e:
-        logger.warning(f"Pylot error: {e}")
-        logger.exception()
+        logger.debug(f"Pylot execution failed: {e}")
 
     # uncomment the following return if you want to observe the final
     # proffast outputs of one day in this working directory
