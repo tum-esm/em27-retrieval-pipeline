@@ -68,10 +68,6 @@ def get_random_string(length: int, forbidden: list[str] = []) -> str:
     return output
 
 
-import subprocess
-from typing import Optional
-
-
 def run_shell_command(command: str, working_directory: Optional[str] = None) -> str:
     p = subprocess.run(
         command,

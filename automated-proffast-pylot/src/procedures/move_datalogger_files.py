@@ -2,27 +2,21 @@ import os
 import shutil
 from src import utils, custom_types
 
-dir = os.path.dirname
-PROJECT_DIR = dir(dir(dir(os.path.abspath(__file__))))
-
 
 def run(
     config: custom_types.Config,
     logger: utils.Logger,
     session: custom_types.Session,
 ) -> None:
-    filename = f"datalogger-{session.sensor_id}-{session.date}.csv"
     src_filepath = os.path.join(
-        config["src"]["datalogger"],
+        config.data_src_dirs.datalogger,
         session.sensor_id,
-        filename,
+        f"datalogger-{session.sensor_id}-{session.date}.csv",
     )
     dst_filepath = os.path.join(
-        PROJECT_DIR,
-        "inputs",
-        session.container_id,
-        f"{session.sensor_id}_pressure",
-        filename,
+        session.data_input_path,
+        "log",
+        f"datalogger-{session.sensor_id}-{session.date}.csv",
     )
 
     assert os.path.isfile(src_filepath), "no datalogger file found"

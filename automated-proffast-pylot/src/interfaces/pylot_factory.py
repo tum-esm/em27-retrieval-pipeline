@@ -8,12 +8,6 @@ from src.utils.logger import Logger
 
 dirname = os.path.dirname
 PROJECT_DIR = dirname(dirname(dirname(os.path.abspath(__file__))))
-VENV_PATH = os.path.join(
-    dirname(dirname(dirname(dirname(os.path.abspath(__file__))))),
-    ".venv",
-    "bin",
-    "python",
-)
 
 PYLOT_ROOT_DIR = os.path.join(PROJECT_DIR, "src", "prfpylot")
 KIT_BASE_URL = "wget https://www.imk-asf.kit.edu/downloads/Coccon-SW/"
@@ -80,31 +74,20 @@ class PylotFactory:
 
         return self.containers[-1]
 
-    def execute_pylot(
-        self,
-        container_id: str,
-        pylot_config_path: str,
-    ) -> subprocess.CompletedProcess:
-        result = subprocess.run(
-            [
-                VENV_PATH,
-                os.path.join(PYLOT_ROOT_DIR, "run.py"),
-                container_id,
-                pylot_config_path,
-            ],
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            text=True,
-        )
-        return result
-
-    def remove_container(self, container: custom_types.PylotContainer) -> None:
-        shutil.rmtree(container.container_path)
-        self.containers.remove(container)
+    def remove_container(self, container_id: str) -> None:
+        try:
+            container = [c for c in self.containers if c.container_id == container_id][
+                0
+            ]
+            shutil.rmtree(container.container_path)
+            self.containers.remove(container)
+        except IndexError:
+            raise ValueError(f'no container with id "{container_id}"')
 
     def remove_all_containers(self) -> None:
         for container in self.containers:
-            self.remove_container(container)
+            shutil.rmtree(container.container_path)
+        self.containers = []
 
     def _init_pylot_code(self):
         if (not os.path.exists(self.main)) or (len(os.listdir(self.main)) == 0):
