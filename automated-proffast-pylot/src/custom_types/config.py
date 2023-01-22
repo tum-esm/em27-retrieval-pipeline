@@ -10,8 +10,8 @@ class DataFilterConfig(BaseModel):
     min_days_delay: int
 
     # validators
-    _val_sensors_to_consider = validator(
-        "sensors_to_consider", pre=True, allow_reuse=True
+    _val_sensor_ids_to_consider = validator(
+        "sensor_ids_to_consider", pre=True, allow_reuse=True
     )(
         validate_list(min_len=1),
     )
@@ -32,7 +32,7 @@ class LocationDataConfig(BaseModel):
     access_token: Optional[str]
 
     # validators
-    _val_repository = validator("repository", pre=True, allow_reuse=True)(
+    _val_github_repository = validator("github_repository", pre=True, allow_reuse=True)(
         validate_str(regex=r"^[a-z0-9-_]+/[a-z0-9-_]+$"),
     )
     _val_access_token = validator("access_token", pre=True, allow_reuse=True)(
@@ -47,7 +47,7 @@ class DataSrcDirsConfig(BaseModel):
 
     # validators
     _val_dir = validator(
-        *["datalogger_dir", "vertical_profiles_dir", "interferograms_dir"],
+        *["datalogger", "vertical_profiles", "interferograms"],
         pre=True,
         allow_reuse=True,
     )(
@@ -59,7 +59,7 @@ class DataDstDirsConfig(BaseModel):
     results: str
 
     # validators
-    _val_dir = validator("results_dir", pre=True, allow_reuse=True)(
+    _val_results = validator("results", pre=True, allow_reuse=True)(
         validate_str(is_directory=True)
     )
 
