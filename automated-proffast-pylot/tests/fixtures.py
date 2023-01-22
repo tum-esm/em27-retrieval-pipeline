@@ -22,7 +22,7 @@ def wrap_test_with_mainlock():
 def provide_tmp_config():
     config_path = os.path.join(PROJECT_DIR, "config", "config.json")
     tmp_config_path = os.path.join(PROJECT_DIR, "config", "config.tmp.json")
-    default_config_path = os.path.join(PROJECT_DIR, "config", "config.default.json")
+    default_config_path = os.path.join(PROJECT_DIR, "config", "config.template.json")
 
     assert not os.path.isfile(tmp_config_path), f'"{tmp_config_path}" should not exist'
     assert os.path.isfile(default_config_path), f'"{default_config_path}" should exist'
