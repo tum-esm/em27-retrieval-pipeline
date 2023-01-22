@@ -16,16 +16,20 @@ logfile_time = datetime.utcnow().strftime("%Y%m%d-%H-%M")
 
 
 class Logger:
-    def __init__(self, container_id: str) -> None:
+    def __init__(self, container_id: str, print_only: bool = False) -> None:
         self.container_id = container_id
         self.logfile_name = f"{logfile_time}_{self.container_id}.log"
         self.logfile_path = os.path.join(PROJECT_DIR, "logs", self.logfile_name)
+        self.print_only = print_only
 
     def _print(self, m: str, level: str) -> None:
         t = datetime.utcnow().strftime("%Y%m%d %H:%M:%S")
         log_line = f"{t} - {level} - {m}\n"
-        with open(self.logfile_path, "a") as f:
-            f.write(log_line)
+        if self.print_only:
+            print(log_line)
+        else:
+            with open(self.logfile_path, "a") as f:
+                f.write(log_line)
 
     def exception(self) -> None:
         """log an exception and its traceback"""

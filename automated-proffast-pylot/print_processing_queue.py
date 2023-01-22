@@ -10,3 +10,5 @@ if __name__ == "__main__":
         if next_item is None:
             break
         logger.info(f"next item: {next_item}")
+
+    logger.info("done")

@@ -43,6 +43,7 @@ types-sqlalchemy-utils = "^1.0.1"
 types-requests = "^2.28.11.8"
 pytest-cov = "^4.0.0"
 types-tqdm = "^4.64.7.11"
+python-dotenv = "^0.21.1"
 
 
 [tool.poetry.group.download-vertical-profiles.dependencies]

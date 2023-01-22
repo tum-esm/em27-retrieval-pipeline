@@ -83,10 +83,17 @@ class RetrievalQueue:
 
         # determine date_strings with data
         date_strings: list[str] = []
-        for sensor in self.config.data_filter.sensor_ids_to_consider:
+        for sensor_id in self.config.data_filter.sensor_ids_to_consider:
+            sensor_ifgs_dir = os.path.join(
+                self.config.data_src_dirs.interferograms, sensor_id
+            )
+            if not os.path.isdir(sensor_ifgs_dir):
+                continue
             date_strings += [
                 ds
-                for ds in os.path.join(self.config.data_src_dirs.interferograms, sensor)
+                for ds in os.listdir(
+                    os.path.join(self.config.data_src_dirs.interferograms, sensor_id)
+                )
                 if utils.is_date_string(ds)
             ]
         date_strings = list(sorted(set(date_strings), reverse=True))
@@ -96,22 +103,19 @@ class RetrievalQueue:
                 if self._is_marked_as_processed(sensor_id, date):
                     continue
 
-                # do not consider if outputs exist or out of filter range
-                if (
-                    (self.config.data_filter.start_date > date)
-                    or (self.config.data_filter.end_date < date)
-                    or self._outputs_exist(sensor_id, date)
-                ):
-                    self._mark_as_processed(sensor_id, date)
-                    continue
+                ifgs_missing_or_incomplete = lambda: (
+                    not self._ifgs_exist(sensor_id, date)
+                ) or (not self._upload_is_complete(sensor_id, date))
 
-                # do not consider if there is no location data
-                try:
-                    sensor_data_context = self.location_data.get_sensor_data_context(
-                        sensor_id, date
-                    )
-                except AssertionError as a:
-                    self.logger.debug(str(a))
+                outputs_exist = lambda: self._outputs_exist(sensor_id, date)
+                date_too_recent = lambda: self._date_is_too_recent(date)
+
+                date_out_of_filter_range = lambda: (
+                    self.config.data_filter.start_date > date
+                ) or (self.config.data_filter.end_date < date)
+
+                # do not consider if outputs exist or out of filter range
+                if outputs_exist():
                     self._mark_as_processed(sensor_id, date)
                     continue
 
@@ -120,13 +124,19 @@ class RetrievalQueue:
                 # the current execution, hence it will not be marked
                 # as being processed
                 if (
-                    self._date_is_too_recent(date)
-                    or self._upload_is_incomplete(sensor_id, date)
-                    or (not self._ifgs_exist(sensor_id, date))
+                    ifgs_missing_or_incomplete()
+                    or date_too_recent()
+                    or date_out_of_filter_range()
                 ):
                     continue
 
-                return sensor_data_context
+                # do not consider if there is no location data
+                try:
+                    return self.location_data.get_sensor_data_context(sensor_id, date)
+                except AssertionError as a:
+                    self.logger.debug(str(a))
+                    self._mark_as_processed(sensor_id, date)
+                    continue
 
         return None
 
@@ -192,7 +202,7 @@ class RetrievalQueue:
         if not os.path.isdir(ifg_src_directory):
             return False
 
-        expected_ifg_pattern = re.compile(f"^{sensor_id}\\d{{8}}.*\\.ifg\\.\d+$")
+        expected_ifg_pattern = re.compile(f"^{sensor_id}" + r"\d{8}.*\.ifg\.\d+$")
         ifg_file_count = len(
             [
                 f
@@ -232,7 +242,7 @@ class RetrievalQueue:
             datetime.now() - date_object
         ).days < self.config.data_filter.min_days_delay
 
-    def _upload_is_incomplete(self, sensor_id: str, date: str) -> bool:
+    def _upload_is_complete(self, sensor_id: str, date: str) -> bool:
         """
         If the dir_path contains a file "upload-meta.json", then this
         function returns whether the internally used format indicates
