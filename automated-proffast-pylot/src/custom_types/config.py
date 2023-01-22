@@ -28,7 +28,7 @@ class DataFilterConfig(BaseModel):
 
 
 class LocationDataConfig(BaseModel):
-    repository: str
+    github_repository: str
     access_token: Optional[str]
 
     # validators

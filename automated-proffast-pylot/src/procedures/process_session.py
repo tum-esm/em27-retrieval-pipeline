@@ -13,7 +13,7 @@ from . import (
 def run(config: custom_types.Config, session: custom_types.Session):
     signal.signal(signal.SIGINT, signal.SIG_IGN)
 
-    logger = utils.Logger(container_id=session.pylot_container.container_id)
+    logger = utils.Logger(container_id=session.container_id)
     logger.info(f"Starting {session.sensor_id}/{session.date}")
 
     label = "vertical profiles"

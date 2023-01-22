@@ -20,69 +20,61 @@ class RetrievalQueue:
     """
 
     def __init__(self, config: custom_types.Config, logger: utils.Logger):
-        self.logger, self.config = logger, config
+        self.logger = logger
+        self.config = config
         self.location_data = interfaces.load_remote_location_data(
             github_repository=self.config.location_data.github_repository,
             access_token=self.config.location_data.access_token,
         )
 
-        SensorId = (str,)
-        DateString = str
-        self.processed_data: dict[SensorId, list[DateString]] = {}
+        self.processed_sensor_dates: dict[str, list[str]] = {}
+        self.iteration_count = 0
 
     def get_next_item(self) -> Optional[custom_types.SensorDataContext]:
-        iteration_count = 0
-        while True:
-            iteration_count += 1
-            self.logger.line()
-            self.logger.debug(f"Scheduler: Iteration {iteration_count}")
+        self.iteration_count += 1
+        self.logger.horizontal_line()
+        self.logger.debug(f"Scheduler: Iteration {self.iteration_count}")
 
-            next_manual_item = self._next_item_from_manual_queue()
-            next_storage_item = self._next_item_from_storage_directory()
+        next_manual_item = self._next_item_from_manual_queue()
+        next_storage_item = self._next_item_from_storage_directory()
 
-            if (next_manual_item is None) and (next_storage_item is not None):
+        if (next_manual_item is None) and (next_storage_item is not None):
+            self.logger.info("Scheduler: Taking next item from storage directory")
+            self._mark_as_processed(
+                next_storage_item.sensor_id,
+                next_storage_item.date,
+            )
+            return next_storage_item
+
+        if (next_manual_item is not None) and (next_storage_item is None):
+            self.logger.info("Scheduler: Taking next item from manual queue")
+            self._mark_as_processed(
+                next_manual_item.sensor_data_context.sensor_id,
+                next_manual_item.sensor_data_context.date,
+            )
+            return next_manual_item.sensor_data_context
+
+        if (next_manual_item is not None) and (next_storage_item is not None):
+            if next_manual_item.priority > 0:
+                self.logger.info(
+                    "Scheduler: Taking next item from manual queue (high priority"
+                )
+                self._mark_as_processed(
+                    next_manual_item.sensor_data_context.sensor_id,
+                    next_manual_item.sensor_data_context.date,
+                )
+                return next_manual_item.sensor_data_context
+            else:
                 self.logger.info("Scheduler: Taking next item from storage directory")
                 self._mark_as_processed(
                     next_storage_item.sensor_id,
                     next_storage_item.date,
                 )
-                yield next_storage_item
-                continue
+                return next_storage_item
 
-            if (next_manual_item is not None) and (next_storage_item is None):
-                self.logger.info("Scheduler: Taking next item from manual queue")
-                self._mark_as_processed(
-                    next_manual_item.sensor_data_context.sensor_id,
-                    next_manual_item.sensor_data_context.date,
-                )
-                yield next_manual_item.sensor_data_context
-                continue
-
-            if (next_manual_item is not None) and (next_storage_item is not None):
-                if next_manual_item.priority > 0:
-                    self.logger.info(
-                        "Scheduler: Taking next item from manual queue (high priority"
-                    )
-                    self._mark_as_processed(
-                        next_manual_item.sensor_data_context.sensor_id,
-                        next_manual_item.sensor_data_context.date,
-                    )
-                    yield next_manual_item.sensor_data_context
-                    continue
-                else:
-                    self.logger.info(
-                        "Scheduler: Taking next item from storage directory"
-                    )
-                    self._mark_as_processed(
-                        next_storage_item.sensor_id,
-                        next_storage_item.date,
-                    )
-                    yield next_storage_item
-                    continue
-
-            # both queue (manual and storage) are empty
-            self.logger.debug("Scheduler: no more items")
-            break
+        # both queue (manual and storage) are empty
+        self.logger.debug("Scheduler: no more items")
+        return None
 
     def _next_item_from_storage_directory(
         self,
@@ -108,7 +100,7 @@ class RetrievalQueue:
                 if (
                     (self.config.data_filter.start_date > date)
                     or (self.config.data_filter.end_date < date)
-                    or self.outputs_exist(sensor_id, date)
+                    or self._outputs_exist(sensor_id, date)
                 ):
                     self._mark_as_processed(sensor_id, date)
                     continue
@@ -128,9 +120,9 @@ class RetrievalQueue:
                 # the current execution, hence it will not be marked
                 # as being processed
                 if (
-                    self.date_is_too_recent(date)
-                    or self.upload_is_incomplete(sensor_id, date)
-                    or (not self.ifgs_exist(sensor_id, date))
+                    self._date_is_too_recent(date)
+                    or self._upload_is_incomplete(sensor_id, date)
+                    or (not self._ifgs_exist(sensor_id, date))
                 ):
                     continue
 
@@ -168,8 +160,8 @@ class RetrievalQueue:
             # skip this date right now it upload is incomplete
             # -> this might change during the current execution,
             # hence it will not be marked as being processed
-            if self.upload_is_incomplete(next_item.sensor_id, next_item.date) or (
-                not self.ifgs_exist(next_item.sensor_id, next_item.date)
+            if self._upload_is_incomplete(next_item.sensor_id, next_item.date) or (
+                not self._ifgs_exist(next_item.sensor_id, next_item.date)
             ):
                 continue
 
@@ -184,7 +176,7 @@ class RetrievalQueue:
         except KeyError:
             self.processed_sensor_dates[sensor_id] = [date]
 
-    def _is_marked_as_processed(self, sensor_id: str, date: str) -> None:
+    def _is_marked_as_processed(self, sensor_id: str, date: str) -> bool:
         if sensor_id in self.processed_sensor_dates.keys():
             return date in self.processed_sensor_dates[sensor_id]
         return False
@@ -215,7 +207,7 @@ class RetrievalQueue:
         outputs exist in the src directory"""
         successful_output_exists = os.path.isdir(
             os.path.join(
-                self.config.data_dst.results_dir,
+                self.config.data_dst_dirs.results,
                 "proffast-2.2-outputs",
                 sensor_id,
                 "successful",
@@ -224,7 +216,7 @@ class RetrievalQueue:
         )
         failed_output_exists = os.path.isdir(
             os.path.join(
-                self.config.data_dst.results_dir,
+                self.config.data_dst_dirs.results,
                 "proffast-2.2-outputs",
                 sensor_id,
                 "failed",

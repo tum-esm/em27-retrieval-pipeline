@@ -9,7 +9,7 @@ def run() -> None:
     main_logger = utils.Logger("main")
     pylot_factory = interfaces.PylotFactory(main_logger)
 
-    main_logger.line(variant="=")
+    main_logger.horizontal_line(variant="=")
     main_logger.info(f"Starting the automation with PID {os.getpid()}")
 
     try:
@@ -56,7 +56,7 @@ def run() -> None:
                 main_logger.info(
                     f'process "{finished_process.name}": finished processing'
                 )
-                pylot_factory.remove_container(finished_process.args[1].container_id)
+                pylot_factory.remove_container(finished_process.name.split("-")[-1])
                 main_logger.debug(
                     f'process "{finished_process.name}": removed container'
                 )

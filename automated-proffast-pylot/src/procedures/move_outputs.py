@@ -3,7 +3,7 @@ import json
 import os
 import shutil
 from typing import Optional
-from src import utils, custom_types
+from src import interfaces, utils, custom_types
 
 dir = os.path.dirname
 PROJECT_DIR = dir(dir(dir(os.path.abspath(__file__))))
@@ -69,14 +69,14 @@ def run(
     # DETERMINE OUTPUT DIRECTORY PATHS
 
     output_dst_successful = os.path.join(
-        config.data_dst.results_dir,
+        config.data_dst_dirs.results,
         "proffast-2.2-outputs",
         session.sensor_id,
         "successful",
         session.date,
     )
     output_dst_failed = os.path.join(
-        config.data_dst.results_dir,
+        config.data_dst_dirs.results,
         "proffast-2.2-outputs",
         session.sensor_id,
         "failed",
@@ -115,9 +115,7 @@ def run(
 
     # POSSIBLY REMOVE ITEMS FROM MANUAL QUEUE
 
-    utils.RetrievalQueue.remove_from_queue_file(
-        session.sensor_id, session.date, config, logger
-    )
+    interfaces.ManualQueueInterface.remove_item(session.sensor_id, session.date, logger)
 
     # STORE AUTOMATION INFO
 

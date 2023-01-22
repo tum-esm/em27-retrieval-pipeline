@@ -18,8 +18,8 @@ def run(session: custom_types.Session, logger: utils.Logger) -> None:
         [
             VENV_PATH,
             os.path.join(PYLOT_ROOT_DIR, "run.py"),
-            session.pylot_container.container_id,
-            session.pylot_container.pylot_config_path,
+            session.container_id,
+            session.pylot_config_path,
         ],
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,

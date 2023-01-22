@@ -34,7 +34,7 @@ class ManualQueueInterface:
     def get_items(logger: utils.Logger) -> list[custom_types.ManualQueueItem]:
         manual_queue = ManualQueueInterface.load(logger)
         if manual_queue is None or len(manual_queue.items) == 0:
-            return None
+            return []
 
         # highest priority first, then newest date first
         return list(
@@ -46,6 +46,8 @@ class ManualQueueInterface:
     @staticmethod
     def remove_item(sensor_id: str, date: str, logger: utils.Logger) -> None:
         manual_queue = ManualQueueInterface.load(logger)
+        if manual_queue is None:
+            return
 
         new_manual_queue_items = list(
             filter(

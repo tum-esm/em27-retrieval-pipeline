@@ -24,7 +24,7 @@ def _generate_pylot_config(session: custom_types.Session) -> None:
                 "COORDINATES_LAT": str(round(session.location.lat, 3)),
                 "COORDINATES_LON": str(round(session.location.lon, 3)),
                 "COORDINATES_ALT": str(round(session.location.alt / 1000.0, 3)),
-                "UTC_OFFSET": str(round(session["utc_offset"], 2)),
+                "UTC_OFFSET": str(round(session.utc_offset, 2)),
                 "CONTAINER_ID": session.container_id,
                 "CONTAINER_PATH": session.container_path,
                 "DATA_INPUT_PATH": session.data_input_path,
@@ -49,7 +49,7 @@ def _generate_pylot_log_format(session: custom_types.Session) -> None:
         utils.insert_replacements(
             file_content,
             {
-                "SENSOR": session["sensor"],
+                "SENSOR_ID": session.sensor_id,
                 "UTC_OFFSET": str(round(session.utc_offset, 2)),
             },
         ),

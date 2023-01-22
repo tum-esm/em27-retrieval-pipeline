@@ -16,7 +16,7 @@ def run(
         f"{session.sensor_id}{session.date}.map",
     )
     dst_filepath = os.path.join(
-        session.pylot_container.data_input_path,
+        session.data_input_path,
         "map",
         f"{session.sensor_id}{session.date}.map",
     )

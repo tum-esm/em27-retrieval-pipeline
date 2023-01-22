@@ -1,9 +1,6 @@
 import os
 import shutil
-import subprocess
 from src import custom_types, utils
-from src import proffast_path
-from src.utils.logger import Logger
 
 
 dirname = os.path.dirname
@@ -22,28 +19,28 @@ EXECUTABLE_FILEPATHS = [
 
 
 class PylotFactory:
-    def __init__(self, logger: Logger):
+    def __init__(self, logger: utils.Logger):
         self.logger = logger
         self.containers: list[custom_types.PylotContainer] = []
         self._init_pylot_code()
 
         print(f"prfpylot of main copy successful")
 
-    def create_pylot_instance(self) -> custom_types.PylotContainer:
+    def create_container(self) -> custom_types.PylotContainer:
         container_id = utils.get_random_string(
             length=10, forbidden=[c.container_id for c in self.containers]
         )
 
         # copy container code
         container_path = os.path.join(
-            proffast_path,
+            PYLOT_ROOT_DIR,
             f"pylot-container-{container_id}",
         )
-        shutil.copytree(self.main, container_path)
+        shutil.copytree(os.path.join(PYLOT_ROOT_DIR, "main"), container_path)
 
         # generate empty input directory
         data_input_path = os.path.join(
-            proffast_path,
+            PYLOT_ROOT_DIR,
             f"pylot-container-{container_id}-input",
         )
         os.mkdir(data_input_path)
@@ -53,7 +50,7 @@ class PylotFactory:
 
         # generate empty output directory
         data_output_path = os.path.join(
-            proffast_path,
+            PYLOT_ROOT_DIR,
             f"pylot-container-{container_id}-output",
         )
         os.mkdir(data_output_path)
