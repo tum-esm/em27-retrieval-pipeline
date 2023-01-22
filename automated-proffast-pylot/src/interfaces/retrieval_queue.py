@@ -2,42 +2,14 @@ from datetime import datetime
 import json
 import os
 import re
-from typing import Iterator, Optional
-
+from typing import Optional
 from pydantic import BaseModel
 from src import utils, custom_types, interfaces
-from src.interfaces.pylot_factory import PylotFactory
-
-dir = os.path.dirname
-PROJECT_DIR = dir(dir(dir(os.path.abspath(__file__))))
-MANUAL_QUEUE_FILE = f"{PROJECT_DIR}/config/manual-queue.json"
-
-
-class SensorDate(BaseModel):
-    sensor_id: str
-    date: str
 
 
 class ManualQueueItem(BaseModel):
     sensor_data_context: custom_types.SensorDataContext
     priority: int
-
-
-def _consider_date_string(
-    date_string: str,
-    start_date: Optional[str] = None,
-    min_days_delay: int = 1,
-) -> bool:
-    date_object = datetime.strptime(
-        date_string, "%Y%m%d"
-    )  # will have the time 00:00:00
-    try:
-        assert (datetime.now() - date_object).days >= min_days_delay
-        if start_date is not None:
-            assert date_string >= start_date
-        return True
-    except AssertionError:
-        return False
 
 
 class RetrievalQueue:
@@ -47,26 +19,18 @@ class RetrievalQueue:
     3. Takes all items from manual-queue.json with a priority < 0
     """
 
-    def __init__(
-        self,
-        config: custom_types.Config,
-        logger: utils.Logger,
-        pylot_factory: PylotFactory,
-    ):
+    def __init__(self, config: custom_types.Config, logger: utils.Logger):
         self.logger, self.config = logger, config
         self.location_data = interfaces.load_remote_location_data(
             github_repository=self.config.location_data.github_repository,
             access_token=self.config.location_data.access_token,
         )
 
-        # TODO: make factory opinionated
-        self.factory = pylot_factory
-
         SensorId = (str,)
         DateString = str
         self.processed_data: dict[SensorId, list[DateString]] = {}
 
-    def __iter__(self) -> Iterator[custom_types.SensorDataContext]:
+    def get_next_item(self) -> Optional[custom_types.SensorDataContext]:
         iteration_count = 0
         while True:
             iteration_count += 1
