@@ -103,13 +103,22 @@ class LocationDataInterface:
     def get_sensor_data_context(
         self, sensor_id: str, date: str
     ) -> custom_types.SensorDataContext:
-
+        # get the sensor
         assert (
             sensor_id in self.sensor_ids
         ), f'No location data for sensor_id "{sensor_id}"'
         sensor = list(filter(lambda s: s.sensor_id == sensor_id, self.sensors))[0]
-        serial_number = sensor.serial_number
 
+        # get utc offset at that date
+        utc_offset_matches = list(
+            filter(lambda o: o.from_date <= date <= o.to_date, sensor.utc_offsets)
+        )
+        assert (
+            len(utc_offset_matches) == 1
+        ), f"no utc offset data for {sensor_id}/{date}"
+        utc_offset = utc_offset_matches[0].utc_offset
+
+        # get location at that date
         location_matches = list(
             filter(lambda l: l.from_date <= date <= l.to_date, sensor.locations)
         )
@@ -119,9 +128,11 @@ class LocationDataInterface:
             0
         ]
 
+        # bundle the context
         return custom_types.SensorDataContext(
             sensor_id=sensor_id,
-            serial_number=serial_number,
+            serial_number=sensor.serial_number,
+            utc_offset=utc_offset,
             date=date,
             location=location,
         )

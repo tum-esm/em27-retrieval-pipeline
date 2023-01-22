@@ -116,5 +116,6 @@ class Campaign(BaseModel):
 class SensorDataContext(BaseModel):
     sensor_id: str
     serial_number: int
+    utc_offset: float
     date: str
     location: Location
