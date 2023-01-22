@@ -16,6 +16,6 @@
         "interferograms": "path-to-datalogger-ifg-upload-directory"
     },
     "data_dst_dirs": {
-        "results_dir": "path-to-results-storage"
+        "results": "path-to-results-storage"
     }
 }
