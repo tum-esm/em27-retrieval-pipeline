@@ -37,7 +37,7 @@ def run(
     session: custom_types.Session,
 ) -> None:
     output_src_dir = (
-        f"{PROJECT_DIR}/outputs/{session.sensor_id}_"
+        f"{session.data_output_path}/{session.sensor_id}_"
         + f"SN{str(session.serial_number).zfill(3)}_{session.date[2:]}-{session.date[2:]}"
     )
     output_csv_path = (
@@ -108,9 +108,10 @@ def run(
 
     # STORE AUTOMATION LOGS
 
-    date_logs = logger.get_session_logs()
-    with open(f"{output_dst}/automation_{session.container_id}.log", "w") as f:
-        f.writelines(date_logs)
+    shutil.copyfile(
+        logger.logfile_path,
+        os.path.join(output_dst, "automation_container.log"),
+    )
 
     # POSSIBLY REMOVE ITEMS FROM MANUAL QUEUE
 
@@ -120,17 +121,14 @@ def run(
 
     # STORE AUTOMATION INFO
 
-    with open(f"{output_dst}/about.json", "w") as f:
+    with open(os.path.join(output_dst, "about.json"), "w") as f:
         now = datetime.utcnow()
         about_dict = {
             "proffastVersion": "2.2",
-            "locationRepository": config.location_data.repository,
             "automationVersion": utils.get_commit_sha(),
             "generationDate": now.strftime("%Y%m%d"),
             "generationTime": now.strftime("%T"),
+            "config": config,
+            "session": session,
         }
         json.dump(about_dict, f, indent=4)
-
-    # REMOVE SESSION CONTAINER
-
-    # TODO: Remove session container

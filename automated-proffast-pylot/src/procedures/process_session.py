@@ -11,15 +11,10 @@ from . import (
 
 
 def run(config: custom_types.Config, session: custom_types.Session):
-    # TODO: why is this needed?
     signal.signal(signal.SIGINT, signal.SIG_IGN)
 
-    sensor_id = session.sensor_data_context.sensor_id
-    date = session.sensor_data_context.date
-
-    logger = utils.Logger(session.pylot_container.container_id)
-    logger.flush_session_logs()
-    logger.info(f"Starting {sensor_id}/{date}")
+    logger = utils.Logger(container_id=session.pylot_container.container_id)
+    logger.info(f"Starting {session.sensor_id}/{session.date}")
 
     label = "vertical profiles"
     try:
@@ -33,11 +28,11 @@ def run(config: custom_types.Config, session: custom_types.Session):
             f": {e}" if "vertical" not in label else ""
         )
         logger.warning(message)
-        utils.InputWarningsList.add(sensor_id, date, message)
+        utils.InputWarningsList.add(session.sensor_id, session.date, message)
         return
 
     # inputs complete no warning to consider anymore
-    utils.InputWarningsList.remove(sensor_id, date)
+    utils.InputWarningsList.remove(session.sensor_id, session.date)
 
     logger.info(f"Running the pylot")
     try:
@@ -57,3 +52,5 @@ def run(config: custom_types.Config, session: custom_types.Session):
         logger.info(f"Finished")
     except AssertionError as e:
         logger.error(f"Moving outputs failed: {e}")
+
+    # TODO: logger.archive()

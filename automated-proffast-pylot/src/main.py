@@ -13,7 +13,7 @@ def run() -> None:
     main_logger.info(f"Starting the automation with PID {os.getpid()}")
 
     try:
-        config = utils.load_config(validate=True)
+        config = utils.load_config()
     except:
         main_logger.error("Config file invalid")
         main_logger.exception()

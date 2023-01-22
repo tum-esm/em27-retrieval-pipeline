@@ -5,30 +5,25 @@ import traceback
 
 dir = os.path.dirname
 PROJECT_DIR = dir(dir(dir(os.path.abspath(__file__))))
-LOG_FILEPATH = f"{PROJECT_DIR}/logs/automation.log"
 
 # I am not using the logging-library because the proffast-pylot
 # also uses that and figuring out how to not make these two
 # interfere is not worth it
 
 # the logfile name will have the time when the script has been started
-log_file_name = datetime.utcnow().strftime("%Y%m%d-%H-%M.log")
+logfile_time = datetime.utcnow().strftime("%Y%m%d-%H-%M")
 
 
 class Logger:
-    _session_logs: list[str] = []
-    container_id = ""
-
     def __init__(self, container_id: str) -> None:
         self.container_id = container_id
+        self.logfile_path = f"{PROJECT_DIR}/logs/{self.container_id}_{logfile_time}.log"
 
     def _print(self, m: str, level: str) -> None:
         t = datetime.utcnow().strftime("%Y%m%d %H:%M:%S")
         log_line = f"{t} - {level} - {m}\n"
-        with open(f"{PROJECT_DIR}/logs/{self.container_id}_{log_file_name}", "a") as f:
+        with open(self.logfile_path, "a") as f:
             f.write(log_line)
-            print(log_line)
-            Logger._session_logs.append(log_line)
 
     def exception(self) -> None:
         """log an exception and its traceback"""
@@ -50,20 +45,9 @@ class Logger:
     def debug(self, m: str) -> None:
         self._print(m, "DEBUG")
 
-    def line(self, variant: str = "-") -> None:
-        """log a vertical line with 52 characters"""
+    def horizontal_line(self, variant: str = "-") -> None:
+        """
+        log a horizontal line with 52 characters
+        why 52? that is a very good question!
+        """
         self._print(variant * 52, "INFO")
-
-    def flush_session_logs(self) -> None:
-        """
-        Reset the current session-logs (= log lines from
-        one sensor-date-combination)
-        """
-        self._session_logs = []
-
-    def get_session_logs(self) -> list[str]:
-        """
-        Return the current session-logs (= log lines from
-        one sensor-date-combination)
-        """
-        return self._session_logs

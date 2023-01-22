@@ -16,8 +16,6 @@ def run(
 ) -> None:
     # find all filenames of interferograms
     # possible file name patterns: ma20201123.ifg.0001, ma20220316s0e00a.0001
-    sensor_id = session.sensor_data_context.date
-
     ifg_src_directory = os.path.join(
         config.data_src_dirs.interferograms, session.sensor_id, session.date
     )
