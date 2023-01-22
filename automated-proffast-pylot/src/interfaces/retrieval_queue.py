@@ -18,6 +18,11 @@ class SensorDate(BaseModel):
     date: str
 
 
+class ManualQueueItem(BaseModel):
+    sensor_data_context: custom_types.SensorDataContext
+    priority: int
+
+
 def _consider_date_string(
     date_string: str,
     start_date: Optional[str] = None,
@@ -37,23 +42,8 @@ def _consider_date_string(
 
 class RetrievalQueue:
     """
-    Example queue:
-    [
-        {
-            'sensor_id': 'mb', 'location_id': 'FEL', 'date': '20220512',
-            'lat': 48.148, 'lon': 11.73, 'alt': 536, 'serial_number': 86
-        }, {
-            'sensor_id': 'mb', 'location_id': 'FEL', 'date': '20220513',
-            'lat': 48.148, 'lon': 11.73, 'alt': 536, 'serial_number': 86
-        }, {
-            'sensor_id': 'mb', 'location_id': 'TUM_I', 'date': '20220514',
-            'lat': 48.151, 'lon': 11.569, 'alt': 539, 'serial_number': 86
-        },
-        ...
-    ]
-
     1. Takes all items from manual-queue.json with a priority > 0
-    2. Takes all dates from /mnt/measurementData/mu
+    2. Takes all dates from the config.data_src_dirs.interferograms
     3. Takes all items from manual-queue.json with a priority < 0
     """
 
@@ -83,46 +73,37 @@ class RetrievalQueue:
             self.logger.line()
             self.logger.debug(f"Scheduler: Iteration {iteration_count}")
 
-            next_high_prio_queue_item = self._next_item_from_manual_queue(
-                consider_priority_items=True
-            )
-            if next_high_prio_queue_item is not None:
-                self.logger.info(
-                    "Scheduler: Taking next item from manual queue (high priority)"
+            next_manual_item = self._next_item_from_manual_queue()
+            next_storage_item = self._next_item_from_storage_directory()
+
+            if (next_manual_item is None) and (next_storage_item is None):
+                self.logger.debug("Scheduler: no more items")
+                break
+
+            if next_manual_item is None:
+                self.logger.info("Scheduler: Taking next item from storage directory")
+                yield self._generate_session_object(next_storage_item)
+                continue
+
+            if next_storage_item is None:
+                self.logger.info("Scheduler: Taking next item from manual queue")
+                yield self._generate_session_object(
+                    next_manual_item.sensor_data_context
                 )
-                yield self._generate_session_dict(**next_high_prio_queue_item)
+                continue
+
+            if next_manual_item.priority > 0:
+                self.logger.info(
+                    "Scheduler: Taking next item from manual queue (high priority"
+                )
+                yield self._generate_session_object(
+                    next_manual_item.sensor_data_context
+                )
                 continue
             else:
-                self.logger.debug("Scheduler: High priority queue is empty")
-
-            if self.config["process_uploads_automatically"]:
-                next_upload_directory_item = self._next_item_from_upload_directory()
-                if next_upload_directory_item is not None:
-                    self.logger.info(
-                        "Scheduler: Taking next item from upload directory"
-                    )
-                    yield self._generate_session_dict(**next_upload_directory_item)
-                    continue
-                else:
-                    self.logger.debug("Scheduler: Upload directory is empty")
-            else:
-                self.logger.debug(
-                    "Scheduler: Skipping upload queue (processUploadsAutomatically == false)"
-                )
-
-            next_low_prio_queue_item = self._next_item_from_manual_queue(
-                consider_priority_items=False
-            )
-            if next_low_prio_queue_item is not None:
-                self.logger.info(
-                    "Scheduler: Taking next item from manual queue (low priority)"
-                )
-                yield self._generate_session_dict(**next_low_prio_queue_item)
+                self.logger.info("Scheduler: Taking next item from storage directory")
+                yield self._generate_session_object(next_storage_item)
                 continue
-            else:
-                self.logger.debug("Scheduler: Low priority queue is empty")
-
-            break
 
     def _generate_session_object(
         self, sensor_data_context: custom_types.SensorDataContext
@@ -132,6 +113,11 @@ class RetrievalQueue:
         )
         container_id = self.factory.create_pylot_instance()
         container_path = self.factory.containers[container_id]
+
+        self._mark_as_processed(
+            sensor_data_context.sensor_id,
+            sensor_data_context.date,
+        )
 
         return custom_types.Session(
             sensor_data_context=sensor_data_context,
@@ -168,7 +154,7 @@ class RetrievalQueue:
                     self._mark_as_processed(sensor_id, date)
                     continue
 
-                # do not consider if there is not location data
+                # do not consider if there is no location data
                 try:
                     sensor_data_context = self.location_data.get_sensor_data_context(
                         sensor_id, date
@@ -178,7 +164,7 @@ class RetrievalQueue:
                     self._mark_as_processed(sensor_id, date)
                     continue
 
-                # skip this date right not it upload is incomplete
+                # skip this date right now it upload is incomplete
                 # or date is too recent -> this might change during
                 # the current execution, hence it will not be marked
                 # as being processed
@@ -189,73 +175,49 @@ class RetrievalQueue:
                 ):
                     continue
 
-                self._mark_as_processed(sensor_id, date)
                 return sensor_data_context
 
         return None
 
     def _next_item_from_manual_queue(
-        self, consider_priority_items: bool = True
-    ) -> Optional[custom_types.SensorDataContext]:
+        self,
+    ) -> Optional[ManualQueueItem]:
         """use the dates from manual-queue.json"""
+        next_items = interfaces.ManualQueueInterface.get_items(self.logger)
 
-        logger
+        search_index = -1
+        while True:
+            search_index += 1
+            try:
+                next_item = next_items[search_index]
+            except IndexError:
+                return None
 
-        try:
-            with open(MANUAL_QUEUE_FILE, "r") as f:
-                manual_queue: list[custom_types.ManualQueueItemDict] = json.load(f)
-                custom_types.validate_manual_queue(manual_queue, self.config)
-        except Exception as e:
-            self.logger.warning(f"Manual queue in an invalid format: {e}")
-            return None
+            if self._is_marked_as_processed(next_item.sensor_id, next_item.date):
+                continue
 
-        # highest priority first then latest date first
-        manual_queue = list(
-            sorted(
-                manual_queue, key=lambda x: f'{x["priority"]}{x["date"]}', reverse=True
-            )
-        )
+            # do not consider if there is no location data
+            try:
+                sensor_data_context = self.location_data.get_sensor_data_context(
+                    next_item.sensor_id, next_item.date
+                )
+            except AssertionError as a:
+                self.logger.debug(str(a))
+                self._mark_as_processed(next_item.sensor_id, next_item.date)
+                continue
 
-        sensor_dates: list[SensorDateDict] = []
-
-        for manual_queue_item in manual_queue:
-            sensor = manual_queue_item["sensor"]
-            date = manual_queue_item["date"]
-            priority = manual_queue_item["priority"]
-
-            if any(
-                [
-                    (date in self.processed_sensor_dates.get(sensor, [])),
-                    (priority > 0 and (not consider_priority_items)),
-                    (priority < 0 and (consider_priority_items)),
-                ]
+            # skip this date right now it upload is incomplete
+            # -> this might change during the current execution,
+            # hence it will not be marked as being processed
+            if self.upload_is_incomplete(next_item.sensor_id, next_item.date) or (
+                not self.ifgs_exist(next_item.sensor_id, next_item.date)
             ):
                 continue
 
-            try:
-                assert _consider_date_string(date, min_days_delay=1), "too recent date"
-
-                assert self._pyra_upload_is_complete(sensor, date) in [
-                    True,
-                    None,
-                ], "pyra upload incomplete"
-
-                assert (
-                    self.location_data.get_location_for_date(sensor, date) is not None
-                ), "no location data"
-
-            except AssertionError as e:
-                self.logger.debug(f"Scheduler: Skipping {sensor}/{date} ({e})")
-                self._mark_as_processed(sensor, date)
-                continue
-
-            sensor_dates.append({"sensor": sensor, "date": date})
-
-        if len(sensor_dates) == 0:
-            return None
-
-        self._mark_as_processed(**sensor_dates[0])
-        return sensor_dates[0]
+            return ManualQueueItem(
+                sensor_data_context=sensor_data_context,
+                priority=next_item.priority,
+            )
 
     def _mark_as_processed(self, sensor_id: str, date: str) -> None:
         try:

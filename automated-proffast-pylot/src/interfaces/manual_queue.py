@@ -31,7 +31,7 @@ class ManualQueueInterface:
             json.dump(items, f, indent=4)
 
     @staticmethod
-    def get_next_item(logger: utils.Logger) -> Optional[custom_types.ManualQueueItem]:
+    def get_items(logger: utils.Logger) -> list[custom_types.ManualQueueItem]:
         manual_queue = ManualQueueInterface.load(logger)
         if manual_queue is None or len(manual_queue.items) == 0:
             return None
@@ -41,7 +41,7 @@ class ManualQueueInterface:
             sorted(
                 manual_queue.items, key=lambda x: f"{x.priority}{x.date}", reverse=True
             )
-        )[0]
+        )
 
     @staticmethod
     def remove_item(sensor_id: str, date: str, logger: utils.Logger) -> None:
