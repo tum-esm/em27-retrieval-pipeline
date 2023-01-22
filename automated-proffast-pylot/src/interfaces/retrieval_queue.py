@@ -268,29 +268,7 @@ class RetrievalQueue:
             return date in self.processed_sensor_dates[sensor_id]
         return False
 
-    @staticmethod
-    def remove_from_queue_file(
-        sensor: str, date: str, config: custom_types.ConfigDict, logger: utils.Logger
-    ) -> None:
-        if not os.path.isfile(MANUAL_QUEUE_FILE):
-            return
-
-        with open(MANUAL_QUEUE_FILE, "r") as f:
-            old_manual_queue: list[custom_types.ManualQueueItemDict] = json.load(f)
-            custom_types.validate_manual_queue(old_manual_queue, config)
-
-        new_manual_queue = list(
-            filter(
-                lambda x: not ((x["sensor"] == sensor) and (x["date"] == date)),
-                old_manual_queue,
-            )
-        )
-        if len(new_manual_queue) < len(old_manual_queue):
-            logger.debug(f"Removing item {sensor}/{date} from manual queue")
-            with open(MANUAL_QUEUE_FILE, "w") as f:
-                json.dump(new_manual_queue, f, indent=4)
-
-    def ifgs_exist(self, sensor_id: str, date: str) -> bool:
+    def _ifgs_exist(self, sensor_id: str, date: str) -> bool:
         """for a given sensor_id and date, determine whether the
         interferograms exist in the src directory"""
         ifg_src_directory = os.path.join(
@@ -311,7 +289,7 @@ class RetrievalQueue:
         )
         return ifg_file_count > 0
 
-    def outputs_exist(self, sensor_id: str, date: str) -> bool:
+    def _outputs_exist(self, sensor_id: str, date: str) -> bool:
         """for a given sensor_id and date, determine whether the
         outputs exist in the src directory"""
         successful_output_exists = os.path.isdir(
@@ -334,14 +312,14 @@ class RetrievalQueue:
         )
         return successful_output_exists or failed_output_exists
 
-    def date_is_too_recent(self, date_string: str) -> bool:
+    def _date_is_too_recent(self, date_string: str) -> bool:
         # will have the time 00:00:00
         date_object = datetime.strptime(date_string, "%Y%m%d")
         return (
             datetime.now() - date_object
         ).days < self.config.data_filter.min_days_delay
 
-    def upload_is_incomplete(self, sensor_id: str, date: str) -> bool:
+    def _upload_is_incomplete(self, sensor_id: str, date: str) -> bool:
         """
         If the dir_path contains a file "upload-meta.json", then this
         function returns whether the internally used format indicates

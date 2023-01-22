@@ -14,12 +14,21 @@ lock = filelock.FileLock(os.path.join(PROJECT_DIR, "config", "manual-queue.json"
 class ManualQueueInterface:
     @staticmethod
     def load(logger: utils.Logger) -> Optional[custom_types.ManualQueue]:
+        if not os.path.isfile(MANUAL_QUEUE_FILE):
+            logger.debug(f"No manual queue file")
+            return None
+
         try:
             with open(MANUAL_QUEUE_FILE, "r") as f:
                 return custom_types.ManualQueue(items=json.load(f))
         except Exception as e:
             logger.warning(f"Manual queue in an invalid format: {e}")
             return None
+
+    @staticmethod
+    def dump(items: list[custom_types.ManualQueueItem]) -> None:
+        with open(MANUAL_QUEUE_FILE, "w") as f:
+            json.dump(items, f, indent=4)
 
     @staticmethod
     def get_next_item(logger: utils.Logger) -> Optional[custom_types.ManualQueueItem]:
@@ -34,4 +43,15 @@ class ManualQueueInterface:
             )
         )[0]
 
-    # TODO: remove item from queue
+    @staticmethod
+    def remove_item(sensor_id: str, date: str, logger: utils.Logger) -> None:
+        manual_queue = ManualQueueInterface.load(logger)
+
+        new_manual_queue_items = list(
+            filter(
+                lambda i: not ((i.sensor_id == sensor_id) and (i.date == date)),
+                manual_queue.items,
+            )
+        )
+
+        ManualQueueInterface.dump(new_manual_queue_items)
