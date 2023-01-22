@@ -1,8 +1,6 @@
 from .load_config import load_config
 from .logger import Logger
 
-from .input_warning_list import InputWarningsList
-
 from .functions import (
     get_commit_sha,
     load_file,

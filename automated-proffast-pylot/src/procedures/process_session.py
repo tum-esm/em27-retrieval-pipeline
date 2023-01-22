@@ -1,4 +1,4 @@
-from src import custom_types, utils
+from src import custom_types, interfaces, utils
 import signal
 
 from . import (
@@ -28,11 +28,11 @@ def run(config: custom_types.Config, session: custom_types.Session):
             f": {e}" if "vertical" not in label else ""
         )
         logger.warning(message)
-        utils.InputWarningsList.add(session.sensor_id, session.date, message)
+        interfaces.InputWarningsInterface.add(session.sensor_id, session.date, message)
         return
 
     # inputs complete no warning to consider anymore
-    utils.InputWarningsList.remove(session.sensor_id, session.date)
+    interfaces.InputWarningsInterface.remove(session.sensor_id, session.date)
 
     logger.info(f"Running the pylot")
     try:
