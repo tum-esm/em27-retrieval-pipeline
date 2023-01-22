@@ -139,7 +139,9 @@ class RetrievalQueue:
             container_path=container_path,
         )
 
-    def _next_item_from_storage_directory(self) -> Optional[SensorDate]:
+    def _next_item_from_storage_directory(
+        self,
+    ) -> Optional[custom_types.SensorDataContext]:
         """Use the dates from the storage directory"""
 
         # determine date_strings with data
@@ -154,40 +156,50 @@ class RetrievalQueue:
 
         for date in date_strings:
             for sensor_id in self.config.data_filter.sensor_ids_to_consider:
-                # TODO: continue if marked as processed
-                if self.outputs_exist(sensor_id, date):
-                    # TODO: mark as processed
+                if self._is_marked_as_processed(sensor_id, date):
                     continue
 
+                # do not consider if outputs exist or out of filter range
+                if (
+                    (self.config.data_filter.start_date > date)
+                    or (self.config.data_filter.end_date < date)
+                    or self.outputs_exist(sensor_id, date)
+                ):
+                    self._mark_as_processed(sensor_id, date)
+                    continue
+
+                # do not consider if there is not location data
                 try:
                     sensor_data_context = self.location_data.get_sensor_data_context(
                         sensor_id, date
                     )
                 except AssertionError as a:
                     self.logger.debug(str(a))
-                    # TODO: mark as processed
+                    self._mark_as_processed(sensor_id, date)
                     continue
 
+                # skip this date right not it upload is incomplete
+                # or date is too recent -> this might change during
+                # the current execution, hence it will not be marked
+                # as being processed
                 if (
-                    (self.config.data_filter.start_date > date)
-                    or (self.config.data_filter.end_date < date)
-                    or self.date_is_too_recent(date)
+                    self.date_is_too_recent(date)
                     or self.upload_is_incomplete(sensor_id, date)
                     or (not self.ifgs_exist(sensor_id, date))
                 ):
                     continue
 
-                # TODO: mark as processed
-                return SensorDate(sensor_id=sensor_id, date=date)
+                self._mark_as_processed(sensor_id, date)
+                return sensor_data_context
 
         return None
 
     def _next_item_from_manual_queue(
         self, consider_priority_items: bool = True
-    ) -> Optional[SensorDateDict]:
-        """
-        Use the dates from manual-queue.json
-        """
+    ) -> Optional[custom_types.SensorDataContext]:
+        """use the dates from manual-queue.json"""
+
+        logger
 
         try:
             with open(MANUAL_QUEUE_FILE, "r") as f:
@@ -245,11 +257,16 @@ class RetrievalQueue:
         self._mark_as_processed(**sensor_dates[0])
         return sensor_dates[0]
 
-    def _mark_as_processed(self, sensor: str, date: str) -> None:
+    def _mark_as_processed(self, sensor_id: str, date: str) -> None:
         try:
-            self.processed_sensor_dates[sensor].append(date)
+            self.processed_sensor_dates[sensor_id].append(date)
         except KeyError:
-            self.processed_sensor_dates[sensor] = [date]
+            self.processed_sensor_dates[sensor_id] = [date]
+
+    def _is_marked_as_processed(self, sensor_id: str, date: str) -> None:
+        if sensor_id in self.processed_sensor_dates.keys():
+            return date in self.processed_sensor_dates[sensor_id]
+        return False
 
     @staticmethod
     def remove_from_queue_file(

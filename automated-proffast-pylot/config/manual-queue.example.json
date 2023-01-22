@@ -1,5 +1,5 @@
 [
-    { "sensor": "ma", "date": "20220101", "priority": 10 },
-    { "sensor": "mb", "date": "20220101", "priority": 9 },
-    { "sensor": "mc", "date": "20220101", "priority": -10 }
+    { "sensor_id": "ma", "date": "20220101", "priority": 10 },
+    { "sensor_id": "mb", "date": "20220101", "priority": 9 },
+    { "sensor_id": "mc", "date": "20220101", "priority": -10 }
 ]
