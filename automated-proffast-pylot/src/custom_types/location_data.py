@@ -119,3 +119,9 @@ class SensorDataContext(BaseModel):
     utc_offset: float
     date: str
     location: Location
+
+
+class Session(BaseModel):
+    sensor_data_context: SensorDataContext
+    container_id: str
+    container_path: str

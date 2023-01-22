@@ -5,7 +5,7 @@ import re
 from typing import Iterator, Optional
 
 from pydantic import BaseModel
-from src import utils, custom_types
+from src import utils, custom_types, interfaces
 from src.custom_types.pylot_factory import PylotFactory
 
 dir = os.path.dirname
@@ -40,13 +40,13 @@ class RetrievalQueue:
     Example queue:
     [
         {
-            'sensor': 'mb', 'location': 'FEL', 'date': '20220512',
+            'sensor_id': 'mb', 'location_id': 'FEL', 'date': '20220512',
             'lat': 48.148, 'lon': 11.73, 'alt': 536, 'serial_number': 86
         }, {
-            'sensor': 'mb', 'location': 'FEL', 'date': '20220513',
+            'sensor_id': 'mb', 'location_id': 'FEL', 'date': '20220513',
             'lat': 48.148, 'lon': 11.73, 'alt': 536, 'serial_number': 86
         }, {
-            'sensor': 'mb', 'location': 'TUM_I', 'date': '20220514',
+            'sensor_id': 'mb', 'location_id': 'TUM_I', 'date': '20220514',
             'lat': 48.151, 'lon': 11.569, 'alt': 539, 'serial_number': 86
         },
         ...
@@ -63,13 +63,20 @@ class RetrievalQueue:
         logger: utils.Logger,
         pylot_factory: PylotFactory,
     ):
-        self.config = config
-        self.processed_sensor_dates: dict[str, list[str]] = {}
-        self.location_data = utils.LocationData(config)
-        self.factory = pylot_factory
-        self.logger = logger
+        self.logger, self.config = logger, config
+        self.location_data = interfaces.load_remote_location_data(
+            github_repository=self.config.location_data.github_repository,
+            access_token=self.config.location_data.access_token,
+        )
 
-    def __iter__(self) -> Iterator[custom_types.SessionDict]:
+        # TODO: make factory opinionated
+        self.factory = pylot_factory
+
+        SensorId = (str,)
+        DateString = str
+        self.processed_data: dict[SensorId, list[DateString]] = {}
+
+    def __iter__(self) -> Iterator[custom_types.Session]:
         iteration_count = 0
         while True:
             iteration_count += 1
@@ -117,34 +124,20 @@ class RetrievalQueue:
 
             break
 
-    def _generate_session_dict(
-        self, sensor: str, date: str
-    ) -> custom_types.SessionDict:
-        self.processed_sensor_dates[sensor].append(date)
-
-        location = self.location_data.get_location_for_date(sensor, date)
-        utc_offset = self.location_data.get_utc_offset_for_date(sensor, date)
-        assert location is not None, f"location for {sensor}/{date} is unknown"
-        assert utc_offset is not None, f"utc_offset for {sensor}/{date} is unknown"
-
-        coordinates_dict = self.location_data.get_coordinates_for_location(location)
-        serial_number = self.location_data.get_serial_number_for_sensor(sensor)
-        # Create new container for session
+    def _generate_session_object(
+        self, sensor_data_context: custom_types.SensorDataContext
+    ) -> custom_types.Session:
+        self.processed_sensor_dates[sensor_data_context.sensor_id].append(
+            sensor_data_context.date
+        )
         container_id = self.factory.create_pylot_instance()
         container_path = self.factory.containers[container_id]
 
-        return {
-            "sensor": sensor,
-            "location": location,
-            "date": date,
-            "lat": coordinates_dict["lat"],
-            "lon": coordinates_dict["lon"],
-            "alt": coordinates_dict["alt"],
-            "serial_number": serial_number,
-            "utc_offset": utc_offset,
-            "container_id": container_id,
-            "container_path": container_path,
-        }
+        return custom_types.Session(
+            sensor_data_context=sensor_data_context,
+            container_id=container_id,
+            container_path=container_path,
+        )
 
     def _next_item_from_storage_directory(self) -> Optional[SensorDate]:
         """Use the dates from the storage directory"""
@@ -162,12 +155,16 @@ class RetrievalQueue:
         for date in date_strings:
             for sensor_id in self.config.data_filter.sensor_ids_to_consider:
                 # TODO: continue if marked as processed
+                if self.outputs_exist(sensor_id, date):
+                    # TODO: mark as processed
+                    continue
 
-                if (
-                    self.outputs_exist(sensor_id, date)
-                    # location data does not exist
-                    # utc offset does not exist
-                ):
+                try:
+                    sensor_data_context = self.location_data.get_sensor_data_context(
+                        sensor_id, date
+                    )
+                except AssertionError as a:
+                    self.logger.debug(str(a))
                     # TODO: mark as processed
                     continue
 
@@ -176,7 +173,7 @@ class RetrievalQueue:
                     or (self.config.data_filter.end_date < date)
                     or self.date_is_too_recent(date)
                     or self.upload_is_incomplete(sensor_id, date)
-                    or self.ifgs_exist(sensor_id, date)
+                    or (not self.ifgs_exist(sensor_id, date))
                 ):
                     continue
 

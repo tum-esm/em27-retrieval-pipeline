@@ -7,7 +7,7 @@
         "min_days_delay": 5
     },
     "location_data": {
-        "repository": "git@github.com:tum-esm/em27-location-data",
+        "github_repository": "tum-esm/em27-location-data",
         "access_token": null
     },
     "data_src_dirs": {
