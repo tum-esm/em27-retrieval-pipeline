@@ -1,14 +1,23 @@
 import os
 import shutil
 import subprocess
-from src import utils
+from src import custom_types, utils
 from src import proffast_path
 from src.utils.logger import Logger
 
 
 dirname = os.path.dirname
 PROJECT_DIR = dirname(dirname(dirname(os.path.abspath(__file__))))
+VENV_PATH = os.path.join(
+    dirname(dirname(dirname(dirname(os.path.abspath(__file__))))),
+    ".venv",
+    "bin",
+    "python",
+)
+
 PYLOT_ROOT_DIR = os.path.join(PROJECT_DIR, "src", "prfpylot")
+KIT_BASE_URL = "wget https://www.imk-asf.kit.edu/downloads/Coccon-SW/"
+ZIPFILE_NAME = "PROFFASTv2.2.zip"
 
 EXECUTABLE_FILEPATHS = [
     os.path.join(PYLOT_ROOT_DIR, "main", "prf", "preprocess", "preprocess4"),
@@ -21,25 +30,55 @@ EXECUTABLE_FILEPATHS = [
 class PylotFactory:
     def __init__(self, logger: Logger):
         self.logger = logger
-
-        ContainerId = str
-        ContainerPath = str
-        self.container_paths: dict[ContainerId, ContainerPath] = {}
-
+        self.containers: list[custom_types.PylotContainer] = []
         self._init_pylot_code()
 
         print(f"prfpylot of main copy successful")
 
-    def create_pylot_instance(self) -> str:
+    def create_pylot_instance(self) -> custom_types.PylotContainer:
         container_id = utils.get_random_string(
-            length=10, forbidden=self.container_paths.keys()
+            length=10, forbidden=[c.container_id for c in self.containers]
         )
-        container_path = os.path.join(proffast_path, container_id)
 
-        self.containers[container_id] = container_path
+        # copy container code
+        container_path = os.path.join(
+            proffast_path,
+            f"pylot-container-{container_id}",
+        )
         shutil.copytree(self.main, container_path)
 
-        return container_id
+        # generate empty input directory
+        data_input_path = os.path.join(
+            proffast_path,
+            f"pylot-container-{container_id}-input",
+        )
+        os.mkdir(data_input_path)
+        os.mkdir(os.path.join(data_input_path, "ifg"))
+        os.mkdir(os.path.join(data_input_path, "map"))
+        os.mkdir(os.path.join(data_input_path, "log"))
+
+        # generate empty output directory
+        data_output_path = os.path.join(
+            proffast_path,
+            f"pylot-container-{container_id}-output",
+        )
+        os.mkdir(data_output_path)
+
+        # bundle container paths together
+        self.containers.append(
+            custom_types.PylotContainer(
+                container_id=container_id,
+                container_path=container_path,
+                data_input_path=data_input_path,
+                data_output_path=data_output_path,
+                pylot_config_path=os.path.join(data_input_path, "pylot_config.yml"),
+                pylot_log_format_path=os.path.join(
+                    data_input_path, "pylot_log_format.yml"
+                ),
+            )
+        )
+
+        return self.containers[-1]
 
     def execute_pylot(
         self,
@@ -48,7 +87,7 @@ class PylotFactory:
     ) -> subprocess.CompletedProcess:
         result = subprocess.run(
             [
-                "python",
+                VENV_PATH,
                 os.path.join(PYLOT_ROOT_DIR, "run.py"),
                 container_id,
                 pylot_config_path,
@@ -59,13 +98,13 @@ class PylotFactory:
         )
         return result
 
-    def remove_container(self, container_id: str) -> None:
-        shutil.rmtree(self.containers[container_id])
-        del self.containers[container_id]
+    def remove_container(self, container: custom_types.PylotContainer) -> None:
+        shutil.rmtree(container.container_path)
+        self.containers.remove(container)
 
     def remove_all_containers(self) -> None:
-        for container_id in self.containers.keys():
-            self.remove_container(container_id)
+        for container in self.containers:
+            self.remove_container(container)
 
     def _init_pylot_code(self):
         if (not os.path.exists(self.main)) or (len(os.listdir(self.main)) == 0):
@@ -74,9 +113,6 @@ class PylotFactory:
         # DOWNLOAD PROFFAST 2.2 code if it doesn't exist yet
         if not os.path.exists(os.path.join(self.main, "prf")):
             self.logger.info(f"downloading proffast code")
-
-            KIT_BASE_URL = "wget https://www.imk-asf.kit.edu/downloads/Coccon-SW/"
-            ZIPFILE_NAME = "PROFFASTv2.2.zip"
 
             utils.run_shell_command(
                 f"wget {KIT_BASE_URL}/{ZIPFILE_NAME}",
@@ -105,7 +141,7 @@ class PylotFactory:
         )
 
         for filepath in EXECUTABLE_FILEPATHS:
-            if os.path.isfile(filepath):
+            if not os.path.isfile(filepath):
                 raise FileNotFoundError(
                     f'file "{filepath}" does not exist after compilation'
                 )

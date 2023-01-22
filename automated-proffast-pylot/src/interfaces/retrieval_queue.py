@@ -111,18 +111,14 @@ class RetrievalQueue:
         self.processed_sensor_dates[sensor_data_context.sensor_id].append(
             sensor_data_context.date
         )
-        container_id = self.factory.create_pylot_instance()
-        container_path = self.factory.containers[container_id]
-
+        new_container = self.pylot_factory.create_container()
         self._mark_as_processed(
             sensor_data_context.sensor_id,
             sensor_data_context.date,
         )
-
         return custom_types.Session(
             sensor_data_context=sensor_data_context,
-            container_id=container_id,
-            container_path=container_path,
+            container=new_container,
         )
 
     def _next_item_from_storage_directory(
