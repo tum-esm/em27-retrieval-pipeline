@@ -4,13 +4,8 @@ manual-queue.json
 logs/**/*
 !logs/.gitkeep
 
-inputs/**/*
-!inputs/.gitkeep
-
-outputs/**/*
-!outputs/.gitkeep
-
 example/inputs/*.yml
 example/outputs/
+pylot-container-*/
 
 main.lock

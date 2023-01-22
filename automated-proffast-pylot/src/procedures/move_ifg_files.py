@@ -28,9 +28,7 @@ def run(
     logger.debug(f"{len(filenames)} files/directories found in ifg src directory")
 
     # Create empty output directory for that date
-    dst_date_path = (
-        f"{DST}/{session.container_id}/{session.sensor_id}_ifg/{session.date[2:]}"
-    )
+    dst_date_path = os.path.join(session.data_input_path, "ifg", session.date[2:])
     os.mkdir(dst_date_path)
 
     # move all valid ifg files and rename them properly

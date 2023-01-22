@@ -106,10 +106,8 @@ class RetrievalQueue:
                 ifgs_missing_or_incomplete = lambda: (
                     not self._ifgs_exist(sensor_id, date)
                 ) or (not self._upload_is_complete(sensor_id, date))
-
                 outputs_exist = lambda: self._outputs_exist(sensor_id, date)
                 date_too_recent = lambda: self._date_is_too_recent(date)
-
                 date_out_of_filter_range = lambda: (
                     self.config.data_filter.start_date > date
                 ) or (self.config.data_filter.end_date < date)
@@ -157,28 +155,27 @@ class RetrievalQueue:
             if self._is_marked_as_processed(next_item.sensor_id, next_item.date):
                 continue
 
+            # skip this date right now it upload is incomplete
+            # -> this might change during the current execution,
+            # hence it will not be marked as being processed
+            ifgs_missing_or_incomplete = lambda: (
+                not self._ifgs_exist(next_item.sensor_id, next_item.date)
+            ) or (not self._upload_is_complete(next_item.sensor_id, next_item.date))
+            if ifgs_missing_or_incomplete():
+                continue
+
             # do not consider if there is no location data
             try:
-                sensor_data_context = self.location_data.get_sensor_data_context(
-                    next_item.sensor_id, next_item.date
+                return ManualQueueItem(
+                    sensor_data_context=self.location_data.get_sensor_data_context(
+                        next_item.sensor_id, next_item.date
+                    ),
+                    priority=next_item.priority,
                 )
             except AssertionError as a:
                 self.logger.debug(str(a))
                 self._mark_as_processed(next_item.sensor_id, next_item.date)
                 continue
-
-            # skip this date right now it upload is incomplete
-            # -> this might change during the current execution,
-            # hence it will not be marked as being processed
-            if self._upload_is_incomplete(next_item.sensor_id, next_item.date) or (
-                not self._ifgs_exist(next_item.sensor_id, next_item.date)
-            ):
-                continue
-
-            return ManualQueueItem(
-                sensor_data_context=sensor_data_context,
-                priority=next_item.priority,
-            )
 
     def _mark_as_processed(self, sensor_id: str, date: str) -> None:
         try:

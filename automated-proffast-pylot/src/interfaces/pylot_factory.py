@@ -7,13 +7,14 @@ dirname = os.path.dirname
 PROJECT_DIR = dirname(dirname(dirname(os.path.abspath(__file__))))
 
 PYLOT_ROOT_DIR = os.path.join(PROJECT_DIR, "src", "prfpylot")
+PYLOT_MAIN_CLONE_DIR = os.path.join(PYLOT_ROOT_DIR, "main")
 KIT_BASE_URL = "wget https://www.imk-asf.kit.edu/downloads/Coccon-SW/"
 ZIPFILE_NAME = "PROFFASTv2.2.zip"
 
 EXECUTABLE_FILEPATHS = [
-    os.path.join(PYLOT_ROOT_DIR, "main", "prf", "preprocess", "preprocess4"),
-    os.path.join(PYLOT_ROOT_DIR, "main", "prf", "pcxs20"),
-    os.path.join(PYLOT_ROOT_DIR, "main", "prf", "invers20"),
+    os.path.join(PYLOT_MAIN_CLONE_DIR, "prf", "preprocess", "preprocess4"),
+    os.path.join(PYLOT_MAIN_CLONE_DIR, "prf", "pcxs20"),
+    os.path.join(PYLOT_MAIN_CLONE_DIR, "prf", "invers20"),
     os.path.join(PROJECT_DIR, "src", "detect_corrupt_ifgs", "parser", "ifg_parser"),
 ]
 
@@ -36,7 +37,7 @@ class PylotFactory:
             PYLOT_ROOT_DIR,
             f"pylot-container-{container_id}",
         )
-        shutil.copytree(os.path.join(PYLOT_ROOT_DIR, "main"), container_path)
+        shutil.copytree(PYLOT_MAIN_CLONE_DIR, container_path)
 
         # generate empty input directory
         data_input_path = os.path.join(
@@ -76,7 +77,9 @@ class PylotFactory:
             container = [c for c in self.containers if c.container_id == container_id][
                 0
             ]
-            shutil.rmtree(container.container_path)
+            # shutil.rmtree(container.container_path)
+            # shutil.rmtree(container.data_input_path)
+            # shutil.rmtree(container.data_output_path)
             self.containers.remove(container)
         except IndexError:
             raise ValueError(f'no container with id "{container_id}"')
@@ -87,11 +90,13 @@ class PylotFactory:
         self.containers = []
 
     def _init_pylot_code(self):
-        if (not os.path.exists(self.main)) or (len(os.listdir(self.main)) == 0):
+        if (not os.path.exists(PYLOT_MAIN_CLONE_DIR)) or (
+            len(os.listdir(PYLOT_MAIN_CLONE_DIR)) == 0
+        ):
             raise RuntimeError("Pylot submodule not initialized")
 
         # DOWNLOAD PROFFAST 2.2 code if it doesn't exist yet
-        if not os.path.exists(os.path.join(self.main, "prf")):
+        if not os.path.exists(os.path.join(PYLOT_MAIN_CLONE_DIR, "prf")):
             self.logger.info(f"downloading proffast code")
 
             utils.run_shell_command(

@@ -49,6 +49,8 @@ def run() -> None:
                 main_logger.info(f'process "{new_process.name}": starting')
                 new_process.start()
 
+                next_sensor_data_context = retrieval_queue.get_next_item()
+
             # process finished processes
             for finished_process in [p for p in processes if not p.is_alive()]:
                 finished_process.join()
