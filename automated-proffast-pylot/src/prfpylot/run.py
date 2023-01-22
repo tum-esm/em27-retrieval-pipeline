@@ -13,10 +13,10 @@ import importlib
 if __name__ == "__main__":
     assert len(sys.argv) == 3, (
         "wrong number of arguments provided to run.py. Example"
-        + ' call: "./run.py container_id config_path"'
+        + ' call: "./run.py container_id pylot_config_path"'
     )
 
-    container_id, config_path = sys.argv[1:]
+    container_id, pylot_config_path = sys.argv[1:]
     container_path = os.path.join(
         os.path.dirname(os.path.abspath(__file__)), container_id
     )
@@ -25,8 +25,8 @@ if __name__ == "__main__":
     print(
         f'executing in container_id "{container_id}" '
         + f'at container_path "{container_path}" and '
-        + f'config_path "{config_path}".'
+        + f'pylot_config_path "{pylot_config_path}".'
     )
     sys.path.append(container_path)
     pylot = importlib.import_module("prfpylot.pylot")
-    pylot.Pylot(config_path, logginglevel="info").run(n_processes=1)
+    pylot.Pylot(pylot_config_path, logginglevel="info").run(n_processes=1)
