@@ -1,7 +1,7 @@
 import json
 import os
 from typing import List
-from src import utils, interfaces, process_session
+from src import utils, interfaces, procedures
 import multiprocessing
 import multiprocessing.pool
 
@@ -24,11 +24,15 @@ def run() -> None:
     try:
         retrieval_queue = interfaces.RetrievalQueue(config, main_logger, pylot_factory)
         results: List[multiprocessing.pool.AsyncResult] = []
-        for session in retrieval_queue:
+
+        for sensor_data_context in retrieval_queue:
+            session = procedures.create_session.run(pylot_factory, sensor_data_context)
             main_logger.info(f"Running session: {json.dumps(session.dict(), indent=4)}")
+
             results.append(
                 pool.apply_async(
-                    func=process_session, args=(config, session, pylot_factory)
+                    func=procedures.process_session,
+                    args=(config, session, pylot_factory),
                 )
             )
         [result.get() for result in results]

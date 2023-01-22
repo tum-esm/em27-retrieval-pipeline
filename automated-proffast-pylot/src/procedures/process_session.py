@@ -19,7 +19,7 @@ def run(
     logger.info(f"Starting {sensor}/{date}")
 
     # Get container path
-    procedures.initialize_session_environment.run(session)
+    procedures.create_session.run(session)
 
     label = "vertical profiles"
     try:

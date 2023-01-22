@@ -1,5 +1,5 @@
 from . import (
-    initialize_session_environment,
+    create_session,
     move_datalogger_files,
     move_vertical_profiles,
     move_ifg_files,

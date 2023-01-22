@@ -66,7 +66,7 @@ class RetrievalQueue:
         DateString = str
         self.processed_data: dict[SensorId, list[DateString]] = {}
 
-    def __iter__(self) -> Iterator[custom_types.Session]:
+    def __iter__(self) -> Iterator[custom_types.SensorDataContext]:
         iteration_count = 0
         while True:
             iteration_count += 1
@@ -76,50 +76,49 @@ class RetrievalQueue:
             next_manual_item = self._next_item_from_manual_queue()
             next_storage_item = self._next_item_from_storage_directory()
 
-            if (next_manual_item is None) and (next_storage_item is None):
-                self.logger.debug("Scheduler: no more items")
-                break
-
-            if next_manual_item is None:
+            if (next_manual_item is None) and (next_storage_item is not None):
                 self.logger.info("Scheduler: Taking next item from storage directory")
-                yield self._generate_session_object(next_storage_item)
+                self._mark_as_processed(
+                    next_storage_item.sensor_id,
+                    next_storage_item.date,
+                )
+                yield next_storage_item
                 continue
 
-            if next_storage_item is None:
+            if (next_manual_item is not None) and (next_storage_item is None):
                 self.logger.info("Scheduler: Taking next item from manual queue")
-                yield self._generate_session_object(
-                    next_manual_item.sensor_data_context
+                self._mark_as_processed(
+                    next_manual_item.sensor_data_context.sensor_id,
+                    next_manual_item.sensor_data_context.date,
                 )
+                yield next_manual_item.sensor_data_context
                 continue
 
-            if next_manual_item.priority > 0:
-                self.logger.info(
-                    "Scheduler: Taking next item from manual queue (high priority"
-                )
-                yield self._generate_session_object(
-                    next_manual_item.sensor_data_context
-                )
-                continue
-            else:
-                self.logger.info("Scheduler: Taking next item from storage directory")
-                yield self._generate_session_object(next_storage_item)
-                continue
+            if (next_manual_item is not None) and (next_storage_item is not None):
+                if next_manual_item.priority > 0:
+                    self.logger.info(
+                        "Scheduler: Taking next item from manual queue (high priority"
+                    )
+                    self._mark_as_processed(
+                        next_manual_item.sensor_data_context.sensor_id,
+                        next_manual_item.sensor_data_context.date,
+                    )
+                    yield next_manual_item.sensor_data_context
+                    continue
+                else:
+                    self.logger.info(
+                        "Scheduler: Taking next item from storage directory"
+                    )
+                    self._mark_as_processed(
+                        next_storage_item.sensor_id,
+                        next_storage_item.date,
+                    )
+                    yield next_storage_item
+                    continue
 
-    def _generate_session_object(
-        self, sensor_data_context: custom_types.SensorDataContext
-    ) -> custom_types.Session:
-        self.processed_sensor_dates[sensor_data_context.sensor_id].append(
-            sensor_data_context.date
-        )
-        new_container = self.pylot_factory.create_container()
-        self._mark_as_processed(
-            sensor_data_context.sensor_id,
-            sensor_data_context.date,
-        )
-        return custom_types.Session(
-            sensor_data_context=sensor_data_context,
-            container=new_container,
-        )
+            # both queue (manual and storage) are empty
+            self.logger.debug("Scheduler: no more items")
+            break
 
     def _next_item_from_storage_directory(
         self,

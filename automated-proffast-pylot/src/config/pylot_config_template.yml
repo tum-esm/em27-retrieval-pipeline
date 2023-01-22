@@ -20,18 +20,18 @@ start_with_spectra: False
 delete_abscosbin_files: True
 delete_input_files: False
 note:
-proffast_path: %PROFFAST_PATH%
+proffast_path: %CONTAINER_PATH%/prf
 
 # TCCON
 tccon_mode: False
 tccon_setting:
 
 # INPUT PATHS
-interferogram_path: %PROJECT_DIR%/inputs/%CONTAINER_ID%/%SENSOR_ID%_ifg
-map_path: %PROJECT_DIR%/inputs/%CONTAINER_ID%/%SENSOR_ID%_map
-pressure_path: %PROJECT_DIR%/inputs/%CONTAINER_ID%/%SENSOR_ID%_pressure
-pressure_type_file: %PROJECT_DIR%/inputs/%CONTAINER_ID%/%SENSOR_ID%-log-format.yml
+interferogram_path: %DATA_INPUT_PATH%/ifg
+map_path: %DATA_INPUT_PATH%/map
+pressure_path: %DATA_INPUT_PATH%/log
+pressure_type_file: %PYLOT_LOG_FORMAT_PATH%
 
 # OUTPUT PATHS
-analysis_path: %PROJECT_DIR%/outputs/analysis
-result_path: %PROJECT_DIR%/outputs
+analysis_path: %DATA_OUTPUT_PATH%/analysis
+result_path: %DATA_OUTPUT_PATH%

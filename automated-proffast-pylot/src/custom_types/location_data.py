@@ -111,17 +111,3 @@ class Campaign(BaseModel):
     )(
         validate_str(is_date_string=True),
     )
-
-
-class SensorDataContext(BaseModel):
-    sensor_id: str
-    serial_number: int
-    utc_offset: float
-    date: str
-    location: Location
-
-
-class Session(BaseModel):
-    sensor_data_context: SensorDataContext
-    container_id: str
-    container_path: str
