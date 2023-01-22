@@ -1,8 +1,9 @@
 from datetime import datetime
 import os
+import random
 import subprocess
 from typing import Optional
-
+import string
 
 dirname = os.path.dirname
 PROJECT_DIR = dirname(dirname(dirname(os.path.abspath(__file__))))
@@ -54,3 +55,8 @@ def date_is_too_recent(
         date_string, "%Y%m%d"
     )  # will have the time 00:00:00
     return (datetime.now() - date_object).days >= min_days_delay
+
+
+def get_random_string(length: int):
+    """choose from all lowercase letter"""
+    return "".join(random.choice(string.ascii_lowercase) for i in range(length))

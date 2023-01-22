@@ -2,7 +2,7 @@ from multiprocessing.pool import AsyncResult
 import os
 from typing import List
 from src import utils, procedures
-from src.custom_types.pylot_factory import PylotFactory
+from src.interfaces.pylot_factory import PylotFactory
 from src.custom_types.session import SessionDict
 from src.custom_types.config import ConfigDict
 import multiprocessing as mp

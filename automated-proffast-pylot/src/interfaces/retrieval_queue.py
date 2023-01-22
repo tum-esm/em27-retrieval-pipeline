@@ -6,7 +6,7 @@ from typing import Iterator, Optional
 
 from pydantic import BaseModel
 from src import utils, custom_types, interfaces
-from src.custom_types.pylot_factory import PylotFactory
+from src.interfaces.pylot_factory import PylotFactory
 
 dir = os.path.dirname
 PROJECT_DIR = dir(dir(dir(os.path.abspath(__file__))))

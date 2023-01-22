@@ -3,4 +3,3 @@ from .location_data import Location, Sensor, Campaign, SensorDataContext, Sessio
 from .manual_queue import ManualQueueItem, ManualQueue
 
 from .input_warning import InputWarningsDict, validate_input_warnings
-from .pylot_factory import PylotFactory

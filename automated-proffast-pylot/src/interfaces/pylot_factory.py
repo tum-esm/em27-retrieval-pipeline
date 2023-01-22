@@ -5,6 +5,7 @@ import shutil
 import string
 import subprocess
 import requests
+from src import utils
 from src.utils import load_proffast_config
 from src import proffast_path
 from src.utils.logger import Logger
@@ -12,6 +13,11 @@ from clint.textui import progress
 from zipfile import ZipFile
 from tqdm import tqdm
 import checksumdir
+
+
+dirname = os.path.dirname
+PROJECT_DIR = dirname(dirname(dirname(os.path.abspath(__file__))))
+PYLOT_PATH = os.path.join(PROJECT_DIR, "prfpylot")
 
 
 class PylotFactory:
@@ -43,10 +49,15 @@ class PylotFactory:
     def create_pylot_instance(self) -> str:
         # self._verify_main_pylot()
         # Generate random container_id
-        container_id = PylotFactory.get_random_string(10)
-        container_path = os.path.join(proffast_path, container_id)
+        while True:
+            container_id = utils.get_random_string(10)
+            container_path = os.path.join(proffast_path, container_id)
+            if not os.path.exists(container_path):
+                break
+
         # Create new prfpylot instance
         shutil.copytree(self.main, container_path)
+
         # Register Container
         self.containers[container_id] = container_path
 
@@ -128,10 +139,3 @@ class PylotFactory:
         # Creating tag file.
         with open(self.tag_file, "w") as tag_file:
             tag_file.write(hash)
-
-    @staticmethod
-    def get_random_string(length):
-        # choose from all lowercase letter
-        letters = string.ascii_lowercase
-        result_str = "".join(random.choice(letters) for i in range(length))
-        return result_str
