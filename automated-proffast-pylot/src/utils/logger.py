@@ -1,5 +1,6 @@
 from datetime import datetime
 import os
+import shutil
 import sys
 import traceback
 
@@ -17,7 +18,8 @@ logfile_time = datetime.utcnow().strftime("%Y%m%d-%H-%M")
 class Logger:
     def __init__(self, container_id: str) -> None:
         self.container_id = container_id
-        self.logfile_path = f"{PROJECT_DIR}/logs/{self.container_id}_{logfile_time}.log"
+        self.logfile_name = f"{logfile_time}_{self.container_id}.log"
+        self.logfile_path = os.path.join(PROJECT_DIR, "logs", self.logfile_name)
 
     def _print(self, m: str, level: str) -> None:
         t = datetime.utcnow().strftime("%Y%m%d %H:%M:%S")
@@ -51,3 +53,10 @@ class Logger:
         why 52? that is a very good question!
         """
         self._print(variant * 52, "INFO")
+
+    def archive(self) -> None:
+        """move the used log file into the archive"""
+        shutil.copyfile(
+            self.logfile_path,
+            os.path.join(PROJECT_DIR, "logs", "archive", self.logfile_name),
+        )

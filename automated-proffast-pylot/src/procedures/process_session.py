@@ -53,4 +53,4 @@ def run(config: custom_types.Config, session: custom_types.Session):
     except AssertionError as e:
         logger.error(f"Moving outputs failed: {e}")
 
-    # TODO: logger.archive()
+    logger.archive()

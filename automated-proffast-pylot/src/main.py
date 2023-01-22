@@ -70,3 +70,4 @@ def run() -> None:
 
     pylot_factory.remove_all_containers()
     main_logger.info(f"automation is done")
+    main_logger.archive()
