@@ -15,14 +15,12 @@ class ManualQueueInterface:
     @staticmethod
     def load(logger: utils.Logger) -> Optional[custom_types.ManualQueue]:
         if not os.path.isfile(MANUAL_QUEUE_FILE):
-            logger.debug(f"No manual queue file")
             return None
 
         try:
             with open(MANUAL_QUEUE_FILE, "r") as f:
                 return custom_types.ManualQueue(items=json.load(f))
         except Exception as e:
-            logger.warning(f"Manual queue in an invalid format: {e}")
             return None
 
     @staticmethod

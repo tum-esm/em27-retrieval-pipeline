@@ -77,9 +77,9 @@ class PylotFactory:
             container = [c for c in self.containers if c.container_id == container_id][
                 0
             ]
-            # shutil.rmtree(container.container_path)
-            # shutil.rmtree(container.data_input_path)
-            # shutil.rmtree(container.data_output_path)
+            shutil.rmtree(container.container_path)
+            shutil.rmtree(container.data_input_path)
+            shutil.rmtree(container.data_output_path)
             self.containers.remove(container)
         except IndexError:
             raise ValueError(f'no container with id "{container_id}"')

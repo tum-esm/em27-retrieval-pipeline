@@ -68,7 +68,9 @@ def get_random_string(length: int, forbidden: list[str] = []) -> str:
     return output
 
 
-def run_shell_command(command: str, working_directory: Optional[str] = None) -> str:
+def run_shell_command(
+    command: str, working_directory: Optional[str] = None, verbose_on_fail: bool = True
+) -> str:
     p = subprocess.run(
         command,
         shell=True,
@@ -79,8 +81,8 @@ def run_shell_command(command: str, working_directory: Optional[str] = None) -> 
     stdout = p.stdout.decode("utf-8", errors="replace")
     stderr = p.stderr.decode("utf-8", errors="replace")
 
-    assert p.returncode == 0, (
-        f"command '{command}' failed with exit code "
-        + f"{p.returncode}: stderr = '{stderr}'"
-    )
+    error_message = f"command '{command}' failed with exit code {p.returncode}"
+    if verbose_on_fail:
+        error_message += f": stdout = '{stdout}', stderr = '{stderr}'"
+    assert p.returncode == 0, error_message
     return stdout.strip()

@@ -32,48 +32,43 @@ class RetrievalQueue:
 
     def get_next_item(self) -> Optional[custom_types.SensorDataContext]:
         self.iteration_count += 1
-        self.logger.horizontal_line()
-        self.logger.debug(f"Scheduler: Iteration {self.iteration_count}")
 
         next_manual_item = self._next_item_from_manual_queue()
         next_storage_item = self._next_item_from_storage_directory()
 
-        if (next_manual_item is None) and (next_storage_item is not None):
-            self.logger.info("Scheduler: Taking next item from storage directory")
+        def process_scheduler_choice(
+            choice: custom_types.SensorDataContext,
+            source_label: str,
+        ) -> None:
+            self.logger.horizontal_line()
+            self.logger.info(f"Scheduler iteration {self.iteration_count}")
+            self.logger.info(f"Scheduler: Taking next item from {source_label}")
             self._mark_as_processed(
-                next_storage_item.sensor_id,
-                next_storage_item.date,
+                choice.sensor_id,
+                choice.date,
             )
+
+        if (next_manual_item is None) and (next_storage_item is not None):
+            process_scheduler_choice(next_storage_item, "storage directory")
             return next_storage_item
 
         if (next_manual_item is not None) and (next_storage_item is None):
-            self.logger.info("Scheduler: Taking next item from manual queue")
-            self._mark_as_processed(
-                next_manual_item.sensor_data_context.sensor_id,
-                next_manual_item.sensor_data_context.date,
+            process_scheduler_choice(
+                next_manual_item.sensor_data_context, "manual queue"
             )
             return next_manual_item.sensor_data_context
 
         if (next_manual_item is not None) and (next_storage_item is not None):
             if next_manual_item.priority > 0:
-                self.logger.info(
-                    "Scheduler: Taking next item from manual queue (high priority"
-                )
-                self._mark_as_processed(
-                    next_manual_item.sensor_data_context.sensor_id,
-                    next_manual_item.sensor_data_context.date,
+                process_scheduler_choice(
+                    next_manual_item.sensor_data_context, "manual queue (high priority)"
                 )
                 return next_manual_item.sensor_data_context
             else:
-                self.logger.info("Scheduler: Taking next item from storage directory")
-                self._mark_as_processed(
-                    next_storage_item.sensor_id,
-                    next_storage_item.date,
-                )
+                process_scheduler_choice(next_storage_item, "storage directory")
                 return next_storage_item
 
         # both queue (manual and storage) are empty
-        self.logger.debug("Scheduler: no more items")
         return None
 
     def _next_item_from_storage_directory(
