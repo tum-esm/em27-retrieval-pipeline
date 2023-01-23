@@ -29,6 +29,7 @@ class RetrievalQueue:
 
         self.processed_sensor_dates: dict[str, list[str]] = {}
         self.iteration_count = 0
+        self.logger.info("RetrievalQueue is set up")
 
     def get_next_item(self) -> Optional[custom_types.SensorDataContext]:
         self.iteration_count += 1
@@ -40,9 +41,7 @@ class RetrievalQueue:
             choice: custom_types.SensorDataContext,
             source_label: str,
         ) -> None:
-            self.logger.horizontal_line()
-            self.logger.info(f"Scheduler iteration {self.iteration_count}")
-            self.logger.info(f"Scheduler: Taking next item from {source_label}")
+            self.logger.info(f"Scheduler iteration {self.iteration_count} - using {source_label}")
             self._mark_as_processed(
                 choice.sensor_id,
                 choice.date,

@@ -7,20 +7,24 @@ import multiprocessing.context
 
 def run() -> None:
     main_logger = utils.Logger("main")
-    pylot_factory = interfaces.PylotFactory(main_logger)
-
     main_logger.horizontal_line(variant="=")
     main_logger.info(f"Starting the automation with PID {os.getpid()}")
 
+    # load config
     try:
         config = utils.load_config()
+        main_logger.info("Config is valid")
     except:
         main_logger.error("Config file invalid")
         main_logger.exception()
         return
 
-    processes: list[multiprocessing.context.SpawnProcess] = []
+    # set up pylot dispatcher and session scheduler
+    pylot_factory = interfaces.PylotFactory(main_logger)
     retrieval_queue = interfaces.RetrievalQueue(config, main_logger)
+    processes: list[multiprocessing.context.SpawnProcess] = []
+
+    main_logger.horizontal_line(variant="=")
 
     try:
         while True:
@@ -59,7 +63,7 @@ def run() -> None:
                     f'process "{finished_process.name}": finished processing'
                 )
                 pylot_factory.remove_container(finished_process.name.split("-")[-1])
-                main_logger.debug(
+                main_logger.info(
                     f'process "{finished_process.name}": removed container'
                 )
 
@@ -71,5 +75,6 @@ def run() -> None:
         main_logger.exception()
 
     pylot_factory.remove_all_containers()
-    main_logger.info(f"automation is done")
+    main_logger.info(f"Automation is finished")
+    main_logger.horizontal_line(variant="=")
     main_logger.archive()

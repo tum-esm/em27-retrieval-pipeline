@@ -11,33 +11,29 @@ PYLOT_MAIN_CLONE_DIR = os.path.join(PYLOT_ROOT_DIR, "main")
 KIT_BASE_URL = "wget https://www.imk-asf.kit.edu/downloads/Coccon-SW/"
 ZIPFILE_NAME = "PROFFASTv2.2.zip"
 
-EXECUTABLE_FILEPATHS = [
-    os.path.join(PYLOT_MAIN_CLONE_DIR, "prf", "preprocess", "preprocess4"),
-    os.path.join(PYLOT_MAIN_CLONE_DIR, "prf", "pcxs20"),
-    os.path.join(PYLOT_MAIN_CLONE_DIR, "prf", "invers20"),
-    os.path.join(PROJECT_DIR, "src", "detect_corrupt_ifgs", "parser", "ifg_parser"),
-]
-
 
 class PylotFactory:
     def __init__(self, logger: utils.Logger):
         self.logger = logger
         self.containers: list[custom_types.PylotContainer] = []
         self._init_pylot_code()
-
-        print(f"prfpylot of main copy successful")
+        self.logger.info("PylotFactory is set up")
 
     def create_container(self) -> custom_types.PylotContainer:
         container_id = utils.get_random_string(
             length=10, forbidden=[c.container_id for c in self.containers]
         )
 
-        # copy container code
+        # copy container code and compile the fortran code
         container_path = os.path.join(
             PYLOT_ROOT_DIR,
             f"pylot-container-{container_id}",
         )
         shutil.copytree(PYLOT_MAIN_CLONE_DIR, container_path)
+        utils.run_shell_command(
+            f"bash install_proffast_linux.sh",
+            working_directory=os.path.join(container_path, "prf"),
+        )
 
         # generate empty input directory
         data_input_path = os.path.join(
@@ -96,9 +92,10 @@ class PylotFactory:
             raise RuntimeError("Pylot submodule not initialized")
 
         # DOWNLOAD PROFFAST 2.2 code if it doesn't exist yet
-        if not os.path.exists(os.path.join(PYLOT_MAIN_CLONE_DIR, "prf")):
-            self.logger.info(f"downloading proffast code")
-
+        if os.path.exists(os.path.join(PYLOT_MAIN_CLONE_DIR, "prf")):
+            self.logger.info(f"Proffast 2.2 has already been downloaded")
+        else:
+            self.logger.info(f"Downloading Proffast 2.2 code")
             utils.run_shell_command(
                 f"wget {KIT_BASE_URL}/{ZIPFILE_NAME}",
                 working_directory=os.path.join(PYLOT_ROOT_DIR, "main"),
@@ -110,25 +107,8 @@ class PylotFactory:
             os.remove(os.path.join(PYLOT_ROOT_DIR, "main", ZIPFILE_NAME))
 
         # COMPILE FORTRAN CODE
-        self.logger.info(f"compiling fortran code")
-
-        for filepath in EXECUTABLE_FILEPATHS:
-            if os.path.isfile(filepath):
-                os.remove(filepath)
-
-        utils.run_shell_command(
-            f"bash install_proffast_linux.sh",
-            working_directory=os.path.join(PYLOT_ROOT_DIR, "main", "prf"),
-        )
+        self.logger.info(f"Compiling Fortran code of corrupt-ifgs detection")
         utils.run_shell_command(
             f"bash compile.sh",
             working_directory=os.path.join(PROJECT_DIR, "src", "detect_corrupt_ifgs"),
         )
-
-        for filepath in EXECUTABLE_FILEPATHS:
-            if not os.path.isfile(filepath):
-                raise FileNotFoundError(
-                    f'file "{filepath}" does not exist after compilation'
-                )
-
-        self.logger.info(f"fortran compilation is done")
