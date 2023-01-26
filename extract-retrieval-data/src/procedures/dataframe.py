@@ -1,7 +1,7 @@
 import functools
 import pandas as pd
 from psycopg import sql
-
+import scipy
 from src import utils
 from src.custom_types import Config, RequestConfig, Date, SensorId, Campaign, Rate
 
@@ -52,6 +52,7 @@ def post_process_dataframe(
 ) -> pd.DataFrame:
     """Post-processes the dataframe."""
 
+    print(sensor_dataframe.index.to_series().diff().value_counts())
     """
     ✗ sensor_dataframe is the output of get_sensor_dataframe (see above)
         Example:
@@ -70,7 +71,15 @@ def post_process_dataframe(
     ✗ get_daily_dataframe (see below) will be called afterwards and joins the dataframes on "utc".
     """
 
-    return sensor_dataframe.groupby(pd.Grouper(freq="1min")).mean()
+    sensor_dataframe.sort_values(by=['UTC']) # sort according to time
+    # Apply smoothing function for all data columns.
+    for column in sensor_dataframe.columns[5::]:
+        sensor_dataframe[column] = scipy.signal.savgol_filter(pd.to_numeric(sensor_dataframe[column]), 31, 3)
+
+    sensor_dataframe = sensor_dataframe.set_index('UTC')
+    sensor_dataframe.index = pd.to_datetime(sensor_dataframe.index)
+    output_data = sensor_dataframe.groupby(pd.Grouper(freq=sampling_rate)).mean()
+    return output_data
 
 
 def get_daily_dataframe(
