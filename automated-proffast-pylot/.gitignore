@@ -9,3 +9,5 @@ example/outputs/
 pylot-container-*/
 
 main.lock
+
+*.tar.gz*

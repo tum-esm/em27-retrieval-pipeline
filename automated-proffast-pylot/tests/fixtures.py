@@ -2,6 +2,7 @@ import os
 import shutil
 import filelock
 import pytest
+from src import utils
 
 dir = os.path.dirname
 PROJECT_DIR = dir(dir(os.path.abspath(__file__)))
@@ -16,6 +17,28 @@ def wrap_test_with_mainlock():
         lock.release()
     except filelock.Timeout:
         raise Exception("automation is already running")
+
+
+@pytest.fixture
+def download_sample_data():
+    sample_data_path = os.path.join(PROJECT_DIR, "example", "inputs")
+    if not os.path.isdir(sample_data_path):
+        filename = "automated-proffast-pylot-example-inputs.tar.gz"
+        utils.run_shell_command(
+            f"wget --quiet https://syncandshare.lrz.de/dl/fiA9bjdafNcuVGrmMfDL49/{filename}",
+            working_directory=os.path.join(PROJECT_DIR, "example"),
+        )
+        utils.run_shell_command(
+            f"tar -xf {filename}",
+            working_directory=os.path.join(PROJECT_DIR, "example"),
+        )
+        os.remove(os.path.join(PROJECT_DIR, "example", filename))
+
+    assert os.path.isdir(os.path.join(sample_data_path, "ifg"))
+    assert os.path.isdir(os.path.join(sample_data_path, "log"))
+    assert os.path.isdir(os.path.join(sample_data_path, "map"))
+
+    yield
 
 
 @pytest.fixture

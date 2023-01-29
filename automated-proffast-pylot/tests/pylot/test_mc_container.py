@@ -2,7 +2,7 @@ from typing import Optional
 import pytest
 import shutil
 import os
-from tests.fixtures import wrap_test_with_mainlock, PROJECT_DIR
+from tests.fixtures import wrap_test_with_mainlock, download_sample_data, PROJECT_DIR
 from src import custom_types, utils, interfaces, procedures
 
 PYLOT_ROOT_DIR = os.path.join(PROJECT_DIR, "src", "prfpylot")
@@ -22,7 +22,7 @@ SENSOR_DATA_CONTEXT = custom_types.SensorDataContext(
 
 
 @pytest.mark.integration
-def test_pylot(wrap_test_with_mainlock):
+def test_mc_container(wrap_test_with_mainlock, download_sample_data):
 
     config = custom_types.Config(
         **{
