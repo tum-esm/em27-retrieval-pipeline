@@ -41,7 +41,9 @@ class RetrievalQueue:
             choice: custom_types.SensorDataContext,
             source_label: str,
         ) -> None:
-            self.logger.info(f"Scheduler iteration {self.iteration_count} - using {source_label}")
+            self.logger.info(
+                f"Scheduler iteration {self.iteration_count} - using {source_label}"
+            )
             self._mark_as_processed(
                 choice.sensor_id,
                 choice.date,
@@ -132,9 +134,7 @@ class RetrievalQueue:
 
         return None
 
-    def _next_item_from_manual_queue(
-        self,
-    ) -> Optional[ManualQueueItem]:
+    def _next_item_from_manual_queue(self) -> Optional[ManualQueueItem]:
         """use the dates from manual-queue.json"""
         next_items = interfaces.ManualQueueInterface.get_items(self.logger)
 

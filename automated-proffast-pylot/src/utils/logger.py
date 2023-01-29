@@ -26,7 +26,7 @@ class Logger:
         t = datetime.utcnow().strftime("%Y%m%d %H:%M:%S")
         log_line = f"{t} - {level} - {m}\n"
         if self.print_only:
-            print(log_line)
+            print(log_line, end="")
         else:
             with open(self.logfile_path, "a") as f:
                 f.write(log_line)
