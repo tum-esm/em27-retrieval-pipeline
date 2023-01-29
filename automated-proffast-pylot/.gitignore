@@ -4,7 +4,7 @@ manual-queue.json
 logs/**/*
 !logs/.gitkeep
 
-example/inputs/*.yml
+example/inputs/
 example/outputs/
 pylot-container-*/
 
