@@ -5,10 +5,9 @@ from src import custom_types, utils
 
 dirname = os.path.dirname
 PROJECT_DIR = dirname(dirname(dirname(os.path.abspath(__file__))))
-
 PYLOT_ROOT_DIR = os.path.join(PROJECT_DIR, "src", "prfpylot")
 PYLOT_MAIN_CLONE_DIR = os.path.join(PYLOT_ROOT_DIR, "main")
-KIT_BASE_URL = "wget https://www.imk-asf.kit.edu/downloads/Coccon-SW/"
+KIT_BASE_URL = "https://www.imk-asf.kit.edu/downloads/Coccon-SW/"
 ZIPFILE_NAME = "PROFFASTv2.2.zip"
 
 
@@ -27,6 +26,7 @@ class PylotFactory:
         # copy container code and compile the fortran code
         container_path = os.path.join(
             PYLOT_ROOT_DIR,
+            "containers",
             f"pylot-container-{container_id}",
         )
         shutil.copytree(PYLOT_MAIN_CLONE_DIR, container_path)
@@ -38,6 +38,7 @@ class PylotFactory:
         # generate empty input directory
         data_input_path = os.path.join(
             PYLOT_ROOT_DIR,
+            "containers",
             f"pylot-container-{container_id}-input",
         )
         os.mkdir(data_input_path)
@@ -48,6 +49,7 @@ class PylotFactory:
         # generate empty output directory
         data_output_path = os.path.join(
             PYLOT_ROOT_DIR,
+            "containers",
             f"pylot-container-{container_id}-output",
         )
         os.mkdir(data_output_path)
@@ -97,11 +99,11 @@ class PylotFactory:
         else:
             self.logger.info(f"Downloading Proffast 2.2 code")
             utils.run_shell_command(
-                f"wget {KIT_BASE_URL}/{ZIPFILE_NAME}",
+                f"wget --quiet {KIT_BASE_URL}/{ZIPFILE_NAME}",
                 working_directory=os.path.join(PYLOT_ROOT_DIR, "main"),
             )
             utils.run_shell_command(
-                f"unzip {ZIPFILE_NAME}",
+                f"unzip -q {ZIPFILE_NAME}",
                 working_directory=os.path.join(PYLOT_ROOT_DIR, "main"),
             )
             os.remove(os.path.join(PYLOT_ROOT_DIR, "main", ZIPFILE_NAME))
