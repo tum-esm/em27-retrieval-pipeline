@@ -94,12 +94,8 @@ def run(
 
     # CREATE EMPTY OUTPUT DIRECTORY
 
-    if day_was_successful:
-        output_dst = output_dst_successful
-        os.makedirs(output_dst_successful, exist_ok=True)
-    else:
-        output_dst = output_dst_failed
-        output_dst_failed = f"{output_dst}/failed/{session.date}"
+    output_dst = output_dst_successful if day_was_successful else output_dst_failed
+    os.makedirs(output_dst, exist_ok=True)
 
     # MOVE NEW OUTPUTS
 

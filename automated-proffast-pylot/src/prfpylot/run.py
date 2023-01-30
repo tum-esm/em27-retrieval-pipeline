@@ -31,4 +31,4 @@ if __name__ == "__main__":
     )
     sys.path.append(container_path)
     pylot = importlib.import_module("prfpylot.pylot")
-    pylot.Pylot(pylot_config_path, logginglevel="info").run(n_processes=1)
+    pylot.Pylot(pylot_config_path, logginglevel="debug").run(n_processes=1)
