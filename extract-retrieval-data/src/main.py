@@ -75,6 +75,5 @@ def run() -> None:
 def bun():
     df = pd.read_csv('/home/vyasg/stunts/IDP/automated-retrieval-pipeline/extract-retrieval-data/proffast-2.2-outputs-20220604-ma.csv')
     df.set_index('UTC')
-    print(df)
     print("After --------------------------------------")
     print(procedures.post_process_dataframe(df, sampling_rate="5 min"))

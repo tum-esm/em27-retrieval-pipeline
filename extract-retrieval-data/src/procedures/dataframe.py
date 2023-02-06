@@ -2,6 +2,7 @@ import functools
 import pandas as pd
 from psycopg import sql
 import scipy
+import matplotlib
 from src import utils
 from src.custom_types import Config, RequestConfig, Date, SensorId, Campaign, Rate
 
@@ -52,12 +53,30 @@ def post_process_dataframe(
 ) -> pd.DataFrame:
     """Post-processes the dataframe."""
 
-    print(sensor_dataframe.index.to_series().diff().value_counts())
+    """
+    UTC, gnd_p, gnd_t, app_sza, azimuth, xh2o, xair, xco2, xch4, xco, xch4_s5p
+    utc, gndP, gndT, appSZA, azimuth, XH2O, XAIR, XCO2, XCH4, XCO, XCH4_S5P
+    """
+    df = sensor_dataframe.rename(columns={
+        'UTC': 'utc',
+        ' gndP': 'gnd_p',
+        ' gndT': 'gnd_t',
+        ' appSZA': 'app_sza',
+        ' XH2O': 'xh2o',
+        ' XAIR': 'xair',
+        ' XCO2': 'xco2',
+        ' XCH4': 'xch4',
+        ' XCO': 'xco',
+        ' XCH4_S5P': 'xch4_s5p'
+    }, errors="raise")
+    sensor_dataframe = df.filter(items=['utc', 'gnd_p', 'gnd_t', 'app_sza', 'azimuth', 'xh2o', 'xair', 'xco2', 'xch4', 'xco', 'xch4_s5p'])
+    sensor_dataframe.plot(x='utc', y='xco2')
+    print(sensor_dataframe)
     """
     ✗ sensor_dataframe is the output of get_sensor_dataframe (see above)
         Example:
                                 me_gnd_p  me_gnd_t  me_app_sza  ...
-        utc                                                                                             
+        utc                                                         
         2021-10-20 07:00:23     950.91    289.05       78.45     ...
         2021-10-20 07:00:38     950.91    289.05       78.42     ...
         2021-10-20 07:01:24     950.91    289.05       78.31     ...
@@ -69,16 +88,18 @@ def post_process_dataframe(
         ]
     
     ✗ get_daily_dataframe (see below) will be called afterwards and joins the dataframes on "utc".
-    """
-
-    sensor_dataframe.sort_values(by=['UTC']) # sort according to time
+    """ 
+    sensor_dataframe.sort_values(by=['utc']) # sort according to time
     # Apply smoothing function for all data columns.
-    for column in sensor_dataframe.columns[5::]:
+    for column in sensor_dataframe.columns[1::]:
         sensor_dataframe[column] = scipy.signal.savgol_filter(pd.to_numeric(sensor_dataframe[column]), 31, 3)
 
-    sensor_dataframe = sensor_dataframe.set_index('UTC')
+    sensor_dataframe = sensor_dataframe.set_index('utc')
     sensor_dataframe.index = pd.to_datetime(sensor_dataframe.index)
-    output_data = sensor_dataframe.groupby(pd.Grouper(freq=sampling_rate)).mean()
+    df_series = sensor_dataframe.squeeze()
+    output_data = df_series.resample(sampling_rate).mean()
+    output_data.reset_index().plot(x='utc', y='xco2')
+    #output_data.plot(x='utc', y='xco2')
     return output_data
 
 
