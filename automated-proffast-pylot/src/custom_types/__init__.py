@@ -1,5 +1,12 @@
 from .config import Config
-from .location_data import Location, Sensor, Campaign
+from .location_data import (
+    Location,
+    Sensor,
+    Campaign,
+    SensorUTCOffset,
+    SensorPressureCalibrationFactor,
+    SensorLocation,
+)
 from .manual_queue import ManualQueueItem, ManualQueue
 from .session import PylotContainer, SensorDataContext, Session
 
