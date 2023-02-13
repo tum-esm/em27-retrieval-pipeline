@@ -10,6 +10,7 @@ SENSOR_DATA_CONTEXTS = [
         sensor_id="so",
         serial_number=39,
         utc_offset=0.0,
+        pressure_calibration_factor=1,
         date=date,
         location=custom_types.Location(
             location_id="SOD",

@@ -95,10 +95,10 @@ def run(
     # CREATE EMPTY OUTPUT DIRECTORY
 
     output_dst = output_dst_successful if day_was_successful else output_dst_failed
-    os.makedirs(output_dst, exist_ok=True)
 
     # MOVE NEW OUTPUTS
 
+    os.makedirs(os.path.dirname(output_dst), exist_ok=True)
     shutil.copytree(output_src_dir, output_dst)
     shutil.rmtree(output_src_dir)
 
@@ -107,6 +107,10 @@ def run(
     shutil.copyfile(
         logger.logfile_path,
         os.path.join(output_dst, "logfiles", "container.log"),
+    )
+    shutil.copyfile(
+        session.pylot_log_format_path,
+        os.path.join(output_dst, "pylot_log_format.yml"),
     )
 
     # POSSIBLY REMOVE ITEMS FROM MANUAL QUEUE

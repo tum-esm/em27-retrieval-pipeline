@@ -52,7 +52,7 @@ def _generate_pylot_log_format(session: custom_types.Session) -> None:
                 "SENSOR_ID": session.sensor_id,
                 "UTC_OFFSET": str(round(session.utc_offset, 2)),
                 "PRESSURE_CALIBRATION_FACTOR": str(
-                    round(9, session.pressure_calibration_factor)
+                    round(session.pressure_calibration_factor, 9)
                 ),
             },
         ),

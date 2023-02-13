@@ -1,4 +1,3 @@
-from typing import Optional
 import pytest
 import shutil
 import os
@@ -10,6 +9,7 @@ SENSOR_DATA_CONTEXT = custom_types.SensorDataContext(
     sensor_id="mc",
     serial_number=115,
     utc_offset=0.0,
+    pressure_calibration_factor=1,
     date="20220602",
     location=custom_types.Location(
         location_id="ZEN",
@@ -61,4 +61,21 @@ def test_mc_container(wrap_test_with_mainlock, download_sample_data):
     procedures.process_session.run(config, session)
 
     # assert output correctness
-    # TODO
+    out_path = os.path.join(
+        PROJECT_DIR,
+        "example",
+        "outputs",
+        "proffast-2.2-outputs",
+        "mc",
+        "successful",
+        "20220602",
+    )
+    for filename in [
+        "comb_invparms_mc_SN115_220602-220602.csv",
+        "about.json",
+        "pylot_config.yml",
+        "pylot_log_format.yml",
+        "logfiles/container.log",
+    ]:
+        filepath = os.path.join(out_path, filename)
+        assert os.path.isfile(filepath), f"output file does not exist ({filepath})"
