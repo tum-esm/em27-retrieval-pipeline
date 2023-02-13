@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 import json
 import os
 import re
@@ -35,7 +35,11 @@ class RetrievalQueue:
         self.iteration_count += 1
 
         next_manual_item = self._next_item_from_manual_queue()
-        next_storage_item = self._next_item_from_storage_directory()
+        next_storage_item = (
+            self._next_item_from_storage_directory()
+            if self.config.process_data_automatically
+            else None
+        )
 
         def process_scheduler_choice(
             choice: custom_types.SensorDataContext,
@@ -76,40 +80,29 @@ class RetrievalQueue:
         self,
     ) -> Optional[custom_types.SensorDataContext]:
         """Use the dates from the storage directory"""
-
-        # determine date_strings with data
-        date_strings: list[str] = []
-        for sensor_id in self.config.data_filter.sensor_ids_to_consider:
-            sensor_ifgs_dir = os.path.join(
-                self.config.data_src_dirs.interferograms, sensor_id
+        max_date_string = min(
+            (
+                datetime.utcnow()
+                - timedelta(days=self.config.data_filter.min_days_delay)
+            ).strftime("%Y%m%d"),
+            self.config.data_filter.end_date,
+        )
+        date_strings = [
+            str(d)
+            for d in range(
+                int(self.config.data_filter.start_date),
+                int(max_date_string) + 1,
             )
-            if not os.path.isdir(sensor_ifgs_dir):
-                continue
-            date_strings += [
-                ds
-                for ds in os.listdir(
-                    os.path.join(self.config.data_src_dirs.interferograms, sensor_id)
-                )
-                if utils.is_date_string(ds)
-            ]
-        date_strings = list(sorted(set(date_strings), reverse=True))
+            if (utils.is_date_string(str(d)))
+        ][::-1]
 
         for date in date_strings:
             for sensor_id in self.config.data_filter.sensor_ids_to_consider:
                 if self._is_marked_as_processed(sensor_id, date):
                     continue
 
-                ifgs_missing_or_incomplete = lambda: (
-                    not self._ifgs_exist(sensor_id, date)
-                ) or (not self._upload_is_complete(sensor_id, date))
-                outputs_exist = lambda: self._outputs_exist(sensor_id, date)
-                date_too_recent = lambda: self._date_is_too_recent(date)
-                date_out_of_filter_range = lambda: (
-                    self.config.data_filter.start_date > date
-                ) or (self.config.data_filter.end_date < date)
-
                 # do not consider if outputs exist or out of filter range
-                if outputs_exist():
+                if self._outputs_exist(sensor_id, date):
                     self._mark_as_processed(sensor_id, date)
                     continue
 
@@ -117,10 +110,8 @@ class RetrievalQueue:
                 # or date is too recent -> this might change during
                 # the current execution, hence it will not be marked
                 # as being processed
-                if (
-                    ifgs_missing_or_incomplete()
-                    or date_too_recent()
-                    or date_out_of_filter_range()
+                if (not self._ifgs_exist(sensor_id, date)) or (
+                    not self._upload_is_complete(sensor_id, date)
                 ):
                     continue
 
@@ -183,25 +174,14 @@ class RetrievalQueue:
         return False
 
     def _ifgs_exist(self, sensor_id: str, date: str) -> bool:
-        """for a given sensor_id and date, determine whether the
-        interferograms exist in the src directory"""
-        ifg_src_directory = os.path.join(
-            self.config.data_src_dirs.interferograms,
-            sensor_id,
-            date,
+        """for a given sensor_id and date, deter"""
+        return os.path.isdir(
+            os.path.join(
+                self.config.data_src_dirs.interferograms,
+                sensor_id,
+                date,
+            )
         )
-        if not os.path.isdir(ifg_src_directory):
-            return False
-
-        expected_ifg_pattern = re.compile(f"^{sensor_id}" + r"\d{8}.*\.ifg\.\d+$")
-        ifg_file_count = len(
-            [
-                f
-                for f in os.listdir(ifg_src_directory)
-                if expected_ifg_pattern.match(f) is not None
-            ]
-        )
-        return ifg_file_count > 0
 
     def _outputs_exist(self, sensor_id: str, date: str) -> bool:
         """for a given sensor_id and date, determine whether the
@@ -209,8 +189,8 @@ class RetrievalQueue:
         successful_output_exists = os.path.isdir(
             os.path.join(
                 self.config.data_dst_dirs.results,
-                "proffast-2.2-outputs",
                 sensor_id,
+                "proffast-2.2-outputs",
                 "successful",
                 date,
             )
@@ -218,20 +198,13 @@ class RetrievalQueue:
         failed_output_exists = os.path.isdir(
             os.path.join(
                 self.config.data_dst_dirs.results,
-                "proffast-2.2-outputs",
                 sensor_id,
+                "proffast-2.2-outputs",
                 "failed",
                 date,
             )
         )
         return successful_output_exists or failed_output_exists
-
-    def _date_is_too_recent(self, date_string: str) -> bool:
-        # will have the time 00:00:00
-        date_object = datetime.strptime(date_string, "%Y%m%d")
-        return (
-            datetime.now() - date_object
-        ).days < self.config.data_filter.min_days_delay
 
     def _upload_is_complete(self, sensor_id: str, date: str) -> bool:
         """

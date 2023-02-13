@@ -1,7 +1,8 @@
+import cProfile
 from src import utils, interfaces
 
 
-if __name__ == "__main__":
+def run():
     config = utils.load_config()
     logger = utils.Logger("development", print_only=True)
     logger.info("starting")
@@ -13,3 +14,7 @@ if __name__ == "__main__":
         logger.info(f"next item: {next_item}")
 
     logger.info("no more items")
+
+
+if __name__ == "__main__":
+    run()  # cProfile.run("run()")
