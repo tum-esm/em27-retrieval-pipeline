@@ -1,6 +1,28 @@
 import os
-import shutil
+import polars as pl
 from src import utils, custom_types
+
+
+def load_datalogger_df(path: str) -> pl.DataFrame:
+    df = pl.read_csv(
+        path,
+        has_header=True,
+        columns=[
+            "UTCtime___",
+            "BaroTHB40",
+            "BaroYoung",
+            "GPSAlt",
+            "GPSLat",
+            "GPSLong",
+            "GPSTDiff",
+            "GPShdop",
+            "HygroTHB40",
+            "ThermoTHB40",
+            "UTCdate_____",
+            "UTCsec____",
+        ],
+    )
+    return df
 
 
 def run(
@@ -20,17 +42,17 @@ def run(
     )
 
     assert os.path.isfile(src_filepath), "no datalogger file found"
-
-    # TODO: move this line-count check into the merge-datalogger-files tool
-    with open(src_filepath, "r") as f:
-        line_count = len(f.readlines())
+    raw_df = load_datalogger_df(src_filepath)
 
     # 1440 minutes per day + 1 header line
-    if line_count < 1441:
+    if len(raw_df) < 1441:
         logger.warning(
-            f"{session.sensor_id}/{session.date} - datalogger file only has {line_count}/1441 lines"
+            f"{session.sensor_id}/{session.date} - datalogger file only has {len(raw_df)}/1441 lines"
         )
-    assert line_count >= 30, "datalogger file has less than 30 entries"
+    assert len(raw_df) >= 120, "datalogger file has less than 120 entries"
 
-    # copy datalogger file
-    shutil.copy(src_filepath, dst_filepath)
+    # apply pressure calibration and save file
+    calibrated_df = raw_df.with_columns(
+        pl.col("BaroYoung") * session.pressure_calibration_factor
+    )
+    calibrated_df.write_csv(dst_filepath, null_value="NaN")

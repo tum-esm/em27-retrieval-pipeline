@@ -6,6 +6,7 @@ class SensorDataContext(BaseModel):
     sensor_id: str
     serial_number: int
     utc_offset: float
+    pressure_calibration_factor: float
     date: str
     location: Location
 
@@ -23,6 +24,7 @@ class Session(BaseModel):
     sensor_id: str
     serial_number: int
     utc_offset: float
+    pressure_calibration_factor: float
     date: str
     location: Location
     container_id: str

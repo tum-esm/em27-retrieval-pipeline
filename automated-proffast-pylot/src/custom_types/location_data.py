@@ -34,7 +34,11 @@ class SensorUTCOffset(BaseModel):
     utc_offset: float
 
     # validators
-    _val_date_string = validator(*["from_date", "to_date"], pre=True, allow_reuse=True,)(
+    _val_date_string = validator(
+        *["from_date", "to_date"],
+        pre=True,
+        allow_reuse=True,
+    )(
         validate_str(is_date_string=True),
     )
     _val_utc_offset = validator("utc_offset", pre=True, allow_reuse=True)(
@@ -48,7 +52,11 @@ class SensorPressureCalibrationFactor(BaseModel):
     factor: float
 
     # validators
-    _val_date_string = validator(*["from_date", "to_date"], pre=True, allow_reuse=True,)(
+    _val_date_string = validator(
+        *["from_date", "to_date"],
+        pre=True,
+        allow_reuse=True,
+    )(
         validate_str(is_date_string=True),
     )
     _val_factor = validator("factor", pre=True, allow_reuse=True)(
@@ -62,7 +70,11 @@ class SensorLocation(BaseModel):
     location_id: str
 
     # validators
-    _val_date_string = validator(*["from_date", "to_date"], pre=True, allow_reuse=True,)(
+    _val_date_string = validator(
+        *["from_date", "to_date"],
+        pre=True,
+        allow_reuse=True,
+    )(
         validate_str(is_date_string=True),
     )
     _val_location_id = validator("location_id", pre=True, allow_reuse=True)(
@@ -111,15 +123,10 @@ class Campaign(BaseModel):
     _val_campaign_id = validator("campaign_id", pre=True, allow_reuse=True)(
         validate_str(min_len=1, max_len=64, regex="^[a-z0-9_]+$"),
     )
-    _val_date_string = validator(*["from_date", "to_date"], pre=True, allow_reuse=True,)(
+    _val_date_string = validator(
+        *["from_date", "to_date"],
+        pre=True,
+        allow_reuse=True,
+    )(
         validate_str(is_date_string=True),
     )
-
-
-class SensorDataContext(BaseModel):
-    sensor_id: str
-    serial_number: int
-    utc_offset: float
-    pressure_calibration_factor: float
-    date: str
-    location: Location
