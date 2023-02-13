@@ -1,8 +1,9 @@
+from datetime import timedelta
 import functools
 import pandas as pd
 from psycopg import sql
 import scipy
-import matplotlib
+import matplotlib.pyplot as plt
 from src import utils
 from src.custom_types import Config, RequestConfig, Date, SensorId, Campaign, Rate
 
@@ -54,6 +55,8 @@ def post_process_dataframe(
     """Post-processes the dataframe."""
 
     """
+    TODO: Clean up. Using code for loading csv files from Proffast-Pylot instead of the DB.
+
     UTC, gnd_p, gnd_t, app_sza, azimuth, xh2o, xair, xco2, xch4, xco, xch4_s5p
     utc, gndP, gndT, appSZA, azimuth, XH2O, XAIR, XCO2, XCH4, XCO, XCH4_S5P
     """
@@ -70,8 +73,7 @@ def post_process_dataframe(
         ' XCH4_S5P': 'xch4_s5p'
     }, errors="raise")
     sensor_dataframe = df.filter(items=['utc', 'gnd_p', 'gnd_t', 'app_sza', 'azimuth', 'xh2o', 'xair', 'xco2', 'xch4', 'xco', 'xch4_s5p'])
-    sensor_dataframe.plot(x='utc', y='xco2')
-    print(sensor_dataframe)
+
     """
     ✗ sensor_dataframe is the output of get_sensor_dataframe (see above)
         Example:
@@ -88,19 +90,41 @@ def post_process_dataframe(
         ]
     
     ✗ get_daily_dataframe (see below) will be called afterwards and joins the dataframes on "utc".
-    """ 
-    sensor_dataframe.sort_values(by=['utc']) # sort according to time
-    # Apply smoothing function for all data columns.
-    for column in sensor_dataframe.columns[1::]:
-        sensor_dataframe[column] = scipy.signal.savgol_filter(pd.to_numeric(sensor_dataframe[column]), 31, 3)
+    """
 
-    sensor_dataframe = sensor_dataframe.set_index('utc')
-    sensor_dataframe.index = pd.to_datetime(sensor_dataframe.index)
-    df_series = sensor_dataframe.squeeze()
-    output_data = df_series.resample(sampling_rate).mean()
-    output_data.reset_index().plot(x='utc', y='xco2')
-    #output_data.plot(x='utc', y='xco2')
-    return output_data
+    output = sensor_dataframe.sort_values(by=['utc']) # sort according to time
+
+    output['utc'] = pd.to_datetime(output['utc'])
+
+    # Apply smoothing function for all data columns.
+    for column in output.columns[1::]:
+        output[column] = scipy.signal.savgol_filter(pd.to_numeric(output[column]), 31, 3)
+
+    output = output.set_index('utc')
+    output.index = pd.to_datetime(output.index)
+    output = output.resample(sampling_rate).mean()
+
+    # Set a minimum delta for interpolating.
+    # (This does not make sense when the sampling rate is way higher than the constant we are using here.)
+    # TODO: Should it be a factor of the sampling rate?
+    min_delta_for_interpolating = timedelta(minutes=3)
+    delta = pd.to_timedelta(sampling_rate)
+    interpolating_limit = int(min_delta_for_interpolating / delta)
+
+    if interpolating_limit > 0:
+        output.interpolate(
+            limit=interpolating_limit,
+            inplace=True,
+            limit_direction='both',
+            limit_area='inside',
+        )
+
+    output.reset_index(inplace=True)
+    ax = output.plot('utc', 'xco2', color='k')
+    sensor_dataframe.reset_index().plot.scatter(x='utc', y='xco2', ax=ax, color='c')
+    plt.show()
+
+    return output
 
 
 def get_daily_dataframe(
