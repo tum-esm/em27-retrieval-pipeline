@@ -26,7 +26,7 @@ class ManualQueueInterface:
     @staticmethod
     def dump(items: list[custom_types.ManualQueueItem]) -> None:
         with open(MANUAL_QUEUE_FILE, "w") as f:
-            json.dump(items, f, indent=4)
+            json.dump([i.dict() for i in items], f, indent=4)
 
     @staticmethod
     def get_items(logger: utils.Logger) -> list[custom_types.ManualQueueItem]:

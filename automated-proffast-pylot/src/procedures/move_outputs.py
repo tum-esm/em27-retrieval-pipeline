@@ -70,15 +70,15 @@ def run(
 
     output_dst_successful = os.path.join(
         config.data_dst_dirs.results,
-        "proffast-2.2-outputs",
         session.sensor_id,
+        "proffast-2.2-outputs",
         "successful",
         session.date,
     )
     output_dst_failed = os.path.join(
         config.data_dst_dirs.results,
-        "proffast-2.2-outputs",
         session.sensor_id,
+        "proffast-2.2-outputs",
         "failed",
         session.date,
     )

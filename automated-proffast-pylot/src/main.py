@@ -4,6 +4,8 @@ from src import utils, interfaces, procedures
 import multiprocessing
 import multiprocessing.context
 
+MAX_PARALLEL_PROCESSES = 5
+
 
 def run() -> None:
     main_logger = utils.Logger("main")
@@ -35,7 +37,9 @@ def run() -> None:
                 break
 
             # start new processes
-            while (len(processes) < 4) and (next_sensor_data_context is not None):
+            while (len(processes) < MAX_PARALLEL_PROCESSES) and (
+                next_sensor_data_context is not None
+            ):
                 new_session = procedures.create_session.run(
                     pylot_factory,
                     next_sensor_data_context,

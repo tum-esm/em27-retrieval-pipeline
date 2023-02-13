@@ -19,13 +19,16 @@ def run(
     ifg_src_directory = os.path.join(
         config.data_src_dirs.interferograms, session.sensor_id, session.date
     )
-    expected_ifg_pattern = re.compile(f"^{session.sensor_id}\\d{{8}}.*\\.ifg\\.\d+$")
+    expected_ifg_pattern = re.compile(r"^" + session.sensor_id + r"\d{8}.*\.\d+$")
     filenames = [
         f
         for f in os.listdir(ifg_src_directory)
         if expected_ifg_pattern.match(f) is not None
     ]
-    logger.debug(f"{len(filenames)} files/directories found in ifg src directory")
+    logger.debug(
+        f"{len(filenames)} files/directories found in ifg src directory ({ifg_src_directory})"
+    )
+    assert len(filenames) > 0, "no ifg input files"
 
     # Create empty output directory for that date
     dst_date_path = os.path.join(session.data_input_path, "ifg", session.date[2:])

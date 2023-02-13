@@ -83,6 +83,7 @@ def run_shell_command(
 
     error_message = f"command '{command}' failed with exit code {p.returncode}"
     if verbose_on_fail:
-        error_message += f": stdout = '{stdout}', stderr = '{stderr}'"
+        error_message += f":\n*** stdout: ******\n'{stdout}'"
+        error_message += f"\n*** stderr: ******\n'{stderr}'"
     assert p.returncode == 0, error_message
     return stdout.strip()

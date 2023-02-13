@@ -61,7 +61,9 @@ class LocationDataInterface:
                 assert (
                     s2.default_location_id in self.location_ids
                 ), f"unknown location id {s2.default_location_id}"
-                assert s2.sensor_id in self.sensor_ids, f"unknown sensor id {s2.sensor_id}"
+                assert (
+                    s2.sensor_id in self.sensor_ids
+                ), f"unknown sensor id {s2.sensor_id}"
 
         # integrity of time series in sensors.json
         for s in self.sensors:
@@ -111,14 +113,18 @@ class LocationDataInterface:
         self, sensor_id: str, date: str
     ) -> custom_types.SensorDataContext:
         # get the sensor
-        assert sensor_id in self.sensor_ids, f'No location data for sensor_id "{sensor_id}"'
+        assert (
+            sensor_id in self.sensor_ids
+        ), f'No location data for sensor_id "{sensor_id}"'
         sensor = list(filter(lambda s: s.sensor_id == sensor_id, self.sensors))[0]
 
         # get utc offset at that date
         utc_offset_matches = list(
             filter(lambda o: o.from_date <= date <= o.to_date, sensor.utc_offsets)
         )
-        assert len(utc_offset_matches) == 1, f"no utc offset data for {sensor_id}/{date}"
+        assert (
+            len(utc_offset_matches) == 1
+        ), f"no utc offset data for {sensor_id}/{date}"
         utc_offset = utc_offset_matches[0].utc_offset
 
         # get pressure calibration factor at that date
@@ -139,7 +145,9 @@ class LocationDataInterface:
         )
         assert len(location_matches) == 1, f"no location data for {sensor_id}/{date}"
         location_id = location_matches[0].location_id
-        location = list(filter(lambda l: l.location_id == location_id, self.locations))[0]
+        location = list(filter(lambda l: l.location_id == location_id, self.locations))[
+            0
+        ]
 
         # bundle the context
         return custom_types.SensorDataContext(
@@ -176,7 +184,9 @@ def load_remote_location_data(
 ) -> LocationDataInterface:
     """pass the github repo name as `org-name/repo-name`"""
     version = (
-        request_github_file(github_repository, "pyproject.toml", access_token=access_token)
+        request_github_file(
+            github_repository, "pyproject.toml", access_token=access_token
+        )
         .split("\n")[2]
         .split('"')[1]
     )

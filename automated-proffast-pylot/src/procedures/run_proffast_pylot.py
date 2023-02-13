@@ -21,6 +21,5 @@ def run(session: custom_types.Session, logger: utils.Logger) -> None:
                 session.container_id,
                 session.pylot_config_path,
             ]
-        ),
-        verbose_on_fail=False,
+        )
     )
