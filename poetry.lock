@@ -1173,37 +1173,6 @@ dev = ["pre-commit", "tox"]
 testing = ["pytest", "pytest-benchmark"]
 
 [[package]]
-name = "polars"
-version = "0.16.4"
-description = "Blazingly fast DataFrame library"
-category = "main"
-optional = false
-python-versions = ">=3.7"
-files = [
-    {file = "polars-0.16.4-cp37-abi3-macosx_10_7_x86_64.whl", hash = "sha256:df0617b938bff207f99c71ce15df5889b04161a88d85b359116a830774134156"},
-    {file = "polars-0.16.4-cp37-abi3-macosx_11_0_arm64.whl", hash = "sha256:941e4194fea69728617c04c7ab765d8cd31af196f58c7da23128b1b1d5f846c5"},
-    {file = "polars-0.16.4-cp37-abi3-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:176b24e753fa65854de63fe0097235b514068f36f70060591965d81d9a56731d"},
-    {file = "polars-0.16.4-cp37-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:1be3118100ef493bd0c501510d359a7a8310126f19c09f31ddced0d872a82482"},
-    {file = "polars-0.16.4-cp37-abi3-win_amd64.whl", hash = "sha256:459c25ac3250e1380ec569bc2a262efd077ac8b6176a94be2ad985f7fb7edfc5"},
-    {file = "polars-0.16.4.tar.gz", hash = "sha256:e9128e86d3507c0772ad67817e7e8c249f8950bee3588d782a2e33fe285ca64a"},
-]
-
-[package.dependencies]
-typing_extensions = {version = ">=4.0.1", markers = "python_version < \"3.11\""}
-
-[package.extras]
-all = ["polars[connectorx,deltalake,fsspec,matplotlib,numpy,pandas,pyarrow,timezone,xlsx2csv]"]
-connectorx = ["connectorx"]
-deltalake = ["deltalake (>=0.6.2)"]
-fsspec = ["fsspec"]
-matplotlib = ["matplotlib"]
-numpy = ["numpy (>=1.16.0)"]
-pandas = ["pandas", "pyarrow (>=4.0.0)"]
-pyarrow = ["pyarrow (>=4.0.0)"]
-timezone = ["backports.zoneinfo", "tzdata"]
-xlsx2csv = ["xlsx2csv (>=0.8.0)"]
-
-[[package]]
 name = "psutil"
 version = "5.9.4"
 description = "Cross-platform lib for process and system monitoring in Python."
@@ -1904,7 +1873,7 @@ files = [
 name = "typing-extensions"
 version = "4.4.0"
 description = "Backported and Experimental Type Hints for Python 3.7+"
-category = "main"
+category = "dev"
 optional = false
 python-versions = ">=3.7"
 files = [
@@ -1959,4 +1928,4 @@ test = ["pytest (>=3.0.0)"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.9"
-content-hash = "7a3e1680fbbe22c71ca3c5ca82e56762dbb51e2202690f50aed5f74d02ebda97"
+content-hash = "e84658e509296f15eecb117f6d4dfb00ebfd1fcb7caca163909d347529efbdd6"

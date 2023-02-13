@@ -12,7 +12,6 @@ readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.9"
-polars = "^0.16.4"
 
 [tool.poetry.group.extract-retrieval-data.dependencies]
 pydantic = "^1.10.4"
@@ -85,6 +84,7 @@ markers = [
 strict = true
 implicit_reexport = true
 no_warn_unused_ignores = true
+plugins = ["pydantic.mypy"]
 
 [[tool.mypy.overrides]]
 module = [

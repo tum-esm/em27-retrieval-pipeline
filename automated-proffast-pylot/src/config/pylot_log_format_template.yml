@@ -41,7 +41,7 @@ utc_offset: %UTC_OFFSET%
 # The pressure column will be multiplied by this factor.
 # Can be used e.g. for unit conversion or to correct for hight differences.
 # The pressure column is assumed to be in hPa.
-pressure_factor: 1.0
+pressure_factor: %PRESSURE_CALIBRATION_FACTOR%
 
 # Frequency of pressure files. Options are
 # - subdaily: Several files per day
