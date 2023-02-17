@@ -3,7 +3,6 @@ import json
 import pathlib
 
 from rich.progress import track
-import pandas as pd
 
 from src import custom_types, procedures
 
