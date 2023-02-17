@@ -1,4 +1,3 @@
-from datetime import timedelta
 import functools
 import pandas as pd
 from psycopg import sql
