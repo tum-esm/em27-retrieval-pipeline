@@ -2,10 +2,14 @@ from datetime import timedelta
 import functools
 import pandas as pd
 from psycopg import sql
-import scipy
-import matplotlib.pyplot as plt
+from scipy.signal import savgol_filter
+import polars as pl
 from src import utils
 from src.custom_types import Config, RequestConfig, Date, SensorId, Campaign, Rate
+
+
+# Hardcoding max delta for interpolation. Gaps smaller than this are not interpolated.
+MAX_DELTA_FOR_INTERPOLATION = pl.duration(minutes=3)
 
 
 def get_sensor_dataframe(config: Config, date: Date, sensor: SensorId) -> pd.DataFrame:
@@ -47,32 +51,11 @@ def get_sensor_dataframe(config: Config, date: Date, sensor: SensorId) -> pd.Dat
     columns = ["utc"] + [f"{sensor}_{type_}" for type_ in config.request.data_types]
     return pd.DataFrame(result, columns=columns).set_index("utc").astype(float)
 
-
 def post_process_dataframe(
     sensor_dataframe: pd.DataFrame,
     sampling_rate: Rate,
 ) -> pd.DataFrame:
     """Post-processes the dataframe."""
-
-    """
-    TODO: Clean up. Using code for loading csv files from Proffast-Pylot instead of the DB.
-
-    UTC, gnd_p, gnd_t, app_sza, azimuth, xh2o, xair, xco2, xch4, xco, xch4_s5p
-    utc, gndP, gndT, appSZA, azimuth, XH2O, XAIR, XCO2, XCH4, XCO, XCH4_S5P
-    """
-    df = sensor_dataframe.rename(columns={
-        'UTC': 'utc',
-        ' gndP': 'gnd_p',
-        ' gndT': 'gnd_t',
-        ' appSZA': 'app_sza',
-        ' XH2O': 'xh2o',
-        ' XAIR': 'xair',
-        ' XCO2': 'xco2',
-        ' XCH4': 'xch4',
-        ' XCO': 'xco',
-        ' XCH4_S5P': 'xch4_s5p'
-    }, errors="raise")
-    sensor_dataframe = df.filter(items=['utc', 'gnd_p', 'gnd_t', 'app_sza', 'azimuth', 'xh2o', 'xair', 'xco2', 'xch4', 'xco', 'xch4_s5p'])
 
     """
     ✗ sensor_dataframe is the output of get_sensor_dataframe (see above)
@@ -85,45 +68,33 @@ def post_process_dataframe(
         ...                       ...       ...         ...      
         [1204 rows x 8 columns]
 
-    ✗ sampling_rate is (as of now) a custom type Rate:Literal[
-        "10 min", "5 min", "2 min", "1 min", "30 sec", "15 sec", "10 sec", "5 sec", "2 sec", "1 sec"
-        ]
+    ✗ sampling_rate is (as of now) a custom type Rate:Literal [
+        "10m", "5m", "2m", "1m", "30s", "15s", "10s", "5s", "2s", "1s"
+    ]
     
     ✗ get_daily_dataframe (see below) will be called afterwards and joins the dataframes on "utc".
     """
+    # Convert to polars Dataframe
+    df = pl.from_pandas(sensor_dataframe)
 
-    output = sensor_dataframe.sort_values(by=['utc']) # sort according to time
+    # Convert utc to datetime and apply savgol_filter on the data columns 
+    q = df.lazy().with_column(pl.col('utc').str.strptime(pl.Datetime, fmt='%F %T').cast(pl.Datetime)).select([pl.col('utc'),
+                    pl.exclude('utc').map(lambda x: savgol_filter(x.to_numpy(), 31, 3)).arr.explode()])
+    df = q.collect()
 
-    output['utc'] = pd.to_datetime(output['utc'])
+    # Upscale to 1s intervals and interpolate when the gaps are smaller than the MAX_DELTA_FOR_INTERPOLATION
+    # Finally, downsample to the required sampling rate with a mean aggregation on the data columns.
+    df = df.with_columns(
+            (pl.col('utc')-pl.col('utc').shift()<MAX_DELTA_FOR_INTERPOLATION).alias('small_gap')) \
+        .upsample(time_column="utc", every="1s") \
+        .with_columns(pl.col('small_gap').backward_fill()) \
+        .with_columns(
+            pl.when(pl.col('small_gap')) \
+                .then(pl.exclude(['small_gap']).interpolate()) \
+                .otherwise(pl.exclude(['small_gap']))) \
+        .select(pl.exclude('small_gap')).groupby_dynamic("utc", every=sampling_rate).agg(pl.exclude('utc').mean())
 
-    # Apply smoothing function for all data columns.
-    for column in output.columns[1::]:
-        output[column] = scipy.signal.savgol_filter(pd.to_numeric(output[column]), 31, 3)
-
-    output = output.set_index('utc')
-    output.index = pd.to_datetime(output.index)
-    output = output.resample(sampling_rate).mean()
-
-    # Set a minimum delta for interpolating.
-    # (This does not make sense when the sampling rate is way higher than the constant we are using here.)
-    # TODO: Should it be a factor of the sampling rate?
-    min_delta_for_interpolating = timedelta(minutes=3)
-    delta = pd.to_timedelta(sampling_rate)
-    interpolating_limit = int(min_delta_for_interpolating / delta)
-
-    if interpolating_limit > 0:
-        output.interpolate(
-            limit=interpolating_limit,
-            inplace=True,
-            limit_direction='both',
-            limit_area='inside',
-        )
-
-    output.reset_index(inplace=True)
-    ax = output.plot('utc', 'xco2', color='k')
-    sensor_dataframe.reset_index().plot.scatter(x='utc', y='xco2', ax=ax, color='c')
-    plt.show()
-
+    output = df.to_pandas()
     return output
 
 
