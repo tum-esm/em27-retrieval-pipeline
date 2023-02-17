@@ -71,8 +71,3 @@ def run() -> None:
                 f.write(metadata)
                 # Append data
                 daily_dataframe.to_csv(f, na_rep="NaN", mode="a")
-
-def bun():
-    df = pd.read_csv('/home/vyasg/stunts/IDP/automated-retrieval-pipeline/extract-retrieval-data/proffast-2.2-outputs-20220604-ma.csv', na_values=' NaN')
-    print("After --------------------------------------")
-    procedures.post_process_dataframe(df, sampling_rate="10 min")
