@@ -3,7 +3,7 @@
 # the filename used to search for the pressure file looks like:
 # filename = basename + "%Y-%m-%d" + "*.dat"
 filename_parameters:
-    basename: 'datalogger-%SENSOR_ID%-'
+    basename: 'datalogger-%PRESSURE_DATA_SOURCE%-'
     time_format: '%Y%m%d'
     ending: '.csv'
 

@@ -10,13 +10,13 @@ def run(
 ) -> None:
     src_filepath = os.path.join(
         config.data_src_dirs.datalogger,
-        session.sensor_id,
-        f"datalogger-{session.sensor_id}-{session.date}.csv",
+        session.pressure_data_source,
+        f"datalogger-{session.pressure_data_source}-{session.date}.csv",
     )
     dst_filepath = os.path.join(
         session.data_input_path,
         "log",
-        f"datalogger-{session.sensor_id}-{session.date}.csv",
+        f"datalogger-{session.pressure_data_source}-{session.date}.csv",
     )
 
     assert os.path.isfile(src_filepath), "no datalogger file found"

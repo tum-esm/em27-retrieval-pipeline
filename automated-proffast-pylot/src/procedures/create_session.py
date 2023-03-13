@@ -56,6 +56,7 @@ def _generate_pylot_log_format(session: custom_types.Session) -> None:
                 "PRESSURE_CALIBRATION_FACTOR": str(
                     round(session.pressure_calibration_factor, 9)
                 ),
+                "PRESSURE_DATA_SOURCE": session.pressure_data_source,
             },
         ),
     )
