@@ -1,18 +1,20 @@
 import pytest
 import shutil
 import os
+
+import tum_esm_em27_metadata
 from tests.fixtures import wrap_test_with_mainlock, download_sample_data, PROJECT_DIR
 from src import custom_types, utils, interfaces, procedures
 
 PYLOT_ROOT_DIR = os.path.join(PROJECT_DIR, "src", "prfpylot")
 SENSOR_DATA_CONTEXTS = [
-    custom_types.SensorDataContext(
+    tum_esm_em27_metadata.types.SensorDataContext(
         sensor_id="so",
         serial_number=39,
         utc_offset=0.0,
         pressure_calibration_factor=1,
         date=date,
-        location=custom_types.Location(
+        location=tum_esm_em27_metadata.types.Location(
             location_id="SOD",
             details="Sodankyla",
             lon=26.630,

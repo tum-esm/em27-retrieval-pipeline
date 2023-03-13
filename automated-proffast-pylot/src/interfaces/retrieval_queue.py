@@ -1,14 +1,16 @@
 from datetime import datetime, timedelta
 import json
 import os
-import re
 from typing import Optional
 from pydantic import BaseModel
+
+import tum_esm_em27_metadata
+
 from src import utils, custom_types, interfaces
 
 
 class ManualQueueItem(BaseModel):
-    sensor_data_context: custom_types.SensorDataContext
+    sensor_data_context: tum_esm_em27_metadata.types.SensorDataContext
     priority: int
 
 
@@ -22,7 +24,7 @@ class RetrievalQueue:
     def __init__(self, config: custom_types.Config, logger: utils.Logger):
         self.logger = logger
         self.config = config
-        self.location_data = interfaces.load_remote_location_data(
+        self.location_data = tum_esm_em27_metadata.load_from_github(
             github_repository=self.config.location_data.github_repository,
             access_token=self.config.location_data.access_token,
         )
@@ -31,7 +33,7 @@ class RetrievalQueue:
         self.iteration_count = 0
         self.logger.info("RetrievalQueue is set up")
 
-    def get_next_item(self) -> Optional[custom_types.SensorDataContext]:
+    def get_next_item(self) -> Optional[tum_esm_em27_metadata.types.SensorDataContext]:
         self.iteration_count += 1
 
         next_manual_item = self._next_item_from_manual_queue()
@@ -42,7 +44,7 @@ class RetrievalQueue:
         )
 
         def process_scheduler_choice(
-            choice: custom_types.SensorDataContext,
+            choice: tum_esm_em27_metadata.types.SensorDataContext,
             source_label: str,
         ) -> None:
             self.logger.info(
@@ -78,7 +80,7 @@ class RetrievalQueue:
 
     def _next_item_from_storage_directory(
         self,
-    ) -> Optional[custom_types.SensorDataContext]:
+    ) -> Optional[tum_esm_em27_metadata.types.SensorDataContext]:
         """Use the dates from the storage directory"""
         max_date_string = min(
             (
@@ -117,7 +119,7 @@ class RetrievalQueue:
 
                 # do not consider if there is no location data
                 try:
-                    return self.location_data.get_sensor_data_context(sensor_id, date)
+                    return self.location_data.get(sensor_id=sensor_id, date=date)
                 except AssertionError as a:
                     self.logger.debug(str(a))
                     self._mark_as_processed(sensor_id, date)
@@ -152,8 +154,8 @@ class RetrievalQueue:
             # do not consider if there is no location data
             try:
                 return ManualQueueItem(
-                    sensor_data_context=self.location_data.get_sensor_data_context(
-                        next_item.sensor_id, next_item.date
+                    sensor_data_context=self.location_data.get(
+                        sensor_id=next_item.sensor_id, date=next_item.date
                     ),
                     priority=next_item.priority,
                 )

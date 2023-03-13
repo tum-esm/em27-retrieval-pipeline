@@ -1,14 +1,5 @@
 from pydantic import BaseModel
-from .location_data import Location
-
-
-class SensorDataContext(BaseModel):
-    sensor_id: str
-    serial_number: int
-    utc_offset: float
-    pressure_calibration_factor: float
-    date: str
-    location: Location
+import tum_esm_em27_metadata.types
 
 
 class PylotContainer(BaseModel):
@@ -26,7 +17,7 @@ class Session(BaseModel):
     utc_offset: float
     pressure_calibration_factor: float
     date: str
-    location: Location
+    location: tum_esm_em27_metadata.types.Location
     container_id: str
     container_path: str
     data_input_path: str

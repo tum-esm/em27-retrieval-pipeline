@@ -1,4 +1,6 @@
 import os
+
+import tum_esm_em27_metadata
 from src import custom_types, interfaces, utils
 
 dirname = os.path.dirname
@@ -61,7 +63,7 @@ def _generate_pylot_log_format(session: custom_types.Session) -> None:
 
 def run(
     pylot_factory: interfaces.PylotFactory,
-    sensor_data_context: custom_types.SensorDataContext,
+    sensor_data_context: tum_esm_em27_metadata.types.SensorDataContext,
 ) -> custom_types.Session:
     """Create a new container and the pylot config files"""
     new_container = pylot_factory.create_container()
