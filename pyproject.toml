@@ -4,14 +4,16 @@ version = "0.1.0"
 description = ""
 authors = [
     "Moritz Makowski <moritz.makowski@tum.de>",
+    "Andreas Luther <andreas.luther@tum.de>",
     "Marlon Müller <marlon.mueller@tum.de>",
     "Dmytro Polityka <dmytro.polityka@tum.de>",
-    "Vyas Giridhard <vyas.giridharan@tum.de>",
+    "Vyas Giridhard <vyas.giridharan@tum.de>"
 ]
 readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.9"
+tum-esm-em27-metadata = "^0.2.1"
 
 [tool.poetry.group.extract-retrieval-data.dependencies]
 pydantic = "^1.10.4"
