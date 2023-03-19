@@ -17,7 +17,9 @@ class ManualQueueInterface:
         try:
             with open(MANUAL_QUEUE_FILE, "r") as f:
                 return custom_types.ManualQueue(items=json.load(f))
-        except Exception as e:
+        except Exception:
+            logger.error("manual queue is no readable")
+            logger.exception()
             return None
 
     @staticmethod
