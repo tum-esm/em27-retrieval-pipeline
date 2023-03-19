@@ -55,14 +55,13 @@ def run(
             else:
                 day_was_successful = False
                 logger.warning(f"Retrieval output csv exists but is empty")
-
+    else:
+        logger.debug(f"Retrieval output csv is missing")
         error_type = detect_error_type(output_src_dir)
         if error_type is None:
             logger.debug("Unknown error type")
         else:
             logger.debug(f"Known error type: {error_type}")
-    else:
-        logger.debug(f"Retrieval output csv is missing")
 
     # DETERMINE OUTPUT DIRECTORY PATHS
 

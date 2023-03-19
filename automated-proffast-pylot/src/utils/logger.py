@@ -64,3 +64,4 @@ class Logger:
             self.logfile_path,
             os.path.join(PROJECT_DIR, "logs", "archive", self.logfile_name),
         )
+        os.remove(self.logfile_path)
