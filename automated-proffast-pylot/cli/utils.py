@@ -1,12 +1,10 @@
-from typing import Optional
 import click
 import os
-import psutil
 
 dir = os.path.dirname
-PROJECT_DIR = dir(dir(os.path.abspath(__file__)))
-INTERPRETER_PATH = os.path.join(PROJECT_DIR, ".venv", "bin", "python")
-CORE_SCRIPT_PATH = os.path.join(PROJECT_DIR, "run-retrieval.py")
+ROOT_DIR = dir(dir(dir(os.path.abspath(__file__))))
+INTERPRETER_PATH = os.path.join(ROOT_DIR, ".venv", "bin", "python")
+RUN_SCRIPT_PATH = os.path.join(ROOT_DIR, "automated-proffast-pylot", "run_retrieval.py")
 
 
 def print_green(text: str) -> None:
@@ -15,30 +13,3 @@ def print_green(text: str) -> None:
 
 def print_red(text: str) -> None:
     click.echo(click.style(text, fg="red"))
-
-
-def process_is_running() -> Optional[int]:
-    for p in psutil.process_iter():
-        try:
-            arguments = p.cmdline()
-            if (len(arguments) >= 2) and (arguments[1] == CORE_SCRIPT_PATH):
-                return p.pid
-        except (psutil.AccessDenied, psutil.ZombieProcess, psutil.NoSuchProcess):
-            pass
-    return None
-
-
-def terminate_processes() -> list[int]:
-    termination_pids: list[int] = []
-    for p in psutil.process_iter():
-        try:
-            arguments = p.cmdline()
-            if len(arguments) > 0:
-                if CORE_SCRIPT_PATH in arguments:
-                    termination_pids.append(p.pid)
-                    p.terminate()
-        except psutil.AccessDenied:
-            print_red(f"Error terminating process: Access denied, switch to the user which owns the process: {p.pid}, user: {p.username}") 
-        except (psutil.ZombieProcess, psutil.NoSuchProcess):
-            print_red("Error terminating process: Zombie Process / No Such Process")
-    return termination_pids
