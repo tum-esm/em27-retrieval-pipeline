@@ -4,10 +4,6 @@ import shutil
 import subprocess
 from src import utils, custom_types, detect_corrupt_ifgs
 
-dir = os.path.dirname
-PROJECT_DIR = dir(dir(dir(os.path.abspath(__file__))))
-DST = f"{PROJECT_DIR}/inputs"
-
 
 def run(
     config: custom_types.Config,

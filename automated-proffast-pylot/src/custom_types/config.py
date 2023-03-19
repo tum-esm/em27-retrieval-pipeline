@@ -1,6 +1,11 @@
 from typing import Optional
 from pydantic import BaseModel, validator
-from .validators import validate_str, validate_list, validate_bool, validate_int
+from tum_esm_utils.validators import (
+    validate_str,
+    validate_list,
+    validate_bool,
+    validate_int,
+)
 
 
 class DataFilterConfig(BaseModel):

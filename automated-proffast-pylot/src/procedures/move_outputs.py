@@ -4,9 +4,7 @@ import os
 import shutil
 from typing import Optional
 from src import interfaces, utils, custom_types
-
-dir = os.path.dirname
-PROJECT_DIR = dir(dir(dir(os.path.abspath(__file__))))
+import tum_esm_utils
 
 
 def detect_error_type(output_src: str) -> Optional[str]:
@@ -123,7 +121,7 @@ def run(
         now = datetime.utcnow()
         about_dict = {
             "proffastVersion": "2.2",
-            "automationVersion": utils.get_commit_sha(),
+            "automationVersion": tum_esm_utils.shell.get_commit_sha(),
             "generationDate": now.strftime("%Y%m%d"),
             "generationTime": now.strftime("%T"),
             "config": config.dict(),

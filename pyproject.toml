@@ -13,7 +13,8 @@ readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.9"
-tum-esm-em27-metadata = "^0.2.3"
+tum-esm-utils = "^1.0.0"
+tum-esm-em27-metadata = "^1.0.0"
 
 [tool.poetry.group.extract-retrieval-data.dependencies]
 pydantic = "^1.10.4"

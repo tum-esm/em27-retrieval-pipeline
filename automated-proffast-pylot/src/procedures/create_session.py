@@ -1,14 +1,14 @@
 import os
-
 import tum_esm_em27_metadata
-from src import custom_types, interfaces, utils
+from src import custom_types, interfaces
+import tum_esm_utils
 
 dirname = os.path.dirname
 PROJECT_DIR = dirname(dirname(dirname(os.path.abspath(__file__))))
 
 
 def _generate_pylot_config(session: custom_types.Session) -> None:
-    file_content = utils.load_file(
+    file_content = tum_esm_utils.files.load_file(
         os.path.join(
             PROJECT_DIR,
             "src",
@@ -16,9 +16,9 @@ def _generate_pylot_config(session: custom_types.Session) -> None:
             "pylot_config_template.yml",
         )
     )
-    utils.dump_file(
+    tum_esm_utils.files.dump_file(
         session.pylot_config_path,
-        utils.insert_replacements(
+        tum_esm_utils.text.insert_replacements(
             file_content,
             {
                 "SERIAL_NUMBER": str(session.serial_number).zfill(3),
@@ -38,7 +38,7 @@ def _generate_pylot_config(session: custom_types.Session) -> None:
 
 
 def _generate_pylot_log_format(session: custom_types.Session) -> None:
-    file_content = utils.load_file(
+    file_content = tum_esm_utils.files.load_file(
         os.path.join(
             PROJECT_DIR,
             "src",
@@ -46,9 +46,9 @@ def _generate_pylot_log_format(session: custom_types.Session) -> None:
             "pylot_log_format_template.yml",
         )
     )
-    utils.dump_file(
+    tum_esm_utils.files.dump_file(
         session.pylot_log_format_path,
-        utils.insert_replacements(
+        tum_esm_utils.text.insert_replacements(
             file_content,
             {
                 "SENSOR_ID": session.sensor_id,

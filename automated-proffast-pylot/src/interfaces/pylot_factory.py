@@ -1,7 +1,7 @@
 import os
 import shutil
 from src import custom_types, utils
-
+import tum_esm_utils
 
 dirname = os.path.dirname
 PROJECT_DIR = dirname(dirname(dirname(os.path.abspath(__file__))))
@@ -19,7 +19,7 @@ class PylotFactory:
         self.logger.info("PylotFactory is set up")
 
     def create_container(self) -> custom_types.PylotContainer:
-        container_id = utils.get_random_string(
+        container_id = tum_esm_utils.text.get_random_string(
             length=10, forbidden=[c.container_id for c in self.containers]
         )
 
@@ -30,8 +30,8 @@ class PylotFactory:
             f"pylot-container-{container_id}",
         )
         shutil.copytree(PYLOT_MAIN_CLONE_DIR, container_path)
-        utils.run_shell_command(
-            f"bash install_proffast_linux.sh",
+        tum_esm_utils.shell.run_shell_command(
+            command=f"bash install_proffast_linux.sh",
             working_directory=os.path.join(container_path, "prf"),
         )
 
@@ -98,19 +98,19 @@ class PylotFactory:
             self.logger.info(f"Proffast 2.2 has already been downloaded")
         else:
             self.logger.info(f"Downloading Proffast 2.2 code")
-            utils.run_shell_command(
-                f"wget --quiet {KIT_BASE_URL}/{ZIPFILE_NAME}",
+            tum_esm_utils.shell.run_shell_command(
+                command=f"wget --quiet {KIT_BASE_URL}/{ZIPFILE_NAME}",
                 working_directory=os.path.join(PYLOT_ROOT_DIR, "main"),
             )
-            utils.run_shell_command(
-                f"unzip -q {ZIPFILE_NAME}",
+            tum_esm_utils.shell.run_shell_command(
+                command=f"unzip -q {ZIPFILE_NAME}",
                 working_directory=os.path.join(PYLOT_ROOT_DIR, "main"),
             )
             os.remove(os.path.join(PYLOT_ROOT_DIR, "main", ZIPFILE_NAME))
 
         # COMPILE FORTRAN CODE
         self.logger.info(f"Compiling Fortran code of corrupt-ifgs detection")
-        utils.run_shell_command(
-            f"bash compile.sh",
+        tum_esm_utils.shell.run_shell_command(
+            command=f"bash compile.sh",
             working_directory=os.path.join(PROJECT_DIR, "src", "detect_corrupt_ifgs"),
         )

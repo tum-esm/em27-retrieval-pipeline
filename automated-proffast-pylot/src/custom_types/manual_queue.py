@@ -1,5 +1,5 @@
 from pydantic import BaseModel, validator
-from .validators import validate_str, validate_int
+from tum_esm_utils.validators import validate_str, validate_int
 
 
 class ManualQueueItem(BaseModel):

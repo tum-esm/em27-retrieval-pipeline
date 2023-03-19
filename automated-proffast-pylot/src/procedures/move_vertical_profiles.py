@@ -2,9 +2,6 @@ import os
 import shutil
 from src import custom_types
 
-dir = os.path.dirname
-PROJECT_DIR = dir(dir(dir(os.path.abspath(__file__))))
-
 
 def run(
     config: custom_types.Config,

@@ -1,5 +1,5 @@
 from pydantic import BaseModel, validator
-from .validators import validate_str
+from tum_esm_utils.validators import validate_str
 
 
 class InputWarning(BaseModel):

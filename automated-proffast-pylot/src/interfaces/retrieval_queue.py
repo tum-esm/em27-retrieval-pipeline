@@ -3,9 +3,8 @@ import json
 import os
 from typing import Optional
 from pydantic import BaseModel
-
 import tum_esm_em27_metadata
-
+import tum_esm_utils
 from src import utils, custom_types, interfaces
 
 
@@ -95,7 +94,7 @@ class RetrievalQueue:
                 int(self.config.data_filter.start_date),
                 int(max_date_string) + 1,
             )
-            if (utils.is_date_string(str(d)))
+            if (tum_esm_utils.text.is_date_string(str(d)))
         ][::-1]
 
         for date in date_strings:

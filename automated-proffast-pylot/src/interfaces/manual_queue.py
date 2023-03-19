@@ -2,13 +2,10 @@ import json
 import os
 from typing import Optional
 from src import custom_types, utils
-import filelock
 
 dirname = os.path.dirname
 PROJECT_DIR = dirname(dirname(dirname(os.path.abspath(__file__))))
 MANUAL_QUEUE_FILE = os.path.join(PROJECT_DIR, "config", "manual-queue.json")
-
-lock = filelock.FileLock(os.path.join(PROJECT_DIR, "config", "manual-queue.json"))
 
 
 class ManualQueueInterface:

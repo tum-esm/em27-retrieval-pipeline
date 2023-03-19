@@ -1,6 +1,5 @@
 from src import custom_types, interfaces, utils
 import signal
-
 from . import (
     move_datalogger_files,
     move_vertical_profiles,
