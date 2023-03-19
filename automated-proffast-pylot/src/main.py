@@ -1,5 +1,8 @@
 import os
 import time
+from typing import Optional
+
+import tum_esm_em27_metadata
 from src import utils, interfaces, procedures
 import multiprocessing
 import multiprocessing.context
@@ -32,13 +35,15 @@ def run() -> None:
         while True:
 
             # start as many new processes as possible
+            next_sensor_data_context: Optional[
+                tum_esm_em27_metadata.types.SensorDataContext
+            ] = None
             while True:
                 if len(processes) == MAX_PARALLEL_PROCESSES:
                     break
 
                 next_sensor_data_context = retrieval_queue.get_next_item()
                 if next_sensor_data_context is None:
-                    time.sleep(10)
                     break
 
                 # start new processes
@@ -71,7 +76,11 @@ def run() -> None:
                     f'process "{finished_process.name}": removed container'
                 )
 
-            time.sleep(5)
+            if (next_sensor_data_context is None) and (len(processes) == 0):
+                main_logger.info(f"No more things to process")
+                break
+
+            time.sleep(15)
 
     except KeyboardInterrupt:
         main_logger.info("Keyboard interrupt")
