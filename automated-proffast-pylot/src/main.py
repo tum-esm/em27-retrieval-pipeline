@@ -4,7 +4,7 @@ from src import utils, interfaces, procedures
 import multiprocessing
 import multiprocessing.context
 
-MAX_PARALLEL_PROCESSES = 5
+MAX_PARALLEL_PROCESSES = 9
 
 
 def run() -> None:
@@ -30,16 +30,18 @@ def run() -> None:
 
     try:
         while True:
-            next_sensor_data_context = retrieval_queue.get_next_item()
 
-            # no more days to process
-            if (len(processes) == 0) and (next_sensor_data_context is None):
-                break
+            # start as many new processes as possible
+            while True:
+                if len(processes) == MAX_PARALLEL_PROCESSES:
+                    break
 
-            # start new processes
-            while (len(processes) < MAX_PARALLEL_PROCESSES) and (
-                next_sensor_data_context is not None
-            ):
+                next_sensor_data_context = retrieval_queue.get_next_item()
+                if next_sensor_data_context is None:
+                    time.sleep(10)
+                    break
+
+                # start new processes
                 new_session = procedures.create_session.run(
                     pylot_factory,
                     next_sensor_data_context,
@@ -57,9 +59,7 @@ def run() -> None:
                 main_logger.info(f'process "{new_process.name}": starting')
                 new_process.start()
 
-                next_sensor_data_context = retrieval_queue.get_next_item()
-
-            # process finished processes
+            # stop as many finished processes as possible
             for finished_process in [p for p in processes if not p.is_alive()]:
                 finished_process.join()
                 processes.remove(finished_process)
