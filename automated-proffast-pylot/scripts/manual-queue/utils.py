@@ -47,7 +47,7 @@ def date_string_is_valid(date_string):
         return False
 
 
-def process_queue_additions(queue_additions: list):
+def process_queue_additions(queue_additions: list[tuple[str, str]]):
     queue = _load_queue()
     for s, d in queue_additions:
         queue = _add_to_queue(queue, s, d)
