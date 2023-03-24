@@ -865,14 +865,14 @@ tum-esm-utils = ">=1.0.0,<2.0.0"
 
 [[package]]
 name = "tum-esm-utils"
-version = "1.2.1"
+version = "1.3.0"
 description = "Python utilities by the Professorship of Environmental Sensing and Modeling at the Technical University of Munich"
 category = "main"
 optional = false
 python-versions = ">=3.9,<4.0"
 files = [
-    {file = "tum_esm_utils-1.2.1-py3-none-any.whl", hash = "sha256:05d08b06432049a97e354ef9d1ea7c4c21d3120ae3b1ea2a4dcbb0af46b491a4"},
-    {file = "tum_esm_utils-1.2.1.tar.gz", hash = "sha256:8b9596e06e649e21ec7174836490e729bff35ff7a00ffc3cf2abc17bca5a56f4"},
+    {file = "tum_esm_utils-1.3.0-py3-none-any.whl", hash = "sha256:f4833efab76ac6f7c16b20007fc268f48c84e4b363b2c77d5add754b44d857b7"},
+    {file = "tum_esm_utils-1.3.0.tar.gz", hash = "sha256:b0925b9b0d3fa915126724c4627a6827052094ae0f052241f6e77c7c030207b3"},
 ]
 
 [package.dependencies]

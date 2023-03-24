@@ -2,7 +2,9 @@ import os
 import re
 import shutil
 import subprocess
-from src import utils, custom_types, detect_corrupt_ifgs
+
+import tum_esm_utils
+from src import utils, custom_types
 
 
 def run(
@@ -40,7 +42,11 @@ def run(
 
     # remove corrupt_ifgs
     try:
-        corrupt_filenames = list(detect_corrupt_ifgs.main.run(dst_date_path).keys())
+        corrupt_filenames = list(
+            tum_esm_utils.interferograms.detect_corrupt_ifgs(
+                ifg_directory=dst_date_path
+            ).keys()
+        )
     except subprocess.CalledProcessError:
         raise AssertionError("corrupt-files-detection has failed during execution")
 
