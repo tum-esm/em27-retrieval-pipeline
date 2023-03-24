@@ -1,6 +1,0 @@
-{
-    "git.ignoredRepositories": [
-        "./src/prfpylot/main",
-        "./src/detect_corrupt_ifgs"
-    ]
-}
