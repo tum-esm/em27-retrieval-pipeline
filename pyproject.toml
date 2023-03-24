@@ -12,16 +12,17 @@ authors = [
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "^3.9"
+python = "3.9.*"
 tum-esm-utils = "^1.0.0"
 tum-esm-em27-metadata = "^1.0.0"
 pydantic = "^1.10.4"
 requests = "^2.28.2"
 rich = "^13.2.0"
-pandas = "^1.5.3"
-fortranformat = "^1.2.2"
 click = "^8.1.3"
 filelock = "^3.9.0"
+polars = "^0.16.15"
+pandas = "^1.5.3"
+scipy = "^1.10.1"
 
 [tool.poetry.group.pylot.dependencies]
 

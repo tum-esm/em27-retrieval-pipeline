@@ -12,13 +12,48 @@ ZIPFILE_NAME = "PROFFASTv2.2.zip"
 
 
 class PylotFactory:
+    """Factory for creating pylot containers.
+
+    The pylot containers are created by copying the pylot code from the
+    main directory and compiling the fortran code. Each container will
+    have a unique id and is initialized with empty input and output
+    directories.
+
+    The factory keeps track of all containers and can remove them."""
+
     def __init__(self, logger: utils.Logger):
+        """Initialize the factory.
+
+        The `__init__` function will download the Proffast 2.2 code
+        from the KIT website."""
+
         self.logger = logger
         self.containers: list[custom_types.PylotContainer] = []
         self._init_pylot_code()
         self.logger.info("PylotFactory is set up")
 
     def create_container(self) -> custom_types.PylotContainer:
+        """Create a new container and return it.
+
+        The container is created by copying the pylot code from the main
+        directory and compiling the fortran code. The container is then
+        initialized with empty input and output directories.
+
+        Return example:
+
+        ```python
+        hub = ".../automated-proffast-pylot/src/prfpylot/containers"
+        new_id = "pylot-container-1234567890"
+
+        PylotContainer(
+            container_id=new_id,
+            container_path=f"{hub}/{new_id}",
+            data_input_path=f"{hub}/{new_id}-input",
+            data_output_path=f"{hub}/{new_id}-output",
+            pylot_config_path=f"{hub}/{new_id}/pylot_config.yml",
+            pylot_log_format_path=f"{hub}/{new_id}/pylot_log_format.yml",
+        )
+        """
         container_id = tum_esm_utils.text.get_random_string(
             length=10, forbidden=[c.container_id for c in self.containers]
         )
@@ -71,6 +106,12 @@ class PylotFactory:
         return self.containers[-1]
 
     def remove_container(self, container_id: str) -> None:
+        """Remove a container by its id.
+
+        It will remove the pylot code, the input and output directories
+        of the container. It raises an IndexError if no container with
+        the given id exists.
+        """
         try:
             container = [c for c in self.containers if c.container_id == container_id][
                 0
@@ -83,11 +124,18 @@ class PylotFactory:
             raise ValueError(f'no container with id "{container_id}"')
 
     def remove_all_containers(self) -> None:
+        """Remove all containers."""
         for container in self.containers:
             shutil.rmtree(container.container_path)
         self.containers = []
 
     def _init_pylot_code(self):
+        """Initialize the pylot code.
+
+        It will download the Proffast 2.2 code from the KIT website
+        (https://www.imk-asf.kit.edu/downloads/Coccon-SW/PROFFASTv2.2.zip)
+        and copy it to the directory `src/prfpylot/main/prf`."""
+
         if (not os.path.exists(PYLOT_MAIN_CLONE_DIR)) or (
             len(os.listdir(PYLOT_MAIN_CLONE_DIR)) == 0
         ):

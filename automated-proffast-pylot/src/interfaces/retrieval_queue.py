@@ -21,6 +21,8 @@ class RetrievalQueue:
     """
 
     def __init__(self, config: custom_types.Config, logger: utils.Logger):
+        """Initialize the retrieval queue. This includes loading the location
+        data from GitHub using the package `tum_esm_em27_metadata`."""
         self.logger = logger
         self.config = config
         self.location_data = tum_esm_em27_metadata.load_from_github(
@@ -33,6 +35,11 @@ class RetrievalQueue:
         self.logger.info("RetrievalQueue is set up")
 
     def get_next_item(self) -> Optional[tum_esm_em27_metadata.types.SensorDataContext]:
+        """Get the next item to process. Returns `None` if no item is available.
+        First, items from the manual queue with a priority > 0 are processed.
+        Then, items from the storage directory are processed. Finally, items
+        from the manual queue with a priority < 0 are processed."""
+
         self.iteration_count += 1
 
         next_manual_item = self._next_item_from_manual_queue()
