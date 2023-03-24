@@ -1,3 +1,0 @@
-[submodule "automated-proffast-pylot/src/prfpylot/main"]
-	path = automated-proffast-pylot/src/prfpylot/main
-	url = https://gitlab.eudat.eu/coccon-kit/proffastpylot.git
