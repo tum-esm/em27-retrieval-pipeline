@@ -14,3 +14,7 @@ Our data pipeline provides:
 -   Download of vertical profiles
 -   Merging of smoothed individual station outputs into daily output files
 -   Documentation and full API reference
+
+The three main parts of the pipeline are: Downloading input data, processing and merging the raw outputs:
+
+![](docs/revised-retrieval-pipeline-architecture.png)
