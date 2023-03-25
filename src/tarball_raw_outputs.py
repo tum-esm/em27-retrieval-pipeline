@@ -1,16 +1,17 @@
+"""Ths script bundles the raw output files of the Proffast Pylot into a single tarball."""
+
 import os
 import tum_esm_utils
 from . import utils
 
 
-def run():
+if __name__ == "__main__":
     config = utils.load_config()
     logger = utils.Logger("development", print_only=True)
     logger.info("starting to bundle output files")
 
     # strip away any trailing slash from output dir path
-    output_dir = config.data_dst_dirs.results
-    output_dir = output_dir[:-1] if (output_dir[-1] == "/") else output_dir
+    output_dir = "/" + config.data_dst_dirs.results.strip("/")
     output_dir_name = output_dir.split("/")[-1]
     logger.info(f'using output directory "{output_dir}"')
 
@@ -30,7 +31,3 @@ def run():
         working_directory=os.path.dirname(output_dir),
     )
     logger.info("✨ done ✨")
-
-
-if __name__ == "__main__":
-    run()

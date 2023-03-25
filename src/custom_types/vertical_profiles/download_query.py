@@ -2,7 +2,7 @@ from typing import Any
 from pydantic import BaseModel
 
 
-class QueryLocation(BaseModel):
+class DownloadQueryLocation(BaseModel):
     """Pydantic model:
 
     ```python
@@ -31,7 +31,7 @@ class QueryLocation(BaseModel):
         return str_ + ("W" if self.lon < 0 else "E")
 
 
-class Query(BaseModel):
+class DownloadQuery(BaseModel):
     """Pydantic model:
 
     ```python
@@ -43,7 +43,7 @@ class Query(BaseModel):
 
     from_date: str
     to_date: str
-    location: QueryLocation
+    location: DownloadQueryLocation
 
     def to_slugged_json(self) -> dict[str, Any]:
         return {
