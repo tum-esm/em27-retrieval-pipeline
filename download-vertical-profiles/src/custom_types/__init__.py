@@ -1,22 +1,16 @@
-from typing import Literal
-from .query import QueryLocation, Query
+from datetime import datetime
+from typing import Callable
 
-Version = Literal["GGG2014", "GGG2020"]
+dt_to_str: Callable[[datetime], str] = lambda v: v.strftime("%Y%m%d")
+str_to_dt: Callable[[str], datetime] = lambda v: datetime.strptime(v, "%Y%m%d")
 
 from .config import (
+    LocationDataConfig,
+    FTPServerConfig,
+    RequestScopeConfig,
     Config,
-    RequestConfig,
-    FTPConfig,
-    GitHubConfig,
 )
-
-from .location_data_types import (
-    Date,
-    SensorId,
-    LocationId,
-    Location,
-    Sensor,
-    SensorLocation,
-    dt_to_str,
-    str_to_dt,
+from .query import (
+    QueryLocation,
+    Query,
 )

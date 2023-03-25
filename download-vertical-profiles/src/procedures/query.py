@@ -1,18 +1,20 @@
-from typing import BinaryIO
+from typing import BinaryIO, Literal, Optional
 import os
 import time
 import tarfile
-from pathlib import Path
 from io import BytesIO
 from ftplib import FTP, error_perm
 from datetime import datetime, timedelta
+from src import custom_types
 from src.custom_types import *
+import tum_esm_utils
 
-CACHE_PATH = os.path.join(Path(os.path.abspath(__file__)).parents[2], ".cache")
+PROJECT_DIR = tum_esm_utils.files.get_parent_dir_path(__file__, current_depth=3)
+CACHE_DIR = os.path.join(PROJECT_DIR, ".cache")
 
 
 def get_query_list(
-    daily_sensor_sets: dict[QueryLocation, dict[Date, set[SensorId]]]
+    daily_sensor_sets: dict[QueryLocation, dict[str, set[str]]]
 ) -> list[Query]:
     """
     Converts (ordered) daily_sensor_sets to a single query list.
@@ -61,7 +63,10 @@ def get_query_list(
 
 
 def upload_request(
-    config: FTPConfig, query: Query, ftp: FTP, version: Version
+    config: custom_types.FTPServerConfig,
+    query: Query,
+    ftp: FTP,
+    version: Literal["GGG2014", "GGG2020"],
 ) -> tuple[bool, float]:
     """
     Requests Ginput data by uploading a '.txt' to 'ccycle.gps.caltech.edu'.
@@ -109,8 +114,12 @@ def upload_request(
 
 
 def download_data(
-    config: FTPConfig, query: Query, ftp: FTP, version: Version, wait: bool = False
-) -> tuple[bool, float, str | None]:
+    config: custom_types.Config,
+    query: custom_types.Query,
+    ftp: FTP,
+    version: Literal["GGG2014", "GGG2020"],
+    wait: bool = False,
+) -> tuple[bool, float, Optional[str]]:
     """
     Downloads .map, .mod and .vmr data and stores it in .cache/{version}.
 
@@ -123,21 +132,26 @@ def download_data(
     """
 
     response: set[str] = set()
-    date_suffixes = _get_date_suffixes(config, query, version)
+    date_suffixes = get_date_suffixes(config, query, version)
 
     if version == "GGG2020":
         remote_dirs = {"ginput-jobs"}
-        suffixes = [f"{query.location.slug(verbose=True)}_{d}.tgz" for d in date_suffixes]
+        suffixes = [
+            f"{query.location.slug(verbose=True)}_{d}.tgz" for d in date_suffixes
+        ]
     else:
         remote_dirs = {"upload/modfiles/tar/maps", "upload/modfiles/tar/mods"}
         suffixes = [f"{query.location.slug()}_{d}.tar" for d in date_suffixes]
 
     to_date = None
     download_start = time.time()
-    while response != remote_dirs and time.time() - download_start < config.download_timeout:
+    while (
+        response != remote_dirs
+        and time.time() - download_start < config.ftp_server.download_timeout
+    ):
 
         if wait:
-            time.sleep(config.download_sleep)
+            time.sleep(config.ftp_server.download_sleep)
 
         for remote_dir in remote_dirs - response:
             nlst = ftp.nlst(remote_dir)
@@ -170,14 +184,20 @@ def download_data(
     return response == remote_dirs, time.time() - download_start, to_date
 
 
-def _get_date_suffixes(config: FTPConfig, query: Query, version: Version) -> list[str]:
+def get_date_suffixes(
+    config: custom_types.Config,
+    query: custom_types.Query,
+    version: Literal["GGG2014", "GGG2020"],
+) -> list[str]:
     """
     Generates date range suffixes up to config.max_day_delay days before utcnow().
     """
     sep = "_"
     from_date = str_to_dt(query.from_date)
     to_date = str_to_dt(query.to_date)
-    max_delay = max(from_date, (datetime.utcnow() - timedelta(days=config.max_day_delay)))
+    max_delay = max(
+        from_date, (datetime.utcnow() - timedelta(days=config.ftp_server.max_day_delay))
+    )
 
     if version == "GGG2020":
         # Exclusive to date
@@ -195,11 +215,15 @@ def _get_date_suffixes(config: FTPConfig, query: Query, version: Version) -> lis
     return date_strs
 
 
-def _extract_archive(archive: BinaryIO, query: Query, version: Version) -> None:
+def _extract_archive(
+    archive: BinaryIO,
+    query: Query,
+    version: Literal["GGG2014", "GGG2020"],
+) -> None:
     """
     Extracts, renames and stores archive members in .cache/{version}.
     """
-    cache_path = f"{CACHE_PATH}/{version}"
+    cache_path = f"{CACHE_DIR}/{version}"
     with tarfile.open(fileobj=archive) as tar:
         for member in tar:
             name = member.name

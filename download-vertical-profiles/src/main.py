@@ -1,38 +1,40 @@
 import json
-import pathlib
+from typing import Literal
+import tum_esm_utils
 import os, copy
 from ftplib import FTP
 from rich.progress import track
-
 from src import custom_types, procedures, utils
+
+PROJECT_DIR = tum_esm_utils.files.get_parent_dir_path(__file__, current_depth=2)
 
 
 def run() -> None:
-
-    project_path = pathlib.Path(os.path.abspath(__file__)).parents[1]
-
     # Configuration
-    with open(os.path.join(project_path, "config.json"), "r") as f:
+    with open(os.path.join(PROJECT_DIR, "config", "config.json"), "r") as f:
         config = custom_types.Config(**json.load(f))
 
-    # Request sensor and location data
-    locations = procedures.get_location_data(config.github)
-    sensors = procedures.get_sensor_data(config.github)
-
     # Generate daily sensor sets
-    daily_sensor_sets = procedures.get_daily_sensor_sets(config.request, locations, sensors)
-    if not daily_sensor_sets:
+    daily_sensor_sets = procedures.get_daily_sensor_sets(config)
+    if len(daily_sensor_sets.keys()) == 0:
+        print("No data to request.")
         return
 
     with FTP(
         host="ccycle.gps.caltech.edu",
-        passwd=config.ftp.email,
+        passwd=config.ftp_server.email,
         user="anonymous",
         timeout=60,
     ) as ftp:
 
+        versions: list[Literal["GGG2014", "GGG2020"]] = []
+        if config.request_scope.ggg_2014_download:
+            versions.append("GGG2014")
+        if config.request_scope.ggg_2020_download:
+            versions.append("GGG2020")
+
         # Request GGG2014 and/or GGG2020 data
-        for version in config.request.versions:
+        for version in versions:
 
             # Retain daily_sensor_sets for export
             sensor_sets = copy.deepcopy(daily_sensor_sets)
@@ -51,17 +53,17 @@ def run() -> None:
                     # Check if data already exists on FTP server
                     up_status, up_time = True, 0.0
                     down_status, down_time, to_date = procedures.download_data(
-                        config.ftp, query, ftp, version
+                        config, query, ftp, version
                     )
                     if not down_status:
                         # Request data
                         up_status, up_time = procedures.upload_request(
-                            config.ftp, query, ftp, version
+                            config.ftp_server, query, ftp, version
                         )
                         if up_status:
                             # Await data if upload successful
                             down_status, down_time, to_date = procedures.download_data(
-                                config.ftp, query, ftp, version, wait=True
+                                config, query, ftp, version, wait=True
                             )
 
                     # Append query statistics to report
@@ -78,4 +80,4 @@ def run() -> None:
                         return
 
                 # Export data to dst_dir
-                procedures.export_data(config.request, daily_sensor_sets, version)
+                procedures.export_data(config, daily_sensor_sets, version)

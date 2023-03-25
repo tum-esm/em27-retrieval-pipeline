@@ -1,33 +1,46 @@
-import os
-from pathlib import Path
-
 from datetime import datetime
+from typing import Optional
 from pydantic import BaseModel, validator
-from .validators import validate_str, validate_int
-
-from src.custom_types import Version
-from src.custom_types.location_data_types import dt_to_str
-
-PROJECT_PATH = Path(os.path.abspath(__file__)).parents[2]
+from tum_esm_utils.validators import validate_str, validate_int, validate_bool
 
 
-class RequestConfig(BaseModel):
+class LocationDataConfig(BaseModel):
+    """Pydantic model:
 
-    versions: list[Version] = ["GGG2014"]
-    from_date: str = "00010101"
-    to_date: str = dt_to_str(datetime.utcnow())
-    dst_dir: str = os.path.join(PROJECT_PATH, "vertical-profiles")
+    ```python
+    github_repository: str
+    access_token: Optional[str] = None
+    ```
+    """
 
-    _val_dates = validator("from_date", "to_date", pre=True, allow_reuse=True,)(
-        validate_str(is_date=True),
+    github_repository: str
+    access_token: Optional[str] = None
+
+    _val_github_repository = validator("github_repository", pre=True, allow_reuse=True)(
+        validate_str(),
     )
 
-    _val_dst_dir = validator("dst_dir", pre=True, allow_reuse=True,)(
-        validate_str(is_dir=True),
+    _val_access_token = validator("access_token", pre=True, allow_reuse=True)(
+        validate_str(regex=r"(https://raw.githubusercontent.com/.*)"),
     )
 
+    class Config:
+        extra = "forbid"
 
-class FTPConfig(BaseModel):
+
+class FTPServerConfig(BaseModel):
+    """Pydantic model:
+
+    ```python
+    email: str
+    max_day_delay: int = 7
+    upload_sleep: int = 60
+    upload_timeout: int = 180
+    download_sleep: int = 60
+    download_timeout: int = 600
+    ```
+    """
+
     email: str
     max_day_delay: int = 7
     upload_sleep: int = 60
@@ -36,7 +49,7 @@ class FTPConfig(BaseModel):
     download_timeout: int = 600
 
     _val_dates = validator("email", pre=True, allow_reuse=True,)(
-        validate_str(regex=r"[^@]+@[^@]+\.[^@]+"),
+        validate_str(min_len=3),
     )
 
     _val_max_delay = validator("max_day_delay", pre=True, allow_reuse=True,)(
@@ -55,27 +68,53 @@ class FTPConfig(BaseModel):
     )
 
 
-class GitHubConfig(BaseModel):
-    username: str
-    token: str
-    data_dir: str
+class RequestScopeConfig(BaseModel):
+    """Pydantic model:
 
-    _val_str = validator("username", "token", pre=True, allow_reuse=True,)(
-        validate_str(),
+    ```python
+    dst_dir: str
+    from_date: str = "19000101"
+    to_date: str = datetime.utcnow().strftime("%Y%m%d")
+    ggg_2014_download: bool = True
+    ggg_2020_download: bool = False
+    ```
+    """
+
+    dst_dir: str
+    from_date: str = "19000101"
+    to_date: str = datetime.utcnow().strftime("%Y%m%d")
+    ggg_2014_download: bool = True
+    ggg_2020_download: bool = False
+
+    _val_dates = validator("from_date", "to_date", pre=True, allow_reuse=True,)(
+        validate_str(is_date_string=True),
     )
-
-    _val_data_dir = validator("data_dir", pre=True, allow_reuse=True,)(
-        validate_str(regex=r"(https://raw.githubusercontent.com/.*)"),
+    _val_bools = validator(
+        "ggg_2014_download",
+        "ggg_2020_download",
+        pre=True,
+        allow_reuse=True,
+    )(
+        validate_bool(),
     )
-
-    class Config:
-        extra = "forbid"
+    _val_dst_dir = validator("dst_dir", pre=True, allow_reuse=True,)(
+        validate_str(is_directory=True),
+    )
 
 
 class Config(BaseModel):
-    github: GitHubConfig
-    ftp: FTPConfig
-    request: RequestConfig
+    """Pydantic model:
+
+    ```python
+    location_data: LocationDataConfig
+    ftp_server: FTPServerConfig
+    request_scope: RequestScopeConfig
+    ```
+    """
+
+    location_data: LocationDataConfig
+    ftp_server: FTPServerConfig
+    request_scope: RequestScopeConfig
 
     class Config:
         extra = "forbid"

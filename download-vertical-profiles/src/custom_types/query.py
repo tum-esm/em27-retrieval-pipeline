@@ -1,14 +1,14 @@
 from typing import Any
 from pydantic import BaseModel
-from .location_data_types import Date
 
 
 class QueryLocation(BaseModel):
-    """A query location, e.g.,
-    {
-        "lat": 48,
-        "lon": 11,
-    }.
+    """Pydantic model:
+
+    ```python
+    lat: int
+    lon: int
+    ```
     """
 
     lat: int
@@ -18,10 +18,12 @@ class QueryLocation(BaseModel):
         frozen = True
 
     def slug(self, verbose: bool = False) -> str:
-        """E.g.,
-        48N012E (verbose=False)
-        48.00N_12.00E (verbose=True)
+        """Return a slug for the location
+
+        verbose = false: `48N011E``
+        verbose = true: `48.00N_11.00E`
         """
+
         str_ = f"{abs(self.lat):.2f}" if verbose else f"{abs(self.lat):02}"
         str_ += "S" if self.lat < 0 else "N"
         str_ += "_" if verbose else ""
@@ -30,16 +32,17 @@ class QueryLocation(BaseModel):
 
 
 class Query(BaseModel):
-    """A query, e.g.,
-    {
-        "from_date": "20210927",
-        "to_date": "20211015",
-        "query_location": <class 'QueryLocation'>,
-    }.
+    """Pydantic model:
+
+    ```python
+    from_date: str
+    to_date: str
+    location: QueryLocation
+    ```
     """
 
-    from_date: Date
-    to_date: Date
+    from_date: str
+    to_date: str
     location: QueryLocation
 
     def to_slugged_json(self) -> dict[str, Any]:

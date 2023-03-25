@@ -1,21 +1,25 @@
 from __future__ import annotations
 
-from typing import Any
+from typing import Any, Literal, Optional
 import os
 import copy
 import json
-from pathlib import Path
 from datetime import datetime, timedelta
+import tum_esm_utils
+from src.custom_types import Query
 
-from src.custom_types import Query, Version
-
-REPORT_PATH = os.path.join(Path(os.path.abspath(__file__)).parents[2], "reports")
+PROJECT_DIR = tum_esm_utils.files.get_parent_dir_path(__file__, current_depth=3)
+REPORT_PATH = os.path.join(PROJECT_DIR, "reports")
 
 
 class Reporter:
     """Generates reports."""
 
-    def __init__(self, query_list: list[Query], version: Version) -> None:
+    def __init__(
+        self,
+        query_list: list[Query],
+        version: Literal["GGG2014", "GGG2020"],
+    ) -> None:
         self._version = version
         self._query_list = copy.deepcopy(query_list)
         self._successful_queries: list[dict[str, Any]] = []
@@ -31,7 +35,7 @@ class Reporter:
         up_time: float,
         down_status: bool,
         down_time: float,
-        to_date: str | None,
+        to_date: Optional[str],
     ) -> None:
         """Appends query statistics to the report."""
         truncated = False if to_date is None or query.to_date == to_date else to_date
@@ -53,14 +57,18 @@ class Reporter:
         exec_start_str = self._exec_start.strftime("%Y%m%d%H%M")
         execution_time = str(datetime.utcnow() - self._exec_start)
 
-        with open(f"{REPORT_PATH}/{self._version}/{exec_start_str}.json", "w") as report:
+        with open(
+            f"{REPORT_PATH}/{self._version}/{exec_start_str}.json", "w"
+        ) as report:
             json.dump(
                 {
                     "success": success,
                     "execution_start": exec_start_str,
                     "execution_time": execution_time,
                     "successful_queries": self._successful_queries,
-                    "failed_queries": [query.to_slugged_json() for query in self._query_list],
+                    "failed_queries": [
+                        query.to_slugged_json() for query in self._query_list
+                    ],
                 },
                 report,
                 indent=4,
