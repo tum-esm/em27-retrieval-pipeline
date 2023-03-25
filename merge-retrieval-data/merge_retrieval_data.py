@@ -1,4 +1,4 @@
-from src import main
+from src import run_automated_proffast
 
 if __name__ == "__main__":
-    main.run()
+    run_automated_proffast.run()

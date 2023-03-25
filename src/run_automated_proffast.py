@@ -1,3 +1,4 @@
+import filelock
 import os
 import time
 from typing import Optional
@@ -8,6 +9,9 @@ import multiprocessing
 import multiprocessing.context
 
 MAX_PARALLEL_PROCESSES = 9
+PROJECT_DIR = os.path.dirname(os.path.abspath(__file__))
+LOCK_FILE = f"{PROJECT_DIR}/src/main.lock"
+lock = filelock.FileLock(LOCK_FILE, timeout=0)
 
 
 def run() -> None:
@@ -91,3 +95,14 @@ def run() -> None:
     main_logger.info(f"Automation is finished")
     main_logger.horizontal_line(variant="=")
     main_logger.archive()
+
+
+if __name__ == "__main__":
+    try:
+        lock.acquire()
+        try:
+            run()
+        finally:
+            lock.release()
+    except filelock.Timeout:
+        print("process is already running")

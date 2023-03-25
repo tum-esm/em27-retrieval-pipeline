@@ -1,4 +1,3 @@
-import cProfile
 from src import utils, interfaces
 
 
@@ -17,4 +16,4 @@ def run():
 
 
 if __name__ == "__main__":
-    run()  # cProfile.run("run()")
+    run()
