@@ -21,7 +21,7 @@ class LocationDataConfig(BaseModel):
     )
 
     _val_access_token = validator("access_token", pre=True, allow_reuse=True)(
-        validate_str(regex=r"(https://raw.githubusercontent.com/.*)"),
+        validate_str(nullable=True),
     )
 
     class Config:
