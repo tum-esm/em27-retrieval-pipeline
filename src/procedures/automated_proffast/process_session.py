@@ -9,40 +9,44 @@ from . import (
 )
 
 
-def run(config: custom_types.Config, session: custom_types.Session):
+def run(config: custom_types.Config, pylot_session: custom_types.PylotSession) -> None:
     signal.signal(signal.SIGINT, signal.SIG_IGN)
-    logger = utils.Logger(container_id=session.container_id)
-    logger.info(f"Starting session {session.sensor_id}/{session.date}")
+    logger = utils.Logger(container_id=pylot_session.container_id)
+    logger.info(f"Starting session {pylot_session.sensor_id}/{pylot_session.date}")
 
-    def log_input_warning(message: str):
-        interfaces.InputWarningsInterface.add(session.sensor_id, session.date, message)
+    def log_input_warning(message: str) -> None:
+        interfaces.automated_proffast.InputWarningsInterface.add(
+            pylot_session.sensor_id, pylot_session.date, message
+        )
         logger.warning(message)
         logger.archive()
 
     try:
-        move_vertical_profiles.run(config, session)
+        move_vertical_profiles.run(config, pylot_session)
     except AssertionError as e:
         log_input_warning(f"Inputs incomplete (vertical profiles)")
         return
 
     try:
-        move_datalogger_files.run(config, logger, session)
+        move_datalogger_files.run(config, logger, pylot_session)
     except AssertionError as e:
         log_input_warning(f"Inputs incomplete (datalogger files): {e}")
         return
 
     try:
-        move_ifg_files.run(config, logger, session)
+        move_ifg_files.run(config, logger, pylot_session)
     except AssertionError as e:
         log_input_warning(f"Inputs incomplete (ifg files): {e}")
         return
 
     # inputs complete no warning to consider anymore
-    interfaces.InputWarningsInterface.remove(session.sensor_id, session.date)
+    interfaces.automated_proffast.InputWarningsInterface.remove(
+        pylot_session.sensor_id, pylot_session.date
+    )
 
     logger.info(f"Running the pylot")
     try:
-        run_proffast_pylot.run(session, logger)
+        run_proffast_pylot.run(pylot_session, logger)
         logger.debug("Pylot execution was successful")
     except Exception as e:
         logger.debug(f"Pylot execution failed: {e}")
@@ -53,7 +57,7 @@ def run(config: custom_types.Config, session: custom_types.Session):
 
     logger.info(f"Moving the outputs")
     try:
-        move_outputs.run(config, logger, session)
+        move_outputs.run(config, logger, pylot_session)
         logger.info(f"Finished")
     except AssertionError as e:
         logger.error(f"Moving outputs failed: {e}")

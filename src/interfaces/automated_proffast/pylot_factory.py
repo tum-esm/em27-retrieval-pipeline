@@ -129,7 +129,7 @@ class PylotFactory:
             shutil.rmtree(container.container_path)
         self.containers = []
 
-    def _init_pylot_code(self):
+    def _init_pylot_code(self) -> None:
         """Initialize the pylot code.
 
         It will download the Proffast 2.2 code from the KIT website

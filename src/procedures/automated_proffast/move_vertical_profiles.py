@@ -5,17 +5,17 @@ from src import custom_types
 
 def run(
     config: custom_types.Config,
-    session: custom_types.Session,
+    pylot_session: custom_types.PylotSession,
 ) -> None:
     src_filepath = os.path.join(
         config.data_src_dirs.vertical_profiles,
-        session.sensor_id,
-        f"{session.sensor_id}{session.date}.map",
+        pylot_session.sensor_id,
+        f"{pylot_session.sensor_id}{pylot_session.date}.map",
     )
     dst_filepath = os.path.join(
-        session.data_input_path,
+        pylot_session.data_input_path,
         "map",
-        f"{session.sensor_id}{session.date}.map",
+        f"{pylot_session.sensor_id}{pylot_session.date}.map",
     )
 
     assert os.path.isfile(src_filepath), "map file does not exist"

@@ -32,16 +32,16 @@ def detect_error_type(output_src: str) -> Optional[str]:
 def run(
     config: custom_types.Config,
     logger: utils.Logger,
-    session: custom_types.Session,
+    pylot_session: custom_types.PylotSession,
 ) -> None:
     output_src_dir = (
-        f"{session.data_output_path}/{session.sensor_id}_"
-        + f"SN{str(session.serial_number).zfill(3)}_{session.date[2:]}-{session.date[2:]}"
+        f"{pylot_session.data_output_path}/{pylot_session.sensor_id}_"
+        + f"SN{str(pylot_session.serial_number).zfill(3)}_{pylot_session.date[2:]}-{pylot_session.date[2:]}"
     )
     output_csv_path = (
-        f"{output_src_dir}/comb_invparms_{session.sensor_id}_"
-        + f"SN{str(session.serial_number).zfill(3)}_"
-        + f"{session.date[2:]}-{session.date[2:]}.csv"
+        f"{output_src_dir}/comb_invparms_{pylot_session.sensor_id}_"
+        + f"SN{str(pylot_session.serial_number).zfill(3)}_"
+        + f"{pylot_session.date[2:]}-{pylot_session.date[2:]}.csv"
     )
     assert os.path.isdir(output_src_dir), "pylot output directory missing"
 
@@ -67,17 +67,17 @@ def run(
 
     output_dst_successful = os.path.join(
         config.data_dst_dirs.results,
-        session.sensor_id,
+        pylot_session.sensor_id,
         "proffast-2.2-outputs",
         "successful",
-        session.date,
+        pylot_session.date,
     )
     output_dst_failed = os.path.join(
         config.data_dst_dirs.results,
-        session.sensor_id,
+        pylot_session.sensor_id,
         "proffast-2.2-outputs",
         "failed",
-        session.date,
+        pylot_session.date,
     )
 
     # REMOVE OLD OUTPUTS
@@ -106,13 +106,15 @@ def run(
         os.path.join(output_dst, "logfiles", "container.log"),
     )
     shutil.copyfile(
-        session.pylot_log_format_path,
+        pylot_session.pylot_log_format_path,
         os.path.join(output_dst, "pylot_log_format.yml"),
     )
 
     # POSSIBLY REMOVE ITEMS FROM MANUAL QUEUE
 
-    interfaces.ManualQueueInterface.remove_item(session.sensor_id, session.date, logger)
+    interfaces.automated_proffast.ManualQueueInterface.remove_item(
+        pylot_session.sensor_id, pylot_session.date, logger
+    )
 
     # STORE AUTOMATION INFO
 
@@ -124,6 +126,6 @@ def run(
             "generationDate": now.strftime("%Y%m%d"),
             "generationTime": now.strftime("%T"),
             "config": config.dict(),
-            "session": session.dict(),
+            "session": pylot_session.dict(),
         }
         json.dump(about_dict, f, indent=4)

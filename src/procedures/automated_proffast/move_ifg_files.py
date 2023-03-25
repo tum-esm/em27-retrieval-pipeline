@@ -10,14 +10,14 @@ from src import utils, custom_types
 def run(
     config: custom_types.Config,
     logger: utils.Logger,
-    session: custom_types.Session,
+    pylot_session: custom_types.PylotSession,
 ) -> None:
     # find all filenames of interferograms
     # possible file name patterns: ma20201123.ifg.0001, ma20220316s0e00a.0001
     ifg_src_directory = os.path.join(
-        config.data_src_dirs.interferograms, session.sensor_id, session.date
+        config.data_src_dirs.interferograms, pylot_session.sensor_id, pylot_session.date
     )
-    expected_ifg_pattern = re.compile(r"^" + session.sensor_id + r"\d{8}.*\.\d+$")
+    expected_ifg_pattern = re.compile(r"^" + pylot_session.sensor_id + r"\d{8}.*\.\d+$")
     filenames = [
         f
         for f in os.listdir(ifg_src_directory)
@@ -29,7 +29,9 @@ def run(
     assert len(filenames) > 0, "no ifg input files"
 
     # Create empty output directory for that date
-    dst_date_path = os.path.join(session.data_input_path, "ifg", session.date[2:])
+    dst_date_path = os.path.join(
+        pylot_session.data_input_path, "ifg", pylot_session.date[2:]
+    )
     os.mkdir(dst_date_path)
 
     # move all valid ifg files and rename them properly
@@ -37,7 +39,7 @@ def run(
         ifg_number = filename.split(".")[-1]
         shutil.copy(
             os.path.join(ifg_src_directory, filename),
-            os.path.join(dst_date_path, f"{session.date[2:]}SN.{ifg_number}"),
+            os.path.join(dst_date_path, f"{pylot_session.date[2:]}SN.{ifg_number}"),
         )
 
     # remove corrupt_ifgs

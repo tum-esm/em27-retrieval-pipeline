@@ -135,7 +135,9 @@ class RetrievalQueue:
 
     def _next_item_from_manual_queue(self) -> Optional[ManualQueueItem]:
         """use the dates from manual-queue.json"""
-        next_items = interfaces.ManualQueueInterface.get_items(self.logger)
+        next_items = interfaces.automated_proffast.ManualQueueInterface.get_items(
+            self.logger
+        )
 
         search_index = -1
         while True:
@@ -151,10 +153,9 @@ class RetrievalQueue:
             # skip this date right now it upload is incomplete
             # -> this might change during the current execution,
             # hence it will not be marked as being processed
-            ifgs_missing_or_incomplete = lambda: (
-                not self._ifgs_exist(next_item.sensor_id, next_item.date)
-            ) or (not self._upload_is_complete(next_item.sensor_id, next_item.date))
-            if ifgs_missing_or_incomplete():
+            if (not self._ifgs_exist(next_item.sensor_id, next_item.date)) or (
+                not self._upload_is_complete(next_item.sensor_id, next_item.date)
+            ):
                 continue
 
             # do not consider if there is no location data

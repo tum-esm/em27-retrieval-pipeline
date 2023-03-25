@@ -29,8 +29,8 @@ def run() -> None:
         return
 
     # set up pylot dispatcher and session scheduler
-    pylot_factory = interfaces.PylotFactory(main_logger)
-    retrieval_queue = interfaces.RetrievalQueue(config, main_logger)
+    pylot_factory = interfaces.automated_proffast.PylotFactory(main_logger)
+    retrieval_queue = interfaces.automated_proffast.RetrievalQueue(config, main_logger)
     processes: list[multiprocessing.context.SpawnProcess] = []
 
     main_logger.horizontal_line(variant="=")
@@ -51,12 +51,12 @@ def run() -> None:
                     break
 
                 # start new processes
-                new_session = procedures.create_session.run(
+                new_session = procedures.automated_proffast.create_session.run(
                     pylot_factory,
                     next_sensor_data_context,
                 )
                 new_process = multiprocessing.get_context("spawn").Process(
-                    target=procedures.process_session.run,
+                    target=procedures.automated_proffast.process_session.run,
                     args=(config, new_session),
                     name=(
                         f"pylot-session-{new_session.sensor_id}-"

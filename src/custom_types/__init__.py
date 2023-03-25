@@ -6,5 +6,5 @@ from .automated_proffast import (
     ManualQueueItem,
     ManualQueue,
     PylotContainer,
-    Session,
+    PylotSession,
 )
