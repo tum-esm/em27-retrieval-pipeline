@@ -31,7 +31,7 @@ def detect_error_type(output_src: str) -> Optional[str]:
 
 def run(
     config: custom_types.Config,
-    logger: utils.Logger,
+    logger: utils.automated_proffast.Logger,
     pylot_session: custom_types.PylotSession,
 ) -> None:
     output_src_dir = (

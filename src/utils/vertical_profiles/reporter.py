@@ -6,7 +6,7 @@ import copy
 import json
 from datetime import datetime, timedelta
 import tum_esm_utils
-from src.custom_types import Query
+from src import custom_types
 
 PROJECT_DIR = tum_esm_utils.files.get_parent_dir_path(__file__, current_depth=3)
 REPORT_PATH = os.path.join(PROJECT_DIR, "reports")
@@ -17,7 +17,7 @@ class Reporter:
 
     def __init__(
         self,
-        query_list: list[Query],
+        query_list: list[custom_types.DownloadQuery],
         version: Literal["GGG2014", "GGG2020"],
     ) -> None:
         self._version = version
@@ -30,7 +30,7 @@ class Reporter:
 
     def report_query(
         self,
-        query: Query,
+        query: custom_types.DownloadQuery,
         up_status: bool,
         up_time: float,
         down_status: bool,

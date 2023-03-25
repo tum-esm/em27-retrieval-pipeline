@@ -15,7 +15,7 @@ lock = filelock.FileLock(LOCK_FILE, timeout=0)
 
 
 def run() -> None:
-    main_logger = utils.Logger("main")
+    main_logger = utils.automated_proffast.Logger("main")
     main_logger.horizontal_line(variant="=")
     main_logger.info(f"Starting the automation with PID {os.getpid()}")
 

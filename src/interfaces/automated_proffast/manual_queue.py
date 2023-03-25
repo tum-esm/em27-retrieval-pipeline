@@ -29,7 +29,9 @@ class ManualQueueInterface:
     """
 
     @staticmethod
-    def _load(logger: utils.Logger) -> Optional[custom_types.ManualQueue]:
+    def _load(
+        logger: utils.automated_proffast.Logger,
+    ) -> Optional[custom_types.ManualQueue]:
         if not os.path.isfile(MANUAL_QUEUE_FILE):
             return None
 
@@ -47,7 +49,9 @@ class ManualQueueInterface:
             json.dump([i.dict() for i in items], f, indent=4)
 
     @staticmethod
-    def get_items(logger: utils.Logger) -> list[custom_types.ManualQueueItem]:
+    def get_items(
+        logger: utils.automated_proffast.Logger,
+    ) -> list[custom_types.ManualQueueItem]:
         """Return the items in the manual queue.
 
         The items are sorted by priority (highest first) and then by date
@@ -64,7 +68,9 @@ class ManualQueueInterface:
         )
 
     @staticmethod
-    def remove_item(sensor_id: str, date: str, logger: utils.Logger) -> None:
+    def remove_item(
+        sensor_id: str, date: str, logger: utils.automated_proffast.Logger
+    ) -> None:
         """Remove an item from the manual queue."""
 
         manual_queue = ManualQueueInterface._load(logger)

@@ -21,7 +21,7 @@ class PylotFactory:
 
     The factory keeps track of all containers and can remove them."""
 
-    def __init__(self, logger: utils.Logger):
+    def __init__(self, logger: utils.automated_proffast.Logger):
         """Initialize the factory.
 
         The `__init__` function will download the Proffast 2.2 code

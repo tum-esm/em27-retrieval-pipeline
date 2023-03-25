@@ -6,7 +6,6 @@ from io import BytesIO
 from ftplib import FTP, error_perm
 from datetime import datetime, timedelta
 from src import custom_types
-from src.custom_types import *
 import tum_esm_utils
 
 PROJECT_DIR = tum_esm_utils.files.get_parent_dir_path(__file__, current_depth=3)
@@ -14,8 +13,8 @@ CACHE_DIR = os.path.join(PROJECT_DIR, ".cache")
 
 
 def get_query_list(
-    daily_sensor_sets: dict[QueryLocation, dict[str, set[str]]]
-) -> list[Query]:
+    daily_sensor_sets: dict[custom_types.DownloadQueryLocation, dict[str, set[str]]]
+) -> list[custom_types.DownloadQuery]:
     """
     Converts (ordered) daily_sensor_sets to a single query list.
     Queries cover mutually exclusive date ranges (less than 32 days)
@@ -26,7 +25,7 @@ def get_query_list(
 
         # Retrieve first date in location_sensor_sets
         date_iterator = iter(location_sensor_sets)
-        from_date = str_to_dt(next(date_iterator))
+        from_date = custom_types.str_to_dt(next(date_iterator))
         to_date = from_date
         days = 1
 
@@ -34,12 +33,12 @@ def get_query_list(
         for date in date_iterator:
             next_day = to_date + timedelta(1)
             # If dates are not consecutive or job is longer than 31 days ...
-            if (dt := str_to_dt(date)) != next_day or days > 31:
+            if (dt := custom_types.str_to_dt(date)) != next_day or days > 31:
                 # ... append accumulated interval and reset
                 query_list.append(
-                    Query(
-                        from_date=dt_to_str(from_date),
-                        to_date=dt_to_str(to_date),
+                    custom_types.DownloadQuery(
+                        from_date=custom_types.dt_to_str(from_date),
+                        to_date=custom_types.dt_to_str(to_date),
                         location=location,
                     )
                 )
@@ -52,9 +51,9 @@ def get_query_list(
 
         # Append remaining interval
         query_list.append(
-            Query(
-                from_date=dt_to_str(from_date),
-                to_date=dt_to_str(to_date),
+            custom_types.DownloadQuery(
+                from_date=custom_types.dt_to_str(from_date),
+                to_date=custom_types.dt_to_str(to_date),
                 location=location,
             )
         )
@@ -64,7 +63,7 @@ def get_query_list(
 
 def upload_request(
     config: custom_types.FTPServerConfig,
-    query: Query,
+    query: custom_types.DownloadQuery,
     ftp: FTP,
     version: Literal["GGG2014", "GGG2020"],
 ) -> tuple[bool, float]:
@@ -76,7 +75,9 @@ def upload_request(
     """
     if version == "GGG2020":
         # Exclusive to date
-        to_date = dt_to_str(str_to_dt(query.to_date) + timedelta(1))
+        to_date = custom_types.dt_to_str(
+            custom_types.str_to_dt(query.to_date) + timedelta(1)
+        )
         filename = "input_file_2020.txt"
     else:
         # Inclusive to date
@@ -115,7 +116,7 @@ def upload_request(
 
 def download_data(
     config: custom_types.Config,
-    query: custom_types.Query,
+    query: custom_types.DownloadQuery,
     ftp: FTP,
     version: Literal["GGG2014", "GGG2020"],
     wait: bool = False,
@@ -186,15 +187,15 @@ def download_data(
 
 def get_date_suffixes(
     config: custom_types.Config,
-    query: custom_types.Query,
+    query: custom_types.DownloadQuery,
     version: Literal["GGG2014", "GGG2020"],
 ) -> list[str]:
     """
     Generates date range suffixes up to config.max_day_delay days before utcnow().
     """
     sep = "_"
-    from_date = str_to_dt(query.from_date)
-    to_date = str_to_dt(query.to_date)
+    from_date = custom_types.str_to_dt(query.from_date)
+    to_date = custom_types.str_to_dt(query.to_date)
     max_delay = max(
         from_date, (datetime.utcnow() - timedelta(days=config.ftp_server.max_day_delay))
     )
@@ -206,18 +207,18 @@ def get_date_suffixes(
         sep = "-"
 
     # Default query
-    date_strs = [f"{query.from_date}{sep}{dt_to_str(to_date)}"]
+    date_strs = [f"{query.from_date}{sep}{custom_types.dt_to_str(to_date)}"]
 
     # Query archives up to config.max_delay days before utcnow()
     while to_date > max_delay:
         to_date -= timedelta(1)
-        date_strs.append(f"{query.from_date}{sep}{dt_to_str(to_date)}")
+        date_strs.append(f"{query.from_date}{sep}{custom_types.dt_to_str(to_date)}")
     return date_strs
 
 
 def _extract_archive(
     archive: BinaryIO,
-    query: Query,
+    query: custom_types.DownloadQuery,
     version: Literal["GGG2014", "GGG2020"],
 ) -> None:
     """

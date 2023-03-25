@@ -5,7 +5,7 @@ from src import custom_types, utils
 
 def run(
     config: custom_types.Config,
-    logger: utils.Logger,
+    logger: utils.automated_proffast.Logger,
     pylot_session: custom_types.PylotSession,
 ) -> None:
     src_filepath = os.path.join(

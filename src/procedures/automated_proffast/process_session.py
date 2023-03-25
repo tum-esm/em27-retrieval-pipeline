@@ -11,7 +11,7 @@ from . import (
 
 def run(config: custom_types.Config, pylot_session: custom_types.PylotSession) -> None:
     signal.signal(signal.SIGINT, signal.SIG_IGN)
-    logger = utils.Logger(container_id=pylot_session.container_id)
+    logger = utils.automated_proffast.Logger(container_id=pylot_session.container_id)
     logger.info(f"Starting session {pylot_session.sensor_id}/{pylot_session.date}")
 
     def log_input_warning(message: str) -> None:

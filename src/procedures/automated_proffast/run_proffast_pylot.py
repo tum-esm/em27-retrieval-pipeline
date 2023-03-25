@@ -13,7 +13,9 @@ VENV_PATH = os.path.join(
 PYLOT_ROOT_DIR = os.path.join(PROJECT_DIR, "src", "prfpylot")
 
 
-def run(pylot_session: custom_types.PylotSession, logger: utils.Logger) -> None:
+def run(
+    pylot_session: custom_types.PylotSession, logger: utils.automated_proffast.Logger
+) -> None:
     tum_esm_utils.shell.run_shell_command(
         command=" ".join(
             [

@@ -9,7 +9,7 @@ from src import utils, custom_types
 
 def run(
     config: custom_types.Config,
-    logger: utils.Logger,
+    logger: utils.automated_proffast.Logger,
     pylot_session: custom_types.PylotSession,
 ) -> None:
     # find all filenames of interferograms

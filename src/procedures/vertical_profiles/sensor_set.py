@@ -15,7 +15,7 @@ def get_daily_sensor_sets(
     em27_metadata: Optional[
         tum_esm_em27_metadata.interfaces.EM27MetadataInterface
     ] = None,
-) -> dict[custom_types.QueryLocation, dict[str, set[str]]]:
+) -> dict[custom_types.DownloadQueryLocation, dict[str, set[str]]]:
     """
     Returns a dictionary that maps query locations to sensor sets.
     Sensor sets map days to a all sensors ids that were located at
@@ -48,7 +48,7 @@ def get_daily_sensor_sets(
         )
 
     daily_sensor_sets: dict[
-        custom_types.QueryLocation, dict[str, set[str]]
+        custom_types.DownloadQueryLocation, dict[str, set[str]]
     ] = defaultdict(lambda: defaultdict(set))
 
     for sensor in em27_metadata.sensors:
@@ -73,7 +73,7 @@ def get_daily_sensor_sets(
                 for l in em27_metadata.locations
                 if l.location_id == sensor_location.location_id
             )
-            query_location = custom_types.QueryLocation(
+            query_location = custom_types.DownloadQueryLocation(
                 lat=round(location.lat), lon=round(location.lon)
             )
 
@@ -90,9 +90,9 @@ def get_daily_sensor_sets(
 
 
 def filter_daily_sensor_sets(
-    daily_sensor_sets: dict[custom_types.QueryLocation, dict[str, set[str]]],
+    daily_sensor_sets: dict[custom_types.DownloadQueryLocation, dict[str, set[str]]],
     version: Literal["GGG2014", "GGG2020"],
-) -> dict[custom_types.QueryLocation, dict[str, set[str]]]:
+) -> dict[custom_types.DownloadQueryLocation, dict[str, set[str]]]:
     """
     Removes sensor sets from daily_sensor_sets for
     which an according directory exists in .cache/{version}.
@@ -115,7 +115,7 @@ def filter_daily_sensor_sets(
 
 def export_data(
     config: custom_types.Config,
-    daily_sensor_sets: dict[custom_types.QueryLocation, dict[str, set[str]]],
+    daily_sensor_sets: dict[custom_types.DownloadQueryLocation, dict[str, set[str]]],
     version: Literal["GGG2014", "GGG2020"],
 ) -> None:
     """

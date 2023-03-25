@@ -20,7 +20,9 @@ class RetrievalQueue:
     3. Takes all items from manual-queue.json with a priority < 0
     """
 
-    def __init__(self, config: custom_types.Config, logger: utils.Logger):
+    def __init__(
+        self, config: custom_types.Config, logger: utils.automated_proffast.Logger
+    ):
         """Initialize the retrieval queue. This includes loading the location
         data from GitHub using the package `tum_esm_em27_metadata`."""
         self.logger = logger
