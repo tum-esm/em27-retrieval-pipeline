@@ -3,18 +3,15 @@ import tum_esm_em27_metadata
 from src import custom_types, interfaces
 import tum_esm_utils
 
-dirname = os.path.dirname
-PROJECT_DIR = dirname(dirname(dirname(os.path.abspath(__file__))))
+_PROJECT_DIR = tum_esm_utils.files.get_parent_dir_path(__file__, current_depth=4)
+_PYLOT_CONFIG_DIR = os.path.join(
+    _PROJECT_DIR, "src/procedures/automated_proffast/pylot_src/config"
+)
 
 
 def _generate_pylot_config(session: custom_types.Session) -> None:
     file_content = tum_esm_utils.files.load_file(
-        os.path.join(
-            PROJECT_DIR,
-            "src",
-            "config",
-            "pylot_config_template.yml",
-        )
+        os.path.join(_PYLOT_CONFIG_DIR, "pylot_config_template.yml")
     )
     tum_esm_utils.files.dump_file(
         session.pylot_config_path,
@@ -39,12 +36,7 @@ def _generate_pylot_config(session: custom_types.Session) -> None:
 
 def _generate_pylot_log_format(session: custom_types.Session) -> None:
     file_content = tum_esm_utils.files.load_file(
-        os.path.join(
-            PROJECT_DIR,
-            "src",
-            "config",
-            "pylot_log_format_template.yml",
-        )
+        os.path.join(_PYLOT_CONFIG_DIR, "pylot_log_format_template.yml")
     )
     tum_esm_utils.files.dump_file(
         session.pylot_log_format_path,
