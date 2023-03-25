@@ -6,17 +6,18 @@
 
 Generates CSV files containing post-processed concentration time series.<br/>A sample can be found in **`docs/`.**
 
-
-
 </div>
 
 <hr />
 
 ## :sparkles: Getting Started
-Requires __Python 3.10+__. Dependency management with __Poetry__.[^1] 
+
+Requires **Python 3.10+**. Dependency management with **Poetry**.[^1]
 
 ### :electric_plug: Installation
+
 Clone the repository and set up the project interpreter
+
 ```bash
 # Optional: create .venv within the project
 poetry config virtualenvs.in-project true
@@ -28,19 +29,25 @@ poetry install
 ### :gear: Configuration
 
 Create a file `config.json` to configure your setup.<br/>The configuration consists of the three sub-configurations `GitHub`, `Database` and `Request` (see also `config.template.json`).
+
 ```python
 name: Type [= Default] # Comment
 ```
 
 #### :octopus: GitHub
-Access to GitHub directory containing EM27 data, i.e., `campaigns.json`, `locations.json` and `sensors.json`.[^2] Note that `data_dir` must point to the raw data, i.e., in the format https://raw.githubusercontent.com/.*.
+
+Access to GitHub directory containing EM27 data, i.e., `campaigns.json`, `locations.json` and `sensors.json`.[^2] Note that `data_dir` must point to the raw data, i.e., in the format https://raw.githubusercontent.com/.\*.
+
 ```python
 username: str
 token: str
 data_dir: str
 ```
-####  :floppy_disk: Database
+
+#### :floppy_disk: Database
+
 Access to PostgreSQL database containing retrieval data.
+
 ```python
 host: str
 username: str
@@ -49,14 +56,17 @@ database_name: str
 port: str = "5432"
 table_name: str = "measurements"
 ```
-####  :mag_right: Request
+
+#### :mag_right: Request
+
 Settings for the retrieval process. Note that the date format is **YYYYMMDD**.
+
 ```python
 campaign_name: str
 from_date: str = "00010101"
 to_date: str = utcnow()
 proffast_version: str = "2.2"
-data_types: DataType = [            
+data_types: DataType = [
     "gnd_p",
     "gnd_t",
     "app_sza",
@@ -79,6 +89,7 @@ Run `run.py`
 ```bash
 poetry run python run.py
 ```
+
 For the requested period, the tool generates one `<campaign_name>_em27_export_<date>.csv` file per day.
 
 ## :hammer_and_wrench: Post-processing
@@ -86,12 +97,15 @@ For the requested period, the tool generates one `<campaign_name>_em27_export_<d
 _TBD_
 
 ## 🏛 Architecture
+
 Note that the following gives a high-level overview - not the full picture.
+
 <div align="center">
 <a href="docs/architecture.png"><img src="docs/architecture.png" align="center" width="80%" ></a>
 </div>
 
 ## 🗄 Structure
+
 ```
 ./
 ├── .github/workflows
@@ -125,5 +139,6 @@ Note that the following gives a high-level overview - not the full picture.
 ├── pyproject.toml
 └── run.py
 ```
+
 [^1]: Poetry Installation: https://python-poetry.org/docs/#installation
 [^2]: Example Repository: https://github.com/tum-esm/em27-location-data

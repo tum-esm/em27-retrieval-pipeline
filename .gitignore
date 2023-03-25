@@ -1,6 +1,7 @@
 # custom
 hidden/
 *.out
+config.json
 
 # Created by https://www.toptal.com/developers/gitignore/api/macos,windows,linux,python,node
 # Edit at https://www.toptal.com/developers/gitignore?templates=macos,windows,linux,python,node
