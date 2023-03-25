@@ -2,11 +2,11 @@ import filelock
 import os
 import time
 from typing import Optional
-
 import tum_esm_em27_metadata
-from src import utils, interfaces, procedures
 import multiprocessing
 import multiprocessing.context
+
+from . import utils, interfaces, procedures
 
 MAX_PARALLEL_PROCESSES = 9
 PROJECT_DIR = os.path.dirname(os.path.abspath(__file__))

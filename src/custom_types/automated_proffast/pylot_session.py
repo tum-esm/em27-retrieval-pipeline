@@ -14,7 +14,7 @@ class PylotContainer(BaseModel):
         extra = "ignore"
 
 
-class Session(BaseModel):
+class PylotSession(BaseModel):
     sensor_id: str
     serial_number: int
     utc_offset: float

@@ -1,6 +1,6 @@
 import os
 import tum_esm_utils
-from src import utils
+from . import utils
 
 
 def run():
