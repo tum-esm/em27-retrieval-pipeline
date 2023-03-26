@@ -27,14 +27,8 @@ def run() -> None:
         timeout=60,
     ) as ftp:
 
-        versions: list[Literal["GGG2014", "GGG2020"]] = []
-        if config.vertical_profiles.request_scope.ggg_2014_download:
-            versions.append("GGG2014")
-        if config.vertical_profiles.request_scope.ggg_2020_download:
-            versions.append("GGG2020")
-
         # Request GGG2014 and/or GGG2020 data
-        for version in versions:
+        for version in config.vertical_profiles.request_scope.data_types:
 
             # Retain daily_sensor_sets for export
             sensor_sets = copy.deepcopy(daily_sensor_sets)

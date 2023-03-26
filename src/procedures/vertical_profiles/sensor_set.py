@@ -129,7 +129,7 @@ def export_data(
     Exports data from .cache/{version} to {config.dst_dir}/{version}.
     Creates a subdirectory for each sensor id in the daily_sensor_set.
     """
-    dst_path = os.path.join(config.vertical_profiles.request_scope.dst_dir, version)
+    dst_path = os.path.join(config.general.data_src_dirs.vertical_profiles, version)
 
     for location, location_sensor_sets in daily_sensor_sets.items():
         for date, sensors in location_sensor_sets.items():

@@ -25,8 +25,7 @@
         "request_scope": {
             "from_date": "20220101",
             "to_date": "20220105",
-            "ggg_2014_download": true,
-            "ggg_2020_download": false
+            "data_types": ["GGG2014", "GGG2020"]
         }
     },
     "automated_proffast": {

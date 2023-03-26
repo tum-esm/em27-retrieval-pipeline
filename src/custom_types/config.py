@@ -145,33 +145,21 @@ class VerticalProfilesRequestScopeConfig(BaseModel):
     """Pydantic model:
 
     ```python
-    dst_dir: str
     from_date: str = "19000101"
     to_date: str = datetime.utcnow().strftime("%Y%m%d")
-    ggg_2014_download: bool = True
-    ggg_2020_download: bool = False
+    data_types: list[Literal["GGG2014", "GGG2020"]] = ["GGG2014", "GGG2020"]
     ```
     """
 
-    dst_dir: str
     from_date: str = "19000101"
     to_date: str = datetime.utcnow().strftime("%Y%m%d")
-    ggg_2014_download: bool = True
-    ggg_2020_download: bool = False
+    data_types: list[Literal["GGG2014", "GGG2020"]] = ["GGG2014", "GGG2020"]
 
     _val_dates = validator("from_date", "to_date", pre=True, allow_reuse=True,)(
         validate_str(is_date_string=True),
     )
-    _val_bools = validator(
-        "ggg_2014_download",
-        "ggg_2020_download",
-        pre=True,
-        allow_reuse=True,
-    )(
-        validate_bool(),
-    )
-    _val_dst_dir = validator("dst_dir", pre=True, allow_reuse=True,)(
-        validate_str(is_directory=True),
+    _val_data_types = validator("data_types", pre=True, allow_reuse=True,)(
+        _validate_list(allowed=["GGG2014", "GGG2020"]),
     )
 
 
