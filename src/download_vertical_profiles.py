@@ -1,12 +1,14 @@
 import json
-from typing import Literal
+import sys
 import tum_esm_utils
 import os, copy
 from ftplib import FTP
 from rich.progress import track
-from src import custom_types, procedures, utils
 
 PROJECT_DIR = tum_esm_utils.files.get_parent_dir_path(__file__, current_depth=2)
+sys.path.append(PROJECT_DIR)
+
+from src import custom_types, procedures, utils
 
 
 def run() -> None:

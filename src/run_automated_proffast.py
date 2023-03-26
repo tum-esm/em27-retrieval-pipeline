@@ -1,3 +1,4 @@
+import sys
 import filelock
 import os
 import time
@@ -6,10 +7,12 @@ import tum_esm_em27_metadata
 import multiprocessing
 import multiprocessing.context
 
-from . import utils, interfaces, procedures
+PROJECT_DIR = os.path.dirname(os.path.abspath(__file__))
+sys.path.append(PROJECT_DIR)
+
+from src import utils, interfaces, procedures
 
 MAX_PARALLEL_PROCESSES = 9
-PROJECT_DIR = os.path.dirname(os.path.abspath(__file__))
 LOCK_FILE = f"{PROJECT_DIR}/src/main.lock"
 lock = filelock.FileLock(LOCK_FILE, timeout=0)
 

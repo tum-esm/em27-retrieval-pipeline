@@ -13,7 +13,7 @@ MAX_DELTA_FOR_INTERPOLATION = pl.duration(minutes=3)
 
 
 def get_empty_sensor_dataframe(
-    sensor_data_context: tum_esm_em27_metadata.types.SensorDataContext,
+    sensor_id: str,
     output_merging_target: custom_types.config.OutputMergingTargetConfig,
 ) -> pl.DataFrame:
     """
@@ -29,8 +29,7 @@ def get_empty_sensor_dataframe(
     """
 
     column_names = [
-        f"{sensor_data_context.sensor_id}_{type_}"
-        for type_ in output_merging_target.data_types
+        f"{sensor_id}_{type_}" for type_ in output_merging_target.data_types
     ]
 
     return pl.DataFrame(
@@ -71,11 +70,7 @@ def get_sensor_dataframe(
         f"comb_invparms_ma_SN{str(sensor_data_context.serial_number).zfill(3)}_"
         + f"{sensor_data_context.date[2:]}-{sensor_data_context.date[2:]}.csv",
     )
-    if not os.path.isfile(raw_csv_path):
-        return get_empty_sensor_dataframe(
-            sensor_data_context,
-            output_merging_target,
-        )
+    assert os.path.isfile(raw_csv_path), f"file {raw_csv_path} does not exist."
 
     column_names = [
         f"{sensor_data_context.sensor_id}_{type_}"
@@ -139,6 +134,9 @@ def post_process_dataframe(
 
     ✗ `get_daily_dataframe` (see below) will be called afterwards and joins the dataframes on "utc".
     """
+
+    if len(df) == 0:
+        return df
 
     # Convert utc to datetime and apply savgol_filter on the data columns
     q = df.lazy().select(
