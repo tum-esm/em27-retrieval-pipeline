@@ -2,7 +2,7 @@ import json
 import os
 import pytest
 from src import custom_types, interfaces, utils
-from .fixtures import provide_tmp_config
+from ..fixtures import provide_tmp_config
 import dotenv
 
 dir = os.path.dirname

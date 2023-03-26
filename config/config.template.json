@@ -54,23 +54,6 @@
             ],
             "sampling_rate": "1m",
             "dst_dir": "path-to-merged-output"
-        },
-        {
-            "campaign_id": "hamburg",
-            "data_types": [
-                "gnd_p",
-                "gnd_t",
-                "app_sza",
-                "azimuth",
-                "xh2o",
-                "xair",
-                "xco2",
-                "xch4",
-                "xco",
-                "xch4_s5p"
-            ],
-            "sampling_rate": "30s",
-            "dst_dir": "path-to-merged-output"
         }
     ]
 }
