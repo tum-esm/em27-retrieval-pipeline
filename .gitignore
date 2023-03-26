@@ -2,9 +2,14 @@
 hidden/
 *.out
 config.json
-*.map
-*.mod
-*.vmr
+
+data/**/*.map
+data/**/*.mod
+data/**/*.vmr
+data/**/*.csv
+data/**/*.ifg.*
+data/**/*tar.gz
+
 !.gitkeep
 !data/vertical_profiles_examples/GGG2014/20200810_48N012E/*
 !data/vertical_profiles_examples/GGG2020/20200810_48N012E/*
