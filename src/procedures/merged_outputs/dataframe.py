@@ -79,17 +79,24 @@ def get_sensor_dataframe(
 
     return pl.read_csv(
         raw_csv_path,
+        columns=[
+            "UTC",
+            " gndP",
+            " gndT",
+            " latdeg",
+            " appSZA",
+            " azimuth",
+            " XH2O",
+            " XAIR",
+            " XCO2",
+            " XCH4",
+            " XCO",
+            " XCH4_S5P",
+        ],
         new_columns=[
             "utc",
-            "XX_LocalTime",
-            "XX_spectrum",
-            "XX_JulianDate",
-            "XX_UTtimeh",
             f"{sensor_data_context.sensor_id}_gnd_p",
             f"{sensor_data_context.sensor_id}_gnd_t",
-            "XX_latdeg",
-            "XX_londeg",
-            "XX_altim",
             f"{sensor_data_context.sensor_id}_app_sza",
             f"{sensor_data_context.sensor_id}_azimuth",
             f"{sensor_data_context.sensor_id}_xh2o",
@@ -98,14 +105,7 @@ def get_sensor_dataframe(
             f"{sensor_data_context.sensor_id}_xch4",
             f"{sensor_data_context.sensor_id}_xco",
             f"{sensor_data_context.sensor_id}_xch4_s5p",
-            "XX_H2O",
-            "XX_O2",
-            "XX_CO2",
-            "XX_CH4",
-            "XX_CO",
-            "XX_CH4_S5P",
         ],
-        columns=["utc", *column_names],
         dtypes={"utc": pl.Datetime, **{c: pl.Float64 for c in column_names}},
     )
 
@@ -139,15 +139,12 @@ def post_process_dataframe(
         return df
 
     # Convert utc to datetime and apply savgol_filter on the data columns
-    q = df.lazy().select(
-        [
-            pl.col("utc"),
-            pl.exclude("utc")
-            .map(lambda x: savgol_filter(x.to_numpy(), 31, 3))
-            .arr.explode(),
-        ]
+    df = df.select(
+        pl.col("utc"),
+        pl.exclude("utc")
+        .map(lambda x: savgol_filter(x.to_numpy(), 31, 3).tolist())
+        .arr.explode(),
     )
-    df = q.collect()
 
     # Upscale to 1s intervals and interpolate when the gaps are smaller than the MAX_DELTA_FOR_INTERPOLATION
     # Finally, downsample to the required sampling rate with a mean aggregation on the data columns.
@@ -180,11 +177,9 @@ def merge_dataframes(
 
     return (
         functools.reduce(
-            lambda a, b: a.join(
-                b, how="outer", left_on="utc", right_on="utc", suffix=""
-            ),
+            lambda a, b: a.join(b, how="outer", left_on="utc", right_on="utc"),
             dfs,
         )
-        .drop_nulls()
+        .filter(~pl.all(pl.all().is_null()))
         .sort("utc")
     )

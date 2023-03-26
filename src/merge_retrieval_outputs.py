@@ -32,7 +32,9 @@ def run() -> None:
             if campaign.campaign_id == output_merging_target.campaign_id
         )
 
-        for date in range(int(campaign.from_date), int(campaign.to_date) + 1):
+        for date in [
+            20210329
+        ]:  # range(int(campaign.from_date), int(campaign.to_date) + 1):
             if not tum_esm_utils.text.is_date_string(str(date)):
                 continue
 
@@ -72,7 +74,11 @@ def run() -> None:
             if found_data_count == 0:
                 continue
 
+            print(dfs)
+
             merged_df = procedures.merged_outputs.merge_dataframes(dfs)
+
+            print(merged_df)
 
             # save merged dataframe to csv
             filename = os.path.join(
