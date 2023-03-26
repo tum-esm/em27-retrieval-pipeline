@@ -12,11 +12,39 @@ from src import custom_types
 MAX_DELTA_FOR_INTERPOLATION = pl.duration(minutes=3)
 
 
+def get_empty_sensor_dataframe(
+    sensor_data_context: tum_esm_em27_metadata.types.SensorDataContext,
+    output_merging_target: custom_types.config.OutputMergingTargetConfig,
+) -> pl.DataFrame:
+    """
+    Returns an EMPTY single sensor dataframe.
+
+    The dataframe contains raw station data for one day and one sensor.
+    Each requested data type is parsed into a column. The column names
+    are prefixed with the sensor id. Example:
+
+    ```
+    utc  me_gnd_p  me_gnd_t  me_app_sza  ...
+    ```
+    """
+
+    column_names = [
+        f"{sensor_data_context.sensor_id}_{type_}"
+        for type_ in output_merging_target.data_types
+    ]
+
+    return pl.DataFrame(
+        schema={
+            "utc": pl.Datetime,
+            **{c: pl.Float64 for c in column_names},
+        }
+    )
+
+
 def get_sensor_dataframe(
     config: custom_types.Config,
+    sensor_data_context: tum_esm_em27_metadata.types.SensorDataContext,
     output_merging_target: custom_types.config.OutputMergingTargetConfig,
-    date_string: str,
-    sensor: tum_esm_em27_metadata.types.Sensor,
 ) -> pl.DataFrame:
     """
     Returns a single sensor dataframe.
@@ -25,29 +53,34 @@ def get_sensor_dataframe(
     Each requested data type is parsed into a column. The column names
     are prefixed with the sensor id. Example:
 
-                            me_gnd_p  me_gnd_t  me_app_sza  ...
-    utc
-    2021-10-20 07:00:23     950.91    289.05       78.45     ...
-    2021-10-20 07:00:38     950.91    289.05       78.42     ...
-    2021-10-20 07:01:24     950.91    289.05       78.31     ...
-    ...                       ...       ...         ...
+    ```
+    utc                     me_gnd_p  me_gnd_t  me_app_sza  ...
+    2021-10-20 07:00:23     950.91    289.05    78.45       ...
+    2021-10-20 07:00:38     950.91    289.05    78.42       ...
+    2021-10-20 07:01:24     950.91    289.05    78.31       ...
+    ...                       ...       ...      ...
     [1204 rows x 8 columns]
+    ```
     """
 
     raw_csv_path = os.path.join(
         config.general.data_dst_dirs.results,
-        sensor.sensor_id,
+        sensor_data_context.sensor_id,
         "proffast-2.2-outputs/successful",
-        date_string,
-        f"comb_invparms_ma_SN{str(sensor.serial_number).zfill(3)}_"
-        + f"{date_string[2:]}-{date_string[2:]}.csv",
+        sensor_data_context.date,
+        f"comb_invparms_ma_SN{str(sensor_data_context.serial_number).zfill(3)}_"
+        + f"{sensor_data_context.date[2:]}-{sensor_data_context.date[2:]}.csv",
     )
-    column_names = [f"{sensor}_{type_}" for type_ in output_merging_target.data_types]
-
     if not os.path.isfile(raw_csv_path):
-        return pl.DataFrame(
-            schema={"utc": pl.Datetime, **{c: pl.Float64 for c in column_names}}
+        return get_empty_sensor_dataframe(
+            sensor_data_context,
+            output_merging_target,
         )
+
+    column_names = [
+        f"{sensor_data_context.sensor_id}_{type_}"
+        for type_ in output_merging_target.data_types
+    ]
 
     return pl.read_csv(
         raw_csv_path,
@@ -57,19 +90,19 @@ def get_sensor_dataframe(
             "XX_spectrum",
             "XX_JulianDate",
             "XX_UTtimeh",
-            f"{sensor.sensor_id}_gnd_p",
-            f"{sensor.sensor_id}_gnd_t",
+            f"{sensor_data_context.sensor_id}_gnd_p",
+            f"{sensor_data_context.sensor_id}_gnd_t",
             "XX_latdeg",
             "XX_londeg",
             "XX_altim",
-            f"{sensor.sensor_id}_app_sza",
-            f"{sensor.sensor_id}_azimuth",
-            f"{sensor.sensor_id}_xh2o",
-            f"{sensor.sensor_id}_xair",
-            f"{sensor.sensor_id}_xco2",
-            f"{sensor.sensor_id}_xch4",
-            f"{sensor.sensor_id}_xco",
-            f"{sensor.sensor_id}_xch4_s5p",
+            f"{sensor_data_context.sensor_id}_app_sza",
+            f"{sensor_data_context.sensor_id}_azimuth",
+            f"{sensor_data_context.sensor_id}_xh2o",
+            f"{sensor_data_context.sensor_id}_xair",
+            f"{sensor_data_context.sensor_id}_xco2",
+            f"{sensor_data_context.sensor_id}_xch4",
+            f"{sensor_data_context.sensor_id}_xco",
+            f"{sensor_data_context.sensor_id}_xch4_s5p",
             "XX_H2O",
             "XX_O2",
             "XX_CO2",
