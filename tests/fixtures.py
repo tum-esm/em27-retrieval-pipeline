@@ -85,6 +85,7 @@ def provide_tmp_config() -> Generator[custom_types.Config, None, None]:
         config_template["general"]["data_src_dirs"][key] = os.path.join(
             PROJECT_DIR, "data", "testing", "pipeline", key
         )
+    # enable automatic probessing in config
     config_template["general"]["data_dst_dirs"]["results"] = os.path.join(
         PROJECT_DIR, "data", "testing", "pipeline", "results_raw"
     )

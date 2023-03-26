@@ -21,16 +21,27 @@ class RetrievalQueue:
     """
 
     def __init__(
-        self, config: custom_types.Config, logger: utils.automated_proffast.Logger
-    ):
+        self,
+        config: custom_types.Config,
+        logger: utils.automated_proffast.Logger,
+        em27_metadata: Optional[
+            tum_esm_em27_metadata.interfaces.EM27MetadataInterface
+        ] = None,
+    ) -> None:
+
         """Initialize the retrieval queue. This includes loading the location
         data from GitHub using the package `tum_esm_em27_metadata`."""
         self.logger = logger
         self.config = config
-        self.location_data = tum_esm_em27_metadata.load_from_github(
-            github_repository=self.config.general.location_data.github_repository,
-            access_token=self.config.general.location_data.access_token,
+
+        self.em27_metadata: tum_esm_em27_metadata.interfaces.EM27MetadataInterface = (
+            em27_metadata
         )
+        if self.em27_metadata is None:
+            self.em27_metadata = tum_esm_em27_metadata.load_from_github(
+                github_repository=self.config.general.location_data.github_repository,
+                access_token=self.config.general.location_data.access_token,
+            )
 
         self.processed_sensor_dates: dict[str, list[str]] = {}
         self.iteration_count = 0
@@ -131,7 +142,7 @@ class RetrievalQueue:
 
                 # do not consider if there is no location data
                 try:
-                    return self.location_data.get(sensor_id=sensor_id, date=date)
+                    return self.em27_metadata.get(sensor_id=sensor_id, date=date)
                 except AssertionError as a:
                     self.logger.debug(str(a))
                     self._mark_as_processed(sensor_id, date)
@@ -167,7 +178,7 @@ class RetrievalQueue:
             # do not consider if there is no location data
             try:
                 return ManualQueueItem(
-                    sensor_data_context=self.location_data.get(
+                    sensor_data_context=self.em27_metadata.get(
                         sensor_id=next_item.sensor_id, date=next_item.date
                     ),
                     priority=next_item.priority,
