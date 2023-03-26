@@ -8,7 +8,7 @@ PROJECT_DIR = tum_esm_utils.files.get_parent_dir_path(__file__, current_depth=2)
 
 
 @pytest.mark.ci
-def test_default_config() -> None:
+def test_config_template() -> None:
     with open(os.path.join(PROJECT_DIR, "config", "config.template.json"), "r") as f:
         config_file_content = json.load(f)
     config_file_content["general"]["data_src_dirs"]["datalogger"] = PROJECT_DIR

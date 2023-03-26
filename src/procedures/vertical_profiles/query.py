@@ -190,6 +190,7 @@ def get_date_suffixes(
     config: custom_types.Config,
     query: custom_types.DownloadQuery,
     version: Literal["GGG2014", "GGG2020"],
+    utcnow: datetime = datetime.utcnow(),
 ) -> list[str]:
     """
     Generates date range suffixes up to config.max_day_delay days before utcnow().
@@ -199,10 +200,7 @@ def get_date_suffixes(
     to_date = custom_types.str_to_dt(query.to_date)
     max_delay = max(
         from_date,
-        (
-            datetime.utcnow()
-            - timedelta(days=config.vertical_profiles.ftp_server.max_day_delay)
-        ),
+        (utcnow - timedelta(days=config.vertical_profiles.ftp_server.max_day_delay)),
     )
 
     if version == "GGG2020":

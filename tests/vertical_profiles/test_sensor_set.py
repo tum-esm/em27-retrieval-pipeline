@@ -1,15 +1,12 @@
 import tum_esm_em27_metadata
 from src import custom_types, procedures
+from tests.fixtures import provide_tmp_config
 
 
-def test_get_daily_sensor_sets() -> None:
-    config = custom_types.Config(
-        location_data=custom_types.LocationDataConfig(github_repository=""),
-        request_scope=custom_types.RequestScopeConfig(
-            dst_dir="/tmp", from_date="10000102", to_date="10000105"
-        ),
-        ftp_server=custom_types.FTPServerConfig(email="sosmsm"),
-    )
+def test_get_daily_sensor_sets(provide_tmp_config: custom_types.Config) -> None:
+    config = provide_tmp_config
+    config.vertical_profiles.request_scope.from_date = "10000102"
+    config.vertical_profiles.request_scope.to_date = "10000105"
 
     locations = [
         tum_esm_em27_metadata.types.Location(

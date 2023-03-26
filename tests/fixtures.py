@@ -13,7 +13,7 @@ lock = filelock.FileLock(os.path.join(PROJECT_DIR, "src", "main.lock"), timeout=
 
 
 @pytest.fixture
-def wrap_test_with_mainlock() -> Generator[None]:
+def wrap_test_with_mainlock() -> Generator[None, None, None]:
     try:
         lock.acquire()
         yield
@@ -23,7 +23,7 @@ def wrap_test_with_mainlock() -> Generator[None]:
 
 
 @pytest.fixture(scope="session")
-def download_sample_data() -> Generator[None]:
+def download_sample_data() -> Generator[None, None, None]:
     """Download sample data from syncandshare and extract it to the
     testing data directory. This is done only once per test run."""
 
@@ -65,7 +65,7 @@ def download_sample_data() -> Generator[None]:
 
 
 @pytest.fixture(scope="function")
-def provide_tmp_config() -> Generator[custom_types.Config]:
+def provide_tmp_config() -> Generator[custom_types.Config, None, None]:
     """Create a temporary config file that points to the testing data.
     This is done before each test; the original config file is restored
     afterwards."""
@@ -82,16 +82,16 @@ def provide_tmp_config() -> Generator[custom_types.Config]:
     # create temporary config where all directories point to the testing data
     config_template = tum_esm_utils.files.load_json_file(config_template_path)
     for key in ["datalogger", "vertical_profiles", "interferograms"]:
-        config_template = config_template["general"]["data_src_dirs"][
-            key
-        ] = os.path.join(PROJECT_DIR, "data", "testing", key)
+        config_template["general"]["data_src_dirs"][key] = os.path.join(
+            PROJECT_DIR, "data", "testing", "pipeline", key
+        )
     config_template["general"]["data_dst_dirs"]["results"] = os.path.join(
-        PROJECT_DIR, "data", "testing", "results_raw"
+        PROJECT_DIR, "data", "testing", "pipeline", "results_raw"
     )
     config_template["output_merging_targets"][0]["dst_dir"] = os.path.join(
-        PROJECT_DIR, "data", "testing", "results_merged"
+        PROJECT_DIR, "data", "testing", "pipeline", "results_merged"
     )
-    tum_esm_utils.files.write_json_file(config_template, config_path)
+    tum_esm_utils.files.dump_json_file(config_path, config_template)
 
     # run test
     yield custom_types.Config(**config_template)
