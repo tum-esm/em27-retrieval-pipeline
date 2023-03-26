@@ -4,7 +4,7 @@ import pytest
 import tum_esm_utils
 from src import custom_types
 
-PROJECT_DIR = tum_esm_utils.files.get_parent_dir_path(__file__, current_depth=2)
+PROJECT_DIR = tum_esm_utils.files.get_parent_dir_path(__file__, current_depth=3)
 
 
 @pytest.mark.ci

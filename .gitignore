@@ -2,6 +2,7 @@
 hidden/
 *.out
 config.json
+manual-queue.json
 
 data/**/*.map
 data/**/*.mod
