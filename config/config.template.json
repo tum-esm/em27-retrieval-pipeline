@@ -10,7 +10,7 @@
             "interferograms": "path-to-datalogger-ifg-upload-directory"
         },
         "data_dst_dirs": {
-            "raw_results": "path-to-results-storage"
+            "results": "path-to-results-storage"
         }
     },
     "vertical_profiles": {
@@ -41,13 +41,35 @@
     "output_merging_targets": [
         {
             "campaign_id": "muccnet",
-            "data_types": [],
+            "data_types": [
+                "gnd_p",
+                "gnd_t",
+                "app_sza",
+                "azimuth",
+                "xh2o",
+                "xair",
+                "xco2",
+                "xch4",
+                "xco",
+                "xch4_s5p"
+            ],
             "sampling_rate": "1 min",
             "dst_dir": "path-to-merged-output"
         },
         {
             "campaign_id": "hamburg",
-            "data_types": [],
+            "data_types": [
+                "gnd_p",
+                "gnd_t",
+                "app_sza",
+                "azimuth",
+                "xh2o",
+                "xair",
+                "xco2",
+                "xch4",
+                "xco",
+                "xch4_s5p"
+            ],
             "sampling_rate": "1 min",
             "dst_dir": "path-to-merged-output"
         }
