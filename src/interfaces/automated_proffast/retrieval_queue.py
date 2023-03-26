@@ -34,10 +34,11 @@ class RetrievalQueue:
         self.logger = logger
         self.config = config
 
-        self.em27_metadata: tum_esm_em27_metadata.interfaces.EM27MetadataInterface = (
-            em27_metadata
-        )
-        if self.em27_metadata is None:
+        self.em27_metadata: tum_esm_em27_metadata.interfaces.EM27MetadataInterface
+
+        if em27_metadata is not None:
+            self.em27_metadata = em27_metadata
+        else:
             self.em27_metadata = tum_esm_em27_metadata.load_from_github(
                 github_repository=self.config.general.location_data.github_repository,
                 access_token=self.config.general.location_data.access_token,
@@ -58,7 +59,7 @@ class RetrievalQueue:
         next_manual_item = self._next_item_from_manual_queue()
         next_storage_item = (
             self._next_item_from_storage_directory()
-            if self.config.automated_proffast.process_data_automatically
+            if self.config.automated_proffast.data_sources.storage
             else None
         )
 
@@ -105,15 +106,15 @@ class RetrievalQueue:
             (
                 datetime.utcnow()
                 - timedelta(
-                    days=self.config.automated_proffast.data_filter.min_days_delay
+                    days=self.config.automated_proffast.storage_data_filter.min_days_delay
                 )
             ).strftime("%Y%m%d"),
-            self.config.automated_proffast.data_filter.to_date,
+            self.config.automated_proffast.storage_data_filter.to_date,
         )
         date_strings = [
             str(d)
             for d in range(
-                int(self.config.automated_proffast.data_filter.from_date),
+                int(self.config.automated_proffast.storage_data_filter.from_date),
                 int(max_date_string) + 1,
             )
             if (tum_esm_utils.text.is_date_string(str(d)))
@@ -122,7 +123,9 @@ class RetrievalQueue:
         for date in date_strings:
             for (
                 sensor_id
-            ) in self.config.automated_proffast.data_filter.sensor_ids_to_consider:
+            ) in (
+                self.config.automated_proffast.storage_data_filter.sensor_ids_to_consider
+            ):
                 if self._is_marked_as_processed(sensor_id, date):
                     continue
 

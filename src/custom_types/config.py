@@ -163,7 +163,7 @@ class VerticalProfilesRequestScopeConfig(BaseModel):
     )
 
 
-class AutomatedProffastDataFilterConfig(BaseModel):
+class AutomatedProffastStorageDataFilterConfig(BaseModel):
     """Pydantic model:
 
     ```python
@@ -190,6 +190,24 @@ class AutomatedProffastDataFilterConfig(BaseModel):
     )
     _val_min_days_delay = validator("min_days_delay", pre=True, allow_reuse=True)(
         validate_int(minimum=0, maximum=60),
+    )
+
+
+class AutomatedProffastDataSourcesConfig(BaseModel):
+    """Pydantic model:
+
+    ```python
+    storage: bool
+    manual_queue: bool
+    ```
+    """
+
+    storage: bool
+    manual_queue: bool
+
+    # validators
+    _val_bool = validator("storage", "manual_queue", pre=True, allow_reuse=True)(
+        validate_bool()
     )
 
 
@@ -225,18 +243,13 @@ class AutomatedProffastConfig(BaseModel):
     """Pydantic model:
 
     ```python
-    process_data_automatically: bool
-    data_filter: AutomatedProffastDataFilterConfig
+    data_sources: AutomatedProffastDataSourcesConfig
+    storage_data_filter: AutomatedProffastStorageDataFilterConfig
     ```
     """
 
-    process_data_automatically: bool
-    data_filter: AutomatedProffastDataFilterConfig
-
-    # validators
-    _val_bool = validator("process_data_automatically", pre=True, allow_reuse=True)(
-        validate_bool()
-    )
+    data_sources: AutomatedProffastDataSourcesConfig
+    storage_data_filter: AutomatedProffastStorageDataFilterConfig
 
 
 class OutputMergingTargetConfig(BaseModel):
