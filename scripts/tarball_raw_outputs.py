@@ -1,8 +1,13 @@
 """Ths script bundles the raw output files of the Proffast Pylot into a single tarball."""
 
 import os
+import sys
 import tum_esm_utils
-from . import utils
+
+PROJECT_DIR = tum_esm_utils.files.get_parent_dir_path(__file__, current_depth=2)
+sys.path.append(PROJECT_DIR)
+
+from src import utils
 
 
 if __name__ == "__main__":
