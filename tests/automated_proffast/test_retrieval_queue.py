@@ -1,27 +1,18 @@
 import json
 import os
+from typing import Optional
 import pytest
 import tum_esm_em27_metadata
 from src import custom_types, interfaces, utils
-from ..fixtures import provide_tmp_config
+from ..fixtures import provide_tmp_config, provide_tmp_manual_queue
 import dotenv
 
 dir = os.path.dirname
 PROJECT_DIR = dir(dir(os.path.abspath(__file__)))
 dotenv.load_dotenv(os.path.join(PROJECT_DIR, "tests", ".env"))
 
-
-@pytest.mark.ci
-def test_retrieval_queue(provide_tmp_config: custom_types.Config) -> None:
-    config = provide_tmp_config
-    config.automated_proffast.process_data_automatically = True
-    config.automated_proffast.data_filter.sensor_ids_to_consider = ["so"]
-    config.automated_proffast.data_filter.from_date = "20170608"
-    config.automated_proffast.data_filter.to_date = "20170609"
-
-    logger = utils.automated_proffast.Logger("testing", print_only=True)
-
-    locations = [
+em27_metadata = tum_esm_em27_metadata.interfaces.EM27MetadataInterface(
+    locations=[
         tum_esm_em27_metadata.types.Location(
             location_id="LOC1",
             details="...",
@@ -29,48 +20,91 @@ def test_retrieval_queue(provide_tmp_config: custom_types.Config) -> None:
             lon=0.0,
             alt=0.0,
         )
-    ]
-    sensors = [
+    ],
+    sensors=[
         tum_esm_em27_metadata.types.Sensor(
             sensor_id="so",
             serial_number=1,
             utc_offsets=[
                 tum_esm_em27_metadata.types.SensorUTCOffset(
-                    from_date="20170608", to_date="20170609", utc_offset=0
+                    from_date="20170101", to_date="20171231", utc_offset=0
                 )
             ],
             different_pressure_data_source=[],
             pressure_calibration_factors=[
                 tum_esm_em27_metadata.types.SensorPressureCalibrationFactor(
-                    from_date="20170608", to_date="20170609", factor=1.0
+                    from_date="20170101", to_date="20171231", factor=1.0
                 ),
             ],
             locations=[
                 tum_esm_em27_metadata.types.SensorLocation(
-                    from_date="20170608", to_date="20170609", location_id="LOC1"
+                    from_date="20170101", to_date="20171231", location_id="LOC1"
                 )
             ],
         )
-    ]
+    ],
+    campaigns=[],
+)
 
+
+def check_next_item(
+    i: Optional[tum_esm_em27_metadata.types.SensorDataContext],
+    expected_date: Optional[str],
+) -> None:
+    if i is None:
+        assert expected_date is None
+    else:
+        assert i.date == expected_date
+
+
+@pytest.mark.ci
+def test_retrieval_queue(
+    provide_tmp_config: custom_types.Config,
+    provide_tmp_manual_queue: custom_types.ManualQueue,
+) -> None:
+    config = provide_tmp_config
+    config.automated_proffast.storage_data_filter.from_date = "20170608"
+    config.automated_proffast.storage_data_filter.to_date = "20170609"
+    logger = utils.automated_proffast.Logger("testing", print_only=True)
+
+    # test queue when no data is available
+    config.automated_proffast.data_sources.storage = False
+    config.automated_proffast.data_sources.manual_queue = False
     retrieval_queue = interfaces.automated_proffast.RetrievalQueue(
-        config,
-        logger,
-        em27_metadata=tum_esm_em27_metadata.interfaces.EM27MetadataInterface(
-            locations=locations, sensors=sensors, campaigns=[]
-        ),
+        config, logger, em27_metadata=em27_metadata
     )
+    check_next_item(retrieval_queue.get_next_item(), None)
 
-    next_item_1 = retrieval_queue.get_next_item()
-    print(f"next_item_1: {next_item_1}")
-    assert next_item_1.sensor_id == "so"
-    assert next_item_1.date == "20170609"
+    # test queue when only stored data is available
+    config.automated_proffast.data_sources.storage = True
+    config.automated_proffast.data_sources.manual_queue = False
+    retrieval_queue = interfaces.automated_proffast.RetrievalQueue(
+        config, logger, em27_metadata=em27_metadata
+    )
+    check_next_item(retrieval_queue.get_next_item(), "20170609")
+    check_next_item(retrieval_queue.get_next_item(), "20170608")
+    check_next_item(retrieval_queue.get_next_item(), None)
 
-    next_item_2 = retrieval_queue.get_next_item()
-    print(f"next_item_2: {next_item_2}")
-    assert next_item_2.sensor_id == "so"
-    assert next_item_2.date == "20170608"
+    # test queue when only manual queue data is available
+    config.automated_proffast.data_sources.storage = False
+    config.automated_proffast.data_sources.manual_queue = True
+    retrieval_queue = interfaces.automated_proffast.RetrievalQueue(
+        config, logger, em27_metadata=em27_metadata
+    )
+    check_next_item(retrieval_queue.get_next_item(), "20170103")
+    check_next_item(retrieval_queue.get_next_item(), "20170101")
+    check_next_item(retrieval_queue.get_next_item(), "20170102")
+    check_next_item(retrieval_queue.get_next_item(), None)
 
-    next_item_3 = retrieval_queue.get_next_item()
-    print(f"next_item_3: {next_item_3}")
-    assert next_item_3 is None
+    # test queue when there is both manual queue data and stored data
+    config.automated_proffast.data_sources.storage = True
+    config.automated_proffast.data_sources.manual_queue = True
+    retrieval_queue = interfaces.automated_proffast.RetrievalQueue(
+        config, logger, em27_metadata=em27_metadata
+    )
+    check_next_item(retrieval_queue.get_next_item(), "20170103")
+    check_next_item(retrieval_queue.get_next_item(), "20170101")
+    check_next_item(retrieval_queue.get_next_item(), "20170609")
+    check_next_item(retrieval_queue.get_next_item(), "20170608")
+    check_next_item(retrieval_queue.get_next_item(), "20170102")
+    check_next_item(retrieval_queue.get_next_item(), None)

@@ -56,12 +56,15 @@ class RetrievalQueue:
 
         self.iteration_count += 1
 
-        next_manual_item = self._next_item_from_manual_queue()
-        next_storage_item = (
-            self._next_item_from_storage_directory()
-            if self.config.automated_proffast.data_sources.storage
-            else None
-        )
+        next_manual_item: Optional[ManualQueueItem] = None
+        if self.config.automated_proffast.data_sources.manual_queue:
+            next_manual_item = self._next_item_from_manual_queue()
+
+        next_storage_item: Optional[
+            tum_esm_em27_metadata.types.SensorDataContext
+        ] = None
+        if self.config.automated_proffast.data_sources.storage:
+            next_storage_item = self._next_item_from_storage_directory()
 
         def process_scheduler_choice(
             choice: tum_esm_em27_metadata.types.SensorDataContext,
@@ -139,7 +142,7 @@ class RetrievalQueue:
                 # the current execution, hence it will not be marked
                 # as being processed
                 if (not self._ifgs_exist(sensor_id, date)) or (
-                    not self._upload_is_complete(sensor_id, date)
+                    self._upload_is_incomplete(sensor_id, date)
                 ):
                     continue
 
@@ -173,9 +176,7 @@ class RetrievalQueue:
             # skip this date right now it upload is incomplete
             # -> this might change during the current execution,
             # hence it will not be marked as being processed
-            if (not self._ifgs_exist(next_item.sensor_id, next_item.date)) or (
-                not self._upload_is_complete(next_item.sensor_id, next_item.date)
-            ):
+            if self._upload_is_incomplete(next_item.sensor_id, next_item.date):
                 continue
 
             # do not consider if there is no location data
@@ -235,28 +236,21 @@ class RetrievalQueue:
         )
         return successful_output_exists or failed_output_exists
 
-    def _upload_is_complete(self, sensor_id: str, date: str) -> bool:
+    def _upload_is_incomplete(self, sensor_id: str, date: str) -> bool:
         """
         If the dir_path contains a file "upload-meta.json", then this
         function returns whether the internally used format indicates
         a completed upload. Otherwise it will just return True
         """
-        upload_meta_path = os.path.join(
-            self.config.general.data_src_dirs.interferograms,
-            sensor_id,
-            date,
-            "upload-meta.json",
-        )
-        if not os.path.isfile(upload_meta_path):
-            return True
-
         try:
-            with open(upload_meta_path) as f:
-                upload_meta = json.load(f)
-            pyra_upload_is_complete = upload_meta["complete"]
-            assert isinstance(
-                pyra_upload_is_complete, bool
-            ), "upload-meta.complete is not a boolean"
-            return pyra_upload_is_complete
-        except Exception as e:
-            raise Exception(f'upload-meta.json at "{upload_meta_path}" is invalid: {e}')
+            with open(
+                os.path.join(
+                    self.config.general.data_src_dirs.interferograms,
+                    sensor_id,
+                    date,
+                    "upload-meta.json",
+                )
+            ) as f:
+                return False == json.load(f)["complete"]  # type: ignore
+        except:
+            return False
