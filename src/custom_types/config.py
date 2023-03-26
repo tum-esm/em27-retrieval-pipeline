@@ -175,8 +175,8 @@ class AutomatedProffastDataFilterConfig(BaseModel):
     """
 
     sensor_ids_to_consider: list[str]
-    start_date: str
-    end_date: str
+    from_date: str
+    to_date: str
     min_days_delay: int
 
     # validators
@@ -185,11 +185,7 @@ class AutomatedProffastDataFilterConfig(BaseModel):
     )(
         _validate_list(min_len=1),
     )
-    _val_date_string = validator(
-        *["start_date", "end_date"],
-        pre=True,
-        allow_reuse=True,
-    )(
+    _val_date_string = validator("from_date", "to_date", pre=True, allow_reuse=True)(
         validate_str(is_date_string=True),
     )
     _val_min_days_delay = validator("min_days_delay", pre=True, allow_reuse=True)(

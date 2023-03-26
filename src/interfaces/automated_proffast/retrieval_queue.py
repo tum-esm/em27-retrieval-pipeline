@@ -97,12 +97,12 @@ class RetrievalQueue:
                     days=self.config.automated_proffast.data_filter.min_days_delay
                 )
             ).strftime("%Y%m%d"),
-            self.config.automated_proffast.data_filter.end_date,
+            self.config.automated_proffast.data_filter.to_date,
         )
         date_strings = [
             str(d)
             for d in range(
-                int(self.config.automated_proffast.data_filter.start_date),
+                int(self.config.automated_proffast.data_filter.from_date),
                 int(max_date_string) + 1,
             )
             if (tum_esm_utils.text.is_date_string(str(d)))
