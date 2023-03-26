@@ -8,7 +8,7 @@ def run(
     pylot_session: custom_types.PylotSession,
 ) -> None:
     src_filepath = os.path.join(
-        config.data_src_dirs.vertical_profiles,
+        config.general.data_src_dirs.vertical_profiles,
         pylot_session.sensor_id,
         f"{pylot_session.sensor_id}{pylot_session.date}.map",
     )

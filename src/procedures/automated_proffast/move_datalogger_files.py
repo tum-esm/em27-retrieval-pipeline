@@ -9,7 +9,7 @@ def run(
     pylot_session: custom_types.PylotSession,
 ) -> None:
     src_filepath = os.path.join(
-        config.data_src_dirs.datalogger,
+        config.general.data_src_dirs.datalogger,
         pylot_session.pressure_data_source,
         f"datalogger-{pylot_session.pressure_data_source}-{pylot_session.date}.csv",
     )

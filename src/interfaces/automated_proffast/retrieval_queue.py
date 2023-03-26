@@ -28,8 +28,8 @@ class RetrievalQueue:
         self.logger = logger
         self.config = config
         self.location_data = tum_esm_em27_metadata.load_from_github(
-            github_repository=self.config.location_data.github_repository,
-            access_token=self.config.location_data.access_token,
+            github_repository=self.config.general.location_data.github_repository,
+            access_token=self.config.general.location_data.access_token,
         )
 
         self.processed_sensor_dates: dict[str, list[str]] = {}
@@ -47,7 +47,7 @@ class RetrievalQueue:
         next_manual_item = self._next_item_from_manual_queue()
         next_storage_item = (
             self._next_item_from_storage_directory()
-            if self.config.process_data_automatically
+            if self.config.automated_proffast.process_data_automatically
             else None
         )
 
@@ -93,21 +93,25 @@ class RetrievalQueue:
         max_date_string = min(
             (
                 datetime.utcnow()
-                - timedelta(days=self.config.data_filter.min_days_delay)
+                - timedelta(
+                    days=self.config.automated_proffast.data_filter.min_days_delay
+                )
             ).strftime("%Y%m%d"),
-            self.config.data_filter.end_date,
+            self.config.automated_proffast.data_filter.end_date,
         )
         date_strings = [
             str(d)
             for d in range(
-                int(self.config.data_filter.start_date),
+                int(self.config.automated_proffast.data_filter.start_date),
                 int(max_date_string) + 1,
             )
             if (tum_esm_utils.text.is_date_string(str(d)))
         ][::-1]
 
         for date in date_strings:
-            for sensor_id in self.config.data_filter.sensor_ids_to_consider:
+            for (
+                sensor_id
+            ) in self.config.automated_proffast.data_filter.sensor_ids_to_consider:
                 if self._is_marked_as_processed(sensor_id, date):
                     continue
 
@@ -188,7 +192,7 @@ class RetrievalQueue:
         """for a given sensor_id and date, deter"""
         return os.path.isdir(
             os.path.join(
-                self.config.data_src_dirs.interferograms,
+                self.config.general.data_src_dirs.interferograms,
                 sensor_id,
                 date,
             )
@@ -199,7 +203,7 @@ class RetrievalQueue:
         outputs exist in the src directory"""
         successful_output_exists = os.path.isdir(
             os.path.join(
-                self.config.data_dst_dirs.results,
+                self.config.general.data_dst_dirs.results,
                 sensor_id,
                 "proffast-2.2-outputs",
                 "successful",
@@ -208,7 +212,7 @@ class RetrievalQueue:
         )
         failed_output_exists = os.path.isdir(
             os.path.join(
-                self.config.data_dst_dirs.results,
+                self.config.general.data_dst_dirs.results,
                 sensor_id,
                 "proffast-2.2-outputs",
                 "failed",
@@ -224,7 +228,7 @@ class RetrievalQueue:
         a completed upload. Otherwise it will just return True
         """
         upload_meta_path = os.path.join(
-            self.config.data_src_dirs.interferograms,
+            self.config.general.data_src_dirs.interferograms,
             sensor_id,
             date,
             "upload-meta.json",

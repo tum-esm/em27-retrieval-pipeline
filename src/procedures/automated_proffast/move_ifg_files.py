@@ -15,7 +15,9 @@ def run(
     # find all filenames of interferograms
     # possible file name patterns: ma20201123.ifg.0001, ma20220316s0e00a.0001
     ifg_src_directory = os.path.join(
-        config.data_src_dirs.interferograms, pylot_session.sensor_id, pylot_session.date
+        config.general.data_src_dirs.interferograms,
+        pylot_session.sensor_id,
+        pylot_session.date,
     )
     expected_ifg_pattern = re.compile(r"^" + pylot_session.sensor_id + r"\d{8}.*\.\d+$")
     filenames = [

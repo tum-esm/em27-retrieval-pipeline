@@ -62,7 +62,7 @@ def get_query_list(
 
 
 def upload_request(
-    config: custom_types.FTPServerConfig,
+    config: custom_types.config.VerticalProfilesFTPServerConfig,
     query: custom_types.DownloadQuery,
     ftp: FTP,
     version: Literal["GGG2014", "GGG2020"],
@@ -148,11 +148,12 @@ def download_data(
     download_start = time.time()
     while (
         response != remote_dirs
-        and time.time() - download_start < config.ftp_server.download_timeout
+        and time.time() - download_start
+        < config.vertical_profiles.ftp_server.download_timeout
     ):
 
         if wait:
-            time.sleep(config.ftp_server.download_sleep)
+            time.sleep(config.vertical_profiles.ftp_server.download_sleep)
 
         for remote_dir in remote_dirs - response:
             nlst = ftp.nlst(remote_dir)
@@ -197,7 +198,11 @@ def get_date_suffixes(
     from_date = custom_types.str_to_dt(query.from_date)
     to_date = custom_types.str_to_dt(query.to_date)
     max_delay = max(
-        from_date, (datetime.utcnow() - timedelta(days=config.ftp_server.max_day_delay))
+        from_date,
+        (
+            datetime.utcnow()
+            - timedelta(days=config.vertical_profiles.ftp_server.max_day_delay)
+        ),
     )
 
     if version == "GGG2020":

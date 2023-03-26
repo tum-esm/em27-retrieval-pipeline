@@ -43,8 +43,8 @@ def get_daily_sensor_sets(
     # Request sensor and location data
     if em27_metadata is None:
         em27_metadata = tum_esm_em27_metadata.load_from_github(
-            github_repository=config.location_data.github_repository,
-            access_token=config.location_data.access_token,
+            github_repository=config.general.location_data.github_repository,
+            access_token=config.general.location_data.access_token,
         )
 
     daily_sensor_sets: dict[
@@ -56,16 +56,23 @@ def get_daily_sensor_sets(
 
             # do not consider sensor locations that are outside of the request scope
             if (
-                sensor_location.to_date < config.request_scope.from_date
-                or sensor_location.from_date > config.request_scope.to_date
+                sensor_location.to_date
+                < config.vertical_profiles.request_scope.from_date
+            ) or (
+                sensor_location.from_date
+                > config.vertical_profiles.request_scope.to_date
             ):
                 continue
 
             # trim reqested dates to request scope
             from_date_string = max(
-                sensor_location.from_date, config.request_scope.from_date
+                sensor_location.from_date,
+                config.vertical_profiles.request_scope.from_date,
             )
-            to_date_string = min(sensor_location.to_date, config.request_scope.to_date)
+            to_date_string = min(
+                sensor_location.to_date,
+                config.vertical_profiles.request_scope.to_date,
+            )
 
             # get location data
             location = next(
@@ -122,7 +129,7 @@ def export_data(
     Exports data from .cache/{version} to {config.dst_dir}/{version}.
     Creates a subdirectory for each sensor id in the daily_sensor_set.
     """
-    dst_path = os.path.join(config.request_scope.dst_dir, version)
+    dst_path = os.path.join(config.vertical_profiles.request_scope.dst_dir, version)
 
     for location, location_sensor_sets in daily_sensor_sets.items():
         for date, sensors in location_sensor_sets.items():

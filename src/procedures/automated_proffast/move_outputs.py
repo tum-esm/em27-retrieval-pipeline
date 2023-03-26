@@ -66,14 +66,14 @@ def run(
     # DETERMINE OUTPUT DIRECTORY PATHS
 
     output_dst_successful = os.path.join(
-        config.data_dst_dirs.results,
+        config.general.data_dst_dirs.results,
         pylot_session.sensor_id,
         "proffast-2.2-outputs",
         "successful",
         pylot_session.date,
     )
     output_dst_failed = os.path.join(
-        config.data_dst_dirs.results,
+        config.general.data_dst_dirs.results,
         pylot_session.sensor_id,
         "proffast-2.2-outputs",
         "failed",
