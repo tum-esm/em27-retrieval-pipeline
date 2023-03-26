@@ -4,7 +4,7 @@ import tum_esm_utils
 from typing import Optional
 from src import custom_types, utils
 
-PROJECT_DIR = tum_esm_utils.files.get_parent_dir_path(__file__, 3)
+PROJECT_DIR = tum_esm_utils.files.get_parent_dir_path(__file__, current_depth=4)
 MANUAL_QUEUE_FILE = os.path.join(PROJECT_DIR, "config", "manual-queue.json")
 
 

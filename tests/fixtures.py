@@ -32,14 +32,14 @@ def download_sample_data() -> Generator[None, None, None]:
 
     # download testing data tarball if it does not exist
     if not os.path.isfile(os.path.join(testing_data_path, tarball_filename)):
-        utils.run_shell_command(
+        tum_esm_utils.shell.run_shell_command(
             f"wget --quiet https://syncandshare.lrz.de/dl/"
             + "fiA9bjdafNcuVGrmMfDL49/{tarball_filename}",
             working_directory=testing_data_path,
         )
 
     # extract tarball
-    utils.run_shell_command(
+    tum_esm_utils.shell.run_shell_command(
         f"tar -xf {tarball_filename}",
         working_directory=testing_data_path,
     )
@@ -53,7 +53,7 @@ def download_sample_data() -> Generator[None, None, None]:
     ]:
         if os.path.isdir(f"{testing_data_path}/{d}"):
             shutil.rmtree(f"{testing_data_path}/{d}")
-        utils.run_shell_command(
+        tum_esm_utils.shell.run_shell_command(
             f"cp -r {testing_data_path}/{s}/* {testing_data_path}/{d}",
             working_directory=testing_data_path,
         )
@@ -85,10 +85,18 @@ def provide_tmp_config() -> Generator[custom_types.Config, None, None]:
         config_template["general"]["data_src_dirs"][key] = os.path.join(
             PROJECT_DIR, "data", "testing", "pipeline", key
         )
-    # enable automatic probessing in config
+
+    # enable processing of storage data of sensors "mc" and "so"
     config_template["general"]["data_dst_dirs"]["results"] = os.path.join(
         PROJECT_DIR, "data", "testing", "pipeline", "results_raw"
     )
+    config_template["automated_proffast"]["data_sources"]["storage"] = True
+    config_template["automated_proffast"]["data_sources"]["manual-queue"] = True
+    config_template["automated_proffast"]["storage_data_filter"][
+        "sensor_ids_to_consider"
+    ] = ["mc", "so"]
+
+    # define target directory for merged results
     config_template["output_merging_targets"][0]["dst_dir"] = os.path.join(
         PROJECT_DIR, "data", "testing", "pipeline", "results_merged"
     )
@@ -101,3 +109,49 @@ def provide_tmp_config() -> Generator[custom_types.Config, None, None]:
     os.remove(config_path)
     if os.path.isfile(tmp_config_path):
         os.rename(tmp_config_path, config_path)
+
+
+@pytest.fixture(scope="function")
+def provide_tmp_manual_queue() -> Generator[custom_types.ManualQueue, None, None]:
+    """Create a temporary manual queue file that contains items for
+    testing."""
+
+    manual_queue_path = os.path.join(PROJECT_DIR, "config", "manual-queue.json")
+
+    # backup original config to restore it later
+    tmp_manual_queue_path = os.path.join(PROJECT_DIR, "config", "manual-queue.tmp.json")
+    assert not os.path.isfile(
+        tmp_manual_queue_path
+    ), f'"{tmp_manual_queue_path}" should not exist'
+    if os.path.isfile(manual_queue_path):
+        os.rename(manual_queue_path, tmp_manual_queue_path)
+
+    manual_queue = custom_types.ManualQueue(
+        items=[
+            custom_types.ManualQueueItem(
+                sensor_id="so",
+                date="20170101",
+                priority=1,
+            ),
+            custom_types.ManualQueueItem(
+                sensor_id="so",
+                date="20170103",
+                priority=1,
+            ),
+            custom_types.ManualQueueItem(
+                sensor_id="so",
+                date="20170102",
+                priority=-1,
+            ),
+        ]
+    )
+
+    tum_esm_utils.files.dump_json_file(manual_queue_path, manual_queue.dict()["items"])
+
+    # run test
+    yield manual_queue
+
+    # possibly restore original config
+    os.remove(manual_queue_path)
+    if os.path.isfile(tmp_manual_queue_path):
+        os.rename(tmp_manual_queue_path, manual_queue_path)

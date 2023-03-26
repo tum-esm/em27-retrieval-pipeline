@@ -10,7 +10,7 @@ CONFIG_PATH = os.path.join(PROJECT_DIR, "config", "config.json")
 
 
 @pytest.mark.integration
-def test_config():
+def test_config() -> None:
     with open(CONFIG_PATH, "r") as f:
         config = custom_types.Config(**json.load(f))
 
