@@ -74,13 +74,13 @@ def test_get_daily_sensor_sets(provide_tmp_config: custom_types.Config) -> None:
     ]
 
     expected_daily_sensor_sets = {
-        custom_types.QueryLocation(lat=10, lon=10): {
+        custom_types.DownloadQueryLocation(lat=10, lon=10): {
             "10000102": {"c"},
             "10000103": {"a", "b", "c"},
             "10000104": {"b", "c"},
             "10000105": {"c"},
         },
-        custom_types.QueryLocation(lat=11, lon=11): {
+        custom_types.DownloadQueryLocation(lat=11, lon=11): {
             "10000102": {"d"},
             "10000103": {"d"},
             "10000104": {"a", "d"},
@@ -89,7 +89,7 @@ def test_get_daily_sensor_sets(provide_tmp_config: custom_types.Config) -> None:
     }
 
     assert (
-        procedures.get_daily_sensor_sets(
+        procedures.vertical_profiles.get_daily_sensor_sets(
             config,
             em27_metadata=tum_esm_em27_metadata.interfaces.EM27MetadataInterface(
                 locations, sensors, []
