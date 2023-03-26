@@ -15,9 +15,9 @@ def run() -> None:
         config = custom_types.Config(**json.load(f))
 
     # Request campaign, sensor and location data
-    campaigns = procedures.get_campaign_data(config.github)
+    campaigns = procedures.merged_outputs.get_campaign_data(config.github)
     # locations = procedures.get_location_data(config.github)
-    sensors = procedures.get_sensor_data(config.github)
+    sensors = procedures.merged_outputs.get_sensor_data(config.github)
 
     # Extract campaign
     campaign_name = config.request.campaign_name
@@ -26,10 +26,12 @@ def run() -> None:
     campaign = campaigns[campaign_name]
 
     # Generate daily sensor sets
-    daily_sensor_sets = procedures.get_daily_sensor_sets(config.request, campaign, sensors)
+    daily_sensor_sets = procedures.merged_outputs.get_daily_sensor_sets(
+        config.request, campaign, sensors
+    )
 
     # Filter out existing files
-    daily_sensor_sets = procedures.filter_daily_sensor_sets(
+    daily_sensor_sets = procedures.merged_outputs.filter_daily_sensor_sets(
         config.request, campaign_name, daily_sensor_sets
     )
 
@@ -37,17 +39,21 @@ def run() -> None:
         return
 
     # For each day, query database and produce .csv
-    for date, sensor_set in track(daily_sensor_sets.items(), description="Downloading..."):
+    for date, sensor_set in track(
+        daily_sensor_sets.items(), description="Downloading..."
+    ):
 
         sensor_dataframes = {}
         for sensor in sensor_set:
 
             # Request raw data for individual sensors
-            sensor_dataframe = procedures.get_sensor_dataframe(config, date, sensor)
+            sensor_dataframe = procedures.merged_outputs.get_sensor_dataframe(
+                config, date, sensor
+            )
             if not sensor_dataframe.empty:
 
                 # Post-process the raw dataframes
-                sensor_dataframe = procedures.post_process_dataframe(
+                sensor_dataframe = procedures.merged_outputs.post_process_dataframe(
                     sensor_dataframe, config.request.sampling_rate
                 )
                 sensor_dataframes[sensor] = sensor_dataframe
@@ -55,11 +61,11 @@ def run() -> None:
         if sensor_dataframes:
 
             # Combine sensor_dataframes
-            daily_dataframe = procedures.get_daily_dataframe(
+            daily_dataframe = procedures.merged_outputs.get_daily_dataframe(
                 config.request, campaign, sensor_dataframes
             )
             # Get metadata str
-            metadata = procedures.get_metadata()
+            metadata = procedures.merged_outputs.get_metadata()
 
             filename = os.path.join(
                 config.request.dst_dir, f"{campaign_name}_em27_export_{date}.csv"
