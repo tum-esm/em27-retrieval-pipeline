@@ -17,7 +17,7 @@ def get_empty_sensor_dataframe(
     output_merging_target: custom_types.config.OutputMergingTargetConfig,
 ) -> pl.DataFrame:
     """
-    Returns an EMPTY single sensor dataframe.
+    Returns an empty single sensor dataframe.
 
     The dataframe contains raw station data for one day and one sensor.
     Each requested data type is parsed into a column. The column names
@@ -35,7 +35,7 @@ def get_empty_sensor_dataframe(
     return pl.DataFrame(
         schema={
             "utc": pl.Datetime,
-            **{c: pl.Float64 for c in column_names},
+            **{c: pl.Float32 for c in column_names},
         }
     )
 
@@ -135,10 +135,11 @@ def post_process_dataframe(
     ✗ `get_daily_dataframe` (see below) will be called afterwards and joins the dataframes on "utc".
     """
 
-    if len(df) == 0:
+    if len(df) < 31:
         return df
 
-    # Convert utc to datetime and apply savgol_filter on the data columns
+    # Convert utc to datetime and apply savgol_filter on the
+    # data columns
     df = df.select(
         pl.col("utc"),
         pl.exclude("utc")
@@ -146,8 +147,10 @@ def post_process_dataframe(
         .arr.explode(),
     )
 
-    # Upscale to 1s intervals and interpolate when the gaps are smaller than the MAX_DELTA_FOR_INTERPOLATION
-    # Finally, downsample to the required sampling rate with a mean aggregation on the data columns.
+    # Upscale to 1s intervals and interpolate when the gaps
+    # are smaller than the MAX_DELTA_FOR_INTERPOLATION. Finally,
+    # downsample to the required sampling rate with a mean
+    # aggregation on the data columns.
     df = (
         df.with_columns(
             (pl.col("utc") - pl.col("utc").shift() < MAX_DELTA_FOR_INTERPOLATION).alias(

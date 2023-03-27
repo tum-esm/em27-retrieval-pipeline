@@ -45,6 +45,9 @@ def run() -> None:
             task = progress.add_task("processing dataframes", total=len(date_range))
 
             for date in date_range:
+                sensor_data_contexts: dict[
+                    str, tum_esm_em27_metadata.types.SensorDataContext
+                ] = {}
                 dfs: pl.DataFrame = []
                 found_data_count: int = 0
                 for campaign_station in campaign.stations:
@@ -52,6 +55,9 @@ def run() -> None:
                         sensor_data_context = em27_metadata.get(
                             campaign_station.sensor_id, str(date)
                         )
+                        sensor_data_contexts[
+                            campaign_station.sensor_id
+                        ] = sensor_data_context
                         assert (
                             campaign_station.default_location_id
                             == sensor_data_context.location.location_id
@@ -87,9 +93,19 @@ def run() -> None:
                         output_merging_target.dst_dir,
                         f"{output_merging_target.campaign_id}_em27_export_{date}.csv",
                     )
-                    # with open(filename, "w") as f:
-                    #    f.write(procedures.merged_outputs.get_metadata())
-                    merged_df.write_csv(filename, null_value="NaN", has_header=True)
+                    with open(filename, "w") as f:
+                        f.write(
+                            procedures.merged_outputs.get_metadata(
+                                campaign, sensor_data_contexts
+                            )
+                        )
+                        f.write(
+                            merged_df.write_csv(
+                                null_value="NaN",
+                                has_header=True,
+                                float_precision=9,
+                            )
+                        )
 
                 progress.advance(task)
 
