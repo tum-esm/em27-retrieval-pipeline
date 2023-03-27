@@ -67,7 +67,8 @@ def get_sensor_dataframe(
         sensor_data_context.sensor_id,
         "proffast-2.2-outputs/successful",
         sensor_data_context.date,
-        f"comb_invparms_ma_SN{str(sensor_data_context.serial_number).zfill(3)}_"
+        f"comb_invparms_{sensor_data_context.sensor_id}_"
+        + f"SN{str(sensor_data_context.serial_number).zfill(3)}_"
         + f"{sensor_data_context.date[2:]}-{sensor_data_context.date[2:]}.csv",
     )
     assert os.path.isfile(raw_csv_path), f"file {raw_csv_path} does not exist."
@@ -83,7 +84,6 @@ def get_sensor_dataframe(
             "UTC",
             " gndP",
             " gndT",
-            " latdeg",
             " appSZA",
             " azimuth",
             " XH2O",
@@ -106,7 +106,7 @@ def get_sensor_dataframe(
             f"{sensor_data_context.sensor_id}_xco",
             f"{sensor_data_context.sensor_id}_xch4_s5p",
         ],
-        dtypes={"utc": pl.Datetime, **{c: pl.Float64 for c in column_names}},
+        dtypes={"utc": pl.Datetime, **{c: pl.Float32 for c in column_names}},
     )
 
 

@@ -12,7 +12,7 @@ data/**/*.ifg.*
 data/**/*tar.gz
 
 !.gitkeep
-!data/testing/merging/**/*.csv
+!data/testing/merging/raw/**/*.csv
 !data/vertical_profiles_examples/GGG2014/20200810_48N012E/*
 !data/vertical_profiles_examples/GGG2020/20200810_48N012E/*
 
