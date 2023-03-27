@@ -1,6 +1,7 @@
 import functools
 import os
 from typing import Literal
+import numpy as np
 from scipy.signal import savgol_filter
 import polars as pl
 import tum_esm_em27_metadata
@@ -153,8 +154,52 @@ def post_process_dataframe(
     if len(df) < 31:
         return df
 
-    # Convert utc to datetime and apply savgol_filter on the
-    # data columns
+    # add rows with only nan values in gaps larger than the
+    # MAX_DELTA_FOR_INTERPOLATION timespan. This is necessary
+    # because the savgol_filter does not consider gap size but
+    # only the size of the window. I.e. a data point that is
+    # 2 hours away from the current data point should not
+    # influence the smoothed value of the current data point
+    # even if that point is the next point.
+
+    lower_utc_bound: pl.Datetime = (
+        df.select(pl.min("utc") - pl.duration(seconds=1)).to_series().to_list()[0]
+    )
+    upper_utc_bound: pl.Datetime = (
+        df.select(pl.max("utc") + pl.duration(seconds=1)).to_series().to_list()[0]
+    )
+    utcs_in_gaps: list[pl.Datetime] = (
+        df.select(pl.col("utc"))
+        .with_columns(pl.col("utc").diff().alias("dutc"))
+        .filter(pl.col("dutc") > MAX_DELTA_FOR_INTERPOLATION)
+        .select(pl.col("utc") - pl.duration(seconds=1))
+        .to_series()
+        .to_list()
+    )
+    new_utc_rows = [lower_utc_bound] + utcs_in_gaps + [upper_utc_bound]
+
+    new_df = pl.DataFrame(
+        {
+            "utc": new_utc_rows,
+            **{
+                column_name: [np.nan] * len(new_utc_rows)
+                for column_name in df.columns
+                if column_name != "utc"
+            },
+        },
+        schema={
+            "utc": pl.Datetime,
+            **{
+                column_name: pl.Float32
+                for column_name in df.columns
+                if column_name != "utc"
+            },
+        },
+    )
+
+    df = pl.concat([df, new_df]).sort("utc")
+
+    # apply savgol_filter on the data columns
     df = df.select(
         pl.col("utc"),
         pl.exclude("utc")
