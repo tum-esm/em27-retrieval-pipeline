@@ -6,7 +6,6 @@ import polars as pl
 import tum_esm_em27_metadata
 from src import custom_types
 
-
 # Hardcoding max delta for interpolation. Gaps
 # greater than this are not interpolated.
 MAX_DELTA_FOR_INTERPOLATION = pl.duration(minutes=3)
@@ -73,12 +72,20 @@ def get_sensor_dataframe(
     )
     assert os.path.isfile(raw_csv_path), f"file {raw_csv_path} does not exist."
 
-    column_names = [
-        f"{sensor_data_context.sensor_id}_{type_}"
-        for type_ in output_merging_target.data_types
+    all_data_types = [
+        "gnd_p",
+        "gnd_t",
+        "app_sza",
+        "azimuth",
+        "xh2o",
+        "xair",
+        "xco2",
+        "xch4",
+        "xco",
+        "xch4_s5p",
     ]
 
-    return pl.read_csv(
+    df = pl.read_csv(
         raw_csv_path,
         columns=[
             "UTC",
@@ -95,18 +102,26 @@ def get_sensor_dataframe(
         ],
         new_columns=[
             "utc",
-            f"{sensor_data_context.sensor_id}_gnd_p",
-            f"{sensor_data_context.sensor_id}_gnd_t",
-            f"{sensor_data_context.sensor_id}_app_sza",
-            f"{sensor_data_context.sensor_id}_azimuth",
-            f"{sensor_data_context.sensor_id}_xh2o",
-            f"{sensor_data_context.sensor_id}_xair",
-            f"{sensor_data_context.sensor_id}_xco2",
-            f"{sensor_data_context.sensor_id}_xch4",
-            f"{sensor_data_context.sensor_id}_xco",
-            f"{sensor_data_context.sensor_id}_xch4_s5p",
+            *[f"{sensor_data_context.sensor_id}_{t}" for t in all_data_types],
         ],
-        dtypes={"utc": pl.Datetime, **{c: pl.Float32 for c in column_names}},
+        dtypes={
+            "utc": pl.Datetime,
+            **{
+                f"{sensor_data_context.sensor_id}_{t}": pl.Float32
+                for t in all_data_types
+            },
+        },
+    )
+
+    # only keep the requested columns
+    return df.select(
+        [
+            "utc",
+            *[
+                f"{sensor_data_context.sensor_id}_{type_}"
+                for type_ in output_merging_target.data_types
+            ],
+        ]
     )
 
 
