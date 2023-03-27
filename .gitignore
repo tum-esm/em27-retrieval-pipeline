@@ -9,7 +9,8 @@ data/**/*.mod
 data/**/*.vmr
 data/**/*.csv
 data/**/*.ifg.*
-data/**/*tar.gz
+data/**/*.tar.gz
+data/**/*.png
 
 !.gitkeep
 !data/testing/merging/raw/**/*.csv
