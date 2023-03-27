@@ -25,7 +25,7 @@ def plot(
             "center left",
         ]
     ] = None,
-    xaxis_scale: Literal["hours", "days", "months", "years"] = "years",
+    xaxis_scale: Literal["minutes", "hours", "days", "months", "years"] = "years",
     plot_date_range: Optional[tuple[str, str]] = None,
 ) -> Iterator[plt.Axes]:
     axes = plt.subplot(subplot_row_count, subplot_col_count, subplot_number)
@@ -48,6 +48,11 @@ def plot(
             axes.legend()
         else:
             axes.legend(loc=legend)
+
+    if xaxis_scale == "minutes":
+        axes.xaxis.set_minor_locator(dates.MinuteLocator(byminute=range(60)))
+        axes.xaxis.set_major_locator(dates.MinuteLocator(byminute=range(0, 60, 10)))
+        axes.xaxis.set_major_formatter(dates.DateFormatter("%H:%M"))
 
     if xaxis_scale == "hours":
         axes.xaxis.set_minor_locator(dates.MinuteLocator(byminute=[0, 15, 30, 45]))

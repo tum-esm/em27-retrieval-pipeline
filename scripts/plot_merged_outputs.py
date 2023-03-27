@@ -1,3 +1,4 @@
+from datetime import datetime
 import os
 import polars as pl
 import matplotlib.pyplot as plt
@@ -39,7 +40,6 @@ for date in ["20210329", "20210330"]:
         gridspec_kw={"height_ratios": [2, 2, 2], "hspace": 0.5},
         figsize=(15, 10),
     )
-
     fig.suptitle(
         f"Raw and postprocessed sensor data at {date}",
         fontsize=16,
@@ -62,7 +62,7 @@ for date in ["20210329", "20210330"]:
                 subplot_number=(i * 2) + j + 1,
                 xlabel="UTC time",
                 ylabel=f"X{gas.upper()} [ppm]",
-                title=f"{gas.upper()} of {sensor_id}",
+                title=f"X{gas.upper()} of {sensor_id}",
                 xaxis_scale="hours",
             ) as p:
                 xs_raw = raw_df.get_column("UTC")
@@ -86,4 +86,63 @@ for date in ["20210329", "20210330"]:
                     linestyle="-",
                 )
 
-        save_plot(f"{merged}/{merged_filename[:-4]}.png")
+    save_plot(f"{merged}/{merged_filename[:-4]}.png")
+    plt.close()
+
+    # plot merged data from only half and hour (11.00 - 11.30)
+    fig, _ = plt.subplots(
+        1,
+        2,
+        gridspec_kw={"height_ratios": [1], "hspace": 1, "wspace": 0.25},
+        figsize=(10, 3),
+    )
+    fig.suptitle(f"Postprocessed sensor data at {date}", fontsize=12)
+
+    detailed_merged_df = merged_df.filter(
+        (
+            pl.col("utc")
+            > datetime(
+                year=int(date[:4]),
+                month=int(date[4:6]),
+                day=int(date[6:]),
+                hour=11,
+                minute=0,
+                second=0,
+            )
+        )
+        & (
+            pl.col("utc")
+            < datetime(
+                year=int(date[:4]),
+                month=int(date[4:6]),
+                day=int(date[6:]),
+                hour=11,
+                minute=30,
+                second=0,
+            )
+        )
+    )
+
+    for j, gas in enumerate(["co2", "ch4"]):
+        with plot(
+            subplot_row_count=1,
+            subplot_col_count=2,
+            subplot_number=j + 1,
+            xlabel="UTC time",
+            ylabel=f"X{gas.upper()} [ppm]",
+            title=f"X{gas.upper()}",
+            xaxis_scale="minutes",
+        ) as p:
+            for i, sensor_id in enumerate(["ma", "mb", "mc"]):
+                xs_smooth = detailed_merged_df.get_column("utc")
+                ys_smooth = detailed_merged_df.get_column(f"{sensor_id}_x{gas}")
+                p.scatter(
+                    xs_smooth,
+                    ys_smooth,
+                    s=4,
+                    color=colors[gas][sensor_id],
+                    alpha=1,
+                )
+
+    save_plot(f"{merged}/{merged_filename[:-4]}-detailed.png")
+    plt.close()
