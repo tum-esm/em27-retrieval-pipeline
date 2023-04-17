@@ -8,9 +8,9 @@ import tum_esm_utils
 from src import utils, custom_types, interfaces
 
 
-class ManualQueueItem(BaseModel):
-    sensor_data_context: tum_esm_em27_metadata.types.SensorDataContext
+class QueueItem(BaseModel):
     priority: int
+    sensor_data_context: tum_esm_em27_metadata.types.SensorDataContext
 
 
 class RetrievalQueue:
@@ -33,9 +33,10 @@ class RetrievalQueue:
         data from GitHub using the package `tum_esm_em27_metadata`."""
         self.logger = logger
         self.config = config
+        self.logger.info("Initializing RetrievalQueue")
 
+        self.logger.debug("Fetching metadata from GitHub")
         self.em27_metadata: tum_esm_em27_metadata.interfaces.EM27MetadataInterface
-
         if em27_metadata is not None:
             self.em27_metadata = em27_metadata
         else:
@@ -46,6 +47,10 @@ class RetrievalQueue:
 
         self.processed_sensor_dates: dict[str, list[str]] = {}
         self.iteration_count = 0
+
+        self.logger.debug("Precomputing storage queue items")
+        self.storage_queue_items: list[QueueItem] = self._get_storage_queue_items()
+
         self.logger.info("RetrievalQueue is set up")
 
     def get_next_item(self) -> Optional[tum_esm_em27_metadata.types.SensorDataContext]:
@@ -56,55 +61,41 @@ class RetrievalQueue:
 
         self.iteration_count += 1
 
-        next_manual_item: Optional[ManualQueueItem] = None
+        next_manual_item: Optional[QueueItem] = None
         if self.config.automated_proffast.data_sources.manual_queue:
             next_manual_item = self._next_item_from_manual_queue()
 
-        next_storage_item: Optional[
-            tum_esm_em27_metadata.types.SensorDataContext
-        ] = None
+        next_storage_item: Optional[QueueItem] = None
         if self.config.automated_proffast.data_sources.storage:
             next_storage_item = self._next_item_from_storage_directory()
 
-        def process_scheduler_choice(
-            choice: tum_esm_em27_metadata.types.SensorDataContext,
-            source_label: str,
-        ) -> None:
+        def _output(
+            choice: QueueItem, source_label: str
+        ) -> tum_esm_em27_metadata.types.SensorDataContext:
             self.logger.info(
                 f"Scheduler iteration {self.iteration_count} - using {source_label}"
             )
             self._mark_as_processed(
-                choice.sensor_id,
-                choice.date,
+                choice.sensor_data_context.sensor_id,
+                choice.sensor_data_context.date,
             )
+            return choice.sensor_data_context
 
-        if (next_manual_item is None) and (next_storage_item is not None):
-            process_scheduler_choice(next_storage_item, "storage directory")
-            return next_storage_item
-
-        if (next_manual_item is not None) and (next_storage_item is None):
-            process_scheduler_choice(
-                next_manual_item.sensor_data_context, "manual queue"
-            )
-            return next_manual_item.sensor_data_context
-
-        if (next_manual_item is not None) and (next_storage_item is not None):
+        if next_manual_item is not None:
             if next_manual_item.priority > 0:
-                process_scheduler_choice(
-                    next_manual_item.sensor_data_context, "manual queue (high priority)"
-                )
-                return next_manual_item.sensor_data_context
+                return _output(next_manual_item, "manual queue (high priority)")
             else:
-                process_scheduler_choice(next_storage_item, "storage directory")
-                return next_storage_item
+                if next_storage_item is not None:
+                    return _output(next_storage_item, "storage directory")
+                else:
+                    return _output(next_manual_item, "manual queue (low priority)")
+        else:
+            if next_storage_item is not None:
+                return _output(next_storage_item, "storage directory")
+            else:
+                return None
 
-        # both queue (manual and storage) are empty
-        return None
-
-    def _next_item_from_storage_directory(
-        self,
-    ) -> Optional[tum_esm_em27_metadata.types.SensorDataContext]:
-        """Use the dates from the storage directory"""
+    def _get_storage_queue_items(self) -> list[QueueItem]:
         max_date_string = min(
             (
                 datetime.utcnow()
@@ -123,40 +114,48 @@ class RetrievalQueue:
             if (tum_esm_utils.text.is_date_string(str(d)))
         ][::-1]
 
+        queue_items: list[QueueItem] = []
+
         for date in date_strings:
             for (
                 sensor_id
             ) in (
                 self.config.automated_proffast.storage_data_filter.sensor_ids_to_consider
             ):
-                if self._is_marked_as_processed(sensor_id, date):
-                    continue
-
-                # do not consider if outputs exist or out of filter range
-                if self._outputs_exist(sensor_id, date):
-                    self._mark_as_processed(sensor_id, date)
-                    continue
-
-                # skip this date right now it upload is incomplete
-                # or date is too recent -> this might change during
-                # the current execution, hence it will not be marked
-                # as being processed
-                if (not self._ifgs_exist(sensor_id, date)) or (
-                    self._upload_is_incomplete(sensor_id, date)
+                if (
+                    self._outputs_exist(sensor_id, date)
+                    or (not self._ifgs_exist(sensor_id, date))
+                    or (self._upload_is_incomplete(sensor_id, date))
                 ):
                     continue
 
-                # do not consider if there is no location data
                 try:
-                    return self.em27_metadata.get(sensor_id=sensor_id, date=date)
+                    sensor_data_context = self.em27_metadata.get(
+                        sensor_id=sensor_id, date=date
+                    )
                 except AssertionError as a:
                     self.logger.debug(str(a))
-                    self._mark_as_processed(sensor_id, date)
                     continue
+
+                queue_items.append(
+                    QueueItem(priority=0, sensor_data_context=sensor_data_context)
+                )
+
+        return queue_items
+
+    def _next_item_from_storage_directory(self) -> Optional[QueueItem]:
+        """use the dates from the storage directory"""
+
+        for item in self.storage_queue_items:
+            if not self._is_marked_as_processed(
+                item.sensor_data_context.sensor_id,
+                item.sensor_data_context.date,
+            ):
+                return item
 
         return None
 
-    def _next_item_from_manual_queue(self) -> Optional[ManualQueueItem]:
+    def _next_item_from_manual_queue(self) -> Optional[QueueItem]:
         """use the dates from manual-queue.json"""
         next_items = interfaces.automated_proffast.ManualQueueInterface.get_items(
             self.logger
@@ -181,7 +180,7 @@ class RetrievalQueue:
 
             # do not consider if there is no location data
             try:
-                return ManualQueueItem(
+                return QueueItem(
                     sensor_data_context=self.em27_metadata.get(
                         sensor_id=next_item.sensor_id, date=next_item.date
                     ),
