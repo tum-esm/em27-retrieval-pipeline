@@ -193,6 +193,27 @@ class AutomatedProffastStorageDataFilterConfig(BaseModel):
     )
 
 
+class AutomatedProffastIfgFilePermissionsConfig(BaseModel):
+    """Pydantic model:
+
+    ```python
+    readonly_ifg_during_processing: bool
+    restored_permissions_after_processing: str
+    ```
+    """
+
+    readonly_ifg_during_processing: bool
+    restored_permissions_after_processing: str
+
+    # validators
+    _val_readonly_ifg_during_processing = validator(
+        "readonly_ifg_during_processing", pre=True, allow_reuse=True
+    )(validate_bool())
+    _val_restored_permissions_after_processing = validator(
+        "restored_permissions_after_processing", pre=True, allow_reuse=True
+    )(validate_str(regex=r"^((r|-)(w|-)(x|-)){3}$"))
+
+
 class AutomatedProffastDataSourcesConfig(BaseModel):
     """Pydantic model:
 
@@ -249,6 +270,7 @@ class AutomatedProffastConfig(BaseModel):
     """
 
     data_sources: AutomatedProffastDataSourcesConfig
+    ifg_file_permissions: AutomatedProffastIfgFilePermissionsConfig
     storage_data_filter: AutomatedProffastStorageDataFilterConfig
 
 
