@@ -7,6 +7,9 @@ from utils import print_green, print_red
 PROJECT_DIR = tum_esm_utils.files.get_parent_dir_path(__file__, current_depth=3)
 RUN_SCRIPT_PATH = os.path.join(PROJECT_DIR, "src", "run_automated_proffast.py")
 
+sys.path.append(PROJECT_DIR)
+import src
+
 
 @click.command(
     help="Start the automated proffast as a background "
@@ -42,6 +45,24 @@ def _stop() -> None:
         )
 
 
+@click.command(help="Print out the retrieval queue")
+def _print_retrieval_queue() -> None:
+    main_logger = src.utils.automated_proffast.Logger("main", print_only=True)
+    config = src.utils.load_config()
+    retrieval_queue = src.interfaces.automated_proffast.RetrievalQueue(
+        config, main_logger
+    )
+
+    while True:
+        next_sensor_data_context = retrieval_queue.get_next_item()
+        if next_sensor_data_context is None:
+            main_logger.info("✨ done")
+            break
+        main_logger.info(
+            f"{next_sensor_data_context.sensor_id}/{next_sensor_data_context.date}"
+        )
+
+
 @click.group()
 def automated_proffast_command_group() -> None:
     pass
@@ -50,3 +71,6 @@ def automated_proffast_command_group() -> None:
 automated_proffast_command_group.add_command(_start, name="start")
 automated_proffast_command_group.add_command(_stop, name="stop")
 automated_proffast_command_group.add_command(_is_running, name="is-running")
+automated_proffast_command_group.add_command(
+    _print_retrieval_queue, name="print-retrieval-queue"
+)
