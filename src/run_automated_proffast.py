@@ -12,7 +12,6 @@ sys.path.append(PROJECT_DIR)
 
 from src import utils, interfaces, procedures
 
-MAX_PARALLEL_PROCESSES = 9
 LOCK_FILE = f"{PROJECT_DIR}/src/main.lock"
 lock = filelock.FileLock(LOCK_FILE, timeout=0)
 
@@ -40,13 +39,12 @@ def run() -> None:
 
     try:
         while True:
-
             # start as many new processes as possible
             next_sensor_data_context: Optional[
                 tum_esm_em27_metadata.types.SensorDataContext
             ] = None
             while True:
-                if len(processes) == MAX_PARALLEL_PROCESSES:
+                if len(processes) == config.automated_proffast.max_core_count:
                     break
 
                 next_sensor_data_context = retrieval_queue.get_next_item()

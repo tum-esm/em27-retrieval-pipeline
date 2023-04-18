@@ -264,14 +264,21 @@ class AutomatedProffastConfig(BaseModel):
     """Pydantic model:
 
     ```python
+    max_core_count: int
     data_sources: AutomatedProffastDataSourcesConfig
     storage_data_filter: AutomatedProffastStorageDataFilterConfig
     ```
     """
 
+    max_core_count: int
     data_sources: AutomatedProffastDataSourcesConfig
     ifg_file_permissions: AutomatedProffastIfgFilePermissionsConfig
     storage_data_filter: AutomatedProffastStorageDataFilterConfig
+
+    # validators
+    _val_max_core_count = validator("max_core_count", pre=True, allow_reuse=True)(
+        validate_int(minimum=1, maximum=64),
+    )
 
 
 class OutputMergingTargetConfig(BaseModel):
