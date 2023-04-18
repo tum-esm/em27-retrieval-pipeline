@@ -268,6 +268,7 @@ class AutomatedProffastConfig(BaseModel):
 
     ```python
     max_core_count: int
+    ifg_file_regex: str
     data_sources: AutomatedProffastDataSourcesConfig
     modified_ifg_file_permissions: AutomatedProffastModifiedIfgFilePermissionsConfig
     storage_data_filter: AutomatedProffastStorageDataFilterConfig
@@ -275,6 +276,14 @@ class AutomatedProffastConfig(BaseModel):
     """
 
     max_core_count: int
+
+    ifg_file_regex: str
+    """A regex string to match the ifg file names.
+    
+    For example `^$(SENSOR_ID)$(DATE).*\\.\\d+$`. In this string, `$(SENSOR_ID)`
+    and `$(DATE)` are placeholders for the sensor id and the date of the ifg
+    file."""
+
     data_sources: AutomatedProffastDataSourcesConfig
     modified_ifg_file_permissions: AutomatedProffastModifiedIfgFilePermissionsConfig
     storage_data_filter: AutomatedProffastStorageDataFilterConfig
@@ -282,6 +291,9 @@ class AutomatedProffastConfig(BaseModel):
     # validators
     _val_max_core_count = validator("max_core_count", pre=True, allow_reuse=True)(
         validate_int(minimum=1, maximum=64),
+    )
+    _val_ifg_file_regex = validator("ifg_file_regex", pre=True, allow_reuse=True)(
+        validate_str(min_len=1),
     )
 
 

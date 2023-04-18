@@ -23,11 +23,11 @@ def run(
         pylot_session.sensor_id,
         pylot_session.date,
     )
-
-    # TODO: make ifg regex configurable
-    expected_ifg_pattern = re.compile(
-        r"^" + pylot_session.sensor_id + pylot_session.date + r".*\.\d+$"
-    )
+    expected_ifg_regex = config.automated_proffast.ifg_file_regex.replace(
+        "$(SENSOR_ID)", pylot_session.sensor_id
+    ).replace("$(DATE)", pylot_session.date)
+    expected_ifg_pattern = re.compile(expected_ifg_regex)
+    logger.debug(f"used regex for ifg files: {expected_ifg_regex}")
 
     ifg_filenames = list(
         sorted(
@@ -38,7 +38,6 @@ def run(
             ]
         )
     )
-    # TODO: log used regex
     logger.debug(
         f"{len(ifg_filenames)} ifg files found in "
         + f"src directory ({ifg_src_directory})"
