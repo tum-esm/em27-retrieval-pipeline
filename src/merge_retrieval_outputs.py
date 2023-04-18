@@ -71,6 +71,7 @@ def run() -> None:
                             procedures.merged_outputs.post_process_dataframe(
                                 df,
                                 output_merging_target.sampling_rate,
+                                output_merging_target.max_interpolation_gap_seconds,
                             )
                         )
                         found_data_count += 1

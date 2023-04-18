@@ -7,10 +7,6 @@ import polars as pl
 import tum_esm_em27_metadata
 from src import custom_types
 
-# Hardcoding max delta for interpolation. Gaps
-# greater than this are not interpolated.
-MAX_DELTA_FOR_INTERPOLATION = pl.duration(minutes=3)
-
 
 def get_empty_sensor_dataframe(
     sensor_id: str,
@@ -131,6 +127,7 @@ def post_process_dataframe(
     sampling_rate: Literal[
         "10m", "5m", "2m", "1m", "30s", "15s", "10s", "5s", "2s", "1s"
     ],
+    max_interpolation_gap_seconds: int,
 ) -> pl.DataFrame:
     """Post-processes the dataframe.
 
@@ -171,7 +168,7 @@ def post_process_dataframe(
     utcs_in_gaps: list[pl.Datetime] = (
         df.select(pl.col("utc"))
         .with_columns(pl.col("utc").diff().alias("dutc"))
-        .filter(pl.col("dutc") > MAX_DELTA_FOR_INTERPOLATION)
+        .filter(pl.col("dutc") > pl.duration(seconds=max_interpolation_gap_seconds))
         .select(pl.col("utc") - pl.duration(seconds=1))
         .to_series()
         .to_list()
@@ -213,9 +210,10 @@ def post_process_dataframe(
     # aggregation on the data columns.
     df = (
         df.with_columns(
-            (pl.col("utc") - pl.col("utc").shift() < MAX_DELTA_FOR_INTERPOLATION).alias(
-                "small_gap"
-            )
+            (
+                pl.col("utc") - pl.col("utc").shift()
+                < pl.duration(seconds=max_interpolation_gap_seconds)
+            ).alias("small_gap")
         )
         .upsample(time_column="utc", every="1s")
         .with_columns(pl.col("small_gap").backward_fill())

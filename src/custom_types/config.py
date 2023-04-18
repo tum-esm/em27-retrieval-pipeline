@@ -291,6 +291,7 @@ class OutputMergingTargetConfig(BaseModel):
         "xh2o", "xair", "xco2", "xch4", "xco", "xch4_s5p"
     ]]
     sampling_rate: str
+    max_interpolation_gap_seconds: str
     dst_dir: str
     ```
     """
@@ -313,6 +314,7 @@ class OutputMergingTargetConfig(BaseModel):
     sampling_rate: Literal[
         "10m", "5m", "2m", "1m", "30s", "15s", "10s", "5s", "2s", "1s"
     ]
+    max_interpolation_gap_seconds: int
     dst_dir: str
 
     # validators
@@ -340,6 +342,11 @@ class OutputMergingTargetConfig(BaseModel):
         validate_str(
             allowed=["10m", "5m", "2m", "1m", "30s", "15s", "10s", "5s", "2s", "1s"]
         ),
+    )
+    _val_max_interpolation_gap_seconds = validator(
+        "max_interpolation_gap_seconds", pre=True, allow_reuse=True
+    )(
+        validate_int(minimum=6, maximum=43200),
     )
     _val_dst_dir = validator("dst_dir", pre=True, allow_reuse=True)(
         validate_str(is_directory=True),

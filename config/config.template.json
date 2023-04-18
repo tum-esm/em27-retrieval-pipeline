@@ -61,6 +61,7 @@
                 "xch4_s5p"
             ],
             "sampling_rate": "1m",
+            "max_interpolation_gap_seconds": 180,
             "dst_dir": "path-to-merged-output"
         }
     ]
