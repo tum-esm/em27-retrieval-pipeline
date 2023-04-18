@@ -193,25 +193,28 @@ class AutomatedProffastStorageDataFilterConfig(BaseModel):
     )
 
 
-class AutomatedProffastIfgFilePermissionsConfig(BaseModel):
+class AutomatedProffastModifiedIfgFilePermissionsConfig(BaseModel):
     """Pydantic model:
 
     ```python
-    readonly_ifg_during_processing: bool
-    restored_permissions_after_processing: str
+    during_processing: Optional[str]
+    after_processing: Optional[str]
     ```
     """
 
-    readonly_ifg_during_processing: bool
-    restored_permissions_after_processing: str
+    during_processing: Optional[str]
+    """A unix-like file permission string, e.g. `rwxr-xr-x`."""
+
+    after_processing: Optional[str]
+    """A unix-like file permission string, e.g. `rwxr-xr-x`."""
 
     # validators
-    _val_readonly_ifg_during_processing = validator(
-        "readonly_ifg_during_processing", pre=True, allow_reuse=True
-    )(validate_bool())
-    _val_restored_permissions_after_processing = validator(
-        "restored_permissions_after_processing", pre=True, allow_reuse=True
-    )(validate_str(regex=r"^((r|-)(w|-)(x|-)){3}$"))
+    _val_during_processing = validator("during_processing", pre=True, allow_reuse=True)(
+        validate_str(nullable=True, regex=r"^((r|-)(w|-)(x|-)){3}$")
+    )
+    _val_after_processing = validator("after_processing", pre=True, allow_reuse=True)(
+        validate_str(nullable=True, regex=r"^((r|-)(w|-)(x|-)){3}$")
+    )
 
 
 class AutomatedProffastDataSourcesConfig(BaseModel):
@@ -266,13 +269,14 @@ class AutomatedProffastConfig(BaseModel):
     ```python
     max_core_count: int
     data_sources: AutomatedProffastDataSourcesConfig
+    modified_ifg_file_permissions: AutomatedProffastModifiedIfgFilePermissionsConfig
     storage_data_filter: AutomatedProffastStorageDataFilterConfig
     ```
     """
 
     max_core_count: int
     data_sources: AutomatedProffastDataSourcesConfig
-    ifg_file_permissions: AutomatedProffastIfgFilePermissionsConfig
+    modified_ifg_file_permissions: AutomatedProffastModifiedIfgFilePermissionsConfig
     storage_data_filter: AutomatedProffastStorageDataFilterConfig
 
     # validators

@@ -34,9 +34,9 @@
             "storage": true,
             "manual_queue": true
         },
-        "ifg_file_permissions": {
-            "readonly_ifg_during_processing": true,
-            "restored_permissions_after_processing": "rw-rw-rw-"
+        "modified_ifg_file_permissions": {
+            "during_processing": null,
+            "after_processing": null
         },
         "storage_data_filter": {
             "sensor_ids_to_consider": ["ma", "mb", "mc", "md", "me"],
