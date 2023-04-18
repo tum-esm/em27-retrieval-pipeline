@@ -9,6 +9,7 @@ def get_metadata(
     campaign: tum_esm_em27_metadata.types.Campaign,
     sensor_data_contexts: dict[str, tum_esm_em27_metadata.types.SensorDataContext],
     output_merging_target: custom_types.config.OutputMergingTargetConfig,
+    fixed_sensor_locations: bool,
 ) -> str:
     """Returns a description of the campaign."""
     metadata_lines = [
@@ -39,17 +40,20 @@ def get_metadata(
     metadata_lines.append("")
 
     metadata_lines.append("SENSOR LOCATIONS:")
+    campaign_location_ids = [s.default_location_id for s in campaign.stations]
     for s in campaign.stations:
         sdc = sensor_data_contexts.get(s.sensor_id, None)
         location_id = "no data" if (sdc is None) else sdc.location.location_id
+
+        if fixed_sensor_locations:
+            included_in_file = location_id == s.default_location_id
+        else:
+            included_in_file = location_id in campaign_location_ids
+
         metadata_lines.append(
             f"    {s.sensor_id}: {location_id} "
             + f"(campaign default: {s.default_location_id})"
-            + (
-                " NOT INCLUDED IN THIS FILE"
-                if location_id != s.default_location_id
-                else ""
-            )
+            + (" NOT INCLUDED IN THIS FILE" if not included_in_file else "")
         )
 
     metadata_lines.append("")

@@ -123,6 +123,9 @@ def run() -> None:
                                     campaign,
                                     sensor_data_contexts,
                                     output_merging_target,
+                                    fixed_sensor_locations=(
+                                        mode == "only data at sensor default locations"
+                                    ),
                                 )
                                 + "\n"
                             )
