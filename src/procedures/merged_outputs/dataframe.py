@@ -236,11 +236,11 @@ def merge_dataframes(
     """Merges the dataframes into a single dataframe by
     joining them on the "utc" column."""
 
-    return (
-        functools.reduce(
-            lambda a, b: a.join(b, how="outer", left_on="utc", right_on="utc"),
-            dfs,
-        )
-        .filter(~pl.all(pl.all().is_null()))
-        .sort("utc")
+    merged_df = functools.reduce(
+        lambda a, b: a.join(b, how="outer", left_on="utc", right_on="utc"),
+        dfs,
     )
+    data_column_names = merged_df.columns
+    data_column_names.remove("utc")
+    df_without_null_rows = merged_df.filter(~pl.all(pl.col(data_column_names).is_nan()))
+    return df_without_null_rows.sort("utc")
