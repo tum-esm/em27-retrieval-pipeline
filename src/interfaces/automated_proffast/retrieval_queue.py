@@ -27,10 +27,14 @@ class RetrievalQueue:
         em27_metadata: Optional[
             tum_esm_em27_metadata.interfaces.EM27MetadataInterface
         ] = None,
+        verbose_reasoning: bool = False,
     ) -> None:
+        """Initialize the retrieval queue.
 
-        """Initialize the retrieval queue. This includes loading the location
-        data from GitHub using the package `tum_esm_em27_metadata`."""
+        This includes loading the location data from GitHub using the package
+        `tum_esm_em27_metadata`. "verbose reasoning" means that the retrieval
+        queue will log the reason why it skips a certain item."""
+
         self.logger = logger
         self.config = config
         self.logger.info("Initializing RetrievalQueue")
@@ -47,6 +51,7 @@ class RetrievalQueue:
 
         self.processed_sensor_dates: dict[str, list[str]] = {}
         self.iteration_count = 0
+        self.verbose_reasoning = verbose_reasoning
 
         self.logger.debug("Precomputing storage queue items")
         self.storage_queue_items: list[QueueItem] = self._get_storage_queue_items()
@@ -122,11 +127,23 @@ class RetrievalQueue:
             ) in (
                 self.config.automated_proffast.storage_data_filter.sensor_ids_to_consider
             ):
-                if (
-                    self._outputs_exist(sensor_id, date)
-                    or (not self._ifgs_exist(sensor_id, date))
-                    or (self._upload_is_incomplete(sensor_id, date))
-                ):
+                if self._outputs_exist(sensor_id, date):
+                    if self.verbose_reasoning:
+                        self.logger.debug(
+                            f"skipping {sensor_id}/{date} because outputs exist"
+                        )
+                    continue
+                if not self._ifgs_exist(sensor_id, date):
+                    if self.verbose_reasoning:
+                        self.logger.debug(
+                            f"skipping {sensor_id}/{date} because ifgs do not exist"
+                        )
+                    continue
+                if self._upload_is_incomplete(sensor_id, date):
+                    if self.verbose_reasoning:
+                        self.logger.debug(
+                            f"skipping {sensor_id}/{date} because upload is incomplete"
+                        )
                     continue
 
                 try:

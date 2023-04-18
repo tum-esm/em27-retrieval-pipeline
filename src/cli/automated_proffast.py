@@ -50,7 +50,7 @@ def _print_retrieval_queue() -> None:
     main_logger = src.utils.automated_proffast.Logger("main", print_only=True)
     config = src.utils.load_config()
     retrieval_queue = src.interfaces.automated_proffast.RetrievalQueue(
-        config, main_logger
+        config, main_logger, verbose_reasoning=True
     )
 
     while True:
