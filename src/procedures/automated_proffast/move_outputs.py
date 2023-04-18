@@ -1,6 +1,7 @@
 from datetime import datetime
 import json
 import os
+import re
 import shutil
 from typing import Optional
 from src import interfaces, utils, custom_types
@@ -129,3 +130,35 @@ def run(
             "session": pylot_session.dict(),
         }
         json.dump(about_dict, f, indent=4)
+
+    # (optional) RESTORE OLD IFG FILE PERMISSIONS
+
+    if (
+        config.automated_proffast.modified_ifg_file_permissions.after_processing
+        is not None
+    ):
+        ifg_src_directory = os.path.join(
+            config.general.data_src_dirs.interferograms,
+            pylot_session.sensor_id,
+            pylot_session.date,
+        )
+        # TODO: make ifg regex configurable
+        expected_ifg_pattern = re.compile(
+            r"^" + pylot_session.sensor_id + pylot_session.date + r".*\.\d+$"
+        )
+        ifg_filenames = [
+            f
+            for f in os.listdir(ifg_src_directory)
+            if expected_ifg_pattern.match(f) is not None
+        ]
+        for f in ifg_filenames:
+            tum_esm_utils.shell.change_file_permissions(
+                os.path.join(ifg_src_directory, f),
+                config.automated_proffast.modified_ifg_file_permissions.after_processing,
+            )
+        logger.debug(
+            f"restored permissions for {len(ifg_filenames)} ifg "
+            + f"files in src directory ({ifg_src_directory})"
+        )
+    else:
+        logger.debug("skipping modification of ifg file permissions after processing")

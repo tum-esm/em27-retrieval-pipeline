@@ -1,7 +1,6 @@
 import os
 import re
 import subprocess
-
 import tum_esm_utils
 from src import utils, custom_types
 
@@ -17,8 +16,8 @@ def run(
 
     Examples: `ma20201123.ifg.0001`, `ma20220316s0e00a.0001`"""
 
-    # find all filenames of interferograms
-    # possible file name patterns: ma20201123.ifg.0001, ma20220316s0e00a.0001
+    # FIND ALL FILENAMES OF INTERFEROGRAMS
+
     ifg_src_directory = os.path.join(
         config.general.data_src_dirs.interferograms,
         pylot_session.sensor_id,
@@ -41,12 +40,13 @@ def run(
     )
     # TODO: log used regex
     logger.debug(
-        f"{len(ifg_filenames)} files/directories found "
-        + f"in ifg src directory ({ifg_src_directory})"
+        f"{len(ifg_filenames)} ifg files found in "
+        + f"src directory ({ifg_src_directory})"
     )
     assert len(ifg_filenames) > 0, "no ifg input files"
 
-    # (optional) make interferogram files read-only
+    # (optional) MAKE INTERFEROGRAM FILES READ-ONLY
+
     if (
         config.automated_proffast.modified_ifg_file_permissions.during_processing
         is not None
@@ -56,8 +56,11 @@ def run(
                 os.path.join(ifg_src_directory, f),
                 config.automated_proffast.modified_ifg_file_permissions.during_processing,
             )
+    else:
+        logger.debug("skipping modification of ifg file permissions during processing")
 
-    # exclude corrupt interferograms from list of interferograms
+    # EXCLUDE CORRUPT INTERFEROGRAM FILES
+
     try:
         corrupt_filenames = list(
             tum_esm_utils.interferograms.detect_corrupt_ifgs(
@@ -73,7 +76,10 @@ def run(
     )
     valid_ifg_filenames = [f for f in ifg_filenames if f not in corrupt_filenames]
 
-    # symlink all valid ifg files and rename them to the format expected by the Pylot
+    # SYMLINK ALL VALID INTERFEROGRAM FILES AND
+    # RENAME THEM TO THE FORMAT EXPECTED BY THE
+    # PYLOT
+
     dst_date_path = os.path.join(
         pylot_session.data_input_path, "ifg", pylot_session.date[2:]
     )
