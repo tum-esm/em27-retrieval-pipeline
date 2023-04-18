@@ -20,7 +20,9 @@ The pipeline consists of three building blocks that are required to retrieve EM2
 | 2. Running the Proffast Pylot to generate the averaged column concentrations              | `src/run_automated_proffast.py`     |
 | 3. Postprocessing the individual station outputs and merging them into daily output files | `src/merge_retrieval_outputs.py`    |
 
-![](docs/revised-retrieval-pipeline-architecture.png)
+<p align="center">
+    <img width="600" src="docs/revised-retrieval-pipeline-architecture.png"/>
+</p>
 
 The Pylot codebase only provides the second part. In addition to task one and three, the pipeline provides:
 
