@@ -41,77 +41,100 @@ def run() -> None:
             if tum_esm_utils.text.is_date_string(str(d))
         ]
 
-        with rich.progress.Progress() as progress:
-            task = progress.add_task("processing dataframes", total=len(date_range))
+        console = rich.console.Console()
+        for i, mode in enumerate(
+            ["data at all campaign locations", "only data at sensor default locations"]
+        ):
+            console.print(f"processing mode ({i+1}/2): {mode}", style="bold")
 
-            for date in date_range:
-                sensor_data_contexts: dict[
-                    str, tum_esm_em27_metadata.types.SensorDataContext
-                ] = {}
-                dfs: pl.DataFrame = []
-                found_data_count: int = 0
-                for campaign_station in campaign.stations:
-                    try:
-                        sensor_data_context = em27_metadata.get(
-                            campaign_station.sensor_id, str(date)
-                        )
-                        sensor_data_contexts[
-                            campaign_station.sensor_id
-                        ] = sensor_data_context
-                        assert (
-                            campaign_station.default_location_id
-                            == sensor_data_context.location.location_id
-                        )
-                        df = procedures.merged_outputs.get_sensor_dataframe(
-                            config,
-                            sensor_data_context,
-                            output_merging_target,
-                        )
-                        dfs.append(
-                            procedures.merged_outputs.post_process_dataframe(
-                                df,
-                                output_merging_target.sampling_rate,
-                                output_merging_target.max_interpolation_gap_seconds,
+            with rich.progress.Progress() as progress:
+                task = progress.add_task("processing dataframes", total=len(date_range))
+                for date in date_range:
+                    sensor_data_contexts: dict[
+                        str, tum_esm_em27_metadata.types.SensorDataContext
+                    ] = {}
+                    dfs: pl.DataFrame = []
+                    found_data_count: int = 0
+                    for campaign_station in campaign.stations:
+                        try:
+                            sensor_data_context = em27_metadata.get(
+                                campaign_station.sensor_id, str(date)
                             )
-                        )
-                        found_data_count += 1
-                    except AssertionError:
-                        dfs.append(
-                            procedures.merged_outputs.get_empty_sensor_dataframe(
-                                campaign_station.sensor_id,
+                            sensor_data_contexts[
+                                campaign_station.sensor_id
+                            ] = sensor_data_context
+
+                            if mode == "data at all campaign locations":
+                                campaing_location_ids = [
+                                    cs.default_location_id for cs in campaign.stations
+                                ]
+                                assert (
+                                    sensor_data_context.location.location_id
+                                    in campaing_location_ids
+                                )
+
+                            if mode == "only data at sensor default locations":
+                                assert (
+                                    campaign_station.default_location_id
+                                    == sensor_data_context.location.location_id
+                                )
+
+                            df = procedures.merged_outputs.get_sensor_dataframe(
+                                config,
+                                sensor_data_context,
                                 output_merging_target,
                             )
-                        )
-
-                if found_data_count > 0:
-                    progress.console.print(
-                        f"{date}: {found_data_count} sensor(s) with data"
-                    )
-                    merged_df = procedures.merged_outputs.merge_dataframes(dfs)
-
-                    # save merged dataframe to csv
-                    filename = os.path.join(
-                        output_merging_target.dst_dir,
-                        f"{output_merging_target.campaign_id}_em27_export_{date}.csv",
-                    )
-                    with open(filename, "w") as f:
-                        f.write(
-                            procedures.merged_outputs.get_metadata(
-                                campaign,
-                                sensor_data_contexts,
-                                output_merging_target,
+                            dfs.append(
+                                procedures.merged_outputs.post_process_dataframe(
+                                    df,
+                                    output_merging_target.sampling_rate,
+                                    output_merging_target.max_interpolation_gap_seconds,
+                                )
                             )
-                            + "\n"
-                        )
-                        f.write(
-                            merged_df.write_csv(
-                                null_value="NaN",
-                                has_header=True,
-                                float_precision=9,
+                            found_data_count += 1
+                        except AssertionError:
+                            dfs.append(
+                                procedures.merged_outputs.get_empty_sensor_dataframe(
+                                    campaign_station.sensor_id,
+                                    output_merging_target,
+                                )
                             )
-                        )
 
-                progress.advance(task)
+                    if found_data_count > 0:
+                        progress.console.print(
+                            f"{date}: {found_data_count} sensor(s) with data"
+                        )
+                        merged_df = procedures.merged_outputs.merge_dataframes(dfs)
+
+                        # save merged dataframe to csv
+                        filename = os.path.join(
+                            output_merging_target.dst_dir,
+                            f"{output_merging_target.campaign_id}_em27_export_{date}"
+                            + (
+                                "_fixed_sensor_location"
+                                if mode == "only data at sensor default locations"
+                                else ""
+                            )
+                            + ".csv",
+                        )
+                        with open(filename, "w") as f:
+                            f.write(
+                                procedures.merged_outputs.get_metadata(
+                                    campaign,
+                                    sensor_data_contexts,
+                                    output_merging_target,
+                                )
+                                + "\n"
+                            )
+                            f.write(
+                                merged_df.write_csv(
+                                    null_value="NaN",
+                                    has_header=True,
+                                    float_precision=9,
+                                )
+                            )
+
+                    progress.advance(task)
 
 
 if __name__ == "__main__":
