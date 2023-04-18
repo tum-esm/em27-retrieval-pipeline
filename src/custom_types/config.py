@@ -61,7 +61,11 @@ class LocationDataConfig(BaseModel):
     )(
         validate_str(regex=r"^[a-z0-9-_]+/[a-z0-9-_]+$"),
     )
-    _val_access_token = validator("access_token", pre=True, allow_reuse=True,)(
+    _val_access_token = validator(
+        "access_token",
+        pre=True,
+        allow_reuse=True,
+    )(
         validate_str(nullable=True),
     )
 
@@ -121,11 +125,19 @@ class VerticalProfilesFTPServerConfig(BaseModel):
     download_sleep: int = 60
     download_timeout: int = 600
 
-    _val_dates = validator("email", pre=True, allow_reuse=True,)(
+    _val_dates = validator(
+        "email",
+        pre=True,
+        allow_reuse=True,
+    )(
         validate_str(min_len=3),
     )
 
-    _val_max_delay = validator("max_day_delay", pre=True, allow_reuse=True,)(
+    _val_max_delay = validator(
+        "max_day_delay",
+        pre=True,
+        allow_reuse=True,
+    )(
         validate_int(minimum=0, maximum=10),
     )
 
@@ -155,10 +167,19 @@ class VerticalProfilesRequestScopeConfig(BaseModel):
     to_date: str = datetime.utcnow().strftime("%Y%m%d")
     data_types: list[Literal["GGG2014", "GGG2020"]] = ["GGG2014", "GGG2020"]
 
-    _val_dates = validator("from_date", "to_date", pre=True, allow_reuse=True,)(
+    _val_dates = validator(
+        "from_date",
+        "to_date",
+        pre=True,
+        allow_reuse=True,
+    )(
         validate_str(is_date_string=True),
     )
-    _val_data_types = validator("data_types", pre=True, allow_reuse=True,)(
+    _val_data_types = validator(
+        "data_types",
+        pre=True,
+        allow_reuse=True,
+    )(
         _validate_list(allowed=["GGG2014", "GGG2020"]),
     )
 

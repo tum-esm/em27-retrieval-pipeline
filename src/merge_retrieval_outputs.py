@@ -22,7 +22,7 @@ def run() -> None:
     )
 
     for i, output_merging_target in enumerate(config.output_merging_targets):
-        print(f"\nprocessing output merging target #{i}")
+        print(f"\nprocessing output merging target #{i+1}")
         print(json.dumps(output_merging_target.dict(), indent=4))
         assert (
             output_merging_target.campaign_id in em27_metadata.campaign_ids
