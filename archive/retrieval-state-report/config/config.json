@@ -1,6 +1,0 @@
-{
-  "archive_dir_location": "data/archive",
-  "upload_dir_location": "data/upload_dir",
-  "reports_output": "reports",
-  "ifg_pattern": "m?????????.ifg.????"
-}
