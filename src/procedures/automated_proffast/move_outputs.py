@@ -147,13 +147,13 @@ def run(
         ).replace("$(DATE)", pylot_session.date)
         expected_ifg_pattern = re.compile(expected_ifg_regex)
         ifg_filenames = [
-            f
-            for f in os.listdir(ifg_src_directory)
-            if expected_ifg_pattern.match(f) is not None
+            filename
+            for filename in os.listdir(ifg_src_directory)
+            if expected_ifg_pattern.match(filename) is not None
         ]
-        for f in ifg_filenames:
+        for filename in ifg_filenames:
             tum_esm_utils.shell.change_file_permissions(
-                os.path.join(ifg_src_directory, f),
+                os.path.join(ifg_src_directory, filename),
                 config.automated_proffast.modified_ifg_file_permissions.after_processing,
             )
         logger.debug(
