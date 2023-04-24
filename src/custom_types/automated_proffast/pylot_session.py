@@ -21,7 +21,7 @@ class PylotSession(BaseModel):
     pressure_data_source: str
     pressure_calibration_factor: float
     date: str
-    location: tum_esm_em27_metadata.types.Location
+    location: tum_esm_em27_metadata.types.LocationMetadata
     container_id: str
     container_path: str
     data_input_path: str

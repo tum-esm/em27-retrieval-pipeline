@@ -6,7 +6,7 @@ from src import custom_types
 
 
 def get_metadata(
-    campaign: tum_esm_em27_metadata.types.Campaign,
+    campaign: tum_esm_em27_metadata.types.CampaignMetadata,
     sensor_data_contexts: dict[str, tum_esm_em27_metadata.types.SensorDataContext],
     output_merging_target: custom_types.config.OutputMergingTargetConfig,
     fixed_sensor_locations: bool,

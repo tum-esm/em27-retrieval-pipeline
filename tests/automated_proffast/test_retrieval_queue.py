@@ -13,7 +13,7 @@ dotenv.load_dotenv(os.path.join(PROJECT_DIR, "tests", ".env"))
 
 em27_metadata = tum_esm_em27_metadata.interfaces.EM27MetadataInterface(
     locations=[
-        tum_esm_em27_metadata.types.Location(
+        tum_esm_em27_metadata.types.LocationMetadata(
             location_id="LOC1",
             details="...",
             lat=0.0,
@@ -22,22 +22,15 @@ em27_metadata = tum_esm_em27_metadata.interfaces.EM27MetadataInterface(
         )
     ],
     sensors=[
-        tum_esm_em27_metadata.types.Sensor(
+        tum_esm_em27_metadata.types.SensorMetadata(
             sensor_id="so",
             serial_number=1,
-            utc_offsets=[
-                tum_esm_em27_metadata.types.SensorUTCOffset(
-                    from_date="20170101", to_date="20171231", utc_offset=0
-                )
-            ],
-            different_pressure_data_source=[],
-            pressure_calibration_factors=[
-                tum_esm_em27_metadata.types.SensorPressureCalibrationFactor(
-                    from_date="20170101", to_date="20171231", factor=1.0
-                ),
-            ],
+            different_utc_offsets=[],
+            different_pressure_data_sources=[],
+            different_pressure_calibration_factors=[],
+            different_output_calibration_factors=[],
             locations=[
-                tum_esm_em27_metadata.types.SensorLocation(
+                tum_esm_em27_metadata.types.SensorTypes.Location(
                     from_date="20170101", to_date="20171231", location_id="LOC1"
                 )
             ],
