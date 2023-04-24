@@ -5,7 +5,9 @@ from datetime import datetime
 from src import custom_types
 
 _PROJECT_DIR = tum_esm_utils.files.get_parent_dir_path(__file__, current_depth=4)
-_LIST_PATH = f"{_PROJECT_DIR}/logs/input-warnings-to-be-resolved.json"
+_LIST_PATH = os.path.join(
+    _PROJECT_DIR, "logs", "automated_proffast", "input-warnings-to-be-resolved.json"
+)
 
 
 class InputWarningsInterface:

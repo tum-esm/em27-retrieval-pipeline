@@ -19,7 +19,12 @@ class Logger:
     def __init__(self, container_id: str, print_only: bool = False) -> None:
         self.container_id = container_id
         self.logfile_name = f"{logfile_time}_{self.container_id}.log"
-        self.logfile_path = os.path.join(_PROJECT_DIR, "logs", self.logfile_name)
+        self.logfile_path = os.path.join(
+            _PROJECT_DIR,
+            "logs",
+            "automated_proffast",
+            self.logfile_name,
+        )
         self.print_only = print_only
 
     def _print(self, m: str, level: str) -> None:
@@ -62,6 +67,12 @@ class Logger:
         """move the used log file into the archive"""
         shutil.copyfile(
             self.logfile_path,
-            os.path.join(_PROJECT_DIR, "logs", "archive", self.logfile_name),
+            os.path.join(
+                _PROJECT_DIR,
+                "logs",
+                "automated_proffast",
+                "archive",
+                self.logfile_name,
+            ),
         )
         os.remove(self.logfile_path)

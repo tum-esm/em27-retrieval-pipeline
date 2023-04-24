@@ -12,6 +12,10 @@ data/**/*.ifg.*
 data/**/*.tar.gz
 data/**/*.png
 
+data/containers/*
+!data/containers/.gitkeep
+logs/**/*.json
+
 !.gitkeep
 !data/testing/merging/raw/**/*.csv
 !data/vertical_profiles_examples/GGG2014/20200810_48N012E/*

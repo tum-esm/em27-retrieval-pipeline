@@ -4,9 +4,7 @@ from src import custom_types, interfaces
 import tum_esm_utils
 
 _PROJECT_DIR = tum_esm_utils.files.get_parent_dir_path(__file__, current_depth=4)
-_PYLOT_CONFIG_DIR = os.path.join(
-    _PROJECT_DIR, "src/procedures/automated_proffast/pylot_src/config"
-)
+_PYLOT_CONFIG_DIR = os.path.join(_PROJECT_DIR, "src", "pylot_src", "config")
 
 
 def _generate_pylot_config(pylot_session: custom_types.PylotSession) -> None:
