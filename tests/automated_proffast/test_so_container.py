@@ -6,6 +6,7 @@ from tests.fixtures import (
     wrap_test_with_mainlock,
     download_sample_data,
     provide_container_config,
+    clear_output_data,
 )
 from src import custom_types, utils, interfaces, procedures
 

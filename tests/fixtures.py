@@ -74,7 +74,9 @@ def clear_output_data() -> Generator[None, None, None]:
 
 
 @pytest.fixture(scope="session")
-def provide_container_config() -> Generator[custom_types.Config, None, None]:
+def provide_container_config(
+    download_sample_data: None,
+) -> Generator[custom_types.Config, None, None]:
     """Provide a temporary config file that points to the container testing data."""
 
     # LOAD CONFIG TEMPLATE
@@ -86,7 +88,7 @@ def provide_container_config() -> Generator[custom_types.Config, None, None]:
     # UPDATE INPUTS
 
     config_template["general"]["data_src_dirs"]["datalogger"] = os.path.join(
-        PROJECT_DIR, "data", "testing", "container", "inputs", "logs"
+        PROJECT_DIR, "data", "testing", "container", "inputs", "log"
     )
     config_template["general"]["data_src_dirs"]["vertical_profiles"] = os.path.join(
         PROJECT_DIR, "data", "testing", "container", "inputs", "map"
@@ -103,6 +105,9 @@ def provide_container_config() -> Generator[custom_types.Config, None, None]:
     config_template["general"]["data_dst_dirs"]["results"] = os.path.join(
         PROJECT_DIR, "data", "testing", "container", "outputs"
     )
+    config_template[
+        "output_merging_targets"
+    ] = []  # required to avoid dir not exists error
 
     # PARSE CONFIG OBJECT
 

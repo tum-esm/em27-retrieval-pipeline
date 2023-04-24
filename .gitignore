@@ -16,6 +16,7 @@ data/**/*.png
 !data/testing/merging/raw/**/*.csv
 !data/vertical_profiles_examples/GGG2014/20200810_48N012E/*
 !data/vertical_profiles_examples/GGG2020/20200810_48N012E/*
+*.lock
 
 # Created by https://www.toptal.com/developers/gitignore/api/macos,windows,linux,python,node
 # Edit at https://www.toptal.com/developers/gitignore?templates=macos,windows,linux,python,node
