@@ -9,13 +9,6 @@ set -o errexit
 
 INSTALL_FOLDER=$(pwd)
 
-echo "replacing windows specific line in source code ..."
-for file in source/*/*90;
-do
-	echo "    $file"
-	LC_ALL=C sed -i "" "s|pathstr = \".*\"|pathstr = \"/\"|" "./$file"
-done
-
 # Compile the source code
 echo "compiling preprocess ..."
 cd "$INSTALL_FOLDER/source/preprocess/"

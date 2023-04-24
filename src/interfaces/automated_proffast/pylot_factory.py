@@ -1,3 +1,4 @@
+import glob
 import os
 import shutil
 from src import custom_types, utils
@@ -148,3 +149,21 @@ class PylotFactory:
                 working_directory=os.path.join(_PYLOT_ROOT_DIR, "main"),
             )
             os.remove(os.path.join(_PYLOT_ROOT_DIR, "main", _ZIPFILE_NAME))
+
+            # fix fortran code
+            for fortran_file_path in glob.glob(
+                f"{_PYLOT_ROOT_DIR}/main/prf/source/*/*.f90"
+            ):
+                file_content = tum_esm_utils.files.load_file(fortran_file_path)
+                for replacement in [
+                    (
+                        'character(len=1),parameter :: pathstr = "\\"',
+                        'character(len=1),parameter::pathstr="/"',
+                    ),
+                    (
+                        "character(150)",
+                        "character(300)",
+                    ),
+                ]:
+                    file_content = file_content.replace(*replacement)
+                tum_esm_utils.files.dump_file(fortran_file_path, file_content)
