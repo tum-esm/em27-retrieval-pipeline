@@ -66,7 +66,7 @@ class PylotFactory:
         )
         shutil.copytree(_PYLOT_MAIN_CLONE_DIR, container_path)
         tum_esm_utils.shell.run_shell_command(
-            command=f"bash install_proffast_linux.sh",
+            command=f"{os.path.join(_PYLOT_ROOT_DIR, 'install_proffast_linux.sh')}",
             working_directory=os.path.join(container_path, "prf"),
         )
 
