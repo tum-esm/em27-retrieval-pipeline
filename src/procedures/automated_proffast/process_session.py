@@ -46,10 +46,10 @@ def run(config: custom_types.Config, pylot_session: custom_types.PylotSession) -
 
     logger.info(f"Running the pylot")
     try:
-        run_proffast_pylot.run(pylot_session, logger)
+        run_proffast_pylot.run(pylot_session)
         logger.debug("Pylot execution was successful")
     except Exception as e:
-        logger.debug(f"Pylot execution failed: {e}")
+        logger.exception(e, label="Pylot execution failed")
 
     # uncomment the following return if you want to observe the final
     # proffast outputs of one day in this working directory
@@ -60,6 +60,6 @@ def run(config: custom_types.Config, pylot_session: custom_types.PylotSession) -
         move_outputs.run(config, logger, pylot_session)
         logger.info(f"Finished")
     except AssertionError as e:
-        logger.error(f"Moving outputs failed: {e}")
+        logger.exception(e, label="Moving outputs failed")
 
     logger.archive()

@@ -3,7 +3,10 @@ import os
 import shutil
 import sys
 import traceback
+from typing import Literal, Optional
 import tum_esm_utils
+
+from src import custom_types
 
 _PROJECT_DIR = tum_esm_utils.files.get_parent_dir_path(__file__, current_depth=4)
 
@@ -27,7 +30,11 @@ class Logger:
         )
         self.print_only = print_only
 
-    def _print(self, m: str, level: str) -> None:
+    def _print(
+        self,
+        m: str,
+        level: Literal["DEBUG", "INFO", "WARNING", "ERROR", "EXCEPTION"],
+    ) -> None:
         t = datetime.utcnow().strftime("%Y%m%d %H:%M:%S")
         log_line = f"{t} - {level} - {m}\n"
         if self.print_only:
@@ -36,13 +43,46 @@ class Logger:
             with open(self.logfile_path, "a") as f:
                 f.write(log_line)
 
-    def exception(self) -> None:
-        """log an exception and its traceback"""
-        exc_type, exc_value, exc_traceback = sys.exc_info()
-        assert exc_type is not None, "no exeception is present"
-        name = f"Unhandeled Exception: {exc_type.__name__}\n"
-        tb = "".join(traceback.format_exception(exc_type, exc_value, exc_traceback))
-        self._print(name + tb, "EXCEPTION")
+    def exception(
+        self,
+        e: Exception,
+        label: Optional[str] = None,
+    ) -> None:
+        """logs an exception and its traceback.
+
+        exceptions will be formatted like this:
+
+        ```txt
+        (label, )ZeroDivisionError: division by zer
+        --- details: -----------------
+        ...
+        --- traceback: ---------------
+        ...
+        ------------------------------
+        ```
+        """
+        exception_name = traceback.format_exception_only(type(e), e)[0].strip()
+        exception_traceback = "\n".join(
+            traceback.format_exception(type(e), e, e.__traceback__)
+        ).strip()
+        exception_details = "None"
+        if isinstance(e, tum_esm_utils.shell.CommandLineException) and (
+            e.details is not None
+        ):
+            exception_details = e.details.strip()
+
+        subject_string = (
+            exception_name if label is None else f"{label}, {exception_name}"
+        )
+        details_string = (
+            f"--- details: -----------------\n"
+            + f"{exception_details}\n"
+            + f"--- traceback: ---------------\n"
+            + f"{exception_traceback}\n"
+            + f"------------------------------"
+        )
+
+        self._print(f"{subject_string}\n{details_string}", "EXCEPTION")
 
     def error(self, m: str) -> None:
         self._print(m, "ERROR")

@@ -1,5 +1,5 @@
 import os
-from src import custom_types, utils
+from src import custom_types
 import tum_esm_utils
 
 _PROJECT_DIR = tum_esm_utils.files.get_parent_dir_path(__file__, current_depth=4)
@@ -7,10 +7,9 @@ _PROJECT_DIR = tum_esm_utils.files.get_parent_dir_path(__file__, current_depth=4
 
 def run(
     pylot_session: custom_types.PylotSession,
-    logger: utils.automated_proffast.Logger,
 ) -> None:
     tum_esm_utils.shell.run_shell_command(
-        command=" ".join(
+        " ".join(
             [
                 os.path.join(
                     _PROJECT_DIR,

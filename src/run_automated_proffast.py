@@ -25,9 +25,8 @@ def run() -> None:
     try:
         config = utils.load_config()
         main_logger.info("Config is valid")
-    except:
-        main_logger.error("Config file invalid")
-        main_logger.exception()
+    except Exception as e:
+        main_logger.exception(e, "Config file invalid")
         return
 
     # set up pylot dispatcher and session scheduler
@@ -89,8 +88,8 @@ def run() -> None:
 
     except KeyboardInterrupt:
         main_logger.info("Keyboard interrupt")
-    except Exception:
-        main_logger.exception()
+    except Exception as e:
+        main_logger.exception(e, "Unexpected error")
 
     pylot_factory.remove_all_containers()
     main_logger.info(f"Automation is finished")
