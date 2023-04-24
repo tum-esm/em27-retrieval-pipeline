@@ -10,6 +10,9 @@ example:
 import sys
 import os
 import importlib
+import tum_esm_utils
+
+_PROJECT_DIR = tum_esm_utils.files.get_parent_dir_path(__file__, current_depth=3)
 
 if __name__ == "__main__":
     assert len(sys.argv) == 3, (
@@ -19,8 +22,8 @@ if __name__ == "__main__":
 
     container_id, pylot_config_path = sys.argv[1:]
     container_path = os.path.join(
-        os.path.dirname(os.path.abspath(__file__)),
-        "containers",
+        _PROJECT_DIR,
+        "data" "containers",
         f"pylot-container-{container_id}",
     )
     assert os.path.isdir(container_path), "container does not exist"

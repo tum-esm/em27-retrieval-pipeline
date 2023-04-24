@@ -2,25 +2,25 @@ import os
 from src import custom_types, utils
 import tum_esm_utils
 
-dirname = os.path.dirname
-PROJECT_DIR = dirname(dirname(dirname(os.path.abspath(__file__))))
-VENV_PATH = os.path.join(
-    dirname(dirname(dirname(dirname(os.path.abspath(__file__))))),
-    ".venv",
-    "bin",
-    "python",
-)
-PYLOT_ROOT_DIR = os.path.join(PROJECT_DIR, "src", "prfpylot")
+_PROJECT_DIR = tum_esm_utils.files.get_parent_dir_path(__file__, current_depth=4)
 
 
 def run(
-    pylot_session: custom_types.PylotSession, logger: utils.automated_proffast.Logger
+    pylot_session: custom_types.PylotSession,
+    logger: utils.automated_proffast.Logger,
 ) -> None:
     tum_esm_utils.shell.run_shell_command(
         command=" ".join(
             [
-                VENV_PATH,
-                os.path.join(PYLOT_ROOT_DIR, "run.py"),
+                os.path.join(
+                    _PROJECT_DIR,
+                    ".venv",
+                    "bin",
+                    "python",
+                ),
+                os.path.join(
+                    _PROJECT_DIR, "src", "pylot_src", "run_pylot_container.py"
+                ),
                 pylot_session.container_id,
                 pylot_session.pylot_config_path,
             ]
