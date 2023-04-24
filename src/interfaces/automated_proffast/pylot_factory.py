@@ -4,8 +4,10 @@ from src import custom_types, utils
 import tum_esm_utils
 
 dirname = os.path.dirname
-PROJECT_DIR = dirname(dirname(dirname(os.path.abspath(__file__))))
-PYLOT_ROOT_DIR = os.path.join(PROJECT_DIR, "src", "prfpylot")
+PROJECT_DIR = tum_esm_utils.files.get_parent_dir_path(__file__, current_depth=4)
+PYLOT_ROOT_DIR = os.path.join(
+    PROJECT_DIR, "src", "procedures", "automated_proffast", "pylot_src"
+)
 PYLOT_MAIN_CLONE_DIR = os.path.join(PYLOT_ROOT_DIR, "main")
 KIT_BASE_URL = "https://www.imk-asf.kit.edu/downloads/Coccon-SW/"
 ZIPFILE_NAME = "PROFFASTv2.2.zip"
@@ -135,11 +137,6 @@ class PylotFactory:
         It will download the Proffast 2.2 code from the KIT website
         (https://www.imk-asf.kit.edu/downloads/Coccon-SW/PROFFASTv2.2.zip)
         and copy it to the directory `src/prfpylot/main/prf`."""
-
-        if (not os.path.exists(PYLOT_MAIN_CLONE_DIR)) or (
-            len(os.listdir(PYLOT_MAIN_CLONE_DIR)) == 0
-        ):
-            raise RuntimeError("Pylot submodule not initialized")
 
         # DOWNLOAD PROFFAST 2.2 code if it doesn't exist yet
         if os.path.exists(os.path.join(PYLOT_MAIN_CLONE_DIR, "prf")):
