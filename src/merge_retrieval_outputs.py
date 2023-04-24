@@ -67,7 +67,7 @@ def run() -> None:
                             if mode == "data at all campaign locations":
                                 campaing_location_ids = [
                                     cs.default_location_id for cs in campaign.stations
-                                ]
+                                ] + campaign.additional_location_ids
                                 assert (
                                     sensor_data_context.location.location_id
                                     in campaing_location_ids
