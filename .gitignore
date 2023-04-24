@@ -11,6 +11,9 @@ data/**/*.csv
 data/**/*.ifg.*
 data/**/*.tar.gz
 data/**/*.png
+data/**/*.json
+data/**/*.yml
+data/**/*.inp
 
 data/containers/*
 !data/containers/.gitkeep

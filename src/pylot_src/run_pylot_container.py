@@ -23,7 +23,8 @@ if __name__ == "__main__":
     container_id, pylot_config_path = sys.argv[1:]
     container_path = os.path.join(
         _PROJECT_DIR,
-        "data" "containers",
+        "data",
+        "containers",
         f"pylot-container-{container_id}",
     )
     assert os.path.isdir(container_path), "container does not exist"
