@@ -24,19 +24,30 @@ def wrap_test_with_mainlock() -> Generator[None, None, None]:
 
 @pytest.fixture(scope="session")
 def download_sample_data() -> Generator[None, None, None]:
-    """Download sample data from syncandshare and extract it to the
-    testing data directory. This is done only once per test run."""
+    """Download sample data from https://syncandshare.lrz.de and
+    extract it to the testing data directory. This is done only
+    once per test run. The tar file will not be deleted afterwards
+    and the download is skipped if the tar file already exists.
 
-    testing_data_path = os.path.join(PROJECT_DIR, "data", "testing")
+    The tar file has about 96MB."""
+
+    testing_data_path = os.path.join(PROJECT_DIR, "data", "testing", "container")
     tarball_filename = "automated-proffast-pylot-example-inputs.tar.gz"
 
     # download testing data tarball if it does not exist
     if not os.path.isfile(os.path.join(testing_data_path, tarball_filename)):
         tum_esm_utils.shell.run_shell_command(
             f"wget --quiet https://syncandshare.lrz.de/dl/"
-            + "fiA9bjdafNcuVGrmMfDL49/{tarball_filename}",
+            + f"fiA9bjdafNcuVGrmMfDL49/{tarball_filename}",
             working_directory=testing_data_path,
         )
+
+    # remove existing input data
+    for input_dir in [
+        os.path.join(testing_data_path, "inputs", t) for t in ["log", "map", "ifg"]
+    ]:
+        if os.path.isdir(input_dir):
+            shutil.rmtree(input_dir)
 
     # extract tarball
     tum_esm_utils.shell.run_shell_command(
@@ -44,24 +55,20 @@ def download_sample_data() -> Generator[None, None, None]:
         working_directory=testing_data_path,
     )
 
-    # copy data to correct testing locations
-    for s, d in [
-        ("inputs", "container"),
-        ("inputs/ifg", "pipeline/interferograms"),
-        ("inputs/log", "pipeline/datalogger"),
-        ("inputs/map", "pipeline/vertical_profiles"),
-    ]:
-        if os.path.isdir(f"{testing_data_path}/{d}"):
-            shutil.rmtree(f"{testing_data_path}/{d}")
-        tum_esm_utils.shell.run_shell_command(
-            f"cp -r {testing_data_path}/{s}/* {testing_data_path}/{d}",
-            working_directory=testing_data_path,
-        )
-
-    # remove extracted tarball data
-    shutil.rmtree(os.path.join(testing_data_path, "inputs"))
-
     yield
+
+
+@pytest.fixture(scope="function")
+def clear_output_data() -> Generator[None, None, None]:
+    """Remove all directories in the testing output directory"""
+
+    testing_data_output_dir = os.path.join(
+        PROJECT_DIR, "data", "testing", "container", "outputs"
+    )
+    for d in os.listdir(testing_data_output_dir):
+        subdir = os.path.join(testing_data_output_dir, d)
+        if os.path.isdir(subdir):
+            shutil.rmtree(subdir)
 
 
 @pytest.fixture(scope="function")
@@ -81,14 +88,18 @@ def provide_tmp_config() -> Generator[custom_types.Config, None, None]:
 
     # create temporary config where all directories point to the testing data
     config_template = tum_esm_utils.files.load_json_file(config_template_path)
-    for key in ["datalogger", "vertical_profiles", "interferograms"]:
-        config_template["general"]["data_src_dirs"][key] = os.path.join(
-            PROJECT_DIR, "data", "testing", "pipeline", key
+    for attribute_name, dir_name in [
+        ("datalogger", "log"),
+        ("vertical_profiles", "map"),
+        ("interferograms", "ifg"),
+    ]:
+        config_template["general"]["data_src_dirs"][attribute_name] = os.path.join(
+            PROJECT_DIR, "data", "testing", "container", "inputs", dir_name
         )
 
     # enable processing of storage data of sensors "mc" and "so"
     config_template["general"]["data_dst_dirs"]["results"] = os.path.join(
-        PROJECT_DIR, "data", "testing", "pipeline", "results_raw"
+        PROJECT_DIR, "data", "testing", "container", "outputs"
     )
     config_template["automated_proffast"]["data_sources"]["storage"] = True
     config_template["automated_proffast"]["data_sources"]["manual-queue"] = True
