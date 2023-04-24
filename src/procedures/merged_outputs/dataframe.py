@@ -128,6 +128,7 @@ def post_process_dataframe(
         "10m", "5m", "2m", "1m", "30s", "15s", "10s", "5s", "2s", "1s"
     ],
     max_interpolation_gap_seconds: int,
+    sensor_data_context: tum_esm_em27_metadata.types.SensorDataContext,
 ) -> pl.DataFrame:
     """Post-processes the dataframe.
 
@@ -226,6 +227,8 @@ def post_process_dataframe(
         .groupby_dynamic("utc", every=sampling_rate)
         .agg(pl.exclude("utc").mean())
     )
+
+    # TODO: apply output calibration factors
 
     return df
 
