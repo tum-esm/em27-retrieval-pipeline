@@ -20,6 +20,7 @@ data/**/*.spc
 data/containers/*
 !data/containers/.gitkeep
 logs/**/*.json
+*.zip
 
 !.gitkeep
 !data/testing/merging/raw/**/*.csv
