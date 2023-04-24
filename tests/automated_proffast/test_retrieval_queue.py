@@ -4,7 +4,7 @@ from typing import Optional
 import pytest
 import tum_esm_em27_metadata
 from src import custom_types, interfaces, utils
-from ..fixtures import provide_tmp_config, provide_tmp_manual_queue
+from ..fixtures import provide_container_config, provide_tmp_manual_queue
 import dotenv
 
 dir = os.path.dirname
@@ -52,10 +52,10 @@ def check_next_item(
 
 @pytest.mark.ci
 def test_retrieval_queue(
-    provide_tmp_config: custom_types.Config,
+    provide_container_config: custom_types.Config,
     provide_tmp_manual_queue: custom_types.ManualQueue,
 ) -> None:
-    config = provide_tmp_config
+    config = provide_container_config
     config.automated_proffast.storage_data_filter.from_date = "20170608"
     config.automated_proffast.storage_data_filter.to_date = "20170609"
     logger = utils.automated_proffast.Logger("testing", print_only=True)

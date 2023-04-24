@@ -3,7 +3,7 @@ import pytest
 from datetime import datetime
 from src import custom_types, procedures
 from src.custom_types import DownloadQuery, DownloadQueryLocation
-from tests.fixtures import provide_tmp_config
+from tests.fixtures import provide_container_config
 
 
 @pytest.mark.ci
@@ -57,12 +57,12 @@ def test_get_query_list() -> None:
 
 
 @pytest.mark.ci
-def test_get_date_suffixes(provide_tmp_config: custom_types.Config) -> None:
+def test_get_date_suffixes(provide_container_config: custom_types.Config) -> None:
     l = DownloadQueryLocation(lat=0, lon=0)
 
     def call(q: DownloadQuery, v: Literal["GGG2014", "GGG2020"]) -> list[str]:
         return procedures.vertical_profiles.get_date_suffixes(
-            provide_tmp_config, q, v, utcnow=datetime(1000, 1, 10)
+            provide_container_config, q, v, utcnow=datetime(1000, 1, 10)
         )
 
     q = DownloadQuery(from_date="10000101", to_date="10000101", location=l)

@@ -70,56 +70,78 @@ def clear_output_data() -> Generator[None, None, None]:
         if os.path.isdir(subdir):
             shutil.rmtree(subdir)
 
+    yield
 
-@pytest.fixture(scope="function")
-def provide_tmp_config() -> Generator[custom_types.Config, None, None]:
-    """Create a temporary config file that points to the testing data.
-    This is done before each test; the original config file is restored
-    afterwards."""
 
-    config_path = os.path.join(PROJECT_DIR, "config", "config.json")
-    config_template_path = os.path.join(PROJECT_DIR, "config", "config.template.json")
+@pytest.fixture(scope="session")
+def provide_container_config() -> Generator[custom_types.Config, None, None]:
+    """Provide a temporary config file that points to the container testing data."""
 
-    # backup original config to restore it later
-    tmp_config_path = os.path.join(PROJECT_DIR, "config", "config.tmp.json")
-    assert not os.path.isfile(tmp_config_path), f'"{tmp_config_path}" should not exist'
-    if os.path.isfile(config_path):
-        os.rename(config_path, tmp_config_path)
+    # LOAD CONFIG TEMPLATE
 
-    # create temporary config where all directories point to the testing data
-    config_template = tum_esm_utils.files.load_json_file(config_template_path)
-    for attribute_name, dir_name in [
-        ("datalogger", "log"),
-        ("vertical_profiles", "map"),
-        ("interferograms", "ifg"),
-    ]:
-        config_template["general"]["data_src_dirs"][attribute_name] = os.path.join(
-            PROJECT_DIR, "data", "testing", "container", "inputs", dir_name
-        )
-
-    # enable processing of storage data of sensors "mc" and "so"
-    config_template["general"]["data_dst_dirs"]["results"] = os.path.join(
-        PROJECT_DIR, "data", "testing", "container", "outputs"
+    config_template = tum_esm_utils.files.load_json_file(
+        os.path.join(PROJECT_DIR, "config", "config.template.json")
     )
-    config_template["automated_proffast"]["data_sources"]["storage"] = True
-    config_template["automated_proffast"]["data_sources"]["manual-queue"] = True
+
+    # UPDATE INPUTS
+
+    config_template["general"]["data_src_dirs"]["datalogger"] = os.path.join(
+        PROJECT_DIR, "data", "testing", "container", "inputs", "logs"
+    )
+    config_template["general"]["data_src_dirs"]["vertical_profiles"] = os.path.join(
+        PROJECT_DIR, "data", "testing", "container", "inputs", "map"
+    )
+    config_template["general"]["data_src_dirs"]["interferograms"] = os.path.join(
+        PROJECT_DIR, "data", "testing", "container", "inputs", "ifg"
+    )
     config_template["automated_proffast"]["storage_data_filter"][
         "sensor_ids_to_consider"
     ] = ["mc", "so"]
 
-    # define target directory for merged results
-    config_template["output_merging_targets"][0]["dst_dir"] = os.path.join(
-        PROJECT_DIR, "data", "testing", "pipeline", "results_merged"
+    # UPDATE OUTPUTS
+
+    config_template["general"]["data_dst_dirs"]["results"] = os.path.join(
+        PROJECT_DIR, "data", "testing", "container", "outputs"
     )
-    tum_esm_utils.files.dump_json_file(config_path, config_template)
 
-    # run test
-    yield custom_types.Config(**config_template)
+    # PARSE CONFIG OBJECT
 
-    # possibly restore original config
-    os.remove(config_path)
-    if os.path.isfile(tmp_config_path):
-        os.rename(tmp_config_path, config_path)
+    config = custom_types.Config(**config_template)
+
+    # RUN TEST
+
+    yield config
+
+
+@pytest.fixture(scope="session")
+def provide_merging_config() -> Generator[custom_types.Config, None, None]:
+    """Provide a temporary config file that points to the merging testing data."""
+
+    # LOAD CONFIG TEMPLATE
+
+    config_template = tum_esm_utils.files.load_json_file(
+        os.path.join(PROJECT_DIR, "config", "config.template.json")
+    )
+
+    # UPDATE INPUTS
+
+    config_template["general"]["data_dst_dirs"]["results"] = os.path.join(
+        PROJECT_DIR, "data", "testing", "merging", "raw"
+    )
+
+    # UPDATE OUTPUTS
+
+    config_template["output_merging_targets"][0]["dst_dir"] = os.path.join(
+        PROJECT_DIR, "data", "testing", "merging", "merged"
+    )
+
+    # PARSE CONFIG OBJECT
+
+    config = custom_types.Config(**config_template)
+
+    # RUN TEST
+
+    yield config
 
 
 @pytest.fixture(scope="function")

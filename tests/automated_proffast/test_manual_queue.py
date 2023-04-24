@@ -1,11 +1,11 @@
 import pytest
 from src import custom_types, interfaces, utils
-from ..fixtures import provide_tmp_config, provide_tmp_manual_queue
+from ..fixtures import provide_container_config, provide_tmp_manual_queue
 
 
 @pytest.mark.ci
 def test_manual_queue(
-    provide_tmp_config: custom_types.Config,
+    provide_container_config: custom_types.Config,
     provide_tmp_manual_queue: custom_types.ManualQueue,
 ) -> None:
     logger = utils.automated_proffast.Logger("testing", print_only=True)
