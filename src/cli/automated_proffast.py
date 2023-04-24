@@ -4,10 +4,10 @@ import click
 import tum_esm_utils
 from utils import print_green, print_red
 
-PROJECT_DIR = tum_esm_utils.files.get_parent_dir_path(__file__, current_depth=3)
-RUN_SCRIPT_PATH = os.path.join(PROJECT_DIR, "src", "run_automated_proffast.py")
+_PROJECT_DIR = tum_esm_utils.files.get_parent_dir_path(__file__, current_depth=3)
+_RUN_SCRIPT_PATH = os.path.join(_PROJECT_DIR, "src", "run_automated_proffast.py")
 
-sys.path.append(PROJECT_DIR)
+sys.path.append(_PROJECT_DIR)
 import src
 
 
@@ -17,7 +17,7 @@ import src
 )
 def _start() -> None:
     new_pid = tum_esm_utils.processes.start_background_process(
-        sys.executable, RUN_SCRIPT_PATH
+        sys.executable, _RUN_SCRIPT_PATH
     )
     print_green(f"Started automated proffast background process with PID {new_pid}")
 
@@ -26,7 +26,7 @@ def _start() -> None:
     help="Checks whether the automated proffast background process is running"
 )
 def _is_running() -> None:
-    existing_pids = tum_esm_utils.processes.get_process_pids(RUN_SCRIPT_PATH)
+    existing_pids = tum_esm_utils.processes.get_process_pids(_RUN_SCRIPT_PATH)
     if len(existing_pids) > 0:
         print_green(f"automated proffast is running with PID(s) {existing_pids}")
     else:
@@ -35,7 +35,7 @@ def _is_running() -> None:
 
 @click.command(help="Stop the automated proffast background process")
 def _stop() -> None:
-    termination_pids = tum_esm_utils.processes.terminate_process(RUN_SCRIPT_PATH)
+    termination_pids = tum_esm_utils.processes.terminate_process(_RUN_SCRIPT_PATH)
     if len(termination_pids) == 0:
         print_red("No active process to be terminated")
     else:

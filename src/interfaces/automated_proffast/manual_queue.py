@@ -4,8 +4,8 @@ import tum_esm_utils
 from typing import Optional
 from src import custom_types, utils
 
-PROJECT_DIR = tum_esm_utils.files.get_parent_dir_path(__file__, current_depth=4)
-MANUAL_QUEUE_FILE = os.path.join(PROJECT_DIR, "config", "manual-queue.json")
+_PROJECT_DIR = tum_esm_utils.files.get_parent_dir_path(__file__, current_depth=4)
+_MANUAL_QUEUE_FILE = os.path.join(_PROJECT_DIR, "config", "manual-queue.json")
 
 
 class ManualQueueInterface:
@@ -32,11 +32,11 @@ class ManualQueueInterface:
     def _load(
         logger: utils.automated_proffast.Logger,
     ) -> Optional[custom_types.ManualQueue]:
-        if not os.path.isfile(MANUAL_QUEUE_FILE):
+        if not os.path.isfile(_MANUAL_QUEUE_FILE):
             return None
 
         try:
-            with open(MANUAL_QUEUE_FILE, "r") as f:
+            with open(_MANUAL_QUEUE_FILE, "r") as f:
                 return custom_types.ManualQueue(items=json.load(f))
         except Exception:
             logger.error("manual queue is no readable")
@@ -45,7 +45,7 @@ class ManualQueueInterface:
 
     @staticmethod
     def _dump(items: list[custom_types.ManualQueueItem]) -> None:
-        with open(MANUAL_QUEUE_FILE, "w") as f:
+        with open(_MANUAL_QUEUE_FILE, "w") as f:
             json.dump([i.dict() for i in items], f, indent=4)
 
     @staticmethod

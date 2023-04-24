@@ -1,5 +1,4 @@
 from __future__ import annotations
-
 from typing import Any, Literal, Optional
 import os
 import copy
@@ -8,8 +7,8 @@ from datetime import datetime, timedelta
 import tum_esm_utils
 from src import custom_types
 
-PROJECT_DIR = tum_esm_utils.files.get_parent_dir_path(__file__, current_depth=3)
-REPORT_PATH = os.path.join(PROJECT_DIR, "reports")
+_PROJECT_DIR = tum_esm_utils.files.get_parent_dir_path(__file__, current_depth=4)
+_REPORT_PATH = os.path.join(_PROJECT_DIR, "logs", "vertical_profiles")
 
 
 class Reporter:
@@ -58,7 +57,7 @@ class Reporter:
         execution_time = str(datetime.utcnow() - self._exec_start)
 
         with open(
-            f"{REPORT_PATH}/{self._version}/{exec_start_str}.json", "w"
+            f"{_REPORT_PATH}/{self._version}/{exec_start_str}.json", "w"
         ) as report:
             json.dump(
                 {

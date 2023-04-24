@@ -6,8 +6,8 @@ import tum_esm_utils
 import tum_esm_em27_metadata
 from src import custom_types
 
-PROJECT_DIR = tum_esm_utils.files.get_parent_dir_path(__file__, current_depth=3)
-CACHE_DIR = os.path.join(PROJECT_DIR, ".cache")
+_PROJECT_DIR = tum_esm_utils.files.get_parent_dir_path(__file__, current_depth=4)
+_CACHE_DIR = os.path.join(_PROJECT_DIR, ".cache")
 
 
 def get_daily_sensor_sets(
@@ -111,7 +111,7 @@ def filter_daily_sensor_sets(
         filtered_location_sensor_sets = {
             date: sensors.copy()
             for date, sensors in location_sensor_sets.items()
-            if not os.path.isdir(f"{CACHE_DIR}/{version}/{date}_{location.slug()}")
+            if not os.path.isdir(f"{_CACHE_DIR}/{version}/{date}_{location.slug()}")
         }
 
         if filtered_location_sensor_sets:
@@ -135,8 +135,8 @@ def export_data(
         for date, sensors in location_sensor_sets.items():
             for sensor in sensors:
                 dir_ = f"{date}_{location.slug()}"
-                if os.path.isdir(f"{CACHE_DIR}/{version}/{dir_}"):
+                if os.path.isdir(f"{_CACHE_DIR}/{version}/{dir_}"):
                     copy_tree(
-                        f"{CACHE_DIR}/{version}/{dir_}",
+                        f"{_CACHE_DIR}/{version}/{dir_}",
                         f"{dst_path}/{sensor}/{dir_}",
                     )

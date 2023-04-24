@@ -1,20 +1,17 @@
-import json
 import sys
 import tum_esm_utils
-import os, copy
+import copy
 from ftplib import FTP
 from rich.progress import track
 
-PROJECT_DIR = tum_esm_utils.files.get_parent_dir_path(__file__, current_depth=2)
-sys.path.append(PROJECT_DIR)
+_PROJECT_DIR = tum_esm_utils.files.get_parent_dir_path(__file__, current_depth=2)
+sys.path.append(_PROJECT_DIR)
 
-from src import custom_types, procedures, utils
+from src import procedures, utils
 
 
 def run() -> None:
-    # Configuration
-    with open(os.path.join(PROJECT_DIR, "config", "config.json"), "r") as f:
-        config = custom_types.Config(**json.load(f))
+    config = utils.load_config()
 
     # Generate daily sensor sets
     daily_sensor_sets = procedures.vertical_profiles.get_daily_sensor_sets(config)

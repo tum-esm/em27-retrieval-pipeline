@@ -8,8 +8,8 @@ from datetime import datetime, timedelta
 from src import custom_types
 import tum_esm_utils
 
-PROJECT_DIR = tum_esm_utils.files.get_parent_dir_path(__file__, current_depth=3)
-CACHE_DIR = os.path.join(PROJECT_DIR, ".cache")
+_PROJECT_DIR = tum_esm_utils.files.get_parent_dir_path(__file__, current_depth=4)
+_CACHE_DIR = os.path.join(_PROJECT_DIR, ".cache")
 
 
 def get_query_list(
@@ -224,10 +224,9 @@ def _extract_archive(
     query: custom_types.DownloadQuery,
     version: Literal["GGG2014", "GGG2020"],
 ) -> None:
-    """
-    Extracts, renames and stores archive members in .cache/{version}.
-    """
-    cache_path = f"{CACHE_DIR}/{version}"
+    """Extracts, renames and stores archive members in .cache/{version}."""
+
+    cache_path = f"{_CACHE_DIR}/{version}"
     with tarfile.open(fileobj=archive) as tar:
         for member in tar:
             name = member.name

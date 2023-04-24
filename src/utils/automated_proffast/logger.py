@@ -3,9 +3,9 @@ import os
 import shutil
 import sys
 import traceback
+import tum_esm_utils
 
-dir = os.path.dirname
-PROJECT_DIR = dir(dir(dir(os.path.abspath(__file__))))
+_PROJECT_DIR = tum_esm_utils.files.get_parent_dir_path(__file__, current_depth=4)
 
 # I am not using the logging-library because the proffast-pylot
 # also uses that and figuring out how to not make these two
@@ -19,7 +19,7 @@ class Logger:
     def __init__(self, container_id: str, print_only: bool = False) -> None:
         self.container_id = container_id
         self.logfile_name = f"{logfile_time}_{self.container_id}.log"
-        self.logfile_path = os.path.join(PROJECT_DIR, "logs", self.logfile_name)
+        self.logfile_path = os.path.join(_PROJECT_DIR, "logs", self.logfile_name)
         self.print_only = print_only
 
     def _print(self, m: str, level: str) -> None:
@@ -62,6 +62,6 @@ class Logger:
         """move the used log file into the archive"""
         shutil.copyfile(
             self.logfile_path,
-            os.path.join(PROJECT_DIR, "logs", "archive", self.logfile_name),
+            os.path.join(_PROJECT_DIR, "logs", "archive", self.logfile_name),
         )
         os.remove(self.logfile_path)

@@ -3,14 +3,13 @@ import shutil
 from src import custom_types, utils
 import tum_esm_utils
 
-dirname = os.path.dirname
-PROJECT_DIR = tum_esm_utils.files.get_parent_dir_path(__file__, current_depth=4)
-PYLOT_ROOT_DIR = os.path.join(
-    PROJECT_DIR, "src", "procedures", "automated_proffast", "pylot_src"
-)
-PYLOT_MAIN_CLONE_DIR = os.path.join(PYLOT_ROOT_DIR, "main")
-KIT_BASE_URL = "https://www.imk-asf.kit.edu/downloads/Coccon-SW/"
-ZIPFILE_NAME = "PROFFASTv2.2.zip"
+_PROJECT_DIR = tum_esm_utils.files.get_parent_dir_path(__file__, current_depth=4)
+_PYLOT_ROOT_DIR = os.path.join(_PROJECT_DIR, "src", "pylot_src")
+_PYLOT_MAIN_CLONE_DIR = os.path.join(_PYLOT_ROOT_DIR, "main")
+_CONTAINERS_DIR = os.path.join(_PROJECT_DIR, "data", "containers")
+
+_KIT_BASE_URL = "https://www.imk-asf.kit.edu/downloads/Coccon-SW/"
+_ZIPFILE_NAME = "PROFFASTv2.2.zip"
 
 
 class PylotFactory:
@@ -62,11 +61,10 @@ class PylotFactory:
 
         # copy container code and compile the fortran code
         container_path = os.path.join(
-            PYLOT_ROOT_DIR,
-            "containers",
+            _CONTAINERS_DIR,
             f"pylot-container-{container_id}",
         )
-        shutil.copytree(PYLOT_MAIN_CLONE_DIR, container_path)
+        shutil.copytree(_PYLOT_MAIN_CLONE_DIR, container_path)
         tum_esm_utils.shell.run_shell_command(
             command=f"bash install_proffast_linux.sh",
             working_directory=os.path.join(container_path, "prf"),
@@ -74,9 +72,8 @@ class PylotFactory:
 
         # generate empty input directory
         data_input_path = os.path.join(
-            PYLOT_ROOT_DIR,
-            "containers",
-            f"pylot-container-{container_id}-input",
+            _CONTAINERS_DIR,
+            f"pylot-container-{container_id}-inputs",
         )
         os.mkdir(data_input_path)
         os.mkdir(os.path.join(data_input_path, "ifg"))
@@ -85,9 +82,8 @@ class PylotFactory:
 
         # generate empty output directory
         data_output_path = os.path.join(
-            PYLOT_ROOT_DIR,
-            "containers",
-            f"pylot-container-{container_id}-output",
+            _CONTAINERS_DIR,
+            f"pylot-container-{container_id}-outputs",
         )
         os.mkdir(data_output_path)
 
@@ -139,23 +135,16 @@ class PylotFactory:
         and copy it to the directory `src/prfpylot/main/prf`."""
 
         # DOWNLOAD PROFFAST 2.2 code if it doesn't exist yet
-        if os.path.exists(os.path.join(PYLOT_MAIN_CLONE_DIR, "prf")):
+        if os.path.exists(os.path.join(_PYLOT_MAIN_CLONE_DIR, "prf")):
             self.logger.info(f"Proffast 2.2 has already been downloaded")
         else:
             self.logger.info(f"Downloading Proffast 2.2 code")
             tum_esm_utils.shell.run_shell_command(
-                command=f"wget --quiet {KIT_BASE_URL}/{ZIPFILE_NAME}",
-                working_directory=os.path.join(PYLOT_ROOT_DIR, "main"),
+                command=f"wget --quiet {_KIT_BASE_URL}/{_ZIPFILE_NAME}",
+                working_directory=os.path.join(_PYLOT_ROOT_DIR, "main"),
             )
             tum_esm_utils.shell.run_shell_command(
-                command=f"unzip -q {ZIPFILE_NAME}",
-                working_directory=os.path.join(PYLOT_ROOT_DIR, "main"),
+                command=f"unzip -q {_ZIPFILE_NAME}",
+                working_directory=os.path.join(_PYLOT_ROOT_DIR, "main"),
             )
-            os.remove(os.path.join(PYLOT_ROOT_DIR, "main", ZIPFILE_NAME))
-
-        # COMPILE FORTRAN CODE
-        self.logger.info(f"Compiling Fortran code of corrupt-ifgs detection")
-        tum_esm_utils.shell.run_shell_command(
-            command=f"bash compile.sh",
-            working_directory=os.path.join(PROJECT_DIR, "src", "detect_corrupt_ifgs"),
-        )
+            os.remove(os.path.join(_PYLOT_ROOT_DIR, "main", _ZIPFILE_NAME))

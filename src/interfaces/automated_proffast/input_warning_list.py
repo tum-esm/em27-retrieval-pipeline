@@ -1,18 +1,18 @@
 import json
 import os
+import tum_esm_utils
 from datetime import datetime
 from src import custom_types
 
-dirname = os.path.dirname
-PROJECT_DIR = dirname(dirname(dirname(os.path.abspath(__file__))))
-LIST_PATH = f"{PROJECT_DIR}/logs/input-warnings-to-be-resolved.json"
+_PROJECT_DIR = tum_esm_utils.files.get_parent_dir_path(__file__, current_depth=4)
+_LIST_PATH = f"{_PROJECT_DIR}/logs/input-warnings-to-be-resolved.json"
 
 
 class InputWarningsInterface:
     @staticmethod
     def _load() -> custom_types.InputWarningsList:
         try:
-            with open(LIST_PATH, "r") as f:
+            with open(_LIST_PATH, "r") as f:
                 return custom_types.InputWarningsList(items=json.load(f))
         except FileNotFoundError:
             return custom_types.InputWarningsList(items=[])
@@ -21,7 +21,7 @@ class InputWarningsInterface:
 
     @staticmethod
     def _dump(new_object: custom_types.InputWarningsList) -> None:
-        with open(LIST_PATH, "w") as f:
+        with open(_LIST_PATH, "w") as f:
             json.dump([w.dict() for w in new_object.items], f, indent=4)
 
     @staticmethod

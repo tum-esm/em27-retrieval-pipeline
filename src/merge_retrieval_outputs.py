@@ -10,13 +10,11 @@ import tum_esm_utils
 PROJECT_DIR = tum_esm_utils.files.get_parent_dir_path(__file__, current_depth=2)
 sys.path.append(PROJECT_DIR)
 
-from src import custom_types, procedures
+from src import procedures, utils
 
 
 def run() -> None:
-    with open(os.path.join(PROJECT_DIR, "config", "config.json"), "r") as f:
-        config = custom_types.Config(**json.load(f))
-
+    config = utils.load_config()
     em27_metadata = tum_esm_em27_metadata.load_from_github(
         **config.general.location_data.dict()
     )
