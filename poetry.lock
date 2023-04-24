@@ -1594,17 +1594,18 @@ telegram = ["requests"]
 
 [[package]]
 name = "tum-esm-em27-metadata"
-version = "1.0.1"
-description = "single source of truth for ESM's EM27 measurement logistics"
+version = "2.0.0rc2"
+description = "Single source of truth for ESM's EM27 measurement logistics"
 category = "main"
 optional = false
 python-versions = ">=3.9,<4.0"
 files = [
-    {file = "tum_esm_em27_metadata-1.0.1-py3-none-any.whl", hash = "sha256:b91580f6a95114b043b0294187cb35aea197608e77df39d65945a7d533e907ba"},
-    {file = "tum_esm_em27_metadata-1.0.1.tar.gz", hash = "sha256:d135c7a0185b02441385cbf8d76681605fe4891dc8c8bc4e8ecd541bafa7e41d"},
+    {file = "tum_esm_em27_metadata-2.0.0rc2-py3-none-any.whl", hash = "sha256:ac23eb409ee0cf5feec008b1e2060311caaef0bafdec5c5084417466821a65a6"},
+    {file = "tum_esm_em27_metadata-2.0.0rc2.tar.gz", hash = "sha256:43bccb1846428ea238633ea3a31c52bf7ddfbe035ee597d74f3032e1c7aeadb0"},
 ]
 
 [package.dependencies]
+pendulum = ">=2.1.2,<3.0.0"
 pydantic = ">=1.10.4,<2.0.0"
 tum-esm-utils = ">=1.0.0,<2.0.0"
 
@@ -1701,4 +1702,4 @@ testing = ["big-O", "flake8 (<5)", "jaraco.functools", "jaraco.itertools", "more
 [metadata]
 lock-version = "2.0"
 python-versions = "3.9.*"
-content-hash = "0124f0c31ce2c736b1dd3fd719a64059375df01832a1229f5f36c4152bc92a05"
+content-hash = "e2be687a20c414624fdfab9397c2aed1c0fcd551256e1bcf3f9546d99b03aa1c"
