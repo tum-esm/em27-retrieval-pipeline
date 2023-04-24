@@ -8,7 +8,7 @@ pT detail dec (True/False)
 quiet run option (True/False)
 handle (single character is appended to the output files. For default behaviour choose 'X')
 $
-%DATAPATH%\%MEASUREMENT_DATE%
+%DATAPATH%/%MEASUREMENT_DATE%
 %SITE%
 %LOCAL_DATE%
 %SITE%%LOCAL_DATE%-abscos.bin
