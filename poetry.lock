@@ -1579,14 +1579,14 @@ tum-esm-utils = ">=1.4.0,<2.0.0"
 
 [[package]]
 name = "tum-esm-utils"
-version = "1.4.0"
+version = "1.4.1"
 description = "Python utilities by the Professorship of Environmental Sensing and Modeling at the Technical University of Munich"
 category = "main"
 optional = false
 python-versions = ">=3.9,<4.0"
 files = [
-    {file = "tum_esm_utils-1.4.0-py3-none-any.whl", hash = "sha256:225a33413a57e8f33dfd0dbc3b9e6f59b5e286fa7ed20f45310276a038de9e48"},
-    {file = "tum_esm_utils-1.4.0.tar.gz", hash = "sha256:8e34199de20570fef1539072ef245a6917f1b40cf1bb22e6c4828e8734f62b5d"},
+    {file = "tum_esm_utils-1.4.1-py3-none-any.whl", hash = "sha256:643b2c2a9da6640723cd1b04f4a08e1913ae5476b0ea731710c2722904141f93"},
+    {file = "tum_esm_utils-1.4.1.tar.gz", hash = "sha256:9b97d41cdc37bd85c46956b4e71f2f78137b07d868794ef408d0367e444a0e24"},
 ]
 
 [package.dependencies]
@@ -1670,4 +1670,4 @@ testing = ["big-O", "flake8 (<5)", "jaraco.functools", "jaraco.itertools", "more
 [metadata]
 lock-version = "2.0"
 python-versions = "3.9.*"
-content-hash = "a6565eddc02f395051c6012991a3e96b22a4dfce90a7dad5d6f6537fd66b4051"
+content-hash = "7f761af3d6c788a4898402a54301ed90a7e253bfebdb62d040f232b8f3e9780f"

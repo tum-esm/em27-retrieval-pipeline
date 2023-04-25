@@ -13,7 +13,6 @@ readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "3.9.*"
-tum-esm-utils = "^1.4.0"
 pydantic = "^1.10.7"
 requests = "^2.28.2"
 rich = "^13.3.4"
@@ -23,6 +22,7 @@ polars = "^0.16.18"
 pandas = "^1.5.3"
 scipy = "^1.10.1"
 tum-esm-em27-metadata = "2.0.0rc3"
+tum-esm-utils = "^1.4.1"
 
 [tool.poetry.group.dev.dependencies]
 black = "^22.12.0"
