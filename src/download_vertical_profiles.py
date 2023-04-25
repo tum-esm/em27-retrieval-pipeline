@@ -20,7 +20,7 @@ def run() -> None:
         return
 
     print("Export existing data")
-    procedures.vertical_profiles.export_data(config, daily_sensor_sets, version)
+    procedures.vertical_profiles.export_data(config, daily_sensor_sets, "GGG2014")
 
     with FTP(
         host="ccycle.gps.caltech.edu",
@@ -28,7 +28,6 @@ def run() -> None:
         user="anonymous",
         timeout=60,
     ) as ftp:
-
         # Request GGG2014 and/or GGG2020 data
         for version in config.vertical_profiles.request_scope.data_types:
 
@@ -44,6 +43,7 @@ def run() -> None:
 
             # Combine sensor sets to query intervals
             query_list = procedures.vertical_profiles.get_query_list(sensor_sets)
+            print(f"Running {len(query_list)} queries for {version}")
 
             with utils.vertical_profiles.Reporter(query_list, version) as reporter:
 

@@ -13,8 +13,17 @@ echo "replacing windows specific line in source code ..."
 for file in source/*/*90;
 do
 	echo "    $file"
-	LC_ALL=C sed -i "" "s|pathstr = \".*\"|pathstr = \"/\"|" "./$file"
-	LC_ALL=C sed -i "" "s|character(150)|character(300)|" "./$file"
+
+	# mac os
+	if [[ "$OSTYPE" == "darwin"* ]]; then
+		LC_ALL=C sed -i "" "s|pathstr = \".*\"|pathstr = \"/\"|" "./$file"
+		LC_ALL=C sed -i "" "s|character(150)|character(300)|" "./$file"
+	
+	# linux
+	else
+		sed -i"" "s|pathstr = \".*\"|pathstr = \"/\"|" "./$file"
+		sed -i"" "s|character(150)|character(300)|" "./$file"
+	fi
 done
 
 # Compile the source code

@@ -6,13 +6,14 @@ from typing import Optional
 import tum_esm_em27_metadata
 import multiprocessing
 import multiprocessing.context
+import tum_esm_utils
 
-PROJECT_DIR = os.path.dirname(os.path.abspath(__file__))
-sys.path.append(PROJECT_DIR)
+_PROJECT_DIR = tum_esm_utils.files.get_parent_dir_path(__file__, current_depth=2)
+sys.path.append(_PROJECT_DIR)
 
 from src import utils, interfaces, procedures
 
-LOCK_FILE = f"{PROJECT_DIR}/src/main.lock"
+LOCK_FILE = f"{_PROJECT_DIR}/src/main.lock"
 lock = filelock.FileLock(LOCK_FILE, timeout=0)
 
 
