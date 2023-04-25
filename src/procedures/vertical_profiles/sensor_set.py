@@ -1,6 +1,7 @@
 import os
 from collections import defaultdict
 from distutils.dir_util import copy_tree
+import shutil
 from typing import Literal, Optional
 import tum_esm_utils
 import tum_esm_em27_metadata
@@ -134,9 +135,20 @@ def export_data(
     for location, location_sensor_sets in daily_sensor_sets.items():
         for date, sensors in location_sensor_sets.items():
             for sensor in sensors:
-                dir_ = f"{date}_{location.slug()}"
-                if os.path.isdir(f"{_CACHE_DIR}/{version}/{dir_}"):
-                    copy_tree(
-                        f"{_CACHE_DIR}/{version}/{dir_}",
-                        f"{dst_path}/{sensor}/{dir_}",
-                    )
+                if version == "GGG2014":
+                    slug = f"{date}_{location.slug()}"
+                    for src, dst in [
+                        (
+                            f"{_CACHE_DIR}/GGG2014/{slug}/{slug}.map",
+                            f"{dst_path}/{sensor}/{sensor}{date}.map",
+                        ),
+                        (
+                            f"{_CACHE_DIR}/GGG2014/{slug}/{slug}.mod",
+                            f"{dst_path}/{sensor}/{sensor}{date}.mod",
+                        ),
+                    ]:
+                        if os.path.isfile(src) and (not os.path.isfile(dst)):
+                            shutil.copyfile(src, dst)
+                else:
+                    # TODO
+                    raise NotImplementedError()

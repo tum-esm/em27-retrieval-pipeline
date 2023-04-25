@@ -19,6 +19,9 @@ def run() -> None:
         print("No data to request.")
         return
 
+    print("Export existing data")
+    procedures.vertical_profiles.export_data(config, daily_sensor_sets, version)
+
     with FTP(
         host="ccycle.gps.caltech.edu",
         passwd=config.vertical_profiles.ftp_server.email,
@@ -91,13 +94,15 @@ def run() -> None:
                             to_date,
                         )
 
-                    if not down_status:
-                        return
+                        if not down_status:
+                            return
 
-                # Export data to dst_dir
-                procedures.vertical_profiles.export_data(
-                    config, daily_sensor_sets, version
-                )
+                        progress.print(f"Exporting")
+
+                        # Export data to dst_dir
+                        procedures.vertical_profiles.export_data(
+                            config, daily_sensor_sets, version
+                        )
 
 
 if __name__ == "__main__":

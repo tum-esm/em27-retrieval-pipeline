@@ -9,6 +9,7 @@ def run(
 ) -> None:
     src_filepath = os.path.join(
         config.general.data_src_dirs.vertical_profiles,
+        "GGG2014",
         pylot_session.sensor_id,
         f"{pylot_session.sensor_id}{pylot_session.date}.map",
     )
