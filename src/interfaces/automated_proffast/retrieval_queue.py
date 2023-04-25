@@ -1,6 +1,7 @@
 from datetime import datetime, timedelta
 import json
 import os
+import re
 from typing import Optional
 from pydantic import BaseModel
 import tum_esm_em27_metadata
@@ -220,13 +221,30 @@ class RetrievalQueue:
         return False
 
     def _ifgs_exist(self, sensor_id: str, date: str) -> bool:
-        """determine whether an ifg directory exists"""
-        return os.path.isdir(
-            os.path.join(
-                self.config.general.data_src_dirs.interferograms,
-                sensor_id,
-                date,
+        """determine whether an ifg directory exists and contains
+        at least one interferogram"""
+        
+        ifg_src_directory = os.path.join(
+            self.config.general.data_src_dirs.interferograms,
+            sensor_id,
+            date,
+        )
+        if not os.path.isdir(ifg_src_directory):
+            return False
+
+        expected_ifg_regex = self.config.automated_proffast.ifg_file_regex.replace(
+            "$(SENSOR_ID)", sensor_id
+        ).replace("$(DATE)", date)
+        expected_ifg_pattern = re.compile(expected_ifg_regex)
+        return (
+            len(
+                [
+                    f
+                    for f in os.listdir(ifg_src_directory)
+                    if expected_ifg_pattern.match(f) is not None
+                ]
             )
+            > 0
         )
 
     def _outputs_exist(self, sensor_id: str, date: str) -> bool:
