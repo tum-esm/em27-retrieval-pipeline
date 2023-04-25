@@ -238,6 +238,20 @@ files = [
 ]
 
 [[package]]
+name = "compact-json"
+version = "1.5.1"
+description = "A JSON formatter that produces compact but human-readable"
+category = "main"
+optional = false
+python-versions = ">=3.8,<4.0"
+files = [
+    {file = "compact_json-1.5.1-py3-none-any.whl", hash = "sha256:09aee112cdc576339d515d8db503be8d037ce0e297d396673d457556afc82db9"},
+]
+
+[package.dependencies]
+wcwidth = ">=0.2.5,<0.3.0"
+
+[[package]]
 name = "contourpy"
 version = "1.0.7"
 description = "Python library for calculating contours of 2D quadrilateral grids"
@@ -1652,6 +1666,18 @@ secure = ["certifi", "cryptography (>=1.3.4)", "idna (>=2.0.0)", "ipaddress", "p
 socks = ["PySocks (>=1.5.6,!=1.5.7,<2.0)"]
 
 [[package]]
+name = "wcwidth"
+version = "0.2.6"
+description = "Measures the displayed width of unicode strings in a terminal"
+category = "main"
+optional = false
+python-versions = "*"
+files = [
+    {file = "wcwidth-0.2.6-py2.py3-none-any.whl", hash = "sha256:795b138f6875577cd91bba52baf9e445cd5118fd32723b460e30a0af30ea230e"},
+    {file = "wcwidth-0.2.6.tar.gz", hash = "sha256:a5220780a404dbe3353789870978e472cfe477761f06ee55077256e509b156d0"},
+]
+
+[[package]]
 name = "zipp"
 version = "3.15.0"
 description = "Backport of pathlib-compatible object wrapper for zip files"
@@ -1670,4 +1696,4 @@ testing = ["big-O", "flake8 (<5)", "jaraco.functools", "jaraco.itertools", "more
 [metadata]
 lock-version = "2.0"
 python-versions = "3.9.*"
-content-hash = "7f761af3d6c788a4898402a54301ed90a7e253bfebdb62d040f232b8f3e9780f"
+content-hash = "c2be63eae03e95cb5c1013b39eb8588a627ad520e387c4927477859737c709db"

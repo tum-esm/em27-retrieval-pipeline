@@ -23,6 +23,7 @@ pandas = "^1.5.3"
 scipy = "^1.10.1"
 tum-esm-em27-metadata = "2.0.0rc3"
 tum-esm-utils = "^1.4.1"
+compact-json = "^1.5.1"
 
 [tool.poetry.group.dev.dependencies]
 black = "^22.12.0"
