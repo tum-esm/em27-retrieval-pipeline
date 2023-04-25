@@ -23,19 +23,19 @@ def run(config: custom_types.Config, pylot_session: custom_types.PylotSession) -
 
     try:
         move_vertical_profiles.run(config, pylot_session)
-    except AssertionError as e:
-        log_input_warning(f"Inputs incomplete (vertical profiles)")
+    except Exception as e:
+        log_input_warning(f"Inputs incomplete (vertical profiles): {e}")
         return
 
     try:
         move_datalogger_files.run(config, logger, pylot_session)
-    except AssertionError as e:
+    except Exception as e:
         log_input_warning(f"Inputs incomplete (datalogger files): {e}")
         return
 
     try:
         move_ifg_files.run(config, logger, pylot_session)
-    except AssertionError as e:
+    except Exception as e:
         log_input_warning(f"Inputs incomplete (ifg files): {e}")
         return
 
