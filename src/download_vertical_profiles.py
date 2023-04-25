@@ -2,7 +2,7 @@ import sys
 import tum_esm_utils
 import copy
 from ftplib import FTP
-from rich.progress import track
+from rich.progress import Progress
 
 _PROJECT_DIR = tum_esm_utils.files.get_parent_dir_path(__file__, current_depth=2)
 sys.path.append(_PROJECT_DIR)
@@ -44,43 +44,51 @@ def run() -> None:
 
             with utils.vertical_profiles.Reporter(query_list, version) as reporter:
 
-                for query in track(query_list, description=f"Downloading {version}..."):
-                    # Check if data already exists on FTP server
-                    up_status, up_time = True, 0.0
-                    (
-                        down_status,
-                        down_time,
-                        to_date,
-                    ) = procedures.vertical_profiles.download_data(
-                        config, query, ftp, version
-                    )
-                    if not down_status:
-                        # Request data
+                with Progress() as progress:
+                    for query in progress.track(
+                        query_list, description=f"Downloading {version}..."
+                    ):
+                        progress.print(
+                            f"Downloading data for {query.location.lat}°N, {query.location.lon}°E,"
+                            + f" {query.from_date} - {query.to_date}"
+                        )
+
+                        # Check if data already exists on FTP server
+                        up_status, up_time = True, 0.0
                         (
+                            down_status,
+                            down_time,
+                            to_date,
+                        ) = procedures.vertical_profiles.download_data(
+                            config, query, ftp, version
+                        )
+                        if not down_status:
+                            # Request data
+                            (
+                                up_status,
+                                up_time,
+                            ) = procedures.vertical_profiles.upload_request(
+                                config.vertical_profiles.ftp_server, query, ftp, version
+                            )
+                            if up_status:
+                                # Await data if upload successful
+                                (
+                                    down_status,
+                                    down_time,
+                                    to_date,
+                                ) = procedures.vertical_profiles.download_data(
+                                    config, query, ftp, version, wait=True
+                                )
+
+                        # Append query statistics to report
+                        reporter.report_query(
+                            query,
                             up_status,
                             up_time,
-                        ) = procedures.vertical_profiles.upload_request(
-                            config.vertical_profiles.ftp_server, query, ftp, version
+                            down_status,
+                            down_time,
+                            to_date,
                         )
-                        if up_status:
-                            # Await data if upload successful
-                            (
-                                down_status,
-                                down_time,
-                                to_date,
-                            ) = procedures.vertical_profiles.download_data(
-                                config, query, ftp, version, wait=True
-                            )
-
-                    # Append query statistics to report
-                    reporter.report_query(
-                        query,
-                        up_status,
-                        up_time,
-                        down_status,
-                        down_time,
-                        to_date,
-                    )
 
                     if not down_status:
                         return
@@ -89,3 +97,7 @@ def run() -> None:
                 procedures.vertical_profiles.export_data(
                     config, daily_sensor_sets, version
                 )
+
+
+if __name__ == "__main__":
+    run()

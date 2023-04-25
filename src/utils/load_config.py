@@ -3,7 +3,7 @@ import os
 import tum_esm_utils
 from src import custom_types
 
-_PROJECT_DIR = tum_esm_utils.files.get_parent_dir_path(__file__, current_depth=4)
+_PROJECT_DIR = tum_esm_utils.files.get_parent_dir_path(__file__, current_depth=3)
 _CONFIG_PATH = os.path.join(_PROJECT_DIR, "config", "config.json")
 
 
