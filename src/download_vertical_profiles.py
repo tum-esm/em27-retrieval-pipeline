@@ -46,7 +46,8 @@ def run() -> None:
 
                 with Progress() as progress:
                     for query in progress.track(
-                        query_list, description=f"Downloading {version}..."
+                        list(sorted(query_list, key=lambda q: q.to_date, reverse=True)),
+                        description=f"Downloading {version}...",
                     ):
                         progress.print(
                             f"Downloading data for {query.location.lat}°N, {query.location.lon}°E,"

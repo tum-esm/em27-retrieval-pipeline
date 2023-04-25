@@ -220,7 +220,7 @@ class RetrievalQueue:
         return False
 
     def _ifgs_exist(self, sensor_id: str, date: str) -> bool:
-        """for a given sensor_id and date, deter"""
+        """determine whether an ifg directory exists"""
         return os.path.isdir(
             os.path.join(
                 self.config.general.data_src_dirs.interferograms,
