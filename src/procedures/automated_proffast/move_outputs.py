@@ -133,6 +133,7 @@ def run(
 
     # (optional) RESTORE OLD IFG FILE PERMISSIONS
 
+    # TODO: make "failing if permission error" configurable
     if (
         config.automated_proffast.modified_ifg_file_permissions.after_processing
         is not None

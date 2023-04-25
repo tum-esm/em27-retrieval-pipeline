@@ -46,6 +46,7 @@ def run(
 
     # (optional) MAKE INTERFEROGRAM FILES READ-ONLY
 
+    # TODO: make "failing if permission error" configurable
     if (
         config.automated_proffast.modified_ifg_file_permissions.during_processing
         is not None
