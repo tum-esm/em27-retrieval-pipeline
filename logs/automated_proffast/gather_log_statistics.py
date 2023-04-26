@@ -3,7 +3,7 @@ import os
 import re
 import compact_json
 from typing import Optional
-
+import rich.progress
 import tum_esm_utils
 
 
@@ -17,44 +17,58 @@ failed: dict[str, tuple[str, int]] = {}
 successful: dict[str, tuple[str, int]] = {}
 inputs_incomplete: dict[str, tuple[str, str]] = {}
 
-for log_file in list(sorted(os.listdir(f"{BASE}/archive"))):
-    if not container_log_filepattern.match(log_file):
-        continue
+log_file_names = [
+    f
+    for f in sorted(os.listdir(f"{BASE}/archive"))
+    if container_log_filepattern.match(f)
+]
+with rich.progress.Progress() as progress:
+    task = progress.add_task("Parsing log files", total=len(log_file_names))
 
-    with open(f"{BASE}/archive/{log_file}") as f:
-        file_content = f.read()
+    for log_file in log_file_names:
+        progress.console.print(log_file)
 
-    # LOOK FOR "station_id/date" IDENTIFER
+        with open(f"{BASE}/archive/{log_file}") as f:
+            file_content = f.read()
 
-    data_context_pattern_match = data_context_pattern.search(file_content)
-    assert (
-        data_context_pattern_match is not None
-    ), f"No data context found in {BASE}/archive/{log_file}"
-    data_context = data_context_pattern_match.group(0).split()[-1]
+        # LOOK FOR "station_id/date" IDENTIFER
 
-    # CHECK IF INPUT WERE INCOMPLETE
+        data_context_pattern_match = data_context_pattern.search(file_content)
+        assert (
+            data_context_pattern_match is not None
+        ), f"No data context found in {BASE}/archive/{log_file}"
+        data_context = data_context_pattern_match.group(0).split()[-1]
 
-    input_incomplete_message: Optional[tuple[str, str]] = None
-    for input_incomplete_type in ["vertical profiles", "datalogger files", "ifg files"]:
-        if f"WARNING - Inputs incomplete ({input_incomplete_type})" in file_content:
-            input_incomplete_message = f"({input_incomplete_type})"
+        # CHECK IF INPUT WERE INCOMPLETE
 
-    if input_incomplete_message is not None:
-        inputs_incomplete[data_context] = (log_file, input_incomplete_message)
-        continue
+        input_incomplete_message: Optional[tuple[str, str]] = None
+        for input_incomplete_type in [
+            "vertical profiles",
+            "datalogger files",
+            "ifg files",
+        ]:
+            if f"WARNING - Inputs incomplete ({input_incomplete_type})" in file_content:
+                input_incomplete_message = f"({input_incomplete_type})"
 
-    # LOOK FOR IFG COUNT
+        if input_incomplete_message is not None:
+            inputs_incomplete[data_context] = (log_file, input_incomplete_message)
+            progress.update(task, advance=1)
+            continue
 
-    ifg_count_match = ifg_count_pattern.search(file_content)
-    assert (
-        ifg_count_match is not None
-    ), f"No ifg count found in {BASE}/archive/{log_file}"
-    ifg_count = int(ifg_count_match.group(0).split()[0])
+        # LOOK FOR IFG COUNT
 
-    if "Pylot execution was successful" in file_content:
-        successful[data_context] = (log_file, ifg_count)
-    else:
-        failed[data_context] = (log_file, ifg_count)
+        ifg_count_match = ifg_count_pattern.search(file_content)
+        assert (
+            ifg_count_match is not None
+        ), f"No ifg count found in {BASE}/archive/{log_file}"
+        ifg_count = int(ifg_count_match.group(0).split()[0])
+
+        if "Pylot execution was successful" in file_content:
+            successful[data_context] = (log_file, ifg_count)
+        else:
+            failed[data_context] = (log_file, ifg_count)
+
+        progress.update(task, advance=1)
 
 successful_ifg_count = sum([v[1] for v in successful.values()])
 failed_ifg_count = sum([v[1] for v in failed.values()])
@@ -62,7 +76,6 @@ ifg_success_rate = f"{round((successful_ifg_count / (successful_ifg_count + fail
 day_success_rate = (
     f"{round((len(successful) / (len(successful) + len(failed))) * 100, 2)} %"
 )
-
 
 print("successful ifg count =", successful_ifg_count)
 print("failed ifg count =", failed_ifg_count)
