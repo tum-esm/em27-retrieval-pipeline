@@ -1,13 +1,13 @@
 import { useRouter } from 'next/navigation';
 
 export default {
-    logo: <span>EM27 Retrieval Pipeline</span>,
+    logo: <strong>EM27 Retrieval Pipeline</strong>,
     project: {
         link: 'https://github.com/tum-esm/automated-retrieval-pipeline',
         icon: (
             <svg
                 xmlns='http://www.w3.org/2000/svg'
-                class='icon icon-tabler icon-tabler-brand-github-filled'
+                className='icon icon-tabler icon-tabler-brand-github-filled'
                 width='20'
                 height='20'
                 viewBox='0 0 24 24'
@@ -28,7 +28,7 @@ export default {
     },
     docsRepositoryBase:
         'https://github.com/tum-esm/automated-retrieval-pipeline/blob/main/docs',
-    darkMode: false,
+    darkMode: true,
     //primaryHue: 43,
     navigation: true,
     useNextSeoProps() {
