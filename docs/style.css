@@ -11,3 +11,7 @@
     background-size: 50px 50px, 50px 50px, 10px 10px, 10px 10px;
     background-position: -1px -1px, -1px -1px, -1px -1px, -1px -1px;
 }
+
+.nextra-nav-container {
+    @apply border-b border-slate-300;
+}

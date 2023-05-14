@@ -1,7 +1,11 @@
+---
+title: Overview
+---
+
+import Image from 'next/image';
+
 # Overview
 
-Due to operating MUCCnet we retrieve a lot of EM27/SUN data and have used this pipeline since early 2022 (release date of Proffast 2.0). The image below are the daily mean values of the averaged total column concentrations of CO2 of our EM27/SUN located in Munich central.
+This codebase provides an automated data pipeline for Proffast 2.2 (https://www.imk-asf.kit.edu/english/3225.php). Under the hood, it uses the Proffast Pylot (https://gitlab.eudat.eu/coccon-kit/proffastpylot.git, Commit b9f5d7040dfeb8be5dba9c9a314fe7ab6dd98a9f) to interact with Proffast.
 
-## Why does this pipeline exist?
-
-KIT already provides a tool to dispatch Proffast retrieval jobs, the Proffast Pylot. This pipeline wraps around the Pylot and uses it to interact with Proffast. It should not replace the Pylot but extend its capabilities in an opt-in style. You can build your own logic using the Pylot directly, or you can benefit from our bullet-proofing of running it for a lot of data.
+We decided to include a copy of the Python codebase of the Proffast Pylot inside this repository, so we can slightly modify it and have less complexity due to Git Submodules or on-demand downloads.

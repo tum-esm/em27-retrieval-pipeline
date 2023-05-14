@@ -9,6 +9,7 @@
     },
     "docs": {
         "type": "page",
+        "display": "hidden",
         "title": "Documentation"
     }
 }

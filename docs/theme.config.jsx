@@ -1,7 +1,24 @@
 import { useRouter } from 'next/navigation';
 
 export default {
-    logo: <strong>EM27 Retrieval Pipeline</strong>,
+    logo: (
+        <div className='flex flex-row items-center justify-center gap-x-4 -ml-6'>
+            <svg
+                xmlns='http://www.w3.org/2000/svg'
+                viewBox='0 0 5334 2792'
+                className='h-[var(--nextra-navbar-height)] p-[1.375rem] bg-slate-900 text-slate-50 border-r border-slate-300'
+            >
+                <path
+                    d='M4266.67,2791.67l-0,-2258.33l533.333,0l0,2258.33l533.333,-0l0,-2791.67l-2666.67,0l-0,2258.33l-533.334,0l0,-2258.33l-2133.33,0l0,533.333l533.333,0l0,2258.33l533.334,-0l-0,-2258.33l533.333,0l0,2258.33l1600,-0l0,-2258.33l533.333,0l0,2258.33l533.334,-0Z'
+                    className='fill-current'
+                />
+            </svg>
+            <div className='whitespace-nowrap flex-shrink-0 text-xl font-regular'>
+                <span className='font-semibold'>EM27 Retrieval Pipeline</span> |
+                Professorship of Environmental Sensing and Modeling
+            </div>
+        </div>
+    ),
     project: {
         link: 'https://github.com/tum-esm/automated-retrieval-pipeline',
         icon: (
@@ -32,12 +49,9 @@ export default {
     //primaryHue: 43,
     navigation: true,
     useNextSeoProps() {
-        const { asPath } = useRouter();
-        if (asPath !== '/') {
-            return {
-                titleTemplate: '%s – EM27 Retrieval Pipeline',
-            };
-        }
+        return {
+            titleTemplate: '%s – EM27 Retrieval Pipeline',
+        };
     },
     head: (
         <>
@@ -60,5 +74,5 @@ export default {
             </span>
         ),
     },
-    faviconGlyph: '🔬',
+    faviconGlyph: '🌋',
 };
