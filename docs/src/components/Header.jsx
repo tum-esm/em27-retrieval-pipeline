@@ -2,8 +2,6 @@ import { forwardRef } from 'react'
 import Link from 'next/link'
 import clsx from 'clsx'
 import { motion, useScroll, useTransform } from 'framer-motion'
-
-import { Button } from '@/components/Button'
 import { Logo } from '@/components/Logo'
 import {
   MobileNavigation,
@@ -13,19 +11,6 @@ import { useMobileNavigationStore } from '@/components/MobileNavigation'
 import { ModeToggle } from '@/components/ModeToggle'
 import { MobileSearch, Search } from '@/components/Search'
 
-function TopLevelNavItem({ href, children }) {
-  return (
-    <li>
-      <Link
-        href={href}
-        className="text-sm leading-5 text-zinc-600 transition hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white"
-      >
-        {children}
-      </Link>
-    </li>
-  )
-}
-
 export const Header = forwardRef(function Header({ className }, ref) {
   let { isOpen: mobileNavIsOpen } = useMobileNavigationStore()
   let isInsideMobileNavigation = useIsInsideMobileNavigation()
@@ -34,7 +19,8 @@ export const Header = forwardRef(function Header({ className }, ref) {
   let bgOpacityLight = useTransform(scrollY, [0, 72], [0.5, 0.9])
   let bgOpacityDark = useTransform(scrollY, [0, 72], [0.2, 0.8])
 
-  return (
+  return <></>
+  /*(
     <motion.div
       ref={ref}
       className={clsx(
@@ -73,5 +59,5 @@ export const Header = forwardRef(function Header({ className }, ref) {
         </div>
       </div>
     </motion.div>
-  )
+  )*/
 })
