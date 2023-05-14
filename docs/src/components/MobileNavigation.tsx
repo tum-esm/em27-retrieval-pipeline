@@ -2,32 +2,30 @@ import { createContext, Fragment, useContext } from 'react'
 import { Dialog, Transition } from '@headlessui/react'
 import { motion } from 'framer-motion'
 import { create } from 'zustand'
-
-import { Header } from '@/components/Header'
 import { Navigation } from '@/components/Navigation'
 
-function MenuIcon(props) {
+function MenuIcon(props: { className?: string }) {
   return (
     <svg
       viewBox="0 0 10 9"
       fill="none"
       strokeLinecap="round"
       aria-hidden="true"
-      {...props}
+      className={props.className || ''}
     >
       <path d="M.5 1h9M.5 8h9M.5 4.5h9" />
     </svg>
   )
 }
 
-function XIcon(props) {
+function XIcon(props: { className?: string }) {
   return (
     <svg
       viewBox="0 0 10 9"
       fill="none"
       strokeLinecap="round"
       aria-hidden="true"
-      {...props}
+      className={props.className || ''}
     >
       <path d="m1.5 1 7 7M8.5 1l-7 7" />
     </svg>
@@ -40,12 +38,21 @@ export function useIsInsideMobileNavigation() {
   return useContext(IsInsideMobileNavigationContext)
 }
 
-export const useMobileNavigationStore = create((set) => ({
-  isOpen: false,
-  open: () => set({ isOpen: true }),
-  close: () => set({ isOpen: false }),
-  toggle: () => set((state) => ({ isOpen: !state.isOpen })),
-}))
+type MobileNavigationStoreType = {
+  isOpen: boolean
+  open: () => void
+  close: () => void
+  toggle: () => void
+}
+
+export const useMobileNavigationStore = create<MobileNavigationStoreType>(
+  (set) => ({
+    isOpen: false,
+    open: () => set({ isOpen: true }),
+    close: () => set({ isOpen: false }),
+    toggle: () => set((state) => ({ isOpen: !state.isOpen })),
+  })
+)
 
 export function MobileNavigation() {
   let isInsideMobileNavigation = useIsInsideMobileNavigation()
@@ -56,7 +63,7 @@ export function MobileNavigation() {
     <IsInsideMobileNavigationContext.Provider value={true}>
       <button
         type="button"
-        className="flex h-6 w-6 items-center justify-center rounded-md transition hover:bg-zinc-900/5 dark:hover:bg-white/5"
+        className="flex items-center justify-center w-6 h-6 transition rounded-md hover:bg-zinc-900/5 dark:hover:bg-white/5"
         aria-label="Toggle navigation"
         onClick={toggle}
       >
@@ -78,18 +85,6 @@ export function MobileNavigation() {
             </Transition.Child>
 
             <Dialog.Panel>
-              <Transition.Child
-                as={Fragment}
-                enter="duration-300 ease-out"
-                enterFrom="opacity-0"
-                enterTo="opacity-100"
-                leave="duration-200 ease-in"
-                leaveFrom="opacity-100"
-                leaveTo="opacity-0"
-              >
-                <Header />
-              </Transition.Child>
-
               <Transition.Child
                 as={Fragment}
                 enter="duration-500 ease-in-out"
