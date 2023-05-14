@@ -1,9 +1,14 @@
 import Link from 'next/link'
 import clsx from 'clsx'
 
-function ArrowIcon(props) {
+function ArrowIcon(props: { className?: string }) {
   return (
-    <svg viewBox="0 0 20 20" fill="none" aria-hidden="true" {...props}>
+    <svg
+      viewBox="0 0 20 20"
+      fill="none"
+      aria-hidden="true"
+      className={props.className || ''}
+    >
       <path
         stroke="currentColor"
         strokeLinecap="round"
@@ -26,37 +31,45 @@ const variantStyles = {
   text: 'text-emerald-500 hover:text-emerald-600 dark:text-emerald-400 dark:hover:text-emerald-500',
 }
 
-export function Button({
-  variant = 'primary',
-  className,
-  children,
-  arrow,
-  ...props
+export function Button(props: {
+  variant: 'primary' | 'secondary' | 'filled' | 'outline' | 'text'
+  className?: string
+  children: React.ReactNode
+  arrow?: 'left' | 'right'
+  href?: string
 }) {
-  let Component = props.href ? Link : 'button'
-
-  className = clsx(
+  let className = clsx(
     'inline-flex gap-0.5 justify-center overflow-hidden text-sm font-medium transition',
-    variantStyles[variant],
-    className
+    variantStyles[props.variant],
+    props.className
   )
 
   let arrowIcon = (
     <ArrowIcon
       className={clsx(
         'mt-0.5 h-5 w-5',
-        variant === 'text' && 'relative top-px',
-        arrow === 'left' && '-ml-1 rotate-180',
-        arrow === 'right' && '-mr-1'
+        props.variant === 'text' && 'relative top-px',
+        props.arrow === 'left' && '-ml-1 rotate-180',
+        props.arrow === 'right' && '-mr-1'
       )}
     />
   )
 
-  return (
-    <Component className={className} {...props}>
-      {arrow === 'left' && arrowIcon}
-      {children}
-      {arrow === 'right' && arrowIcon}
-    </Component>
-  )
+  if (props.href !== undefined) {
+    return (
+      <Link className={className} href={props.href}>
+        {props.arrow === 'left' && arrowIcon}
+        {props.children}
+        {props.arrow === 'right' && arrowIcon}
+      </Link>
+    )
+  } else {
+    return (
+      <button>
+        {props.arrow === 'left' && arrowIcon}
+        {props.children}
+        {props.arrow === 'right' && arrowIcon}
+      </button>
+    )
+  }
 }

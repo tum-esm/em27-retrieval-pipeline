@@ -19,7 +19,7 @@ function PageLink({ label, page, previous = false }) {
         href={page.href}
         tabIndex={-1}
         aria-hidden="true"
-        className="text-base font-semibold text-zinc-900 transition hover:text-zinc-600 dark:text-white dark:hover:text-zinc-300"
+        className="text-base font-semibold transition text-zinc-900 hover:text-zinc-600 dark:text-white dark:hover:text-zinc-300"
       >
         {page.title}
       </Link>
@@ -53,7 +53,7 @@ function PageNavigation() {
         </div>
       )}
       {nextPage && (
-        <div className="ml-auto flex flex-col items-end gap-3">
+        <div className="flex flex-col items-end gap-3 ml-auto">
           <PageLink label="Next" page={nextPage} />
         </div>
       )}
@@ -67,13 +67,13 @@ function WebsiteIcon(props) {
       width="20"
       height="20"
       viewBox="0 0 24 24"
-      stroke-width="2"
+      strokeWidth="2"
       stroke="currentColor"
       fill="none"
-      stroke-linecap="round"
-      stroke-linejoin="round"
-      className="h-5 w-5 stroke-zinc-600 transition group-hover:stroke-zinc-800 dark:group-hover:stroke-zinc-400"
-      aria-hidden="true"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className="w-5 h-5 transition stroke-zinc-600 group-hover:stroke-zinc-800 dark:group-hover:stroke-zinc-400"
+      ariaHidden="true"
       {...props}
     >
       <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
@@ -93,10 +93,10 @@ function GitHubIcon(props) {
       height="20"
       viewBox="0 0 24 24"
       stroke-width="1"
-      stroke-linecap="round"
-      stroke-linejoin="round"
-      className="h-5 w-5 fill-zinc-600 transition group-hover:fill-zinc-800 dark:group-hover:fill-zinc-400"
-      aria-hidden="true"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className="w-5 h-5 transition fill-zinc-600 group-hover:fill-zinc-800 dark:group-hover:fill-zinc-400"
+      ariaHidden="true"
       {...props}
     >
       <path stroke="none" d="M0 0h24v24H0z" fill="none" />
@@ -116,14 +116,14 @@ function SocialLink({ href, icon: Icon, children }) {
 
 function SmallPrint() {
   return (
-    <div className="flex flex-col items-center justify-between gap-5 border-t border-zinc-900/5 pt-8 dark:border-white/5 sm:flex-row">
+    <div className="flex flex-col items-center justify-between gap-5 pt-8 border-t border-zinc-900/5 dark:border-white/5 sm:flex-row">
       <p className="text-xs text-zinc-600 dark:text-zinc-400">
         &copy; TUM Professorship of Environmental Sensing and Modeling{' '}
         {new Date().getFullYear()}. All rights reserved.
       </p>
       <div className="flex gap-4">
         <SocialLink href="https://www.ee.cit.tum.de/en/esm" icon={WebsiteIcon}>
-          Visit our research group's website
+          Visit our research group&#39;s website
         </SocialLink>
         <SocialLink
           href="https://github.com/tum-esm/automated-retrival-pipeline"
@@ -140,8 +140,7 @@ export function Footer() {
   let router = useRouter()
 
   return (
-    <footer className="mx-auto max-w-2xl space-y-10 pb-16 lg:max-w-5xl">
-      <Feedback key={router.pathname} />
+    <footer className="max-w-2xl pb-16 mx-auto space-y-10 lg:max-w-5xl">
       <PageNavigation />
       <SmallPrint />
     </footer>
