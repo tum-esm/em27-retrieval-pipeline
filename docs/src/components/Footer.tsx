@@ -1,6 +1,5 @@
 import Link from 'next/link'
 import { useRouter } from 'next/router'
-
 import { Button } from '@/components/Button'
 import { navigation } from '@/components/Navigation'
 
@@ -26,7 +25,7 @@ function PageLink(props: {
         href={props.page.href}
         tabIndex={-1}
         aria-hidden="true"
-        className="text-base font-semibold transition text-zinc-900 hover:text-zinc-600 dark:text-white dark:hover:text-zinc-300"
+        className="text-base font-semibold text-zinc-900 transition hover:text-zinc-600 dark:text-white dark:hover:text-zinc-300"
       >
         {props.page.title}
       </Link>
@@ -60,7 +59,7 @@ function PageNavigation() {
         </div>
       )}
       {nextPage && (
-        <div className="flex flex-col items-end gap-3 ml-auto">
+        <div className="ml-auto flex flex-col items-end gap-3">
           <PageLink label="Next" page={nextPage} />
         </div>
       )}
@@ -79,7 +78,7 @@ function WebsiteIcon() {
       fill="none"
       strokeLinecap="round"
       strokeLinejoin="round"
-      className="w-5 h-5 transition stroke-zinc-600 group-hover:stroke-zinc-800 dark:group-hover:stroke-zinc-400"
+      className="h-5 w-5 stroke-zinc-600 transition group-hover:stroke-zinc-800 dark:group-hover:stroke-zinc-400"
       aria-hidden="true"
     >
       <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
@@ -101,7 +100,7 @@ function GitHubIcon() {
       stroke-width="1"
       strokeLinecap="round"
       strokeLinejoin="round"
-      className="w-5 h-5 transition fill-zinc-600 group-hover:fill-zinc-800 dark:group-hover:fill-zinc-400"
+      className="h-5 w-5 fill-zinc-600 transition group-hover:fill-zinc-800 dark:group-hover:fill-zinc-400"
       aria-hidden="true"
     >
       <path stroke="none" d="M0 0h24v24H0z" fill="none" />
@@ -126,7 +125,7 @@ function SocialLink(props: {
 
 function SmallPrint() {
   return (
-    <div className="flex flex-col items-center justify-between gap-5 pt-8 border-t border-zinc-900/5 dark:border-white/5 sm:flex-row">
+    <div className="flex flex-col items-center justify-between gap-5 border-t border-zinc-900/5 pt-8 dark:border-white/5 sm:flex-row">
       <p className="text-xs text-zinc-600 dark:text-zinc-400">
         &copy; TUM Professorship of Environmental Sensing and Modeling{' '}
         {new Date().getFullYear()}. All rights reserved.
@@ -151,7 +150,7 @@ export function Footer() {
   let router = useRouter()
 
   return (
-    <footer className="max-w-2xl pb-16 mx-auto space-y-10 lg:max-w-5xl">
+    <footer className="mx-auto max-w-2xl space-y-10 pb-16 lg:max-w-5xl">
       <PageNavigation />
       <SmallPrint />
     </footer>

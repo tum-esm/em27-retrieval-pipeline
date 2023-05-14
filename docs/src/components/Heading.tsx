@@ -1,8 +1,6 @@
-import { useEffect, useRef } from 'react'
+import { useRef } from 'react'
 import Link from 'next/link'
 import { useInView } from 'framer-motion'
-
-import { useSectionStore } from '@/components/SectionProvider'
 import { Tag } from '@/components/Tag'
 import { remToPx } from '@/lib/remToPx'
 
@@ -46,12 +44,12 @@ function Anchor(props: {
   return (
     <Link
       href={`#${props.id}`}
-      className="no-underline group text-inherit hover:text-inherit"
+      className="group text-inherit no-underline hover:text-inherit"
     >
       {props.inView && (
         <div className="absolute ml-[calc(-1*var(--width))] mt-1 hidden w-[var(--width)] opacity-0 transition [--width:calc(2.625rem+0.5px+50%-min(50%,calc(theme(maxWidth.lg)+theme(spacing.8))))] group-hover:opacity-100 group-focus:opacity-100 md:block lg:z-50 2xl:[--width:theme(spacing.10)]">
-          <div className="block w-5 h-5 transition rounded-lg group/anchor bg-zinc-50 ring-1 ring-inset ring-zinc-300 hover:ring-zinc-500 dark:bg-zinc-800 dark:ring-zinc-700 dark:hover:bg-zinc-700 dark:hover:ring-zinc-600">
-            <AnchorIcon className="w-5 h-5 transition stroke-zinc-500 dark:stroke-zinc-400 dark:group-hover/anchor:stroke-white" />
+          <div className="group/anchor block h-5 w-5 rounded-lg bg-zinc-50 ring-1 ring-inset ring-zinc-300 transition hover:ring-zinc-500 dark:bg-zinc-800 dark:ring-zinc-700 dark:hover:bg-zinc-700 dark:hover:ring-zinc-600">
+            <AnchorIcon className="h-5 w-5 stroke-zinc-500 transition dark:stroke-zinc-400 dark:group-hover/anchor:stroke-white" />
           </div>
         </div>
       )}
@@ -71,21 +69,10 @@ export function Heading(props: {
   const Component: keyof JSX.IntrinsicElements = `h${props.level}`
 
   let ref = useRef(null)
-  let registerHeading: any = useSectionStore((s: any) => s.registerHeading)
 
   let inView = useInView(ref, {
     margin: `${remToPx(-3.5)}px 0px 0px 0px`,
     amount: 'all',
-  })
-
-  useEffect(() => {
-    if (props.level === 2) {
-      registerHeading({
-        id: props.id,
-        ref,
-        offsetRem: props.tag || props.label ? 8 : 6,
-      })
-    }
   })
 
   return (

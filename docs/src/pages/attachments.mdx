@@ -58,38 +58,12 @@ The attachment model contains all the information about the files you send to yo
   </Col>
   <Col sticky>
 
-    <CodeGroup title="Request" tag="GET" label="/v1/attachments">
-
     ```bash {{ title: 'cURL' }}
     curl -G https://api.protocol.chat/v1/attachments \
       -H "Authorization: Bearer {token}" \
       -d conversation_id="xgQQXg3hrtjh7AvZ" \
       -d limit=10
     ```
-
-    ```js
-    import ApiClient from '@example/protocol-api'
-
-    const client = new ApiClient(token)
-
-    await client.attachments.list()
-    ```
-
-    ```python
-    from protocol_api import ApiClient
-
-    client = ApiClient(token)
-
-    client.attachments.list()
-    ```
-
-    ```php
-    $client = new \Protocol\ApiClient($token);
-
-    $client->attachments->list();
-    ```
-
-    </CodeGroup>
 
     ```json {{ title: 'Response' }}
     {
@@ -135,39 +109,11 @@ The attachment model contains all the information about the files you send to yo
   </Col>
   <Col sticky>
 
-    <CodeGroup title="Request" tag="POST" label="/v1/attachments">
-
     ```bash {{ title: 'cURL' }}
     curl https://api.protocol.chat/v1/attachments \
       -H "Authorization: Bearer {token}" \
       -F file="../Invoice_room_service__Plaza_Hotel.pdf"
     ```
-
-    ```js
-    import ApiClient from '@example/protocol-api'
-
-    const client = new ApiClient(token)
-
-    await client.attachments.create({ file })
-    ```
-
-    ```python
-    from protocol_api import ApiClient
-
-    client = ApiClient(token)
-
-    client.attachments.create(file=file)
-    ```
-
-    ```php
-    $client = new \Protocol\ApiClient($token);
-
-    $client->attachments->create([
-      'file' => $file,
-    ]);
-    ```
-
-    </CodeGroup>
 
     ```json {{ title: 'Response' }}
     {
@@ -196,36 +142,10 @@ The attachment model contains all the information about the files you send to yo
   </Col>
   <Col sticky>
 
-    <CodeGroup title="Request" tag="GET" label="/v1/attachments/Nc6yKKMpcxiiFxp6">
-
     ```bash {{ title: 'cURL' }}
     curl https://api.protocol.chat/v1/attachments/Nc6yKKMpcxiiFxp6 \
       -H "Authorization: Bearer {token}"
     ```
-
-    ```js
-    import ApiClient from '@example/protocol-api'
-
-    const client = new ApiClient(token)
-
-    await client.attachments.get('Nc6yKKMpcxiiFxp6')
-    ```
-
-    ```python
-    from protocol_api import ApiClient
-
-    client = ApiClient(token)
-
-    client.attachments.get("Nc6yKKMpcxiiFxp6")
-    ```
-
-    ```php
-    $client = new \Protocol\ApiClient($token);
-
-    $client->attachments->get('Nc6yKKMpcxiiFxp6');
-    ```
-
-    </CodeGroup>
 
     ```json {{ title: 'Response' }}
     {
@@ -262,41 +182,11 @@ The attachment model contains all the information about the files you send to yo
   </Col>
   <Col sticky>
 
-    <CodeGroup title="Request" tag="PUT" label="/v1/attachments/Nc6yKKMpcxiiFxp6">
-
     ```bash {{ title: 'cURL' }}
     curl -X PUT https://api.protocol.chat/v1/attachments/Nc6yKKMpcxiiFxp6 \
       -H "Authorization: Bearer {token}" \
       -d filename="Invoice_room_service__Plaza_Hotel_updated.pdf"
     ```
-
-    ```js
-    import ApiClient from '@example/protocol-api'
-
-    const client = new ApiClient(token)
-
-    await client.attachments.update('Nc6yKKMpcxiiFxp6', {
-      filename: 'Invoice_room_service__Plaza_Hotel_updated.pdf',
-    })
-    ```
-
-    ```python
-    from protocol_api import ApiClient
-
-    client = ApiClient(token)
-
-    client.attachments.update("Nc6yKKMpcxiiFxp6", filename="Invoice_room_service__Plaza_Hotel_updated.pdf")
-    ```
-
-    ```php
-    $client = new \Protocol\ApiClient($token);
-
-    $client->attachments->update('Nc6yKKMpcxiiFxp6', [
-      'filename' => 'Invoice_room_service__Plaza_Hotel_updated.pdf',
-    ]);
-    ```
-
-    </CodeGroup>
 
     ```json {{ title: 'Response' }}
     {
@@ -325,36 +215,10 @@ The attachment model contains all the information about the files you send to yo
   </Col>
   <Col sticky>
 
-    <CodeGroup title="Request" tag="DELETE" label="/v1/attachments/Nc6yKKMpcxiiFxp6">
-
     ```bash {{ title: 'cURL' }}
     curl -X DELETE https://api.protocol.chat/v1/attachments/Nc6yKKMpcxiiFxp6 \
       -H "Authorization: Bearer {token}"
     ```
-
-    ```js
-    import ApiClient from '@example/protocol-api'
-
-    const client = new ApiClient(token)
-
-    await client.attachments.delete('Nc6yKKMpcxiiFxp6')
-    ```
-
-    ```python
-    from protocol_api import ApiClient
-
-    client = ApiClient(token)
-
-    client.attachments.delete("Nc6yKKMpcxiiFxp6")
-    ```
-
-    ```php
-    $client = new \Protocol\ApiClient($token);
-
-    $client->attachments->delete('Nc6yKKMpcxiiFxp6');
-    ```
-
-    </CodeGroup>
 
   </Col>
 </Row>

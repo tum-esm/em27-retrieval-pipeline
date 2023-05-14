@@ -64,38 +64,12 @@ The message model contains all the information about the messages and attachment
   </Col>
   <Col sticky>
 
-    <CodeGroup title="Request" tag="GET" label="/v1/messages">
-
     ```bash {{ title: 'cURL' }}
     curl -G https://api.protocol.chat/v1/messages \
       -H "Authorization: Bearer {token}" \
       -d conversation_id=xgQQXg3hrtjh7AvZ \
       -d limit=10
     ```
-
-    ```js
-    import ApiClient from '@example/protocol-api'
-
-    const client = new ApiClient(token)
-
-    await client.messages.list()
-    ```
-
-    ```python
-    from protocol_api import ApiClient
-
-    client = ApiClient(token)
-
-    client.messages.list()
-    ```
-
-    ```php
-    $client = new \Protocol\ApiClient($token);
-
-    $client->messages->list();
-    ```
-
-    </CodeGroup>
 
     ```json {{ title: 'Response' }}
     {
@@ -161,47 +135,12 @@ The message model contains all the information about the messages and attachment
   </Col>
   <Col sticky>
 
-    <CodeGroup title="Request" tag="POST" label="/v1/messages">
-
     ```bash {{ title: 'cURL' }}
     curl https://api.protocol.chat/v1/messages \
       -H "Authorization: Bearer {token}" \
       -d conversation_id="xgQQXg3hrtjh7AvZ" \
       -d message="You’re what the French call ‘les incompetents.’"
     ```
-
-    ```js
-    import ApiClient from '@example/protocol-api'
-
-    const client = new ApiClient(token)
-
-    await client.messages.send({
-      conversation_id: 'xgQQXg3hrtjh7AvZ',
-      message: 'You’re what the French call ‘les incompetents.’',
-    })
-    ```
-
-    ```python
-    from protocol_api import ApiClient
-
-    client = ApiClient(token)
-
-    client.messages.send(
-      conversation_id="xgQQXg3hrtjh7AvZ",
-      message="You’re what the French call ‘les incompetents.’",
-    )
-    ```
-
-    ```php
-    $client = new \Protocol\ApiClient($token);
-
-    $client->messages->send([
-      'conversation_id' => 'xgQQXg3hrtjh7AvZ',
-      'message' => 'You’re what the French call ‘les incompetents.’',
-    ]);
-    ```
-
-    </CodeGroup>
 
     ```json {{ title: 'Response' }}
     {
@@ -239,36 +178,10 @@ The message model contains all the information about the messages and attachment
   </Col>
   <Col sticky>
 
-    <CodeGroup title="Request" tag="GET" label="/v1/messages/SIuAFUNKdSYHZF2w">
-
     ```bash {{ title: 'cURL' }}
     curl https://api.protocol.chat/v1/messages/SIuAFUNKdSYHZF2w \
       -H "Authorization: Bearer {token}"
     ```
-
-    ```js
-    import ApiClient from '@example/protocol-api'
-
-    const client = new ApiClient(token)
-
-    await client.messages.get('SIuAFUNKdSYHZF2w')
-    ```
-
-    ```python
-    from protocol_api import ApiClient
-
-    client = ApiClient(token)
-
-    client.messages.get("SIuAFUNKdSYHZF2w")
-    ```
-
-    ```php
-    $client = new \Protocol\ApiClient($token);
-
-    $client->messages->get('SIuAFUNKdSYHZF2w');
-    ```
-
-    </CodeGroup>
 
     ```json {{ title: 'Response' }}
     {
@@ -320,46 +233,11 @@ The message model contains all the information about the messages and attachment
   </Col>
   <Col sticky>
 
-    <CodeGroup title="Request" tag="PUT" label="/v1/messages/SIuAFUNKdSYHZF2w">
-
     ```bash {{ title: 'cURL' }}
     curl -X PUT https://api.protocol.chat/v1/messages/SIuAFUNKdSYHZF2w \
       -H "Authorization: Bearer {token}" \
       -d reactions[red_angry_face][]="KateMcCallister"
     ```
-
-    ```js
-    import ApiClient from '@example/protocol-api'
-
-    const client = new ApiClient(token)
-
-    await client.messages.update('SIuAFUNKdSYHZF2w', {
-        reactions: {
-            red_angry_face: ['KateMcCallister']
-        }
-    })
-    ```
-
-    ```python
-    from protocol_api import ApiClient
-
-    client = ApiClient(token)
-
-    client.messages.update("SIuAFUNKdSYHZF2w",
-        reactions={"red_angry_face": ["KateMcCallister"]})
-    ```
-
-    ```php
-    $client = new \Protocol\ApiClient($token);
-
-    $client->messages->update('SIuAFUNKdSYHZF2w', [
-      'reactions' => [
-        'red_angry_face' => ['KateMcCallister'],
-      ],
-    ]);
-    ```
-
-    </CodeGroup>
 
     ```json {{ title: 'Response' }}
     {
@@ -403,36 +281,10 @@ The message model contains all the information about the messages and attachment
   </Col>
   <Col sticky>
 
-    <CodeGroup title="Request" tag="DELETE" label="/v1/messages/SIuAFUNKdSYHZF2w">
-
     ```bash {{ title: 'cURL' }}
     curl -X DELETE https://api.protocol.chat/v1/messages/SIuAFUNKdSYHZF2w \
       -H "Authorization: Bearer {token}"
     ```
-
-    ```js
-    import ApiClient from '@example/protocol-api'
-
-    const client = new ApiClient(token)
-
-    await client.messages.delete('SIuAFUNKdSYHZF2w')
-    ```
-
-    ```python
-    from protocol_api import ApiClient
-
-    client = ApiClient(token)
-
-    client.messages.delete("SIuAFUNKdSYHZF2w")
-    ```
-
-    ```php
-    $client = new \Protocol\ApiClient($token);
-
-    $client->messages->delete('SIuAFUNKdSYHZF2w');
-    ```
-
-    </CodeGroup>
 
   </Col>
 </Row>

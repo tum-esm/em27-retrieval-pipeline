@@ -1,6 +1,5 @@
 import { Children, useEffect, useState } from 'react'
 import clsx from 'clsx'
-
 import { Tag } from '@/components/Tag'
 
 function ClipboardIcon(props: { className?: string }) {
@@ -54,7 +53,7 @@ function CopyButton(props: { code: string }) {
           copied && '-translate-y-1.5 opacity-0'
         )}
       >
-        <ClipboardIcon className="w-5 h-5 transition-colors fill-zinc-500/20 stroke-zinc-500 group-hover/button:stroke-zinc-400" />
+        <ClipboardIcon className="h-5 w-5 fill-zinc-500/20 stroke-zinc-500 transition-colors group-hover/button:stroke-zinc-400" />
         Copy
       </span>
       <span
@@ -78,7 +77,7 @@ function CodePanelHeader(props: { tag?: string; label?: string }) {
   return (
     <div className="flex h-9 items-center gap-2 border-y border-b-white/7.5 border-t-transparent bg-white/2.5 bg-zinc-900 px-4 dark:border-b-white/5 dark:bg-white/1">
       {props.tag && (
-        <div className="flex dark">
+        <div className="dark flex">
           <Tag variant="small" label={props.tag} color="emerald" />
         </div>
       )}
@@ -107,7 +106,7 @@ function CodePanel(props: {
         label={child.props.label ?? props.label}
       />
       <div className="relative">
-        <pre className="p-4 overflow-x-auto text-xs text-white">
+        <pre className="overflow-x-auto p-4 text-xs text-white">
           {props.children}
         </pre>
         <CopyButton code={child.props.code ?? props.code} />

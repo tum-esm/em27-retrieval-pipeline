@@ -127,46 +127,6 @@ In the example above, a conversation was `updated`, and the payload type is a `c
 
 ## Security
 
-To know for sure that a webhook was, in fact, sent by Protocol instead of a malicious actor, you can verify the request signature. Each webhook request contains a header named `x-protocol-signature`, and you can verify this signature by using your secret webhook key. The signature is an HMAC hash of the request payload hashed using your secret key. Here is an example of how to verify the signature in your app:
-
-<CodeGroup title="Verifying a request">
-
-```js
-const signature = req.headers['x-protocol-signature']
-const hash = crypto.createHmac('sha256', secret).update(payload).digest('hex')
-
-if (hash === signature) {
-  // Request is verified
-} else {
-  // Request could not be verified
-}
-```
-
-```python
-from flask import request
-import hashlib
-import hmac
-
-signature = request.headers.get("x-protocol-signature")
-hash = hmac.new(bytes(secret, "ascii"), bytes(payload, "ascii"), hashlib.sha256)
-
-if hash.hexdigest() == signature:
-    # Request is verified
-else:
-    # Request could not be verified
-```
-
-```php
-$signature = $request['headers']['x-protocol-signature'];
-$hash = hash_hmac('sha256', $payload, $secret);
-
-if (hash_equals($hash, $signature)) {
-  // Request is verified
-} else {
-  // Request could not be verified
-}
-```
-
-</CodeGroup>
+To know for sure that a webhook was, in fact, sent by Protocol instead of a malicious actor, you can verify the request signature. Each webhook request contains a header named `x-protocol-signature`, and you can verify this signature by using your secret webhook key. The signature is an HMAC hash of the request payload hashed using your secret key. Here is an example of how to verify the signature in your app.
 
 If your generated signature matches the `x-protocol-signature` header, you can be sure that the request was truly coming from Protocol. It's essential to keep your secret webhook key safe — otherwise, you can no longer be sure that a given webhook was sent by Protocol. Don't commit your secret webhook key to GitHub!

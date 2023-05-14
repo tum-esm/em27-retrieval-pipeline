@@ -59,38 +59,12 @@ The contact model contains all the information about your contacts, such as thei
   </Col>
   <Col sticky>
 
-    <CodeGroup title="Request" tag="GET" label="/v1/contacts">
-
     ```bash {{ title: 'cURL' }}
     curl -G https://api.protocol.chat/v1/contacts \
       -H "Authorization: Bearer {token}" \
       -d active=true \
       -d limit=10
     ```
-
-    ```js
-    import ApiClient from '@example/protocol-api'
-
-    const client = new ApiClient(token)
-
-    await client.contacts.list()
-    ```
-
-    ```python
-    from protocol_api import ApiClient
-
-    client = ApiClient(token)
-
-    client.contacts.list()
-    ```
-
-    ```php
-    $client = new \Protocol\ApiClient($token);
-
-    $client->contacts->list();
-    ```
-
-    </CodeGroup>
 
     ```json {{ title: 'Response' }}
     {
@@ -151,8 +125,6 @@ The contact model contains all the information about your contacts, such as thei
   </Col>
   <Col sticky>
 
-    <CodeGroup title="Request" tag="POST" label="/v1/contacts">
-
     ```bash {{ title: 'cURL' }}
     curl https://api.protocol.chat/v1/contacts \
       -H "Authorization: Bearer {token}" \
@@ -160,42 +132,6 @@ The contact model contains all the information about your contacts, such as thei
       -d phone_number="1-800-759-3000" \
       -d avatar_url="https://assets.protocol.chat/avatars/frank.jpg"
     ```
-
-    ```js
-    import ApiClient from '@example/protocol-api'
-
-    const client = new ApiClient(token)
-
-    await client.contacts.create({
-      username: 'FrankMcCallister',
-      phone_number: '1-800-759-3000',
-      avatar_url: 'https://assets.protocol.chat/avatars/frank.jpg',
-    })
-    ```
-
-    ```python
-    from protocol_api import ApiClient
-
-    client = ApiClient(token)
-
-    client.contacts.create(
-      username="FrankMcCallister",
-      phone_number="1-800-759-3000",
-      avatar_url="https://assets.protocol.chat/avatars/frank.jpg",
-    )
-    ```
-
-    ```php
-    $client = new \Protocol\ApiClient($token);
-
-    $client->contacts->create([
-      'username' => 'FrankMcCallister',
-      'phone_number' => '1-800-759-3000',
-      'avatar_url' => 'https://assets.protocol.chat/avatars/frank.jpg',
-    ]);
-    ```
-
-    </CodeGroup>
 
     ```json {{ title: 'Response' }}
     {
@@ -225,36 +161,10 @@ The contact model contains all the information about your contacts, such as thei
   </Col>
   <Col sticky>
 
-    <CodeGroup title="Request" tag="GET" label="/v1/contacts/WAz8eIbvDR60rouK">
-
     ```bash {{ title: 'cURL' }}
     curl https://api.protocol.chat/v1/contacts/WAz8eIbvDR60rouK \
       -H "Authorization: Bearer {token}"
     ```
-
-    ```js
-    import ApiClient from '@example/protocol-api'
-
-    const client = new ApiClient(token)
-
-    await client.contacts.get('WAz8eIbvDR60rouK')
-    ```
-
-    ```python
-    from protocol_api import ApiClient
-
-    client = ApiClient(token)
-
-    client.contacts.get("WAz8eIbvDR60rouK")
-    ```
-
-    ```php
-    $client = new \Protocol\ApiClient($token);
-
-    $client->contacts->get('WAz8eIbvDR60rouK');
-    ```
-
-    </CodeGroup>
 
     ```json {{ title: 'Response' }}
     {
@@ -292,41 +202,11 @@ The contact model contains all the information about your contacts, such as thei
   </Col>
   <Col sticky>
 
-    <CodeGroup title="Request" tag="PUT" label="/v1/contacts/WAz8eIbvDR60rouK">
-
     ```bash {{ title: 'cURL' }}
     curl -X PUT https://api.protocol.chat/v1/contacts/WAz8eIbvDR60rouK \
       -H "Authorization: Bearer {token}" \
       -d display_name="UncleFrank"
     ```
-
-    ```js
-    import ApiClient from '@example/protocol-api'
-
-    const client = new ApiClient(token)
-
-    await client.contacts.update('WAz8eIbvDR60rouK', {
-        display_name: 'UncleFrank',
-    })
-    ```
-
-    ```python
-    from protocol_api import ApiClient
-
-    client = ApiClient(token)
-
-    client.contacts.update("WAz8eIbvDR60rouK", display_name="UncleFrank")
-    ```
-
-    ```php
-    $client = new \Protocol\ApiClient($token);
-
-    $client->contacts->update('WAz8eIbvDR60rouK', [
-      'display_name' => 'UncleFrank',
-    ]);
-    ```
-
-    </CodeGroup>
 
     ```json {{ title: 'Response' }}
     {
@@ -356,36 +236,10 @@ The contact model contains all the information about your contacts, such as thei
   </Col>
   <Col sticky>
 
-    <CodeGroup title="Request" tag="DELETE" label="/v1/contacts/WAz8eIbvDR60rouK">
-
     ```bash {{ title: 'cURL' }}
     curl -X DELETE https://api.protocol.chat/v1/contacts/WAz8eIbvDR60rouK \
       -H "Authorization: Bearer {token}"
     ```
-
-    ```js
-    import ApiClient from '@example/protocol-api'
-
-    const client = new ApiClient(token)
-
-    await client.contacts.delete('WAz8eIbvDR60rouK')
-    ```
-
-    ```python
-    from protocol_api import ApiClient
-
-    client = ApiClient(token)
-
-    client.contacts.delete("WAz8eIbvDR60rouK")
-    ```
-
-    ```php
-    $client = new \Protocol\ApiClient($token);
-
-    $client->contacts->delete('WAz8eIbvDR60rouK');
-    ```
-
-    </CodeGroup>
 
   </Col>
 </Row>

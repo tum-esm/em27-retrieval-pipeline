@@ -61,37 +61,11 @@ The group model contains all the information about your groups, including what c
   </Col>
   <Col sticky>
 
-    <CodeGroup title="Request" tag="GET" label="/v1/groups">
-
     ```bash {{ title: 'cURL' }}
     curl -G https://api.protocol.chat/v1/groups \
       -H "Authorization: Bearer {token}" \
       -d limit=10
     ```
-
-    ```js
-    import ApiClient from '@example/protocol-api'
-
-    const client = new ApiClient(token)
-
-    await client.groups.list()
-    ```
-
-    ```python
-    from protocol_api import ApiClient
-
-    client = ApiClient(token)
-
-    client.groups.list()
-    ```
-
-    ```php
-    $client = new \Protocol\ApiClient($token);
-
-    $client->groups->list();
-    ```
-
-    </CodeGroup>
 
     ```json {{ title: 'Response' }}
     {
@@ -169,41 +143,11 @@ The group model contains all the information about your groups, including what c
   </Col>
   <Col sticky>
 
-    <CodeGroup title="Request" tag="POST" label="/v1/groups">
-
     ```bash {{ title: 'cURL' }}
     curl https://api.protocol.chat/v1/groups \
       -H "Authorization: Bearer {token}" \
       -d name="Plaza Hotel"
     ```
-
-    ```js
-    import ApiClient from '@example/protocol-api'
-
-    const client = new ApiClient(token)
-
-    await client.groups.create({
-      name: 'Plaza Hotel',
-    })
-    ```
-
-    ```python
-    from protocol_api import ApiClient
-
-    client = ApiClient(token)
-
-    client.groups.create(name="Plaza Hotel")
-    ```
-
-    ```php
-    $client = new \Protocol\ApiClient($token);
-
-    $client->groups->create([
-      'name' => 'Plaza Hotel',
-    ]);
-    ```
-
-    </CodeGroup>
 
     ```json {{ title: 'Response' }}
     {
@@ -233,36 +177,10 @@ The group model contains all the information about your groups, including what c
   </Col>
   <Col sticky>
 
-    <CodeGroup title="Request" tag="GET" label="/v1/groups/L7cGNIBKZiNJ6wqF">
-
     ```bash {{ title: 'cURL' }}
     curl https://api.protocol.chat/v1/groups/L7cGNIBKZiNJ6wqF \
       -H "Authorization: Bearer {token}"
     ```
-
-    ```js
-    import ApiClient from '@example/protocol-api'
-
-    const client = new ApiClient(token)
-
-    await client.groups.get('L7cGNIBKZiNJ6wqF')
-    ```
-
-    ```python
-    from protocol_api import ApiClient
-
-    client = ApiClient(token)
-
-    client.groups.get("L7cGNIBKZiNJ6wqF")
-    ```
-
-    ```php
-    $client = new \Protocol\ApiClient($token);
-
-    $client->groups->get('L7cGNIBKZiNJ6wqF');
-    ```
-
-    </CodeGroup>
 
     ```json {{ title: 'Response' }}
     {
@@ -329,41 +247,11 @@ The group model contains all the information about your groups, including what c
   </Col>
   <Col sticky>
 
-    <CodeGroup title="Request" tag="PUT" label="/v1/groups/L7cGNIBKZiNJ6wqF">
-
     ```bash {{ title: 'cURL' }}
     curl -X PUT https://api.protocol.chat/v1/groups/L7cGNIBKZiNJ6wqF \
       -H "Authorization: Bearer {token}" \
       -d description="The finest in New York."
     ```
-
-    ```js
-    import ApiClient from '@example/protocol-api'
-
-    const client = new ApiClient(token)
-
-    await client.groups.update('L7cGNIBKZiNJ6wqF', {
-        description: 'The finest in New York.',
-    })
-    ```
-
-    ```python
-    from protocol_api import ApiClient
-
-    client = ApiClient(token)
-
-    client.groups.update("L7cGNIBKZiNJ6wqF", description="The finest in New York.")
-    ```
-
-    ```php
-    $client = new \Protocol\ApiClient($token);
-
-    $client->groups->update('L7cGNIBKZiNJ6wqF', [
-      'description' => 'The finest in New York.',
-    ]);
-    ```
-
-    </CodeGroup>
 
     ```json {{ title: 'Response' }}
     {
@@ -410,36 +298,10 @@ The group model contains all the information about your groups, including what c
   </Col>
   <Col sticky>
 
-    <CodeGroup title="Request" tag="DELETE" label="/v1/groups/L7cGNIBKZiNJ6wqF">
-
     ```bash {{ title: 'cURL' }}
     curl -X DELETE https://api.protocol.chat/v1/groups/L7cGNIBKZiNJ6wqF \
       -H "Authorization: Bearer {token}"
     ```
-
-    ```js
-    import ApiClient from '@example/protocol-api'
-
-    const client = new ApiClient(token)
-
-    await client.groups.delete('L7cGNIBKZiNJ6wqF')
-    ```
-
-    ```python
-    from protocol_api import ApiClient
-
-    client = ApiClient(token)
-
-    client.groups.delete("L7cGNIBKZiNJ6wqF")
-    ```
-
-    ```php
-    $client = new \Protocol\ApiClient($token);
-
-    $client->groups->delete('L7cGNIBKZiNJ6wqF');
-    ```
-
-    </CodeGroup>
 
   </Col>
 </Row>
