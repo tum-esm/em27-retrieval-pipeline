@@ -43,8 +43,8 @@ function NavigationGroup(props: {
       <h2 className="text-xs font-semibold text-zinc-900 dark:text-white">
         {props.group.title}
       </h2>
-      <div className="relative mt-3 pl-2">
-        <div className="absolute inset-y-0 left-2 w-px bg-zinc-900/10 dark:bg-white/5" />
+      <div className="relative pl-2 mt-3">
+        <div className="absolute inset-y-0 w-px left-2 bg-zinc-900/10 dark:bg-white/5" />
         <ul role="list" className="border-l border-transparent">
           {props.group.links.map((link) => (
             <NavLink

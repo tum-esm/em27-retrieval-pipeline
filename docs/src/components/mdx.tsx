@@ -29,7 +29,7 @@ function InfoIcon(props: any) {
 export function Note(props: { children: React.ReactNode }) {
   return (
     <div className="my-6 flex gap-2.5 rounded-2xl border border-emerald-500/20 bg-emerald-50/50 p-4 leading-6 text-emerald-900 dark:border-emerald-500/30 dark:bg-emerald-500/5 dark:text-emerald-200 dark:[--tw-prose-links-hover:theme(colors.emerald.300)] dark:[--tw-prose-links:theme(colors.white)]">
-      <InfoIcon className="mt-1 h-4 w-4 flex-none fill-emerald-500 stroke-white dark:fill-emerald-200/20 dark:stroke-emerald-200" />
+      <InfoIcon className="flex-none w-4 h-4 mt-1 fill-emerald-500 stroke-white dark:fill-emerald-200/20 dark:stroke-emerald-200" />
       <div className="[&>:first-child]:mt-0 [&>:last-child]:mb-0">
         {props.children}
       </div>
@@ -39,7 +39,7 @@ export function Note(props: { children: React.ReactNode }) {
 
 export function Row(props: { children: React.ReactNode }) {
   return (
-    <div className="grid grid-cols-1 items-start gap-x-16 gap-y-10 xl:max-w-none xl:grid-cols-2">
+    <div className="grid items-start grid-cols-1 gap-x-16 gap-y-10 xl:max-w-none xl:grid-cols-2">
       {props.children}
     </div>
   )
@@ -77,8 +77,8 @@ export function Property(props: {
   children: React.ReactNode
 }) {
   return (
-    <li className="m-0 px-0 py-4 first:pt-0 last:pb-0">
-      <dl className="m-0 flex flex-wrap items-center gap-x-3 gap-y-2">
+    <li className="px-0 py-4 m-0 first:pt-0 last:pb-0">
+      <dl className="flex flex-wrap items-center m-0 gap-x-3 gap-y-2">
         <dt className="sr-only">Name</dt>
         <dd>
           <code>{props.name}</code>
