@@ -21,7 +21,7 @@ The pipeline consists of three building blocks that are required to retrieve EM2
 | 3. Postprocessing the individual station outputs and merging them into daily output files | `src/merge_retrieval_outputs.py`    |
 
 <p align="center">
-    <img width="600" src="docs/revised-retrieval-pipeline-architecture.png"/>
+    <img width="600" src="docs-images/revised-retrieval-pipeline-architecture.png"/>
 </p>
 
 The Pylot codebase only provides the second part. In addition to tasks one and three, the pipeline offers:
@@ -108,11 +108,11 @@ utc,ma_xco2,ma_xch4,mb_xco2,mb_xch4,mc_xco2,mc_xch4
 
 On our server, the merging process (running on one vCPU core) can process about 50 days of average sun conditions with one sensor station per second.
 
-![Raw and postprocessed muccnet data at 20210329](docs/muccnet_em27_export_20210329.png)
+![Raw and postprocessed muccnet data at 20210329](docs-images/muccnet_em27_export_20210329.png)
 
 All data columns will be interpolated for gaps up to a configurable time (default is 3 minutes) and resampled at a specified rate (here, this is 1 minute) so that the data rate and offset at which sensors produce the output don't matter.
 
-![Postprocessed muccnet data at 20210329 (detailed view)](docs/muccnet_em27_export_20210329-detailed.png)
+![Postprocessed muccnet data at 20210329 (detailed view)](docs-images/muccnet_em27_export_20210329-detailed.png)
 
 There are two types of output files: `$(CAMPAIGN_ID)_em27_export_$(YYYYMMDD).csv` and `$(CAMPAIGN_ID)_em27_export_$(YYYYMMDD)_fixed_sensor_location.csv`.
 
