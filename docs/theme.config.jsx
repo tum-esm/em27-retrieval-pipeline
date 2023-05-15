@@ -2,7 +2,7 @@ import { useRouter } from 'next/navigation';
 
 export default {
     logo: (
-        <div className='flex flex-row items-center justify-center gap-x-4 -ml-6'>
+        <div className='flex flex-row items-center justify-center -ml-6 gap-x-4'>
             <svg
                 xmlns='http://www.w3.org/2000/svg'
                 viewBox='0 0 5334 2792'
@@ -13,7 +13,7 @@ export default {
                     className='fill-current'
                 />
             </svg>
-            <div className='whitespace-nowrap flex-shrink-0 text-xl font-regular'>
+            <div className='flex-shrink-0 text-xl whitespace-nowrap font-regular'>
                 <span className='font-semibold'>EM27 Retrieval Pipeline</span> |
                 Professorship of Environmental Sensing and Modeling
             </div>
@@ -75,4 +75,21 @@ export default {
         ),
     },
     faviconGlyph: '🌋',
+    sidebar: {
+        titleComponent({ title, type, route }) {
+            if (type === 'doc') {
+                if (route.split('/').length === 3) {
+                    return (
+                        <strong className='nx-text-gray-700'>{title}</strong>
+                    );
+                } else {
+                    return <>{title}</>;
+                }
+            }
+        },
+    },
+    //banner: {
+    //    key: 'v1.0.0-release',
+    //    text: '🎉 The EM27 Retreival Pipeline 1.0.0 has been released',
+    //},
 };

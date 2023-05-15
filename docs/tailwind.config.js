@@ -6,7 +6,11 @@ module.exports = {
         './theme.config.jsx',
     ],
     theme: {
-        extend: {},
+        extend: {
+            fontFamily: {
+                serif: ['var(--next-font-google-crimson-pro)', 'serif'],
+            },
+        },
     },
     plugins: [],
     darkMode: 'class',

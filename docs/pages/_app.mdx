@@ -1,5 +1,20 @@
 import '../style.css';
+import { Rubik, Crimson_Pro } from '@next/font/google';
+
+export const crimsonProFont = Crimson_Pro({
+    subsets: ['latin'],
+});
 
 export default function App({ Component, pageProps }) {
-    return <Component {...pageProps} />;
+    return (
+        <>
+            <style jsx global>{`
+                :root {
+                    --next-font-google-crimson-pro: ${crimsonProFont.style
+                        .fontFamily};
+                }
+            `}</style>
+            <Component {...pageProps} />
+        </>
+    );
 }

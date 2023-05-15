@@ -1,6 +1,14 @@
 {
-    "index": "Overview",
-    "why-to-use-it": "Why to use this pipeline?",
+    "index": {
+        "display": "hidden"
+    },
+    "overview": "🌋 Overview",
+    "---1": {
+        "type": "separator"
+    },
     "guides": "📚 Guides",
+    "---2": {
+        "type": "separator"
+    },
     "api-reference": "⚙️ API Reference"
 }
