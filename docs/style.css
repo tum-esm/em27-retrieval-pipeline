@@ -19,3 +19,15 @@
 .serif {
     font-family: var(--next-font-google-crimson-pro), serif;
 }
+
+.nx-duration-500 {
+    transition-duration: 100ms;
+}
+
+.nx-transition-colors {
+    transition-duration: 50ms;
+}
+
+footer div.nx-py-12 {
+    @apply py-3 font-semibold text-sm text-gray-800 items-center justify-center;
+}
