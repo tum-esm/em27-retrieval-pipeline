@@ -5,6 +5,20 @@ import {
 
 # Configuration Files
 
+## How to configure the pipeline
+
+The files `config.json` and `manual-queue.json` are used to configure the whole pipeline. They are place inside the `config` directory, alonside with two template files that can be used to create new configuration files. The `manual_queue.json` files doesn't have to exist, but the `config.json` is required.
+
+```
+📁 config
+├── 📄 config.json
+├── 📄 config.template.json
+├── 📄 manual-queue.json
+└── 📄 manual-queue.template.json
+```
+
+Below you can find example files and the schema definitions for both files.This website is synced to the validation used by the pipeline internally and you will get a presize error message if you violate the schema of the respective file.
+
 ## `config.json`
 
 ### Example File
