@@ -1,7 +1,7 @@
 from datetime import datetime
-import os
 from typing import Any, Literal, TypeVar
 import pydantic
+import os
 
 
 def apply_field_validator(
@@ -12,12 +12,15 @@ def apply_field_validator(
         "is_date_string",
         "is_datetime_string",
     ],
+    forbidden: list[Any] = [],
 ):
     T = TypeVar("T")
 
     def f(cls: Any, v: T) -> T:
         if v is None:
             return None
+        if v in forbidden:
+            raise ValueError(f'"{v}" is forbidden')
         if validation_type == "is_directory_path":
             assert isinstance(v, str)
             if not os.path.isdir(v):

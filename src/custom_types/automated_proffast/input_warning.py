@@ -1,26 +1,19 @@
-from pydantic import BaseModel, validator
-from tum_esm_utils.validators import validate_str
+import pydantic
+from ..validator import apply_field_validator
 
 
-class InputWarning(BaseModel):
+class InputWarning(pydantic.BaseModel):
     sensor_id: str
     date: str
     message: str
     last_checked: str
 
     # validators
-    _val_str = validator(
-        *["sensor_id", "message", "last_checked"],
-        pre=True,
-        allow_reuse=True,
-    )(validate_str())
-
-    _val_date = validator(
-        "date",
-        pre=True,
-        allow_reuse=True,
-    )(validate_str(is_date_string=True))
+    _1 = apply_field_validator(
+        ["date"],
+        "is_date_string",
+    )
 
 
-class InputWarningsList(BaseModel):
+class InputWarningsList(pydantic.BaseModel):
     items: list[InputWarning]

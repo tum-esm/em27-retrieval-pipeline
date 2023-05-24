@@ -1,8 +1,9 @@
 from typing import Any
-from pydantic import BaseModel
+from ..validator import apply_field_validator
+import pydantic
 
 
-class DownloadQueryLocation(BaseModel):
+class DownloadQueryLocation(pydantic.BaseModel):
     """Pydantic model:
 
     ```python
@@ -11,8 +12,8 @@ class DownloadQueryLocation(BaseModel):
     ```
     """
 
-    lat: int
-    lon: int
+    lat: int = pydantic.Field(..., ge=-90, le=90)
+    lon: int = pydantic.Field(..., ge=-180, le=180)
 
     class Config:
         frozen = True
@@ -31,7 +32,7 @@ class DownloadQueryLocation(BaseModel):
         return str_ + ("W" if self.lon < 0 else "E")
 
 
-class DownloadQuery(BaseModel):
+class DownloadQuery(pydantic.BaseModel):
     """Pydantic model:
 
     ```python
@@ -44,6 +45,12 @@ class DownloadQuery(BaseModel):
     from_date: str
     to_date: str
     location: DownloadQueryLocation
+
+    # validators
+    _1 = apply_field_validator(
+        ["from_date", "to_date"],
+        "is_date_string",
+    )
 
     def to_slugged_json(self) -> dict[str, Any]:
         return {

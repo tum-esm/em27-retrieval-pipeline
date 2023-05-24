@@ -1,9 +1,13 @@
 from datetime import datetime
-from typing import Callable
 
 
-dt_to_str: Callable[[datetime], str] = lambda v: v.strftime("%Y%m%d")
-str_to_dt: Callable[[str], datetime] = lambda v: datetime.strptime(v, "%Y%m%d")
+def dt_to_str(v: datetime) -> str:
+    return v.strftime("%Y%m%d")
+
+
+def str_to_dt(v: str) -> datetime:
+    return datetime.strptime(v, "%Y%m%d")
+
 
 from .config import Config
 

@@ -1,8 +1,8 @@
-from pydantic import BaseModel
+import pydantic
 import tum_esm_em27_metadata.types
 
 
-class PylotContainer(BaseModel):
+class PylotContainer(pydantic.BaseModel):
     container_id: str
     container_path: str
     data_input_path: str
@@ -14,7 +14,7 @@ class PylotContainer(BaseModel):
         extra = "ignore"
 
 
-class PylotSession(BaseModel):
+class PylotSession(pydantic.BaseModel):
     sensor_id: str
     serial_number: int
     utc_offset: float

@@ -1,23 +1,22 @@
-from pydantic import BaseModel, validator
-from tum_esm_utils.validators import validate_str, validate_int
+import pydantic
+from ..validator import apply_field_validator
 
 
-class ManualQueueItem(BaseModel):
-    sensor_id: str
+class ManualQueueItem(pydantic.BaseModel):
+    sensor_id: str = pydantic.Field(..., min_length=1)
     date: str
     priority: int
 
     # validators
-    _val_sensor_id = validator("sensor_id", pre=True, allow_reuse=True)(
-        validate_str(min_len=1),
+    _1 = apply_field_validator(
+        ["date"],
+        "is_date_string",
     )
-    _val_date = validator("date", pre=True, allow_reuse=True)(
-        validate_str(is_date_string=True),
-    )
-    _val_priority = validator("priority", pre=True, allow_reuse=True)(
-        validate_int(forbidden=[0]),
+    _2 = apply_field_validator(
+        ["priority"],
+        forbidden=[0],
     )
 
 
-class ManualQueue(BaseModel):
+class ManualQueue(pydantic.BaseModel):
     items: list[ManualQueueItem]
