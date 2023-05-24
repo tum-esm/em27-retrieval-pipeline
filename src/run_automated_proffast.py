@@ -44,7 +44,7 @@ def run() -> None:
                 tum_esm_em27_metadata.types.SensorDataContext
             ] = None
             while True:
-                if len(processes) == config.automated_proffast.max_core_count:
+                if len(processes) == config.automated_proffast.general.max_core_count:
                     break
 
                 next_sensor_data_context = retrieval_queue.get_next_item()

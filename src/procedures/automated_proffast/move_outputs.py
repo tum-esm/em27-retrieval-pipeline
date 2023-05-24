@@ -143,7 +143,7 @@ def run(
             pylot_session.sensor_id,
             pylot_session.date,
         )
-        expected_ifg_regex = config.automated_proffast.ifg_file_regex.replace(
+        expected_ifg_regex = config.automated_proffast.general.ifg_file_regex.replace(
             "$(SENSOR_ID)", pylot_session.sensor_id
         ).replace("$(DATE)", pylot_session.date)
         expected_ifg_pattern = re.compile(expected_ifg_regex)

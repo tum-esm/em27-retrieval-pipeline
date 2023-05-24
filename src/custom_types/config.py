@@ -52,17 +52,20 @@ class VerticalProfilesRequestScopeConfig(pydantic.BaseModel):
     )
 
 
-class AutomatedProffastStorageDataFilterConfig(pydantic.BaseModel):
-    sensor_ids_to_consider: list[str] = pydantic.Field(..., min_items=1)
-    from_date: str
-    to_date: str
-    min_days_delay: int = pydantic.Field(..., ge=0, le=60)
+class AutomatedProffastGeneralConfig(pydantic.BaseModel):
+    max_core_count: int = pydantic.Field(..., ge=1, le=64)
 
-    # validators
-    _1 = apply_field_validators(
-        ["from_date", "to_date"],
-        is_date_string=True,
-    )
+    ifg_file_regex: str = pydantic.Field(..., min_length=1)
+    """A regex string to match the ifg file names.
+    
+    For example `^$(SENSOR_ID)$(DATE).*\\.\\d+$`. In this string, `$(SENSOR_ID)`
+    and `$(DATE)` are placeholders for the sensor id and the date of the ifg
+    file."""
+
+
+class AutomatedProffastDataSourcesConfig(pydantic.BaseModel):
+    storage: bool
+    manual_queue: bool
 
 
 class AutomatedProffastModifiedIfgFilePermissionsConfig(pydantic.BaseModel):
@@ -77,9 +80,17 @@ class AutomatedProffastModifiedIfgFilePermissionsConfig(pydantic.BaseModel):
     """A unix-like file permission string, e.g. `rwxr-xr-x`."""
 
 
-class AutomatedProffastDataSourcesConfig(pydantic.BaseModel):
-    storage: bool
-    manual_queue: bool
+class AutomatedProffastStorageDataFilterConfig(pydantic.BaseModel):
+    sensor_ids_to_consider: list[str] = pydantic.Field(..., min_items=1)
+    from_date: str
+    to_date: str
+    min_days_delay: int = pydantic.Field(..., ge=0, le=60)
+
+    # validators
+    _1 = apply_field_validators(
+        ["from_date", "to_date"],
+        is_date_string=True,
+    )
 
 
 class GeneralConfig(pydantic.BaseModel):
@@ -94,15 +105,7 @@ class VerticalProfilesConfig(pydantic.BaseModel):
 
 
 class AutomatedProffastConfig(pydantic.BaseModel):
-    max_core_count: int = pydantic.Field(..., ge=1, le=64)
-
-    ifg_file_regex: str = pydantic.Field(..., min_length=1)
-    """A regex string to match the ifg file names.
-    
-    For example `^$(SENSOR_ID)$(DATE).*\\.\\d+$`. In this string, `$(SENSOR_ID)`
-    and `$(DATE)` are placeholders for the sensor id and the date of the ifg
-    file."""
-
+    general: AutomatedProffastGeneralConfig
     data_sources: AutomatedProffastDataSourcesConfig
     modified_ifg_file_permissions: AutomatedProffastModifiedIfgFilePermissionsConfig
     storage_data_filter: AutomatedProffastStorageDataFilterConfig

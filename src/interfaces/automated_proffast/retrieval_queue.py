@@ -223,7 +223,7 @@ class RetrievalQueue:
     def _ifgs_exist(self, sensor_id: str, date: str) -> bool:
         """determine whether an ifg directory exists and contains
         at least one interferogram"""
-        
+
         ifg_src_directory = os.path.join(
             self.config.general.data_src_dirs.interferograms,
             sensor_id,
@@ -232,9 +232,11 @@ class RetrievalQueue:
         if not os.path.isdir(ifg_src_directory):
             return False
 
-        expected_ifg_regex = self.config.automated_proffast.ifg_file_regex.replace(
-            "$(SENSOR_ID)", sensor_id
-        ).replace("$(DATE)", date)
+        expected_ifg_regex = (
+            self.config.automated_proffast.general.ifg_file_regex.replace(
+                "$(SENSOR_ID)", sensor_id
+            ).replace("$(DATE)", date)
+        )
         expected_ifg_pattern = re.compile(expected_ifg_regex)
         return (
             len(

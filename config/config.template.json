@@ -29,8 +29,10 @@
         }
     },
     "automated_proffast": {
-        "max_core_count": 9,
-        "ifg_file_regex": "^$(SENSOR_ID)$(DATE).*\\.\\d+$",
+        "general": {
+            "max_core_count": 9,
+            "ifg_file_regex": "^$(SENSOR_ID)$(DATE).*\\.\\d+$"
+        },
         "data_sources": {
             "storage": true,
             "manual_queue": true

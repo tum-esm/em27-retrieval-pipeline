@@ -1,7 +1,6 @@
 from datetime import datetime
 from typing import Any, TypeVar
 import pydantic
-import pydantic.typing
 import os
 
 
@@ -16,7 +15,7 @@ def apply_field_validators(
     is_datetime_string: bool = False,
     forbidden_values: list[T] = [],
     required_list_items: list[T] = [],
-) -> pydantic.typing.AnyClassMethod:
+) -> Any:
     """Advanced field validator for pydantic models. Usage example:
 
     ```python
