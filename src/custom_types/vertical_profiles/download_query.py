@@ -1,5 +1,5 @@
 from typing import Any
-from ..validator import apply_field_validator
+from ..validators import apply_field_validators
 import pydantic
 
 
@@ -47,9 +47,9 @@ class DownloadQuery(pydantic.BaseModel):
     location: DownloadQueryLocation
 
     # validators
-    _1 = apply_field_validator(
+    _1 = apply_field_validators(
         ["from_date", "to_date"],
-        "is_date_string",
+        is_date_string=True,
     )
 
     def to_slugged_json(self) -> dict[str, Any]:

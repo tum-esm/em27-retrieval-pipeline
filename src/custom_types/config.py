@@ -1,6 +1,6 @@
 from datetime import datetime
 from typing import Literal, Optional
-from .validator import apply_field_validator
+from .validators import apply_field_validators
 import pydantic
 
 
@@ -32,9 +32,9 @@ class DataSrcDirsConfig(pydantic.BaseModel):
     interferograms: str
 
     # validators
-    _1 = apply_field_validator(
+    _1 = apply_field_validators(
         ["datalogger", "vertical_profiles", "interferograms"],
-        "is_directory_path",
+        is_directory_path=True,
     )
 
 
@@ -42,9 +42,9 @@ class DataDstDirsConfig(pydantic.BaseModel):
     results: str
 
     # validators
-    _1 = apply_field_validator(
+    _1 = apply_field_validators(
         ["results"],
-        "is_directory_path",
+        is_directory_path=True,
     )
 
 
@@ -84,9 +84,9 @@ class VerticalProfilesRequestScopeConfig(pydantic.BaseModel):
     data_types: list[Literal["GGG2014", "GGG2020"]] = ["GGG2014", "GGG2020"]
 
     # validators
-    _1 = apply_field_validator(
+    _1 = apply_field_validators(
         ["from_date", "to_date"],
-        "is_date_string",
+        is_date_string=True,
     )
 
 
@@ -107,9 +107,9 @@ class AutomatedProffastStorageDataFilterConfig(pydantic.BaseModel):
     min_days_delay: int = pydantic.Field(..., ge=0, le=60)
 
     # validators
-    _1 = apply_field_validator(
+    _1 = apply_field_validators(
         ["from_date", "to_date"],
-        "is_date_string",
+        is_date_string=True,
     )
 
 
@@ -237,9 +237,9 @@ class OutputMergingTargetConfig(pydantic.BaseModel):
     dst_dir: str
 
     # validators
-    _1 = apply_field_validator(
+    _1 = apply_field_validators(
         ["dst_dir"],
-        "is_directory",
+        is_directory_path=True,
     )
 
 

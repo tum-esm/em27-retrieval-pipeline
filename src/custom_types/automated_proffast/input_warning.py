@@ -1,5 +1,5 @@
 import pydantic
-from ..validator import apply_field_validator
+from ..validators import apply_field_validators
 
 
 class InputWarning(pydantic.BaseModel):
@@ -9,9 +9,9 @@ class InputWarning(pydantic.BaseModel):
     last_checked: str
 
     # validators
-    _1 = apply_field_validator(
+    _1 = apply_field_validators(
         ["date"],
-        "is_date_string",
+        is_date_string=True,
     )
 
 

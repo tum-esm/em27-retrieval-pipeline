@@ -1,5 +1,5 @@
 import pydantic
-from ..validator import apply_field_validator
+from ..validators import apply_field_validators
 
 
 class ManualQueueItem(pydantic.BaseModel):
@@ -8,13 +8,13 @@ class ManualQueueItem(pydantic.BaseModel):
     priority: int
 
     # validators
-    _1 = apply_field_validator(
+    _1 = apply_field_validators(
         ["date"],
-        "is_date_string",
+        is_date_string=True,
     )
-    _2 = apply_field_validator(
+    _2 = apply_field_validators(
         ["priority"],
-        forbidden=[0],
+        forbidden_values=[0],
     )
 
 
