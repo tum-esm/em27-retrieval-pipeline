@@ -81,6 +81,7 @@ const CONFIG_SCHEMA_OBJECT: ZodConfigType = {
     },
     "vertical_profiles": {
       "title": "VerticalProfilesConfig",
+      "description": "Settings for vertical profiles retrieval. If `null`, the vertical profiles script will stop and log a warning",
       "type": "object",
       "properties": {
         "ftp_server": {
@@ -148,7 +149,7 @@ const CONFIG_SCHEMA_OBJECT: ZodConfigType = {
             "to_date": {
               "title": "To Date",
               "description": "date string in format `YYYYMMDD` until which to request vertical profile data",
-              "default": "20230524",
+              "default": "21000101",
               "type": "string"
             },
             "data_types": {
@@ -178,6 +179,7 @@ const CONFIG_SCHEMA_OBJECT: ZodConfigType = {
     },
     "automated_proffast": {
       "title": "AutomatedProffastConfig",
+      "description": "Settings for automated proffast processing. If `null`, the automated proffast script will stop and log a warning",
       "type": "object",
       "properties": {
         "general": {
@@ -187,6 +189,7 @@ const CONFIG_SCHEMA_OBJECT: ZodConfigType = {
             "max_core_count": {
               "title": "Max Core Count",
               "description": "How many cores to use for parallel processing. There will be one process per sensor-day.",
+              "default": 1,
               "minimum": 1,
               "maximum": 64,
               "type": "integer"
@@ -198,30 +201,26 @@ const CONFIG_SCHEMA_OBJECT: ZodConfigType = {
               "minLength": 1,
               "type": "string"
             }
-          },
-          "required": [
-            "max_core_count"
-          ]
+          }
         },
         "data_sources": {
           "title": "AutomatedProffastDataSourcesConfig",
+          "description": "Which data sources to use (storage/manual queue)",
           "type": "object",
           "properties": {
             "storage": {
               "title": "Storage",
               "description": "Whether to use the storage data. Run every sensor-day, where there is input data (`config.data_src_dirs.interferograms`) but no output data (`config.data_dst_dirs.results`).",
+              "default": true,
               "type": "boolean"
             },
             "manual_queue": {
               "title": "Manual Queue",
               "description": "Whether to use the manual queue. Compute a sensor-day if data is available at `config.data_src_dirs.interferograms`, independently of results-existence. Will overwrite existing results.",
+              "default": true,
               "type": "boolean"
             }
-          },
-          "required": [
-            "storage",
-            "manual_queue"
-          ]
+          }
         },
         "modified_ifg_file_permissions": {
           "title": "AutomatedProffastModifiedIfgFilePermissionsConfig",
@@ -258,11 +257,13 @@ const CONFIG_SCHEMA_OBJECT: ZodConfigType = {
             "from_date": {
               "title": "From Date",
               "description": "Date string in format `YYYYMMDD` from which to consider data in the storage directory",
+              "default": "19000101",
               "type": "string"
             },
             "to_date": {
               "title": "To Date",
               "description": "Date string in format `YYYYMMDD` until which to consider data in the storage directory",
+              "default": "21000101",
               "type": "string"
             },
             "min_days_delay": {
@@ -275,9 +276,7 @@ const CONFIG_SCHEMA_OBJECT: ZodConfigType = {
             }
           },
           "required": [
-            "sensor_ids_to_consider",
-            "from_date",
-            "to_date"
+            "sensor_ids_to_consider"
           ]
         }
       },
@@ -302,9 +301,43 @@ const CONFIG_SCHEMA_OBJECT: ZodConfigType = {
             "description": "Campaign specified in location metadata.",
             "type": "string"
           },
+          "sampling_rate": {
+            "title": "Sampling Rate",
+            "description": "Interval of resampled data.",
+            "enum": [
+              "10m",
+              "5m",
+              "2m",
+              "1m",
+              "30s",
+              "15s",
+              "10s",
+              "5s",
+              "2s",
+              "1s"
+            ],
+            "type": "string"
+          },
+          "dst_dir": {
+            "title": "Dst Dir",
+            "description": "Directory to write the output to.",
+            "type": "string"
+          },
           "data_types": {
             "title": "Data Types",
             "description": "Data columns to keep in the merged output files. The columns will be prefixed with the sensor id, i.e. `$(SENSOR_ID)_$(COLUMN_NAME)`.",
+            "default": [
+              "gnd_p",
+              "gnd_t",
+              "app_sza",
+              "azimuth",
+              "xh2o",
+              "xair",
+              "xco2",
+              "xch4",
+              "xco",
+              "xch4_s5p"
+            ],
             "minItems": 1,
             "type": "array",
             "items": {
@@ -323,50 +356,25 @@ const CONFIG_SCHEMA_OBJECT: ZodConfigType = {
               "type": "string"
             }
           },
-          "sampling_rate": {
-            "title": "Sampling Rate",
-            "description": "Interval of resampled data.",
-            "enum": [
-              "10m",
-              "5m",
-              "2m",
-              "1m",
-              "30s",
-              "15s",
-              "10s",
-              "5s",
-              "2s",
-              "1s"
-            ],
-            "type": "string"
-          },
           "max_interpolation_gap_seconds": {
             "title": "Max Interpolation Gap Seconds",
             "description": "Maximum gap in seconds to interpolate over.",
+            "default": 180,
             "minimum": 6,
             "maximum": 43200,
             "type": "integer"
-          },
-          "dst_dir": {
-            "title": "Dst Dir",
-            "description": "Directory to write the output to.",
-            "type": "string"
           }
         },
         "required": [
           "campaign_id",
-          "data_types",
           "sampling_rate",
-          "max_interpolation_gap_seconds",
           "dst_dir"
         ]
       }
     }
   },
   "required": [
-    "general",
-    "vertical_profiles",
-    "automated_proffast"
+    "general"
   ],
   "definitions": {
     "LocationDataConfig": {
@@ -571,7 +579,7 @@ const CONFIG_SCHEMA_OBJECT: ZodConfigType = {
         "to_date": {
           "title": "To Date",
           "description": "date string in format `YYYYMMDD` until which to request vertical profile data",
-          "default": "20230524",
+          "default": "21000101",
           "type": "string"
         },
         "data_types": {
@@ -595,6 +603,7 @@ const CONFIG_SCHEMA_OBJECT: ZodConfigType = {
     },
     "VerticalProfilesConfig": {
       "title": "VerticalProfilesConfig",
+      "description": "Settings for vertical profiles retrieval. If `null`, the vertical profiles script will stop and log a warning",
       "type": "object",
       "properties": {
         "ftp_server": {
@@ -662,7 +671,7 @@ const CONFIG_SCHEMA_OBJECT: ZodConfigType = {
             "to_date": {
               "title": "To Date",
               "description": "date string in format `YYYYMMDD` until which to request vertical profile data",
-              "default": "20230524",
+              "default": "21000101",
               "type": "string"
             },
             "data_types": {
@@ -697,6 +706,7 @@ const CONFIG_SCHEMA_OBJECT: ZodConfigType = {
         "max_core_count": {
           "title": "Max Core Count",
           "description": "How many cores to use for parallel processing. There will be one process per sensor-day.",
+          "default": 1,
           "minimum": 1,
           "maximum": 64,
           "type": "integer"
@@ -708,30 +718,26 @@ const CONFIG_SCHEMA_OBJECT: ZodConfigType = {
           "minLength": 1,
           "type": "string"
         }
-      },
-      "required": [
-        "max_core_count"
-      ]
+      }
     },
     "AutomatedProffastDataSourcesConfig": {
       "title": "AutomatedProffastDataSourcesConfig",
+      "description": "Which data sources to use (storage/manual queue)",
       "type": "object",
       "properties": {
         "storage": {
           "title": "Storage",
           "description": "Whether to use the storage data. Run every sensor-day, where there is input data (`config.data_src_dirs.interferograms`) but no output data (`config.data_dst_dirs.results`).",
+          "default": true,
           "type": "boolean"
         },
         "manual_queue": {
           "title": "Manual Queue",
           "description": "Whether to use the manual queue. Compute a sensor-day if data is available at `config.data_src_dirs.interferograms`, independently of results-existence. Will overwrite existing results.",
+          "default": true,
           "type": "boolean"
         }
-      },
-      "required": [
-        "storage",
-        "manual_queue"
-      ]
+      }
     },
     "AutomatedProffastModifiedIfgFilePermissionsConfig": {
       "title": "AutomatedProffastModifiedIfgFilePermissionsConfig",
@@ -768,11 +774,13 @@ const CONFIG_SCHEMA_OBJECT: ZodConfigType = {
         "from_date": {
           "title": "From Date",
           "description": "Date string in format `YYYYMMDD` from which to consider data in the storage directory",
+          "default": "19000101",
           "type": "string"
         },
         "to_date": {
           "title": "To Date",
           "description": "Date string in format `YYYYMMDD` until which to consider data in the storage directory",
+          "default": "21000101",
           "type": "string"
         },
         "min_days_delay": {
@@ -785,13 +793,12 @@ const CONFIG_SCHEMA_OBJECT: ZodConfigType = {
         }
       },
       "required": [
-        "sensor_ids_to_consider",
-        "from_date",
-        "to_date"
+        "sensor_ids_to_consider"
       ]
     },
     "AutomatedProffastConfig": {
       "title": "AutomatedProffastConfig",
+      "description": "Settings for automated proffast processing. If `null`, the automated proffast script will stop and log a warning",
       "type": "object",
       "properties": {
         "general": {
@@ -801,6 +808,7 @@ const CONFIG_SCHEMA_OBJECT: ZodConfigType = {
             "max_core_count": {
               "title": "Max Core Count",
               "description": "How many cores to use for parallel processing. There will be one process per sensor-day.",
+              "default": 1,
               "minimum": 1,
               "maximum": 64,
               "type": "integer"
@@ -812,30 +820,26 @@ const CONFIG_SCHEMA_OBJECT: ZodConfigType = {
               "minLength": 1,
               "type": "string"
             }
-          },
-          "required": [
-            "max_core_count"
-          ]
+          }
         },
         "data_sources": {
           "title": "AutomatedProffastDataSourcesConfig",
+          "description": "Which data sources to use (storage/manual queue)",
           "type": "object",
           "properties": {
             "storage": {
               "title": "Storage",
               "description": "Whether to use the storage data. Run every sensor-day, where there is input data (`config.data_src_dirs.interferograms`) but no output data (`config.data_dst_dirs.results`).",
+              "default": true,
               "type": "boolean"
             },
             "manual_queue": {
               "title": "Manual Queue",
               "description": "Whether to use the manual queue. Compute a sensor-day if data is available at `config.data_src_dirs.interferograms`, independently of results-existence. Will overwrite existing results.",
+              "default": true,
               "type": "boolean"
             }
-          },
-          "required": [
-            "storage",
-            "manual_queue"
-          ]
+          }
         },
         "modified_ifg_file_permissions": {
           "title": "AutomatedProffastModifiedIfgFilePermissionsConfig",
@@ -872,11 +876,13 @@ const CONFIG_SCHEMA_OBJECT: ZodConfigType = {
             "from_date": {
               "title": "From Date",
               "description": "Date string in format `YYYYMMDD` from which to consider data in the storage directory",
+              "default": "19000101",
               "type": "string"
             },
             "to_date": {
               "title": "To Date",
               "description": "Date string in format `YYYYMMDD` until which to consider data in the storage directory",
+              "default": "21000101",
               "type": "string"
             },
             "min_days_delay": {
@@ -889,9 +895,7 @@ const CONFIG_SCHEMA_OBJECT: ZodConfigType = {
             }
           },
           "required": [
-            "sensor_ids_to_consider",
-            "from_date",
-            "to_date"
+            "sensor_ids_to_consider"
           ]
         }
       },
@@ -911,9 +915,43 @@ const CONFIG_SCHEMA_OBJECT: ZodConfigType = {
           "description": "Campaign specified in location metadata.",
           "type": "string"
         },
+        "sampling_rate": {
+          "title": "Sampling Rate",
+          "description": "Interval of resampled data.",
+          "enum": [
+            "10m",
+            "5m",
+            "2m",
+            "1m",
+            "30s",
+            "15s",
+            "10s",
+            "5s",
+            "2s",
+            "1s"
+          ],
+          "type": "string"
+        },
+        "dst_dir": {
+          "title": "Dst Dir",
+          "description": "Directory to write the output to.",
+          "type": "string"
+        },
         "data_types": {
           "title": "Data Types",
           "description": "Data columns to keep in the merged output files. The columns will be prefixed with the sensor id, i.e. `$(SENSOR_ID)_$(COLUMN_NAME)`.",
+          "default": [
+            "gnd_p",
+            "gnd_t",
+            "app_sza",
+            "azimuth",
+            "xh2o",
+            "xair",
+            "xco2",
+            "xch4",
+            "xco",
+            "xch4_s5p"
+          ],
           "minItems": 1,
           "type": "array",
           "items": {
@@ -932,41 +970,18 @@ const CONFIG_SCHEMA_OBJECT: ZodConfigType = {
             "type": "string"
           }
         },
-        "sampling_rate": {
-          "title": "Sampling Rate",
-          "description": "Interval of resampled data.",
-          "enum": [
-            "10m",
-            "5m",
-            "2m",
-            "1m",
-            "30s",
-            "15s",
-            "10s",
-            "5s",
-            "2s",
-            "1s"
-          ],
-          "type": "string"
-        },
         "max_interpolation_gap_seconds": {
           "title": "Max Interpolation Gap Seconds",
           "description": "Maximum gap in seconds to interpolate over.",
+          "default": 180,
           "minimum": 6,
           "maximum": 43200,
           "type": "integer"
-        },
-        "dst_dir": {
-          "title": "Dst Dir",
-          "description": "Directory to write the output to.",
-          "type": "string"
         }
       },
       "required": [
         "campaign_id",
-        "data_types",
         "sampling_rate",
-        "max_interpolation_gap_seconds",
         "dst_dir"
       ]
     }

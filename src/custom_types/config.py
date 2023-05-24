@@ -80,7 +80,7 @@ class VerticalProfilesRequestScopeConfig(pydantic.BaseModel):
         description="date string in format `YYYYMMDD` from which to request vertical profile data",
     )
     to_date: str = pydantic.Field(
-        datetime.utcnow().strftime("%Y%m%d"),
+        "21000101",
         description="date string in format `YYYYMMDD` until which to request vertical profile data",
     )
     data_types: list[Literal["GGG2014", "GGG2020"]] = pydantic.Field(
@@ -98,7 +98,7 @@ class VerticalProfilesRequestScopeConfig(pydantic.BaseModel):
 
 class AutomatedProffastGeneralConfig(pydantic.BaseModel):
     max_core_count: int = pydantic.Field(
-        ...,
+        1,
         ge=1,
         le=64,
         description="How many cores to use for parallel processing. There will be one process per sensor-day.",
@@ -112,12 +112,14 @@ class AutomatedProffastGeneralConfig(pydantic.BaseModel):
 
 
 class AutomatedProffastDataSourcesConfig(pydantic.BaseModel):
+    """Which data sources to use (storage/manual queue)"""
+
     storage: bool = pydantic.Field(
-        ...,
+        True,
         description="Whether to use the storage data. Run every sensor-day, where there is input data (`config.data_src_dirs.interferograms`) but no output data (`config.data_dst_dirs.results`).",
     )
     manual_queue: bool = pydantic.Field(
-        ...,
+        True,
         description="Whether to use the manual queue. Compute a sensor-day if data is available at `config.data_src_dirs.interferograms`, independently of results-existence. Will overwrite existing results.",
     )
 
@@ -143,11 +145,11 @@ class AutomatedProffastStorageDataFilterConfig(pydantic.BaseModel):
         ..., min_items=1, description="Sensor ids to consider in the retrieval"
     )
     from_date: str = pydantic.Field(
-        ...,
+        "19000101",
         description="Date string in format `YYYYMMDD` from which to consider data in the storage directory",
     )
     to_date: str = pydantic.Field(
-        ...,
+        "21000101",
         description="Date string in format `YYYYMMDD` until which to consider data in the storage directory",
     )
     min_days_delay: int = pydantic.Field(
@@ -171,11 +173,15 @@ class GeneralConfig(pydantic.BaseModel):
 
 
 class VerticalProfilesConfig(pydantic.BaseModel):
+    """Settings for vertical profiles retrieval. If `null`, the vertical profiles script will stop and log a warning"""
+
     ftp_server: VerticalProfilesFTPServerConfig
     request_scope: VerticalProfilesRequestScopeConfig
 
 
 class AutomatedProffastConfig(pydantic.BaseModel):
+    """Settings for automated proffast processing. If `null`, the automated proffast script will stop and log a warning"""
+
     general: AutomatedProffastGeneralConfig
     data_sources: AutomatedProffastDataSourcesConfig
     modified_ifg_file_permissions: AutomatedProffastModifiedIfgFilePermissionsConfig
@@ -185,6 +191,16 @@ class AutomatedProffastConfig(pydantic.BaseModel):
 class OutputMergingTargetConfig(pydantic.BaseModel):
     campaign_id: str = pydantic.Field(
         ..., description="Campaign specified in location metadata."
+    )
+    sampling_rate: Literal[
+        "10m", "5m", "2m", "1m", "30s", "15s", "10s", "5s", "2s", "1s"
+    ] = pydantic.Field(
+        ...,
+        description="Interval of resampled data.",
+    )
+    dst_dir: str = pydantic.Field(
+        ...,
+        description="Directory to write the output to.",
     )
     data_types: list[
         Literal[
@@ -200,25 +216,26 @@ class OutputMergingTargetConfig(pydantic.BaseModel):
             "xch4_s5p",
         ]
     ] = pydantic.Field(
-        ...,
+        [
+            "gnd_p",
+            "gnd_t",
+            "app_sza",
+            "azimuth",
+            "xh2o",
+            "xair",
+            "xco2",
+            "xch4",
+            "xco",
+            "xch4_s5p",
+        ],
         min_items=1,
         description="Data columns to keep in the merged output files. The columns will be prefixed with the sensor id, i.e. `$(SENSOR_ID)_$(COLUMN_NAME)`.",
     )
-    sampling_rate: Literal[
-        "10m", "5m", "2m", "1m", "30s", "15s", "10s", "5s", "2s", "1s"
-    ] = pydantic.Field(
-        ...,
-        description="Interval of resampled data.",
-    )
     max_interpolation_gap_seconds: int = pydantic.Field(
-        ...,
+        180,
         ge=6,
         le=43200,
         description="Maximum gap in seconds to interpolate over.",
-    )
-    dst_dir: str = pydantic.Field(
-        ...,
-        description="Directory to write the output to.",
     )
 
     # validators
@@ -226,14 +243,12 @@ class OutputMergingTargetConfig(pydantic.BaseModel):
         ["dst_dir"],
         is_directory_path=True,
     )
-    
-    class Config
 
 
 class Config(pydantic.BaseModel):
     general: GeneralConfig
-    vertical_profiles: VerticalProfilesConfig
-    automated_proffast: AutomatedProffastConfig
+    vertical_profiles: Optional[VerticalProfilesConfig] = None
+    automated_proffast: AutomatedProffastConfig = None
     output_merging_targets: list[OutputMergingTargetConfig] = pydantic.Field(
         [],
         description='List of output merging targets. Relies on specifying "campaigns" in the EM27 metadata.',

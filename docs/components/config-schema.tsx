@@ -1,3 +1,4 @@
+import React from 'react';
 import CONFIG_SCHEMA_OBJECT from './config-schema-object';
 
 function renderConfigProperty(
@@ -12,37 +13,32 @@ function renderConfigProperty(
 
     const depth = prefix.split('.').length;
     let fontSize: string;
-    let subFontSize: string;
     let bgColor: string;
     let dividerColor: string;
     switch (depth) {
         case 1:
             fontSize = 'text-xl';
-            subFontSize = 'text-lg';
             bgColor = 'bg-slate-100';
             dividerColor = 'divide-slate-200';
             break;
         case 2:
             fontSize = 'text-lg';
-            subFontSize = 'text-md';
             bgColor = 'bg-slate-200';
             dividerColor = 'divide-slate-300';
             break;
         case 3:
             fontSize = 'text-md';
-            subFontSize = 'text-sm';
             bgColor = 'bg-slate-300';
             dividerColor = 'divide-slate-400';
             break;
         default:
             fontSize = 'text-sm';
-            subFontSize = 'text-xs';
             bgColor = 'bg-slate-400';
             dividerColor = 'divide-slate-500';
             break;
     }
     return (
-        <div className={`flex flex-col p-3`}>
+        <div className={`flex flex-col p-3`} key={propertyKey}>
             <div className={`font-semibold ${fontSize} leading-tight`}>
                 {/*<span className='font-mono text-slate-800/40'>{prefix}.</span>*/}
                 <span className='font-mono text-slate-800'>{propertyKey}</span>
@@ -77,7 +73,7 @@ function renderConfigProperty(
                     ['maxItems', 'max. items'],
                     ['enum', 'allowed values'],
                 ].map(([key, label], b) => (
-                    <>
+                    <React.Fragment key={key}>
                         {!(key === 'default' && propertyKey === '#') &&
                             propertyObject[key] !== undefined && (
                                 <div className='mt-1'>
@@ -89,7 +85,7 @@ function renderConfigProperty(
                                     )}
                                 </div>
                             )}
-                    </>
+                    </React.Fragment>
                 ))}
             </div>
 
