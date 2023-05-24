@@ -45,7 +45,7 @@ export default {
     },
     docsRepositoryBase:
         'https://github.com/tum-esm/automated-retrieval-pipeline/blob/main/docs',
-    darkMode: true,
+    darkMode: false,
     //primaryHue: 43,
     navigation: true,
     useNextSeoProps() {
