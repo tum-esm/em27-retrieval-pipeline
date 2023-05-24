@@ -1,5 +1,3 @@
-import { useRouter } from 'next/navigation';
-
 export default {
     logo: (
         <div className='flex flex-row items-center justify-center -ml-6 gap-x-4'>
@@ -92,4 +90,7 @@ export default {
     //    key: 'v1.0.0-release',
     //    text: '🎉 The EM27 Retreival Pipeline 1.0.0 has been released',
     //},
+    toc: {
+        float: true,
+    },
 };

@@ -3,9 +3,13 @@ from ..validators import apply_field_validators
 
 
 class ManualQueueItem(pydantic.BaseModel):
-    sensor_id: str = pydantic.Field(..., min_length=1)
-    date: str
-    priority: int
+    sensor_id: str
+    date: str = pydantic.Field(..., description="Date in YYYYMMDD format")
+    priority: int = pydantic.Field(
+        ...,
+        ge=1,
+        description="Priority of the item. Cannot be zero. Items with higher priority are processed first. If data from both the storage queue and the manual queue are considered, the storage queue items have a priority of zero.",
+    )
 
     # validators
     _1 = apply_field_validators(
@@ -19,4 +23,4 @@ class ManualQueueItem(pydantic.BaseModel):
 
 
 class ManualQueue(pydantic.BaseModel):
-    items: list[ManualQueueItem]
+    items: list[ManualQueueItem] = []

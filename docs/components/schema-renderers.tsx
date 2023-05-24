@@ -1,5 +1,6 @@
 import React from 'react';
 import CONFIG_SCHEMA_OBJECT from './config-schema-object';
+import MANUAL_QUEUE_SCHEMA_OBJECT from './manual-queue-schema-object';
 
 function renderConfigProperty(
     prefix: string,
@@ -72,8 +73,8 @@ function renderConfigProperty(
                     ['minItems', 'min. items'],
                     ['maxItems', 'max. items'],
                     ['enum', 'allowed values'],
-                ].map(([key, label], b) => (
-                    <React.Fragment key={key}>
+                ].map(([key, label], index) => (
+                    <React.Fragment key={index}>
                         {!(key === 'default' && propertyKey === '#') &&
                             propertyObject[key] !== undefined && (
                                 <div className='mt-1'>
@@ -119,7 +120,7 @@ function renderConfigProperty(
     );
 }
 
-function ConfigSchema() {
+export function ConfigSchema() {
     return (
         <div className='flex flex-col mt-4 gap-y-4 text-slate-950'>
             {Object.keys(CONFIG_SCHEMA_OBJECT.properties).map(key =>
@@ -134,4 +135,17 @@ function ConfigSchema() {
     );
 }
 
-export default ConfigSchema;
+export function ManualQueueSchema() {
+    return (
+        <div className='flex flex-col mt-4 gap-y-4 text-slate-950'>
+            {Object.keys(MANUAL_QUEUE_SCHEMA_OBJECT.properties).map(key =>
+                renderConfigProperty(
+                    'manual_queue',
+                    key,
+                    MANUAL_QUEUE_SCHEMA_OBJECT.properties[key],
+                    MANUAL_QUEUE_SCHEMA_OBJECT.required?.includes(key) || false
+                )
+            )}
+        </div>
+    );
+}

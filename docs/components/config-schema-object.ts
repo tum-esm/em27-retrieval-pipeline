@@ -1,7 +1,5 @@
-import ZodConfigType from './config-schema-type';
-
 /* prettier-ignore */
-const CONFIG_SCHEMA_OBJECT: ZodConfigType = {
+const CONFIG_SCHEMA_OBJECT: any = {
   "title": "Config",
   "type": "object",
   "properties": {
