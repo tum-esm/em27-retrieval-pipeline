@@ -1,47 +1,10 @@
 from datetime import datetime
-from typing import Any, Callable, Literal, Optional, TypeVar, Union
-from pydantic import BaseModel, validator
-from tum_esm_utils.validators import (
-    validate_str,
-    validate_bool,
-    validate_int,
-)
-
-T = TypeVar("T")
+from typing import Literal, Optional
+from .validator import apply_field_validator
+import pydantic
 
 
-def _validate_list(
-    min_len: Optional[int] = None,
-    max_len: Optional[int] = None,
-    allowed: Optional[list[T]] = None,
-    required: Optional[list[T]] = None,
-    forbidden: Optional[list[T]] = None,
-) -> Callable[[Any, list[T]], list[T]]:
-    def f(cls: Any, v: list[T]) -> list[T]:
-        if not isinstance(v, list):
-            raise ValueError(f'"{v}" is not a list')
-        if min_len is not None and len(v) < min_len:
-            raise ValueError(f'"{v}" has less than {min_len} elements')
-        if max_len is not None and len(v) > max_len:
-            raise ValueError(f'"{v}" has more than {max_len} elements')
-        if allowed is not None:
-            for item in v:
-                if item not in allowed:
-                    raise ValueError(f'"{item}" is not allowed')
-        if required is not None:
-            for item in required:
-                if item not in v:
-                    raise ValueError(f'"{v}" has to include "{item}"')
-        if forbidden is not None:
-            for item in forbidden:
-                if item in v:
-                    raise ValueError(f'"{v}" should not include "{item}"')
-        return v
-
-    return f
-
-
-class LocationDataConfig(BaseModel):
+class LocationDataConfig(pydantic.BaseModel):
     """Pydantic model:
 
     ```python
@@ -50,27 +13,11 @@ class LocationDataConfig(BaseModel):
     ```
     """
 
-    github_repository: str
+    github_repository: str = pydantic.Field(..., regex=r"^[a-z0-9-_]+/[a-z0-9-_]+$")
     access_token: Optional[str]
 
-    # validators
-    _val_github_repository = validator(
-        "github_repository",
-        pre=True,
-        allow_reuse=True,
-    )(
-        validate_str(regex=r"^[a-z0-9-_]+/[a-z0-9-_]+$"),
-    )
-    _val_access_token = validator(
-        "access_token",
-        pre=True,
-        allow_reuse=True,
-    )(
-        validate_str(nullable=True),
-    )
 
-
-class DataSrcDirsConfig(BaseModel):
+class DataSrcDirsConfig(pydantic.BaseModel):
     """Pydantic model:
 
     ```python
@@ -85,27 +32,23 @@ class DataSrcDirsConfig(BaseModel):
     interferograms: str
 
     # validators
-    _val_dir = validator(
-        "datalogger",
-        "vertical_profiles",
-        "interferograms",
-        pre=True,
-        allow_reuse=True,
-    )(
-        validate_str(is_directory=True),
+    _1 = apply_field_validator(
+        ["datalogger", "vertical_profiles", "interferograms"],
+        "is_directory_path",
     )
 
 
-class DataDstDirsConfig(BaseModel):
+class DataDstDirsConfig(pydantic.BaseModel):
     results: str
 
     # validators
-    _val_results = validator("results", pre=True, allow_reuse=True)(
-        validate_str(is_directory=True)
+    _1 = apply_field_validator(
+        ["results"],
+        "is_directory_path",
     )
 
 
-class VerticalProfilesFTPServerConfig(BaseModel):
+class VerticalProfilesFTPServerConfig(pydantic.BaseModel):
     """Pydantic model:
 
     ```python
@@ -118,42 +61,15 @@ class VerticalProfilesFTPServerConfig(BaseModel):
     ```
     """
 
-    email: str
-    max_day_delay: int = 7
-    upload_sleep: int = 60
-    upload_timeout: int = 180
-    download_sleep: int = 60
-    download_timeout: int = 600
-
-    _val_dates = validator(
-        "email",
-        pre=True,
-        allow_reuse=True,
-    )(
-        validate_str(min_len=3),
-    )
-
-    _val_max_delay = validator(
-        "max_day_delay",
-        pre=True,
-        allow_reuse=True,
-    )(
-        validate_int(minimum=0, maximum=10),
-    )
-
-    _val_max_await = validator(
-        "upload_sleep",
-        "upload_timeout",
-        "download_sleep",
-        "download_timeout",
-        pre=True,
-        allow_reuse=True,
-    )(
-        validate_int(minimum=0),
-    )
+    email: str = pydantic.Field(..., min_length=3)
+    max_day_delay: int = pydantic.Field(7, ge=0, le=10)
+    upload_sleep: int = pydantic.Field(60, ge=0)
+    upload_timeout: int = pydantic.Field(180, ge=0)
+    download_sleep: int = pydantic.Field(60, ge=0)
+    download_timeout: int = pydantic.Field(600, ge=0)
 
 
-class VerticalProfilesRequestScopeConfig(BaseModel):
+class VerticalProfilesRequestScopeConfig(pydantic.BaseModel):
     """Pydantic model:
 
     ```python
@@ -167,24 +83,14 @@ class VerticalProfilesRequestScopeConfig(BaseModel):
     to_date: str = datetime.utcnow().strftime("%Y%m%d")
     data_types: list[Literal["GGG2014", "GGG2020"]] = ["GGG2014", "GGG2020"]
 
-    _val_dates = validator(
-        "from_date",
-        "to_date",
-        pre=True,
-        allow_reuse=True,
-    )(
-        validate_str(is_date_string=True),
-    )
-    _val_data_types = validator(
-        "data_types",
-        pre=True,
-        allow_reuse=True,
-    )(
-        _validate_list(allowed=["GGG2014", "GGG2020"]),
+    # validators
+    _1 = apply_field_validator(
+        ["from_date", "to_date"],
+        "is_date_string",
     )
 
 
-class AutomatedProffastStorageDataFilterConfig(BaseModel):
+class AutomatedProffastStorageDataFilterConfig(pydantic.BaseModel):
     """Pydantic model:
 
     ```python
@@ -195,26 +101,19 @@ class AutomatedProffastStorageDataFilterConfig(BaseModel):
     ```
     """
 
-    sensor_ids_to_consider: list[str]
+    sensor_ids_to_consider: list[str] = pydantic.Field(..., min_items=1)
     from_date: str
     to_date: str
-    min_days_delay: int
+    min_days_delay: int = pydantic.Field(..., ge=0, le=60)
 
     # validators
-    _val_sensor_ids_to_consider = validator(
-        "sensor_ids_to_consider", pre=True, allow_reuse=True
-    )(
-        _validate_list(min_len=1),
-    )
-    _val_date_string = validator("from_date", "to_date", pre=True, allow_reuse=True)(
-        validate_str(is_date_string=True),
-    )
-    _val_min_days_delay = validator("min_days_delay", pre=True, allow_reuse=True)(
-        validate_int(minimum=0, maximum=60),
+    _1 = apply_field_validator(
+        ["from_date", "to_date"],
+        "is_date_string",
     )
 
 
-class AutomatedProffastModifiedIfgFilePermissionsConfig(BaseModel):
+class AutomatedProffastModifiedIfgFilePermissionsConfig(pydantic.BaseModel):
     """Pydantic model:
 
     ```python
@@ -223,22 +122,18 @@ class AutomatedProffastModifiedIfgFilePermissionsConfig(BaseModel):
     ```
     """
 
-    during_processing: Optional[str]
+    during_processing: Optional[str] = pydantic.Field(
+        None, regex=r"^((r|-)(w|-)(x|-)){3}$"
+    )
     """A unix-like file permission string, e.g. `rwxr-xr-x`."""
 
-    after_processing: Optional[str]
+    after_processing: Optional[str] = pydantic.Field(
+        None, regex=r"^((r|-)(w|-)(x|-)){3}$"
+    )
     """A unix-like file permission string, e.g. `rwxr-xr-x`."""
 
-    # validators
-    _val_during_processing = validator("during_processing", pre=True, allow_reuse=True)(
-        validate_str(nullable=True, regex=r"^((r|-)(w|-)(x|-)){3}$")
-    )
-    _val_after_processing = validator("after_processing", pre=True, allow_reuse=True)(
-        validate_str(nullable=True, regex=r"^((r|-)(w|-)(x|-)){3}$")
-    )
 
-
-class AutomatedProffastDataSourcesConfig(BaseModel):
+class AutomatedProffastDataSourcesConfig(pydantic.BaseModel):
     """Pydantic model:
 
     ```python
@@ -250,13 +145,8 @@ class AutomatedProffastDataSourcesConfig(BaseModel):
     storage: bool
     manual_queue: bool
 
-    # validators
-    _val_bool = validator("storage", "manual_queue", pre=True, allow_reuse=True)(
-        validate_bool()
-    )
 
-
-class GeneralConfig(BaseModel):
+class GeneralConfig(pydantic.BaseModel):
     """Pydantic model:
 
     ```python
@@ -271,7 +161,7 @@ class GeneralConfig(BaseModel):
     data_dst_dirs: DataDstDirsConfig
 
 
-class VerticalProfilesConfig(BaseModel):
+class VerticalProfilesConfig(pydantic.BaseModel):
     """Pydantic model:
 
     ```python
@@ -284,7 +174,7 @@ class VerticalProfilesConfig(BaseModel):
     request_scope: VerticalProfilesRequestScopeConfig
 
 
-class AutomatedProffastConfig(BaseModel):
+class AutomatedProffastConfig(pydantic.BaseModel):
     """Pydantic model:
 
     ```python
@@ -296,9 +186,9 @@ class AutomatedProffastConfig(BaseModel):
     ```
     """
 
-    max_core_count: int
+    max_core_count: int = pydantic.Field(..., ge=1, le=64)
 
-    ifg_file_regex: str
+    ifg_file_regex: str = pydantic.Field(..., min_length=1)
     """A regex string to match the ifg file names.
     
     For example `^$(SENSOR_ID)$(DATE).*\\.\\d+$`. In this string, `$(SENSOR_ID)`
@@ -309,16 +199,8 @@ class AutomatedProffastConfig(BaseModel):
     modified_ifg_file_permissions: AutomatedProffastModifiedIfgFilePermissionsConfig
     storage_data_filter: AutomatedProffastStorageDataFilterConfig
 
-    # validators
-    _val_max_core_count = validator("max_core_count", pre=True, allow_reuse=True)(
-        validate_int(minimum=1, maximum=64),
-    )
-    _val_ifg_file_regex = validator("ifg_file_regex", pre=True, allow_reuse=True)(
-        validate_str(min_len=1),
-    )
 
-
-class OutputMergingTargetConfig(BaseModel):
+class OutputMergingTargetConfig(pydantic.BaseModel):
     """Pydantic model:
 
     ```python
@@ -351,46 +233,17 @@ class OutputMergingTargetConfig(BaseModel):
     sampling_rate: Literal[
         "10m", "5m", "2m", "1m", "30s", "15s", "10s", "5s", "2s", "1s"
     ]
-    max_interpolation_gap_seconds: int
+    max_interpolation_gap_seconds: int = pydantic.Field(..., ge=6, le=43200)
     dst_dir: str
 
     # validators
-    _val_campaign_id = validator("campaign_id", pre=True, allow_reuse=True)(
-        validate_str(),
-    )
-    _val_data_types = validator("data_types", pre=True, allow_reuse=True)(
-        _validate_list(
-            min_len=1,
-            allowed=[
-                "gnd_p",
-                "gnd_t",
-                "app_sza",
-                "azimuth",
-                "xh2o",
-                "xair",
-                "xco2",
-                "xch4",
-                "xco",
-                "xch4_s5p",
-            ],
-        )
-    )
-    _val_sampling_rate = validator("sampling_rate", pre=True, allow_reuse=True)(
-        validate_str(
-            allowed=["10m", "5m", "2m", "1m", "30s", "15s", "10s", "5s", "2s", "1s"]
-        ),
-    )
-    _val_max_interpolation_gap_seconds = validator(
-        "max_interpolation_gap_seconds", pre=True, allow_reuse=True
-    )(
-        validate_int(minimum=6, maximum=43200),
-    )
-    _val_dst_dir = validator("dst_dir", pre=True, allow_reuse=True)(
-        validate_str(is_directory=True),
+    _1 = apply_field_validator(
+        ["dst_dir"],
+        "is_directory",
     )
 
 
-class Config(BaseModel):
+class Config(pydantic.BaseModel):
     general: GeneralConfig
     vertical_profiles: VerticalProfilesConfig
     automated_proffast: AutomatedProffastConfig
