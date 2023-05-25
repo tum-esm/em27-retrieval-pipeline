@@ -1,7 +1,8 @@
 {
     "scripts": {
         "dev": "next dev",
-        "build": "next build && next export"
+        "build": "next build",
+        "serve": "serve out/"
     },
     "dependencies": {
         "@next/font": "^13.4.2",
@@ -18,6 +19,7 @@
     "devDependencies": {
         "@types/json-schema": "^7.0.11",
         "@types/node": "20.1.4",
+        "serve": "^14.2.0",
         "typescript": "5.0.4"
     }
 }

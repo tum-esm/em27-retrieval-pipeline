@@ -19,49 +19,53 @@ function renderConfigProperty(
     switch (depth) {
         case 1:
             fontSize = 'text-xl';
-            bgColor = 'bg-slate-100';
-            dividerColor = 'divide-slate-200';
+            bgColor = 'bg-slate-100 dark:bg-slate-800';
+            dividerColor = 'divide-slate-200 dark:divide-slate-700';
             break;
         case 2:
             fontSize = 'text-lg';
-            bgColor = 'bg-slate-200';
-            dividerColor = 'divide-slate-300';
+            bgColor = 'bg-slate-200 dark:bg-slate-700';
+            dividerColor = 'divide-slate-300 dark:divide-slate-600';
             break;
         case 3:
             fontSize = 'text-md';
-            bgColor = 'bg-slate-300';
-            dividerColor = 'divide-slate-400';
+            bgColor = 'bg-slate-300 dark:bg-slate-600';
+            dividerColor = 'divide-slate-400 dark:divide-slate-500';
             break;
         default:
             fontSize = 'text-sm';
-            bgColor = 'bg-slate-400';
-            dividerColor = 'divide-slate-500';
+            bgColor = 'bg-slate-400 dark:bg-slate-500';
+            dividerColor = 'divide-slate-500 dark:divide-slate-400';
             break;
     }
     return (
         <div className={`flex flex-col p-3`} key={propertyKey}>
             <div className={`font-semibold ${fontSize} leading-tight`}>
                 {/*<span className='font-mono text-slate-800/40'>{prefix}.</span>*/}
-                <span className='font-mono text-slate-800'>{propertyKey}</span>
+                <span className='font-mono text-slate-800 dark:text-slate-200'>
+                    {propertyKey}
+                </span>
                 {required && (
                     <span
-                        className='px-0.5 rounded text-rose-700'
+                        className='px-0.5 rounded text-rose-700 dark:text-rose-300'
                         title='required'
                     >
                         *
                     </span>
                 )}
-                <span className='px-0.5 rounded text-rose-700'>
+                <span className='px-0.5 rounded text-rose-700 dark:text-rose-300'>
                     ({propertyObject.type})
                 </span>
             </div>
             {propertyObject.description !== undefined && (
-                <div className={`mt-1 mb-2 text-slate-700 ${fontSize}`}>
+                <div
+                    className={`mt-1 mb-2 ${fontSize} text-slate-700 dark:text-slate-300`}
+                >
                     {propertyObject.description}
                 </div>
             )}
             <div
-                className={`flex flex-col leading-tight ${fontSize} text-slate-700`}
+                className={`flex flex-col leading-tight ${fontSize} text-slate-700 dark:text-slate-300`}
             >
                 {[
                     ['default', 'default'],

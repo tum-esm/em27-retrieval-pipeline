@@ -4,7 +4,7 @@ export default {
             <svg
                 xmlns='http://www.w3.org/2000/svg'
                 viewBox='0 0 5334 2792'
-                className='h-[var(--nextra-navbar-height)] p-[1.375rem] bg-slate-900 text-slate-50 border-r border-slate-300'
+                className='h-[var(--nextra-navbar-height)] p-[1.375rem] bg-slate-900 text-slate-50 border-r border-slate-300 dark:border-slate-700 dark:bg-transparent'
             >
                 <path
                     d='M4266.67,2791.67l-0,-2258.33l533.333,0l0,2258.33l533.333,-0l0,-2791.67l-2666.67,0l-0,2258.33l-533.334,0l0,-2258.33l-2133.33,0l0,533.333l533.333,0l0,2258.33l533.334,-0l-0,-2258.33l533.333,0l0,2258.33l1600,-0l0,-2258.33l533.333,0l0,2258.33l533.334,-0Z'
@@ -12,8 +12,11 @@ export default {
                 />
             </svg>
             <div className='flex-shrink-0 text-xl whitespace-nowrap font-regular'>
-                <span className='font-semibold'>EM27 Retrieval Pipeline</span> |
-                Professorship of Environmental Sensing and Modeling
+                <span className='font-semibold'>EM27 Retrieval Pipeline</span>
+                <span className='hidden lg:inline'>
+                    {' '}
+                    | Professorship of Environmental Sensing and Modeling
+                </span>
             </div>
         </div>
     ),
@@ -43,7 +46,6 @@ export default {
     },
     docsRepositoryBase:
         'https://github.com/tum-esm/automated-retrieval-pipeline/blob/main/docs',
-    darkMode: false,
     //primaryHue: 43,
     navigation: true,
     useNextSeoProps() {
@@ -78,10 +80,16 @@ export default {
             if (type === 'doc') {
                 if (route.split('/').length === 3) {
                     return (
-                        <strong className='nx-text-gray-700'>{title}</strong>
+                        <strong className='text-slate-800 dark:text-slate-200'>
+                            {title}
+                        </strong>
                     );
                 } else {
-                    return <>{title}</>;
+                    return (
+                        <span className='text-slate-600 dark:text-slate-400'>
+                            {title}
+                        </span>
+                    );
                 }
             }
         },
