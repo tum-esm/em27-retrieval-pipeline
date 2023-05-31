@@ -15,10 +15,10 @@ def get_metadata(
 
     metadata_lines = [
         f"CONTACT:",
-        f"    Prof. Dr.-Ing. Jia Chen <jia.chen@tum.de>",
-        f"    Professorship of Environmental Sensing and Modeling"
-        f"    Technical University of Munich",
-        f"    https://www.ee.cit.tum.de/en/esm",
+        f"    person:                Prof. Dr.-Ing. Jia Chen <jia.chen@tum.de>",
+        f"    department:            Professorship of Environmental Sensing and Modeling",
+        f"    institution:           Technical University of Munich",
+        f"    website:               https://www.ee.cit.tum.de/en/esm",
         f"",
         f"FILE GENERATION:",
         f"    retrieval software:    Proffast 2.2",
@@ -28,10 +28,10 @@ def get_metadata(
         f"    file generated at:     {pendulum.now().to_w3c_string()}",  # type: ignore
         f"",
         f"FILE CONTENT:",
-        f"    campaign id:    {campaign.campaign_id}",
-        f"    date:           {next(sdc.date for sdc in sensor_data_contexts.values())}",
-        f"    data types:     {', '.join(output_merging_target.data_types)}",
-        f"    sampling rate:  {output_merging_target.sampling_rate}",
+        f"    campaign id:           {campaign.campaign_id}",
+        f"    date:                  {next(sdc.date for sdc in sensor_data_contexts.values())}",
+        f"    data types:            {', '.join(output_merging_target.data_types)}",
+        f"    sampling rate:         {output_merging_target.sampling_rate}",
     ]
 
     metadata_lines.append("")
