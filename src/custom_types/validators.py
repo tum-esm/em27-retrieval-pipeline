@@ -40,6 +40,8 @@ def apply_field_validators(
             assert isinstance(v, str)
             if not os.path.isdir(v):
                 raise ValueError(f'"{v}" is not an existing directory path')
+            if v.endswith("/"):
+                raise ValueError(f'directory path "{v}" cannot include a trailing "/"')
 
         if is_file_path:
             assert isinstance(v, str)

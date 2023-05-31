@@ -91,7 +91,7 @@ def run() -> None:
                                 )
                             )
                             found_data_count += 1
-                        except AssertionError:
+                        except (AssertionError, ValueError):
                             dfs.append(
                                 procedures.merged_outputs.get_empty_sensor_dataframe(
                                     campaign_station.sensor_id,
