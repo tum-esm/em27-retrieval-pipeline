@@ -15,11 +15,9 @@ class QueueItem(BaseModel):
 
 
 class RetrievalQueue:
-    """
-    1. Takes all items from manual-queue.json with a priority > 0
+    """1. Takes all items from manual-queue.json with a priority > 0
     2. Takes all dates from the config.data_src_dirs.interferograms
-    3. Takes all items from manual-queue.json with a priority < 0
-    """
+    3. Takes all items from manual-queue.json with a priority < 0"""
 
     def __init__(
         self,
@@ -54,8 +52,14 @@ class RetrievalQueue:
         self.iteration_count = 0
         self.verbose_reasoning = verbose_reasoning
 
-        self.logger.debug("Precomputing storage queue items")
-        self.storage_queue_items: list[QueueItem] = self._get_storage_queue_items()
+        self.storage_queue_items: list[QueueItem] = []
+        if self.config.automated_proffast.data_sources.storage:
+            self.logger.debug("Precomputing storage queue items")
+            self.storage_queue_items = self._get_storage_queue_items()
+        else:
+            self.logger.debug(
+                "Skipping precomputation of storage queue (storage not considered)"
+            )
 
         self.logger.info("RetrievalQueue is set up")
 
