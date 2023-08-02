@@ -3,6 +3,7 @@ hidden/
 *.out
 config.json
 manual-queue.json
+.vscode
 
 data/**/*.map
 data/**/*.mod

@@ -16,12 +16,12 @@ from src import procedures, utils
 def run() -> None:
     config = utils.load_config()
     em27_metadata = tum_esm_em27_metadata.load_from_github(
-        **config.general.location_data.dict()
+        **config.general.location_data.model_dump()
     )
 
     for i, output_merging_target in enumerate(config.output_merging_targets):
         print(f"\nprocessing output merging target #{i+1}")
-        print(json.dumps(output_merging_target.dict(), indent=4))
+        print(json.dumps(output_merging_target.model_dump(), indent=4))
         assert (
             output_merging_target.campaign_id in em27_metadata.campaign_ids
         ), f"unknown campaign_id {output_merging_target.campaign_id}"

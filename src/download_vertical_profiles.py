@@ -30,7 +30,6 @@ def run() -> None:
     ) as ftp:
         # Request GGG2014 and/or GGG2020 data
         for version in config.vertical_profiles.request_scope.data_types:
-
             # Retain daily_sensor_sets for export
             sensor_sets = copy.deepcopy(daily_sensor_sets)
 
@@ -46,7 +45,6 @@ def run() -> None:
             print(f"Running {len(query_list)} queries for {version}")
 
             with utils.vertical_profiles.Reporter(query_list, version) as reporter:
-
                 with Progress() as progress:
                     for query in progress.track(
                         list(sorted(query_list, key=lambda q: q.to_date, reverse=True)),
