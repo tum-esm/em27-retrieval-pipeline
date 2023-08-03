@@ -1,7 +1,6 @@
-from .query import (
-    get_query_list,
-    get_date_suffixes,
+from .transfer_logic import (
     upload_request,
+    get_date_suffixes,
     download_data,
 )
 
