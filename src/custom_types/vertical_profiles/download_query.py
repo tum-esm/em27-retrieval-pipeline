@@ -11,8 +11,7 @@ class DownloadQuery(pydantic.BaseModel):
     lon: int
     start_date: pendulum.Date
     end_date: pendulum.Date
-    ```
-    """
+    ```"""
 
     model_config = pydantic.ConfigDict(frozen=True, arbitrary_types_allowed=True)
 
@@ -97,3 +96,27 @@ class DownloadQuery(pydantic.BaseModel):
                 end_date=self.end_date,
             ).split_large_queries(max_days_per_query),
         ]
+
+    @staticmethod
+    def compress_query_list(queries: list[DownloadQuery]) -> list[DownloadQuery]:
+        """Compress a list of queries by merging queries that are
+        asjacent or overlapping into long queries."""
+
+        if len(queries) < 2:
+            return queries
+
+        queries = list(sorted(queries, key=lambda d: d.start_date))
+
+        while True:
+            overlapping_queries = list(
+                filter(
+                    lambda d: d.start_date <= queries[0].end_date.add(days=1),
+                    queries[1:],
+                )
+            )
+            if len(overlapping_queries) > 0:
+                queries[0].end_date = max([q.end_date for q in overlapping_queries])
+                queries = [queries[0], *queries[len(overlapping_queries) + 1 :]]
+                continue
+
+            return [queries[0], *DownloadQuery.compress_query_list(queries[1:])]
