@@ -5,7 +5,7 @@ import tum_esm_em27_metadata
 from src import custom_types
 
 
-def get_download_queries(
+def generate_download_queries(
     config: custom_types.Config,
     version: Literal["GGG2014", "GGG2020"],
     em27_metadata: Optional[
