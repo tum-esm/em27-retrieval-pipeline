@@ -1,4 +1,6 @@
-from typing import Literal, Optional
+from typing import Any, Literal, Optional
+
+import pendulum
 from .validators import apply_field_validators
 import pydantic
 
@@ -74,25 +76,29 @@ class VerticalProfilesFTPServerConfig(pydantic.BaseModel):
 
 
 class VerticalProfilesRequestScopeConfig(pydantic.BaseModel):
-    from_date: str = pydantic.Field(
-        "19000101",
-        description="date string in format `YYYYMMDD` from which to request vertical profile data",
+    from_date: pendulum.Date = pydantic.Field(
+        pendulum.Date(1900, 1, 1),
+        description="date in format `YYYY-MM-DD` from which to request vertical profile data",
     )
-    to_date: str = pydantic.Field(
-        "21000101",
-        description="date string in format `YYYYMMDD` until which to request vertical profile data",
+    to_date: pendulum.Date = pydantic.Field(
+        pendulum.Date(2100, 1, 1),
+        description="date in format `YYYY-MM-DD` until which to request vertical profile data",
     )
     data_types: list[Literal["GGG2014", "GGG2020"]] = pydantic.Field(
         ["GGG2014", "GGG2020"],
-        min_items=1,
+        min_length=1,
         description="list of data types to request from the ccycle ftp server",
     )
 
-    # validators
-    _1 = apply_field_validators(
-        ["from_date", "to_date"],
-        is_date_string=True,
-    )
+    @pydantic.field_validator("from_date", "to_date", mode="before")
+    def _1(cls: Any, v_in: str | pendulum.Date) -> pendulum.Date:
+        if isinstance(v_in, pendulum.Date):
+            return v_in
+        else:
+            assert isinstance(v_in, str)
+            v_out = pendulum.parse(v_in)
+            assert isinstance(v_out, pendulum.Date)
+            return v_out
 
 
 class AutomatedProffastGeneralConfig(pydantic.BaseModel):

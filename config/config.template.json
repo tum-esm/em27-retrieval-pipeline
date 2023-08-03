@@ -23,8 +23,8 @@
             "download_timeout": 600
         },
         "request_scope": {
-            "from_date": "20220101",
-            "to_date": "20220105",
+            "from_date": "2022-01-01",
+            "to_date": "2022-01-05",
             "data_types": ["GGG2014", "GGG2020"]
         }
     },
