@@ -102,9 +102,7 @@ def get_download_queries(
     download_queries: list[custom_types.DownloadQuery] = []
     for lat in requested_dates.keys():
         for lon in requested_dates[lat].keys():
-            download_queries += custom_types.DownloadQuery.compress_query_list(
-                requested_dates[lat][lon]
-            )
+            download_queries += _compress_query_list(requested_dates[lat][lon])
 
     # removes the days from queries where the data is already present locally
     fresh_download_queries: list[custom_types.DownloadQuery] = []
@@ -120,11 +118,107 @@ def get_download_queries(
                 present_dates.append(date)
             except (AssertionError, ValueError):
                 pass
-        fresh_download_queries += dq.remove_present_dates(present_dates)
+        fresh_download_queries += _remove_present_dates(dq, present_dates)
 
     # make queries not be longer than 28 days
     chunked_download_queries: list[custom_types.DownloadQuery] = []
     for dq in fresh_download_queries:
-        chunked_download_queries += dq.split_large_queries(max_days_per_query=28)
+        chunked_download_queries += _split_large_queries(dq, max_days_per_query=28)
 
     return chunked_download_queries
+
+
+def _remove_present_dates(
+    dq: custom_types.DownloadQuery, present_dates: list[pendulum.Date]
+) -> list[custom_types.DownloadQuery]:
+    """Remove dates from the query that are already present locally"""
+
+    present_dates = list[
+        sorted(filter(lambda d: dq.start_date <= d <= dq.end_date, present_dates))
+    ]
+    while True:
+        if len(present_dates) == 0:
+            return [dq]
+
+        if present_dates[0] == dq.start_date:
+            dq.start_date = dq.start_date.add(days=1)
+            present_dates.pop(0)
+            continue
+        if present_dates[-1] == dq.end_date:
+            dq.end_date = dq.end_date.subtract(days=1)
+            present_dates.pop(-1)
+            continue
+
+        first_date = present_dates.pop(0)
+
+        return [
+            custom_types.DownloadQuery(
+                lat=dq.lat,
+                lon=dq.lon,
+                start_date=dq.start_date,
+                end_date=first_date.subtract(days=1),
+            ),
+            *custom_types.DownloadQuery(
+                lat=dq.lat,
+                lon=dq.lon,
+                start_date=first_date.add(days=1),
+                end_date=dq.end_date,
+            ).remove_present_dates(present_dates),
+        ]
+
+
+def _split_large_queries(
+    dq: custom_types.DownloadQuery, max_days_per_query: int = 28
+) -> list[custom_types.DownloadQuery]:
+    """If the queries are longer than the specified number of days,
+    split them into multiple queries."""
+
+    d = dq.end_date - dq.start_date
+    assert isinstance(d, pendulum.Period)
+
+    if d.days <= max_days_per_query:
+        return [dq]
+
+    return [
+        custom_types.DownloadQuery(
+            lat=dq.lat,
+            lon=dq.lon,
+            start_date=dq.start_date,
+            end_date=dq.start_date.add(days=max_days_per_query - 1),
+        ),
+        *custom_types.DownloadQuery(
+            lat=dq.lat,
+            lon=dq.lon,
+            start_date=dq.start_date.add(days=max_days_per_query),
+            end_date=dq.end_date,
+        ).split_large_queries(max_days_per_query),
+    ]
+
+
+def _compress_query_list(
+    queries: list[custom_types.DownloadQuery],
+) -> list[custom_types.DownloadQuery]:
+    """Compress a list of queries by merging queries that are
+    asjacent or overlapping into long queries."""
+
+    if len(queries) < 2:
+        return queries
+
+    queries = list(sorted(queries, key=lambda d: d.start_date))
+
+    while True:
+        overlapping_queries = list(
+            filter(
+                lambda d: d.start_date <= queries[0].end_date.add(days=1),
+                queries[1:],
+            )
+        )
+        if len(overlapping_queries) > 0:
+            queries[0].end_date = max([q.end_date for q in overlapping_queries])
+            queries = [queries[0], *queries[len(overlapping_queries) + 1 :]]
+            continue
+
+        return [
+            queries[0],
+            *custom_types.DownloadQuery.compress_query_list(queries[1:]),
+        ]
