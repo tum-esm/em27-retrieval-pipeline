@@ -1,6 +1,5 @@
 import sys
 import tum_esm_utils
-import copy
 from ftplib import FTP
 from rich.progress import Progress
 
@@ -13,42 +12,36 @@ from src import procedures, utils
 def run() -> None:
     config = utils.load_config()
 
-    # Generate daily sensor sets
-    daily_sensor_sets = procedures.vertical_profiles.get_daily_sensor_sets(config)
-    if len(daily_sensor_sets.keys()) == 0:
-        print("No data to request.")
-        return
+    for version in config.vertical_profiles.request_scope.data_types:
+        print(f"Downloading {version} data")
 
-    print("Export existing data")
-    procedures.vertical_profiles.export_data(config, daily_sensor_sets, "GGG2014")
+        # Generate daily sensor sets
+        download_queries = procedures.vertical_profiles.generate_download_queries(
+            config, version
+        )
+        if len(download_queries) == 0:
+            print("No data to request.")
+            continue
 
-    with FTP(
-        host="ccycle.gps.caltech.edu",
-        passwd=config.vertical_profiles.ftp_server.email,
-        user="anonymous",
-        timeout=60,
-    ) as ftp:
-        # Request GGG2014 and/or GGG2020 data
-        for version in config.vertical_profiles.request_scope.data_types:
-            # Retain daily_sensor_sets for export
-            sensor_sets = copy.deepcopy(daily_sensor_sets)
+        with FTP(
+            host="ccycle.gps.caltech.edu",
+            passwd=config.vertical_profiles.ftp_server.email,
+            user="anonymous",
+            timeout=60,
+        ) as ftp:
+            print(f"Running {len(download_queries)} queries")
 
-            # Filter out existing data
-            sensor_sets = procedures.vertical_profiles.filter_daily_sensor_sets(
-                sensor_sets, version
-            )
-            if not sensor_sets:
-                continue
-
-            # Combine sensor sets to query intervals
-            query_list = procedures.vertical_profiles.get_query_list(sensor_sets)
-            print(f"Running {len(query_list)} queries for {version}")
-
-            with utils.vertical_profiles.Reporter(query_list, version) as reporter:
+            with utils.vertical_profiles.Reporter(
+                download_queries, version
+            ) as reporter:
                 with Progress() as progress:
                     for query in progress.track(
-                        list(sorted(query_list, key=lambda q: q.to_date, reverse=True)),
-                        description=f"Downloading {version}...",
+                        list(
+                            sorted(
+                                download_queries, key=lambda q: q.to_date, reverse=True
+                            )
+                        ),
+                        description=f"Downloading ...",
                     ):
                         progress.print(
                             f"Downloading data for {query.location.lat}°N, {query.location.lon}°E,"
@@ -95,12 +88,7 @@ def run() -> None:
                         if not down_status:
                             return
 
-                        progress.print(f"Exporting")
-
-                        # Export data to dst_dir
-                        procedures.vertical_profiles.export_data(
-                            config, daily_sensor_sets, version
-                        )
+                        progress.print(f"Done")
 
 
 if __name__ == "__main__":

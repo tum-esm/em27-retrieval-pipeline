@@ -51,7 +51,6 @@ class Reporter:
         self._query_list.remove(query)
 
     def __exit__(self, exc_type: Any, *_: Any) -> None:
-
         success = False if exc_type or self._query_list else True
         exec_start_str = self._exec_start.strftime("%Y%m%d%H%M")
         execution_time = str(datetime.utcnow() - self._exec_start)
@@ -66,7 +65,7 @@ class Reporter:
                     "execution_time": execution_time,
                     "successful_queries": self._successful_queries,
                     "failed_queries": [
-                        query.to_slugged_json() for query in self._query_list
+                        query.model_dump() for query in self._query_list
                     ],
                 },
                 report,
