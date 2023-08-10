@@ -113,19 +113,6 @@ class AutomatedProffastGeneralConfig(pydantic.BaseModel):
     )
 
 
-class AutomatedProffastDataSourcesConfig(pydantic.BaseModel):
-    """Which data sources to use (storage/manual queue)"""
-
-    storage: bool = pydantic.Field(
-        True,
-        description="Whether to use the storage data. Run every sensor-day, where there is input data (`config.data_src_dirs.interferograms`) but no output data (`config.data_dst_dirs.results`).",
-    )
-    manual_queue: bool = pydantic.Field(
-        True,
-        description="Whether to use the manual queue. Compute a sensor-day if data is available at `config.data_src_dirs.interferograms`, independently of results-existence. Will overwrite existing results.",
-    )
-
-
 class AutomatedProffastModifiedIfgFilePermissionsConfig(pydantic.BaseModel):
     during_processing: Optional[str] = pydantic.Field(
         None,
@@ -187,9 +174,8 @@ class AutomatedProffastConfig(pydantic.BaseModel):
     """Settings for automated proffast processing. If `null`, the automated proffast script will stop and log a warning"""
 
     general: AutomatedProffastGeneralConfig
-    data_sources: AutomatedProffastDataSourcesConfig
     modified_ifg_file_permissions: AutomatedProffastModifiedIfgFilePermissionsConfig
-    storage_data_filter: AutomatedProffastStorageDataFilterConfig
+    data_filter: AutomatedProffastStorageDataFilterConfig
 
 
 class OutputMergingTargetConfig(pydantic.BaseModel):

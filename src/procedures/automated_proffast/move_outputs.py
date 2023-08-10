@@ -35,6 +35,8 @@ def run(
     logger: utils.automated_proffast.Logger,
     pylot_session: custom_types.PylotSession,
 ) -> None:
+    assert config.automated_proffast is not None
+
     output_src_dir = (
         f"{pylot_session.data_output_path}/{pylot_session.sensor_id}_"
         + f"SN{str(pylot_session.serial_number).zfill(3)}_{pylot_session.date[2:]}-{pylot_session.date[2:]}"

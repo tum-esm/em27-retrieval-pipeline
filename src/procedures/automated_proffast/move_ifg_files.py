@@ -16,6 +16,8 @@ def run(
 
     Examples: `ma20201123.ifg.0001`, `ma20220316s0e00a.0001`"""
 
+    assert config.automated_proffast is not None
+
     # FIND ALL FILENAMES OF INTERFEROGRAMS
 
     ifg_src_directory = os.path.join(

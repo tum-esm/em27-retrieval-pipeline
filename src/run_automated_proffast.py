@@ -30,6 +30,10 @@ def run() -> None:
         main_logger.exception(e, "Config file invalid")
         return
 
+    if config.automated_proffast is None:
+        main_logger.error("Proffast not configured in config file")
+        return
+
     # set up pylot dispatcher and session scheduler
     pylot_factory = interfaces.automated_proffast.PylotFactory(main_logger)
     retrieval_queue = interfaces.automated_proffast.RetrievalQueue(config, main_logger)
