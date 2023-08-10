@@ -146,13 +146,13 @@ class AutomatedProffastStorageDataFilterConfig(pydantic.BaseModel):
     sensor_ids_to_consider: list[str] = pydantic.Field(
         ..., min_items=1, description="Sensor ids to consider in the retrieval"
     )
-    from_date: str = pydantic.Field(
-        "19000101",
-        description="Date string in format `YYYYMMDD` from which to consider data in the storage directory",
+    from_date: datetime.date = pydantic.Field(
+        datetime.date(1900, 1, 1),
+        description="Date string in format `YYYY-MM-DD` from which to consider data in the storage directory",
     )
-    to_date: str = pydantic.Field(
-        "21000101",
-        description="Date string in format `YYYYMMDD` until which to consider data in the storage directory",
+    to_date: datetime.date = pydantic.Field(
+        datetime.date(2100, 1, 1),
+        description="Date string in format `YYYY-MM-DD` until which to consider data in the storage directory",
     )
     min_days_delay: int = pydantic.Field(
         5,
@@ -161,11 +161,13 @@ class AutomatedProffastStorageDataFilterConfig(pydantic.BaseModel):
         description="Minimum numbers of days to wait until processing. E.g. the vertical profiles from ccyle are available with a delay of 5 days, so it doesn't make sence to try processing earlier and get a lot of error messages because of missing vertical profiles.",
     )
 
-    # validators
-    _1 = apply_field_validators(
-        ["from_date", "to_date"],
-        is_date_string=True,
-    )
+    @pydantic.field_validator("from_date", "to_date", mode="before")
+    def _1(cls: Any, v_in: str | datetime.date) -> datetime.date:
+        if isinstance(v_in, datetime.date):
+            return v_in
+        else:
+            assert isinstance(v_in, str)
+            return datetime.datetime.strptime(v_in, "%Y-%m-%d").date()
 
 
 class GeneralConfig(pydantic.BaseModel):
