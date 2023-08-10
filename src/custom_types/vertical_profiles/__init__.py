@@ -1,1 +1,1 @@
-from .download_query import DownloadQuery, DownloadQueryLocation
+from .download_query import DownloadQuery

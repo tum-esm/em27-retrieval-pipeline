@@ -1,6 +1,5 @@
+import datetime
 from typing import Any, Literal, Optional
-
-import pendulum
 from .validators import apply_field_validators
 import pydantic
 
@@ -76,12 +75,12 @@ class VerticalProfilesFTPServerConfig(pydantic.BaseModel):
 
 
 class VerticalProfilesRequestScopeConfig(pydantic.BaseModel):
-    from_date: pendulum.Date = pydantic.Field(
-        pendulum.Date(1900, 1, 1),
+    from_date: datetime.date = pydantic.Field(
+        datetime.date(1900, 1, 1),
         description="date in format `YYYY-MM-DD` from which to request vertical profile data",
     )
-    to_date: pendulum.Date = pydantic.Field(
-        pendulum.Date(2100, 1, 1),
+    to_date: datetime.date = pydantic.Field(
+        datetime.date(2100, 1, 1),
         description="date in format `YYYY-MM-DD` until which to request vertical profile data",
     )
     data_types: list[Literal["GGG2014", "GGG2020"]] = pydantic.Field(
@@ -91,14 +90,12 @@ class VerticalProfilesRequestScopeConfig(pydantic.BaseModel):
     )
 
     @pydantic.field_validator("from_date", "to_date", mode="before")
-    def _1(cls: Any, v_in: str | pendulum.Date) -> pendulum.Date:
-        if isinstance(v_in, pendulum.Date):
+    def _1(cls: Any, v_in: str | datetime.date) -> datetime.date:
+        if isinstance(v_in, datetime.date):
             return v_in
         else:
             assert isinstance(v_in, str)
-            v_out = pendulum.parse(v_in)
-            assert isinstance(v_out, pendulum.Date)
-            return v_out
+            return datetime.datetime.strptime(v_in, "%Y-%m-%d").date()
 
 
 class AutomatedProffastGeneralConfig(pydantic.BaseModel):
@@ -253,7 +250,7 @@ class OutputMergingTargetConfig(pydantic.BaseModel):
 class Config(pydantic.BaseModel):
     general: GeneralConfig
     vertical_profiles: Optional[VerticalProfilesConfig] = None
-    automated_proffast: AutomatedProffastConfig = None
+    automated_proffast: Optional[AutomatedProffastConfig] = None
     output_merging_targets: list[OutputMergingTargetConfig] = pydantic.Field(
         [],
         description='List of output merging targets. Relies on specifying "campaigns" in the EM27 metadata.',

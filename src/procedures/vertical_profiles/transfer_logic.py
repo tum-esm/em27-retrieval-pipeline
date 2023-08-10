@@ -3,7 +3,7 @@ import time
 import tarfile
 from io import BytesIO
 from ftplib import FTP, error_perm
-from datetime import datetime, timedelta
+import datetime
 from src import custom_types
 
 
@@ -19,15 +19,17 @@ def upload_request(
     Sleeps config.upload_sleep seconds in between each attempt.
     Returns whether successful and time.time() - upload_start.
     """
+
+    assert config.vertical_profiles is not None, "this is a bug in the code"
+
+    to_date: str
     if version == "GGG2020":
         # Exclusive to date
-        to_date = custom_types.dt_to_str(
-            custom_types.str_to_dt(query.to_date) + timedelta(1)
-        )
+        to_date = (query.to_date + datetime.timedelta(days=1)).strftime("%Y%m%d")
         filename = "input_file_2020.txt"
     else:
         # Inclusive to date
-        to_date = query.to_date
+        to_date = query.to_date_string()
         filename = "input_file.txt"
 
     # Build request in-memory
@@ -35,10 +37,10 @@ def upload_request(
         "\n".join(
             (
                 "tu",
-                query.from_date,
+                query.from_date_string(),
                 to_date,
-                str(query.location.lat),
-                str(query.location.lon),
+                str(query.lat),
+                str(query.lon),
                 config.vertical_profiles.ftp_server.email,
             )
         ).encode("utf-8")
@@ -68,32 +70,37 @@ def get_date_suffixes(
     config: custom_types.Config,
     query: custom_types.DownloadQuery,
     version: Literal["GGG2014", "GGG2020"],
-    utcnow: datetime = datetime.utcnow(),
+    utcnow: datetime.datetime = datetime.datetime.utcnow(),
 ) -> list[str]:
     """
     Generates date range suffixes up to config.max_day_delay days before utcnow().
     """
+
+    assert config.vertical_profiles is not None, "this is a bug in the code"
+
     sep = "_"
-    from_date = custom_types.str_to_dt(query.from_date)
-    to_date = custom_types.str_to_dt(query.to_date)
     max_delay = max(
-        from_date,
-        (utcnow - timedelta(days=config.vertical_profiles.ftp_server.max_day_delay)),
+        query.from_date,
+        (
+            utcnow
+            - datetime.timedelta(days=config.vertical_profiles.ftp_server.max_day_delay)
+        ).date(),
     )
 
     if version == "GGG2020":
         # Exclusive to date
-        to_date += timedelta(1)
-        max_delay += timedelta(1)
+        query.to_date += datetime.timedelta(1)
+        max_delay += datetime.timedelta(1)
         sep = "-"
 
     # Default query
-    date_strs = [f"{query.from_date}{sep}{custom_types.dt_to_str(to_date)}"]
+    date_strs = [f"{query.from_date_string()}{sep}{query.to_date_string()}"]
 
     # Query archives up to config.max_delay days before utcnow()
+    to_date = query.to_date
     while to_date > max_delay:
-        to_date -= timedelta(1)
-        date_strs.append(f"{query.from_date}{sep}{custom_types.dt_to_str(to_date)}")
+        to_date -= datetime.timedelta(1)
+        date_strs.append(f"{query.from_date_string()}{sep}{to_date.strftime('%Y%m%d')}")
     return date_strs
 
 
@@ -115,17 +122,17 @@ def download_data(
     to date (as the server might truncate too recent requests).
     """
 
+    assert config.vertical_profiles is not None, "this is a bug in the code"
+
     response: set[str] = set()
     date_suffixes = get_date_suffixes(config, query, version)
 
     if version == "GGG2020":
         remote_dirs = {"ginput-jobs"}
-        suffixes = [
-            f"{query.location.slug(verbose=True)}_{d}.tgz" for d in date_suffixes
-        ]
+        suffixes = [f"{query.slug(verbose=True)}_{d}.tgz" for d in date_suffixes]
     else:
         remote_dirs = {"upload/modfiles/tar/maps", "upload/modfiles/tar/mods"}
-        suffixes = [f"{query.location.slug()}_{d}.tar" for d in date_suffixes]
+        suffixes = [f"{query.slug()}_{d}.tar" for d in date_suffixes]
 
     to_date = None
     download_start = time.time()
@@ -192,13 +199,13 @@ def _extract_archive(
                     date, hour, type_ = name[35:43], name[43:45], "mod"
                 elif name.endswith(".vmr"):
                     date, hour, type_ = name[39:47], name[47:49], "vmr"
-                member.name = f"{date}{hour}_{query.location.slug()}.{type_}"
+                member.name = f"{date}{hour}_{query.slug()}.{type_}"
 
             else:
                 if name.endswith(".map"):
                     date, type_ = name[2:10], "map"
                 elif name.endswith(".mod"):
                     date, type_ = name[5:13], "mod"
-                member.name = f"{date}_{query.location.slug()}.{type_}"
+                member.name = f"{date}_{query.slug()}.{type_}"
 
             tar.extract(member, f"{dst_path}/{date}_{query.slug()}")
