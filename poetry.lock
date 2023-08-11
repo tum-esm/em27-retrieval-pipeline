@@ -1611,13 +1611,13 @@ telegram = ["requests"]
 
 [[package]]
 name = "tum-esm-em27-metadata"
-version = "2.0.0rc7"
+version = "2.0.0rc8"
 description = "Single source of truth for ESM's EM27 measurement logistics"
 optional = false
 python-versions = ">=3.9,<4.0"
 files = [
-    {file = "tum_esm_em27_metadata-2.0.0rc7-py3-none-any.whl", hash = "sha256:3d7897dc24d669fbe7a2105cd1cb92c1de0137f263dfa48edaeb78b4d7a4d9c3"},
-    {file = "tum_esm_em27_metadata-2.0.0rc7.tar.gz", hash = "sha256:5e226ff25f809bf93d7ce2185a2691ec9139042a62a527e0500b2b6d98053e1f"},
+    {file = "tum_esm_em27_metadata-2.0.0rc8-py3-none-any.whl", hash = "sha256:307c891ab99e099f21f14aa51021c4f60ff86079e137ce5da3015625d9d3f993"},
+    {file = "tum_esm_em27_metadata-2.0.0rc8.tar.gz", hash = "sha256:9780c16d50cbe954e86ed10003a4f2127dd6acf2fee6c3ae4133005afd701905"},
 ]
 
 [package.dependencies]
@@ -1709,4 +1709,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "3.11.*"
-content-hash = "4a5e6a06b7edd4fb60138dc5f611811862f43df4dfd283eb3c714e99f87c3af1"
+content-hash = "c6c875e59933a1631d8eb52c9ee854f1d91a457c38fdfc212913be70616a6252"
