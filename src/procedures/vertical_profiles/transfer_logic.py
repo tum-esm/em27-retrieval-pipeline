@@ -4,7 +4,7 @@ import tarfile
 from io import BytesIO
 from ftplib import FTP, error_perm
 import datetime
-from src import custom_types
+from src import custom_types, utils
 
 
 def upload_request(
@@ -13,12 +13,10 @@ def upload_request(
     ftp: FTP,
     version: Literal["GGG2014", "GGG2020"],
 ) -> tuple[bool, float]:
-    """
-    Requests Ginput data by uploading a '.txt' to 'ccycle.gps.caltech.edu'.
+    """Requests Ginput data by uploading a '.txt' to 'ccycle.gps.caltech.edu'.
     Attempts until upload successful or config.upload_timeout is exceeded.
-    Sleeps config.upload_sleep seconds in between each attempt.
-    Returns whether successful and time.time() - upload_start.
-    """
+    Sleeps config.upload_sleep seconds in between each attempt. Returns
+    whether successful and time.time() - upload_start."""
 
     assert config.vertical_profiles is not None, "this is a bug in the code"
 
@@ -72,9 +70,8 @@ def get_date_suffixes(
     version: Literal["GGG2014", "GGG2020"],
     utcnow: datetime.datetime = datetime.datetime.utcnow(),
 ) -> list[str]:
-    """
-    Generates date range suffixes up to config.max_day_delay days before utcnow().
-    """
+    """Generates date range suffixes up to config.max_day_delay
+    days before utcnow()."""
 
     assert config.vertical_profiles is not None, "this is a bug in the code"
 
@@ -111,8 +108,7 @@ def download_data(
     version: Literal["GGG2014", "GGG2020"],
     wait: bool = False,
 ) -> tuple[bool, float, Optional[str]]:
-    """
-    Downloads .map, .mod and .vmr data and stores it in .cache/{version}.
+    """Downloads .map, .mod and .vmr data.
 
     Searches exclusively for archive suffixes on the FTP server, given that
     job identifiers are unknown and sensor prefixes are irrelevant. Set 'wait'
@@ -129,10 +125,12 @@ def download_data(
 
     if version == "GGG2020":
         remote_dirs = {"ginput-jobs"}
-        suffixes = [f"{query.slug(verbose=True)}_{d}.tgz" for d in date_suffixes]
+        suffixes = [
+            f"{query.to_coordinates_slug(verbose=True)}_{d}.tgz" for d in date_suffixes
+        ]
     else:
         remote_dirs = {"upload/modfiles/tar/maps", "upload/modfiles/tar/mods"}
-        suffixes = [f"{query.slug()}_{d}.tar" for d in date_suffixes]
+        suffixes = [f"{query.to_coordinates_slug()}_{d}.tar" for d in date_suffixes]
 
     to_date = None
     download_start = time.time()
@@ -181,7 +179,7 @@ def _extract_archive(
     query: custom_types.DownloadQuery,
     version: Literal["GGG2014", "GGG2020"],
 ) -> None:
-    """Extracts, renames and stores archive members in .cache/{version}."""
+    """Extracts, renames and stores archive members."""
 
     dst_path = f"{config.general.data_src_dirs.vertical_profiles}/{version}"
     with tarfile.open(fileobj=archive) as tar:
@@ -192,6 +190,8 @@ def _extract_archive(
                 # Skip (sub-)directories
                 continue
 
+            coordinates_slug = query.to_coordinates_slug()
+
             if version == "GGG2020":
                 if name.endswith(".map"):
                     date, hour, type_ = name[47:55], name[55:57], "map"
@@ -199,13 +199,17 @@ def _extract_archive(
                     date, hour, type_ = name[35:43], name[43:45], "mod"
                 elif name.endswith(".vmr"):
                     date, hour, type_ = name[39:47], name[47:49], "vmr"
-                member.name = f"{date}{hour}_{query.slug()}.{type_}"
+                member.name = f"{date}{hour}_{coordinates_slug}.{type_}"
+                # 2022010100_48N011E.map
+                # 2022010103_48N011E.map
+                # 20220101??_48N011E.map
 
             else:
                 if name.endswith(".map"):
                     date, type_ = name[2:10], "map"
                 elif name.endswith(".mod"):
                     date, type_ = name[5:13], "mod"
-                member.name = f"{date}_{query.slug()}.{type_}"
+                member.name = f"{date}_{coordinates_slug}.{type_}"
+                # 20220101_48N011E.map
 
-            tar.extract(member, f"{dst_path}/{date}_{query.slug()}")
+            tar.extract(member, f"{dst_path}/{date}_{coordinates_slug}")

@@ -111,7 +111,7 @@ def generate_download_queries(
         present_dates: list[datetime.date] = []
         for f in present_files:
             try:
-                assert f.endswith(dq.slug())
+                assert f.endswith(dq.to_coordinates_slug())
                 assert os.path.isdir(os.path.join(dst_path, f))
                 date = datetime.datetime.strptime(f, "%Y-%m-%d").date()
                 present_dates.append(date)

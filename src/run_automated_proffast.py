@@ -11,7 +11,7 @@ import tum_esm_utils
 _PROJECT_DIR = tum_esm_utils.files.get_parent_dir_path(__file__, current_depth=2)
 sys.path.append(_PROJECT_DIR)
 
-from src import utils, interfaces, procedures
+from src import custom_types, utils, interfaces, procedures
 
 LOCK_FILE = f"{_PROJECT_DIR}/src/main.lock"
 lock = filelock.FileLock(LOCK_FILE, timeout=0)
@@ -24,7 +24,7 @@ def run() -> None:
 
     # load config
     try:
-        config = utils.load_config()
+        config = custom_types.Config.load()
         main_logger.info("Config is valid")
     except Exception as e:
         main_logger.exception(e, "Config file invalid")
@@ -64,8 +64,9 @@ def run() -> None:
                     target=procedures.automated_proffast.process_session.run,
                     args=(config, new_session),
                     name=(
-                        f"pylot-session-{new_session.sensor_id}-"
-                        + f"{new_session.date}-{new_session.container_id}"
+                        f"pylot-session-{new_session.ctx.sensor_id}-"
+                        + f"{new_session.ctx.from_datetime.strftime('%Y-%m-%dT%H:%M:%S')}-"
+                        + f"{new_session.ctn.container_id}"
                     ),
                     daemon=True,
                 )

@@ -121,7 +121,7 @@ class RetrievalQueue:
                     continue
 
                 try:
-                    sensor_data_contexts = self._filter_existing_output_sdcs(
+                    sensor_data_contexts = self._filter_ctxs_by_existing_outputs(
                         sensor_id, sensor_data_contexts
                     )
                 except RuntimeError as e:
@@ -170,7 +170,7 @@ class RetrievalQueue:
             > 0
         )
 
-    def _filter_existing_output_sdcs(
+    def _filter_ctxs_by_existing_outputs(
         self,
         sensor_id: str,
         sensor_data_contexts: list[tum_esm_em27_metadata.types.SensorDataContext],

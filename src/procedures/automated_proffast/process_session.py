@@ -11,12 +11,17 @@ from . import (
 
 def run(config: custom_types.Config, pylot_session: custom_types.PylotSession) -> None:
     signal.signal(signal.SIGINT, signal.SIG_IGN)
-    logger = utils.automated_proffast.Logger(container_id=pylot_session.container_id)
-    logger.info(f"Starting session {pylot_session.sensor_id}/{pylot_session.date}")
+    logger = utils.automated_proffast.Logger(
+        container_id=pylot_session.ctn.container_id
+    )
+    logger.info(
+        f"Starting session {pylot_session.ctx.sensor_id}/"
+        + f"{pylot_session.ctx.from_datetime}-{pylot_session.ctx.to_datetime}"
+    )
 
     def log_input_warning(message: str) -> None:
         interfaces.automated_proffast.InputWarningsInterface.add(
-            pylot_session.sensor_id, pylot_session.date, message
+            pylot_session.ctx.sensor_id, pylot_session.ctx.from_datetime, message
         )
         logger.warning(message)
         logger.archive()
@@ -41,7 +46,8 @@ def run(config: custom_types.Config, pylot_session: custom_types.PylotSession) -
 
     # inputs complete no warning to consider anymore
     interfaces.automated_proffast.InputWarningsInterface.remove(
-        pylot_session.sensor_id, pylot_session.date
+        pylot_session.ctx.sensor_id,
+        pylot_session.ctx.from_datetime,
     )
 
     logger.info(f"Running the pylot")

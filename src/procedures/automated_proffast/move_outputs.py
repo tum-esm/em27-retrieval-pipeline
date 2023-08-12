@@ -4,7 +4,7 @@ import os
 import re
 import shutil
 from typing import Optional
-from src import interfaces, utils, custom_types
+from src import utils, custom_types
 import tum_esm_utils
 
 
@@ -37,14 +37,16 @@ def run(
 ) -> None:
     assert config.automated_proffast is not None
 
+    date_string = pylot_session.ctx.from_datetime.strftime("%Y%m%d")
+
     output_src_dir = (
-        f"{pylot_session.data_output_path}/{pylot_session.sensor_id}_"
-        + f"SN{str(pylot_session.serial_number).zfill(3)}_{pylot_session.date[2:]}-{pylot_session.date[2:]}"
+        f"{pylot_session.ctn.data_output_path}/{pylot_session.ctx.sensor_id}_"
+        + f"SN{str(pylot_session.ctx.serial_number).zfill(3)}_{date_string[2:]}-{date_string[2:]}"
     )
     output_csv_path = (
-        f"{output_src_dir}/comb_invparms_{pylot_session.sensor_id}_"
-        + f"SN{str(pylot_session.serial_number).zfill(3)}_"
-        + f"{pylot_session.date[2:]}-{pylot_session.date[2:]}.csv"
+        f"{output_src_dir}/comb_invparms_{pylot_session.ctx.sensor_id}_"
+        + f"SN{str(pylot_session.ctx.serial_number).zfill(3)}_"
+        + f"{date_string[2:]}-{date_string[2:]}.csv"
     )
     assert os.path.isdir(output_src_dir), "pylot output directory missing"
 
@@ -68,19 +70,24 @@ def run(
 
     # DETERMINE OUTPUT DIRECTORY PATHS
 
+    output_folder_slug = pylot_session.ctx.from_datetime.strftime("%Y%m%d")
+    if pylot_session.ctx.multiple_ctx_on_this_date:
+        output_folder_slug += pylot_session.ctx.from_datetime.strftime("_%H%M%S")
+        output_folder_slug += pylot_session.ctx.to_datetime.strftime("_%H%M%S")
+
     output_dst_successful = os.path.join(
         config.general.data_dst_dirs.results,
-        pylot_session.sensor_id,
+        pylot_session.ctx.sensor_id,
         "proffast-2.2-outputs",
         "successful",
-        pylot_session.date,
+        output_folder_slug,
     )
     output_dst_failed = os.path.join(
         config.general.data_dst_dirs.results,
-        pylot_session.sensor_id,
+        pylot_session.ctx.sensor_id,
         "proffast-2.2-outputs",
         "failed",
-        pylot_session.date,
+        output_folder_slug,
     )
 
     # REMOVE OLD OUTPUTS
@@ -109,14 +116,8 @@ def run(
         os.path.join(output_dst, "logfiles", "container.log"),
     )
     shutil.copyfile(
-        pylot_session.pylot_log_format_path,
+        pylot_session.ctn.pylot_log_format_path,
         os.path.join(output_dst, "pylot_log_format.yml"),
-    )
-
-    # POSSIBLY REMOVE ITEMS FROM MANUAL QUEUE
-
-    interfaces.automated_proffast.ManualQueueInterface.remove_item(
-        pylot_session.sensor_id, pylot_session.date, logger
     )
 
     # STORE AUTOMATION INFO
@@ -142,12 +143,12 @@ def run(
     ):
         ifg_src_directory = os.path.join(
             config.general.data_src_dirs.interferograms,
-            pylot_session.sensor_id,
-            pylot_session.date,
+            pylot_session.ctx.sensor_id,
+            date_string,
         )
         expected_ifg_regex = config.automated_proffast.general.ifg_file_regex.replace(
-            "$(SENSOR_ID)", pylot_session.sensor_id
-        ).replace("$(DATE)", pylot_session.date)
+            "$(SENSOR_ID)", pylot_session.ctx.sensor_id
+        ).replace("$(DATE)", date_string)
         expected_ifg_pattern = re.compile(expected_ifg_regex)
         ifg_filenames = [
             filename

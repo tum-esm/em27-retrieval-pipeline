@@ -1,4 +1,3 @@
-import glob
 import os
 import shutil
 from src import custom_types, utils

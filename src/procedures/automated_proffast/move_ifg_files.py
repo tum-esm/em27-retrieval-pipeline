@@ -20,14 +20,16 @@ def run(
 
     # FIND ALL FILENAMES OF INTERFEROGRAMS
 
+    date_string = pylot_session.ctx.from_datetime.strftime("%Y%m%d")
+
     ifg_src_directory = os.path.join(
         config.general.data_src_dirs.interferograms,
-        pylot_session.sensor_id,
-        pylot_session.date,
+        pylot_session.ctx.sensor_id,
+        date_string,
     )
     expected_ifg_regex = config.automated_proffast.general.ifg_file_regex.replace(
-        "$(SENSOR_ID)", pylot_session.sensor_id
-    ).replace("$(DATE)", pylot_session.date)
+        "$(SENSOR_ID)", pylot_session.ctx.sensor_id
+    ).replace("$(DATE)", date_string)
     expected_ifg_pattern = re.compile(expected_ifg_regex)
     logger.debug(f"used regex for ifg files: {expected_ifg_regex}")
 
@@ -83,11 +85,11 @@ def run(
     # PYLOT
 
     dst_date_path = os.path.join(
-        pylot_session.data_input_path, "ifg", pylot_session.date[2:]
+        pylot_session.ctn.data_input_path, "ifg", date_string[2:]
     )
     os.mkdir(dst_date_path)
     for ifg_index, filename in enumerate(valid_ifg_filenames):
         os.symlink(
             os.path.join(ifg_src_directory, filename),
-            os.path.join(dst_date_path, f"{pylot_session.date[2:]}SN.{ifg_index + 1}"),
+            os.path.join(dst_date_path, f"{date_string[2:]}SN.{ifg_index + 1}"),
         )

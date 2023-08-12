@@ -8,15 +8,17 @@ def run(
     logger: utils.automated_proffast.Logger,
     pylot_session: custom_types.PylotSession,
 ) -> None:
+    date_string = pylot_session.ctx.from_datetime.strftime("%Y%m%d")
+
     src_filepath = os.path.join(
         config.general.data_src_dirs.datalogger,
-        pylot_session.pressure_data_source,
-        f"datalogger-{pylot_session.pressure_data_source}-{pylot_session.date}.csv",
+        pylot_session.ctx.pressure_data_source,
+        f"datalogger-{pylot_session.ctx.pressure_data_source}-{date_string}.csv",
     )
     dst_filepath = os.path.join(
-        pylot_session.data_input_path,
+        pylot_session.ctn.data_input_path,
         "log",
-        f"datalogger-{pylot_session.pressure_data_source}-{pylot_session.date}.csv",
+        f"datalogger-{pylot_session.ctx.pressure_data_source}-{date_string}.csv",
     )
 
     assert os.path.isfile(src_filepath), "no datalogger file found"
@@ -26,7 +28,8 @@ def run(
     # 1440 minutes per day + 1 header line
     if log_file_line_count < 1441:
         logger.warning(
-            f"{pylot_session.sensor_id}/{pylot_session.date} - datalogger file only has {log_file_line_count}/1441 lines"
+            f"{pylot_session.ctx.sensor_id}/{date_string} - "
+            + f"datalogger file only has {log_file_line_count}/1441 lines"
         )
     assert log_file_line_count >= 120, "datalogger file has less than 120 entries"
 

@@ -11,13 +11,11 @@ def str_to_dt(v: str) -> datetime.datetime:
 
 from .config import Config
 
-from .automated_proffast import (
+from .proffast import (
     InputWarning,
     InputWarningsList,
-    ManualQueueItem,
-    ManualQueue,
     PylotContainer,
     PylotSession,
 )
 
-from .vertical_profiles import DownloadQuery
+from .profiles import DownloadQuery

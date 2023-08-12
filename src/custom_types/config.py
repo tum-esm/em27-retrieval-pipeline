@@ -1,5 +1,9 @@
+from __future__ import annotations
 import datetime
+import json
+import os
 from typing import Any, Literal, Optional
+import tum_esm_utils
 from .validators import apply_field_validators
 import pydantic
 
@@ -243,3 +247,17 @@ class Config(pydantic.BaseModel):
         [],
         description='List of output merging targets. Relies on specifying "campaigns" in the EM27 metadata.',
     )
+
+    @staticmethod
+    def load() -> Config:
+        """Load the config file from `config/config.json`."""
+
+        path = os.path.join(
+            tum_esm_utils.files.get_parent_dir_path(__file__, current_depth=3),
+            "config",
+            "config.json",
+        )
+        assert os.path.isfile(path), f"Config file not found at {path}"
+        json_content = tum_esm_utils.files.load_json_file(path)
+        assert isinstance(json_content, dict), f"Config file at {path} is not dict."
+        return Config(**json_content)

@@ -20,8 +20,8 @@ def run(
                 os.path.join(
                     _PROJECT_DIR, "src", "pylot_src", "run_pylot_container.py"
                 ),
-                pylot_session.container_id,
-                pylot_session.pylot_config_path,
+                pylot_session.ctn.container_id,
+                pylot_session.ctn.pylot_config_path,
             ]
         )
     )
