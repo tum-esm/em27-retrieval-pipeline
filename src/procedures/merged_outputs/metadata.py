@@ -9,9 +9,11 @@ def get_metadata(
     campaign: tum_esm_em27_metadata.types.CampaignMetadata,
     sensor_data_contexts: dict[str, tum_esm_em27_metadata.types.SensorDataContext],
     output_merging_target: custom_types.config.OutputMergingTargetConfig,
-    fixed_sensor_locations: bool,
 ) -> str:
     """Returns a description of the campaign."""
+
+    # TODO: include all sensor serial numbers
+    # TODO: include all location coordinates
 
     metadata_lines = [
         f"CONTACT:",
@@ -29,7 +31,7 @@ def get_metadata(
         f"",
         f"FILE CONTENT:",
         f"    campaign id:           {campaign.campaign_id}",
-        f"    date:                  {next(sdc.date for sdc in sensor_data_contexts.values())}",
+        f"    date:                  {next(c for c in sensor_data_contexts.values()).from_datetime.strftime('%Y-%m-%d')}",
         f"    data types:            {', '.join(output_merging_target.data_types)}",
         f"    sampling rate:         {output_merging_target.sampling_rate}",
     ]

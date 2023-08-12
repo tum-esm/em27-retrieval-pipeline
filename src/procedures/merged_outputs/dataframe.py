@@ -49,23 +49,29 @@ def get_sensor_dataframe(
     are prefixed with the sensor id. Example:
 
     ```
-    utc                     me_gnd_p  me_gnd_t  me_app_sza  ...
-    2021-10-20 07:00:23     950.91    289.05    78.45       ...
-    2021-10-20 07:00:38     950.91    289.05    78.42       ...
-    2021-10-20 07:01:24     950.91    289.05    78.31       ...
-    ...                       ...       ...      ...
+    utc                     me__LOC_1__gnd_p  me__LOC_1__gnd_t  me__LOC_1__app_sza  ...
+    2021-10-20 07:00:23     950.91            289.05            78.45               ...
+    2021-10-20 07:00:38     950.91            289.05            78.42               ...
+    2021-10-20 07:01:24     950.91            289.05            78.31               ...
+    ...                       ...               ...              ...
     [1204 rows x 8 columns]
     ```
     """
+
+    date_string = sensor_data_context.from_datetime.strftime("%Y%m%d")
+    output_folder_slug = date_string
+    if sensor_data_context.multiple_ctx_on_this_date:
+        output_folder_slug += sensor_data_context.from_datetime.strftime("_%H%M%S")
+        output_folder_slug += sensor_data_context.to_datetime.strftime("_%H%M%S")
 
     raw_csv_path = os.path.join(
         config.general.data_dst_dirs.results,
         sensor_data_context.sensor_id,
         "proffast-2.2-outputs/successful",
-        sensor_data_context.date,
+        output_folder_slug,
         f"comb_invparms_{sensor_data_context.sensor_id}_"
         + f"SN{str(sensor_data_context.serial_number).zfill(3)}_"
-        + f"{sensor_data_context.date[2:]}-{sensor_data_context.date[2:]}.csv",
+        + f"{date_string[2:]}-{date_string[2:]}.csv",
     )
     assert os.path.isfile(raw_csv_path), f"file {raw_csv_path} does not exist."
 
@@ -81,6 +87,11 @@ def get_sensor_dataframe(
         "xco",
         "xch4_s5p",
     ]
+
+    column_names = {
+        t: f"{sensor_data_context.sensor_id}__{sensor_data_context.location.location_id}__{t}"
+        for t in all_data_types
+    }
 
     df = pl.read_csv(
         raw_csv_path,
@@ -99,14 +110,11 @@ def get_sensor_dataframe(
         ],
         new_columns=[
             "utc",
-            *[f"{sensor_data_context.sensor_id}_{t}" for t in all_data_types],
+            *[column_names[t] for t in all_data_types],
         ],
         dtypes={
             "utc": pl.Datetime,
-            **{
-                f"{sensor_data_context.sensor_id}_{t}": pl.Float32
-                for t in all_data_types
-            },
+            **{column_names[t]: pl.Float32 for t in all_data_types},
         },
     )
 
@@ -114,10 +122,7 @@ def get_sensor_dataframe(
     return df.select(
         [
             "utc",
-            *[
-                f"{sensor_data_context.sensor_id}_{type_}"
-                for type_ in output_merging_target.data_types
-            ],
+            *[column_names[t] for t in output_merging_target.data_types],
         ]
     )
 
@@ -128,7 +133,6 @@ def post_process_dataframe(
         "10m", "5m", "2m", "1m", "30s", "15s", "10s", "5s", "2s", "1s"
     ],
     max_interpolation_gap_seconds: int,
-    sensor_data_context: tum_esm_em27_metadata.types.SensorDataContext,
 ) -> pl.DataFrame:
     """Post-processes the dataframe.
 
@@ -137,12 +141,12 @@ def post_process_dataframe(
     `df` is the output of get_sensor_dataframe (see above). Example:
 
     ```
-                            me_gnd_p  me_gnd_t  me_app_sza  ...
+                            me__LOC_1__gnd_p  me__LOC_1__gnd_t  me__LOC_1__app_sza  ...
     utc
-    2021-10-20 07:00:23     950.91    289.05       78.45     ...
-    2021-10-20 07:00:38     950.91    289.05       78.42     ...
-    2021-10-20 07:01:24     950.91    289.05       78.31     ...
-    ...                       ...       ...         ...
+    2021-10-20 07:00:23     950.91            289.05            78.45               ...
+    2021-10-20 07:00:38     950.91            289.05            78.42               ...
+    2021-10-20 07:01:24     950.91            289.05            78.31               ...
+    ...                       ...               ...              ...
     [1204 rows x 8 columns]
     ```
 
