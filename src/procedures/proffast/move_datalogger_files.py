@@ -5,7 +5,7 @@ from src import custom_types, utils
 
 def run(
     config: custom_types.Config,
-    logger: utils.automated_proffast.Logger,
+    logger: utils.proffast.Logger,
     pylot_session: custom_types.PylotSession,
 ) -> None:
     date_string = pylot_session.ctx.from_datetime.strftime("%Y%m%d")

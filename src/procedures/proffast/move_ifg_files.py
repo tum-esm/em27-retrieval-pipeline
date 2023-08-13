@@ -7,7 +7,7 @@ from src import utils, custom_types
 
 def run(
     config: custom_types.Config,
-    logger: utils.automated_proffast.Logger,
+    logger: utils.proffast.Logger,
     pylot_session: custom_types.PylotSession,
 ) -> None:
     """Move interferogram files from the source directory to the input directory.

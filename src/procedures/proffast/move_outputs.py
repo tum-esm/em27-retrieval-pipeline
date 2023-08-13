@@ -32,7 +32,7 @@ def detect_error_type(output_src: str) -> Optional[str]:
 
 def run(
     config: custom_types.Config,
-    logger: utils.automated_proffast.Logger,
+    logger: utils.proffast.Logger,
     pylot_session: custom_types.PylotSession,
 ) -> None:
     assert config.automated_proffast is not None

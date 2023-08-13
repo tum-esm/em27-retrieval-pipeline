@@ -15,7 +15,7 @@ class RetrievalQueue:
     def __init__(
         self,
         config: custom_types.Config,
-        logger: utils.automated_proffast.Logger,
+        logger: utils.proffast.Logger,
         em27_metadata: Optional[
             tum_esm_em27_metadata.interfaces.EM27MetadataInterface
         ] = None,

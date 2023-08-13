@@ -1,5 +1,5 @@
 import click
-from automated_proffast import automated_proffast_command_group
+from proffast import proffast_command_group
 
 
 @click.group()
@@ -7,7 +7,7 @@ def cli() -> None:
     pass
 
 
-cli.add_command(automated_proffast_command_group, name="automated-proffast")
+cli.add_command(proffast_command_group, name="proffast")
 
 
 if __name__ == "__main__":

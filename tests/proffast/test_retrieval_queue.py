@@ -58,12 +58,12 @@ def test_retrieval_queue(
     config = provide_container_config
     config.automated_proffast.storage_data_filter.from_date = "20170608"
     config.automated_proffast.storage_data_filter.to_date = "20170609"
-    logger = utils.automated_proffast.Logger("testing", print_only=True)
+    logger = utils.proffast.Logger("testing", print_only=True)
 
     # test queue when no data is available
     config.automated_proffast.data_sources.storage = False
     config.automated_proffast.data_sources.manual_queue = False
-    retrieval_queue = interfaces.automated_proffast.RetrievalQueue(
+    retrieval_queue = interfaces.proffast.RetrievalQueue(
         config, logger, em27_metadata=em27_metadata
     )
     check_next_item(retrieval_queue.get_next_item(), None)
@@ -71,7 +71,7 @@ def test_retrieval_queue(
     # test queue when only stored data is available
     config.automated_proffast.data_sources.storage = True
     config.automated_proffast.data_sources.manual_queue = False
-    retrieval_queue = interfaces.automated_proffast.RetrievalQueue(
+    retrieval_queue = interfaces.proffast.RetrievalQueue(
         config, logger, em27_metadata=em27_metadata
     )
     check_next_item(retrieval_queue.get_next_item(), "20170609")
@@ -81,7 +81,7 @@ def test_retrieval_queue(
     # test queue when only manual queue data is available
     config.automated_proffast.data_sources.storage = False
     config.automated_proffast.data_sources.manual_queue = True
-    retrieval_queue = interfaces.automated_proffast.RetrievalQueue(
+    retrieval_queue = interfaces.proffast.RetrievalQueue(
         config, logger, em27_metadata=em27_metadata
     )
     check_next_item(retrieval_queue.get_next_item(), "20170103")
@@ -92,7 +92,7 @@ def test_retrieval_queue(
     # test queue when there is both manual queue data and stored data
     config.automated_proffast.data_sources.storage = True
     config.automated_proffast.data_sources.manual_queue = True
-    retrieval_queue = interfaces.automated_proffast.RetrievalQueue(
+    retrieval_queue = interfaces.proffast.RetrievalQueue(
         config, logger, em27_metadata=em27_metadata
     )
     check_next_item(retrieval_queue.get_next_item(), "20170103")

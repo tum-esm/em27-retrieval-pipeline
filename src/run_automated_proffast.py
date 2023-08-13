@@ -18,7 +18,7 @@ lock = filelock.FileLock(LOCK_FILE, timeout=0)
 
 
 def run() -> None:
-    main_logger = utils.automated_proffast.Logger("main")
+    main_logger = utils.proffast.Logger("main")
     main_logger.horizontal_line(variant="=")
     main_logger.info(f"Starting the automation with PID {os.getpid()}")
 
@@ -35,8 +35,8 @@ def run() -> None:
         return
 
     # set up pylot dispatcher and session scheduler
-    pylot_factory = interfaces.automated_proffast.PylotFactory(main_logger)
-    retrieval_queue = interfaces.automated_proffast.RetrievalQueue(config, main_logger)
+    pylot_factory = interfaces.proffast.PylotFactory(main_logger)
+    retrieval_queue = interfaces.proffast.RetrievalQueue(config, main_logger)
     processes: list[multiprocessing.context.SpawnProcess] = []
 
     main_logger.horizontal_line(variant="=")
@@ -56,12 +56,12 @@ def run() -> None:
                     break
 
                 # start new processes
-                new_session = procedures.automated_proffast.create_session.run(
+                new_session = procedures.proffast.create_session.run(
                     pylot_factory,
                     next_sensor_data_context,
                 )
                 new_process = multiprocessing.get_context("spawn").Process(
-                    target=procedures.automated_proffast.process_session.run,
+                    target=procedures.proffast.process_session.run,
                     args=(config, new_session),
                     name=(
                         f"pylot-session-{new_session.ctx.sensor_id}-"

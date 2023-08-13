@@ -93,7 +93,7 @@ def test_get_daily_sensor_sets(provide_container_config: custom_types.Config) ->
     }
 
     assert (
-        procedures.vertical_profiles.get_daily_sensor_sets(
+        procedures.profiles.get_daily_sensor_sets(
             config,
             em27_metadata=tum_esm_em27_metadata.interfaces.EM27MetadataInterface(
                 locations, sensors, []

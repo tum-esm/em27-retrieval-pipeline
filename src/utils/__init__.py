@@ -1,2 +1,2 @@
-from . import automated_proffast, vertical_profiles
+from . import proffast, profiles
 from . import functions

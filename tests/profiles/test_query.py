@@ -50,10 +50,7 @@ def test_get_query_list() -> None:
         DownloadQuery(from_date="10000106", to_date="10000106", location=l_4),
     ]
 
-    assert (
-        procedures.vertical_profiles.get_query_list(daily_sensor_sets)
-        == expected_query_list
-    )
+    assert procedures.profiles.get_query_list(daily_sensor_sets) == expected_query_list
 
 
 @pytest.mark.ci
@@ -61,7 +58,7 @@ def test_get_date_suffixes(provide_container_config: custom_types.Config) -> Non
     l = DownloadQueryLocation(lat=0, lon=0)
 
     def call(q: DownloadQuery, v: Literal["GGG2014", "GGG2020"]) -> list[str]:
-        return procedures.vertical_profiles.get_date_suffixes(
+        return procedures.profiles.get_date_suffixes(
             provide_container_config, q, v, utcnow=datetime(1000, 1, 10)
         )
 

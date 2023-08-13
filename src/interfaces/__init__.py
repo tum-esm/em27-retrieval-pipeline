@@ -1,1 +1,1 @@
-from . import automated_proffast
+from . import proffast

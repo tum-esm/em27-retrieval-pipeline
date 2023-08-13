@@ -40,16 +40,15 @@ def test_so_container(
     clear_output_data: None,
     provide_container_config: custom_types.Config,
 ) -> None:
-
     # set up container
-    logger = utils.automated_proffast.Logger("pytest", print_only=True)
-    pylot_factory = interfaces.automated_proffast.PylotFactory(logger)
-    session = procedures.automated_proffast.create_session.run(
+    logger = utils.proffast.Logger("pytest", print_only=True)
+    pylot_factory = interfaces.proffast.PylotFactory(logger)
+    session = procedures.proffast.create_session.run(
         pylot_factory, SENSOR_DATA_CONTEXTS[0]
     )
 
     # run container
-    procedures.automated_proffast.process_session.run(provide_container_config, session)
+    procedures.proffast.process_session.run(provide_container_config, session)
 
     # assert output correctness
     # TODO

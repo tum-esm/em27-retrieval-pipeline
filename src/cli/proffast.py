@@ -11,6 +11,7 @@ sys.path.append(_PROJECT_DIR)
 import src
 
 
+# TODO: add option to start this "dry-run", i.e. without actually running proffast
 @click.command(
     help="Start the automated proffast as a background "
     + "process. Prevents spawning multiple processes"
@@ -45,11 +46,12 @@ def _stop() -> None:
         )
 
 
+# TODO: remove this once automatic printing is implemented
 @click.command(help="Print out the retrieval queue")
 def _print_retrieval_queue() -> None:
-    main_logger = src.utils.automated_proffast.Logger("main", print_only=True)
+    main_logger = src.utils.proffast.Logger("main", print_only=True)
     config = src.utils.load_config()
-    retrieval_queue = src.interfaces.automated_proffast.RetrievalQueue(
+    retrieval_queue = src.interfaces.proffast.RetrievalQueue(
         config, main_logger, verbose_reasoning=True
     )
 
@@ -64,13 +66,11 @@ def _print_retrieval_queue() -> None:
 
 
 @click.group()
-def automated_proffast_command_group() -> None:
+def proffast_command_group() -> None:
     pass
 
 
-automated_proffast_command_group.add_command(_start, name="start")
-automated_proffast_command_group.add_command(_stop, name="stop")
-automated_proffast_command_group.add_command(_is_running, name="is-running")
-automated_proffast_command_group.add_command(
-    _print_retrieval_queue, name="print-retrieval-queue"
-)
+proffast_command_group.add_command(_start, name="start")
+proffast_command_group.add_command(_stop, name="stop")
+proffast_command_group.add_command(_is_running, name="is-running")
+proffast_command_group.add_command(_print_retrieval_queue, name="print-retrieval-queue")

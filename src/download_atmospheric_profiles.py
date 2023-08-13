@@ -16,7 +16,7 @@ def run() -> None:
         print(f"Downloading {version} data")
 
         # Generate daily sensor sets
-        download_queries = procedures.vertical_profiles.generate_download_queries(
+        download_queries = procedures.profiles.generate_download_queries(
             config, version
         )
         if len(download_queries) == 0:
@@ -31,9 +31,7 @@ def run() -> None:
         ) as ftp:
             print(f"Running {len(download_queries)} queries")
 
-            with utils.vertical_profiles.Reporter(
-                download_queries, version
-            ) as reporter:
+            with utils.profiles.Reporter(download_queries, version) as reporter:
                 with Progress() as progress:
                     for query in progress.track(
                         list(
@@ -54,7 +52,7 @@ def run() -> None:
                             down_status,
                             down_time,
                             to_date,
-                        ) = procedures.vertical_profiles.download_data(
+                        ) = procedures.profiles.download_data(
                             config, query, ftp, version
                         )
                         if not down_status:
@@ -62,7 +60,7 @@ def run() -> None:
                             (
                                 up_status,
                                 up_time,
-                            ) = procedures.vertical_profiles.upload_request(
+                            ) = procedures.profiles.upload_request(
                                 config.vertical_profiles.ftp_server, query, ftp, version
                             )
                             if up_status:
@@ -71,7 +69,7 @@ def run() -> None:
                                     down_status,
                                     down_time,
                                     to_date,
-                                ) = procedures.vertical_profiles.download_data(
+                                ) = procedures.profiles.download_data(
                                     config, query, ftp, version, wait=True
                                 )
 

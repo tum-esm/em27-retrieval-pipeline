@@ -9,10 +9,10 @@ from src import utils, interfaces
 
 if __name__ == "__main__":
     config = utils.load_config()
-    logger = utils.automated_proffast.Logger("development", print_only=True)
+    logger = utils.proffast.Logger("development", print_only=True)
     logger.info("starting")
 
-    retrieval_queue = interfaces.automated_proffast.RetrievalQueue(config, logger)
+    retrieval_queue = interfaces.proffast.RetrievalQueue(config, logger)
     while True:
         next_item = retrieval_queue.get_next_item()
         if next_item is None:

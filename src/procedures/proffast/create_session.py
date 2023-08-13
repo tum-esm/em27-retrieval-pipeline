@@ -55,7 +55,7 @@ def _generate_pylot_log_format(pylot_session: custom_types.PylotSession) -> None
 
 
 def run(
-    pylot_factory: interfaces.automated_proffast.PylotFactory,
+    pylot_factory: interfaces.proffast.PylotFactory,
     sensor_data_context: tum_esm_em27_metadata.types.SensorDataContext,
 ) -> custom_types.PylotSession:
     """Create a new container and the pylot config files"""
