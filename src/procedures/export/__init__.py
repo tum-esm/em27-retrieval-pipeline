@@ -1,4 +1,4 @@
-from .dataframe import (
+from .dataframes import (
     get_sensor_dataframe,
     get_empty_sensor_dataframe,
     merge_dataframes,

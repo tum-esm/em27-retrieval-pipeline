@@ -1,4 +1,3 @@
-import functools
 import os
 from typing import Literal
 import numpy as np
@@ -202,6 +201,7 @@ def post_process_dataframe(
     df = pl.concat([df, new_df]).sort("utc")
 
     # apply savgol_filter on the data columns
+    # TODO: fix the mypy error with arr.explode
     df = df.select(
         pl.col("utc"),
         pl.exclude("utc")
@@ -243,10 +243,7 @@ def merge_dataframes(
     """Merges the dataframes into a single dataframe by
     joining them on the "utc" column."""
 
-    merged_df = functools.reduce(
-        lambda a, b: a.join(b, how="outer", left_on="utc", right_on="utc"),
-        dfs,
-    )
+    merged_df = pl.concat(dfs, how="diagonal").groupby("utc").mean()
     data_column_names = merged_df.columns
     data_column_names.remove("utc")
     df_without_null_rows = merged_df.filter(~pl.all(pl.col(data_column_names).is_nan()))

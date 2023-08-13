@@ -72,7 +72,7 @@ def run() -> None:
 
                 for sensor_data_context in sensor_data_contexts:
                     try:
-                        df = procedures.merged_outputs.get_sensor_dataframe(
+                        df = procedures.export.get_sensor_dataframe(
                             config,
                             sensor_data_context,
                             output_merging_target,
@@ -82,7 +82,7 @@ def run() -> None:
 
                     found_data_count += 1
                     ctx_dataframes.append(
-                        procedures.merged_outputs.post_process_dataframe(
+                        procedures.export.post_process_dataframe(
                             df=df,
                             sampling_rate=output_merging_target.sampling_rate,
                             max_interpolation_gap_seconds=output_merging_target.max_interpolation_gap_seconds,
@@ -95,9 +95,7 @@ def run() -> None:
                     )
 
                     # TODO: check whether this works for overlapping and non-overlapping columns
-                    merged_df = procedures.merged_outputs.merge_dataframes(
-                        ctx_dataframes
-                    )
+                    merged_df = procedures.export.merge_dataframes(ctx_dataframes)
 
                     # save merged dataframe to csv
                     filename = os.path.join(
@@ -107,7 +105,7 @@ def run() -> None:
                     )
                     with open(filename, "w") as f:
                         f.write(
-                            procedures.merged_outputs.get_metadata(
+                            procedures.export.get_metadata(
                                 em27_metadata,
                                 campaign,
                                 sensor_data_contexts,
