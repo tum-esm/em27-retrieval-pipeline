@@ -4,7 +4,7 @@ from typing import Optional
 import pytest
 import tum_esm_em27_metadata
 from src import custom_types, interfaces, utils
-from ..fixtures import provide_proffast_config
+from ..fixtures import provide_config_template
 import dotenv
 
 dir = os.path.dirname
@@ -54,9 +54,9 @@ def check_next_item(
 
 @pytest.mark.ci
 def test_retrieval_queue(
-    provide_proffast_config: custom_types.Config,
+    provide_config_template: custom_types.Config,
 ) -> None:
-    config = provide_proffast_config
+    config = provide_config_template
     assert config.automated_proffast is not None
 
     config.automated_proffast.data_filter.from_date = datetime.date(2017, 6, 8)

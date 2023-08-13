@@ -1,14 +1,17 @@
 import datetime
+import os
 import pytest
-
 import tum_esm_em27_metadata
+import tum_esm_utils
 from tests.fixtures import (
     wrap_test_with_mainlock,
     download_sample_data,
-    provide_proffast_config,
+    provide_config_template,
     clear_output_data,
 )
 from src import custom_types, utils, interfaces, procedures
+
+PROJECT_DIR = tum_esm_utils.files.get_parent_dir_path(__file__, current_depth=3)
 
 SENSOR_DATA_CONTEXTS = [
     tum_esm_em27_metadata.types.SensorDataContext(
@@ -64,18 +67,55 @@ def test_container(
     wrap_test_with_mainlock: None,
     download_sample_data: None,
     clear_output_data: None,
-    provide_proffast_config: custom_types.Config,
+    provide_config_template: custom_types.Config,
 ) -> None:
-    # set up container
+    config = provide_config_template
+    assert config.automated_proffast is not None
+
+    # target config at test data
+    config.automated_proffast.data_filter.sensor_ids_to_consider = ["so", "mc"]
+    config.automated_proffast.data_filter.from_date = datetime.date(2017, 6, 8)
+    config.automated_proffast.data_filter.to_date = datetime.date(2022, 6, 2)
+    config.general.data_src_dirs.datalogger = os.path.join(
+        PROJECT_DIR, "data", "testing", "container", "inputs", "log"
+    )
+    config.general.data_src_dirs.interferograms = os.path.join(
+        PROJECT_DIR, "data", "testing", "container", "inputs", "ifg"
+    )
+    config.general.data_src_dirs.vertical_profiles = os.path.join(
+        PROJECT_DIR, "data", "testing", "container", "inputs", "map"
+    )
+    config.general.data_dst_dirs.results = os.path.join(
+        PROJECT_DIR, "data", "testing", "container", "outputs"
+    )
+
+    # set up container factory
     logger = utils.proffast.Logger("pytest", print_only=True)
     pylot_factory = interfaces.proffast.PylotFactory(logger)
 
     for sdc in SENSOR_DATA_CONTEXTS:
-        # create session
+        # create session and run container
         session = procedures.proffast.create_session.run(pylot_factory, sdc)
-
-        # run container
-        procedures.proffast.process_session.run(provide_proffast_config, session)
+        procedures.proffast.process_session.run(config, session)
 
         # assert output correctness
-        # TODO
+        date_string = sdc.from_datetime.strftime("%Y%m%d")
+        out_path = os.path.join(
+            PROJECT_DIR,
+            "data/testing/container/outputs/proffast-2.2-outputs",
+            sdc.sensor_id,
+            "successful",
+            date_string,
+        )
+        for filename in [
+            (
+                f"comb_invparms_{sdc.sensor_id}_SN{str(sdc.serial_number).zfill(3)}"
+                + f"_{date_string[2:]}-{date_string[2:]}.csv"
+            ),
+            "about.json",
+            "pylot_config.yml",
+            "pylot_log_format.yml",
+            "logfiles/container.log",
+        ]:
+            filepath = os.path.join(out_path, filename)
+            assert os.path.isfile(filepath), f"output file does not exist ({filepath})"

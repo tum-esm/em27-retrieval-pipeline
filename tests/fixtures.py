@@ -73,54 +73,10 @@ def clear_output_data() -> Generator[None, None, None]:
     yield
 
 
-@pytest.fixture(scope="session")
-def provide_proffast_config(
-    download_sample_data: None,
-) -> Generator[custom_types.Config, None, None]:
-    """Provide a temporary config file that points to the proffast testing data."""
-
-    # LOAD CONFIG TEMPLATE
-
-    config_template = tum_esm_utils.files.load_json_file(
-        os.path.join(PROJECT_DIR, "config", "config.template.json")
-    )
-
-    # UPDATE INPUTS
-
-    config_template["general"]["data_src_dirs"]["datalogger"] = os.path.join(
-        PROJECT_DIR, "data", "testing", "container", "inputs", "log"
-    )
-    config_template["general"]["data_src_dirs"]["vertical_profiles"] = os.path.join(
-        PROJECT_DIR, "data", "testing", "container", "inputs", "map"
-    )
-    config_template["general"]["data_src_dirs"]["interferograms"] = os.path.join(
-        PROJECT_DIR, "data", "testing", "container", "inputs", "ifg"
-    )
-    config_template["automated_proffast"]["storage_data_filter"][
-        "sensor_ids_to_consider"
-    ] = ["mc", "so"]
-
-    # UPDATE OUTPUTS
-
-    config_template["general"]["data_dst_dirs"]["results"] = os.path.join(
-        PROJECT_DIR, "data", "testing", "container", "outputs"
-    )
-    config_template[
-        "output_merging_targets"
-    ] = []  # required to avoid dir not exists error
-
-    # PARSE CONFIG OBJECT
-
-    config = custom_types.Config(**config_template)
-
-    # RUN TEST
-
-    yield config
-
-
+"""
 @pytest.fixture(scope="session")
 def provide_export_config() -> Generator[custom_types.Config, None, None]:
-    """Provide a temporary config file that points to the export testing data."""
+    # Provide a temporary config file that points to the export testing data.
 
     # LOAD CONFIG TEMPLATE
 
@@ -147,10 +103,11 @@ def provide_export_config() -> Generator[custom_types.Config, None, None]:
     # RUN TEST
 
     yield config
+"""
 
 
 @pytest.fixture(scope="session")
-def provide_profiles_config() -> Generator[custom_types.Config, None, None]:
+def provide_config_template() -> Generator[custom_types.Config, None, None]:
     """Provide a temporary config used in profiles download."""
 
     config = custom_types.Config(

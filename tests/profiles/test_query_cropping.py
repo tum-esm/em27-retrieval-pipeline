@@ -4,12 +4,12 @@ import datetime
 
 from src import custom_types, procedures
 from src.custom_types import DownloadQuery
-from tests.fixtures import provide_profiles_config
+from tests.fixtures import provide_config_template
 
 
 @pytest.mark.ci
-def test_get_date_suffixes(provide_profiles_config: custom_types.Config) -> None:
-    global_config = provide_profiles_config
+def test_get_date_suffixes(provide_config_template: custom_types.Config) -> None:
+    global_config = provide_config_template
     assert global_config.vertical_profiles is not None
 
     def call(

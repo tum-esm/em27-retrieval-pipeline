@@ -6,14 +6,14 @@ import datetime
 import tum_esm_em27_metadata
 
 from src import custom_types, procedures
-from tests.fixtures import provide_profiles_config
+from tests.fixtures import provide_config_template
 
 
 @pytest.mark.ci
 def test_query_generation(
-    provide_profiles_config: custom_types.Config,
+    provide_config_template: custom_types.Config,
 ) -> None:
-    config = provide_profiles_config
+    config = provide_config_template
     assert config.vertical_profiles is not None
 
     em27_metadata = tum_esm_em27_metadata.EM27MetadataInterface(
@@ -81,7 +81,7 @@ def test_query_generation(
         for version in versions:
             os.mkdir(os.path.join(tmp_dir, version))
             query_list = procedures.profiles.generate_download_queries(
-                config=provide_profiles_config,
+                config=config,
                 version=version,
                 em27_metadata=em27_metadata,
             )
