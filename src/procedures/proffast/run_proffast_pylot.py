@@ -18,7 +18,11 @@ def run(
                     "python",
                 ),
                 os.path.join(
-                    _PROJECT_DIR, "src", "pylot_src", "run_pylot_container.py"
+                    _PROJECT_DIR,
+                    "src",
+                    "retrieval",
+                    "proffast-2.2",
+                    "run_pylot_container.py",
                 ),
                 pylot_session.ctn.container_id,
                 pylot_session.ctn.pylot_config_path,

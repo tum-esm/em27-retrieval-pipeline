@@ -4,7 +4,7 @@ from src import custom_types, utils
 import tum_esm_utils
 
 _PROJECT_DIR = tum_esm_utils.files.get_parent_dir_path(__file__, current_depth=4)
-_PYLOT_ROOT_DIR = os.path.join(_PROJECT_DIR, "src", "pylot_src")
+_PYLOT_ROOT_DIR = os.path.join(_PROJECT_DIR, "src", "retrieval", "proffast-2.2")
 _PYLOT_MAIN_CLONE_DIR = os.path.join(_PYLOT_ROOT_DIR, "main")
 _CONTAINERS_DIR = os.path.join(_PROJECT_DIR, "data", "containers")
 
