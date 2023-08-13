@@ -213,26 +213,43 @@ class Config(pydantic.BaseModel):
     )
 
     @staticmethod
-    def load() -> Config:
-        """Load the config file from `config/config.json`."""
-
-        path = os.path.join(
+    def load(
+        path: str = os.path.join(
             tum_esm_utils.files.get_parent_dir_path(__file__, current_depth=3),
             "config",
             "config.json",
-        )
+        ),
+        check_path_existence: bool = True,
+    ) -> Config:
+        """Load the config file from `config/config.json` (or any given path).
+
+        If `check_path_existence` is set, it will check whether the paths
+        specified in the config file exist."""
+
         assert os.path.isfile(path), f"Config file not found at {path}"
         json_content = tum_esm_utils.files.load_json_file(path)
         assert isinstance(json_content, dict), f"Config file at {path} is not dict."
         config = Config(**json_content)
 
-        assert os.path.isdir(config.general.data_src_dirs.interferograms)
-        assert os.path.isdir(config.general.data_src_dirs.vertical_profiles)
-        assert os.path.isdir(config.general.data_src_dirs.datalogger)
-        assert os.path.isdir(config.general.data_dst_dirs.results)
-        for target in config.output_merging_targets:
-            assert os.path.isdir(
-                target.dst_dir
-            ), f"{target.dst_dir} is not a directory."
+        if check_path_existence:
+            assert os.path.isdir(config.general.data_src_dirs.interferograms)
+            assert os.path.isdir(config.general.data_src_dirs.vertical_profiles)
+            assert os.path.isdir(config.general.data_src_dirs.datalogger)
+            assert os.path.isdir(config.general.data_dst_dirs.results)
+            for target in config.output_merging_targets:
+                assert os.path.isdir(
+                    target.dst_dir
+                ), f"{target.dst_dir} is not a directory."
+
+        if config.vertical_profiles is not None:
+            assert (
+                config.vertical_profiles.request_scope.from_date
+                <= config.vertical_profiles.request_scope.to_date
+            )
+        if config.automated_proffast is not None:
+            assert (
+                config.automated_proffast.data_filter.from_date
+                <= config.automated_proffast.data_filter.to_date
+            )
 
         return config
