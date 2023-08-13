@@ -1,10 +1,8 @@
 from __future__ import annotations
 import datetime
-import json
 import os
-from typing import Any, Literal, Optional
+from typing import Literal, Optional
 import tum_esm_utils
-from .validators import apply_field_validators
 import pydantic
 
 
@@ -35,21 +33,9 @@ class DataSrcDirsConfig(pydantic.BaseModel):
     )
     interferograms: str = pydantic.Field(..., description="directory path to ifg files")
 
-    # validators
-    _1 = apply_field_validators(
-        ["datalogger", "vertical_profiles", "interferograms"],
-        is_directory_path=True,
-    )
-
 
 class DataDstDirsConfig(pydantic.BaseModel):
     results: str = pydantic.Field(..., description="directory path to results")
-
-    # validators
-    _1 = apply_field_validators(
-        ["results"],
-        is_directory_path=True,
-    )
 
 
 class VerticalProfilesFTPServerConfig(pydantic.BaseModel):
@@ -93,14 +79,6 @@ class VerticalProfilesRequestScopeConfig(pydantic.BaseModel):
         description="list of data types to request from the ccycle ftp server",
     )
 
-    @pydantic.field_validator("from_date", "to_date", mode="before")
-    def _1(cls: Any, v_in: str | datetime.date) -> datetime.date:
-        if isinstance(v_in, datetime.date):
-            return v_in
-        else:
-            assert isinstance(v_in, str)
-            return datetime.datetime.strptime(v_in, "%Y-%m-%d").date()
-
 
 class AutomatedProffastGeneralConfig(pydantic.BaseModel):
     max_core_count: int = pydantic.Field(
@@ -131,7 +109,7 @@ class AutomatedProffastModifiedIfgFilePermissionsConfig(pydantic.BaseModel):
     )
 
 
-class AutomatedProffastStorageDataFilterConfig(pydantic.BaseModel):
+class AutomatedProffastDataFilterConfig(pydantic.BaseModel):
     """Settings for filtering the storage data. Only used if `config.data_sources.storage` is `true`."""
 
     sensor_ids_to_consider: list[str] = pydantic.Field(
@@ -152,14 +130,6 @@ class AutomatedProffastStorageDataFilterConfig(pydantic.BaseModel):
         description="Minimum numbers of days to wait until processing. E.g. the vertical profiles from ccyle are available with a delay of 5 days, so it doesn't make sence to try processing earlier and get a lot of error messages because of missing vertical profiles.",
     )
 
-    @pydantic.field_validator("from_date", "to_date", mode="before")
-    def _1(cls: Any, v_in: str | datetime.date) -> datetime.date:
-        if isinstance(v_in, datetime.date):
-            return v_in
-        else:
-            assert isinstance(v_in, str)
-            return datetime.datetime.strptime(v_in, "%Y-%m-%d").date()
-
 
 class GeneralConfig(pydantic.BaseModel):
     location_data: LocationDataConfig
@@ -179,7 +149,7 @@ class AutomatedProffastConfig(pydantic.BaseModel):
 
     general: AutomatedProffastGeneralConfig
     modified_ifg_file_permissions: AutomatedProffastModifiedIfgFilePermissionsConfig
-    data_filter: AutomatedProffastStorageDataFilterConfig
+    data_filter: AutomatedProffastDataFilterConfig
 
 
 class OutputMergingTargetConfig(pydantic.BaseModel):
@@ -232,12 +202,6 @@ class OutputMergingTargetConfig(pydantic.BaseModel):
         description="Maximum gap in seconds to interpolate over.",
     )
 
-    # validators
-    _1 = apply_field_validators(
-        ["dst_dir"],
-        is_directory_path=True,
-    )
-
 
 class Config(pydantic.BaseModel):
     general: GeneralConfig
@@ -260,4 +224,15 @@ class Config(pydantic.BaseModel):
         assert os.path.isfile(path), f"Config file not found at {path}"
         json_content = tum_esm_utils.files.load_json_file(path)
         assert isinstance(json_content, dict), f"Config file at {path} is not dict."
-        return Config(**json_content)
+        config = Config(**json_content)
+
+        assert os.path.isdir(config.general.data_src_dirs.interferograms)
+        assert os.path.isdir(config.general.data_src_dirs.vertical_profiles)
+        assert os.path.isdir(config.general.data_src_dirs.datalogger)
+        assert os.path.isdir(config.general.data_dst_dirs.results)
+        for target in config.output_merging_targets:
+            assert os.path.isdir(
+                target.dst_dir
+            ), f"{target.dst_dir} is not a directory."
+
+        return config
