@@ -10,6 +10,7 @@ from tests.fixtures import provide_profiles_config
 @pytest.mark.ci
 def test_get_date_suffixes(provide_profiles_config: custom_types.Config) -> None:
     global_config = provide_profiles_config
+    assert global_config.vertical_profiles is not None
 
     def call(
         config: custom_types.Config,
@@ -31,8 +32,13 @@ def test_get_date_suffixes(provide_profiles_config: custom_types.Config) -> None
         DownloadQuery(from_date="2000-01-05", to_date="2000-01-06", lat=0, lon=0),
     ]
 
+    versions: list[Literal["GGG2014", "GGG2020"]] = ["GGG2014", "GGG2020"]
+    max_days_delays: list[Literal[5, 7]] = [5, 7]
+
     # ex_re[max_days_delay][version][query_index]
-    expected_responses = {
+    expected_responses: dict[
+        Literal[5, 7], dict[Literal["GGG2014", "GGG2020"], list[list[str]]]
+    ] = {
         5: {
             "GGG2014": [
                 ["20000101_20000101"],
@@ -78,9 +84,9 @@ def test_get_date_suffixes(provide_profiles_config: custom_types.Config) -> None
     }
 
     # careful: GGG2020 modifies the to_date
-    for version in ["GGG2014", "GGG2020"]:
+    for version in versions:
         for i, query in enumerate(queries):
-            for max_days_delay in [5, 7]:
+            for max_days_delay in max_days_delays:
                 global_config.vertical_profiles.ftp_server.max_day_delay = (
                     max_days_delay
                 )

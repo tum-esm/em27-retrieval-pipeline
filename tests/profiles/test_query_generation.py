@@ -1,5 +1,6 @@
 import os
 import tempfile
+from typing import Literal
 import pytest
 import datetime
 import tum_esm_em27_metadata
@@ -69,15 +70,16 @@ def test_query_generation(
         campaigns=[],
     )
 
+    versions: list[Literal["GGG2014", "GGG2020"]] = ["GGG2014", "GGG2020"]
+
     # create a "with tmp dir"
     with tempfile.TemporaryDirectory() as tmp_dir:
-        os.mkdir(os.path.join(tmp_dir, "GGG2014"))
-        os.mkdir(os.path.join(tmp_dir, "GGG2020"))
         config.general.data_src_dirs.vertical_profiles = tmp_dir
         config.vertical_profiles.request_scope.from_date = datetime.date(2000, 1, 1)
         config.vertical_profiles.request_scope.to_date = datetime.date(2000, 5, 30)
 
-        for version in ["GGG2014", "GGG2020"]:
+        for version in versions:
+            os.mkdir(os.path.join(tmp_dir, version))
             query_list = procedures.profiles.generate_download_queries(
                 config=provide_profiles_config,
                 version=version,

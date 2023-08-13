@@ -74,10 +74,10 @@ def clear_output_data() -> Generator[None, None, None]:
 
 
 @pytest.fixture(scope="session")
-def provide_container_config(
+def provide_proffast_config(
     download_sample_data: None,
 ) -> Generator[custom_types.Config, None, None]:
-    """Provide a temporary config file that points to the container testing data."""
+    """Provide a temporary config file that points to the proffast testing data."""
 
     # LOAD CONFIG TEMPLATE
 
@@ -119,8 +119,8 @@ def provide_container_config(
 
 
 @pytest.fixture(scope="session")
-def provide_merging_config() -> Generator[custom_types.Config, None, None]:
-    """Provide a temporary config file that points to the merging testing data."""
+def provide_export_config() -> Generator[custom_types.Config, None, None]:
+    """Provide a temporary config file that points to the export testing data."""
 
     # LOAD CONFIG TEMPLATE
 

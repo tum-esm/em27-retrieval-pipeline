@@ -1,4 +1,5 @@
 import datetime
+from typing import Any
 import polars as pl
 from src import procedures
 
@@ -24,7 +25,7 @@ def _is_subset(df1: pl.DataFrame, df2: pl.DataFrame) -> bool:
 
 
 def test_merge_dataframes() -> None:
-    get_t = lambda minute: datetime.datetime(2021, 1, 1, 0, minute, 0)
+    get_t: Any = lambda minute: datetime.datetime(2021, 1, 1, 0, minute, 0)
 
     df1 = pl.DataFrame({"utc": [get_t(1), get_t(2), get_t(3)], "b": [1, 2, None]})
     df2 = pl.DataFrame({"utc": [get_t(4), get_t(5), get_t(6)], "b": [4, 5, 6]})

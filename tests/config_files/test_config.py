@@ -19,23 +19,25 @@ def test_config() -> None:
         **config.general.location_data.dict()
     )
 
-    # test whether from_dates are before to_dates
-    assert (
-        config.vertical_profiles.request_scope.from_date
-        <= config.vertical_profiles.request_scope.to_date
-    )
-    assert (
-        config.automated_proffast.storage_data_filter.from_date
-        <= config.automated_proffast.storage_data_filter.to_date
-    )
-
-    # test whether sensor_ids and campaign_ids are in metadata
-    for (
-        sensor_id
-    ) in config.automated_proffast.storage_data_filter.sensor_ids_to_consider:
+    if config.vertical_profiles is not None:
+        # test whether from_dates are before to_dates
         assert (
-            sensor_id in em27_metadata.sensor_ids
-        ), f"sensor_id not in metadata: {sensor_id}"
+            config.vertical_profiles.request_scope.from_date
+            <= config.vertical_profiles.request_scope.to_date
+        )
+
+    if config.automated_proffast is not None:
+        # test whether from_dates are before to_dates
+        assert (
+            config.automated_proffast.data_filter.from_date
+            <= config.automated_proffast.data_filter.to_date
+        )
+
+        # test whether sensor_ids and campaign_ids are in metadata
+        for sensor_id in config.automated_proffast.data_filter.sensor_ids_to_consider:
+            assert (
+                sensor_id in em27_metadata.sensor_ids
+            ), f"sensor_id not in metadata: {sensor_id}"
 
     for t in config.output_merging_targets:
         assert (

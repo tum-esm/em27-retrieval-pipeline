@@ -1,10 +1,10 @@
-import json
+import datetime
 import os
 from typing import Optional
 import pytest
 import tum_esm_em27_metadata
 from src import custom_types, interfaces, utils
-from ..fixtures import provide_container_config, provide_tmp_manual_queue
+from ..fixtures import provide_proffast_config
 import dotenv
 
 dir = os.path.dirname
@@ -31,7 +31,9 @@ em27_metadata = tum_esm_em27_metadata.interfaces.EM27MetadataInterface(
             different_output_calibration_factors=[],
             locations=[
                 tum_esm_em27_metadata.types.SensorTypes.Location(
-                    from_date="20170101", to_date="20171231", location_id="LOC1"
+                    from_datetime="2017-01-01T00:00:00+00:00",
+                    to_datetime="2017-12-31T23:59:59+00:00",
+                    location_id="LOC1",
                 )
             ],
         )
@@ -42,62 +44,61 @@ em27_metadata = tum_esm_em27_metadata.interfaces.EM27MetadataInterface(
 
 def check_next_item(
     i: Optional[tum_esm_em27_metadata.types.SensorDataContext],
-    expected_date: Optional[str],
+    expected_date: Optional[datetime.date],
 ) -> None:
     if i is None:
         assert expected_date is None
     else:
-        assert i.date == expected_date
+        assert i.from_datetime == expected_date
 
 
 @pytest.mark.ci
 def test_retrieval_queue(
-    provide_container_config: custom_types.Config,
-    provide_tmp_manual_queue: custom_types.ManualQueue,
+    provide_proffast_config: custom_types.Config,
 ) -> None:
-    config = provide_container_config
-    config.automated_proffast.storage_data_filter.from_date = "20170608"
-    config.automated_proffast.storage_data_filter.to_date = "20170609"
+    config = provide_proffast_config
+    assert config.automated_proffast is not None
+
+    config.automated_proffast.data_filter.from_date = datetime.date(2017, 6, 8)
+    config.automated_proffast.data_filter.to_date = datetime.date(2017, 6, 9)
     logger = utils.proffast.Logger("testing", print_only=True)
 
-    # test queue when no data is available
-    config.automated_proffast.data_sources.storage = False
-    config.automated_proffast.data_sources.manual_queue = False
+    # test case 1
+    config.automated_proffast.data_filter.from_date = datetime.date(2017, 6, 9)
+    config.automated_proffast.data_filter.to_date = datetime.date(2017, 6, 10)
+    retrieval_queue = interfaces.proffast.RetrievalQueue(
+        config, logger, em27_metadata=em27_metadata, verbose_reasoning=True
+    )
+    check_next_item(retrieval_queue.get_next_item(), datetime.date(2017, 6, 9))
+    check_next_item(retrieval_queue.get_next_item(), None)
+    check_next_item(retrieval_queue.get_next_item(), None)
+
+    # test case 2
+    config.automated_proffast.data_filter.from_date = datetime.date(2017, 6, 1)
+    config.automated_proffast.data_filter.to_date = datetime.date(2017, 6, 10)
+    retrieval_queue = interfaces.proffast.RetrievalQueue(
+        config, logger, em27_metadata=em27_metadata
+    )
+    check_next_item(retrieval_queue.get_next_item(), datetime.date(2017, 6, 9))
+    check_next_item(retrieval_queue.get_next_item(), datetime.date(2017, 6, 8))
+    check_next_item(retrieval_queue.get_next_item(), None)
+    check_next_item(retrieval_queue.get_next_item(), None)
+
+    # test case 3
+    config.automated_proffast.data_filter.from_date = datetime.date(2017, 6, 1)
+    config.automated_proffast.data_filter.to_date = datetime.date(2017, 6, 8)
+    retrieval_queue = interfaces.proffast.RetrievalQueue(
+        config, logger, em27_metadata=em27_metadata
+    )
+    check_next_item(retrieval_queue.get_next_item(), datetime.date(2017, 6, 8))
+    check_next_item(retrieval_queue.get_next_item(), None)
+    check_next_item(retrieval_queue.get_next_item(), None)
+
+    # test case 4
+    config.automated_proffast.data_filter.from_date = datetime.date(2017, 6, 1)
+    config.automated_proffast.data_filter.to_date = datetime.date(2017, 6, 7)
     retrieval_queue = interfaces.proffast.RetrievalQueue(
         config, logger, em27_metadata=em27_metadata
     )
     check_next_item(retrieval_queue.get_next_item(), None)
-
-    # test queue when only stored data is available
-    config.automated_proffast.data_sources.storage = True
-    config.automated_proffast.data_sources.manual_queue = False
-    retrieval_queue = interfaces.proffast.RetrievalQueue(
-        config, logger, em27_metadata=em27_metadata
-    )
-    check_next_item(retrieval_queue.get_next_item(), "20170609")
-    check_next_item(retrieval_queue.get_next_item(), "20170608")
-    check_next_item(retrieval_queue.get_next_item(), None)
-
-    # test queue when only manual queue data is available
-    config.automated_proffast.data_sources.storage = False
-    config.automated_proffast.data_sources.manual_queue = True
-    retrieval_queue = interfaces.proffast.RetrievalQueue(
-        config, logger, em27_metadata=em27_metadata
-    )
-    check_next_item(retrieval_queue.get_next_item(), "20170103")
-    check_next_item(retrieval_queue.get_next_item(), "20170101")
-    check_next_item(retrieval_queue.get_next_item(), "20170102")
-    check_next_item(retrieval_queue.get_next_item(), None)
-
-    # test queue when there is both manual queue data and stored data
-    config.automated_proffast.data_sources.storage = True
-    config.automated_proffast.data_sources.manual_queue = True
-    retrieval_queue = interfaces.proffast.RetrievalQueue(
-        config, logger, em27_metadata=em27_metadata
-    )
-    check_next_item(retrieval_queue.get_next_item(), "20170103")
-    check_next_item(retrieval_queue.get_next_item(), "20170101")
-    check_next_item(retrieval_queue.get_next_item(), "20170609")
-    check_next_item(retrieval_queue.get_next_item(), "20170608")
-    check_next_item(retrieval_queue.get_next_item(), "20170102")
     check_next_item(retrieval_queue.get_next_item(), None)
