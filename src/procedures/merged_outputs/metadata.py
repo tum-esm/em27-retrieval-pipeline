@@ -6,14 +6,12 @@ from src import custom_types
 
 
 def get_metadata(
+    em27_metadata: tum_esm_em27_metadata.interfaces.EM27MetadataInterface,
     campaign: tum_esm_em27_metadata.types.CampaignMetadata,
     sensor_data_contexts: dict[str, tum_esm_em27_metadata.types.SensorDataContext],
     output_merging_target: custom_types.config.OutputMergingTargetConfig,
 ) -> str:
     """Returns a description of the campaign."""
-
-    # TODO: include all sensor serial numbers
-    # TODO: include all location coordinates
 
     metadata_lines = [
         f"CONTACT:",
@@ -34,47 +32,48 @@ def get_metadata(
         f"    date:                  {next(c for c in sensor_data_contexts.values()).from_datetime.strftime('%Y-%m-%d')}",
         f"    data types:            {', '.join(output_merging_target.data_types)}",
         f"    sampling rate:         {output_merging_target.sampling_rate}",
+        f"",
     ]
 
-    metadata_lines.append("")
-
     metadata_lines.append("SENSOR SERIAL NUMBERS:")
-    for s in campaign.stations:
-        sdc = sensor_data_contexts.get(s.sensor_id, None)
-        serial_numer = "no data" if (sdc is None) else sdc.serial_number
-        metadata_lines.append(f"    {s.sensor_id}: {serial_numer}")
-
-    metadata_lines.append("")
-
-    metadata_lines.append("SENSOR LOCATIONS:")
-    campaign_location_ids = [s.default_location_id for s in campaign.stations]
-    for s in campaign.stations:
-        sdc = sensor_data_contexts.get(s.sensor_id, None)
-        location_id = "no data" if (sdc is None) else sdc.location.location_id
-
-        if fixed_sensor_locations:
-            included_in_file = location_id == s.default_location_id
-        else:
-            included_in_file = location_id in campaign_location_ids
-
+    for sid in campaign.sensor_ids:
+        s = next(filter(lambda s: s.sensor_id == sid, em27_metadata.sensors))
         metadata_lines.append(
-            f"    {s.sensor_id}: {location_id} "
-            + f"(campaign default: {s.default_location_id})"
-            + (" NOT INCLUDED IN THIS FILE" if not included_in_file else "")
+            "    "
+            + tum_esm_utils.text.pad_string(
+                f"{sid}: ", pad_position="right", min_width=10
+            )
+            + f"{s.serial_number}"
         )
 
     metadata_lines.append("")
 
-    metadata_lines.append("SENSOR COORDINATES (lat, lon, alt):")
-    for s in campaign.stations:
-        sdc = sensor_data_contexts.get(s.sensor_id, None)
-        lat = "no data" if (sdc is None) else sdc.location.lat
-        lon = "no data" if (sdc is None) else sdc.location.lon
-        alt = "no data" if (sdc is None) else sdc.location.alt
-        metadata_lines.append(f"    {s.sensor_id}: {lat}, {lon}, {alt} ")
+    metadata_lines.append("LOCATION COORDINATES [lat, lon, alt]:")
+    for lid in campaign.location_ids:
+        l = next(filter(lambda l: l.location_id == lid, em27_metadata.locations))
+        metadata_lines.append(
+            "    "
+            + tum_esm_utils.text.pad_string(
+                f"{lid}: ", pad_position="right", min_width=10
+            )
+            + f"{l.lat}, {l.lon}, {l.alt} "
+        )
+
+    metadata_lines.append("")
+
+    metadata_lines.append("SENSOR LOCATIONS:")
+    for sid in campaign.sensor_ids:
+        ctxs = list(
+            filter(lambda sdc: sdc.sensor_id == sid, sensor_data_contexts.values())
+        )
+        if len(ctxs) == 0:
+            metadata_lines.append(f"    {sid}: no data")
+        else:
+            lids = [ctx.location.location_id for ctx in ctxs]
+            metadata_lines.append(f"    {sid}: {', '.join(lids)}")
 
     metadata_lines.append("")
 
     metadata_lines = ["## " + line for line in metadata_lines]
     metadata_lines.append("#" * 80)
-    return "\n".join(metadata_lines)
+    return "\n".join(metadata_lines) + "\n"

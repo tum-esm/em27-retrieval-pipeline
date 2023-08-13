@@ -108,11 +108,11 @@ def run() -> None:
                     with open(filename, "w") as f:
                         f.write(
                             procedures.merged_outputs.get_metadata(
+                                em27_metadata,
                                 campaign,
                                 sensor_data_contexts,
                                 output_merging_target,
                             )
-                            + "\n"
                         )
                         f.write(
                             merged_df.write_csv(
