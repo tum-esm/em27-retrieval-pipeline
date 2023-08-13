@@ -11,7 +11,7 @@ class LocationDataConfig(pydantic.BaseModel):
 
     github_repository: str = pydantic.Field(
         ...,
-        regex=r"^[a-z0-9-_]+/[a-z0-9-_]+$",
+        pattern=r"^[a-z0-9-_]+/[a-z0-9-_]+$",
         description="GitHub repository name, e.g. `my-org/my-repo`",
     )
 
@@ -98,13 +98,13 @@ class AutomatedProffastGeneralConfig(pydantic.BaseModel):
 class AutomatedProffastModifiedIfgFilePermissionsConfig(pydantic.BaseModel):
     during_processing: Optional[str] = pydantic.Field(
         None,
-        regex=r"^((r|-)(w|-)(x|-)){3}$",
+        pattern=r"^((r|-)(w|-)(x|-)){3}$",
         description="A unix-like file permission string, e.g. `rwxr-xr-x`. This can be used to make the ifg files read-only during processing, to avoid accidental modification. Only used if not `null`.",
     )
 
     after_processing: Optional[str] = pydantic.Field(
         None,
-        regex=r"^((r|-)(w|-)(x|-)){3}$",
+        pattern=r"^((r|-)(w|-)(x|-)){3}$",
         description="A unix-like file permission string, e.g. `rwxr-xr-x`. Same as `during_processing`, but restoring the permissions after processing. Only used if not `null`.",
     )
 
@@ -113,7 +113,7 @@ class AutomatedProffastDataFilterConfig(pydantic.BaseModel):
     """Settings for filtering the storage data. Only used if `config.data_sources.storage` is `true`."""
 
     sensor_ids_to_consider: list[str] = pydantic.Field(
-        ..., min_items=1, description="Sensor ids to consider in the retrieval"
+        ..., min_length=1, description="Sensor ids to consider in the retrieval"
     )
     from_date: datetime.date = pydantic.Field(
         datetime.date(1900, 1, 1),
@@ -192,7 +192,7 @@ class OutputMergingTargetConfig(pydantic.BaseModel):
             "xco",
             "xch4_s5p",
         ],
-        min_items=1,
+        min_length=1,
         description="Data columns to keep in the merged output files. The columns will be prefixed with the sensor id, i.e. `$(SENSOR_ID)_$(COLUMN_NAME)`.",
     )
     max_interpolation_gap_seconds: int = pydantic.Field(

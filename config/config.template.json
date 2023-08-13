@@ -39,8 +39,8 @@
         },
         "data_filter": {
             "sensor_ids_to_consider": ["ma", "mb", "mc", "md", "me"],
-            "from_date": "20190101",
-            "to_date": "20991231",
+            "from_date": "2019-01-01",
+            "to_date": "2099-12-31",
             "min_days_delay": 5
         }
     },

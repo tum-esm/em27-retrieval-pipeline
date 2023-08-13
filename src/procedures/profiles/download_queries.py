@@ -69,6 +69,11 @@ def generate_download_queries(
             # Iterate over individual days and add sensor
             current_date = from_date
             while current_date <= to_date:
+                if location.lat not in requested_dates.keys():
+                    requested_dates[location.lat] = {}
+                if location.lon not in requested_dates[location.lat].keys():
+                    requested_dates[location.lat][location.lon] = []
+
                 if len(requested_dates[location.lat][location.lon]) == 0:
                     requested_dates[location.lat][location.lon] = [
                         custom_types.DownloadQuery(
@@ -219,7 +224,7 @@ def _compress_query_list(
             )
         )
         if len(overlapping_queries) > 0:
-            queries[0].end_date = max([q.to_date for q in overlapping_queries])
+            queries[0].to_date = max([q.to_date for q in overlapping_queries])
             queries = [queries[0], *queries[len(overlapping_queries) + 1 :]]
             continue
 
