@@ -1,4 +1,4 @@
-from typing import BinaryIO, Literal, Optional
+from typing import BinaryIO, Callable, Literal, Optional
 import time
 import tarfile
 from io import BytesIO
@@ -68,7 +68,9 @@ def get_date_suffixes(
     config: custom_types.Config,
     query: custom_types.DownloadQuery,
     version: Literal["GGG2014", "GGG2020"],
-    utcnow: datetime.datetime = datetime.datetime.utcnow(),
+    get_current_datetime: Callable[
+        [], datetime.datetime
+    ] = lambda: datetime.datetime.utcnow(),
 ) -> list[str]:
     """Generates date range suffixes up to config.max_day_delay
     days before utcnow()."""
@@ -76,28 +78,34 @@ def get_date_suffixes(
     assert config.vertical_profiles is not None, "this is a bug in the code"
 
     sep = "_"
-    max_delay = max(
+    worst_to_date = max(
         query.from_date,
         (
-            utcnow
-            - datetime.timedelta(days=config.vertical_profiles.ftp_server.max_day_delay)
+            get_current_datetime()
+            - datetime.timedelta(
+                days=config.vertical_profiles.ftp_server.max_day_delay + 1
+            )
         ).date(),
     )
+    best_to_date = query.to_date
 
     if version == "GGG2020":
         # Exclusive to date
-        query.to_date += datetime.timedelta(1)
-        max_delay += datetime.timedelta(1)
+        best_to_date += datetime.timedelta(days=1)
+        worst_to_date += datetime.timedelta(days=1)
         sep = "-"
 
     # Default query
-    date_strs = [f"{query.from_date_string()}{sep}{query.to_date_string()}"]
+    date_strs = [
+        f"{query.from_date.strftime('%Y%m%d')}{sep}{best_to_date.strftime('%Y%m%d')}"
+    ]
 
     # Query archives up to config.max_delay days before utcnow()
-    to_date = query.to_date
-    while to_date > max_delay:
-        to_date -= datetime.timedelta(1)
-        date_strs.append(f"{query.from_date_string()}{sep}{to_date.strftime('%Y%m%d')}")
+    while best_to_date > worst_to_date:
+        best_to_date -= datetime.timedelta(days=1)
+        date_strs.append(
+            f"{query.from_date.strftime('%Y%m%d')}{sep}{best_to_date.strftime('%Y%m%d')}"
+        )
     return date_strs
 
 
