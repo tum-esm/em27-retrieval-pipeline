@@ -8,7 +8,7 @@ from src import custom_types
 def get_metadata(
     em27_metadata: tum_esm_em27_metadata.interfaces.EM27MetadataInterface,
     campaign: tum_esm_em27_metadata.types.CampaignMetadata,
-    sensor_data_contexts: dict[str, tum_esm_em27_metadata.types.SensorDataContext],
+    sensor_data_contexts: list[tum_esm_em27_metadata.types.SensorDataContext],
     output_merging_target: custom_types.config.OutputMergingTargetConfig,
 ) -> str:
     """Returns a description of the campaign."""
@@ -29,7 +29,7 @@ def get_metadata(
         f"",
         f"FILE CONTENT:",
         f"    campaign id:           {campaign.campaign_id}",
-        f"    date:                  {next(c for c in sensor_data_contexts.values()).from_datetime.strftime('%Y-%m-%d')}",
+        f"    date:                  {sensor_data_contexts[0].from_datetime.strftime('%Y-%m-%d')}",
         f"    data types:            {', '.join(output_merging_target.data_types)}",
         f"    sampling rate:         {output_merging_target.sampling_rate}",
         f"",
@@ -63,9 +63,7 @@ def get_metadata(
 
     metadata_lines.append("SENSOR LOCATIONS:")
     for sid in campaign.sensor_ids:
-        ctxs = list(
-            filter(lambda sdc: sdc.sensor_id == sid, sensor_data_contexts.values())
-        )
+        ctxs = list(filter(lambda sdc: sdc.sensor_id == sid, sensor_data_contexts))
         if len(ctxs) == 0:
             metadata_lines.append(f"    {sid}: no data")
         else:

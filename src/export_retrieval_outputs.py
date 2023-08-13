@@ -10,15 +10,14 @@ import tum_esm_utils
 PROJECT_DIR = tum_esm_utils.files.get_parent_dir_path(__file__, current_depth=2)
 sys.path.append(PROJECT_DIR)
 
-from src import procedures, utils
+from src import custom_types, procedures
 
 
 def run() -> None:
-    config = utils.load_config()
+    config = custom_types.Config.load()
     em27_metadata = tum_esm_em27_metadata.load_from_github(
         **config.general.location_data.model_dump()
     )
-    console = rich.console.Console()
 
     for i, output_merging_target in enumerate(config.output_merging_targets):
         print(f"\nprocessing output merging target #{i+1}")
@@ -69,6 +68,7 @@ def run() -> None:
                 )
 
                 ctx_dataframes: list[pl.DataFrame] = []
+                found_data_count: int = 0
 
                 for sensor_data_context in sensor_data_contexts:
                     try:
