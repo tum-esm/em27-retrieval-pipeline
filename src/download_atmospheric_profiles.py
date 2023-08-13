@@ -6,11 +6,15 @@ from rich.progress import Progress
 _PROJECT_DIR = tum_esm_utils.files.get_parent_dir_path(__file__, current_depth=2)
 sys.path.append(_PROJECT_DIR)
 
-from src import procedures, utils
+from src import custom_types, procedures, utils
 
 
 def run() -> None:
-    config = utils.load_config()
+    config = custom_types.Config.load()
+
+    if config.vertical_profiles is None:
+        print("No vertical profiles configuration found.")
+        return
 
     for version in config.vertical_profiles.request_scope.data_types:
         print(f"Downloading {version} data")
@@ -42,7 +46,7 @@ def run() -> None:
                         description=f"Downloading ...",
                     ):
                         progress.print(
-                            f"Downloading data for {query.location.lat}°N, {query.location.lon}°E,"
+                            f"Downloading data for {query.lat}°N, {query.lon}°E,"
                             + f" {query.from_date} - {query.to_date}"
                         )
 
@@ -61,7 +65,7 @@ def run() -> None:
                                 up_status,
                                 up_time,
                             ) = procedures.profiles.upload_request(
-                                config.vertical_profiles.ftp_server, query, ftp, version
+                                config, query, ftp, version
                             )
                             if up_status:
                                 # Await data if upload successful

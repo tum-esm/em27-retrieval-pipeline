@@ -107,7 +107,7 @@ def download_data(
     ftp: FTP,
     version: Literal["GGG2014", "GGG2020"],
     wait: bool = False,
-) -> tuple[bool, float, Optional[str]]:
+) -> tuple[bool, float, Optional[datetime.date]]:
     """Downloads .map, .mod and .vmr data.
 
     Searches exclusively for archive suffixes on the FTP server, given that
@@ -132,7 +132,7 @@ def download_data(
         remote_dirs = {"upload/modfiles/tar/maps", "upload/modfiles/tar/mods"}
         suffixes = [f"{query.to_coordinates_slug()}_{d}.tar" for d in date_suffixes]
 
-    to_date = None
+    to_date: Optional[datetime.date] = None
     download_start = time.time()
     while (
         response != remote_dirs
@@ -164,7 +164,9 @@ def download_data(
                     )
                     archive.seek(0)
                     response.add(remote_dir)
-                    to_date = suffix[-12:-4]
+                    to_date = datetime.datetime.strptime(
+                        "%Y%m%d", suffix[-12:-4]
+                    ).date()
                     _extract_archive(config, archive, query, version)
 
         if not wait:
