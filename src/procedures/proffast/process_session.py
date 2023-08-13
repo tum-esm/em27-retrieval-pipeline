@@ -1,8 +1,8 @@
 from src import custom_types, interfaces, utils
 import signal
 from . import (
-    move_datalogger_files,
-    move_vertical_profiles,
+    move_log_files,
+    move_profiles,
     move_ifg_files,
     run_proffast_pylot,
     move_outputs,
@@ -25,13 +25,13 @@ def run(config: custom_types.Config, pylot_session: custom_types.PylotSession) -
         logger.archive()
 
     try:
-        move_vertical_profiles.run(config, pylot_session)
+        move_profiles.run(config, pylot_session)
     except Exception as e:
         log_input_warning(f"Inputs incomplete (vertical profiles): {e}")
         return
 
     try:
-        move_datalogger_files.run(config, logger, pylot_session)
+        move_log_files.run(config, logger, pylot_session)
     except Exception as e:
         log_input_warning(f"Inputs incomplete (datalogger files): {e}")
         return

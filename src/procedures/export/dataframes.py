@@ -201,12 +201,11 @@ def post_process_dataframe(
     df = pl.concat([df, new_df]).sort("utc")
 
     # apply savgol_filter on the data columns
-    # TODO: fix the mypy error with arr.explode
     df = df.select(
         pl.col("utc"),
         pl.exclude("utc")
         .map(lambda x: savgol_filter(x.to_numpy(), 31, 3).tolist())
-        .arr.explode(),
+        .list.explode(),
     )
 
     # Upscale to 1s intervals and interpolate when the gaps
