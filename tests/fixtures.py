@@ -149,47 +149,19 @@ def provide_merging_config() -> Generator[custom_types.Config, None, None]:
     yield config
 
 
-@pytest.fixture(scope="function")
-def provide_tmp_manual_queue() -> Generator[custom_types.ManualQueue, None, None]:
-    """Create a temporary manual queue file that contains items for
-    testing."""
+@pytest.fixture(scope="session")
+def provide_profiles_config() -> Generator[custom_types.Config, None, None]:
+    """Provide a temporary config used in profiles download."""
 
-    manual_queue_path = os.path.join(PROJECT_DIR, "config", "manual-queue.json")
-
-    # backup original config to restore it later
-    tmp_manual_queue_path = os.path.join(PROJECT_DIR, "config", "manual-queue.tmp.json")
-    assert not os.path.isfile(
-        tmp_manual_queue_path
-    ), f'"{tmp_manual_queue_path}" should not exist'
-    if os.path.isfile(manual_queue_path):
-        os.rename(manual_queue_path, tmp_manual_queue_path)
-
-    manual_queue = custom_types.ManualQueue(
-        items=[
-            custom_types.ManualQueueItem(
-                sensor_id="so",
-                date="20170101",
-                priority=1,
-            ),
-            custom_types.ManualQueueItem(
-                sensor_id="so",
-                date="20170103",
-                priority=1,
-            ),
-            custom_types.ManualQueueItem(
-                sensor_id="so",
-                date="20170102",
-                priority=-1,
-            ),
-        ]
+    config = custom_types.Config(
+        **tum_esm_utils.files.load_json_file(
+            os.path.join(PROJECT_DIR, "config", "config.template.json")
+        )
     )
+    config.general.data_src_dirs.datalogger = "/tmp"
+    config.general.data_src_dirs.vertical_profiles = "/tmp"
+    config.general.data_src_dirs.interferograms = "/tmp"
+    config.general.data_dst_dirs.results = "/tmp"
+    config.output_merging_targets = []
 
-    tum_esm_utils.files.dump_json_file(manual_queue_path, manual_queue.dict()["items"])
-
-    # run test
-    yield manual_queue
-
-    # possibly restore original config
-    os.remove(manual_queue_path)
-    if os.path.isfile(tmp_manual_queue_path):
-        os.rename(tmp_manual_queue_path, manual_queue_path)
+    yield config

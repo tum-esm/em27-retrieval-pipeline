@@ -25,7 +25,7 @@ pydantic = "^2.1.1"
 polars = "^0.18.11"
 tum-esm-utils = "^1.5.3"
 pendulum = "^2.1.2"
-tum-esm-em27-metadata = "2.0.0-rc.10"
+tum-esm-em27-metadata = "2.0.0-rc.11"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^7.4.0"
