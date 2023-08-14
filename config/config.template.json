@@ -31,7 +31,8 @@
     "automated_proffast": {
         "general": {
             "max_core_count": 9,
-            "ifg_file_regex": "^$(SENSOR_ID)$(DATE).*\\.\\d+$"
+            "ifg_file_regex": "^$(SENSOR_ID)$(DATE).*\\.\\d+$",
+            "retrieval_software": "proffast-2.2"
         },
         "modified_ifg_file_permissions": {
             "during_processing": null,

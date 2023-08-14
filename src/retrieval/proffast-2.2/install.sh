@@ -3,9 +3,11 @@
 #
 # Requirements:  gfortran
 # Creator:       Lena Feld, Friedrich Klappenbach
-# Adapted by: 	Moritz Makowski
+# Adapted by: 	 Moritz Makowski
 
 set -o errexit
+
+cd prf
 
 INSTALL_FOLDER=$(pwd)
 
@@ -38,5 +40,7 @@ gfortran -nocpp -O3 -o ../../pcxs20 globvar20.f90 globlin20.f90 globlev20.f90 pc
 echo 'compiling invers ...'
 cd "$INSTALL_FOLDER/source/invers"
 gfortran -nocpp -O3 -o ../../invers20 globinv20.f90 invers20.f90
+
+cd ..
 
 echo '✨ done.'

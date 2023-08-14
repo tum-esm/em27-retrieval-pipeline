@@ -35,7 +35,7 @@ def run() -> None:
         return
 
     # set up pylot dispatcher and session scheduler
-    pylot_factory = interfaces.proffast.PylotFactory(main_logger)
+    container_factory = interfaces.proffast.ContainerFactory(config, main_logger)
     retrieval_queue = interfaces.proffast.RetrievalQueue(config, main_logger)
     processes: list[multiprocessing.context.SpawnProcess] = []
 
@@ -57,7 +57,7 @@ def run() -> None:
 
                 # start new processes
                 new_session = procedures.proffast.create_session.run(
-                    pylot_factory,
+                    container_factory,
                     next_sensor_data_context,
                 )
                 new_process = multiprocessing.get_context("spawn").Process(
@@ -81,7 +81,7 @@ def run() -> None:
                 main_logger.info(
                     f'process "{finished_process.name}": finished processing'
                 )
-                pylot_factory.remove_container(finished_process.name.split("-")[-1])
+                container_factory.remove_container(finished_process.name.split("-")[-1])
                 main_logger.info(
                     f'process "{finished_process.name}": removed container'
                 )
@@ -97,7 +97,7 @@ def run() -> None:
     except Exception as e:
         main_logger.exception(e, "Unexpected error")
 
-    pylot_factory.remove_all_containers()
+    container_factory.remove_all_containers()
     main_logger.info(f"Automation is finished")
     main_logger.horizontal_line(variant="=")
     main_logger.archive()

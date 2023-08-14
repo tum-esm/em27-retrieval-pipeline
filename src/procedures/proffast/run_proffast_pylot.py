@@ -6,7 +6,7 @@ _PROJECT_DIR = tum_esm_utils.files.get_parent_dir_path(__file__, current_depth=4
 
 
 def run(
-    pylot_session: custom_types.PylotSession,
+    session: custom_types.ProffastSession,
 ) -> None:
     tum_esm_utils.shell.run_shell_command(
         " ".join(
@@ -24,8 +24,8 @@ def run(
                     "proffast-2.2",
                     "run_pylot_container.py",
                 ),
-                pylot_session.ctn.container_id,
-                pylot_session.ctn.pylot_config_path,
+                session.ctn.container_id,
+                session.ctn.pylot_config_path,
             ]
         )
     )

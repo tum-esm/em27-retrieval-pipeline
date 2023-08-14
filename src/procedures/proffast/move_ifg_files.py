@@ -8,7 +8,7 @@ from src import utils, custom_types
 def run(
     config: custom_types.Config,
     logger: utils.proffast.Logger,
-    pylot_session: custom_types.PylotSession,
+    session: custom_types.ProffastSession,
 ) -> None:
     """Move interferogram files from the source directory to the input directory.
 
@@ -20,15 +20,15 @@ def run(
 
     # FIND ALL FILENAMES OF INTERFEROGRAMS
 
-    date_string = pylot_session.ctx.from_datetime.strftime("%Y%m%d")
+    date_string = session.ctx.from_datetime.strftime("%Y%m%d")
 
     ifg_src_directory = os.path.join(
         config.general.data_src_dirs.interferograms,
-        pylot_session.ctx.sensor_id,
+        session.ctx.sensor_id,
         date_string,
     )
     expected_ifg_regex = config.automated_proffast.general.ifg_file_regex.replace(
-        "$(SENSOR_ID)", pylot_session.ctx.sensor_id
+        "$(SENSOR_ID)", session.ctx.sensor_id
     ).replace("$(DATE)", date_string)
     expected_ifg_pattern = re.compile(expected_ifg_regex)
     logger.debug(f"used regex for ifg files: {expected_ifg_regex}")
@@ -84,9 +84,7 @@ def run(
     # RENAME THEM TO THE FORMAT EXPECTED BY THE
     # PYLOT
 
-    dst_date_path = os.path.join(
-        pylot_session.ctn.data_input_path, "ifg", date_string[2:]
-    )
+    dst_date_path = os.path.join(session.ctn.data_input_path, "ifg", date_string[2:])
     os.mkdir(dst_date_path)
     for ifg_index, filename in enumerate(valid_ifg_filenames):
         os.symlink(

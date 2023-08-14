@@ -98,6 +98,11 @@ class AutomatedProffastGeneralConfig(pydantic.BaseModel):
         description="A regex string to match the ifg file names. In this string, `$(SENSOR_ID)` and `$(DATE)` are placeholders for the sensor id and the date of the ifg file.",
     )
 
+    retrieval_software: Literal["proffast-1.0", "proffast-2.2"] = pydantic.Field(
+        ...,
+        description="Which retrieval software to use.",
+    )
+
 
 class AutomatedProffastModifiedIfgFilePermissionsConfig(pydantic.BaseModel):
     during_processing: Optional[str] = pydantic.Field(

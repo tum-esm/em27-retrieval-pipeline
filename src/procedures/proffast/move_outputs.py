@@ -33,19 +33,19 @@ def detect_error_type(output_src: str) -> Optional[str]:
 def run(
     config: custom_types.Config,
     logger: utils.proffast.Logger,
-    pylot_session: custom_types.PylotSession,
+    session: custom_types.ProffastSession,
 ) -> None:
     assert config.automated_proffast is not None
 
-    date_string = pylot_session.ctx.from_datetime.strftime("%Y%m%d")
+    date_string = session.ctx.from_datetime.strftime("%Y%m%d")
 
     output_src_dir = (
-        f"{pylot_session.ctn.data_output_path}/{pylot_session.ctx.sensor_id}_"
-        + f"SN{str(pylot_session.ctx.serial_number).zfill(3)}_{date_string[2:]}-{date_string[2:]}"
+        f"{session.ctn.data_output_path}/{session.ctx.sensor_id}_"
+        + f"SN{str(session.ctx.serial_number).zfill(3)}_{date_string[2:]}-{date_string[2:]}"
     )
     output_csv_path = (
-        f"{output_src_dir}/comb_invparms_{pylot_session.ctx.sensor_id}_"
-        + f"SN{str(pylot_session.ctx.serial_number).zfill(3)}_"
+        f"{output_src_dir}/comb_invparms_{session.ctx.sensor_id}_"
+        + f"SN{str(session.ctx.serial_number).zfill(3)}_"
         + f"{date_string[2:]}-{date_string[2:]}.csv"
     )
     assert os.path.isdir(output_src_dir), "pylot output directory missing"
@@ -70,21 +70,21 @@ def run(
 
     # DETERMINE OUTPUT DIRECTORY PATHS
 
-    output_folder_slug = pylot_session.ctx.from_datetime.strftime("%Y%m%d")
-    if pylot_session.ctx.multiple_ctx_on_this_date:
-        output_folder_slug += pylot_session.ctx.from_datetime.strftime("_%H%M%S")
-        output_folder_slug += pylot_session.ctx.to_datetime.strftime("_%H%M%S")
+    output_folder_slug = session.ctx.from_datetime.strftime("%Y%m%d")
+    if session.ctx.multiple_ctx_on_this_date:
+        output_folder_slug += session.ctx.from_datetime.strftime("_%H%M%S")
+        output_folder_slug += session.ctx.to_datetime.strftime("_%H%M%S")
 
     output_dst_successful = os.path.join(
         config.general.data_dst_dirs.results,
-        pylot_session.ctx.sensor_id,
+        session.ctx.sensor_id,
         "proffast-2.2-outputs",
         "successful",
         output_folder_slug,
     )
     output_dst_failed = os.path.join(
         config.general.data_dst_dirs.results,
-        pylot_session.ctx.sensor_id,
+        session.ctx.sensor_id,
         "proffast-2.2-outputs",
         "failed",
         output_folder_slug,
@@ -116,7 +116,7 @@ def run(
         os.path.join(output_dst, "logfiles", "container.log"),
     )
     shutil.copyfile(
-        pylot_session.ctn.pylot_log_format_path,
+        session.ctn.pylot_log_format_path,
         os.path.join(output_dst, "pylot_log_format.yml"),
     )
 
@@ -133,7 +133,7 @@ def run(
             "automationVersion": tum_esm_utils.shell.get_commit_sha(),
             "generationTime": now.strftime("%Y%m%dT%H:%M:%S+00:00"),
             "config": dumped_config.model_dump(),
-            "session": pylot_session.model_dump(),
+            "session": session.model_dump(),
         }
         json.dump(about_dict, f, indent=4)
 
@@ -146,11 +146,11 @@ def run(
     ):
         ifg_src_directory = os.path.join(
             config.general.data_src_dirs.interferograms,
-            pylot_session.ctx.sensor_id,
+            session.ctx.sensor_id,
             date_string,
         )
         expected_ifg_regex = config.automated_proffast.general.ifg_file_regex.replace(
-            "$(SENSOR_ID)", pylot_session.ctx.sensor_id
+            "$(SENSOR_ID)", session.ctx.sensor_id
         ).replace("$(DATE)", date_string)
         expected_ifg_pattern = re.compile(expected_ifg_regex)
         ifg_filenames = [

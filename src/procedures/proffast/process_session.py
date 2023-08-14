@@ -9,48 +9,48 @@ from . import (
 )
 
 
-def run(config: custom_types.Config, pylot_session: custom_types.PylotSession) -> None:
+def run(config: custom_types.Config, session: custom_types.ProffastSession) -> None:
     signal.signal(signal.SIGINT, signal.SIG_IGN)
-    logger = utils.proffast.Logger(container_id=pylot_session.ctn.container_id)
+    logger = utils.proffast.Logger(container_id=session.ctn.container_id)
     logger.info(
-        f"Starting session {pylot_session.ctx.sensor_id}/"
-        + f"{pylot_session.ctx.from_datetime}-{pylot_session.ctx.to_datetime}"
+        f"Starting session {session.ctx.sensor_id}/"
+        + f"{session.ctx.from_datetime}-{session.ctx.to_datetime}"
     )
 
     def log_input_warning(message: str) -> None:
         interfaces.proffast.InputWarningsInterface.add(
-            pylot_session.ctx.sensor_id, pylot_session.ctx.from_datetime, message
+            session.ctx.sensor_id, session.ctx.from_datetime, message
         )
         logger.warning(message)
         logger.archive()
 
     try:
-        move_profiles.run(config, pylot_session)
+        move_profiles.run(config, session)
     except Exception as e:
         log_input_warning(f"Inputs incomplete (vertical profiles): {e}")
         return
 
     try:
-        move_log_files.run(config, logger, pylot_session)
+        move_log_files.run(config, logger, session)
     except Exception as e:
         log_input_warning(f"Inputs incomplete (datalogger files): {e}")
         return
 
     try:
-        move_ifg_files.run(config, logger, pylot_session)
+        move_ifg_files.run(config, logger, session)
     except Exception as e:
         log_input_warning(f"Inputs incomplete (ifg files): {e}")
         return
 
     # inputs complete no warning to consider anymore
     interfaces.proffast.InputWarningsInterface.remove(
-        pylot_session.ctx.sensor_id,
-        pylot_session.ctx.from_datetime,
+        session.ctx.sensor_id,
+        session.ctx.from_datetime,
     )
 
     logger.info(f"Running the pylot")
     try:
-        run_proffast_pylot.run(pylot_session)
+        run_proffast_pylot.run(session)
         logger.debug("Pylot execution was successful")
     except Exception as e:
         logger.exception(e, label="Pylot execution failed")
@@ -61,7 +61,7 @@ def run(config: custom_types.Config, pylot_session: custom_types.PylotSession) -
 
     logger.info(f"Moving the outputs")
     try:
-        move_outputs.run(config, logger, pylot_session)
+        move_outputs.run(config, logger, session)
         logger.info(f"Finished")
     except AssertionError as e:
         logger.exception(e, label="Moving outputs failed")

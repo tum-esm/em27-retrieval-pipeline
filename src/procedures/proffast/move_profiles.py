@@ -5,14 +5,14 @@ from src import custom_types, utils
 
 def run(
     config: custom_types.Config,
-    pylot_session: custom_types.PylotSession,
+    session: custom_types.ProffastSession,
 ) -> None:
     # TODO: add switch to use either GGG2014 or GGG2020
 
     coordinates_slug = utils.functions.get_coordinates_slug(
-        lat=pylot_session.ctx.location.lat, lon=pylot_session.ctx.location.lon
+        lat=session.ctx.location.lat, lon=session.ctx.location.lon
     )
-    date_string = pylot_session.ctx.from_datetime.strftime("%Y%m%d")
+    date_string = session.ctx.from_datetime.strftime("%Y%m%d")
 
     try:
         shutil.copy(
@@ -22,9 +22,9 @@ def run(
                 f"{date_string}_{coordinates_slug}.map",
             ),
             os.path.join(
-                pylot_session.ctn.data_input_path,
+                session.ctn.data_input_path,
                 "map",
-                f"{pylot_session.ctx.sensor_id}{date_string}.map",
+                f"{session.ctx.sensor_id}{date_string}.map",
             ),
         )
     except FileNotFoundError:

@@ -1,7 +1,12 @@
+import os
 from typing import Any
 import pydantic
 import datetime
 import tum_esm_em27_metadata.types
+import tum_esm_utils
+
+_PROJECT_DIR = tum_esm_utils.files.get_parent_dir_path(__file__, current_depth=3)
+_CONTAINERS_DIR = os.path.join(_PROJECT_DIR, "data", "containers")
 
 
 class InputWarning(pydantic.BaseModel):
@@ -19,19 +24,74 @@ class InputWarningsList(pydantic.BaseModel):
     items: list[InputWarning]
 
 
-class PylotContainer(pydantic.BaseModel):
-    # TODO: derived paths as properties based on container_id
-
+class Proffast10Container(pydantic.BaseModel):
     container_id: str
-    container_path: str
-    data_input_path: str
-    data_output_path: str
-    pylot_config_path: str
-    pylot_log_format_path: str
+
+    @property
+    def container_path(self) -> str:
+        return os.path.join(
+            _CONTAINERS_DIR,
+            f"pylot-container-{self.container_id}",
+        )
+
+    @property
+    def data_input_path(self) -> str:
+        return os.path.join(
+            _CONTAINERS_DIR,
+            f"pylot-container-{self.container_id}-inputs",
+        )
+
+    @property
+    def data_output_path(self) -> str:
+        return os.path.join(
+            _CONTAINERS_DIR,
+            f"pylot-container-{self.container_id}-outputs",
+        )
 
 
-class PylotSession(pydantic.BaseModel):
-    """This combines a `SensorDataContext` with a `PylotContainer`."""
+class Proffast22Container(pydantic.BaseModel):
+    container_id: str
+
+    @property
+    def container_path(self) -> str:
+        return os.path.join(
+            _CONTAINERS_DIR,
+            f"pylot-container-{self.container_id}",
+        )
+
+    @property
+    def data_input_path(self) -> str:
+        return os.path.join(
+            _CONTAINERS_DIR,
+            f"pylot-container-{self.container_id}-inputs",
+        )
+
+    @property
+    def data_output_path(self) -> str:
+        return os.path.join(
+            _CONTAINERS_DIR,
+            f"pylot-container-{self.container_id}-outputs",
+        )
+
+    @property
+    def pylot_config_path(self) -> str:
+        return os.path.join(
+            _CONTAINERS_DIR,
+            f"pylot-container-{self.container_id}-inputs",
+            "pylot_config.yml",
+        )
+
+    @property
+    def pylot_log_format_path(self) -> str:
+        return os.path.join(
+            _CONTAINERS_DIR,
+            f"pylot-container-{self.container_id}-inputs",
+            "pylot_log_format.yml",
+        )
+
+
+class ProffastSession(pydantic.BaseModel):
+    """This combines a `SensorDataContext` with a `Proffast10Container` or `Proffast22Container`."""
 
     ctx: tum_esm_em27_metadata.types.SensorDataContext
-    ctn: PylotContainer
+    ctn: Proffast10Container | Proffast22Container
