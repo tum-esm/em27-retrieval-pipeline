@@ -1,6 +1,6 @@
 *__pycache__*
 *.BIN
-prf/*
+prf
 *subl*
 ./Logfile.txt
 *pT*
