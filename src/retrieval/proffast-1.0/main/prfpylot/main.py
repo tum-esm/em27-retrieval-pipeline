@@ -1,4 +1,5 @@
 import json
+import os
 import sys
 import click
 import tum_esm_utils
@@ -19,22 +20,33 @@ def main(session_string: str) -> None:
         print("Invalid session string")
         raise e
 
-    # prepare data
+    def log(msg: str) -> None:
+        with open(os.path.join(session.ctn.data_output_path, "prf1.log"), "a") as f:
+            f.write(msg + "\n")
+
+    log("preparing data")
     create_input_files.move_profiles_and_datalogger_files(session)
 
-    # create preprocess input file, run preprocess, move BIN files
+    log("creating preprocess input file")
     create_input_files.create_preprocess_input_file(session)
-    execute_proffast.execute_preprocess(session)
+    log("run preprocess")
+    execute_proffast.execute_preprocess(session, log)
+    log("move BIN files")
     move_data.move_bin_files(session)
 
-    # create pcxs input file and run pcxs
+    log("creating pcxs input file")
     create_input_files.create_pcxs_input_file(session)
-    execute_proffast.execute_pcxs(session)
+    log("run pcxs")
+    execute_proffast.execute_pcxs(session, log)
 
-    # create invers input file, run invers, merge invers outputs
+    log("creating invers input file")
     create_input_files.create_invers_input_file(session)
-    execute_proffast.execute_invers(session)
+    log("run invers")
+    execute_proffast.execute_invers(session, log)
+    log("merge invers output files")
     move_data.merge_output_files(session)
+
+    log("done")
 
 
 if __name__ == "__main__":

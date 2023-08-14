@@ -1,37 +1,42 @@
 import datetime
 import os
+from typing import Callable
 import tum_esm_utils
 from src import custom_types
 
 
-def execute_preprocess(session: custom_types.ProffastSession) -> None:
+def execute_preprocess(
+    session: custom_types.ProffastSession, log: Callable[[str], None]
+) -> None:
     prf_dir = os.path.join(session.ctn.container_path, "prf")
     start_timestamp = datetime.datetime.utcnow().timestamp()
-    print("PREPROCESS: STARTING")
+    log("PREPROCESS: STARTING")
 
     # running preprocess
     stdout = tum_esm_utils.shell.run_shell_command(
         "./preprocess4 " + os.path.join(prf_dir, "preprocess", "preprocess4.inp"),
         working_directory=os.path.join(prf_dir, "preprocess"),
     )
-    print(f"stdout:\n{stdout}")
+    log(f"stdout:\n{stdout}")
 
     end_timestamp = datetime.datetime.utcnow().timestamp()
     time_taken = round(end_timestamp - start_timestamp, 6)
-    print(f"PREPROCESS: FINISHED (took {time_taken} seconds)")
+    log(f"PREPROCESS: FINISHED (took {time_taken} seconds)")
 
 
-def execute_pcxs(session: custom_types.ProffastSession) -> None:
+def execute_pcxs(
+    session: custom_types.ProffastSession, log: Callable[[str], None]
+) -> None:
     prf_dir = os.path.join(session.ctn.container_path, "prf")
     start_timestamp = datetime.datetime.utcnow().timestamp()
-    print("PCXS10: STARTING")
+    log("PCXS10: STARTING")
 
     # running pcxs10
     stdout = tum_esm_utils.shell.run_shell_command(
         "./pcxs10 " + os.path.join(prf_dir, "inp_fast", "pcxs10.inp"),
         working_directory=prf_dir,
     )
-    print(f"stdout:\n{stdout}")
+    log(f"stdout:\n{stdout}")
 
     # renaming output files
     date_string = session.ctx.from_datetime.strftime("%Y%m%d")
@@ -52,13 +57,15 @@ def execute_pcxs(session: custom_types.ProffastSession) -> None:
 
     end_timestamp = datetime.datetime.utcnow().timestamp()
     time_taken = round(end_timestamp - start_timestamp, 6)
-    print(f"PCXS10: FINISHED (took {time_taken} seconds)")
+    log(f"PCXS10: FINISHED (took {time_taken} seconds)")
 
 
-def execute_invers(session: custom_types.ProffastSession) -> None:
+def execute_invers(
+    session: custom_types.ProffastSession, log: Callable[[str], None]
+) -> None:
     prf_dir = os.path.join(session.ctn.container_path, "prf")
     start_timestamp = datetime.datetime.utcnow().timestamp()
-    print("INVERS10: STARTING")
+    log("INVERS10: STARTING")
 
     # running invers10
     stdout = tum_esm_utils.shell.run_shell_command(
@@ -66,7 +73,7 @@ def execute_invers(session: custom_types.ProffastSession) -> None:
         + os.path.join(prf_dir, "inp_fast", "invers10.inp"),
         working_directory=prf_dir,
     )
-    print(f"stdout:\n{stdout}")
+    log(f"stdout:\n{stdout}")
 
     # renaming output files
     date_string = session.ctx.from_datetime.strftime("%Y%m%d")
@@ -79,4 +86,4 @@ def execute_invers(session: custom_types.ProffastSession) -> None:
 
     end_timestamp = datetime.datetime.utcnow().timestamp()
     time_taken = round(end_timestamp - start_timestamp, 6)
-    print(f"INVERS10: FINISHED (took {time_taken} seconds)")
+    log(f"INVERS10: FINISHED (took {time_taken} seconds)")
