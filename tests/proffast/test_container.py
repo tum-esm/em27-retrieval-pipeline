@@ -102,9 +102,9 @@ def test_container(
         date_string = sdc.from_datetime.strftime("%Y%m%d")
         out_path = os.path.join(
             PROJECT_DIR,
-            "data/testing/container/outputs/proffast-2.2-outputs",
+            "data/testing/container/outputs",
             sdc.sensor_id,
-            "successful",
+            "proffast-2.2-outputs/successful",
             date_string,
         )
         for filename in [

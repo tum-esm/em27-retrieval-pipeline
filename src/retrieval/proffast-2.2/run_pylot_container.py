@@ -12,7 +12,7 @@ import os
 import importlib
 import tum_esm_utils
 
-_PROJECT_DIR = tum_esm_utils.files.get_parent_dir_path(__file__, current_depth=3)
+_PROJECT_DIR = tum_esm_utils.files.get_parent_dir_path(__file__, current_depth=4)
 
 if __name__ == "__main__":
     assert len(sys.argv) == 3, (

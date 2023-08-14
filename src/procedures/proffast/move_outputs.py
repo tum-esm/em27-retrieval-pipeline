@@ -124,13 +124,16 @@ def run(
 
     with open(os.path.join(output_dst, "about.json"), "w") as f:
         now = datetime.utcnow()
+        dumped_config = config.model_copy(deep=True)
+        if dumped_config.general.location_data.access_token is not None:
+            dumped_config.general.location_data.access_token = "REDACTED"
+
         about_dict = {
             "proffastVersion": "2.2",
             "automationVersion": tum_esm_utils.shell.get_commit_sha(),
-            "generationDate": now.strftime("%Y%m%d"),
-            "generationTime": now.strftime("%T"),
-            "config": config.dict(),
-            "session": pylot_session.dict(),
+            "generationTime": now.strftime("%Y%m%dT%H:%M:%S+00:00"),
+            "config": dumped_config.model_dump(),
+            "session": pylot_session.model_dump(),
         }
         json.dump(about_dict, f, indent=4)
 

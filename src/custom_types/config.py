@@ -1,7 +1,7 @@
 from __future__ import annotations
 import datetime
 import os
-from typing import Literal, Optional
+from typing import Any, Literal, Optional
 import tum_esm_utils
 import pydantic
 
@@ -79,6 +79,10 @@ class VerticalProfilesRequestScopeConfig(pydantic.BaseModel):
         description="list of data types to request from the ccycle ftp server",
     )
 
+    @pydantic.field_serializer("from_date", "to_date")
+    def t_serializer(self, dt: datetime.date, _info: Any) -> str:
+        return dt.strftime("%Y-%m-%d")
+
 
 class AutomatedProffastGeneralConfig(pydantic.BaseModel):
     max_core_count: int = pydantic.Field(
@@ -129,6 +133,10 @@ class AutomatedProffastDataFilterConfig(pydantic.BaseModel):
         le=60,
         description="Minimum numbers of days to wait until processing. E.g. the vertical profiles from ccyle are available with a delay of 5 days, so it doesn't make sence to try processing earlier and get a lot of error messages because of missing vertical profiles.",
     )
+
+    @pydantic.field_serializer("from_date", "to_date")
+    def t_serializer(self, dt: datetime.date, _info: Any) -> str:
+        return dt.strftime("%Y-%m-%d")
 
 
 class GeneralConfig(pydantic.BaseModel):

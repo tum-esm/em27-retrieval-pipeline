@@ -32,7 +32,7 @@ def download_sample_data() -> Generator[None, None, None]:
     The tar file has about 96MB."""
 
     testing_data_path = os.path.join(PROJECT_DIR, "data", "testing", "container")
-    tarball_filename = "automated-proffast-pylot-example-inputs.tar.gz"
+    tarball_filename = "em27-retrieval-pipeline-test-inputs-1.0.0.tar.gz"
 
     # download testing data tarball if it does not exist
     if not os.path.isfile(os.path.join(testing_data_path, tarball_filename)):

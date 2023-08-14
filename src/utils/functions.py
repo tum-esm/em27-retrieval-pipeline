@@ -29,6 +29,9 @@ def get_coordinates_slug(lat: float, lon: float, verbose: bool = False) -> str:
     verbose = false: `48N011E``
     verbose = true: `48.00N_11.00E`"""
 
+    lat = round(lat)
+    lon = round(lon)
+
     str_ = f"{abs(lat):.2f}" if verbose else f"{abs(lat):02}"
     str_ += "S" if lat < 0 else "N"
     str_ += "_" if verbose else ""

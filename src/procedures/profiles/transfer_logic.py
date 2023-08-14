@@ -222,4 +222,4 @@ def _extract_archive(
                 member.name = f"{date}_{coordinates_slug}.{type_}"
                 # 20220101_48N011E.map
 
-            tar.extract(member, f"{dst_path}/{date}_{coordinates_slug}")
+            tar.extract(member, dst_path)
