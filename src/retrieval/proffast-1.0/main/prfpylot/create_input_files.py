@@ -1,56 +1,12 @@
-import datetime
 import os
 import shutil
 from typing import Any
-import pydantic
 import tum_esm_utils
-from src import custom_types
+from src import custom_types, utils
 import polars as pl
 
 _PYLOT_DIR = tum_esm_utils.files.get_parent_dir_path(__file__)
 _TEMPLATE_DIR = os.path.join(_PYLOT_DIR, "templates")
-_ILS_PARAMS_PATH = os.path.join(_PYLOT_DIR, "ils-parameters.csv")
-
-
-class ILSParams(pydantic.BaseModel):
-    channel1_me: float
-    channel1_pe: float
-    channel2_me: float
-    channel2_pe: float
-
-
-def get_ils_params(serial_number: str, date: datetime.date) -> ILSParams:
-    df = pl.read_csv(
-        _ILS_PARAMS_PATH,
-        columns=[
-            "SERIAL_NUMBER",
-            "CHANNEL1_ME",
-            "CHANNEL1_PE",
-            "CHANNEL2_ME",
-            "CHANNEL2_PE",
-            "VALID_SINCE",
-        ],
-        dtypes={
-            "SERIAL_NUMBER": pl.Int16,
-            "CHANNEL1_ME": pl.Float64,
-            "CHANNEL1_PE": pl.Float64,
-            "CHANNEL2_ME": pl.Float64,
-            "CHANNEL2_PE": pl.Float64,
-            "VALID_SINCE": pl.Date,
-        },
-    )
-
-    df = df.filter(pl.col("SERIAL_NUMBER") == serial_number)
-    df = df.filter(pl.col("VALID_SINCE") <= date)
-    df = df.sort("VALID_SINCE", descending=True)
-    df = df.head(1)
-
-    return ILSParams(
-        channel1_me=df["CHANNEL1_ME"][0],
-        channel1_pe=df["CHANNEL1_PE"][0],
-        channel2_me=df["CHANNEL2_ME"][0],
-        channel2_pe=df["CHANNEL2_PE"][0],
-    )
 
 
 def _write_template_file(
@@ -59,7 +15,9 @@ def _write_template_file(
     dst_path: str,
     additional_lines: list[str] = [],
 ) -> None:
-    ils_params = get_ils_params(session.ctx.sensor_id, session.ctx.from_datetime.date())
+    ils_params = utils.get_ils_params(
+        session.ctx.sensor_id, session.ctx.from_datetime.date()
+    )
 
     replacements = {
         "DATE": session.ctx.from_datetime.strftime("%Y%m%d"),
@@ -158,15 +116,12 @@ def move_profiles_and_datalogger_files(session: custom_types.ProffastSession) ->
             ),
         ),
         columns=["UTCtime___", "BaroYoung"],
-        dtypes={"UTCtime___": pl.Time, "BaroYoung": pl.Float64},
     )
 
     def row_to_str(row: dict[str, Any]) -> str:
-        time = row["UTCtime___"]
-        assert isinstance(time, datetime.time)
-        pressure = row["BaroYoung"]
-        assert isinstance(pressure, float)
-        return f"{time.strftime('%H%M%S')}\t{pressure:.1f}\t0.0"
+        time = str(row["UTCtime___"]).replace(":", "")
+        pressure = float(row["BaroYoung"])
+        return f"{time}\t{pressure:.1f}\t0.0"
 
     lines = [row_to_str(row) for row in df.iter_rows(named=True)]
     file_content = template_content.rstrip("\n ") + "\n" + "\n".join(lines)
