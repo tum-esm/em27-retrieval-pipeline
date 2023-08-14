@@ -4,6 +4,7 @@ import os
 import re
 import shutil
 from typing import Optional
+import polars as pl
 from src import utils, custom_types
 import tum_esm_utils
 
@@ -69,7 +70,24 @@ def run(
             else:
                 logger.debug(f"Known error type: {error_type}")
     else:
-        raise NotImplementedError()
+        output_src_dir = os.path.join(session.ctn.container_path, "prf", "out_fast")
+        output_parquet_path = os.path.join(
+            output_src_dir,
+            f"{session.ctx.sensor_id}{date_string[2:]}-combined-invparms.parquet",
+        )
+
+        # DETERMINE WHETHER RETRIEVAL HAS BEEN SUCCESSFUL OR NOT
+
+        day_was_successful = os.path.isfile(output_parquet_path)
+        if day_was_successful:
+            df = pl.read_parquet(output_parquet_path)
+            if len(df) > 1:
+                logger.debug(f"Retrieval output csv exists")
+            else:
+                day_was_successful = False
+                logger.warning(f"Retrieval output csv exists but is empty")
+        else:
+            logger.debug(f"Retrieval output csv is missing")
 
     # DETERMINE OUTPUT DIRECTORY PATHS
 
