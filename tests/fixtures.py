@@ -38,7 +38,7 @@ def download_sample_data() -> Generator[None, None, None]:
     if not os.path.isfile(os.path.join(testing_data_path, tarball_filename)):
         tum_esm_utils.shell.run_shell_command(
             f"wget --quiet https://syncandshare.lrz.de/dl/"
-            + f"fiA9bjdafNcuVGrmMfDL49/{tarball_filename}",
+            + f"fiUY18aZDWf3CYNisatQB9/{tarball_filename}",
             working_directory=testing_data_path,
         )
 
@@ -51,7 +51,7 @@ def download_sample_data() -> Generator[None, None, None]:
 
     # extract tarball
     tum_esm_utils.shell.run_shell_command(
-        f"tar -xf {tarball_filename}",
+        f"tar -xzf {tarball_filename}",
         working_directory=testing_data_path,
     )
 

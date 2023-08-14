@@ -104,10 +104,24 @@ class RetrievalQueue:
                 try:
                     sensor_data_contexts = self.em27_metadata.get(
                         sensor_id=sensor_id,
-                        from_datetime=datetime.datetime.combine(
-                            date, datetime.time.min
+                        from_datetime=datetime.datetime(
+                            date.year,
+                            date.month,
+                            date.day,
+                            0,
+                            0,
+                            0,
+                            tzinfo=datetime.timezone.utc,
                         ),
-                        to_datetime=datetime.datetime.combine(date, datetime.time.max),
+                        to_datetime=datetime.datetime(
+                            date.year,
+                            date.month,
+                            date.day,
+                            23,
+                            59,
+                            59,
+                            tzinfo=datetime.timezone.utc,
+                        ),
                     )
                 except AssertionError as a:
                     self.logger.debug(str(a))
@@ -145,6 +159,8 @@ class RetrievalQueue:
 
         assert self.config.automated_proffast is not None
 
+        date_string = date.strftime("%Y%m%d")
+
         ifg_src_directory = os.path.join(
             self.config.general.data_src_dirs.interferograms,
             sensor_id,
@@ -156,7 +172,7 @@ class RetrievalQueue:
         expected_ifg_regex = (
             self.config.automated_proffast.general.ifg_file_regex.replace(
                 "$(SENSOR_ID)", sensor_id
-            ).replace("$(DATE)", date.strftime("%Y%m%d"))
+            ).replace("$(DATE)", f"({date_string}|{date_string[2:]})")
         )
         expected_ifg_pattern = re.compile(expected_ifg_regex)
         return (
@@ -196,24 +212,28 @@ class RetrievalQueue:
 
         existing_output_dir_names: set[str] = set()
         for output_dir_type in ["successful", "failed"]:
-            existing_output_dir_names = existing_output_dir_names.union(
-                set(
-                    utils.functions.list_directory(
-                        os.path.join(
-                            self.config.general.data_dst_dirs.results,
-                            sensor_id,
-                            "proffast-2.2-outputs",
-                            output_dir_type,
-                        ),
-                        is_directory=True,
-                        regex=(
-                            r"^"
-                            + sensor_data_contexts[0].from_datetime.strftime("%Y%m%d")
-                            + r".*"
-                        ),
+            output_dir_path = os.path.join(
+                self.config.general.data_dst_dirs.results,
+                sensor_id,
+                "proffast-2.2-outputs",
+                output_dir_type,
+            )
+            if os.path.isdir(output_dir_path):
+                existing_output_dir_names = existing_output_dir_names.union(
+                    set(
+                        utils.functions.list_directory(
+                            output_dir_path,
+                            is_directory=True,
+                            regex=(
+                                r"^"
+                                + sensor_data_contexts[0].from_datetime.strftime(
+                                    "%Y%m%d"
+                                )
+                                + r".*"
+                            ),
+                        )
                     )
                 )
-            )
 
         if len(existing_output_dir_names) == 0:
             return sensor_data_contexts

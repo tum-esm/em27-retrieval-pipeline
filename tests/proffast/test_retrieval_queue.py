@@ -3,12 +3,13 @@ import os
 from typing import Optional
 import pytest
 import tum_esm_em27_metadata
+import tum_esm_utils
 from src import custom_types, interfaces, utils
-from ..fixtures import provide_config_template
+from ..fixtures import download_sample_data, clear_output_data, provide_config_template
 import dotenv
 
 dir = os.path.dirname
-PROJECT_DIR = dir(dir(os.path.abspath(__file__)))
+PROJECT_DIR = tum_esm_utils.files.get_parent_dir_path(__file__, current_depth=3)
 dotenv.load_dotenv(os.path.join(PROJECT_DIR, "tests", ".env"))
 
 em27_metadata = tum_esm_em27_metadata.interfaces.EM27MetadataInterface(
@@ -49,15 +50,33 @@ def check_next_item(
     if i is None:
         assert expected_date is None
     else:
-        assert i.from_datetime == expected_date
+        assert i.from_datetime.date() == expected_date
 
 
 @pytest.mark.ci
 def test_retrieval_queue(
+    download_sample_data: None,
+    clear_output_data: None,
     provide_config_template: custom_types.Config,
 ) -> None:
     config = provide_config_template
     assert config.automated_proffast is not None
+
+    # target config at test data
+    config.automated_proffast.data_filter.sensor_ids_to_consider = ["so"]
+    config.automated_proffast.general.retrieval_software = "proffast-2.2"
+    config.general.data_src_dirs.datalogger = os.path.join(
+        PROJECT_DIR, "data", "testing", "container", "inputs", "log"
+    )
+    config.general.data_src_dirs.interferograms = os.path.join(
+        PROJECT_DIR, "data", "testing", "container", "inputs", "ifg"
+    )
+    config.general.data_src_dirs.vertical_profiles = os.path.join(
+        PROJECT_DIR, "data", "testing", "container", "inputs", "map"
+    )
+    config.general.data_dst_dirs.results = os.path.join(
+        PROJECT_DIR, "data", "testing", "container", "outputs"
+    )
 
     config.automated_proffast.data_filter.from_date = datetime.date(2017, 6, 8)
     config.automated_proffast.data_filter.to_date = datetime.date(2017, 6, 9)
@@ -95,6 +114,16 @@ def test_retrieval_queue(
     check_next_item(retrieval_queue.get_next_item(), None)
 
     # test case 4
+    config.automated_proffast.data_filter.from_date = datetime.date(2017, 6, 8)
+    config.automated_proffast.data_filter.to_date = datetime.date(2017, 6, 8)
+    retrieval_queue = interfaces.proffast.RetrievalQueue(
+        config, logger, em27_metadata=em27_metadata
+    )
+    check_next_item(retrieval_queue.get_next_item(), datetime.date(2017, 6, 8))
+    check_next_item(retrieval_queue.get_next_item(), None)
+    check_next_item(retrieval_queue.get_next_item(), None)
+
+    # test case 5
     config.automated_proffast.data_filter.from_date = datetime.date(2017, 6, 1)
     config.automated_proffast.data_filter.to_date = datetime.date(2017, 6, 7)
     retrieval_queue = interfaces.proffast.RetrievalQueue(
