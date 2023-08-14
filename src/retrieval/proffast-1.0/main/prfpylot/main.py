@@ -24,7 +24,7 @@ def main(session_string: str) -> None:
         raise e
 
     def log(msg: str) -> None:
-        with open(os.path.join(session.ctn.data_output_path, "prf1.log"), "a") as f:
+        with open(os.path.join(session.ctn.data_output_path, "wrapper.log"), "a") as f:
             f.write(msg + "\n")
 
     log("preparing data")
@@ -53,4 +53,4 @@ def main(session_string: str) -> None:
 
 
 if __name__ == "__main__":
-    main(prog_name="prfpylot-1.0-cli")
+    main(prog_name="prf-1.0-wrapper")

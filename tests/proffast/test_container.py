@@ -1,5 +1,6 @@
 import datetime
 import os
+from typing import Literal
 import pytest
 import tum_esm_em27_metadata
 import tum_esm_utils
@@ -61,6 +62,12 @@ SENSOR_DATA_CONTEXTS = [
     for date in ["2022-06-02"]
 ]
 
+# SENSOR_DATA_CONTEXTS = SENSOR_DATA_CONTEXTS[2:]
+TESTED_PROFFAST_VERSIONS: list[Literal["proffast-1.0", "proffast-2.2"]] = [
+    "proffast-1.0",
+    "proffast-2.2",
+]
+
 
 @pytest.mark.integration
 def test_container(
@@ -73,10 +80,9 @@ def test_container(
     assert config.automated_proffast is not None
 
     # target config at test data
-    config.automated_proffast.general.retrieval_software = "proffast-2.2"
-    config.automated_proffast.data_filter.sensor_ids_to_consider = ["so"]
+    config.automated_proffast.data_filter.sensor_ids_to_consider = ["mc", "so"]
     config.automated_proffast.data_filter.from_date = datetime.date(2017, 6, 8)
-    config.automated_proffast.data_filter.to_date = datetime.date(2017, 6, 8)
+    config.automated_proffast.data_filter.to_date = datetime.date(2022, 6, 2)
     config.general.data_src_dirs.datalogger = os.path.join(
         PROJECT_DIR, "data", "testing", "container", "inputs", "log"
     )
@@ -90,33 +96,55 @@ def test_container(
         PROJECT_DIR, "data", "testing", "container", "outputs"
     )
 
-    # set up container factory
-    logger = utils.proffast.Logger("pytest", print_only=True)
-    container_factory = interfaces.proffast.ContainerFactory(config, logger)
+    for proffast_version in TESTED_PROFFAST_VERSIONS:
+        config.automated_proffast.general.retrieval_software = proffast_version
 
-    for sdc in SENSOR_DATA_CONTEXTS:
-        # create session and run container
-        session = procedures.proffast.create_session.run(container_factory, sdc)
-        procedures.proffast.process_session.run(config, session)
+        # set up container factory
+        logger = utils.proffast.Logger("pytest", print_only=True)
+        container_factory = interfaces.proffast.ContainerFactory(config, logger)
 
-        # assert output correctness
-        date_string = sdc.from_datetime.strftime("%Y%m%d")
-        out_path = os.path.join(
-            PROJECT_DIR,
-            "data/testing/container/outputs",
-            sdc.sensor_id,
-            "proffast-2.2-outputs/successful",
-            date_string,
-        )
-        for filename in [
-            (
-                f"comb_invparms_{sdc.sensor_id}_SN{str(sdc.serial_number).zfill(3)}"
-                + f"_{date_string[2:]}-{date_string[2:]}.csv"
-            ),
-            "about.json",
-            "pylot_config.yml",
-            "pylot_log_format.yml",
-            "logfiles/container.log",
-        ]:
-            filepath = os.path.join(out_path, filename)
-            assert os.path.isfile(filepath), f"output file does not exist ({filepath})"
+        for sdc in SENSOR_DATA_CONTEXTS:
+            # create session and run container
+            session = procedures.proffast.create_session.run(container_factory, sdc)
+            procedures.proffast.process_session.run(config, session)
+
+            # assert output correctness
+            date_string = sdc.from_datetime.strftime("%Y%m%d")
+            out_path = os.path.join(
+                PROJECT_DIR,
+                "data/testing/container/outputs",
+                sdc.sensor_id,
+                f"{proffast_version}-outputs/successful",
+                date_string,
+            )
+            expected_files = [
+                "about.json",
+                "logfiles/container.log",
+            ]
+            if proffast_version == "proffast-2.2":
+                expected_files = [
+                    (
+                        f"comb_invparms_{sdc.sensor_id}_SN{str(sdc.serial_number).zfill(3)}"
+                        + f"_{date_string[2:]}-{date_string[2:]}.csv"
+                    ),
+                    "pylot_config.yml",
+                    "pylot_log_format.yml",
+                    "logfiles/preprocess_output.log",
+                    "logfiles/pcxs_output.log",
+                    "logfiles/inv_output.log",
+                ]
+            else:
+                expected_files = [
+                    (f"{sdc.sensor_id}{date_string[2:]}-combined-invparms.csv"),
+                    (f"{sdc.sensor_id}{date_string[2:]}-combined-invparms.parquet"),
+                    "logfiles/wrapper.log",
+                    "logfiles/preprocess4.log",
+                    "logfiles/pcxs10.log",
+                    "logfiles/invers10.log",
+                ]
+
+            for filename in expected_files:
+                filepath = os.path.join(out_path, filename)
+                assert os.path.isfile(
+                    filepath
+                ), f"output file does not exist ({filepath})"

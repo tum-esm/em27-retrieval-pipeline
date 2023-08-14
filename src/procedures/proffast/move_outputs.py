@@ -99,14 +99,14 @@ def run(
     output_dst_successful = os.path.join(
         config.general.data_dst_dirs.results,
         session.ctx.sensor_id,
-        "proffast-2.2-outputs",
+        config.automated_proffast.general.retrieval_software + "-outputs",
         "successful",
         output_folder_slug,
     )
     output_dst_failed = os.path.join(
         config.general.data_dst_dirs.results,
         session.ctx.sensor_id,
-        "proffast-2.2-outputs",
+        config.automated_proffast.general.retrieval_software + "-outputs",
         "failed",
         output_folder_slug,
     )

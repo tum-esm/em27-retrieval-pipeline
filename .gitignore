@@ -4,6 +4,7 @@ hidden/
 config.json
 manual-queue.json
 .vscode
+*.parquet
 
 data/**/*.map
 data/**/*.mod

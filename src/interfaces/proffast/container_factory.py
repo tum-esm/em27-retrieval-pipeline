@@ -119,32 +119,31 @@ class ContainerFactory:
         KIT_BASE_URL = "https://www.imk-asf.kit.edu/downloads/Coccon-SW/"
         ZIPFILE_NAME = "2021-03-08_prf96-EM27-fast.zip"
 
-        root_dir = os.path.join(_RETRIEVAL_CODE_DIR, "proffast-1.0")
+        root_dir = os.path.join(_RETRIEVAL_CODE_DIR, "proffast-1.0", "main")
 
         # DOWNLOAD PROFFAST 1.0 code if it doesn't exist yet
-        if os.path.exists(os.path.join(root_dir, "main", "prf")):
+        if os.path.exists(os.path.join(root_dir, "prf")):
             self.logger.info(f"Proffast 1.0 has already been downloaded")
             return
 
         self.logger.info(f"Downloading Proffast 1.0 code")
         tum_esm_utils.shell.run_shell_command(
             command=f"wget --quiet {KIT_BASE_URL}/{ZIPFILE_NAME}",
-            working_directory=os.path.join(root_dir, "main"),
+            working_directory=root_dir,
         )
         tum_esm_utils.shell.run_shell_command(
             command=f"unzip -q {ZIPFILE_NAME}",
-            working_directory=os.path.join(root_dir, "main"),
+            working_directory=root_dir,
         )
         os.rename(
-            os.path.join(root_dir, "main", "2021-03-08_prf96-EM27-fast"),
-            os.path.join(root_dir, "main", "prf"),
+            os.path.join(root_dir, "2021-03-08_prf96-EM27-fast"),
+            os.path.join(root_dir, "prf"),
         )
 
         # clean up unused directories
         for d in [
             os.path.join(root_dir, "prf", "preprocess", "125HR-garmisch"),
             os.path.join(root_dir, "prf", "preprocess", "125HR-karlsruhe"),
-            os.path.join(root_dir, "prf", "preprocess", "diagnosis"),
             os.path.join(root_dir, "prf", "preprocess", "sod2017_em27sn039"),
             os.path.join(root_dir, "prf", "out_fast", "sod2017_em27sn039"),
             os.path.join(root_dir, "prf", "out_fast", "sod2017_em27sn039_Linux"),
@@ -155,7 +154,7 @@ class ContainerFactory:
 
         # clean up unused files
         for f in [
-            os.path.join(root_dir, "main", ZIPFILE_NAME),
+            os.path.join(root_dir, ZIPFILE_NAME),
             os.path.join(root_dir, "prf", "continue.txt"),
             os.path.join(
                 root_dir, "prf", "inp_fast", "invers10_sod2017_em27sn039_170608.inp"
@@ -167,7 +166,7 @@ class ContainerFactory:
                 root_dir, "prf", "inp_fast", "pcxs10_sod2017_em27sn039_170608.inp"
             ),
             os.path.join(
-                root_dir, "prf", "inp_fast", "pcxs10_sod2017_em27sn039_170608.inp"
+                root_dir, "prf", "inp_fast", "pcxs10_sod2017_em27sn039_170609.inp"
             ),
         ]:
             os.remove(f)
@@ -187,20 +186,24 @@ class ContainerFactory:
         KIT_BASE_URL = "https://www.imk-asf.kit.edu/downloads/Coccon-SW/"
         ZIPFILE_NAME = "PROFFASTv2.2.zip"
 
-        root_dir = os.path.join(_RETRIEVAL_CODE_DIR, "proffast-2.2")
+        root_dir = os.path.join(
+            _RETRIEVAL_CODE_DIR,
+            "proffast-2.2",
+            "main",
+        )
 
         # DOWNLOAD PROFFAST 2.2 code if it doesn't exist yet
-        if os.path.exists(os.path.join(root_dir, "main", "prf")):
+        if os.path.exists(os.path.join(root_dir, "prf")):
             self.logger.info(f"Proffast 2.2 has already been downloaded")
             return
 
         self.logger.info(f"Downloading Proffast 2.2 code")
         tum_esm_utils.shell.run_shell_command(
             command=f"wget --quiet {KIT_BASE_URL}/{ZIPFILE_NAME}",
-            working_directory=os.path.join(root_dir, "main"),
+            working_directory=root_dir,
         )
         tum_esm_utils.shell.run_shell_command(
             command=f"unzip -q {ZIPFILE_NAME}",
-            working_directory=os.path.join(root_dir, "main"),
+            working_directory=root_dir,
         )
-        os.remove(os.path.join(root_dir, "main", ZIPFILE_NAME))
+        os.remove(os.path.join(root_dir, ZIPFILE_NAME))

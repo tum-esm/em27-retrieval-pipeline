@@ -59,8 +59,8 @@ def _read_invparms_file(path: str) -> pl.DataFrame:
             ],
             dtypes={
                 "JulianDate": pl.Float64,
-                "HHMMSS_ID": str,
-                "SX": str,
+                "HHMMSS_ID": str,  # type: ignore
+                "SX": str,  # type: ignore
                 "gndP": pl.Float64,
                 "gndT": pl.Float64,
                 "latdeg": pl.Float64,
@@ -86,7 +86,7 @@ def merge_output_files(session: custom_types.ProffastSession) -> None:
     # copy log files
     logs_dir = os.path.join(out_dir, "logfiles")
     os.mkdir(logs_dir)
-    for f in ["pylot.log", "preprocess4.log", "pcxs10.log", "invers10.log"]:
+    for f in ["wrapper.log", "preprocess4.log", "pcxs10.log", "invers10.log"]:
         os.rename(
             os.path.join(session.ctn.data_output_path, f), os.path.join(logs_dir, f)
         )
