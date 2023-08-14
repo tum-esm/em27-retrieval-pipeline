@@ -12,7 +12,7 @@ def run(
 ) -> None:
     """Move interferogram files from the source directory to the input directory.
 
-    Accepted file name pattern: `regex(^$(SENSORID)$(DATE).*\.\d+$)`
+    Accepted file name pattern: `regex(^$(SENSORID)$(DATE).*\\.\\d+$)`
 
     Examples: `ma20201123.ifg.0001`, `ma20220316s0e00a.0001`"""
 

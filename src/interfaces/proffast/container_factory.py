@@ -114,9 +114,30 @@ class ContainerFactory:
     def _init_proffast10_code(self) -> None:
         """Initialize the Proffast 1.0 code"""
 
-        # TODO: implement
+        KIT_BASE_URL = "https://www.imk-asf.kit.edu/downloads/Coccon-SW/"
+        ZIPFILE_NAME = "2021-03-08_prf96-EM27-fast.zip"
 
-        pass
+        root_dir = os.path.join(_RETRIEVAL_CODE_DIR, "proffast-1.0")
+
+        # DOWNLOAD PROFFAST 1.0 code if it doesn't exist yet
+        if os.path.exists(os.path.join(root_dir, "main", "prf")):
+            self.logger.info(f"Proffast 1.0 has already been downloaded")
+            return
+
+        self.logger.info(f"Downloading Proffast 1.0 code")
+        tum_esm_utils.shell.run_shell_command(
+            command=f"wget --quiet {KIT_BASE_URL}/{ZIPFILE_NAME}",
+            working_directory=os.path.join(root_dir, "main"),
+        )
+        tum_esm_utils.shell.run_shell_command(
+            command=f"unzip -q {ZIPFILE_NAME}",
+            working_directory=os.path.join(root_dir, "main"),
+        )
+        os.rename(
+            os.path.join(root_dir, "main", "2021-03-08_prf96-EM27-fast"),
+            os.path.join(root_dir, "main", "prf"),
+        )
+        os.remove(os.path.join(root_dir, "main", ZIPFILE_NAME))
 
     def _init_proffast22_code(self) -> None:
         """Initialize the Proffast 2.2 and pylot 1.1 code.
@@ -128,19 +149,20 @@ class ContainerFactory:
         KIT_BASE_URL = "https://www.imk-asf.kit.edu/downloads/Coccon-SW/"
         ZIPFILE_NAME = "PROFFASTv2.2.zip"
 
-        retrieval_code_root_dir = os.path.join(_RETRIEVAL_CODE_DIR, "proffast-2.2")
+        root_dir = os.path.join(_RETRIEVAL_CODE_DIR, "proffast-2.2")
 
         # DOWNLOAD PROFFAST 2.2 code if it doesn't exist yet
-        if os.path.exists(os.path.join(retrieval_code_root_dir, "main", "prf")):
+        if os.path.exists(os.path.join(root_dir, "main", "prf")):
             self.logger.info(f"Proffast 2.2 has already been downloaded")
-        else:
-            self.logger.info(f"Downloading Proffast 2.2 code")
-            tum_esm_utils.shell.run_shell_command(
-                command=f"wget --quiet {KIT_BASE_URL}/{ZIPFILE_NAME}",
-                working_directory=os.path.join(retrieval_code_root_dir, "main"),
-            )
-            tum_esm_utils.shell.run_shell_command(
-                command=f"unzip -q {ZIPFILE_NAME}",
-                working_directory=os.path.join(retrieval_code_root_dir, "main"),
-            )
-            os.remove(os.path.join(retrieval_code_root_dir, "main", ZIPFILE_NAME))
+            return
+
+        self.logger.info(f"Downloading Proffast 2.2 code")
+        tum_esm_utils.shell.run_shell_command(
+            command=f"wget --quiet {KIT_BASE_URL}/{ZIPFILE_NAME}",
+            working_directory=os.path.join(root_dir, "main"),
+        )
+        tum_esm_utils.shell.run_shell_command(
+            command=f"unzip -q {ZIPFILE_NAME}",
+            working_directory=os.path.join(root_dir, "main"),
+        )
+        os.remove(os.path.join(root_dir, "main", ZIPFILE_NAME))
