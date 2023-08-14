@@ -33,8 +33,7 @@ def execute_pcxs(
 
     # running pcxs10
     stdout = tum_esm_utils.shell.run_shell_command(
-        "./pcxs10 " + os.path.join(prf_dir, "inp_fast", "pcxs10.inp"),
-        working_directory=prf_dir,
+        "./pcxs10 pcxs10.inp", working_directory=prf_dir
     )
     log(f"stdout:\n{stdout}")
 
@@ -69,8 +68,7 @@ def execute_invers(
 
     # running invers10
     stdout = tum_esm_utils.shell.run_shell_command(
-        'printf "Y\n%.0s" {1..100} | ./invers10 '
-        + os.path.join(prf_dir, "inp_fast", "invers10.inp"),
+        'printf "Y\n%.0s" {1..100} | ./invers10 invers10.inp',
         working_directory=prf_dir,
     )
     log(f"stdout:\n{stdout}")

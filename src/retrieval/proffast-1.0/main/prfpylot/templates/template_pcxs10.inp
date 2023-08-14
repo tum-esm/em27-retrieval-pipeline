@@ -25,11 +25,11 @@ pT file
 construct H2O and HDO from pT file (True/False)
 n_Tdisturb
 $
-%CONTAINER_PATH%-outputs/analysis/%SENSOR_ID%/%DATE%
+%CONTAINER_PATH%-outputs/analysis/%SENSOR_ID%/%DATE6%
 %SENSOR_ID%
-%DATE%
+%DATE6%
 .false.
-%CONTAINER_PATH%-outputs/analysis/%SENSOR_ID%/%DATE%/pT/%SENSOR_ID%%DATE%.map
+%CONTAINER_PATH%-outputs/analysis/%SENSOR_ID%/%DATE6%/pT/%SENSOR_ID%%DATE8%.map
 .true.
 6
 
@@ -43,7 +43,13 @@ $
 
 number of species
 H2O (major isotopes)
-HDO, CO2, CH4, N2O, CO, O2, HF
+HDO
+CO2
+CH4
+N2O
+CO
+O2
+HF
 $
 8
 
@@ -85,14 +91,14 @@ $
 for each species:
   VMR file
 $
-%CONTAINER_PATH%-outputs/analysis/%SENSOR_ID%/%DATE%/pT/%SENSOR_ID%%DATE%.map
-%CONTAINER_PATH%-outputs/analysis/%SENSOR_ID%/%DATE%/pT/%SENSOR_ID%%DATE%.map
-%CONTAINER_PATH%-outputs/analysis/%SENSOR_ID%/%DATE%/pT/%SENSOR_ID%%DATE%.map
-%CONTAINER_PATH%-outputs/analysis/%SENSOR_ID%/%DATE%/pT/%SENSOR_ID%%DATE%.map
-%CONTAINER_PATH%-outputs/analysis/%SENSOR_ID%/%DATE%/pT/%SENSOR_ID%%DATE%.map
-%CONTAINER_PATH%-outputs/analysis/%SENSOR_ID%/%DATE%/pT/%SENSOR_ID%%DATE%.map
-%CONTAINER_PATH%-outputs/analysis/%SENSOR_ID%/%DATE%/pT/%SENSOR_ID%%DATE%.map
-%CONTAINER_PATH%-outputs/analysis/%SENSOR_ID%/%DATE%/pT/%SENSOR_ID%%DATE%.map
+%CONTAINER_PATH%-outputs/analysis/%SENSOR_ID%/%DATE6%/pT/%SENSOR_ID%%DATE8%.map
+%CONTAINER_PATH%-outputs/analysis/%SENSOR_ID%/%DATE6%/pT/%SENSOR_ID%%DATE8%.map
+%CONTAINER_PATH%-outputs/analysis/%SENSOR_ID%/%DATE6%/pT/%SENSOR_ID%%DATE8%.map
+%CONTAINER_PATH%-outputs/analysis/%SENSOR_ID%/%DATE6%/pT/%SENSOR_ID%%DATE8%.map
+%CONTAINER_PATH%-outputs/analysis/%SENSOR_ID%/%DATE6%/pT/%SENSOR_ID%%DATE8%.map
+%CONTAINER_PATH%-outputs/analysis/%SENSOR_ID%/%DATE6%/pT/%SENSOR_ID%%DATE8%.map
+%CONTAINER_PATH%-outputs/analysis/%SENSOR_ID%/%DATE6%/pT/%SENSOR_ID%%DATE8%.map
+%CONTAINER_PATH%-outputs/analysis/%SENSOR_ID%/%DATE6%/pT/%SENSOR_ID%%DATE8%.map
 
 
 for AVK calculation

@@ -20,14 +20,15 @@ def _write_template_file(
     )
 
     replacements = {
-        "DATE": session.ctx.from_datetime.strftime("%Y%m%d"),
+        "DATE8": session.ctx.from_datetime.strftime("%Y%m%d"),
+        "DATE6": session.ctx.from_datetime.strftime("%Y%m%d")[2:],
         "LOCATION_ID": session.ctx.location.location_id,
         "UTC_OFFSET": str(session.ctx.utc_offset),
         "SENSOR_ID": session.ctx.sensor_id,
         "CONTAINER_PATH": session.ctn.container_path,
         "LAT": str(session.ctx.location.lat),
         "LON": str(session.ctx.location.lon),
-        "ALT": str(session.ctx.location.alt),
+        "ALT": str(session.ctx.location.alt / 1000),
         "CHANNEL1_ME": str(ils_params.channel1_me),
         "CHANNEL1_PE": str(ils_params.channel1_pe),
         "CHANNEL2_ME": str(ils_params.channel2_me),
@@ -94,7 +95,9 @@ def move_profiles_and_datalogger_files(session: custom_types.ProffastSession) ->
     analysis_path = os.path.join(session.ctn.data_output_path, "analysis")
 
     date_string = session.ctx.from_datetime.strftime("%Y%m%d")
-    pt_path = os.path.join(analysis_path, f"{session.ctx.sensor_id}", date_string, "pT")
+    pt_path = os.path.join(
+        analysis_path, f"{session.ctx.sensor_id}", date_string[2:], "pT"
+    )
     os.makedirs(pt_path, exist_ok=True)
 
     # copy atmospheric profile
