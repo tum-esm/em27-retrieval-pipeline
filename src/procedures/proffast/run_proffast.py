@@ -42,15 +42,11 @@ def run(
                         "python",
                     ),
                     os.path.join(
-                        _PROJECT_DIR,
-                        "src",
-                        "retrieval",
-                        "proffast-1.0",
-                        "main",
+                        session.ctn.container_path,
                         "prfpylot",
                         "main.py",
                     ),
-                    json.dumps(session.model_dump()),
+                    '"' + json.dumps(session.model_dump()).replace('"', '\\"') + '"',
                 ]
             )
         )

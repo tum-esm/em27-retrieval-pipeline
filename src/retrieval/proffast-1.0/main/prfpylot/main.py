@@ -4,7 +4,9 @@ import sys
 import click
 import tum_esm_utils
 
-_PROJECT_DIR = tum_esm_utils.files.get_parent_dir_path(__file__, current_depth=6)
+_PROJECT_DIR = tum_esm_utils.files.get_parent_dir_path(__file__, current_depth=5)
+if os.path.basename(_PROJECT_DIR) != "em27-retrieval-pipeline":
+    _PROJECT_DIR = os.path.dirname(_PROJECT_DIR)
 sys.path.append(_PROJECT_DIR)
 
 import create_input_files, execute_proffast, move_data
@@ -14,6 +16,7 @@ from src import custom_types
 @click.command(help="Run proffast 1.0 for a given proffast session")
 @click.argument("session_string", type=str)
 def main(session_string: str) -> None:
+    print("Parsing session string")
     try:
         session = custom_types.ProffastSession(**json.loads(session_string))
     except Exception as e:

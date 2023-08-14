@@ -14,7 +14,7 @@ def execute_preprocess(
 
     # running preprocess
     stdout = tum_esm_utils.shell.run_shell_command(
-        "./preprocess4 " + os.path.join(prf_dir, "preprocess", "preprocess4.inp"),
+        "./preprocess4",
         working_directory=os.path.join(prf_dir, "preprocess"),
     )
     log(f"stdout:\n{stdout}")

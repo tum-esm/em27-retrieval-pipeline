@@ -15,8 +15,8 @@ def _write_template_file(
     dst_path: str,
     additional_lines: list[str] = [],
 ) -> None:
-    ils_params = utils.get_ils_params(
-        session.ctx.sensor_id, session.ctx.from_datetime.date()
+    ils_params = utils.proffast.get_ils_params(
+        session.ctx.serial_number, session.ctx.from_datetime.date()
     )
 
     replacements = {
@@ -57,6 +57,7 @@ def create_preprocess_input_file(session: custom_types.ProffastSession) -> None:
         for f in os.listdir(ifg_dir)
         if f.startswith(f"{date_string[2:]}SN.")
     ]
+    os.mkdir(os.path.join(session.ctn.data_input_path, "ifg", date_string[2:], "cal"))
     _write_template_file(
         session,
         src_filepath,

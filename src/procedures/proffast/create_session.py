@@ -71,7 +71,5 @@ def run(
     if isinstance(new_session.ctn, custom_types.Proffast22Container):
         _generate_pylot22_config(new_session)
         _generate_pylot22_log_format(new_session)
-    else:
-        raise NotImplementedError()
 
     return new_session

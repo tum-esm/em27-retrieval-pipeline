@@ -15,8 +15,8 @@ ILS Parameter: Apo + Phase Error
 Primary Channel
 Secondary Channel
 $
-%Channel1_ME%  %Channel1_PE%
-%Channel2_ME%  %Channel2_PE%
+%CHANNEL1_ME%  %CHANNEL1_PE%
+%CHANNEL2_ME%  %CHANNEL2_PE%
 
 
 T/F: Fixed or Variable Observer Coordinates
