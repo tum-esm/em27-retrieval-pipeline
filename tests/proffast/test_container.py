@@ -73,7 +73,7 @@ def test_container(
     assert config.automated_proffast is not None
 
     # target config at test data
-    config.automated_proffast.general.retrieval_software = "proffast-2.2"
+    config.automated_proffast.general.retrieval_software = "proffast-1.0"
     config.automated_proffast.data_filter.sensor_ids_to_consider = ["so", "mc"]
     config.automated_proffast.data_filter.from_date = datetime.date(2017, 6, 8)
     config.automated_proffast.data_filter.to_date = datetime.date(2022, 6, 2)

@@ -34,7 +34,7 @@ def execute_pcxs(session: custom_types.ProffastSession) -> None:
     print(f"stdout:\n{stdout}")
 
     # renaming output files
-    date_string = session.ctx.date.strftime("%Y%m%d")
+    date_string = session.ctx.from_datetime.strftime("%Y%m%d")
     if os.path.isfile(
         f"{prf_dir}/wrk_fast/{session.ctx.sensor_id}{date_string[:6]}-abscos.bin"
     ):
@@ -69,7 +69,7 @@ def execute_invers(session: custom_types.ProffastSession) -> None:
     print(f"stdout:\n{stdout}")
 
     # renaming output files
-    date_string = session.ctx.date.strftime("%Y%m%d")
+    date_string = session.ctx.from_datetime.strftime("%Y%m%d")
     for f in os.listdir(f"{prf_dir}/out_fast"):
         if date_string not in f:
             os.rename(

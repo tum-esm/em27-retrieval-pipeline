@@ -1,6 +1,7 @@
 import datetime
 import os
 import shutil
+from typing import Any
 import pydantic
 import tum_esm_utils
 from src import custom_types
@@ -57,7 +58,7 @@ def _write_template_file(
     src_path: str,
     dst_path: str,
     additional_lines: list[str] = [],
-) -> dict[str, str]:
+) -> None:
     ils_params = get_ils_params(session.ctx.sensor_id, session.ctx.from_datetime.date())
 
     replacements = {
@@ -156,12 +157,17 @@ def move_profiles_and_datalogger_files(session: custom_types.ProffastSession) ->
             ),
         ),
         columns=["UTCtime___", "BaroYoung"],
-        dtypes={"UTCtime___": str, "BaroYoung": float},
+        dtypes={"UTCtime___": pl.Time, "BaroYoung": pl.Float64},
     )
-    lines = [
-        row["UTCtime___"] + "\t" + str(row["BaroYoung"])[:10] + "\t0.0"
-        for row in df.iter_rows(named=True)
-    ]
+
+    def row_to_str(row: dict[str, Any]) -> str:
+        time = row["UTCtime___"]
+        assert isinstance(time, datetime.time)
+        pressure = row["BaroYoung"]
+        assert isinstance(pressure, float)
+        return f"{time.strftime('%H%M%S')}\t{pressure:.1f}\t0.0"
+
+    lines = [row_to_str(row) for row in df.iter_rows(named=True)]
     file_content = template_content.rstrip("\n ") + "\n" + "\n".join(lines)
     tum_esm_utils.files.dump_file(
         os.path.join(pt_path, "pT_intraday.inp"), file_content
