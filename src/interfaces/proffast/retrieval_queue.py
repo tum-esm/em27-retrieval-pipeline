@@ -151,7 +151,9 @@ class RetrievalQueue:
 
                 queue_items += sensor_data_contexts
 
-        return queue_items
+        return list(
+            sorted(queue_items, key=lambda sdc: sdc.from_datetime, reverse=True)
+        )
 
     def _ifgs_exist(self, sensor_id: str, date: datetime.date) -> bool:
         """determine whether an ifg directory exists and contains
@@ -215,7 +217,7 @@ class RetrievalQueue:
             output_dir_path = os.path.join(
                 self.config.general.data_dst_dirs.results,
                 sensor_id,
-                "proffast-2.2-outputs",
+                self.config.automated_proffast.general.retrieval_software + "-outputs",
                 output_dir_type,
             )
             if os.path.isdir(output_dir_path):
@@ -267,7 +269,8 @@ class RetrievalQueue:
                     os.path.join(
                         self.config.general.data_dst_dirs.results,
                         sensor_id,
-                        "proffast-2.2-outputs",
+                        self.config.automated_proffast.general.retrieval_software
+                        + "-outputs",
                         output_dir_type,
                         dir_name,
                     )
