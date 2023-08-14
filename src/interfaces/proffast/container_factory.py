@@ -68,10 +68,12 @@ class ContainerFactory:
             os.path.join(retrieval_code_root_dir, "main"),
             container.container_path,
         )
-        tum_esm_utils.shell.run_shell_command(
-            command=os.path.join(retrieval_code_root_dir, "install.sh"),
-            working_directory=container.container_path,
-        )
+        installer_script_path = os.path.join(retrieval_code_root_dir, "install.sh")
+        if os.path.isfile(installer_script_path):
+            tum_esm_utils.shell.run_shell_command(
+                command=installer_script_path,
+                working_directory=container.container_path,
+            )
 
         # generate empty input directory
         os.mkdir(container.data_input_path)
