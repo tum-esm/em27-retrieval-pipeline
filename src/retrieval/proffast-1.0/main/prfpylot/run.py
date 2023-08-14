@@ -19,20 +19,17 @@ def main(session_string: str) -> None:
         print("Invalid session string")
         raise e
 
-    # create preprocess input file
+    # create preprocess input file and run preprocess
     procedures.create_input_files.create_preprocess_input_file(session)
+    procedures.run_proffast.run_preprocess(session)
 
-    # run preprocess
-
-    # create pcxs input file
+    # create pcxs input file and run pcxs
     procedures.create_input_files.create_pcxs_input_file(session)
+    procedures.run_proffast.run_pcxs(session)
 
-    # run pcxs
-
-    # create invers input file
+    # create invers input file and run invers
     procedures.create_input_files.create_invers_input_file(session)
-
-    # run invers
+    procedures.run_proffast.run_invers(session)
 
     # merge invers outputs
 

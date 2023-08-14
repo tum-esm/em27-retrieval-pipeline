@@ -1,1 +1,1 @@
-from . import create_input_files
+from . import create_input_files, run_proffast
