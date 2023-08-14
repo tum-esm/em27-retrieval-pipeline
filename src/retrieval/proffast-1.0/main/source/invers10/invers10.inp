@@ -1,0 +1,158 @@
+Input file invers10
+
+complete analysis folder
+site name
+date
+absco file
+pT detail dec (T/F)
+dpTdt file
+$
+analysis\khenr1\180406
+khe
+180406
+khe180406-abscos.bin
+.false.
+analysis\khenr1\180406\pT\dpTdt.prf
+
+Unrefracted (false / COCCON standard) or refracted (true) solar elevation in *.bin file?
+$
+.false.
+
+
+
+ILS (assuming NB medium apodization)
+OPDmax [cm]
+linear modeff[-]  eff_apo[-]  phase error[rad]
+$
+1.8
+1.0  0.0  0.0
+
+
+
+number of jobs
+number of species
+retrieval parameter persistence
+$
+5
+9
+0.1
+
+
+for each job:
+  microwindow bounds
+  treatment of species (0: neglected, 1: forward calculated, 2: retrieved)
+      H2O (major isotopes)
+      HDO
+      CO2
+      N2O
+      CO
+      CH4
+      O2
+      HF
+      HCl
+  number of baseline points
+  deweighting:
+      number of windows
+      spectral bounds and steepness
+
+jobs listed here (for SN processing): H2O / O2 / CO2 / CH4
+$
+(8353.4,8463.1)
+2
+1.0,0.0,0.0,"XH2O    "
+0
+0
+0
+0
+0
+0
+0
+0
+8
+0
+(7765.0,8005.0)
+2
+1.0,0.0,0.0,"XDUM1   "
+0
+1
+0
+0
+0
+2
+1.0,0.0,0.0,"XAIR    "
+0
+0
+20
+0
+(6173.00,6390.00)
+2
+1.0,0.0,0.0,"XDUM2   "
+0
+2
+1.0,0.0,0.0,"XCO2    "
+0
+0
+1
+0
+0
+0
+20
+0
+(5897.00,6145.00)
+2
+1.0,0.0,0.0,"XDUM3   "
+0
+2
+1.0,0.0,0.0,"XDUM4   "
+0
+0
+2
+1.0,0.0,0.0,"XCH4    "
+0
+0
+0
+20
+0
+(4208.7,4318.8)
+2
+1.0,0.0,0.0,"XDUM5   "
+2
+1.0,0.0,0.0,"XDUM6   "
+0
+0
+2
+1.0,0.0,0.0,"XCO     "
+2
+1.0,0.0,0.0,"XCH4_S5P"
+0
+0
+0
+20
+0
+
+
+
+names of spectra
+$
+075506SN.BIN
+075608SN.BIN
+075709SN.BIN
+075811SN.BIN
+075913SN.BIN
+080039SN.BIN
+080140SN.BIN
+080242SN.BIN
+080344SN.BIN
+080445SN.BIN
+080547SN.BIN
+080649SN.BIN
+080751SN.BIN
+080853SN.BIN
+080955SN.BIN
+081057SN.BIN
+081158SN.BIN
+081300SN.BIN
+081402SN.BIN
+081504SN.BIN
+***
+

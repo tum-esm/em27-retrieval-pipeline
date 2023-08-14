@@ -1,0 +1,42 @@
+Input File for COCCON PROCEEDS Preprocessor                        
+
+Generate ASCII Output for Testing
+mpowFFT (17 for EM27/SUN)
+DCmin
+DCvar
+$
+.false.
+17
+0.05
+0.10
+
+
+ILS Parameter: Apo + Phase Error
+Primary Channel
+Secondary Channel
+$
+1.0  0.0
+1.0  0.0
+
+
+T/F: Fixed or Variable Observer Coordinates
+Specify Site Name
+Specify Time Offset of OPUS Time versus UT (hours + decimals)
+If Fixed Observer Coordinates:
+Specify Fixed Observer Coordinates (lat_deg, lon_deg (East pos), alt_km)
+$
+.true.
+Karlsruhe
+0.0
+49.1002  8.4385  0.119
+
+
+Input for Comments Added to File Header (up to 150 Characters)
+$
+Demo Spectrum Generated with Preprocess 4
+
+
+List of Raw Measurements (path and filename, end marker ***)
+$
+./125HR-karlsruhe/190724/190724SN+SM-EM27.20
+***
