@@ -73,6 +73,7 @@ def test_container(
     assert config.automated_proffast is not None
 
     # target config at test data
+    config.automated_proffast.general.retrieval_software = "proffast-2.2"
     config.automated_proffast.data_filter.sensor_ids_to_consider = ["so", "mc"]
     config.automated_proffast.data_filter.from_date = datetime.date(2017, 6, 8)
     config.automated_proffast.data_filter.to_date = datetime.date(2022, 6, 2)
@@ -91,11 +92,11 @@ def test_container(
 
     # set up container factory
     logger = utils.proffast.Logger("pytest", print_only=True)
-    pylot_factory = interfaces.proffast.PylotFactory(logger)
+    container_factory = interfaces.proffast.ContainerFactory(config, logger)
 
     for sdc in SENSOR_DATA_CONTEXTS:
         # create session and run container
-        session = procedures.proffast.create_session.run(pylot_factory, sdc)
+        session = procedures.proffast.create_session.run(container_factory, sdc)
         procedures.proffast.process_session.run(config, session)
 
         # assert output correctness

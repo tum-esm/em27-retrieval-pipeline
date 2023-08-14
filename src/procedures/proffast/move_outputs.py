@@ -8,7 +8,7 @@ from src import utils, custom_types
 import tum_esm_utils
 
 
-def detect_error_type(output_src: str) -> Optional[str]:
+def _detect_proffast22_error_type(output_src: str) -> Optional[str]:
     if not os.path.isdir(f"{output_src}/logfiles"):
         return None
 
@@ -39,34 +39,37 @@ def run(
 
     date_string = session.ctx.from_datetime.strftime("%Y%m%d")
 
-    output_src_dir = (
-        f"{session.ctn.data_output_path}/{session.ctx.sensor_id}_"
-        + f"SN{str(session.ctx.serial_number).zfill(3)}_{date_string[2:]}-{date_string[2:]}"
-    )
-    output_csv_path = (
-        f"{output_src_dir}/comb_invparms_{session.ctx.sensor_id}_"
-        + f"SN{str(session.ctx.serial_number).zfill(3)}_"
-        + f"{date_string[2:]}-{date_string[2:]}.csv"
-    )
-    assert os.path.isdir(output_src_dir), "pylot output directory missing"
+    if isinstance(session.ctn, custom_types.Proffast22Container):
+        output_src_dir = (
+            f"{session.ctn.data_output_path}/{session.ctx.sensor_id}_"
+            + f"SN{str(session.ctx.serial_number).zfill(3)}_{date_string[2:]}-{date_string[2:]}"
+        )
+        output_csv_path = (
+            f"{output_src_dir}/comb_invparms_{session.ctx.sensor_id}_"
+            + f"SN{str(session.ctx.serial_number).zfill(3)}_"
+            + f"{date_string[2:]}-{date_string[2:]}.csv"
+        )
+        assert os.path.isdir(output_src_dir), "pylot output directory missing"
 
-    # DETERMINE WHETHER RETRIEVAL HAS BEEN SUCCESSFUL OR NOT
+        # DETERMINE WHETHER RETRIEVAL HAS BEEN SUCCESSFUL OR NOT
 
-    day_was_successful = os.path.isfile(output_csv_path)
-    if day_was_successful:
-        with open(output_csv_path, "r") as f:
-            if len(f.readlines()) > 1:
-                logger.debug(f"Retrieval output csv exists")
-            else:
-                day_was_successful = False
-                logger.warning(f"Retrieval output csv exists but is empty")
-    else:
-        logger.debug(f"Retrieval output csv is missing")
-        error_type = detect_error_type(output_src_dir)
-        if error_type is None:
-            logger.debug("Unknown error type")
+        day_was_successful = os.path.isfile(output_csv_path)
+        if day_was_successful:
+            with open(output_csv_path, "r") as f:
+                if len(f.readlines()) > 1:
+                    logger.debug(f"Retrieval output csv exists")
+                else:
+                    day_was_successful = False
+                    logger.warning(f"Retrieval output csv exists but is empty")
         else:
-            logger.debug(f"Known error type: {error_type}")
+            logger.debug(f"Retrieval output csv is missing")
+            error_type = _detect_proffast22_error_type(output_src_dir)
+            if error_type is None:
+                logger.debug("Unknown error type")
+            else:
+                logger.debug(f"Known error type: {error_type}")
+    else:
+        raise NotImplementedError()
 
     # DETERMINE OUTPUT DIRECTORY PATHS
 
@@ -115,10 +118,11 @@ def run(
         logger.logfile_path,
         os.path.join(output_dst, "logfiles", "container.log"),
     )
-    shutil.copyfile(
-        session.ctn.pylot_log_format_path,
-        os.path.join(output_dst, "pylot_log_format.yml"),
-    )
+    if isinstance(session.ctn, custom_types.Proffast22Container):
+        shutil.copyfile(
+            session.ctn.pylot_log_format_path,
+            os.path.join(output_dst, "pylot_log_format.yml"),
+        )
 
     # STORE AUTOMATION INFO
 
@@ -129,7 +133,6 @@ def run(
             dumped_config.general.location_data.access_token = "REDACTED"
 
         about_dict = {
-            "proffastVersion": "2.2",
             "automationVersion": tum_esm_utils.shell.get_commit_sha(),
             "generationTime": now.strftime("%Y%m%dT%H:%M:%S+00:00"),
             "config": dumped_config.model_dump(),

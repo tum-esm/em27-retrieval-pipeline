@@ -29,6 +29,7 @@ class ContainerFactory:
             custom_types.Proffast10Container | custom_types.Proffast22Container
         ] = []
 
+        assert self.config.automated_proffast is not None
         if self.config.automated_proffast.general.retrieval_software == "proffast-1.0":
             self.logger.info("Initializing ContainerFactory for Proffast 1.0")
             self._init_proffast10_code()
@@ -50,7 +51,9 @@ class ContainerFactory:
         new_container_id = tum_esm_utils.text.get_random_string(
             length=10, forbidden=[c.container_id for c in self.containers]
         )
+        container: custom_types.Proffast10Container | custom_types.Proffast22Container
 
+        assert self.config.automated_proffast is not None
         if self.config.automated_proffast.general.retrieval_software == "proffast-1.0":
             container = custom_types.Proffast10Container(container_id=new_container_id)
         else:

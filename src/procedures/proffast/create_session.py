@@ -9,7 +9,9 @@ _PYLOT_CONFIG_DIR = os.path.join(
 )
 
 
-def _generate_pylot_config(session: custom_types.ProffastSession) -> None:
+def _generate_pylot22_config(session: custom_types.ProffastSession) -> None:
+    assert isinstance(session.ctn, custom_types.Proffast22Container)
+
     file_content = tum_esm_utils.files.load_file(
         os.path.join(_PYLOT_CONFIG_DIR, "pylot_config_template.yml")
     )
@@ -34,7 +36,9 @@ def _generate_pylot_config(session: custom_types.ProffastSession) -> None:
     )
 
 
-def _generate_pylot_log_format(session: custom_types.ProffastSession) -> None:
+def _generate_pylot22_log_format(session: custom_types.ProffastSession) -> None:
+    assert isinstance(session.ctn, custom_types.Proffast22Container)
+
     file_content = tum_esm_utils.files.load_file(
         os.path.join(_PYLOT_CONFIG_DIR, "pylot_log_format_template.yml")
     )
@@ -57,14 +61,17 @@ def _generate_pylot_log_format(session: custom_types.ProffastSession) -> None:
 def run(
     container_factory: interfaces.proffast.ContainerFactory,
     sensor_data_context: tum_esm_em27_metadata.types.SensorDataContext,
-) -> custom_types.PylotSession:
+) -> custom_types.ProffastSession:
     """Create a new container and the pylot config files"""
-    new_session = custom_types.PylotSession(
+    new_session = custom_types.ProffastSession(
         ctx=sensor_data_context,
         ctn=container_factory.create_container(),
     )
 
-    _generate_pylot_config(new_session)
-    _generate_pylot_log_format(new_session)
+    if isinstance(new_session.ctn, custom_types.Proffast22Container):
+        _generate_pylot22_config(new_session)
+        _generate_pylot22_log_format(new_session)
+    else:
+        raise NotImplementedError()
 
     return new_session

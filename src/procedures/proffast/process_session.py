@@ -4,7 +4,7 @@ from . import (
     move_log_files,
     move_profiles,
     move_ifg_files,
-    run_proffast_pylot,
+    run_proffast,
     move_outputs,
 )
 
@@ -48,12 +48,12 @@ def run(config: custom_types.Config, session: custom_types.ProffastSession) -> N
         session.ctx.from_datetime,
     )
 
-    logger.info(f"Running the pylot")
+    logger.info(f"Running proffast")
     try:
-        run_proffast_pylot.run(session)
+        run_proffast.run(session)
         logger.debug("Pylot execution was successful")
     except Exception as e:
-        logger.exception(e, label="Pylot execution failed")
+        logger.exception(e, label="Proffast execution failed")
 
     # uncomment the following return if you want to observe the final
     # proffast outputs of one day in this working directory
