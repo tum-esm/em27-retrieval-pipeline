@@ -1,3 +1,4 @@
+import json
 import os
 from src import custom_types
 import tum_esm_utils
@@ -31,4 +32,25 @@ def run(
             )
         )
     else:
-        raise NotImplementedError()
+        tum_esm_utils.shell.run_shell_command(
+            " ".join(
+                [
+                    os.path.join(
+                        _PROJECT_DIR,
+                        ".venv",
+                        "bin",
+                        "python",
+                    ),
+                    os.path.join(
+                        _PROJECT_DIR,
+                        "src",
+                        "retrieval",
+                        "proffast-1.0",
+                        "main",
+                        "prfpylot",
+                        "main.py",
+                    ),
+                    json.dumps(session.model_dump()),
+                ]
+            )
+        )
