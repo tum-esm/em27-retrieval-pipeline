@@ -10,18 +10,16 @@ def execute_preprocess(
 ) -> None:
     prf_dir = os.path.join(session.ctn.container_path, "prf")
     start_timestamp = datetime.datetime.utcnow().timestamp()
-    log("PREPROCESS: STARTING")
 
     # running preprocess
-    stdout = tum_esm_utils.shell.run_shell_command(
-        "./preprocess4",
+    tum_esm_utils.shell.run_shell_command(
+        f"./preprocess4 > {session.ctn.data_output_path}/preprocess4.log",
         working_directory=os.path.join(prf_dir, "preprocess"),
     )
-    log(f"stdout:\n{stdout}")
 
     end_timestamp = datetime.datetime.utcnow().timestamp()
     time_taken = round(end_timestamp - start_timestamp, 6)
-    log(f"PREPROCESS: FINISHED (took {time_taken} seconds)")
+    log(f"finished preprocess (took {time_taken} seconds)")
 
 
 def execute_pcxs(
@@ -29,13 +27,12 @@ def execute_pcxs(
 ) -> None:
     prf_dir = os.path.join(session.ctn.container_path, "prf")
     start_timestamp = datetime.datetime.utcnow().timestamp()
-    log("PCXS10: STARTING")
 
     # running pcxs10
-    stdout = tum_esm_utils.shell.run_shell_command(
-        "./pcxs10 pcxs10.inp", working_directory=prf_dir
+    tum_esm_utils.shell.run_shell_command(
+        f"./pcxs10 pcxs10.inp > {session.ctn.data_output_path}/pcxs10.log",
+        working_directory=prf_dir,
     )
-    log(f"stdout:\n{stdout}")
 
     # renaming output files
     date_string = session.ctx.from_datetime.strftime("%Y%m%d")
@@ -56,7 +53,7 @@ def execute_pcxs(
 
     end_timestamp = datetime.datetime.utcnow().timestamp()
     time_taken = round(end_timestamp - start_timestamp, 6)
-    log(f"PCXS10: FINISHED (took {time_taken} seconds)")
+    log(f"finished pcxs10 (took {time_taken} seconds)")
 
 
 def execute_invers(
@@ -64,14 +61,13 @@ def execute_invers(
 ) -> None:
     prf_dir = os.path.join(session.ctn.container_path, "prf")
     start_timestamp = datetime.datetime.utcnow().timestamp()
-    log("INVERS10: STARTING")
 
     # running invers10
-    stdout = tum_esm_utils.shell.run_shell_command(
-        'printf "Y\n%.0s" {1..100} | ./invers10 invers10.inp',
+    tum_esm_utils.shell.run_shell_command(
+        'printf "Y\n%.0s" {1..100} | ./invers10 invers10.inp'
+        + f" > {session.ctn.data_output_path}/invers10.log",
         working_directory=prf_dir,
     )
-    log(f"stdout:\n{stdout}")
 
     # renaming output files
     date_string = session.ctx.from_datetime.strftime("%Y%m%d")
@@ -84,4 +80,4 @@ def execute_invers(
 
     end_timestamp = datetime.datetime.utcnow().timestamp()
     time_taken = round(end_timestamp - start_timestamp, 6)
-    log(f"INVERS10: FINISHED (took {time_taken} seconds)")
+    log(f"finished invers10 (took {time_taken} seconds)")
