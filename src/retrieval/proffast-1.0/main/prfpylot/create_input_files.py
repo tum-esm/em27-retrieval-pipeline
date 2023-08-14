@@ -6,13 +6,9 @@ import tum_esm_utils
 from src import custom_types
 import polars as pl
 
-_TEMPLATE_DIR = os.path.join(
-    tum_esm_utils.files.get_parent_dir_path(__file__, current_depth=2), "templates"
-)
-_ILS_PARAMS_PATH = os.path.join(
-    tum_esm_utils.files.get_parent_dir_path(__file__, current_depth=2),
-    "ils-parameters.csv",
-)
+_PYLOT_DIR = tum_esm_utils.files.get_parent_dir_path(__file__)
+_TEMPLATE_DIR = os.path.join(_PYLOT_DIR, "templates")
+_ILS_PARAMS_PATH = os.path.join(_PYLOT_DIR, "ils-parameters.csv")
 
 
 class ILSParams(pydantic.BaseModel):

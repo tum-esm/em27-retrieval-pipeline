@@ -4,7 +4,7 @@ import tum_esm_utils
 from src import custom_types
 
 
-def run_preprocess(session: custom_types.ProffastSession) -> None:
+def execute_preprocess(session: custom_types.ProffastSession) -> None:
     prf_dir = os.path.join(session.ctn.container_path, "prf")
     start_timestamp = datetime.datetime.utcnow().timestamp()
     print("PREPROCESS: STARTING")
@@ -21,7 +21,7 @@ def run_preprocess(session: custom_types.ProffastSession) -> None:
     print(f"PREPROCESS: FINISHED (took {time_taken} seconds)")
 
 
-def run_pcxs(session: custom_types.ProffastSession) -> None:
+def execute_pcxs(session: custom_types.ProffastSession) -> None:
     prf_dir = os.path.join(session.ctn.container_path, "prf")
     start_timestamp = datetime.datetime.utcnow().timestamp()
     print("PCXS10: STARTING")
@@ -55,7 +55,7 @@ def run_pcxs(session: custom_types.ProffastSession) -> None:
     print(f"PCXS10: FINISHED (took {time_taken} seconds)")
 
 
-def run_invers(session: custom_types.ProffastSession) -> None:
+def execute_invers(session: custom_types.ProffastSession) -> None:
     prf_dir = os.path.join(session.ctn.container_path, "prf")
     start_timestamp = datetime.datetime.utcnow().timestamp()
     print("INVERS10: STARTING")
