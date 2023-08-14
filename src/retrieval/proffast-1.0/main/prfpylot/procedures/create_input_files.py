@@ -1,5 +1,6 @@
 import datetime
 import os
+import shutil
 import pydantic
 import tum_esm_utils
 from src import custom_types
@@ -129,4 +130,43 @@ def create_invers_input_file(session: custom_types.ProffastSession) -> None:
         src_filepath,
         dst_filepath,
         additional_lines=[*spectra_filenames, "***"],
+    )
+
+
+def move_profiles_and_datalogger_files(session: custom_types.ProffastSession) -> None:
+    analysis_path = os.path.join(session.ctn.data_output_path, "analysis")
+
+    date_string = session.ctx.from_datetime.strftime("%Y%m%d")
+    pt_path = os.path.join(analysis_path, f"{session.ctx.sensor_id}", date_string, "pT")
+    os.makedirs(pt_path, exist_ok=True)
+
+    # copy atmospheric profile
+    profile_filename = f"{session.ctx.sensor_id}{date_string}.map"
+    profile_src = os.path.join(session.ctn.data_input_path, "map", profile_filename)
+    profile_dst = os.path.join(pt_path, profile_filename)
+    shutil.copyfile(profile_src, profile_dst)
+
+    # write pT_intraday.inp file
+    template_content = tum_esm_utils.files.load_file(
+        os.path.join(_TEMPLATE_DIR, "template_pT_intraday.inp")
+    )
+    df = pl.read_csv(
+        os.path.join(
+            session.ctn.data_input_path,
+            "log",
+            (
+                f"datalogger-{session.ctx.sensor_id}-"
+                + f"{session.ctx.from_datetime.strftime('%Y%m%d')}.csv"
+            ),
+        ),
+        columns=["UTCtime___", "BaroYoung"],
+        dtypes={"UTCtime___": str, "BaroYoung": float},
+    )
+    lines = [
+        row["UTCtime___"] + "\t" + str(row["BaroYoung"])[:10] + "\t0.0"
+        for row in df.iter_rows(named=True)
+    ]
+    file_content = template_content.rstrip("\n ") + "\n" + "\n".join(lines)
+    tum_esm_utils.files.dump_file(
+        os.path.join(pt_path, "pT_intraday.inp"), file_content
     )

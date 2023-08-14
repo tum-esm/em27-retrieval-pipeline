@@ -1,0 +1,16 @@
+This is an optional input file to be located in the daily pT folder.
+It provides information of the intraday variability of ground pressure
+and temperature for the invers-code:
+
+The specified time needs to refer to the same time zone as used in the OPUS file.
+
+The pressure as measured at the observer needs to be inserted at hPa. The daily
+average of the tabellated p should closely match with the ground pressure used
+in the pcxs calculation (witin a few hPa).
+ 
+For T, a T change between the reference T specified in the pcxs input needs
+to be specified in the third column. Note that this dT is intended to describe
+the change of the PBL T, this variation is significantly less than the T rise
+measured at ground level during the day. If no information is available, use 0.0.
+
+$

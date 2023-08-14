@@ -19,9 +19,15 @@ def main(session_string: str) -> None:
         print("Invalid session string")
         raise e
 
+    # prepare data
+    procedures.create_input_files.move_profiles_and_datalogger_files(session)
+
     # create preprocess input file and run preprocess
     procedures.create_input_files.create_preprocess_input_file(session)
     procedures.run_proffast.run_preprocess(session)
+
+    # move BIN files
+    # TODO: implement
 
     # create pcxs input file and run pcxs
     procedures.create_input_files.create_pcxs_input_file(session)
@@ -32,8 +38,7 @@ def main(session_string: str) -> None:
     procedures.run_proffast.run_invers(session)
 
     # merge invers outputs
-
-    pass
+    # TODO: implement
 
 
 if __name__ == "__main__":
