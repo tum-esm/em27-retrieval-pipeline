@@ -7,6 +7,21 @@
 
 set -o errexit
 
+echo "replacing windows specific line in source code ..."
+for file in source/*/*90;
+do
+	echo "    $file"
+
+	# mac os
+	if [[ "$OSTYPE" == "darwin"* ]]; then
+		LC_ALL=C sed -i "" "s|pathstr = \".*\"|pathstr = \"/\"|" "./$file"
+	
+	# linux
+	else
+		sed -i"" "s|pathstr = \".*\"|pathstr = \"/\"|" "./$file"
+	fi
+done
+
 cd prf
 
 INSTALL_FOLDER=$(pwd)

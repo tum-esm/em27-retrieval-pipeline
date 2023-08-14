@@ -6,7 +6,7 @@ date
 absco file
 pT detail dec (True/False)
 $
-%CONTAINER_PATH%-ouputs/analysis/%SENSOR_ID%/%DATE6%
+%CONTAINER_PATH%-outputs/analysis/%SENSOR_ID%/%DATE6%
 %SENSOR_ID%
 %DATE6%
 %SENSOR_ID%%DATE6%-abscos.bin

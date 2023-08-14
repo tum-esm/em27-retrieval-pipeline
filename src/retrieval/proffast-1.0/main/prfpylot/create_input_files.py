@@ -81,7 +81,13 @@ def create_invers_input_file(session: custom_types.ProffastSession) -> None:
         session.ctn.container_path, "prf", "inp_fast", "invers10.inp"
     )
     date_string = session.ctx.from_datetime.strftime("%Y%m%d")
-    spectra_dir = os.path.join(session.ctn.data_output_path, "analysis", date_string)
+    spectra_dir = os.path.join(
+        session.ctn.data_output_path,
+        "analysis",
+        session.ctx.sensor_id,
+        date_string[2:],
+        "cal",
+    )
     spectra_filenames = [f for f in os.listdir(spectra_dir) if f.endswith(f"SN.BIN")]
     _write_template_file(
         session,
@@ -128,7 +134,7 @@ def move_profiles_and_datalogger_files(session: custom_types.ProffastSession) ->
         return f"{time}\t{pressure:.1f}\t0.0"
 
     lines = [row_to_str(row) for row in df.iter_rows(named=True)]
-    file_content = template_content.rstrip("\n ") + "\n" + "\n".join(lines)
+    file_content = template_content.rstrip("\n ") + "\n" + "\n".join(lines) + "\n***"
     tum_esm_utils.files.dump_file(
         os.path.join(pt_path, "pT_intraday.inp"), file_content
     )

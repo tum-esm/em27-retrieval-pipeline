@@ -23,7 +23,7 @@ real(8),parameter :: amu_SI = 1.66053904e-27
 real(8),parameter :: semifov_ifm = 2.95d-03
 real(8),parameter :: nuechandiv = 5.000d3
 
-character(150) :: datumspfad,abscodatei
+character(300) :: datumspfad,abscodatei
 character(12),dimension(maxspectra) :: specname
 character(50) :: sitename
 character(6) :: yymmddchar

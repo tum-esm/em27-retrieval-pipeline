@@ -27,9 +27,9 @@ integer,parameter :: iunit_fwd = 10       ! File Handle
 ! Quantities which are set during runtime
 ! n_lev: Number of model levels
 integer :: n_lev,n_tau,n_mw,n_species,ils_radius,n_Tdisturb,nzerofill
-character(150),dimension(maxtau) :: hitdatei,vmrdatei
-character(150) :: ptdatei,h2odatei,soldatei,specidatei
-character(150) :: datumspfad
+character(300),dimension(maxtau) :: hitdatei,vmrdatei
+character(300) :: ptdatei,h2odatei,soldatei,specidatei
+character(300) :: datumspfad
 character(50) :: sitename
 character(6) :: yymmddchar
 character(50) :: lblkennung,sdgdatei
