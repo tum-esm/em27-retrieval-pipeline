@@ -1,0 +1,117 @@
+Input file pcxs10 (fast precalc of x-sections)
+
+observer location:
+altitude [km]
+latitude [degree]
+longitude [degree, east positive]
+pressure [hPa]
+(note: if pressure value is chosen 9999.9 then pressure at observer
+is calculated from altitude and pT profile, otherwise the pT profile
+is adjusted to the specified pressure value. If the required pressure
+adjustment at observer altitude is larger than 10 hPa, a warning will
+be generated)
+$
+%ALT%
+%LAT%
+%LON%
+9999.9
+
+
+date folder
+site name
+date
+test files to disc (True/False)
+pT file
+construct H2O and HDO from pT file (True/False)
+n_Tdisturb
+$
+../analysis/%SENSOR_ID%/%DATE%
+%SENSOR_ID%
+%DATE%
+.false.
+../analysis/%SENSOR_ID%/%DATE%/pT/%SENSOR_ID%%DATE%.map
+.true.
+6
+
+
+solar spectrum file
+external FOV diameter as fraction of solar disc diameter
+$
+inp_fwd/hitran/solspec-jpl/solspec.dat
+0.6
+
+
+number of species
+H2O (major isotopes)
+HDO, CO2, CH4, N2O, CO, O2, HF
+$
+8
+
+
+for each species (note: H2O must be at first position):
+  line list
+  limit for clipping weak lines
+  calculate far wings (True/False)
+  isotope handle
+$
+inp_fwd/hitran/linedata/01_hit09-corr140821.par
+3
+011
+012
+013
+inp_fwd/hitran/linedata/01_hit09-corr140821.par
+1
+014
+inp_fwd/hitran/linedata/02_hit12.par
+6
+021
+022
+023
+024
+025
+026
+inp_fwd/hitran/linedata/06_hit08.par
+0
+inp_fwd/hitran/linedata/04_hit08.par
+0
+inp_fwd/hitran/linedata/05_hit12.par
+0
+inp_fwd/hitran/linedata/07_hit_gfit.par
+0
+inp_fwd/hitran/linedata/14_hit12.par
+0
+
+
+for each species:
+  VMR file
+$
+../analysis/%SENSOR_ID%/%DATE%/pT/%SENSOR_ID%%DATE%.map
+../analysis/%SENSOR_ID%/%DATE%/pT/%SENSOR_ID%%DATE%.map
+../analysis/%SENSOR_ID%/%DATE%/pT/%SENSOR_ID%%DATE%.map
+../analysis/%SENSOR_ID%/%DATE%/pT/%SENSOR_ID%%DATE%.map
+../analysis/%SENSOR_ID%/%DATE%/pT/%SENSOR_ID%%DATE%.map
+../analysis/%SENSOR_ID%/%DATE%/pT/%SENSOR_ID%%DATE%.map
+../analysis/%SENSOR_ID%/%DATE%/pT/%SENSOR_ID%%DATE%.map
+../analysis/%SENSOR_ID%/%DATE%/pT/%SENSOR_ID%%DATE%.map
+
+
+for AVK calculation
+short name for each species
+microwindow
+$
+'H2O'
+(8353.4,8463.1)
+'HDO'
+(4208.7,4318.8)
+'CO2'
+(6173.00,6390.00)
+'CH4'
+(5897.00,6145.00)
+'N2O'
+(4208.7,4318.8)
+'CO'
+(4208.7,4318.8)
+'O2'
+(7765.0,8005.0)
+'HF'
+(4208.7,4318.8)

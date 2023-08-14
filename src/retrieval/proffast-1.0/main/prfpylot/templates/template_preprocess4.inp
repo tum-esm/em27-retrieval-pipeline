@@ -1,0 +1,40 @@
+Input File for COCCON PROCEEDS Preprocessor                        
+TUM ESM / EM27 RETRIEVAL PIPELINE
+Generate ASCII Output for Testing
+mpowFFT (17 for EM27/SUN)
+DCmin
+DCvar
+$
+.false.
+17
+0.05
+0.10
+
+
+ILS Parameter: Apo + Phase Error
+Primary Channel
+Secondary Channel
+$
+%Channel1_ME%  %Channel1_PE%
+%Channel2_ME%  %Channel2_PE%
+
+
+T/F: Fixed or Variable Observer Coordinates
+Specify Site Name
+Specify Time Offset of OPUS Time versus UT (hours + decimals)
+If Fixed Observer Coordinates:
+Specify Fixed Observer Coordinates (lat_deg, lon_deg (East pos), alt_km)
+$
+.true.
+%LOCATION_ID%
+%UTC_OFFSET%
+%LAT%  %LON%  %ALT%
+
+
+Input for Comments Added to File Header (up to 150 Characters)
+$
+Station ma of Munich located at TUM (location may vary!)
+Location is Valid for the following: %DATE%!
+
+List of Raw Measurements (path and filename, end marker ***)
+$
