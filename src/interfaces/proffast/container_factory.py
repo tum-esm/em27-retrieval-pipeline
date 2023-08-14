@@ -139,7 +139,43 @@ class ContainerFactory:
             os.path.join(root_dir, "main", "2021-03-08_prf96-EM27-fast"),
             os.path.join(root_dir, "main", "prf"),
         )
-        os.remove(os.path.join(root_dir, "main", ZIPFILE_NAME))
+
+        # clean up unused directories
+        for d in [
+            os.path.join(root_dir, "prf", "preprocess", "125HR-garmisch"),
+            os.path.join(root_dir, "prf", "preprocess", "125HR-karlsruhe"),
+            os.path.join(root_dir, "prf", "preprocess", "diagnosis"),
+            os.path.join(root_dir, "prf", "preprocess", "sod2017_em27sn039"),
+            os.path.join(root_dir, "prf", "out_fast", "sod2017_em27sn039"),
+            os.path.join(root_dir, "prf", "out_fast", "sod2017_em27sn039_Linux"),
+            os.path.join(root_dir, "prf", "analysis"),
+            os.path.join(root_dir, "prf", "source"),
+        ]:
+            shutil.rmtree(d)
+
+        # clean up unused files
+        for f in [
+            os.path.join(root_dir, "main", ZIPFILE_NAME),
+            os.path.join(root_dir, "prf", "continue.txt"),
+            os.path.join(
+                root_dir, "prf", "inp_fast", "invers10_sod2017_em27sn039_170608.inp"
+            ),
+            os.path.join(
+                root_dir, "prf", "inp_fast", "invers10_sod2017_em27sn039_170609.inp"
+            ),
+            os.path.join(
+                root_dir, "prf", "inp_fast", "pcxs10_sod2017_em27sn039_170608.inp"
+            ),
+            os.path.join(
+                root_dir, "prf", "inp_fast", "pcxs10_sod2017_em27sn039_170608.inp"
+            ),
+        ]:
+            os.remove(f)
+
+        # remove other unused files
+        os.system("rm " + os.path.join(root_dir, "prf", "*.py"))
+        os.system("rm " + os.path.join(root_dir, "prf", "invers10*"))
+        os.system("rm " + os.path.join(root_dir, "prf", "pcxs10*"))
 
     def _init_proffast22_code(self) -> None:
         """Initialize the Proffast 2.2 and pylot 1.1 code.
