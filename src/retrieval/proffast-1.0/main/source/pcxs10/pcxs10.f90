@@ -16,7 +16,7 @@ use globlin10
 
 implicit none
 
-character(len=150) :: abscodatei,inputdatei,AVKdatei
+character(len=300) :: abscodatei,inputdatei,AVKdatei
 integer :: i,istart,j,ngrid_solspec_inp
 real(8) :: wrkairmass,pfaktor,Tdisturb,pdisturb,firstnue_solspec_inp &
   ,lastnue_solspec_inp,totamp,lorwidth,gauwidth,width
@@ -1151,7 +1151,7 @@ use globlin10
 
 implicit none
 
-character(len=100) :: zeile
+character(len=300) :: zeile
 logical :: decreadiso,dechit08
 integer :: i,j,zaehler,hitspecies,iowert
 real(8) :: hitnue,hitkappacm,hitdummy,hitlorwidthf &
@@ -1505,7 +1505,7 @@ integer,intent(in) :: n_lev
 real(8),dimension(n_lev),intent(in) :: h_lev_m
 real(8),dimension(n_lev),intent(out) :: T_K,p_Pa,vmr_h2o_ppm,vmr_hdo_ppm
 
-character(len=150) :: zeile
+character(len=300) :: zeile
 logical :: readmapdec
 integer :: i,j,inear,iowert,nhead,ncol,npT,nJD,ipTleft,ipTright,istrato
 real(8) :: lnp,dumreal,dh,pwert,pleft,pright,rest,faktor,korrfaktor
@@ -1787,7 +1787,7 @@ integer,intent(in) :: ispeci,n_lev
 real(8),dimension(n_lev),intent(in) :: h_lev_m
 real(8),dimension(n_lev),intent(out) :: vmr_lev
 
-character(len=150) :: zeile
+character(len=300) :: zeile
 integer,parameter :: nvmr_max = 120
 integer,parameter :: nJD_max = 100
 logical :: readmapdec,flagdown

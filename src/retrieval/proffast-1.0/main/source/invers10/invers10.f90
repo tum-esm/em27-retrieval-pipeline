@@ -18,8 +18,8 @@ implicit none
 
 logical :: convergdec,sampdec,inverfolg,dateidadec
 character(len=2) :: exta
-character(len=150) :: inputdatei
-character(len=200) :: filename
+character(len=300) :: inputdatei
+character(len=300) :: filename
 character(len=12) :: specname2
 integer :: i,j,k,l,ndpTdt,ipTptr,nderi,icount,iiter,iowert,iunit_dtmess,next_free_unit
 real :: dp,dT,sollnorm,nueskalfaktor,dtmess,give_rms,damping,dpmean,LMstab,largest_EVal
@@ -837,7 +837,7 @@ implicit none
 character(len=*),intent(in) :: datumspfad
 integer,intent(out) :: ndpTdt
 
-character(len=150) :: zeile
+character(len=300) :: zeile
 logical :: marke
 integer :: iunit_inv,next_free_unit,iowert
 
@@ -2278,7 +2278,7 @@ implicit none
 
 character(len=*),intent(in) :: pfadname,filename
 
-character(len=200) :: infile
+character(len=300) :: infile
 character(len=12) :: zeile
 logical :: marke,dateidadec
 integer :: iunit_inv,iunit_ils,next_free_unit,iowert,i,j

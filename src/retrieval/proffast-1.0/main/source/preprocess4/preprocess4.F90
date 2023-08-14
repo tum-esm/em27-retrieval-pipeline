@@ -2131,7 +2131,7 @@ character(len=6),intent(in) :: YYMMDD,HHMMSSlocal
 real,intent(in) :: UTh,durationsec,astrelev,azimuth
 real,dimension(maxspcrs),intent(in) :: spec
 
-character(len=200) :: ausdatei
+character(len=300) :: ausdatei
 character(len=20) :: numchar
 character(len=2) :: eol
 integer :: imsstart,imsstop,nofpts_out,iscan,ifilter,iunit,next_free_unit
@@ -2260,7 +2260,7 @@ write (iunit) 'Comments',eol
 write (iunit) '$',eol
 write (iunit) trim(infotext),eol,eol
 
-! Sechster Block: binäres Spektrum: firstwvnr(real*8),dwvnr(real*8)
+! Sechster Block: binï¿½res Spektrum: firstwvnr(real*8),dwvnr(real*8)
 ! ,nofpts,ordinatenwerte(real*4)
 write (iunit) '$',eol
 write (iunit) firstnue_out

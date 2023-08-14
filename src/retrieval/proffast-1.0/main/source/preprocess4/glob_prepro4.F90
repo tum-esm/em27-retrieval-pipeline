@@ -30,7 +30,7 @@ real(8),parameter :: nuersstart2 = 3800.0d0
 real(8),parameter :: nuersstop2 = 5200.0d0
 
 logical :: obsfixdec,checkoutdec
-character(len=150) :: infotext
+character(len=300) :: infotext
 character(len=30) :: obslocation
 integer :: mpowFFT,ifgradius,maxifg,maxspc,maxspcrs
 integer :: nmeas,nmeasall,nloop,nloopoff,nsinc,TCCONkind !nsinc: width of sinc kernel on oversampled fft grid -nsinc...+nsinc
