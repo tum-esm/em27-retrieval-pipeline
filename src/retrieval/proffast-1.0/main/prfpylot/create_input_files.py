@@ -66,6 +66,7 @@ def _write_template_file(
         "LOCATION_ID": session.ctx.location.location_id,
         "UTC_OFFSET": str(session.ctx.utc_offset),
         "SENSOR_ID": session.ctx.sensor_id,
+        "CONTAINER_PATH": session.ctn.container_path,
         "LAT": str(session.ctx.location.lat),
         "LON": str(session.ctx.location.lon),
         "ALT": str(session.ctx.location.alt),

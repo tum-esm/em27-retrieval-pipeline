@@ -25,11 +25,11 @@ pT file
 construct H2O and HDO from pT file (True/False)
 n_Tdisturb
 $
-../analysis/%SENSOR_ID%/%DATE%
+%CONTAINER_PATH%-outputs/analysis/%SENSOR_ID%/%DATE%
 %SENSOR_ID%
 %DATE%
 .false.
-../analysis/%SENSOR_ID%/%DATE%/pT/%SENSOR_ID%%DATE%.map
+%CONTAINER_PATH%-outputs/analysis/%SENSOR_ID%/%DATE%/pT/%SENSOR_ID%%DATE%.map
 .true.
 6
 
@@ -37,7 +37,7 @@ $
 solar spectrum file
 external FOV diameter as fraction of solar disc diameter
 $
-inp_fwd/hitran/solspec-jpl/solspec.dat
+%CONTAINER_PATH%/prf/inp_fwd/hitran/solspec-jpl/solspec.dat
 0.6
 
 
@@ -54,15 +54,15 @@ for each species (note: H2O must be at first position):
   calculate far wings (True/False)
   isotope handle
 $
-inp_fwd/hitran/linedata/01_hit09-corr140821.par
+%CONTAINER_PATH%/prf/inp_fwd/hitran/linedata/01_hit09-corr140821.par
 3
 011
 012
 013
-inp_fwd/hitran/linedata/01_hit09-corr140821.par
+%CONTAINER_PATH%/prf/inp_fwd/hitran/linedata/01_hit09-corr140821.par
 1
 014
-inp_fwd/hitran/linedata/02_hit12.par
+%CONTAINER_PATH%/prf/inp_fwd/hitran/linedata/02_hit12.par
 6
 021
 022
@@ -70,29 +70,29 @@ inp_fwd/hitran/linedata/02_hit12.par
 024
 025
 026
-inp_fwd/hitran/linedata/06_hit08.par
+%CONTAINER_PATH%/prf/inp_fwd/hitran/linedata/06_hit08.par
 0
-inp_fwd/hitran/linedata/04_hit08.par
+%CONTAINER_PATH%/prf/inp_fwd/hitran/linedata/04_hit08.par
 0
-inp_fwd/hitran/linedata/05_hit12.par
+%CONTAINER_PATH%/prf/inp_fwd/hitran/linedata/05_hit12.par
 0
-inp_fwd/hitran/linedata/07_hit_gfit.par
+%CONTAINER_PATH%/prf/inp_fwd/hitran/linedata/07_hit_gfit.par
 0
-inp_fwd/hitran/linedata/14_hit12.par
+%CONTAINER_PATH%/prf/inp_fwd/hitran/linedata/14_hit12.par
 0
 
 
 for each species:
   VMR file
 $
-../analysis/%SENSOR_ID%/%DATE%/pT/%SENSOR_ID%%DATE%.map
-../analysis/%SENSOR_ID%/%DATE%/pT/%SENSOR_ID%%DATE%.map
-../analysis/%SENSOR_ID%/%DATE%/pT/%SENSOR_ID%%DATE%.map
-../analysis/%SENSOR_ID%/%DATE%/pT/%SENSOR_ID%%DATE%.map
-../analysis/%SENSOR_ID%/%DATE%/pT/%SENSOR_ID%%DATE%.map
-../analysis/%SENSOR_ID%/%DATE%/pT/%SENSOR_ID%%DATE%.map
-../analysis/%SENSOR_ID%/%DATE%/pT/%SENSOR_ID%%DATE%.map
-../analysis/%SENSOR_ID%/%DATE%/pT/%SENSOR_ID%%DATE%.map
+%CONTAINER_PATH%-outputs/analysis/%SENSOR_ID%/%DATE%/pT/%SENSOR_ID%%DATE%.map
+%CONTAINER_PATH%-outputs/analysis/%SENSOR_ID%/%DATE%/pT/%SENSOR_ID%%DATE%.map
+%CONTAINER_PATH%-outputs/analysis/%SENSOR_ID%/%DATE%/pT/%SENSOR_ID%%DATE%.map
+%CONTAINER_PATH%-outputs/analysis/%SENSOR_ID%/%DATE%/pT/%SENSOR_ID%%DATE%.map
+%CONTAINER_PATH%-outputs/analysis/%SENSOR_ID%/%DATE%/pT/%SENSOR_ID%%DATE%.map
+%CONTAINER_PATH%-outputs/analysis/%SENSOR_ID%/%DATE%/pT/%SENSOR_ID%%DATE%.map
+%CONTAINER_PATH%-outputs/analysis/%SENSOR_ID%/%DATE%/pT/%SENSOR_ID%%DATE%.map
+%CONTAINER_PATH%-outputs/analysis/%SENSOR_ID%/%DATE%/pT/%SENSOR_ID%%DATE%.map
 
 
 for AVK calculation
