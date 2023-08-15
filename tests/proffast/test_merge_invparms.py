@@ -14,6 +14,9 @@ def test_merge_invparms_files() -> None:
         utils.proffast.read_and_merge_invparms_files([filepath])
         for filepath in filepaths
     ]
-    merged_df = utils.proffast.read_and_merge_invparms_files(filepaths)
+    assert all([df is not None for df in individual_dfs])
 
-    assert sum([len(df) for df in individual_dfs]) == len(merged_df)
+    merged_df = utils.proffast.read_and_merge_invparms_files(filepaths)
+    assert merged_df is not None
+
+    assert sum([len(df) for df in individual_dfs if df is not None]) == len(merged_df)

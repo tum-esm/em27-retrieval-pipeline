@@ -196,6 +196,8 @@ class RetrievalQueue:
         """For a given list of sensor data context of one day, remove those
         that already have outputs."""
 
+        assert self.config.automated_proffast is not None
+
         if len(sensor_data_contexts) == 1:
             expected_output_dir_names = set(
                 [sensor_data_contexts[0].from_datetime.strftime("%Y%m%d")]
