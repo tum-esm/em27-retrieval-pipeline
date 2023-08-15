@@ -54,9 +54,11 @@ def run() -> None:
                     sensor_data_contexts += em27_metadata.get(
                         sid,
                         from_datetime=datetime.datetime.combine(
-                            date, datetime.time.min
+                            date, datetime.time.min, tzinfo=datetime.timezone.utc
                         ),
-                        to_datetime=datetime.datetime.combine(date, datetime.time.max),
+                        to_datetime=datetime.datetime.combine(
+                            date, datetime.time.max, tzinfo=datetime.timezone.utc
+                        ),
                     )
 
                 # only consider data at campaign locations
@@ -94,7 +96,6 @@ def run() -> None:
                         f"{date}: {found_data_count} sensor(s) with data"
                     )
 
-                    # TODO: check whether this works for overlapping and non-overlapping columns
                     merged_df = procedures.export.merge_dataframes(ctx_dataframes)
 
                     # save merged dataframe to csv

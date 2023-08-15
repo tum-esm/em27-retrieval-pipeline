@@ -227,6 +227,7 @@ def post_process_dataframe(
             .otherwise(pl.exclude(["small_gap"]))
         )
         .select(pl.exclude("small_gap"))
+        .sort("utc")
         .groupby_dynamic("utc", every=sampling_rate)
         .agg(pl.exclude("utc").mean())
     )
