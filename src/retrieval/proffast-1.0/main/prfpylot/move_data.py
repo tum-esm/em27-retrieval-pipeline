@@ -83,14 +83,6 @@ def merge_output_files(session: custom_types.ProffastSession) -> None:
     date_string = session.ctx.from_datetime.strftime("%Y%m%d")
     output_table_name = f"{session.ctx.sensor_id}{date_string[2:]}-combined-invparms"
 
-    # copy log files
-    logs_dir = os.path.join(out_dir, "logfiles")
-    os.mkdir(logs_dir)
-    for f in ["wrapper.log", "preprocess4.log", "pcxs10.log", "invers10.log"]:
-        os.rename(
-            os.path.join(session.ctn.data_output_path, f), os.path.join(logs_dir, f)
-        )
-
     # merge output tables
     output_filenames = glob.glob(os.path.join(out_dir, "*invparms.dat"))
     if len(output_filenames) == 0:
