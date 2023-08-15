@@ -63,7 +63,7 @@ def run(config: custom_types.Config, session: custom_types.ProffastSession) -> N
     try:
         move_outputs.run(config, logger, session)
         logger.info(f"Finished")
-    except AssertionError as e:
+    except Exception as e:
         logger.exception(e, label="Moving outputs failed")
 
     logger.archive()
