@@ -1,8 +1,6 @@
 import glob
 import os
-import tempfile
-import polars as pl
-from src import custom_types
+from src import custom_types, utils
 
 
 def move_bin_files(session: custom_types.ProffastSession) -> None:
@@ -19,65 +17,6 @@ def move_bin_files(session: custom_types.ProffastSession) -> None:
     os.rename(src_dir, dst_dir)
 
 
-def _read_invparms_file(path: str) -> pl.DataFrame:
-    # this tempfile is necessary because the `invparms.dat` are
-    # have to be adjusted in order to be read by polars
-    with tempfile.TemporaryDirectory() as d:
-        with open(path, "r") as f:
-            file_content = f.read()
-
-        while "\t" in file_content:
-            file_content = file_content.replace("\t", " ")
-
-        while "  " in file_content:
-            file_content = file_content.replace("  ", " ")
-
-        with open(os.path.join(d, os.path.basename(path)), "w") as f:
-            f.write(file_content)
-
-        return pl.read_csv(
-            os.path.join(d, os.path.basename(path)),
-            has_header=True,
-            separator=" ",
-            columns=[
-                "JulianDate",
-                "HHMMSS_ID",
-                "SX",
-                "gndP",
-                "gndT",
-                "latdeg",
-                "londeg",
-                "altim",
-                "appSZA",
-                "azimuth",
-                "XH2O",
-                "XAIR",
-                "XCO2",
-                "XCH4",
-                "XCH4_S5P",
-                "XCO",
-            ],
-            dtypes={
-                "JulianDate": pl.Float64,
-                "HHMMSS_ID": str,  # type: ignore
-                "SX": str,  # type: ignore
-                "gndP": pl.Float64,
-                "gndT": pl.Float64,
-                "latdeg": pl.Float64,
-                "londeg": pl.Float64,
-                "altim": pl.Float64,
-                "appSZA": pl.Float64,
-                "azimuth": pl.Float64,
-                "XH2O": pl.Float64,
-                "XAIR": pl.Float64,
-                "XCO2": pl.Float64,
-                "XCH4": pl.Float64,
-                "XCH4_S5P": pl.Float64,
-                "XCO": pl.Float64,
-            },
-        )
-
-
 def merge_output_files(session: custom_types.ProffastSession) -> None:
     out_dir = os.path.join(session.ctn.container_path, "prf", "out_fast")
     date_string = session.ctx.from_datetime.strftime("%Y%m%d")
@@ -85,12 +24,9 @@ def merge_output_files(session: custom_types.ProffastSession) -> None:
 
     # merge output tables
     output_filenames = glob.glob(os.path.join(out_dir, "*invparms.dat"))
-    if len(output_filenames) == 0:
+    merged_df = utils.proffast.read_and_merge_invparms_files(output_filenames)
+    if merged_df is None:
         return
-    merged_df = pl.concat(
-        [_read_invparms_file(f) for f in output_filenames],
-        how="vertical",
-    )
 
     # export as csv (quick inspection) and parquet (further processing)
     merged_df.write_csv(
