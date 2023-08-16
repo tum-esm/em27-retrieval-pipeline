@@ -121,7 +121,7 @@ def move_profiles_and_datalogger_files(session: custom_types.ProffastSession) ->
             session.ctn.data_input_path,
             "log",
             (
-                f"datalogger-{session.ctx.sensor_id}-"
+                f"datalogger-{session.ctx.pressure_data_source}-"
                 + f"{session.ctx.from_datetime.strftime('%Y%m%d')}.csv"
             ),
         ),

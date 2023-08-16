@@ -19,7 +19,7 @@ _LOGS_DIR = os.path.join(_CONTAINER_DIR, "prf", "out_fast", "logfiles")
 @click.command(help="Run proffast 1.0 for a given proffast session")
 @click.argument("session_string", type=str)
 def main(session_string: str) -> None:
-    os.mkdir(_LOGS_DIR)
+    os.makedirs(_LOGS_DIR, exist_ok=True)
 
     def log(msg: str) -> None:
         with open(os.path.join(_LOGS_DIR, "wrapper.log"), "a") as f:
