@@ -90,8 +90,13 @@ class Proffast22Container(pydantic.BaseModel):
         )
 
 
+class Proffast23Container(Proffast22Container):
+    """No difference to `Proffast22Container`."""
+
+
 class ProffastSession(pydantic.BaseModel):
-    """This combines a `SensorDataContext` with a `Proffast10Container` or `Proffast22Container`."""
+    """This combines a `SensorDataContext` with a `Proffast10Container`/
+    `Proffast22Container`/`Proffast23Container`."""
 
     ctx: tum_esm_em27_metadata.types.SensorDataContext
-    ctn: Proffast10Container | Proffast22Container
+    ctn: Proffast10Container | Proffast22Container | Proffast23Container

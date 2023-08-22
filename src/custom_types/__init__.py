@@ -5,6 +5,7 @@ from .proffast import (
     InputWarningsList,
     Proffast10Container,
     Proffast22Container,
+    Proffast23Container,
     ProffastSession,
 )
 

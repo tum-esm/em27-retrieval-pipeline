@@ -9,7 +9,7 @@ from src import utils, custom_types
 import tum_esm_utils
 
 
-def _detect_proffast22_error_type(output_src: str) -> Optional[str]:
+def _detect_proffast2X_error_type(output_src: str) -> Optional[str]:
     if not os.path.isdir(f"{output_src}/logfiles"):
         return None
 
@@ -39,8 +39,34 @@ def run(
     assert config.automated_proffast is not None
 
     date_string = session.ctx.from_datetime.strftime("%Y%m%d")
+    output_src_dir: str
+    output_parquet_path: str
+    day_was_successful: bool
 
-    if isinstance(session.ctn, custom_types.Proffast22Container):
+    if isinstance(session.ctn, custom_types.Proffast10Container):
+        output_src_dir = os.path.join(session.ctn.container_path, "prf", "out_fast")
+        output_parquet_path = os.path.join(
+            output_src_dir,
+            f"{session.ctx.sensor_id}{date_string[2:]}-combined-invparms.parquet",
+        )
+
+        # DETERMINE WHETHER RETRIEVAL HAS BEEN SUCCESSFUL OR NOT
+
+        day_was_successful = os.path.isfile(output_parquet_path)
+        if day_was_successful:
+            df = pl.read_parquet(output_parquet_path)
+            if len(df) > 1:
+                logger.debug(f"Retrieval output csv exists")
+            else:
+                day_was_successful = False
+                logger.warning(f"Retrieval output csv exists but is empty")
+        else:
+            logger.debug(f"Retrieval output csv is missing")
+
+    elif isinstance(
+        session.ctn,
+        (custom_types.Proffast22Container, custom_types.Proffast23Container),
+    ):
         output_src_dir = (
             f"{session.ctn.data_output_path}/{session.ctx.sensor_id}_"
             + f"SN{str(session.ctx.serial_number).zfill(3)}_{date_string[2:]}-{date_string[2:]}"
@@ -64,30 +90,11 @@ def run(
                     logger.warning(f"Retrieval output csv exists but is empty")
         else:
             logger.debug(f"Retrieval output csv is missing")
-            error_type = _detect_proffast22_error_type(output_src_dir)
+            error_type = _detect_proffast2X_error_type(output_src_dir)
             if error_type is None:
                 logger.debug("Unknown error type")
             else:
                 logger.debug(f"Known error type: {error_type}")
-    else:
-        output_src_dir = os.path.join(session.ctn.container_path, "prf", "out_fast")
-        output_parquet_path = os.path.join(
-            output_src_dir,
-            f"{session.ctx.sensor_id}{date_string[2:]}-combined-invparms.parquet",
-        )
-
-        # DETERMINE WHETHER RETRIEVAL HAS BEEN SUCCESSFUL OR NOT
-
-        day_was_successful = os.path.isfile(output_parquet_path)
-        if day_was_successful:
-            df = pl.read_parquet(output_parquet_path)
-            if len(df) > 1:
-                logger.debug(f"Retrieval output csv exists")
-            else:
-                day_was_successful = False
-                logger.warning(f"Retrieval output csv exists but is empty")
-        else:
-            logger.debug(f"Retrieval output csv is missing")
 
     # DETERMINE OUTPUT DIRECTORY PATHS
 
