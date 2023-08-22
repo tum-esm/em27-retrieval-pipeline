@@ -44,4 +44,4 @@ jobs:
             - name: Run pytests
               run: |
                   source .venv/bin/activate
-                  pytest -m "ci-quick" --cov=src tests/
+                  pytest -m "ci_quick" --verbose --cov=src tests/

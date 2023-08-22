@@ -41,9 +41,7 @@ jobs:
               run: poetry install --with=dev
 
             # run test suite
-            # we are running the quick suite first to fail fast
             - name: Run pytests
               run: |
                   source .venv/bin/activate
-                  pytest -m "ci-quick" --cov=src tests/
-                  pytest -m "ci-intensive" --cov=src tests/
+                  pytest -m "ci_intensive" --verbose --cov=src tests/
