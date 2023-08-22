@@ -37,6 +37,7 @@ matplotlib = "^3.7.2"
 pyarrow = "^11.0.0"
 tailwind-colors = "^1.2.1"
 black = "^23.7.0"
+pytest-order = "^1.1.0"
 
 
 [tool.poetry.group.prfpylot.dependencies]
@@ -53,12 +54,13 @@ pyyaml = "^6.0.1"
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
 
+# we made sure to run the quick test suit before the retrieval tests to fail fast
 [tool.pytest.ini_options]
 markers = [
     "integration: can only be run on a configured system",
-    "ci-quick: can be run in a CI environment, < 1 min",
-    "ci-intensive: can be run in a CI environment, ~ 20 min, does not include quick tests",
-    "ci-complete: can be run in a CI environment, ~ 40 min, does not include quick or intensive tests",
+    "ci_quick: can be run in a CI environment, < 1 min, everything except running actual retrievals",
+    "ci_intensive: can be run in a CI environment, ~ 20 min, runs one sample day for every retrieval algorithm",
+    "ci_complete: can be run in a CI environment, ~ 60 min, runs three sample days for every retrieval algorithm with data from different instruments and locations",
 ]
 
 [tool.mypy]
