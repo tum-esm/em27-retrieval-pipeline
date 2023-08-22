@@ -35,7 +35,7 @@ jobs:
 
             # install poetry if venv not in cache
             - name: Install Poetry
-              if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
+              if: steps.cached-venv.outputs.cache-hit != 'true'
               uses: snok/install-poetry@v1
               with:
                   version: 1.6.1
@@ -43,7 +43,7 @@ jobs:
                   virtualenvs-in-project: true
                   installer-parallel: true
             - name: Install dependencies
-              if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
+              if: steps.cached-venv.outputs.cache-hit != 'true'
               run: poetry install --with=dev
 
             # run test suite
