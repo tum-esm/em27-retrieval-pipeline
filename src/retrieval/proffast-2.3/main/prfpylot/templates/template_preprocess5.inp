@@ -1,4 +1,4 @@
-Input file for COCCON PROCEEDS prf96-EM27-fast\preprocessor                        
+Input file for COCCON PROCEEDS prf96-EM27-fast/preprocessor                        
 
 Generate ASCII output for testing
 mpowFFT (17 for EM27/SUN and IR Cube: 1.8 cm MPD, 181/182: 2.5 cm /3.0 cm MPD, 19 for VERTEX / INVENIO: 4.5 cm MPD, 20 for 125HR: 16.2 cm MPD)
