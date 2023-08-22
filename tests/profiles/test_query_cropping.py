@@ -7,7 +7,10 @@ from src.custom_types import DownloadQuery
 from tests.fixtures import provide_config_template
 
 
-@pytest.mark.ci
+@pytest.mark.order(1)
+@pytest.mark.ci_quick
+@pytest.mark.ci_intensive
+@pytest.mark.ci_complete
 def test_get_date_suffixes(provide_config_template: custom_types.Config) -> None:
     global_config = provide_config_template
     assert global_config.vertical_profiles is not None

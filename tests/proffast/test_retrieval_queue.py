@@ -43,7 +43,7 @@ em27_metadata = tum_esm_em27_metadata.interfaces.EM27MetadataInterface(
 )
 
 
-def check_next_item(
+def _check_next_item(
     i: Optional[tum_esm_em27_metadata.types.SensorDataContext],
     expected_date: Optional[datetime.date],
 ) -> None:
@@ -53,7 +53,10 @@ def check_next_item(
         assert i.from_datetime.date() == expected_date
 
 
-@pytest.mark.ci
+@pytest.mark.order(1)
+@pytest.mark.ci_quick
+@pytest.mark.ci_intensive
+@pytest.mark.ci_complete
 def test_retrieval_queue(
     download_sample_data: None,
     clear_output_data: None,
@@ -88,9 +91,9 @@ def test_retrieval_queue(
     retrieval_queue = interfaces.proffast.RetrievalQueue(
         config, logger, em27_metadata=em27_metadata, verbose_reasoning=True
     )
-    check_next_item(retrieval_queue.get_next_item(), datetime.date(2017, 6, 9))
-    check_next_item(retrieval_queue.get_next_item(), None)
-    check_next_item(retrieval_queue.get_next_item(), None)
+    _check_next_item(retrieval_queue.get_next_item(), datetime.date(2017, 6, 9))
+    _check_next_item(retrieval_queue.get_next_item(), None)
+    _check_next_item(retrieval_queue.get_next_item(), None)
 
     # test case 2
     config.automated_proffast.data_filter.from_date = datetime.date(2017, 6, 1)
@@ -98,10 +101,10 @@ def test_retrieval_queue(
     retrieval_queue = interfaces.proffast.RetrievalQueue(
         config, logger, em27_metadata=em27_metadata
     )
-    check_next_item(retrieval_queue.get_next_item(), datetime.date(2017, 6, 9))
-    check_next_item(retrieval_queue.get_next_item(), datetime.date(2017, 6, 8))
-    check_next_item(retrieval_queue.get_next_item(), None)
-    check_next_item(retrieval_queue.get_next_item(), None)
+    _check_next_item(retrieval_queue.get_next_item(), datetime.date(2017, 6, 9))
+    _check_next_item(retrieval_queue.get_next_item(), datetime.date(2017, 6, 8))
+    _check_next_item(retrieval_queue.get_next_item(), None)
+    _check_next_item(retrieval_queue.get_next_item(), None)
 
     # test case 3
     config.automated_proffast.data_filter.from_date = datetime.date(2017, 6, 1)
@@ -109,9 +112,9 @@ def test_retrieval_queue(
     retrieval_queue = interfaces.proffast.RetrievalQueue(
         config, logger, em27_metadata=em27_metadata
     )
-    check_next_item(retrieval_queue.get_next_item(), datetime.date(2017, 6, 8))
-    check_next_item(retrieval_queue.get_next_item(), None)
-    check_next_item(retrieval_queue.get_next_item(), None)
+    _check_next_item(retrieval_queue.get_next_item(), datetime.date(2017, 6, 8))
+    _check_next_item(retrieval_queue.get_next_item(), None)
+    _check_next_item(retrieval_queue.get_next_item(), None)
 
     # test case 4
     config.automated_proffast.data_filter.from_date = datetime.date(2017, 6, 8)
@@ -119,9 +122,9 @@ def test_retrieval_queue(
     retrieval_queue = interfaces.proffast.RetrievalQueue(
         config, logger, em27_metadata=em27_metadata
     )
-    check_next_item(retrieval_queue.get_next_item(), datetime.date(2017, 6, 8))
-    check_next_item(retrieval_queue.get_next_item(), None)
-    check_next_item(retrieval_queue.get_next_item(), None)
+    _check_next_item(retrieval_queue.get_next_item(), datetime.date(2017, 6, 8))
+    _check_next_item(retrieval_queue.get_next_item(), None)
+    _check_next_item(retrieval_queue.get_next_item(), None)
 
     # test case 5
     config.automated_proffast.data_filter.from_date = datetime.date(2017, 6, 1)
@@ -129,5 +132,5 @@ def test_retrieval_queue(
     retrieval_queue = interfaces.proffast.RetrievalQueue(
         config, logger, em27_metadata=em27_metadata
     )
-    check_next_item(retrieval_queue.get_next_item(), None)
-    check_next_item(retrieval_queue.get_next_item(), None)
+    _check_next_item(retrieval_queue.get_next_item(), None)
+    _check_next_item(retrieval_queue.get_next_item(), None)

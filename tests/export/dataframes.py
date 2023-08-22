@@ -1,6 +1,7 @@
 import datetime
 from typing import Any
 import polars as pl
+import pytest
 from src import procedures
 
 
@@ -24,6 +25,10 @@ def _is_subset(df1: pl.DataFrame, df2: pl.DataFrame) -> bool:
     return True
 
 
+@pytest.mark.order(1)
+@pytest.mark.ci_quick
+@pytest.mark.ci_intensive
+@pytest.mark.ci_complete
 def test_merge_dataframes() -> None:
     get_t: Any = lambda minute: datetime.datetime(2021, 1, 1, 0, minute, 0)
 

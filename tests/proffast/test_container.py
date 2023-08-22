@@ -62,21 +62,43 @@ SENSOR_DATA_CONTEXTS = [
     for date in ["2022-06-02"]
 ]
 
-# SENSOR_DATA_CONTEXTS = SENSOR_DATA_CONTEXTS[2:]
-TESTED_PROFFAST_VERSIONS: list[Literal["proffast-1.0", "proffast-2.2"]] = [
-    "proffast-1.0",
-    "proffast-2.2",
-]
+TESTED_PROFFAST_VERSIONS: list[
+    Literal["proffast-1.0", "proffast-2.2", "proffast-2.3"]
+] = ["proffast-1.0", "proffast-2.2", "proffast-2.3"]
 
 
-@pytest.mark.integration
-def test_container(
+@pytest.mark.order(2)
+@pytest.mark.ci_intensive
+def test_one_day(
     wrap_test_with_mainlock: None,
     download_sample_data: None,
     clear_output_data: None,
     provide_config_template: custom_types.Config,
 ) -> None:
-    config = provide_config_template
+    _run_test_container(
+        config=provide_config_template,
+        sensor_data_contexts=[SENSOR_DATA_CONTEXTS[2]],
+    )
+
+
+@pytest.mark.order(3)
+@pytest.mark.ci_complete
+def test_three_days(
+    wrap_test_with_mainlock: None,
+    download_sample_data: None,
+    clear_output_data: None,
+    provide_config_template: custom_types.Config,
+) -> None:
+    _run_test_container(
+        config=provide_config_template,
+        sensor_data_contexts=SENSOR_DATA_CONTEXTS,
+    )
+
+
+def _run_test_container(
+    config: custom_types.Config,
+    sensor_data_contexts: list[tum_esm_em27_metadata.types.SensorDataContext],
+) -> None:
     assert config.automated_proffast is not None
 
     # target config at test data
@@ -103,7 +125,7 @@ def test_container(
         logger = utils.proffast.Logger("pytest", print_only=True)
         container_factory = interfaces.proffast.ContainerFactory(config, logger)
 
-        for sdc in SENSOR_DATA_CONTEXTS:
+        for sdc in sensor_data_contexts:
             # create session and run container
             session = procedures.proffast.create_session.run(container_factory, sdc)
             procedures.proffast.process_session.run(config, session)

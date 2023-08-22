@@ -11,7 +11,10 @@ def test_config() -> None:
     custom_types.Config.load()
 
 
-@pytest.mark.ci
+@pytest.mark.order(1)
+@pytest.mark.ci_quick
+@pytest.mark.ci_intensive
+@pytest.mark.ci_complete
 def test_config_template() -> None:
     config = custom_types.Config.load(
         path=os.path.join(PROJECT_DIR, "config", "config.template.json"),
