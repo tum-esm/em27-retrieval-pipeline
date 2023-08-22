@@ -19,13 +19,19 @@ jobs:
               with:
                   python-version: 3.11.4
 
-            # load cached venv if cache exists
+            # load cache if available
             - name: Load cached venv
-              id: cached-poetry-dependencies
+              id: cached-venv
               uses: actions/cache@v3
               with:
                   path: .venv
                   key: venv-${{ runner.os }}-3.11.4-${{ hashFiles('poetry.lock') }}
+            - name: Load cached sample data
+              id: cached-sample-data
+              uses: actions/cache@v3
+              with:
+                  path: data/testing/container/em27-retrieval-pipeline-test-inputs-1.0.0.tar.gz
+                  key: sample-data-1.0.0
 
             # install poetry if venv not in cache
             - name: Install Poetry
