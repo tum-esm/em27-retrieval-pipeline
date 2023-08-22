@@ -55,8 +55,10 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.pytest.ini_options]
 markers = [
-    "ci: can be run in a CI environment",
     "integration: can only be run on a configured system",
+    "ci-quick: can be run in a CI environment, < 1 min",
+    "ci-intensive: can be run in a CI environment, ~ 20 min, does not include quick tests",
+    "ci-complete: can be run in a CI environment, ~ 40 min, does not include quick or intensive tests",
 ]
 
 [tool.mypy]
