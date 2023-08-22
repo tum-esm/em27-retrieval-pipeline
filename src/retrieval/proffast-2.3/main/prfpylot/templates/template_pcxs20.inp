@@ -26,12 +26,12 @@ pT file
 construct H2O and HDO from pT file (True/False)
 n_Tdisturb
 $
-%DATAPATH%/%DATE%
+%DATAPATH%\%DATE%
 %SITE%
 %DATE%
 .false.
 .true.
-%MAPPATH%/%SITE_ABBREV%%DATE_LONG%.map
+%MAPPATH_WITH_MAPFILE%
 .true.
 6
 
@@ -39,7 +39,7 @@ $
 solar spectrum file
 external FOV diameter as fraction of solar disc diameter
 $
-inp_fwd/hitran/solspec-jpl/solspec.dat
+inp_fwd\hitran\solspec-jpl\solspec.dat
 0.6
 
 
@@ -62,25 +62,25 @@ for each species (note: H2O must be at first position):
     line list
     isotope handle
 $
-inp_fwd/hitran/linedata/01_HIT20-rev1.par
+inp_fwd\hitran\linedata\01_HIT20-rev1.par
 3
 011
 012
 013
-inp_fwd/hitran/linedata/01_HIT20-rev1.par
+inp_fwd\hitran\linedata\01_HIT20-rev1.par
 1
 014
-inp_fwd/hitran/linedata/02_HIT20-LM+SDVmix.par
+inp_fwd\hitran\linedata\02_HIT20-LM+SDVmix.par
 0
-inp_fwd/hitran/linedata/06_HIT20corr+LM.par
+inp_fwd\hitran\linedata\06_HIT20corr+LM.par
 0
-inp_fwd/hitran/linedata/04_HIT20.par
+inp_fwd\hitran\linedata\04_HIT20.par
 0
-inp_fwd/hitran/linedata/05_HIT20.par
+inp_fwd\hitran\linedata\05_HIT20.par
 0
-inp_fwd/hitran/linedata/07_HIT20.par
+inp_fwd\hitran\linedata\07_HIT20.par
 0
-inp_fwd/hitran/linedata/14_HIT20.par
+inp_fwd\hitran\linedata\14_HIT20.par
 0
 
 
@@ -89,21 +89,21 @@ for each species:
   Does the VMR-file contain wet (.true.) or dry (.false.) mixing ratios?
   - For GGG2014 files it is dry, for GGG2020 files it is wet.
 $
-%MAPPATH%/%SITE_ABBREV%%DATE_LONG%.map
+%MAPPATH_WITH_MAPFILE%
 %WET_VMR%
-%MAPPATH%/%SITE_ABBREV%%DATE_LONG%.map
+%MAPPATH_WITH_MAPFILE%
 %WET_VMR%
-%MAPPATH%/%SITE_ABBREV%%DATE_LONG%.map
+%MAPPATH_WITH_MAPFILE%
 %WET_VMR%
-%MAPPATH%/%SITE_ABBREV%%DATE_LONG%.map
+%MAPPATH_WITH_MAPFILE%
 %WET_VMR%
-%MAPPATH%/%SITE_ABBREV%%DATE_LONG%.map
+%MAPPATH_WITH_MAPFILE%
 %WET_VMR%
-%MAPPATH%/%SITE_ABBREV%%DATE_LONG%.map
+%MAPPATH_WITH_MAPFILE%
 %WET_VMR%
-%MAPPATH%/%SITE_ABBREV%%DATE_LONG%.map
+%MAPPATH_WITH_MAPFILE%
 %WET_VMR%
-%MAPPATH%/%SITE_ABBREV%%DATE_LONG%.map
+%MAPPATH_WITH_MAPFILE%
 %WET_VMR%
 
 
