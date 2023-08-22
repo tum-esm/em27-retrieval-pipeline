@@ -143,7 +143,7 @@ def _run_test_container(
                 "about.json",
                 "logfiles/container.log",
             ]
-            if proffast_version == "proffast-2.2":
+            if proffast_version in ["proffast-2.2", "proffast-2.3"]:
                 expected_files = [
                     (
                         f"comb_invparms_{sdc.sensor_id}_SN{str(sdc.serial_number).zfill(3)}"
@@ -155,7 +155,7 @@ def _run_test_container(
                     "logfiles/pcxs_output.log",
                     "logfiles/inv_output.log",
                 ]
-            else:
+            if proffast_version == "proffast-1.0":
                 expected_files = [
                     (f"{sdc.sensor_id}{date_string[2:]}-combined-invparms.csv"),
                     (f"{sdc.sensor_id}{date_string[2:]}-combined-invparms.parquet"),
