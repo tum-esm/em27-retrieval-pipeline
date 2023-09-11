@@ -27,4 +27,4 @@ def test_static_types() -> None:
         "src/export_retrieval_outputs.py",
         "src/retrieval/proffast-1.0/main/prfpylot/main.py",
     ]:
-        os.system(f"cd {PROJECT_DIR} && .venv/bin/python -m mypy {path}")
+        assert os.system(f"cd {PROJECT_DIR} && .venv/bin/python -m mypy {path}") == 0
