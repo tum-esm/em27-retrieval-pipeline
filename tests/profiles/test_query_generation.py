@@ -77,7 +77,7 @@ def test_query_generation(
 
     # create a "with tmp dir"
     with tempfile.TemporaryDirectory() as tmp_dir:
-        config.general.data_src_dirs.vertical_profiles = tmp_dir
+        config.general.data_src_dirs.profiles = tmp_dir
         config.profiles.request_scope.from_date = datetime.date(2000, 1, 1)
         config.profiles.request_scope.to_date = datetime.date(2000, 5, 30)
 
@@ -107,6 +107,8 @@ def test_query_generation(
                         ]) for q in query_list
                     ]) == 1
                 )
+
+            print(query_list)
 
             assert_query_exists(
                 lat=1,

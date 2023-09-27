@@ -142,7 +142,7 @@ def generate_download_queries(
                         date
                         > (current_query.to_date + datetime.timedelta(days=1))
                     ) or (current_query.to_date - current_query.from_date).days
-                                             >= 28)
+                                             >= 27)
                     if start_new_query_block:
                         download_queries.append(
                             custom_types.DownloadQuery(
