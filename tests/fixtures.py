@@ -4,12 +4,13 @@ from typing import Generator
 import filelock
 import pytest
 import tum_esm_utils
-from src import custom_types, utils
-
+from src import custom_types
 
 # TODO: syncronize mainlock names across codebase
 PROJECT_DIR = tum_esm_utils.files.get_parent_dir_path(__file__, current_depth=2)
-lock = filelock.FileLock(os.path.join(PROJECT_DIR, "src", "main.lock"), timeout=0)
+lock = filelock.FileLock(
+    os.path.join(PROJECT_DIR, "src", "main.lock"), timeout=0
+)
 
 
 @pytest.fixture
@@ -31,20 +32,23 @@ def download_sample_data() -> Generator[None, None, None]:
 
     The tar file has about 96MB."""
 
-    testing_data_path = os.path.join(PROJECT_DIR, "data", "testing", "container")
+    testing_data_path = os.path.join(
+        PROJECT_DIR, "data", "testing", "container"
+    )
     tarball_filename = "em27-retrieval-pipeline-test-inputs-1.0.0.tar.gz"
 
     # download testing data tarball if it does not exist
     if not os.path.isfile(os.path.join(testing_data_path, tarball_filename)):
         tum_esm_utils.shell.run_shell_command(
-            f"wget --quiet https://syncandshare.lrz.de/dl/"
-            + f"fiUY18aZDWf3CYNisatQB9/{tarball_filename}",
+            f"wget --quiet https://syncandshare.lrz.de/dl/" +
+            f"fiUY18aZDWf3CYNisatQB9/{tarball_filename}",
             working_directory=testing_data_path,
         )
 
     # remove existing input data
     for input_dir in [
-        os.path.join(testing_data_path, "inputs", t) for t in ["log", "map", "ifg"]
+        os.path.join(testing_data_path, "inputs", t)
+        for t in ["log", "map", "ifg"]
     ]:
         if os.path.isdir(input_dir):
             shutil.rmtree(input_dir)
@@ -116,9 +120,9 @@ def provide_config_template() -> Generator[custom_types.Config, None, None]:
         )
     )
     config.general.data_src_dirs.datalogger = "/tmp"
-    config.general.data_src_dirs.vertical_profiles = "/tmp"
+    config.general.data_src_dirs.profiles = "/tmp"
     config.general.data_src_dirs.interferograms = "/tmp"
     config.general.data_dst_dirs.results = "/tmp"
-    config.output_merging_targets = []
+    config.export = custom_types.config.ExportConfig(targets=[])
 
     yield config
