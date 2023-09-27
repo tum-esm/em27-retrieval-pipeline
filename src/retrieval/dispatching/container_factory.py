@@ -6,7 +6,9 @@ import tum_esm_utils
 _PROJECT_DIR = tum_esm_utils.files.get_parent_dir_path(
     __file__, current_depth=4
 )
-_RETRIEVAL_CODE_DIR = os.path.join(_PROJECT_DIR, "src", "retrieval")
+_RETRIEVAL_CODE_DIR = os.path.join(
+    _PROJECT_DIR, "src", "retrieval", "algorithms"
+)
 
 
 class ContainerFactory:

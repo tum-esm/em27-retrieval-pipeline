@@ -7,7 +7,7 @@ _PROJECT_DIR = tum_esm_utils.files.get_parent_dir_path(
     __file__, current_depth=4
 )
 _PYLOT_CONFIG_DIR = os.path.join(
-    _PROJECT_DIR, "src", "retrieval", "proffast-2.2", "config"
+    _PROJECT_DIR, "src", "retrieval", "algorithms", "proffast-2.2", "config"
 )
 
 

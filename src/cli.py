@@ -21,7 +21,7 @@ def print_red(text: str) -> None:
 
 
 @click.command(
-    help="Start the automated proffast as a background " +
+    help="Start the automated retrieval as a background " +
     "process. Prevents spawning multiple processes"
 )
 def _start() -> None:
@@ -29,24 +29,24 @@ def _start() -> None:
         sys.executable, _RUN_SCRIPT_PATH
     )
     print_green(
-        f"Started automated proffast background process with PID {new_pid}"
+        f"Started automated retrieval background process with PID {new_pid}"
     )
 
 
 @click.command(
-    help="Checks whether the automated proffast background process is running"
+    help="Checks whether the automated retrieval background process is running"
 )
 def _is_running() -> None:
     existing_pids = tum_esm_utils.processes.get_process_pids(_RUN_SCRIPT_PATH)
     if len(existing_pids) > 0:
         print_green(
-            f"automated proffast is running with PID(s) {existing_pids}"
+            f"automated retrieval is running with PID(s) {existing_pids}"
         )
     else:
-        print_red("automated proffast is not running")
+        print_red("automated retrieval is not running")
 
 
-@click.command(help="Stop the automated proffast background process")
+@click.command(help="Stop the automated retrieval background process")
 def _stop() -> None:
     termination_pids = tum_esm_utils.processes.terminate_process(
         _RUN_SCRIPT_PATH
@@ -55,14 +55,14 @@ def _stop() -> None:
         print_red("No active process to be terminated")
     else:
         print_green(
-            f"Terminated {len(termination_pids)} automated proffast " +
+            f"Terminated {len(termination_pids)} automated retrieval " +
             f"background processe(s) with PID(s) {termination_pids}"
         )
 
 
 # TODO: remove this once automatic printing is implemented
 @click.command(help="Print out the retrieval queue")
-def _print_retrieval_queue() -> None:
+def _print_queue() -> None:
     main_logger = retrieval.utils.logger.Logger("main", print_only=True)
     config = utils.config.Config.load()
     retrieval_queue = retrieval.dispatching.retrieval_queue.RetrievalQueue(
@@ -82,16 +82,14 @@ def _print_retrieval_queue() -> None:
 
 
 @click.group()
-def proffast_command_group() -> None:
+def retrieval_command_group() -> None:
     pass
 
 
-proffast_command_group.add_command(_start, name="start")
-proffast_command_group.add_command(_stop, name="stop")
-proffast_command_group.add_command(_is_running, name="is-running")
-proffast_command_group.add_command(
-    _print_retrieval_queue, name="print-retrieval-queue"
-)
+retrieval_command_group.add_command(_start, name="start")
+retrieval_command_group.add_command(_stop, name="stop")
+retrieval_command_group.add_command(_is_running, name="is-running")
+retrieval_command_group.add_command(_print_queue, name="print-queue")
 
 
 @click.group()
@@ -99,7 +97,7 @@ def cli() -> None:
     pass
 
 
-cli.add_command(proffast_command_group, name="proffast")
+cli.add_command(retrieval_command_group, name="retrieval")
 
 if __name__ == "__main__":
     cli.main(prog_name="em27-pipeline-cli")
