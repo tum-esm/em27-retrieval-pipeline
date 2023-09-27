@@ -1,3 +1,4 @@
+from typing import Any
 from src import custom_types, interfaces, utils
 import signal
 from . import (
@@ -9,13 +10,24 @@ from . import (
 )
 
 
-def run(config: custom_types.Config, session: custom_types.ProffastSession) -> None:
+def run(
+    config: custom_types.Config, session: custom_types.ProffastSession
+) -> None:
     signal.signal(signal.SIGINT, signal.SIG_IGN)
     logger = utils.proffast.Logger(container_id=session.ctn.container_id)
     logger.info(
-        f"Starting session {session.ctx.sensor_id}/"
-        + f"{session.ctx.from_datetime}-{session.ctx.to_datetime}"
+        f"Starting session {session.ctx.sensor_id}/" +
+        f"{session.ctx.from_datetime}-{session.ctx.to_datetime}"
     )
+
+    def _graceful_teardown(*args: Any) -> None:
+        logger.info(f"Container was killed")
+        logger.archive()
+        exit(0)
+
+    signal.signal(signal.SIGINT, _graceful_teardown)
+    signal.signal(signal.SIGTERM, _graceful_teardown)
+    logger.info("Established graceful teardown hook")
 
     def log_input_warning(message: str) -> None:
         interfaces.proffast.InputWarningsInterface.add(

@@ -46,18 +46,23 @@ def run() -> None:
     # tear down logger gracefully when process is killed
 
     def _graceful_teardown(*args: Any) -> None:
-        print("A")
         main_logger.info(f"Automation was stopped by user")
         main_logger.info(f"Killing {len(processes)} container(s)")
         for process in processes:
-            process.kill()
+            process.terminate()
             kill_time = time.time()
             while True:
                 if not process.is_alive():
-                    main_logger.info(f'Process "{process.name}": killed')
+                    main_logger.info(f'Process "{process.name}": stopped')
+                    break
                 if time.time() - kill_time > 5:
                     main_logger.warning(
-                        f'Process "{process.name}": did not terminate after 5 seconds'
+                        f'Process "{process.name}": did not terminate after 5 seconds, sending SIGKILL'
+                    )
+                    process.kill()
+                if time.time() - kill_time > 10:
+                    main_logger.warning(
+                        f'Process "{process.name}": could not get killed 10 seconds'
                     )
                     break
 
