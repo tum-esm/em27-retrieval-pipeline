@@ -66,8 +66,8 @@ def generate_download_queries(
                 l for l in em27_metadata.locations
                 if l.location_id == sensor_location.location_id
             )
-            lat = int(location.lat)
-            lon = int(location.lon)
+            lat = round(location.lat)
+            lon = round(location.lon)
             if lat not in query_dates.keys():
                 query_dates[lat] = {}
             if lon not in query_dates[lat].keys():
