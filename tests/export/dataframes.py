@@ -2,7 +2,7 @@ import datetime
 from typing import Any
 import polars as pl
 import pytest
-from src import procedures
+from src import export
 
 
 def _is_subset(df1: pl.DataFrame, df2: pl.DataFrame) -> bool:
@@ -32,11 +32,15 @@ def _is_subset(df1: pl.DataFrame, df2: pl.DataFrame) -> bool:
 def test_merge_dataframes() -> None:
     get_t: Any = lambda minute: datetime.datetime(2021, 1, 1, 0, minute, 0)
 
-    df1 = pl.DataFrame({"utc": [get_t(1), get_t(2), get_t(3)], "b": [1, 2, None]})
+    df1 = pl.DataFrame({
+        "utc": [get_t(1), get_t(2), get_t(3)], "b": [1, 2, None]
+    })
     df2 = pl.DataFrame({"utc": [get_t(4), get_t(5), get_t(6)], "b": [4, 5, 6]})
-    df3 = pl.DataFrame({"utc": [get_t(2), get_t(3), get_t(4)], "c": [7, None, 9]})
+    df3 = pl.DataFrame({
+        "utc": [get_t(2), get_t(3), get_t(4)], "c": [7, None, 9]
+    })
 
-    df4 = procedures.export.merge_dataframes([df1, df2, df3])
+    df4 = export.dataframes.merge_dataframes([df1, df2, df3])
     print(df4)
 
     assert _is_subset(df1, df4)

@@ -8,11 +8,11 @@ _PROJECT_DIR = tum_esm_utils.files.get_parent_dir_path(
 )
 sys.path.append(_PROJECT_DIR)
 
-from src import custom_types, procedures, utils
+from src import utils, profiles
 
 
 def run() -> None:
-    config = custom_types.Config.load()
+    config = utils.config.Config.load()
     assert config.profiles is not None, "No profiles config found"
 
     try:
@@ -21,7 +21,7 @@ def run() -> None:
             print(f"Downloading {version} data")
 
             # Generate daily sensor sets
-            download_queries = procedures.profiles.generate_download_queries(
+            download_queries = profiles.download_queries.generate_download_queries(
                 config, version
             )
             if len(download_queries) == 0:
@@ -38,7 +38,7 @@ def run() -> None:
                 for query in download_queries:
                     print(f"    {query}")
 
-                with utils.profiles.Reporter(
+                with profiles.reporter.Reporter(
                     download_queries, version
                 ) as reporter:
                     with Progress() as progress:
@@ -63,7 +63,7 @@ def run() -> None:
                                 down_status,
                                 down_time,
                                 to_date,
-                            ) = procedures.profiles.download_data(
+                            ) = profiles.transfer_logic.download_data(
                                 config, query, ftp, version
                             )
                             if not down_status:
@@ -71,7 +71,7 @@ def run() -> None:
                                 (
                                     up_status,
                                     up_time,
-                                ) = procedures.profiles.upload_request(
+                                ) = profiles.transfer_logic.upload_request(
                                     config, query, ftp, version
                                 )
                                 if up_status:
@@ -80,7 +80,7 @@ def run() -> None:
                                         down_status,
                                         down_time,
                                         to_date,
-                                    ) = procedures.profiles.download_data(
+                                    ) = profiles.transfer_logic.download_data(
                                         config, query, ftp, version, wait=True
                                     )
 

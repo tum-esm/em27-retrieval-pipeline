@@ -5,4 +5,4 @@
 # the automated-retrieval-pipeline directory
 PROJECT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" &> /dev/null && pwd)
 
-"$PROJECT_DIR"/.venv/bin/python "$PROJECT_DIR"/src/cli/main.py "$@";
+"$PROJECT_DIR"/.venv/bin/python "$PROJECT_DIR"/src/cli.py "$@";

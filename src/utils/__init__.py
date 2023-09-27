@@ -1,2 +1,1 @@
-from . import proffast, profiles
-from . import functions
+from . import types, config, functions

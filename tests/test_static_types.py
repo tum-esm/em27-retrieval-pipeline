@@ -21,12 +21,12 @@ def test_static_types() -> None:
     _rmdir(".mypy_cache/3.11/tests")
 
     for path in [
-        "src/cli/main.py",
-        "src/run_proffast.py",
+        "src/cli.py",
+        "src/run_retrieval.py",
         "src/download_profiles.py",
         "src/export_outputs.py",
+        "src/retrieval/algorithms/proffast-1.0/main/prfpylot/main.py",
         "tests/",
-        "src/retrieval/proffast-1.0/main/prfpylot/main.py",
     ]:
         assert os.system(
             f"cd {PROJECT_DIR} && .venv/bin/python -m mypy {path}"

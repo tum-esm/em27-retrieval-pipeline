@@ -2,8 +2,7 @@ from typing import Literal
 import pytest
 import datetime
 
-from src import custom_types, procedures
-from src.custom_types import DownloadQuery
+from src import utils, profiles
 from tests.fixtures import provide_config_template
 
 
@@ -12,17 +11,17 @@ from tests.fixtures import provide_config_template
 @pytest.mark.ci_intensive
 @pytest.mark.ci_complete
 def test_get_date_suffixes(
-    provide_config_template: custom_types.Config
+    provide_config_template: utils.config.Config
 ) -> None:
     global_config = provide_config_template
     assert global_config.profiles is not None
 
     def call(
-        config: custom_types.Config,
-        query: custom_types.DownloadQuery,
+        config: utils.config.Config,
+        query: utils.types.DownloadQuery,
         version: Literal["GGG2014", "GGG2020"],
     ) -> list[str]:
-        return procedures.profiles.get_date_suffixes(
+        return profiles.transfer_logic.get_date_suffixes(
             config,
             query,
             version,
@@ -30,19 +29,19 @@ def test_get_date_suffixes(
         )
 
     queries = [
-        DownloadQuery(
+        utils.types.DownloadQuery(
             from_date="2000-01-01", to_date="2000-01-01", lat=0, lon=0
         ),
-        DownloadQuery(
+        utils.types.DownloadQuery(
             from_date="2000-01-01", to_date="2000-01-03", lat=0, lon=0
         ),
-        DownloadQuery(
+        utils.types.DownloadQuery(
             from_date="2000-01-01", to_date="2000-01-04", lat=0, lon=0
         ),
-        DownloadQuery(
+        utils.types.DownloadQuery(
             from_date="2000-01-03", to_date="2000-01-06", lat=0, lon=0
         ),
-        DownloadQuery(
+        utils.types.DownloadQuery(
             from_date="2000-01-05", to_date="2000-01-06", lat=0, lon=0
         ),
     ]

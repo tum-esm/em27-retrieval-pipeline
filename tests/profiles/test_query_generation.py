@@ -5,7 +5,7 @@ import pytest
 import datetime
 import tum_esm_em27_metadata
 
-from src import custom_types, procedures
+from src import utils, profiles
 from tests.fixtures import provide_config_template
 
 
@@ -14,7 +14,7 @@ from tests.fixtures import provide_config_template
 @pytest.mark.ci_intensive
 @pytest.mark.ci_complete
 def test_query_generation(
-    provide_config_template: custom_types.Config,
+    provide_config_template: utils.config.Config,
 ) -> None:
     config = provide_config_template
     assert config.profiles is not None
@@ -83,7 +83,7 @@ def test_query_generation(
 
         for version in versions:
             os.mkdir(os.path.join(tmp_dir, version))
-            query_list = procedures.profiles.generate_download_queries(
+            query_list = profiles.download_queries.generate_download_queries(
                 config=config,
                 version=version,
                 em27_metadata=em27_metadata,

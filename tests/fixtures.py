@@ -4,7 +4,7 @@ from typing import Generator
 import filelock
 import pytest
 import tum_esm_utils
-from src import custom_types
+from src import utils
 
 # TODO: syncronize mainlock names across codebase
 PROJECT_DIR = tum_esm_utils.files.get_parent_dir_path(__file__, current_depth=2)
@@ -111,10 +111,10 @@ def provide_export_config() -> Generator[custom_types.Config, None, None]:
 
 
 @pytest.fixture(scope="session")
-def provide_config_template() -> Generator[custom_types.Config, None, None]:
+def provide_config_template() -> Generator[utils.config.Config, None, None]:
     """Provide a temporary config used in profiles download."""
 
-    config = custom_types.Config(
+    config = utils.config.Config(
         **tum_esm_utils.files.load_json_file(
             os.path.join(PROJECT_DIR, "config", "config.template.json")
         )
@@ -123,6 +123,6 @@ def provide_config_template() -> Generator[custom_types.Config, None, None]:
     config.general.data_src_dirs.profiles = "/tmp"
     config.general.data_src_dirs.interferograms = "/tmp"
     config.general.data_dst_dirs.results = "/tmp"
-    config.export = custom_types.config.ExportConfig(targets=[])
+    config.export = utils.config.ExportConfig(targets=[])
 
     yield config
