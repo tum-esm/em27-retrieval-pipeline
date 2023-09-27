@@ -75,7 +75,7 @@ def test_retrieval_queue(
     config.general.data_src_dirs.interferograms = os.path.join(
         PROJECT_DIR, "data", "testing", "container", "inputs", "ifg"
     )
-    config.general.data_src_dirs.vertical_profiles = os.path.join(
+    config.general.data_src_dirs.profiles = os.path.join(
         PROJECT_DIR, "data", "testing", "container", "inputs", "map"
     )
     config.general.data_dst_dirs.results = os.path.join(

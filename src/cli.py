@@ -4,7 +4,7 @@ import click
 import tum_esm_utils
 
 _PROJECT_DIR = tum_esm_utils.files.get_parent_dir_path(
-    __file__, current_depth=3
+    __file__, current_depth=2
 )
 _RUN_SCRIPT_PATH = os.path.join(_PROJECT_DIR, "src", "run_retrieval.py")
 
