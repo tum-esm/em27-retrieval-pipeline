@@ -4,10 +4,9 @@ version = "0.1.0"
 description = ""
 authors = [
     "Moritz Makowski <moritz.makowski@tum.de>",
-    "Andreas Luther <andreas.luther@tum.de>",
     "Marlon Müller <marlon.mueller@tum.de>",
-    "Dmytro Polityka <dmytro.polityka@tum.de>",
     "Vyas Giridhard <vyas.giridharan@tum.de>",
+    "Andreas Luther <andreas.luther@tum.de>",
 ]
 readme = "README.md"
 
