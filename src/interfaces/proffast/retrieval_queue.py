@@ -11,14 +11,12 @@ class RetrievalQueue:
     """1. Takes all items from manual-queue.json with a priority > 0
     2. Takes all dates from the config.data_src_dirs.interferograms
     3. Takes all items from manual-queue.json with a priority < 0"""
-
     def __init__(
         self,
         config: custom_types.Config,
         logger: utils.proffast.Logger,
         em27_metadata: Optional[
-            tum_esm_em27_metadata.interfaces.EM27MetadataInterface
-        ] = None,
+            tum_esm_em27_metadata.interfaces.EM27MetadataInterface] = None,
         verbose_reasoning: bool = False,
     ) -> None:
         """Initialize the retrieval queue.
@@ -38,7 +36,8 @@ class RetrievalQueue:
             self.em27_metadata = em27_metadata
         else:
             self.em27_metadata = tum_esm_em27_metadata.load_from_github(
-                github_repository=self.config.general.location_data.github_repository,
+                github_repository=self.config.general.location_data.
+                github_repository,
                 access_token=self.config.general.location_data.access_token,
             )
 
@@ -46,13 +45,14 @@ class RetrievalQueue:
         self.verbose_reasoning = verbose_reasoning
 
         self.logger.debug("Precomputing queue items")
-        self.queue_items: list[
-            tum_esm_em27_metadata.types.SensorDataContext
-        ] = self._get_storage_queue_items()
+        self.queue_items: list[tum_esm_em27_metadata.types.SensorDataContext
+                              ] = self._get_storage_queue_items()
 
         self.logger.info("RetrievalQueue is set up")
 
-    def get_next_item(self) -> Optional[tum_esm_em27_metadata.types.SensorDataContext]:
+    def get_next_item(
+        self
+    ) -> Optional[tum_esm_em27_metadata.types.SensorDataContext]:
         """Get the next item to process. Returns `None` if no item is available."""
 
         # TODO: write remaining queue as json to logs directory
@@ -68,23 +68,28 @@ class RetrievalQueue:
     ) -> list[tum_esm_em27_metadata.types.SensorDataContext]:
         assert self.config.automated_proffast is not None
 
-        max_storage_date = min(
-            datetime.datetime.utcnow().date()
-            - datetime.timedelta(
+        from_date = self.config.automated_proffast.data_filter.from_date
+        to_date = min(
+            datetime.date.today() - datetime.timedelta(
                 days=self.config.automated_proffast.data_filter.min_days_delay
             ),
             self.config.automated_proffast.data_filter.to_date,
         )
-
-        storage_dates: list[datetime.date] = []
-        current_date = self.config.automated_proffast.data_filter.from_date
-        while current_date <= max_storage_date:
-            storage_dates.append(current_date)
-            current_date += datetime.timedelta(days=1)
-
+        dates: list[datetime.date] = [
+            from_date + datetime.timedelta(days=i)
+            for i in range((to_date - from_date).days + 1)
+        ]
+        self.logger.debug(
+            f"Considering data from {from_date} to {to_date} ({len(dates)} date(s))"
+        )
         queue_items: list[tum_esm_em27_metadata.types.SensorDataContext] = []
 
-        for date in storage_dates[::-1]:
+        logged_progresses: list[int] = []
+        for date_index, date in enumerate(dates[::-1]):
+            progress = int(((date_index + 1) / len(dates)) * 100)
+            if (progress % 5 == 0) and (progress not in logged_progresses):
+                self.logger.debug(f"{progress:3d} % done")
+                logged_progresses.append(progress)
             for (
                 sensor_id
             ) in self.config.automated_proffast.data_filter.sensor_ids_to_consider:
@@ -152,7 +157,9 @@ class RetrievalQueue:
                 queue_items += sensor_data_contexts
 
         return list(
-            sorted(queue_items, key=lambda sdc: sdc.from_datetime, reverse=True)
+            sorted(
+                queue_items, key=lambda sdc: sdc.from_datetime, reverse=True
+            )
         )
 
     def _ifgs_exist(self, sensor_id: str, date: datetime.date) -> bool:
@@ -178,20 +185,17 @@ class RetrievalQueue:
         )
         expected_ifg_pattern = re.compile(expected_ifg_regex)
         return (
-            len(
-                [
-                    f
-                    for f in os.listdir(ifg_src_directory)
-                    if expected_ifg_pattern.match(f) is not None
-                ]
-            )
-            > 0
+            len([
+                f for f in os.listdir(ifg_src_directory)
+                if expected_ifg_pattern.match(f) is not None
+            ]) > 0
         )
 
     def _filter_ctxs_by_existing_outputs(
         self,
         sensor_id: str,
-        sensor_data_contexts: list[tum_esm_em27_metadata.types.SensorDataContext],
+        sensor_data_contexts: list[tum_esm_em27_metadata.types.SensorDataContext
+                                  ],
     ) -> list[tum_esm_em27_metadata.types.SensorDataContext]:
         """For a given list of sensor data context of one day, remove those
         that already have outputs."""
@@ -199,27 +203,22 @@ class RetrievalQueue:
         assert self.config.automated_proffast is not None
 
         if len(sensor_data_contexts) == 1:
-            expected_output_dir_names = set(
-                [sensor_data_contexts[0].from_datetime.strftime("%Y%m%d")]
-            )
+            expected_output_dir_names = set([
+                sensor_data_contexts[0].from_datetime.strftime("%Y%m%d")
+            ])
         else:
-            expected_output_dir_names = set(
-                [
-                    (
-                        sdc.from_datetime.strftime("%Y%m%d_%H:%M:%S")
-                        + "_"
-                        + sdc.to_datetime.strftime("%H:%M:%S")
-                    )
-                    for sdc in sensor_data_contexts
-                ]
-            )
+            expected_output_dir_names = set([(
+                sdc.from_datetime.strftime("%Y%m%d_%H:%M:%S") + "_" +
+                sdc.to_datetime.strftime("%H:%M:%S")
+            ) for sdc in sensor_data_contexts])
 
         existing_output_dir_names: set[str] = set()
         for output_dir_type in ["successful", "failed"]:
             output_dir_path = os.path.join(
                 self.config.general.data_dst_dirs.results,
                 sensor_id,
-                self.config.automated_proffast.general.retrieval_software + "-outputs",
+                self.config.automated_proffast.general.retrieval_software +
+                "-outputs",
                 output_dir_type,
             )
             if os.path.isdir(output_dir_path):
@@ -229,11 +228,8 @@ class RetrievalQueue:
                             output_dir_path,
                             is_directory=True,
                             regex=(
-                                r"^"
-                                + sensor_data_contexts[0].from_datetime.strftime(
-                                    "%Y%m%d"
-                                )
-                                + r".*"
+                                r"^" + sensor_data_contexts[0].from_datetime.
+                                strftime("%Y%m%d") + r".*"
                             ),
                         )
                     )
@@ -247,41 +243,33 @@ class RetrievalQueue:
 
         if existing_output_dir_names.issubset(expected_output_dir_names):
             return [
-                sdc
-                for sdc in sensor_data_contexts
-                if (
-                    (
-                        sdc.from_datetime.strftime("%Y%m%d_%H:%M:%S")
-                        + "_"
-                        + sdc.to_datetime.strftime("%H:%M:%S")
-                    )
-                    not in existing_output_dir_names
-                )
+                sdc for sdc in sensor_data_contexts if ((
+                    sdc.from_datetime.strftime("%Y%m%d_%H:%M:%S") + "_" +
+                    sdc.to_datetime.strftime("%H:%M:%S")
+                ) not in existing_output_dir_names)
             ]
 
         # happens when the metadata time sections are
         # changed after a retrieval has been completed
         raise RuntimeError(
-            "Existing output directories are not compatible with the current "
-            + "metadata. This happens when the metadata time sections are "
-            + "changed after a retrieval has been completed. Please remove the "
-            + "following directories and try again: "
-            + ", ".join(
-                [
-                    os.path.join(
-                        self.config.general.data_dst_dirs.results,
-                        sensor_id,
-                        self.config.automated_proffast.general.retrieval_software
-                        + "-outputs",
-                        output_dir_type,
-                        dir_name,
-                    )
-                    for dir_name in existing_output_dir_names
-                ]
-            )
+            "Existing output directories are not compatible with the current " +
+            "metadata. This happens when the metadata time sections are " +
+            "changed after a retrieval has been completed. Please remove the " +
+            "following directories and try again: " + ", ".join([
+                os.path.join(
+                    self.config.general.data_dst_dirs.results,
+                    sensor_id,
+                    self.config.automated_proffast.general.retrieval_software +
+                    "-outputs",
+                    output_dir_type,
+                    dir_name,
+                ) for dir_name in existing_output_dir_names
+            ])
         )
 
-    def _upload_is_incomplete(self, sensor_id: str, date: datetime.date) -> bool:
+    def _upload_is_incomplete(
+        self, sensor_id: str, date: datetime.date
+    ) -> bool:
         """
         If the dir_path contains a file "upload-meta.json", then this
         function returns whether the internally used format indicates
