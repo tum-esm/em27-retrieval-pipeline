@@ -5,7 +5,7 @@ import click
 import tum_esm_utils
 
 _PROJECT_DIR = tum_esm_utils.files.get_parent_dir_path(
-    __file__, current_depth=5
+    __file__, current_depth=7
 )
 if os.path.basename(_PROJECT_DIR) != "em27-retrieval-pipeline":
     _PROJECT_DIR = os.path.dirname(_PROJECT_DIR)

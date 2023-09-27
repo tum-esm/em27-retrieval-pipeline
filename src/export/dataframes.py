@@ -4,12 +4,12 @@ import numpy as np
 from scipy.signal import savgol_filter
 import polars as pl
 import tum_esm_em27_metadata
-import src
+from src import utils
 
 
 def get_empty_sensor_dataframe(
     sensor_id: str,
-    output_merging_target: src.utils.config.OutputMergingTargetConfig,
+    output_merging_target: utils.config.OutputMergingTargetConfig,
 ) -> pl.DataFrame:
     """
     Returns an empty single sensor dataframe.
@@ -37,9 +37,9 @@ def get_empty_sensor_dataframe(
 
 
 def get_sensor_dataframe(
-    config: src.utils.config.Config,
+    config: utils.config.Config,
     sensor_data_context: tum_esm_em27_metadata.types.SensorDataContext,
-    output_merging_target: src.utils.config.OutputMergingTargetConfig,
+    output_merging_target: utils.config.OutputMergingTargetConfig,
 ) -> pl.DataFrame:
     """
     Returns a single sensor dataframe.

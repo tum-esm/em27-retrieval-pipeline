@@ -5,10 +5,10 @@ import copy
 import json
 import datetime
 import tum_esm_utils
-import src
+from src import utils
 
 _PROJECT_DIR = tum_esm_utils.files.get_parent_dir_path(
-    __file__, current_depth=4
+    __file__, current_depth=3
 )
 _REPORT_PATH = os.path.join(_PROJECT_DIR, "logs", "profiles")
 
@@ -17,7 +17,7 @@ class Reporter:
     """Generates reports."""
     def __init__(
         self,
-        query_list: list[src.utils.types.DownloadQuery],
+        query_list: list[utils.types.DownloadQuery],
         version: Literal["GGG2014", "GGG2020"],
     ) -> None:
         self._version = version
@@ -30,7 +30,7 @@ class Reporter:
 
     def report_query(
         self,
-        query: src.utils.types.DownloadQuery,
+        query: utils.types.DownloadQuery,
         up_status: bool,
         up_time: float,
         down_status: bool,

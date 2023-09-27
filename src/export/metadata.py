@@ -1,8 +1,7 @@
 import pendulum
 import tum_esm_em27_metadata
 import tum_esm_utils
-
-import src
+from src import utils
 
 
 # TODO: rename as "header"
@@ -10,7 +9,7 @@ def get_metadata(
     em27_metadata: tum_esm_em27_metadata.interfaces.EM27MetadataInterface,
     campaign: tum_esm_em27_metadata.types.CampaignMetadata,
     sensor_data_contexts: list[tum_esm_em27_metadata.types.SensorDataContext],
-    output_merging_target: src.utils.config.OutputMergingTargetConfig,
+    output_merging_target: utils.config.OutputMergingTargetConfig,
 ) -> str:
     """Returns a description of the campaign."""
 

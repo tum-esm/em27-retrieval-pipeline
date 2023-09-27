@@ -47,6 +47,7 @@ def run(session: src.utils.types.RetrievalSession, ) -> None:
                     _PROJECT_DIR,
                     "src",
                     "retrieval",
+                    "algorithms",
                     (
                         "proffast-2.2" if isinstance(
                             session.ctn, src.utils.types.Proffast22Container

@@ -2,15 +2,15 @@ import datetime
 import os
 from typing import Literal, Optional
 import tum_esm_em27_metadata
-import src
+from src import utils
 
 
 def generate_download_queries(
-    config: src.utils.config.Config,
+    config: utils.config.Config,
     version: Literal["GGG2014", "GGG2020"],
     em27_metadata: Optional[
         tum_esm_em27_metadata.interfaces.EM27MetadataInterface] = None,
-) -> list[src.utils.types.DownloadQuery]:
+) -> list[utils.types.DownloadQuery]:
     """Returns a dictionary that maps query locations to sensor sets.
     Sensor sets map days to a all sensors ids that were located at
     the query location on that day. Note that query locations store
@@ -94,9 +94,7 @@ def generate_download_queries(
             filtered_queries: set[datetime.date] = set()
             for date in query_dates[lat][lon]:
                 date_slug = date.strftime("%Y%m%d")
-                coordinate_slug = src.utils.functions.get_coordinates_slug(
-                    lat, lon
-                )
+                coordinate_slug = utils.functions.get_coordinates_slug(lat, lon)
                 if version == "GGG2014":
                     output_files = [
                         os.path.join(
@@ -126,15 +124,15 @@ def generate_download_queries(
         ])
     )
 
-    total_download_queries: list[src.utils.types.DownloadQuery] = []
+    total_download_queries: list[utils.types.DownloadQuery] = []
 
     for lat in query_dates.keys():
         for lon in query_dates[lat].keys():
-            download_queries: list[src.utils.types.DownloadQuery] = []
+            download_queries: list[utils.types.DownloadQuery] = []
             for date in sorted(query_dates[lat][lon]):
                 if len(download_queries) == 0:
                     download_queries.append(
-                        src.utils.types.DownloadQuery(
+                        utils.types.DownloadQuery(
                             lat=lat, lon=lon, from_date=date, to_date=date
                         )
                     )
@@ -147,7 +145,7 @@ def generate_download_queries(
                                              >= 27)
                     if start_new_query_block:
                         download_queries.append(
-                            src.utils.types.DownloadQuery(
+                            utils.types.DownloadQuery(
                                 lat=lat, lon=lon, from_date=date, to_date=date
                             )
                         )

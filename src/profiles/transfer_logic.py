@@ -4,12 +4,12 @@ import tarfile
 from io import BytesIO
 from ftplib import FTP, error_perm
 import datetime
-import src
+from src import utils
 
 
 def upload_request(
-    config: src.utils.config.Config,
-    query: src.utils.types.DownloadQuery,
+    config: utils.config.Config,
+    query: utils.types.DownloadQuery,
     ftp: FTP,
     version: Literal["GGG2014", "GGG2020"],
 ) -> tuple[bool, float]:
@@ -63,8 +63,8 @@ def upload_request(
 
 
 def get_date_suffixes(
-    config: src.utils.config.Config,
-    query: src.utils.types.DownloadQuery,
+    config: utils.config.Config,
+    query: utils.types.DownloadQuery,
     version: Literal["GGG2014", "GGG2020"],
     get_current_datetime: Callable[
         [], datetime.datetime] = lambda: datetime.datetime.utcnow(),
@@ -106,8 +106,8 @@ def get_date_suffixes(
 
 
 def download_data(
-    config: src.utils.config.Config,
-    query: src.utils.types.DownloadQuery,
+    config: utils.config.Config,
+    query: utils.types.DownloadQuery,
     ftp: FTP,
     version: Literal["GGG2014", "GGG2020"],
     wait: bool = False,
@@ -179,9 +179,9 @@ def download_data(
 
 
 def _extract_archive(
-    config: src.utils.config.Config,
+    config: utils.config.Config,
     archive: BinaryIO,
-    query: src.utils.types.DownloadQuery,
+    query: utils.types.DownloadQuery,
     version: Literal["GGG2014", "GGG2020"],
 ) -> None:
     """Extracts, renames and stores archive members."""
