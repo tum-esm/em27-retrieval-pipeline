@@ -1,16 +1,14 @@
 from datetime import datetime
 import os
 import shutil
-import sys
 import traceback
 from typing import Literal, Optional
 import tum_esm_utils
 
-from src import custom_types
-
 _PROJECT_DIR = tum_esm_utils.files.get_parent_dir_path(
     __file__, current_depth=4
 )
+_LOGS_DIR = os.path.join(_PROJECT_DIR, "logs", "proffast")
 
 # I am not using the logging-library because the proffast-pylot
 # also uses that and figuring out how to not make these two
@@ -24,12 +22,7 @@ class Logger:
     def __init__(self, container_id: str, print_only: bool = False) -> None:
         self.container_id = container_id
         self.logfile_name = f"{logfile_time}_{self.container_id}.log"
-        self.logfile_path = os.path.join(
-            _PROJECT_DIR,
-            "logs",
-            "automated_proffast",
-            self.logfile_name,
-        )
+        self.logfile_path = os.path.join(_LOGS_DIR, self.logfile_name)
         self.print_only = print_only
 
     def _print(
@@ -107,9 +100,7 @@ class Logger:
         shutil.copyfile(
             self.logfile_path,
             os.path.join(
-                _PROJECT_DIR,
-                "logs",
-                "automated_proffast",
+                _LOGS_DIR,
                 "archive",
                 "main" if self.container_id == "main" else "containers",
                 self.logfile_name,

@@ -3,7 +3,9 @@ import shutil
 from src import custom_types, utils
 import tum_esm_utils
 
-_PROJECT_DIR = tum_esm_utils.files.get_parent_dir_path(__file__, current_depth=4)
+_PROJECT_DIR = tum_esm_utils.files.get_parent_dir_path(
+    __file__, current_depth=4
+)
 _RETRIEVAL_CODE_DIR = os.path.join(_PROJECT_DIR, "src", "retrieval")
 
 
@@ -16,8 +18,9 @@ class ContainerFactory:
     directories.
 
     The factory keeps track of all containers and can remove them."""
-
-    def __init__(self, config: custom_types.Config, logger: utils.proffast.Logger):
+    def __init__(
+        self, config: custom_types.Config, logger: utils.proffast.Logger
+    ):
         """Initialize the factory.
 
         The `__init__` function will download the Proffast 2.2 code
@@ -25,20 +28,19 @@ class ContainerFactory:
 
         self.config = config
         self.logger = logger
-        self.containers: list[
-            custom_types.Proffast10Container | custom_types.Proffast22Container
-        ] = []
+        self.containers: list[custom_types.Proffast10Container |
+                              custom_types.Proffast22Container] = []
 
-        assert self.config.automated_proffast is not None
-        if self.config.automated_proffast.general.retrieval_software == "proffast-1.0":
+        assert self.config.proffast is not None
+        if self.config.proffast.general.retrieval_software == "proffast-1.0":
             self.logger.info("Initializing ContainerFactory for Proffast 1.0")
             self._init_proffast10_code()
 
-        if self.config.automated_proffast.general.retrieval_software == "proffast-2.2":
+        if self.config.proffast.general.retrieval_software == "proffast-2.2":
             self.logger.info("Initializing ContainerFactory for Proffast 2.2")
             self._init_proffast22_code()
 
-        if self.config.automated_proffast.general.retrieval_software == "proffast-2.3":
+        if self.config.proffast.general.retrieval_software == "proffast-2.3":
             self.logger.info("Initializing ContainerFactory for Proffast 2.3")
             self._init_proffast23_code()
 
@@ -47,9 +49,8 @@ class ContainerFactory:
     def create_container(
         self,
     ) -> (
-        custom_types.Proffast10Container
-        | custom_types.Proffast22Container
-        | custom_types.Proffast23Container
+        custom_types.Proffast10Container | custom_types.Proffast22Container |
+        custom_types.Proffast23Container
     ):
         """Create a new container and return it.
 
@@ -61,29 +62,36 @@ class ContainerFactory:
             length=10, forbidden=[c.container_id for c in self.containers]
         )
         container: (
-            custom_types.Proffast10Container
-            | custom_types.Proffast22Container
-            | custom_types.Proffast23Container
+            custom_types.Proffast10Container |
+            custom_types.Proffast22Container | custom_types.Proffast23Container
         )
 
-        assert self.config.automated_proffast is not None
-        if self.config.automated_proffast.general.retrieval_software == "proffast-1.0":
-            container = custom_types.Proffast10Container(container_id=new_container_id)
-        if self.config.automated_proffast.general.retrieval_software == "proffast-2.2":
-            container = custom_types.Proffast22Container(container_id=new_container_id)
-        if self.config.automated_proffast.general.retrieval_software == "proffast-2.3":
-            container = custom_types.Proffast23Container(container_id=new_container_id)
+        assert self.config.proffast is not None
+        if self.config.proffast.general.retrieval_software == "proffast-1.0":
+            container = custom_types.Proffast10Container(
+                container_id=new_container_id
+            )
+        if self.config.proffast.general.retrieval_software == "proffast-2.2":
+            container = custom_types.Proffast22Container(
+                container_id=new_container_id
+            )
+        if self.config.proffast.general.retrieval_software == "proffast-2.3":
+            container = custom_types.Proffast23Container(
+                container_id=new_container_id
+            )
 
         # copy and install the retrieval code into the container
         retrieval_code_root_dir = os.path.join(
             _RETRIEVAL_CODE_DIR,
-            self.config.automated_proffast.general.retrieval_software,
+            self.config.proffast.general.retrieval_software,
         )
         shutil.copytree(
             os.path.join(retrieval_code_root_dir, "main"),
             container.container_path,
         )
-        installer_script_path = os.path.join(retrieval_code_root_dir, "install.sh")
+        installer_script_path = os.path.join(
+            retrieval_code_root_dir, "install.sh"
+        )
         if os.path.isfile(installer_script_path):
             tum_esm_utils.shell.run_shell_command(
                 command=installer_script_path,
@@ -112,9 +120,9 @@ class ContainerFactory:
         the given id exists.
         """
         try:
-            container = [c for c in self.containers if c.container_id == container_id][
-                0
-            ]
+            container = [
+                c for c in self.containers if c.container_id == container_id
+            ][0]
             shutil.rmtree(container.container_path)
             shutil.rmtree(container.data_input_path)
             shutil.rmtree(container.data_output_path)
@@ -161,7 +169,9 @@ class ContainerFactory:
             os.path.join(root_dir, "prf", "preprocess", "125HR-karlsruhe"),
             os.path.join(root_dir, "prf", "preprocess", "sod2017_em27sn039"),
             os.path.join(root_dir, "prf", "out_fast", "sod2017_em27sn039"),
-            os.path.join(root_dir, "prf", "out_fast", "sod2017_em27sn039_Linux"),
+            os.path.join(
+                root_dir, "prf", "out_fast", "sod2017_em27sn039_Linux"
+            ),
             os.path.join(root_dir, "prf", "analysis"),
             os.path.join(root_dir, "prf", "source"),
         ]:
@@ -172,16 +182,20 @@ class ContainerFactory:
             os.path.join(root_dir, ZIPFILE_NAME),
             os.path.join(root_dir, "prf", "continue.txt"),
             os.path.join(
-                root_dir, "prf", "inp_fast", "invers10_sod2017_em27sn039_170608.inp"
+                root_dir, "prf", "inp_fast",
+                "invers10_sod2017_em27sn039_170608.inp"
             ),
             os.path.join(
-                root_dir, "prf", "inp_fast", "invers10_sod2017_em27sn039_170609.inp"
+                root_dir, "prf", "inp_fast",
+                "invers10_sod2017_em27sn039_170609.inp"
             ),
             os.path.join(
-                root_dir, "prf", "inp_fast", "pcxs10_sod2017_em27sn039_170608.inp"
+                root_dir, "prf", "inp_fast",
+                "pcxs10_sod2017_em27sn039_170608.inp"
             ),
             os.path.join(
-                root_dir, "prf", "inp_fast", "pcxs10_sod2017_em27sn039_170609.inp"
+                root_dir, "prf", "inp_fast",
+                "pcxs10_sod2017_em27sn039_170609.inp"
             ),
         ]:
             os.remove(f)

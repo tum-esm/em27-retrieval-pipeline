@@ -36,7 +36,7 @@ def run(
     logger: utils.proffast.Logger,
     session: custom_types.ProffastSession,
 ) -> None:
-    assert config.automated_proffast is not None
+    assert config.proffast is not None
 
     date_string = session.ctx.from_datetime.strftime("%Y%m%d")
     output_src_dir: str
@@ -44,7 +44,9 @@ def run(
     day_was_successful: bool
 
     if isinstance(session.ctn, custom_types.Proffast10Container):
-        output_src_dir = os.path.join(session.ctn.container_path, "prf", "out_fast")
+        output_src_dir = os.path.join(
+            session.ctn.container_path, "prf", "out_fast"
+        )
         output_parquet_path = os.path.join(
             output_src_dir,
             f"{session.ctx.sensor_id}{date_string[2:]}-combined-invparms.parquet",
@@ -68,13 +70,13 @@ def run(
         (custom_types.Proffast22Container, custom_types.Proffast23Container),
     ):
         output_src_dir = (
-            f"{session.ctn.data_output_path}/{session.ctx.sensor_id}_"
-            + f"SN{str(session.ctx.serial_number).zfill(3)}_{date_string[2:]}-{date_string[2:]}"
+            f"{session.ctn.data_output_path}/{session.ctx.sensor_id}_" +
+            f"SN{str(session.ctx.serial_number).zfill(3)}_{date_string[2:]}-{date_string[2:]}"
         )
         output_csv_path = (
-            f"{output_src_dir}/comb_invparms_{session.ctx.sensor_id}_"
-            + f"SN{str(session.ctx.serial_number).zfill(3)}_"
-            + f"{date_string[2:]}-{date_string[2:]}.csv"
+            f"{output_src_dir}/comb_invparms_{session.ctx.sensor_id}_" +
+            f"SN{str(session.ctx.serial_number).zfill(3)}_" +
+            f"{date_string[2:]}-{date_string[2:]}.csv"
         )
         assert os.path.isdir(output_src_dir), "pylot output directory missing"
 
@@ -106,14 +108,14 @@ def run(
     output_dst_successful = os.path.join(
         config.general.data_dst_dirs.results,
         session.ctx.sensor_id,
-        config.automated_proffast.general.retrieval_software + "-outputs",
+        config.proffast.general.retrieval_software + "-outputs",
         "successful",
         output_folder_slug,
     )
     output_dst_failed = os.path.join(
         config.general.data_dst_dirs.results,
         session.ctx.sensor_id,
-        config.automated_proffast.general.retrieval_software + "-outputs",
+        config.proffast.general.retrieval_software + "-outputs",
         "failed",
         output_folder_slug,
     )
@@ -169,7 +171,7 @@ def run(
 
     # TODO: make "failing if permission error" configurable
     if (
-        config.automated_proffast.modified_ifg_file_permissions.after_processing
+        config.proffast.modified_ifg_file_permissions.after_processing
         is not None
     ):
         ifg_src_directory = os.path.join(
@@ -177,23 +179,24 @@ def run(
             session.ctx.sensor_id,
             date_string,
         )
-        expected_ifg_regex = config.automated_proffast.general.ifg_file_regex.replace(
+        expected_ifg_regex = config.proffast.general.ifg_file_regex.replace(
             "$(SENSOR_ID)", session.ctx.sensor_id
         ).replace("$(DATE)", date_string)
         expected_ifg_pattern = re.compile(expected_ifg_regex)
         ifg_filenames = [
-            filename
-            for filename in os.listdir(ifg_src_directory)
+            filename for filename in os.listdir(ifg_src_directory)
             if expected_ifg_pattern.match(filename) is not None
         ]
         for filename in ifg_filenames:
             tum_esm_utils.shell.change_file_permissions(
                 os.path.join(ifg_src_directory, filename),
-                config.automated_proffast.modified_ifg_file_permissions.after_processing,
+                config.proffast.modified_ifg_file_permissions.after_processing,
             )
         logger.debug(
-            f"restored permissions for {len(ifg_filenames)} ifg "
-            + f"files in src directory ({ifg_src_directory})"
+            f"restored permissions for {len(ifg_filenames)} ifg " +
+            f"files in src directory ({ifg_src_directory})"
         )
     else:
-        logger.debug("skipping modification of ifg file permissions after processing")
+        logger.debug(
+            "skipping modification of ifg file permissions after processing"
+        )

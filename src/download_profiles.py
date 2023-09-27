@@ -14,13 +14,13 @@ from src import custom_types, procedures, utils
 def run() -> None:
     config = custom_types.Config.load()
 
-    if config.vertical_profiles is None:
+    if config.profiles is None:
         print("No vertical profiles configuration found.")
         return
 
     try:
 
-        for version in config.vertical_profiles.request_scope.data_types:
+        for version in config.profiles.request_scope.data_types:
             print(f"Downloading {version} data")
 
             # Generate daily sensor sets
@@ -33,7 +33,7 @@ def run() -> None:
 
             with FTP(
                 host="ccycle.gps.caltech.edu",
-                passwd=config.vertical_profiles.ftp_server.email,
+                passwd=config.profiles.ftp_server.email,
                 user="anonymous",
                 timeout=60,
             ) as ftp:
@@ -88,14 +88,14 @@ def run() -> None:
                                     )
 
                             # Append query statistics to report
-                            reporter.report_query(
+                            """reporter.report_query(
                                 query,
                                 up_status,
                                 up_time,
                                 down_status,
                                 down_time,
                                 to_date,
-                            )
+                            )"""
 
                             if not down_status:
                                 return

@@ -63,11 +63,11 @@ def test_retrieval_queue(
     provide_config_template: custom_types.Config,
 ) -> None:
     config = provide_config_template
-    assert config.automated_proffast is not None
+    assert config.proffast is not None
 
     # target config at test data
-    config.automated_proffast.data_filter.sensor_ids_to_consider = ["so"]
-    config.automated_proffast.general.retrieval_software = "proffast-2.2"
+    config.proffast.data_filter.sensor_ids_to_consider = ["so"]
+    config.proffast.general.retrieval_software = "proffast-2.2"
     config.general.data_src_dirs.datalogger = os.path.join(
         PROJECT_DIR, "data", "testing", "container", "inputs", "log"
     )
@@ -81,13 +81,13 @@ def test_retrieval_queue(
         PROJECT_DIR, "data", "testing", "container", "outputs"
     )
 
-    config.automated_proffast.data_filter.from_date = datetime.date(2017, 6, 8)
-    config.automated_proffast.data_filter.to_date = datetime.date(2017, 6, 9)
+    config.proffast.data_filter.from_date = datetime.date(2017, 6, 8)
+    config.proffast.data_filter.to_date = datetime.date(2017, 6, 9)
     logger = utils.proffast.Logger("testing", print_only=True)
 
     # test case 1
-    config.automated_proffast.data_filter.from_date = datetime.date(2017, 6, 9)
-    config.automated_proffast.data_filter.to_date = datetime.date(2017, 6, 10)
+    config.proffast.data_filter.from_date = datetime.date(2017, 6, 9)
+    config.proffast.data_filter.to_date = datetime.date(2017, 6, 10)
     retrieval_queue = interfaces.proffast.RetrievalQueue(
         config, logger, em27_metadata=em27_metadata, verbose_reasoning=True
     )
@@ -96,8 +96,8 @@ def test_retrieval_queue(
     _check_next_item(retrieval_queue.get_next_item(), None)
 
     # test case 2
-    config.automated_proffast.data_filter.from_date = datetime.date(2017, 6, 1)
-    config.automated_proffast.data_filter.to_date = datetime.date(2017, 6, 10)
+    config.proffast.data_filter.from_date = datetime.date(2017, 6, 1)
+    config.proffast.data_filter.to_date = datetime.date(2017, 6, 10)
     retrieval_queue = interfaces.proffast.RetrievalQueue(
         config, logger, em27_metadata=em27_metadata
     )
@@ -107,8 +107,8 @@ def test_retrieval_queue(
     _check_next_item(retrieval_queue.get_next_item(), None)
 
     # test case 3
-    config.automated_proffast.data_filter.from_date = datetime.date(2017, 6, 1)
-    config.automated_proffast.data_filter.to_date = datetime.date(2017, 6, 8)
+    config.proffast.data_filter.from_date = datetime.date(2017, 6, 1)
+    config.proffast.data_filter.to_date = datetime.date(2017, 6, 8)
     retrieval_queue = interfaces.proffast.RetrievalQueue(
         config, logger, em27_metadata=em27_metadata
     )
@@ -117,8 +117,8 @@ def test_retrieval_queue(
     _check_next_item(retrieval_queue.get_next_item(), None)
 
     # test case 4
-    config.automated_proffast.data_filter.from_date = datetime.date(2017, 6, 8)
-    config.automated_proffast.data_filter.to_date = datetime.date(2017, 6, 8)
+    config.proffast.data_filter.from_date = datetime.date(2017, 6, 8)
+    config.proffast.data_filter.to_date = datetime.date(2017, 6, 8)
     retrieval_queue = interfaces.proffast.RetrievalQueue(
         config, logger, em27_metadata=em27_metadata
     )
@@ -127,8 +127,8 @@ def test_retrieval_queue(
     _check_next_item(retrieval_queue.get_next_item(), None)
 
     # test case 5
-    config.automated_proffast.data_filter.from_date = datetime.date(2017, 6, 1)
-    config.automated_proffast.data_filter.to_date = datetime.date(2017, 6, 7)
+    config.proffast.data_filter.from_date = datetime.date(2017, 6, 1)
+    config.proffast.data_filter.to_date = datetime.date(2017, 6, 7)
     retrieval_queue = interfaces.proffast.RetrievalQueue(
         config, logger, em27_metadata=em27_metadata
     )

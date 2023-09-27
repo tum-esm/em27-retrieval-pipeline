@@ -18,7 +18,8 @@ class LocationDataConfig(pydantic.BaseModel):
     access_token: Optional[str] = pydantic.Field(
         None,
         min_length=1,
-        description="GitHub access token with read access to the repository, only required if the repository is private",
+        description=
+        "GitHub access token with read access to the repository, only required if the repository is private",
     )
 
 
@@ -28,10 +29,12 @@ class DataSrcDirsConfig(pydantic.BaseModel):
     datalogger: str = pydantic.Field(
         ..., description="directory path to datalogger files"
     )
-    vertical_profiles: str = pydantic.Field(
+    profiles: str = pydantic.Field(
         ..., description="directory path to vertical profile files"
     )
-    interferograms: str = pydantic.Field(..., description="directory path to ifg files")
+    interferograms: str = pydantic.Field(
+        ..., description="directory path to ifg files"
+    )
 
 
 class DataDstDirsConfig(pydantic.BaseModel):
@@ -51,7 +54,8 @@ class VerticalProfilesFTPServerConfig(pydantic.BaseModel):
         7,
         ge=0,
         le=10,
-        description="maximum number of days of data availability delay of the ccycle ftp server. For example, on day 20 with `max delay = 7` the server should have data up to at least day 13. This is necessary because when requesting data from day 1-20 the output file might be names `day_1_13.tar` or `day_1_14.tar` -> with a delay of 7 days, the download process does not look for possible files named `day_1_12.tar`, `day_1_11.tar.`, etc.",
+        description=
+        "maximum number of days of data availability delay of the ccycle ftp server. For example, on day 20 with `max delay = 7` the server should have data up to at least day 13. This is necessary because when requesting data from day 1-20 the output file might be names `day_1_13.tar` or `day_1_14.tar` -> with a delay of 7 days, the download process does not look for possible files named `day_1_12.tar`, `day_1_11.tar.`, etc.",
     )
     upload_sleep: int = pydantic.Field(60, ge=0, description="TODO")
     upload_timeout: int = pydantic.Field(180, ge=0, description="TODO")
@@ -59,19 +63,21 @@ class VerticalProfilesFTPServerConfig(pydantic.BaseModel):
     download_timeout: int = pydantic.Field(
         600,
         ge=0,
-        description="in seconds, how long to wait for a `.tar` "
-        + "file to be generated before aborting the download",
+        description="in seconds, how long to wait for a `.tar` " +
+        "file to be generated before aborting the download",
     )
 
 
 class VerticalProfilesRequestScopeConfig(pydantic.BaseModel):
     from_date: datetime.date = pydantic.Field(
         datetime.date(1900, 1, 1),
-        description="date in format `YYYY-MM-DD` from which to request vertical profile data",
+        description=
+        "date in format `YYYY-MM-DD` from which to request vertical profile data",
     )
     to_date: datetime.date = pydantic.Field(
         datetime.date(2100, 1, 1),
-        description="date in format `YYYY-MM-DD` until which to request vertical profile data",
+        description=
+        "date in format `YYYY-MM-DD` until which to request vertical profile data",
     )
     data_types: list[Literal["GGG2014", "GGG2020"]] = pydantic.Field(
         ["GGG2014", "GGG2020"],
@@ -89,34 +95,37 @@ class AutomatedProffastGeneralConfig(pydantic.BaseModel):
         1,
         ge=1,
         le=64,
-        description="How many cores to use for parallel processing. There will be one process per sensor-day.",
+        description=
+        "How many cores to use for parallel processing. There will be one process per sensor-day.",
     )
 
     ifg_file_regex: str = pydantic.Field(
         r"^$(SENSOR_ID)$(DATE).*\.\d+$",
         min_length=1,
-        description="A regex string to match the ifg file names. In this string, `$(SENSOR_ID)` and `$(DATE)` are placeholders for the sensor id and the date of the ifg file.",
+        description=
+        "A regex string to match the ifg file names. In this string, `$(SENSOR_ID)` and `$(DATE)` are placeholders for the sensor id and the date of the ifg file.",
     )
 
     retrieval_software: Literal[
-        "proffast-1.0", "proffast-2.2", "proffast-2.3"
-    ] = pydantic.Field(
-        ...,
-        description="Which retrieval software to use.",
-    )
+        "proffast-1.0", "proffast-2.2", "proffast-2.3"] = pydantic.Field(
+            ...,
+            description="Which retrieval software to use.",
+        )
 
 
 class AutomatedProffastModifiedIfgFilePermissionsConfig(pydantic.BaseModel):
     during_processing: Optional[str] = pydantic.Field(
         None,
         pattern=r"^((r|-)(w|-)(x|-)){3}$",
-        description="A unix-like file permission string, e.g. `rwxr-xr-x`. This can be used to make the ifg files read-only during processing, to avoid accidental modification. Only used if not `null`.",
+        description=
+        "A unix-like file permission string, e.g. `rwxr-xr-x`. This can be used to make the ifg files read-only during processing, to avoid accidental modification. Only used if not `null`.",
     )
 
     after_processing: Optional[str] = pydantic.Field(
         None,
         pattern=r"^((r|-)(w|-)(x|-)){3}$",
-        description="A unix-like file permission string, e.g. `rwxr-xr-x`. Same as `during_processing`, but restoring the permissions after processing. Only used if not `null`.",
+        description=
+        "A unix-like file permission string, e.g. `rwxr-xr-x`. Same as `during_processing`, but restoring the permissions after processing. Only used if not `null`.",
     )
 
 
@@ -124,21 +133,26 @@ class AutomatedProffastDataFilterConfig(pydantic.BaseModel):
     """Settings for filtering the storage data. Only used if `config.data_sources.storage` is `true`."""
 
     sensor_ids_to_consider: list[str] = pydantic.Field(
-        ..., min_length=1, description="Sensor ids to consider in the retrieval"
+        ...,
+        min_length=1,
+        description="Sensor ids to consider in the retrieval"
     )
     from_date: datetime.date = pydantic.Field(
         datetime.date(1900, 1, 1),
-        description="Date string in format `YYYY-MM-DD` from which to consider data in the storage directory",
+        description=
+        "Date string in format `YYYY-MM-DD` from which to consider data in the storage directory",
     )
     to_date: datetime.date = pydantic.Field(
         datetime.date(2100, 1, 1),
-        description="Date string in format `YYYY-MM-DD` until which to consider data in the storage directory",
+        description=
+        "Date string in format `YYYY-MM-DD` until which to consider data in the storage directory",
     )
     min_days_delay: int = pydantic.Field(
         5,
         ge=0,
         le=60,
-        description="Minimum numbers of days to wait until processing. E.g. the vertical profiles from ccyle are available with a delay of 5 days, so it doesn't make sence to try processing earlier and get a lot of error messages because of missing vertical profiles.",
+        description=
+        "Minimum numbers of days to wait until processing. E.g. the vertical profiles from ccyle are available with a delay of 5 days, so it doesn't make sence to try processing earlier and get a lot of error messages because of missing vertical profiles.",
     )
 
     @pydantic.field_serializer("from_date", "to_date")
@@ -171,30 +185,27 @@ class OutputMergingTargetConfig(pydantic.BaseModel):
     campaign_id: str = pydantic.Field(
         ..., description="Campaign specified in location metadata."
     )
-    sampling_rate: Literal[
-        "10m", "5m", "2m", "1m", "30s", "15s", "10s", "5s", "2s", "1s"
-    ] = pydantic.Field(
-        ...,
-        description="Interval of resampled data.",
-    )
+    sampling_rate: Literal["10m", "5m", "2m", "1m", "30s", "15s", "10s", "5s",
+                           "2s", "1s"] = pydantic.Field(
+                               ...,
+                               description="Interval of resampled data.",
+                           )
     dst_dir: str = pydantic.Field(
         ...,
         description="Directory to write the output to.",
     )
-    data_types: list[
-        Literal[
-            "gnd_p",
-            "gnd_t",
-            "app_sza",
-            "azimuth",
-            "xh2o",
-            "xair",
-            "xco2",
-            "xch4",
-            "xco",
-            "xch4_s5p",
-        ]
-    ] = pydantic.Field(
+    data_types: list[Literal[
+        "gnd_p",
+        "gnd_t",
+        "app_sza",
+        "azimuth",
+        "xh2o",
+        "xair",
+        "xco2",
+        "xch4",
+        "xco",
+        "xch4_s5p",
+    ]] = pydantic.Field(
         [
             "gnd_p",
             "gnd_t",
@@ -208,7 +219,8 @@ class OutputMergingTargetConfig(pydantic.BaseModel):
             "xch4_s5p",
         ],
         min_length=1,
-        description="Data columns to keep in the merged output files. The columns will be prefixed with the sensor id, i.e. `$(SENSOR_ID)_$(COLUMN_NAME)`.",
+        description=
+        "Data columns to keep in the merged output files. The columns will be prefixed with the sensor id, i.e. `$(SENSOR_ID)_$(COLUMN_NAME)`.",
     )
     max_interpolation_gap_seconds: int = pydantic.Field(
         180,
@@ -218,14 +230,19 @@ class OutputMergingTargetConfig(pydantic.BaseModel):
     )
 
 
+class ExportConfig(pydantic.BaseModel):
+    targets: list[OutputMergingTargetConfig] = pydantic.Field(
+        ...,
+        description=
+        'List of output merging targets. Relies on specifying "campaigns" in the EM27 metadata.'
+    )
+
+
 class Config(pydantic.BaseModel):
     general: GeneralConfig
-    vertical_profiles: Optional[VerticalProfilesConfig] = None
-    automated_proffast: Optional[AutomatedProffastConfig] = None
-    output_merging_targets: list[OutputMergingTargetConfig] = pydantic.Field(
-        [],
-        description='List of output merging targets. Relies on specifying "campaigns" in the EM27 metadata.',
-    )
+    profiles: Optional[VerticalProfilesConfig] = None
+    proffast: Optional[AutomatedProffastConfig] = None
+    export: Optional[ExportConfig] = None
 
     @staticmethod
     def load(
@@ -243,28 +260,31 @@ class Config(pydantic.BaseModel):
 
         assert os.path.isfile(path), f"Config file not found at {path}"
         json_content = tum_esm_utils.files.load_json_file(path)
-        assert isinstance(json_content, dict), f"Config file at {path} is not dict."
+        assert isinstance(
+            json_content, dict
+        ), f"Config file at {path} is not dict."
         config = Config(**json_content)
 
         if check_path_existence:
-            assert os.path.isdir(config.general.data_src_dirs.interferograms)
-            assert os.path.isdir(config.general.data_src_dirs.vertical_profiles)
-            assert os.path.isdir(config.general.data_src_dirs.datalogger)
-            assert os.path.isdir(config.general.data_dst_dirs.results)
-            for target in config.output_merging_targets:
-                assert os.path.isdir(
-                    target.dst_dir
-                ), f"{target.dst_dir} is not a directory."
+            for path in [
+                config.general.data_src_dirs.datalogger,
+                config.general.data_src_dirs.interferograms,
+                config.general.data_src_dirs.profiles,
+                config.general.data_dst_dirs.results,
+                *([] if (config.export is None) else
+                  [target.dst_dir for target in config.export.targets])
+            ]:
+                assert os.path.isdir(path), f"{path} is not a directory."
 
-        if config.vertical_profiles is not None:
+        if config.profiles is not None:
             assert (
-                config.vertical_profiles.request_scope.from_date
-                <= config.vertical_profiles.request_scope.to_date
+                config.profiles.request_scope.from_date
+                <= config.profiles.request_scope.to_date
             )
-        if config.automated_proffast is not None:
+        if config.proffast is not None:
             assert (
-                config.automated_proffast.data_filter.from_date
-                <= config.automated_proffast.data_filter.to_date
+                config.proffast.data_filter.from_date
+                <= config.proffast.data_filter.to_date
             )
 
         return config

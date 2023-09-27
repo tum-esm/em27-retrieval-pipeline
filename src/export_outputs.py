@@ -19,7 +19,10 @@ def run() -> None:
         **config.general.location_data.model_dump()
     )
 
-    for i, output_merging_target in enumerate(config.output_merging_targets):
+    assert config.export is not None, "no export config found"
+    assert len(config.export.targets) > 0, "no export targets found"
+
+    for i, output_merging_target in enumerate(config.export.targets):
         print(f"\nprocessing output merging target #{i+1}")
         print(json.dumps(output_merging_target.model_dump(), indent=4))
         assert (
@@ -27,13 +30,14 @@ def run() -> None:
         ), f"unknown campaign_id {output_merging_target.campaign_id}"
 
         campaign = next(
-            campaign
-            for campaign in em27_metadata.campaigns
+            campaign for campaign in em27_metadata.campaigns
             if campaign.campaign_id == output_merging_target.campaign_id
         )
 
         from_date = campaign.from_datetime.date()
-        to_date = min(datetime.datetime.utcnow().date(), campaign.to_datetime.date())
+        to_date = min(
+            datetime.datetime.utcnow().date(), campaign.to_datetime.date()
+        )
 
         dates: list[datetime.date] = []
         current_date = from_date
@@ -46,25 +50,29 @@ def run() -> None:
 
             for date in dates:
                 sensor_data_contexts: list[
-                    tum_esm_em27_metadata.types.SensorDataContext
-                ] = []
+                    tum_esm_em27_metadata.types.SensorDataContext] = []
 
                 # get all sensor data contexts for this campaign's sensors
                 for sid in campaign.sensor_ids:
                     sensor_data_contexts += em27_metadata.get(
                         sid,
                         from_datetime=datetime.datetime.combine(
-                            date, datetime.time.min, tzinfo=datetime.timezone.utc
+                            date,
+                            datetime.time.min,
+                            tzinfo=datetime.timezone.utc
                         ),
                         to_datetime=datetime.datetime.combine(
-                            date, datetime.time.max, tzinfo=datetime.timezone.utc
+                            date,
+                            datetime.time.max,
+                            tzinfo=datetime.timezone.utc
                         ),
                     )
 
                 # only consider data at campaign locations
                 sensor_data_contexts = list(
                     filter(
-                        lambda ctx: ctx.location.location_id in campaign.location_ids,
+                        lambda ctx: ctx.location.location_id in campaign.
+                        location_ids,
                         sensor_data_contexts,
                     )
                 )
@@ -87,7 +95,8 @@ def run() -> None:
                         procedures.export.post_process_dataframe(
                             df=df,
                             sampling_rate=output_merging_target.sampling_rate,
-                            max_interpolation_gap_seconds=output_merging_target.max_interpolation_gap_seconds,
+                            max_interpolation_gap_seconds=output_merging_target.
+                            max_interpolation_gap_seconds,
                         )
                     )
 
@@ -96,13 +105,15 @@ def run() -> None:
                         f"{date}: {found_data_count} sensor(s) with data"
                     )
 
-                    merged_df = procedures.export.merge_dataframes(ctx_dataframes)
+                    merged_df = procedures.export.merge_dataframes(
+                        ctx_dataframes
+                    )
 
                     # save merged dataframe to csv
                     filename = os.path.join(
                         output_merging_target.dst_dir,
-                        f"{output_merging_target.campaign_id}_em27_export"
-                        + f"_{date.strftime('%Y%m%d')}.csv",
+                        f"{output_merging_target.campaign_id}_em27_export" +
+                        f"_{date.strftime('%Y%m%d')}.csv",
                     )
                     with open(filename, "w") as f:
                         f.write(

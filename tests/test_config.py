@@ -20,6 +20,7 @@ def test_config_template() -> None:
         path=os.path.join(PROJECT_DIR, "config", "config.template.json"),
         check_path_existence=False,
     )
-    assert config.automated_proffast is not None
-    assert config.vertical_profiles is not None
-    assert len(config.output_merging_targets) > 0
+    assert config.proffast is not None
+    assert config.profiles is not None
+    assert config.export is not None
+    assert len(config.export.targets) > 0

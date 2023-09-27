@@ -17,7 +17,7 @@ def run(
     try:
         shutil.copy(
             os.path.join(
-                config.general.data_src_dirs.vertical_profiles,
+                config.general.data_src_dirs.profiles,
                 "GGG2014",
                 f"{date_string}_{coordinates_slug}.map",
             ),
@@ -27,5 +27,5 @@ def run(
                 f"{session.ctx.sensor_id}{date_string}.map",
             ),
         )
-    except FileNotFoundError:
-        raise AssertionError("map file does not exist")
+    except FileNotFoundError as e:
+        raise AssertionError(f"map file does not exist: {e}")

@@ -7,13 +7,14 @@ import datetime
 import tum_esm_utils
 from src import custom_types
 
-_PROJECT_DIR = tum_esm_utils.files.get_parent_dir_path(__file__, current_depth=4)
+_PROJECT_DIR = tum_esm_utils.files.get_parent_dir_path(
+    __file__, current_depth=4
+)
 _REPORT_PATH = os.path.join(_PROJECT_DIR, "logs", "vertical_profiles")
 
 
 class Reporter:
     """Generates reports."""
-
     def __init__(
         self,
         query_list: list[custom_types.DownloadQuery],
@@ -42,8 +43,7 @@ class Reporter:
             truncated = to_date
 
         self._successful_queries.append(
-            query.model_dump()
-            | {
+            query.model_dump() | {
                 "up_status": up_status,
                 "up_time": str(datetime.timedelta(seconds=up_time)),
                 "down_status": down_status,
@@ -63,13 +63,16 @@ class Reporter:
         ) as report:
             json.dump(
                 {
-                    "success": success,
-                    "execution_start": exec_start_str,
-                    "execution_time": execution_time,
-                    "successful_queries": self._successful_queries,
-                    "failed_queries": [
-                        query.model_dump() for query in self._query_list
-                    ],
+                    "success":
+                        success,
+                    "execution_start":
+                        exec_start_str,
+                    "execution_time":
+                        execution_time,
+                    "successful_queries":
+                        self._successful_queries,
+                    "failed_queries":
+                        [query.model_dump_json() for query in self._query_list],
                 },
                 report,
                 indent=4,

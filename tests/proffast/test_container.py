@@ -35,8 +35,7 @@ SENSOR_DATA_CONTEXTS = [
             lat=67.366,
             alt=181.0,
         ),
-    )
-    for date in ["2017-06-08", "2017-06-09"]
+    ) for date in ["2017-06-08", "2017-06-09"]
 ] + [
     tum_esm_em27_metadata.types.SensorDataContext(
         sensor_id="mc",
@@ -58,13 +57,14 @@ SENSOR_DATA_CONTEXTS = [
             lat=48.147699,
             alt=180.0,
         ),
-    )
-    for date in ["2022-06-02"]
+    ) for date in ["2022-06-02"]
 ]
 
-TESTED_PROFFAST_VERSIONS: list[
-    Literal["proffast-1.0", "proffast-2.2", "proffast-2.3"]
-] = ["proffast-1.0", "proffast-2.2", "proffast-2.3"]
+TESTED_PROFFAST_VERSIONS: list[Literal["proffast-1.0", "proffast-2.2",
+                                       "proffast-2.3"]] = [
+                                           "proffast-1.0", "proffast-2.2",
+                                           "proffast-2.3"
+                                       ]
 
 
 @pytest.mark.order(2)
@@ -99,12 +99,12 @@ def _run_test_container(
     config: custom_types.Config,
     sensor_data_contexts: list[tum_esm_em27_metadata.types.SensorDataContext],
 ) -> None:
-    assert config.automated_proffast is not None
+    assert config.proffast is not None
 
     # target config at test data
-    config.automated_proffast.data_filter.sensor_ids_to_consider = ["mc", "so"]
-    config.automated_proffast.data_filter.from_date = datetime.date(2017, 6, 8)
-    config.automated_proffast.data_filter.to_date = datetime.date(2022, 6, 2)
+    config.proffast.data_filter.sensor_ids_to_consider = ["mc", "so"]
+    config.proffast.data_filter.from_date = datetime.date(2017, 6, 8)
+    config.proffast.data_filter.to_date = datetime.date(2022, 6, 2)
     config.general.data_src_dirs.datalogger = os.path.join(
         PROJECT_DIR, "data", "testing", "container", "inputs", "log"
     )
@@ -119,7 +119,7 @@ def _run_test_container(
     )
 
     for proffast_version in TESTED_PROFFAST_VERSIONS:
-        config.automated_proffast.general.retrieval_software = proffast_version
+        config.proffast.general.retrieval_software = proffast_version
 
         # set up container factory
         logger = utils.proffast.Logger("pytest", print_only=True)
@@ -127,7 +127,9 @@ def _run_test_container(
 
         for sdc in sensor_data_contexts:
             # create session and run container
-            session = procedures.proffast.create_session.run(container_factory, sdc)
+            session = procedures.proffast.create_session.run(
+                container_factory, sdc
+            )
             procedures.proffast.process_session.run(config, session)
 
             # assert output correctness
@@ -158,7 +160,9 @@ def _run_test_container(
             if proffast_version == "proffast-1.0":
                 expected_files = [
                     (f"{sdc.sensor_id}{date_string[2:]}-combined-invparms.csv"),
-                    (f"{sdc.sensor_id}{date_string[2:]}-combined-invparms.parquet"),
+                    (
+                        f"{sdc.sensor_id}{date_string[2:]}-combined-invparms.parquet"
+                    ),
                     "logfiles/wrapper.log",
                     "logfiles/preprocess4.log",
                     "logfiles/pcxs10.log",

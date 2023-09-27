@@ -17,7 +17,7 @@ def test_query_generation(
     provide_config_template: custom_types.Config,
 ) -> None:
     config = provide_config_template
-    assert config.vertical_profiles is not None
+    assert config.profiles is not None
 
     em27_metadata = tum_esm_em27_metadata.EM27MetadataInterface(
         locations=[
@@ -78,8 +78,8 @@ def test_query_generation(
     # create a "with tmp dir"
     with tempfile.TemporaryDirectory() as tmp_dir:
         config.general.data_src_dirs.vertical_profiles = tmp_dir
-        config.vertical_profiles.request_scope.from_date = datetime.date(2000, 1, 1)
-        config.vertical_profiles.request_scope.to_date = datetime.date(2000, 5, 30)
+        config.profiles.request_scope.from_date = datetime.date(2000, 1, 1)
+        config.profiles.request_scope.to_date = datetime.date(2000, 5, 30)
 
         for version in versions:
             os.mkdir(os.path.join(tmp_dir, version))
@@ -98,20 +98,14 @@ def test_query_generation(
                 to_date: datetime.date,
             ) -> None:
                 assert (
-                    sum(
-                        [
-                            all(
-                                [
-                                    (q.lat == lat),
-                                    (q.lon == lon),
-                                    (q.from_date == from_date),
-                                    (q.to_date == to_date),
-                                ]
-                            )
-                            for q in query_list
-                        ]
-                    )
-                    == 1
+                    sum([
+                        all([
+                            (q.lat == lat),
+                            (q.lon == lon),
+                            (q.from_date == from_date),
+                            (q.to_date == to_date),
+                        ]) for q in query_list
+                    ]) == 1
                 )
 
             assert_query_exists(

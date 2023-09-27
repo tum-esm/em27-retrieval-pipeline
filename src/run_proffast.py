@@ -33,7 +33,7 @@ def run() -> None:
         main_logger.exception(e, "Config file invalid")
         return
 
-    if config.automated_proffast is None:
+    if config.proffast is None:
         main_logger.error("Proffast not configured in config file")
         exit(1)
 
@@ -89,9 +89,7 @@ def run() -> None:
             next_sensor_data_context: Optional[
                 tum_esm_em27_metadata.types.SensorDataContext] = None
             while True:
-                if len(
-                    processes
-                ) == config.automated_proffast.general.max_core_count:
+                if len(processes) == config.proffast.general.max_core_count:
                     break
 
                 next_sensor_data_context = retrieval_queue.get_next_item()

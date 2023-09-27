@@ -6,14 +6,14 @@
         },
         "data_src_dirs": {
             "datalogger": "path-to-datalogger-datalogger-upload-directory",
-            "vertical_profiles": "path-to-vertical-profiles",
+            "profiles": "path-to-vertical-profiles",
             "interferograms": "path-to-datalogger-ifg-upload-directory"
         },
         "data_dst_dirs": {
             "results": "path-to-results-storage"
         }
     },
-    "vertical_profiles": {
+    "profiles": {
         "ftp_server": {
             "email": "...@...",
             "max_day_delay": 7,
@@ -28,7 +28,7 @@
             "data_types": ["GGG2014", "GGG2020"]
         }
     },
-    "automated_proffast": {
+    "proffast": {
         "general": {
             "max_core_count": 9,
             "ifg_file_regex": "^$(SENSOR_ID)$(DATE).*\\.\\d+$",
@@ -45,24 +45,26 @@
             "min_days_delay": 5
         }
     },
-    "output_merging_targets": [
-        {
-            "campaign_id": "muccnet",
-            "data_types": [
-                "gnd_p",
-                "gnd_t",
-                "app_sza",
-                "azimuth",
-                "xh2o",
-                "xair",
-                "xco2",
-                "xch4",
-                "xco",
-                "xch4_s5p"
-            ],
-            "sampling_rate": "1m",
-            "max_interpolation_gap_seconds": 180,
-            "dst_dir": "path-to-merged-output"
-        }
-    ]
+    "export": {
+        "targets": [
+            {
+                "campaign_id": "muccnet",
+                "data_types": [
+                    "gnd_p",
+                    "gnd_t",
+                    "app_sza",
+                    "azimuth",
+                    "xh2o",
+                    "xair",
+                    "xco2",
+                    "xch4",
+                    "xco",
+                    "xch4_s5p"
+                ],
+                "sampling_rate": "1m",
+                "max_interpolation_gap_seconds": 180,
+                "dst_dir": "path-to-merged-output"
+            }
+        ]
+    }
 }

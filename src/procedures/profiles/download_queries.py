@@ -25,7 +25,7 @@ def generate_download_queries(
     ]
     ```"""
 
-    if config.vertical_profiles is None:
+    if config.profiles is None:
         return []
 
     # Request sensor and location data
@@ -43,17 +43,17 @@ def generate_download_queries(
             # do not consider sensor locations that are outside of the request scope
             if (
                 sensor_location.to_datetime.date()
-                < config.vertical_profiles.request_scope.from_date
+                < config.profiles.request_scope.from_date
             ) or (
                 sensor_location.from_datetime.date()
-                > config.vertical_profiles.request_scope.to_date
+                > config.profiles.request_scope.to_date
             ):
                 continue
 
             # trim reqested dates to request scope
-            from_date = config.vertical_profiles.request_scope.from_date
+            from_date = config.profiles.request_scope.from_date
             to_date = min(
-                config.vertical_profiles.request_scope.to_date,
+                config.profiles.request_scope.to_date,
                 datetime.date.today() - datetime.timedelta(days=4)
             )
             if sensor_location.from_datetime.date() > from_date:
@@ -91,14 +91,14 @@ def generate_download_queries(
     # remove queries where data is already present locally
     for lat in query_dates.keys():
         for lon in query_dates[lat].keys():
-            filtered_queries: list[datetime.date] = []
+            filtered_queries: set[datetime.date] = set()
             for date in query_dates[lat][lon]:
                 date_slug = date.strftime("%Y%m%d")
                 coordinate_slug = utils.functions.get_coordinates_slug(lat, lon)
                 if version == "GGG2014":
                     output_files = [
                         os.path.join(
-                            config.general.data_src_dirs.vertical_profiles,
+                            config.general.data_src_dirs.profiles,
                             version,
                             f"{date_slug}_{coordinate_slug}.{ending}",
                         ) for ending in ["map", "mod"]
@@ -106,14 +106,14 @@ def generate_download_queries(
                 else:
                     output_files = [
                         os.path.join(
-                            config.general.data_src_dirs.vertical_profiles,
+                            config.general.data_src_dirs.profiles,
                             version,
                             f"{date_slug}{time:02d}_{coordinate_slug}.{ending}",
                         ) for ending in ["map", "mod", "vmr"]
                         for time in [0, 3, 6, 9, 12, 15, 18, 21]
                     ]
                 if not all([os.path.isfile(f) for f in output_files]):
-                    filtered_queries.append(date)
+                    filtered_queries.add(date)
             query_dates[lat][lon] = filtered_queries
 
     print(

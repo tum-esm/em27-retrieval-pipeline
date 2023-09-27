@@ -27,7 +27,7 @@ class RetrievalQueue:
 
         self.logger = logger
         self.config = config
-        assert self.config.automated_proffast is not None
+        assert self.config.proffast is not None
         self.logger.info("Initializing RetrievalQueue")
 
         self.logger.debug("Fetching metadata from GitHub")
@@ -66,14 +66,14 @@ class RetrievalQueue:
     def _get_storage_queue_items(
         self,
     ) -> list[tum_esm_em27_metadata.types.SensorDataContext]:
-        assert self.config.automated_proffast is not None
+        assert self.config.proffast is not None
 
-        from_date = self.config.automated_proffast.data_filter.from_date
+        from_date = self.config.proffast.data_filter.from_date
         to_date = min(
             datetime.date.today() - datetime.timedelta(
-                days=self.config.automated_proffast.data_filter.min_days_delay
+                days=self.config.proffast.data_filter.min_days_delay
             ),
-            self.config.automated_proffast.data_filter.to_date,
+            self.config.proffast.data_filter.to_date,
         )
         dates: list[datetime.date] = [
             from_date + datetime.timedelta(days=i)
@@ -92,7 +92,7 @@ class RetrievalQueue:
                 logged_progresses.append(progress)
             for (
                 sensor_id
-            ) in self.config.automated_proffast.data_filter.sensor_ids_to_consider:
+            ) in self.config.proffast.data_filter.sensor_ids_to_consider:
                 if not self._ifgs_exist(sensor_id, date):
                     if self.verbose_reasoning:
                         self.logger.debug(
@@ -166,7 +166,7 @@ class RetrievalQueue:
         """determine whether an ifg directory exists and contains
         at least one interferogram"""
 
-        assert self.config.automated_proffast is not None
+        assert self.config.proffast is not None
 
         date_string = date.strftime("%Y%m%d")
 
@@ -179,7 +179,7 @@ class RetrievalQueue:
             return False
 
         expected_ifg_regex = (
-            self.config.automated_proffast.general.ifg_file_regex.replace(
+            self.config.proffast.general.ifg_file_regex.replace(
                 "$(SENSOR_ID)", sensor_id
             ).replace("$(DATE)", f"({date_string}|{date_string[2:]})")
         )
@@ -200,7 +200,7 @@ class RetrievalQueue:
         """For a given list of sensor data context of one day, remove those
         that already have outputs."""
 
-        assert self.config.automated_proffast is not None
+        assert self.config.proffast is not None
 
         if len(sensor_data_contexts) == 1:
             expected_output_dir_names = set([
@@ -217,8 +217,7 @@ class RetrievalQueue:
             output_dir_path = os.path.join(
                 self.config.general.data_dst_dirs.results,
                 sensor_id,
-                self.config.automated_proffast.general.retrieval_software +
-                "-outputs",
+                self.config.proffast.general.retrieval_software + "-outputs",
                 output_dir_type,
             )
             if os.path.isdir(output_dir_path):
@@ -259,7 +258,7 @@ class RetrievalQueue:
                 os.path.join(
                     self.config.general.data_dst_dirs.results,
                     sensor_id,
-                    self.config.automated_proffast.general.retrieval_software +
+                    self.config.proffast.general.retrieval_software +
                     "-outputs",
                     output_dir_type,
                     dir_name,
