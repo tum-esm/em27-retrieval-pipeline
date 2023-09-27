@@ -173,7 +173,7 @@ def download_data(
                     archive.seek(0)
                     response.add(remote_dir)
                     to_date = datetime.datetime.strptime(
-                        "%Y%m%d", suffix[-12:-4]
+                        suffix[-12:-4], "%Y%m%d", 
                     ).date()
                     _extract_archive(config, archive, query, version)
 

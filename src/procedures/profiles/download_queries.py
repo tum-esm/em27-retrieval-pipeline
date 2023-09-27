@@ -2,15 +2,14 @@ import datetime
 import os
 from typing import Literal, Optional
 import tum_esm_em27_metadata
-from src import custom_types
+from src import custom_types, utils
 
 
 def generate_download_queries(
     config: custom_types.Config,
     version: Literal["GGG2014", "GGG2020"],
     em27_metadata: Optional[
-        tum_esm_em27_metadata.interfaces.EM27MetadataInterface
-    ] = None,
+        tum_esm_em27_metadata.interfaces.EM27MetadataInterface] = None,
 ) -> list[custom_types.DownloadQuery]:
     """Returns a dictionary that maps query locations to sensor sets.
     Sensor sets map days to a all sensors ids that were located at
@@ -36,8 +35,8 @@ def generate_download_queries(
             access_token=config.general.location_data.access_token,
         )
 
-    # dict[lat][lon] = [DownloadQuery(...), ...]
-    requested_dates: dict[float, dict[float, list[custom_types.DownloadQuery]]] = {}
+    # dict[lat][lon] = {datetime.date, ...}
+    query_dates: dict[int, dict[int, set[datetime.date]]] = {}
 
     for sensor in em27_metadata.sensors:
         for sensor_location in sensor.locations:
@@ -53,7 +52,10 @@ def generate_download_queries(
 
             # trim reqested dates to request scope
             from_date = config.vertical_profiles.request_scope.from_date
-            to_date = config.vertical_profiles.request_scope.to_date
+            to_date = min(
+                config.vertical_profiles.request_scope.to_date,
+                datetime.date.today() - datetime.timedelta(days=4)
+            )
             if sensor_location.from_datetime.date() > from_date:
                 from_date = sensor_location.from_datetime.date()
             if sensor_location.to_datetime.date() < to_date:
@@ -61,174 +63,95 @@ def generate_download_queries(
 
             # get location data
             location = next(
-                l
-                for l in em27_metadata.locations
+                l for l in em27_metadata.locations
                 if l.location_id == sensor_location.location_id
             )
+            lat = int(location.lat)
+            lon = int(location.lon)
+            if lat not in query_dates.keys():
+                query_dates[lat] = {}
+            if lon not in query_dates[lat].keys():
+                query_dates[lat][lon] = set()
 
             # Iterate over individual days and add sensor
-            current_date = from_date
-            while current_date <= to_date:
-                if location.lat not in requested_dates.keys():
-                    requested_dates[location.lat] = {}
-                if location.lon not in requested_dates[location.lat].keys():
-                    requested_dates[location.lat][location.lon] = []
+            for date in [
+                from_date + datetime.timedelta(days=i)
+                for i in range((to_date - from_date).days + 1)
+            ]:
+                query_dates[lat][lon].add(date)
 
-                if len(requested_dates[location.lat][location.lon]) == 0:
-                    requested_dates[location.lat][location.lon] = [
-                        custom_types.DownloadQuery(
-                            lat=location.lat,
-                            lon=location.lon,
-                            from_date=current_date,
-                            to_date=current_date,
-                        )
+    print(
+        "Total queried days:",
+        sum([
+            len(query_dates[lat][lon]) for lat in query_dates.keys()
+            for lon in query_dates[lat].keys()
+        ])
+    )
+
+    # remove queries where data is already present locally
+    for lat in query_dates.keys():
+        for lon in query_dates[lat].keys():
+            filtered_queries: list[datetime.date] = []
+            for date in query_dates[lat][lon]:
+                date_slug = date.strftime("%Y%m%d")
+                coordinate_slug = utils.functions.get_coordinates_slug(lat, lon)
+                if version == "GGG2014":
+                    output_files = [
+                        os.path.join(
+                            config.general.data_src_dirs.vertical_profiles,
+                            version,
+                            f"{date_slug}_{coordinate_slug}.{ending}",
+                        ) for ending in ["map", "mod"]
                     ]
-                elif (
-                    requested_dates[location.lat][location.lon][-1].to_date
-                    - datetime.timedelta(days=1)
-                    == current_date
-                ):
-                    requested_dates[location.lat][location.lon][
-                        -1
-                    ].to_date = current_date
                 else:
-                    requested_dates[location.lat][location.lon].append(
+                    output_files = [
+                        os.path.join(
+                            config.general.data_src_dirs.vertical_profiles,
+                            version,
+                            f"{date_slug}{time:02d}_{coordinate_slug}.{ending}",
+                        ) for ending in ["map", "mod", "vmr"]
+                        for time in [0, 3, 6, 9, 12, 15, 18, 21]
+                    ]
+                if not all([os.path.isfile(f) for f in output_files]):
+                    filtered_queries.append(date)
+            query_dates[lat][lon] = filtered_queries
+
+    print(
+        "Newly queried days:",
+        sum([
+            len(query_dates[lat][lon]) for lat in query_dates.keys()
+            for lon in query_dates[lat].keys()
+        ])
+    )
+
+    total_download_queries: list[custom_types.DownloadQuery] = []
+
+    for lat in query_dates.keys():
+        for lon in query_dates[lat].keys():
+            download_queries: list[custom_types.DownloadQuery] = []
+            for date in sorted(query_dates[lat][lon]):
+                if len(download_queries) == 0:
+                    download_queries.append(
                         custom_types.DownloadQuery(
-                            lat=location.lat,
-                            lon=location.lon,
-                            from_date=current_date,
-                            to_date=current_date,
+                            lat=lat, lon=lon, from_date=date, to_date=date
                         )
                     )
-                current_date = current_date + datetime.timedelta(days=1)
+                else:
+                    current_query = download_queries[-1]
+                    start_new_query_block = ((
+                        date
+                        > (current_query.to_date + datetime.timedelta(days=1))
+                    ) or (current_query.to_date - current_query.from_date).days
+                                             >= 28)
+                    if start_new_query_block:
+                        download_queries.append(
+                            custom_types.DownloadQuery(
+                                lat=lat, lon=lon, from_date=date, to_date=date
+                            )
+                        )
+                    else:
+                        download_queries[-1].to_date = date
 
-    # merges overlapping queries into single queries
-    download_queries: list[custom_types.DownloadQuery] = []
-    for lat in requested_dates.keys():
-        for lon in requested_dates[lat].keys():
-            download_queries += _compress_query_list(requested_dates[lat][lon])
+            total_download_queries.extend(download_queries)
 
-    # removes the days from queries where the data is already present locally
-    fresh_download_queries: list[custom_types.DownloadQuery] = []
-    dst_path = os.path.join(config.general.data_src_dirs.vertical_profiles, version)
-    present_files = os.listdir(dst_path)
-    for dq in download_queries:
-        present_dates: list[datetime.date] = []
-        for f in present_files:
-            try:
-                assert f.endswith(dq.to_coordinates_slug())
-                assert os.path.isdir(os.path.join(dst_path, f))
-                date = datetime.datetime.strptime(f, "%Y-%m-%d").date()
-                present_dates.append(date)
-            except (AssertionError, ValueError):
-                pass
-        fresh_download_queries += _remove_present_dates(dq, present_dates)
-
-    # make queries not be longer than 28 days
-    chunked_download_queries: list[custom_types.DownloadQuery] = []
-    for dq in fresh_download_queries:
-        chunked_download_queries += _split_large_queries(dq, max_days_per_query=28)
-
-    return chunked_download_queries
-
-
-def _remove_present_dates(
-    dq: custom_types.DownloadQuery, present_dates: list[datetime.date]
-) -> list[custom_types.DownloadQuery]:
-    """Remove dates from the query that are already present locally"""
-
-    present_dates = list(
-        sorted(filter(lambda d: dq.from_date <= d <= dq.to_date, present_dates))
-    )
-    while True:
-        if len(present_dates) == 0:
-            return [dq]
-
-        if present_dates[0] == dq.from_date:
-            dq.from_date = dq.from_date + datetime.timedelta(days=1)
-            present_dates.pop(0)
-            continue
-        if present_dates[-1] == dq.to_date:
-            dq.to_date = dq.to_date - datetime.timedelta(days=1)
-            present_dates.pop(-1)
-            continue
-
-        first_date = present_dates.pop(0)
-
-        return [
-            custom_types.DownloadQuery(
-                lat=dq.lat,
-                lon=dq.lon,
-                from_date=dq.from_date,
-                to_date=first_date - datetime.timedelta(days=1),
-            ),
-            *_remove_present_dates(
-                custom_types.DownloadQuery(
-                    lat=dq.lat,
-                    lon=dq.lon,
-                    from_date=first_date + datetime.timedelta(days=1),
-                    to_date=dq.to_date,
-                ),
-                present_dates=present_dates,
-            ),
-        ]
-
-
-def _split_large_queries(
-    dq: custom_types.DownloadQuery, max_days_per_query: int = 28
-) -> list[custom_types.DownloadQuery]:
-    """If the queries are longer than the specified number of days,
-    split them into multiple queries."""
-
-    dt = dq.to_date - dq.from_date
-
-    if dt.days <= max_days_per_query:
-        return [dq]
-
-    return [
-        custom_types.DownloadQuery(
-            lat=dq.lat,
-            lon=dq.lon,
-            from_date=dq.from_date,
-            to_date=dq.from_date + datetime.timedelta(days=max_days_per_query - 1),
-        ),
-        *_split_large_queries(
-            custom_types.DownloadQuery(
-                lat=dq.lat,
-                lon=dq.lon,
-                from_date=dq.from_date + datetime.timedelta(days=max_days_per_query),
-                to_date=dq.to_date,
-            ),
-            max_days_per_query=max_days_per_query,
-        ),
-    ]
-
-
-def _compress_query_list(
-    queries: list[custom_types.DownloadQuery],
-) -> list[custom_types.DownloadQuery]:
-    """Compress a list of queries by merging queries that are
-    asjacent or overlapping into long queries."""
-
-    if len(queries) < 2:
-        return queries
-
-    queries = list(sorted(queries, key=lambda d: d.from_date))
-
-    while True:
-        overlapping_queries = list(
-            filter(
-                lambda d: d.from_date
-                <= (queries[0].to_date + datetime.timedelta(days=1)),
-                queries[1:],
-            )
-        )
-        if len(overlapping_queries) > 0:
-            queries[0].to_date = max([q.to_date for q in overlapping_queries])
-            queries = [queries[0], *queries[len(overlapping_queries) + 1 :]]
-            continue
-
-        return [
-            queries[0],
-            *_compress_query_list(queries[1:]),
-        ]
+    return total_download_queries
