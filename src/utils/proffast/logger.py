@@ -8,7 +8,9 @@ import tum_esm_utils
 
 from src import custom_types
 
-_PROJECT_DIR = tum_esm_utils.files.get_parent_dir_path(__file__, current_depth=4)
+_PROJECT_DIR = tum_esm_utils.files.get_parent_dir_path(
+    __file__, current_depth=4
+)
 
 # I am not using the logging-library because the proffast-pylot
 # also uses that and figuring out how to not make these two
@@ -66,20 +68,17 @@ class Logger:
             traceback.format_exception(type(e), e, e.__traceback__)
         ).strip()
         exception_details = "None"
-        if isinstance(e, tum_esm_utils.shell.CommandLineException) and (
-            e.details is not None
-        ):
+        if isinstance(e, tum_esm_utils.shell.CommandLineException
+                     ) and (e.details is not None):
             exception_details = e.details.strip()
 
         subject_string = (
             exception_name if label is None else f"{label}, {exception_name}"
         )
         details_string = (
-            f"--- details: -----------------\n"
-            + f"{exception_details}\n"
-            + f"--- traceback: ---------------\n"
-            + f"{exception_traceback}\n"
-            + f"------------------------------"
+            f"--- details: -----------------\n" + f"{exception_details}\n" +
+            f"--- traceback: ---------------\n" + f"{exception_traceback}\n" +
+            f"------------------------------"
         )
 
         self._print(f"{subject_string}\n{details_string}", "EXCEPTION")
@@ -112,6 +111,7 @@ class Logger:
                 "logs",
                 "automated_proffast",
                 "archive",
+                "main" if self.container_id == "main" else "containers",
                 self.logfile_name,
             ),
         )
