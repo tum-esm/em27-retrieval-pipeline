@@ -15,12 +15,12 @@ from src import custom_types, procedures
 
 def run() -> None:
     config = custom_types.Config.load()
+    assert config.export is not None, "no export config found"
+    assert len(config.export.targets) > 0, "no export targets found"
+
     em27_metadata = tum_esm_em27_metadata.load_from_github(
         **config.general.location_data.model_dump()
     )
-
-    assert config.export is not None, "no export config found"
-    assert len(config.export.targets) > 0, "no export targets found"
 
     for i, output_merging_target in enumerate(config.export.targets):
         print(f"\nprocessing output merging target #{i+1}")

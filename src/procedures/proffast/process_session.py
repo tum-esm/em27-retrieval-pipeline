@@ -39,7 +39,7 @@ def run(
     try:
         move_profiles.run(config, session)
     except Exception as e:
-        log_input_warning(f"Inputs incomplete (vertical profiles): {e}")
+        log_input_warning(f"Inputs incomplete (atmospheric profiles): {e}")
         return
 
     try:

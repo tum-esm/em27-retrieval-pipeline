@@ -33,9 +33,7 @@ def run() -> None:
         main_logger.exception(e, "Config file invalid")
         return
 
-    if config.proffast is None:
-        main_logger.error("Proffast not configured in config file")
-        exit(1)
+    assert config.proffast is not None, "no proffast config found"
 
     # set up process list and container factory
     container_factory = interfaces.proffast.ContainerFactory(

@@ -10,7 +10,7 @@ from src import custom_types
 _PROJECT_DIR = tum_esm_utils.files.get_parent_dir_path(
     __file__, current_depth=4
 )
-_REPORT_PATH = os.path.join(_PROJECT_DIR, "logs", "vertical_profiles")
+_REPORT_PATH = os.path.join(_PROJECT_DIR, "logs", "profiles")
 
 
 class Reporter:

@@ -13,10 +13,7 @@ from src import custom_types, procedures, utils
 
 def run() -> None:
     config = custom_types.Config.load()
-
-    if config.profiles is None:
-        print("No vertical profiles configuration found.")
-        return
+    assert config.profiles is not None, "No profiles config found"
 
     try:
 
