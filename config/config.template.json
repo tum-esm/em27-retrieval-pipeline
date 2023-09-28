@@ -1,70 +1,70 @@
 {
-    "general": {
-        "location_data": {
-            "github_repository": "tum-esm/em27-location-data",
-            "access_token": null
-        },
-        "data_src_dirs": {
-            "datalogger": "path-to-datalogger-datalogger-upload-directory",
-            "profiles": "path-to-vertical-profiles",
-            "interferograms": "path-to-datalogger-ifg-upload-directory"
-        },
-        "data_dst_dirs": {
-            "results": "path-to-results-storage"
-        }
+  "general": {
+    "location_data": {
+      "github_repository": "tum-esm/em27-location-data",
+      "access_token": null
     },
-    "profiles": {
-        "ftp_server": {
-            "email": "...@...",
-            "max_day_delay": 7,
-            "upload_sleep": 60,
-            "upload_timeout": 180,
-            "download_sleep": 60,
-            "download_timeout": 600
-        },
-        "request_scope": {
-            "from_date": "2022-01-01",
-            "to_date": "2022-01-05",
-            "data_types": ["GGG2014", "GGG2020"]
-        }
+    "data_src_dirs": {
+      "datalogger": "path-to-datalogger-datalogger-upload-directory",
+      "profiles": "path-to-vertical-profiles",
+      "interferograms": "path-to-datalogger-ifg-upload-directory"
     },
-    "retrieval": {
-        "general": {
-            "max_core_count": 9,
-            "ifg_file_regex": "^$(SENSOR_ID)$(DATE).*\\.\\d+$",
-            "retrieval_software": "proffast-2.2"
-        },
-        "modified_ifg_file_permissions": {
-            "during_processing": null,
-            "after_processing": null
-        },
-        "data_filter": {
-            "sensor_ids_to_consider": ["ma", "mb", "mc", "md", "me"],
-            "from_date": "2019-01-01",
-            "to_date": "2099-12-31",
-            "min_days_delay": 5
-        }
-    },
-    "export": {
-        "targets": [
-            {
-                "campaign_id": "muccnet",
-                "data_types": [
-                    "gnd_p",
-                    "gnd_t",
-                    "app_sza",
-                    "azimuth",
-                    "xh2o",
-                    "xair",
-                    "xco2",
-                    "xch4",
-                    "xco",
-                    "xch4_s5p"
-                ],
-                "sampling_rate": "1m",
-                "max_interpolation_gap_seconds": 180,
-                "dst_dir": "path-to-merged-output"
-            }
-        ]
+    "data_dst_dirs": {
+      "results": "path-to-results-storage"
     }
+  },
+  "profiles": {
+    "ftp_server": {
+      "email": "...@...",
+      "max_day_delay": 7,
+      "upload_sleep": 60,
+      "upload_timeout": 180,
+      "download_sleep": 60,
+      "download_timeout": 600
+    },
+    "request_scope": {
+      "from_date": "2022-01-01",
+      "to_date": "2022-01-05",
+      "data_types": ["GGG2014", "GGG2020"]
+    }
+  },
+  "retrieval": {
+    "general": {
+      "max_core_count": 9,
+      "ifg_file_regex": "^$(SENSOR_ID)$(DATE).*\\.\\d+$",
+      "retrieval_software": "proffast-2.2"
+    },
+    "modified_ifg_file_permissions": {
+      "during_processing": null,
+      "after_processing": null
+    },
+    "data_filter": {
+      "sensor_ids_to_consider": ["ma", "mb", "mc", "md", "me"],
+      "from_date": "2019-01-01",
+      "to_date": "2099-12-31",
+      "min_days_delay": 5
+    }
+  },
+  "export": {
+    "targets": [
+      {
+        "campaign_id": "muccnet",
+        "data_types": [
+          "gnd_p",
+          "gnd_t",
+          "app_sza",
+          "azimuth",
+          "xh2o",
+          "xair",
+          "xco2",
+          "xch4",
+          "xco",
+          "xch4_s5p"
+        ],
+        "sampling_rate": "1m",
+        "max_interpolation_gap_seconds": 180,
+        "dst_dir": "path-to-merged-output"
+      }
+    ]
+  }
 }
