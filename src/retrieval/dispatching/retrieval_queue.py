@@ -82,6 +82,9 @@ class RetrievalQueue:
         self.logger.debug(
             f"Considering data from {from_date} to {to_date} ({len(dates)} date(s))"
         )
+        self.logger.debug(
+            f"Considering data from sensor(s) {self.config.retrieval.data_filter.sensor_ids_to_consider}"
+        )
         queue_items: list[tum_esm_em27_metadata.types.SensorDataContext] = []
 
         logged_progresses: list[int] = []

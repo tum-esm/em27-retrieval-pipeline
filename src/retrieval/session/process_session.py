@@ -18,10 +18,12 @@ def run(
     logger = retrieval.utils.logger.Logger(
         container_id=session.ctn.container_id
     )
+    logger.info(f"Starting session in container id {session.ctn.container_id}")
     logger.info(
-        f"Starting session {session.ctx.sensor_id}/" +
-        f"{session.ctx.from_datetime}-{session.ctx.to_datetime}"
+        f"Sensor {session.ctx.sensor_id}: " +
+        f"from {session.ctx.from_datetime} to {session.ctx.to_datetime}"
     )
+    logger.debug(f"Session object: {session.model_dump_json(indent=4)}")
 
     def _graceful_teardown(*args: Any) -> None:
         logger.info(f"Container was killed")
