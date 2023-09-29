@@ -4,7 +4,7 @@ import json
 import sys
 import polars as pl
 import rich.progress
-import tum_esm_em27_metadata
+import em27_metadata
 import tum_esm_utils
 
 PROJECT_DIR = tum_esm_utils.files.get_parent_dir_path(__file__, current_depth=2)
@@ -18,7 +18,7 @@ def run() -> None:
     assert config.export is not None, "no export config found"
     assert len(config.export.targets) > 0, "no export targets found"
 
-    em27_metadata = tum_esm_em27_metadata.load_from_github(
+    em27_metadata_storage = em27_metadata.load_from_github(
         **config.general.location_data.model_dump()
     )
 
@@ -26,11 +26,12 @@ def run() -> None:
         print(f"\nprocessing output merging target #{i+1}")
         print(json.dumps(output_merging_target.model_dump(), indent=4))
         assert (
-            output_merging_target.campaign_id in em27_metadata.campaign_ids
+            output_merging_target.campaign_id
+            in em27_metadata_storage.campaign_ids
         ), f"unknown campaign_id {output_merging_target.campaign_id}"
 
         campaign = next(
-            campaign for campaign in em27_metadata.campaigns
+            campaign for campaign in em27_metadata_storage.campaigns
             if campaign.campaign_id == output_merging_target.campaign_id
         )
 
@@ -49,12 +50,12 @@ def run() -> None:
             task = progress.add_task("processing dataframes", total=len(dates))
 
             for date in dates:
-                sensor_data_contexts: list[
-                    tum_esm_em27_metadata.types.SensorDataContext] = []
+                sensor_data_contexts: list[em27_metadata.types.SensorDataContext
+                                          ] = []
 
                 # get all sensor data contexts for this campaign's sensors
                 for sid in campaign.sensor_ids:
-                    sensor_data_contexts += em27_metadata.get(
+                    sensor_data_contexts += em27_metadata_storage.get(
                         sid,
                         from_datetime=datetime.datetime.combine(
                             date,
@@ -118,7 +119,7 @@ def run() -> None:
                     with open(filename, "w") as f:
                         f.write(
                             export.metadata.get_metadata(
-                                em27_metadata,
+                                em27_metadata_storage,
                                 campaign,
                                 sensor_data_contexts,
                                 output_merging_target,

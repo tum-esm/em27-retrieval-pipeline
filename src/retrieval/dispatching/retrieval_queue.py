@@ -1,9 +1,9 @@
+from typing import Optional
 import datetime
 import json
 import os
 import re
-from typing import Optional
-import tum_esm_em27_metadata
+import em27_metadata
 from src import utils, retrieval
 
 
@@ -15,8 +15,8 @@ class RetrievalQueue:
         self,
         config: utils.config.Config,
         logger: retrieval.utils.logger.Logger,
-        em27_metadata: Optional[
-            tum_esm_em27_metadata.interfaces.EM27MetadataInterface] = None,
+        em27_metadata_storage: Optional[
+            em27_metadata.interfaces.EM27MetadataInterface] = None,
         verbose_reasoning: bool = False,
     ) -> None:
         """Initialize the retrieval queue.
@@ -31,11 +31,11 @@ class RetrievalQueue:
         self.logger.info("Initializing RetrievalQueue")
 
         self.logger.debug("Fetching metadata from GitHub")
-        self.em27_metadata: tum_esm_em27_metadata.interfaces.EM27MetadataInterface
-        if em27_metadata is not None:
-            self.em27_metadata = em27_metadata
+        self.em27_metadata_storage: em27_metadata.interfaces.EM27MetadataInterface
+        if em27_metadata_storage is not None:
+            self.em27_metadata_storage = em27_metadata_storage
         else:
-            self.em27_metadata = tum_esm_em27_metadata.load_from_github(
+            self.em27_metadata_storage = em27_metadata.load_from_github(
                 github_repository=self.config.general.location_data.
                 github_repository,
                 access_token=self.config.general.location_data.access_token,
@@ -45,14 +45,12 @@ class RetrievalQueue:
         self.verbose_reasoning = verbose_reasoning
 
         self.logger.debug("Precomputing queue items")
-        self.queue_items: list[tum_esm_em27_metadata.types.SensorDataContext
+        self.queue_items: list[em27_metadata.types.SensorDataContext
                               ] = self._get_storage_queue_items()
 
         self.logger.info("RetrievalQueue is set up")
 
-    def get_next_item(
-        self
-    ) -> Optional[tum_esm_em27_metadata.types.SensorDataContext]:
+    def get_next_item(self) -> Optional[em27_metadata.types.SensorDataContext]:
         """Get the next item to process. Returns `None` if no item is available."""
 
         # TODO: write remaining queue as json to logs directory
@@ -65,7 +63,7 @@ class RetrievalQueue:
 
     def _get_storage_queue_items(
         self,
-    ) -> list[tum_esm_em27_metadata.types.SensorDataContext]:
+    ) -> list[em27_metadata.types.SensorDataContext]:
         assert self.config.retrieval is not None
 
         from_date = self.config.retrieval.data_filter.from_date
@@ -85,7 +83,7 @@ class RetrievalQueue:
         self.logger.debug(
             f"Considering data from sensor(s) {self.config.retrieval.data_filter.sensor_ids_to_consider}"
         )
-        queue_items: list[tum_esm_em27_metadata.types.SensorDataContext] = []
+        queue_items: list[em27_metadata.types.SensorDataContext] = []
 
         logged_progresses: list[int] = []
         for date_index, date in enumerate(dates[::-1]):
@@ -110,7 +108,7 @@ class RetrievalQueue:
                     continue
 
                 try:
-                    sensor_data_contexts = self.em27_metadata.get(
+                    sensor_data_contexts = self.em27_metadata_storage.get(
                         sensor_id=sensor_id,
                         from_datetime=datetime.datetime(
                             date.year,
@@ -197,9 +195,8 @@ class RetrievalQueue:
     def _filter_ctxs_by_existing_outputs(
         self,
         sensor_id: str,
-        sensor_data_contexts: list[tum_esm_em27_metadata.types.SensorDataContext
-                                  ],
-    ) -> list[tum_esm_em27_metadata.types.SensorDataContext]:
+        sensor_data_contexts: list[em27_metadata.types.SensorDataContext],
+    ) -> list[em27_metadata.types.SensorDataContext]:
         """For a given list of sensor data context of one day, remove those
         that already have outputs."""
 

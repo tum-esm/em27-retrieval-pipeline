@@ -1,7 +1,7 @@
 from __future__ import annotations
+from typing import Any, Literal, Optional
 import datetime
 import os
-from typing import Any, Literal, Optional
 import tum_esm_utils
 import pydantic
 

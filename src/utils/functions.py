@@ -1,6 +1,6 @@
+from typing import Optional
 import os
 import re
-from typing import Optional
 
 
 def list_directory(
@@ -15,10 +15,14 @@ def list_directory(
         files = [f for f in files if re.match(regex, f)]
     if is_directory is not None:
         files = [
-            f for f in files if (is_directory == os.path.isdir(os.path.join(path, f)))
+            f for f in files
+            if (is_directory == os.path.isdir(os.path.join(path, f)))
         ]
     if is_file is not None:
-        files = [f for f in files if (is_file == os.path.isfile(os.path.join(path, f)))]
+        files = [
+            f for f in files
+            if (is_file == os.path.isfile(os.path.join(path, f)))
+        ]
 
     return files
 

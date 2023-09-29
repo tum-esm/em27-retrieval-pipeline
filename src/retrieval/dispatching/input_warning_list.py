@@ -1,6 +1,6 @@
 import os
-import tum_esm_utils
 import datetime
+import tum_esm_utils
 import src
 
 _PROJECT_DIR = tum_esm_utils.files.get_parent_dir_path(

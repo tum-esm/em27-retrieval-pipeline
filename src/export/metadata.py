@@ -1,14 +1,14 @@
 import pendulum
-import tum_esm_em27_metadata
+import em27_metadata
 import tum_esm_utils
 from src import utils
 
 
 # TODO: rename as "header"
 def get_metadata(
-    em27_metadata: tum_esm_em27_metadata.interfaces.EM27MetadataInterface,
-    campaign: tum_esm_em27_metadata.types.CampaignMetadata,
-    sensor_data_contexts: list[tum_esm_em27_metadata.types.SensorDataContext],
+    em27_metadata_storage: em27_metadata.interfaces.EM27MetadataInterface,
+    campaign: em27_metadata.types.CampaignMetadata,
+    sensor_data_contexts: list[em27_metadata.types.SensorDataContext],
     output_merging_target: utils.config.OutputMergingTargetConfig,
 ) -> str:
     """Returns a description of the campaign."""
@@ -37,7 +37,9 @@ def get_metadata(
 
     metadata_lines.append("SENSOR SERIAL NUMBERS:")
     for sid in campaign.sensor_ids:
-        s = next(filter(lambda s: s.sensor_id == sid, em27_metadata.sensors))
+        s = next(
+            filter(lambda s: s.sensor_id == sid, em27_metadata_storage.sensors)
+        )
         metadata_lines.append(
             "    " + tum_esm_utils.text.
             pad_string(f"{sid}: ", pad_position="right", min_width=10) +
@@ -49,7 +51,9 @@ def get_metadata(
     metadata_lines.append("LOCATION COORDINATES [lat, lon, alt]:")
     for lid in campaign.location_ids:
         l = next(
-            filter(lambda l: l.location_id == lid, em27_metadata.locations)
+            filter(
+                lambda l: l.location_id == lid, em27_metadata_storage.locations
+            )
         )
         metadata_lines.append(
             "    " + tum_esm_utils.text.

@@ -1,15 +1,15 @@
+from typing import Literal, Optional
 import datetime
 import os
-from typing import Literal, Optional
-import tum_esm_em27_metadata
+import em27_metadata
 from src import utils
 
 
 def generate_download_queries(
     config: utils.config.Config,
     version: Literal["GGG2014", "GGG2020"],
-    em27_metadata: Optional[
-        tum_esm_em27_metadata.interfaces.EM27MetadataInterface] = None,
+    em27_metadata_storage: Optional[
+        em27_metadata.interfaces.EM27MetadataInterface] = None,
 ) -> list[utils.types.DownloadQuery]:
     """Returns a dictionary that maps query locations to sensor sets.
     Sensor sets map days to a all sensors ids that were located at
@@ -29,8 +29,8 @@ def generate_download_queries(
         return []
 
     # Request sensor and location data
-    if em27_metadata is None:
-        em27_metadata = tum_esm_em27_metadata.load_from_github(
+    if em27_metadata_storage is None:
+        em27_metadata_storage = em27_metadata.load_from_github(
             github_repository=config.general.location_data.github_repository,
             access_token=config.general.location_data.access_token,
         )
@@ -38,7 +38,7 @@ def generate_download_queries(
     # dict[lat][lon] = {datetime.date, ...}
     query_dates: dict[int, dict[int, set[datetime.date]]] = {}
 
-    for sensor in em27_metadata.sensors:
+    for sensor in em27_metadata_storage.sensors:
         for sensor_location in sensor.locations:
             # do not consider sensor locations that are outside of the request scope
             if (
@@ -63,7 +63,7 @@ def generate_download_queries(
 
             # get location data
             location = next(
-                l for l in em27_metadata.locations
+                l for l in em27_metadata_storage.locations
                 if l.location_id == sensor_location.location_id
             )
             lat = round(location.lat)

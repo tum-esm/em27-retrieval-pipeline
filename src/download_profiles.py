@@ -1,7 +1,7 @@
 import sys
 import tum_esm_utils
-from ftplib import FTP
-from rich.progress import Progress
+import ftplib
+import rich.progress
 
 _PROJECT_DIR = tum_esm_utils.files.get_parent_dir_path(
     __file__, current_depth=2
@@ -28,7 +28,7 @@ def run() -> None:
                 print("No data to request.")
                 continue
 
-            with FTP(
+            with ftplib.FTP(
                 host="ccycle.gps.caltech.edu",
                 passwd=config.profiles.ftp_server.email,
                 user="anonymous",
@@ -41,7 +41,7 @@ def run() -> None:
                 with profiles.reporter.Reporter(
                     download_queries, version
                 ) as reporter:
-                    with Progress() as progress:
+                    with rich.progress.Progress() as progress:
                         for query in progress.track(
                             list(
                                 sorted(

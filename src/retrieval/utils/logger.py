@@ -1,8 +1,8 @@
-from datetime import datetime
+from typing import Literal, Optional
+import datetime
 import os
 import shutil
 import traceback
-from typing import Literal, Optional
 import tum_esm_utils
 
 _PROJECT_DIR = tum_esm_utils.files.get_parent_dir_path(
@@ -15,7 +15,7 @@ _LOGS_DIR = os.path.join(_PROJECT_DIR, "logs", "retrieval")
 # interfere is not worth it
 
 # the logfile name will have the time when the script has been started
-logfile_time = datetime.utcnow().strftime("%Y%m%d-%H-%M")
+logfile_time = datetime.datetime.utcnow().strftime("%Y%m%d-%H-%M")
 
 
 class Logger:
@@ -30,7 +30,7 @@ class Logger:
         m: str,
         level: Literal["DEBUG", "INFO", "WARNING", "ERROR", "EXCEPTION"],
     ) -> None:
-        t = datetime.utcnow().strftime("%Y%m%d %H:%M:%S")
+        t = datetime.datetime.utcnow().strftime("%Y%m%d %H:%M:%S")
         log_line = f"{t} - {level} - {m}\n"
         if self.print_only:
             print(log_line, end="")

@@ -1,9 +1,9 @@
+from typing import Optional
 from datetime import datetime
 import json
 import os
 import re
 import shutil
-from typing import Optional
 import polars as pl
 import tum_esm_utils
 from src import utils, retrieval

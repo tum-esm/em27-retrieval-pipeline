@@ -2,7 +2,7 @@ import datetime
 import os
 from typing import Optional
 import pytest
-import tum_esm_em27_metadata
+import em27_metadata
 import tum_esm_utils
 from ..fixtures import download_sample_data, clear_output_data, provide_config_template
 import dotenv
@@ -13,9 +13,9 @@ dir = os.path.dirname
 PROJECT_DIR = tum_esm_utils.files.get_parent_dir_path(__file__, current_depth=3)
 dotenv.load_dotenv(os.path.join(PROJECT_DIR, "tests", ".env"))
 
-em27_metadata = tum_esm_em27_metadata.interfaces.EM27MetadataInterface(
+em27_metadata_storage = em27_metadata.interfaces.EM27MetadataInterface(
     locations=[
-        tum_esm_em27_metadata.types.LocationMetadata(
+        em27_metadata.types.LocationMetadata(
             location_id="LOC1",
             details="...",
             lat=0.0,
@@ -24,7 +24,7 @@ em27_metadata = tum_esm_em27_metadata.interfaces.EM27MetadataInterface(
         )
     ],
     sensors=[
-        tum_esm_em27_metadata.types.SensorMetadata(
+        em27_metadata.types.SensorMetadata(
             sensor_id="so",
             serial_number=1,
             different_utc_offsets=[],
@@ -32,7 +32,7 @@ em27_metadata = tum_esm_em27_metadata.interfaces.EM27MetadataInterface(
             different_pressure_calibration_factors=[],
             different_output_calibration_factors=[],
             locations=[
-                tum_esm_em27_metadata.types.SensorTypes.Location(
+                em27_metadata.types.SensorTypes.Location(
                     from_datetime="2017-01-01T00:00:00+00:00",
                     to_datetime="2017-12-31T23:59:59+00:00",
                     location_id="LOC1",
@@ -45,7 +45,7 @@ em27_metadata = tum_esm_em27_metadata.interfaces.EM27MetadataInterface(
 
 
 def _check_next_item(
-    i: Optional[tum_esm_em27_metadata.types.SensorDataContext],
+    i: Optional[em27_metadata.types.SensorDataContext],
     expected_date: Optional[datetime.date],
 ) -> None:
     if i is None:
@@ -90,7 +90,10 @@ def test_retrieval_queue(
     config.retrieval.data_filter.from_date = datetime.date(2017, 6, 9)
     config.retrieval.data_filter.to_date = datetime.date(2017, 6, 10)
     retrieval_queue = retrieval.dispatching.retrieval_queue.RetrievalQueue(
-        config, logger, em27_metadata=em27_metadata, verbose_reasoning=True
+        config,
+        logger,
+        em27_metadata_storage=em27_metadata_storage,
+        verbose_reasoning=True
     )
     _check_next_item(retrieval_queue.get_next_item(), datetime.date(2017, 6, 9))
     _check_next_item(retrieval_queue.get_next_item(), None)
@@ -100,7 +103,7 @@ def test_retrieval_queue(
     config.retrieval.data_filter.from_date = datetime.date(2017, 6, 1)
     config.retrieval.data_filter.to_date = datetime.date(2017, 6, 10)
     retrieval_queue = retrieval.dispatching.retrieval_queue.RetrievalQueue(
-        config, logger, em27_metadata=em27_metadata
+        config, logger, em27_metadata_storage=em27_metadata_storage
     )
     _check_next_item(retrieval_queue.get_next_item(), datetime.date(2017, 6, 9))
     _check_next_item(retrieval_queue.get_next_item(), datetime.date(2017, 6, 8))
@@ -111,7 +114,7 @@ def test_retrieval_queue(
     config.retrieval.data_filter.from_date = datetime.date(2017, 6, 1)
     config.retrieval.data_filter.to_date = datetime.date(2017, 6, 8)
     retrieval_queue = retrieval.dispatching.retrieval_queue.RetrievalQueue(
-        config, logger, em27_metadata=em27_metadata
+        config, logger, em27_metadata_storage=em27_metadata_storage
     )
     _check_next_item(retrieval_queue.get_next_item(), datetime.date(2017, 6, 8))
     _check_next_item(retrieval_queue.get_next_item(), None)
@@ -121,7 +124,7 @@ def test_retrieval_queue(
     config.retrieval.data_filter.from_date = datetime.date(2017, 6, 8)
     config.retrieval.data_filter.to_date = datetime.date(2017, 6, 8)
     retrieval_queue = retrieval.dispatching.retrieval_queue.RetrievalQueue(
-        config, logger, em27_metadata=em27_metadata
+        config, logger, em27_metadata_storage=em27_metadata_storage
     )
     _check_next_item(retrieval_queue.get_next_item(), datetime.date(2017, 6, 8))
     _check_next_item(retrieval_queue.get_next_item(), None)
@@ -131,7 +134,7 @@ def test_retrieval_queue(
     config.retrieval.data_filter.from_date = datetime.date(2017, 6, 1)
     config.retrieval.data_filter.to_date = datetime.date(2017, 6, 7)
     retrieval_queue = retrieval.dispatching.retrieval_queue.RetrievalQueue(
-        config, logger, em27_metadata=em27_metadata
+        config, logger, em27_metadata_storage=em27_metadata_storage
     )
     _check_next_item(retrieval_queue.get_next_item(), None)
     _check_next_item(retrieval_queue.get_next_item(), None)

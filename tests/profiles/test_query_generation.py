@@ -1,10 +1,9 @@
+from typing import Literal
 import os
 import tempfile
-from typing import Literal
 import pytest
 import datetime
-import tum_esm_em27_metadata
-
+import em27_metadata
 from src import utils, profiles
 from tests.fixtures import provide_config_template
 
@@ -19,50 +18,50 @@ def test_query_generation(
     config = provide_config_template
     assert config.profiles is not None
 
-    em27_metadata = tum_esm_em27_metadata.EM27MetadataInterface(
+    em27_metadata_storage = em27_metadata.EM27MetadataInterface(
         locations=[
-            tum_esm_em27_metadata.types.LocationMetadata(
+            em27_metadata.types.LocationMetadata(
                 location_id="l1", details="l1d", lat=1, lon=2, alt=0
             ),
-            tum_esm_em27_metadata.types.LocationMetadata(
+            em27_metadata.types.LocationMetadata(
                 location_id="l2", details="l2d", lat=1, lon=3, alt=0
             ),
-            tum_esm_em27_metadata.types.LocationMetadata(
+            em27_metadata.types.LocationMetadata(
                 location_id="l3", details="l3d", lat=2, lon=3, alt=0
             ),
         ],
         sensors=[
-            tum_esm_em27_metadata.types.SensorMetadata(
+            em27_metadata.types.SensorMetadata(
                 sensor_id="s1",
                 serial_number=1,
                 locations=[
-                    tum_esm_em27_metadata.types.SensorTypes.Location(
+                    em27_metadata.types.SensorTypes.Location(
                         from_datetime="2000-01-01T00:00:00+00:00",
                         to_datetime="2000-03-01T11:59:59+00:00",
                         location_id="l1",
                     ),
-                    tum_esm_em27_metadata.types.SensorTypes.Location(
+                    em27_metadata.types.SensorTypes.Location(
                         from_datetime="2000-03-01T12:00:00+00:00",
                         to_datetime="2000-05-01T23:59:59+00:00",
                         location_id="l3",
                     ),
-                    tum_esm_em27_metadata.types.SensorTypes.Location(
+                    em27_metadata.types.SensorTypes.Location(
                         from_datetime="2000-05-04T12:00:00+00:00",
                         to_datetime="2000-05-07T23:59:59+00:00",
                         location_id="l2",
                     ),
                 ],
             ),
-            tum_esm_em27_metadata.types.SensorMetadata(
+            em27_metadata.types.SensorMetadata(
                 sensor_id="s2",
                 serial_number=2,
                 locations=[
-                    tum_esm_em27_metadata.types.SensorTypes.Location(
+                    em27_metadata.types.SensorTypes.Location(
                         from_datetime="2000-01-07T00:00:00+00:00",
                         to_datetime="2000-02-23T23:59:59+00:00",
                         location_id="l1",
                     ),
-                    tum_esm_em27_metadata.types.SensorTypes.Location(
+                    em27_metadata.types.SensorTypes.Location(
                         from_datetime="2000-05-05T12:00:00+00:00",
                         to_datetime="2000-05-08T23:59:59+00:00",
                         location_id="l2",
@@ -86,7 +85,7 @@ def test_query_generation(
             query_list = profiles.download_queries.generate_download_queries(
                 config=config,
                 version=version,
-                em27_metadata=em27_metadata,
+                em27_metadata_storage=em27_metadata_storage,
             )
             [print(q) for q in query_list]
             assert len(query_list) == 7

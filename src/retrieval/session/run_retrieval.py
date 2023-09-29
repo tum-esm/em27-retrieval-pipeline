@@ -1,7 +1,7 @@
 import json
 import os
-import src
 import tum_esm_utils
+import src
 
 _PROJECT_DIR = tum_esm_utils.files.get_parent_dir_path(
     __file__, current_depth=4

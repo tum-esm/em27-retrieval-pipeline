@@ -1,8 +1,8 @@
 from typing import BinaryIO, Callable, Literal, Optional
 import time
 import tarfile
-from io import BytesIO
-from ftplib import FTP, error_perm
+import io
+import ftplib
 import datetime
 from src import utils
 
@@ -10,7 +10,7 @@ from src import utils
 def upload_request(
     config: utils.config.Config,
     query: utils.types.DownloadQuery,
-    ftp: FTP,
+    ftp: ftplib.FTP,
     version: Literal["GGG2014", "GGG2020"],
 ) -> tuple[bool, float]:
     """Requests Ginput data by uploading a '.txt' to 'ccycle.gps.caltech.edu'.
@@ -32,7 +32,7 @@ def upload_request(
         filename = "input_file.txt"
 
     # Build request in-memory
-    with BytesIO(
+    with io.BytesIO(
         "\n".join((
             "tu",
             query.from_date_string(),
@@ -52,7 +52,7 @@ def upload_request(
                 # Upload request
                 ftp.storbinary(f"STOR upload/{filename}", file_)
                 success = True
-            except error_perm as e:
+            except ftplib.error_perm as e:
                 if str(e) == "553 Could not create file.":
                     # FTP server busy
                     time.sleep(config.profiles.ftp_server.upload_sleep)
@@ -108,7 +108,7 @@ def get_date_suffixes(
 def download_data(
     config: utils.config.Config,
     query: utils.types.DownloadQuery,
-    ftp: FTP,
+    ftp: ftplib.FTP,
     version: Literal["GGG2014", "GGG2020"],
     wait: bool = False,
 ) -> tuple[bool, float, Optional[datetime.date]]:
@@ -159,7 +159,7 @@ def download_data(
 
             if suffix is not None:
                 # Retrieve data in-memory
-                with BytesIO() as archive:
+                with io.BytesIO() as archive:
                     ftp.retrbinary(
                         f"RETR {archive_str}",
                         archive.write,

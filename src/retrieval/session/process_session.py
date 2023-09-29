@@ -1,6 +1,6 @@
 from typing import Any
-from src import utils, retrieval
 import signal
+from src import utils, retrieval
 from . import (
     move_log_files,
     move_profiles,

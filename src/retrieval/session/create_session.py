@@ -1,7 +1,7 @@
 import os
-import tum_esm_em27_metadata
-from src import retrieval, utils
+import em27_metadata
 import tum_esm_utils
+from src import retrieval, utils
 
 _PROJECT_DIR = tum_esm_utils.files.get_parent_dir_path(
     __file__, current_depth=4
@@ -75,7 +75,7 @@ def _generate_pylot22_log_format(session: utils.types.RetrievalSession) -> None:
                 "UTC_OFFSET":
                     str(round(session.ctx.utc_offset, 2)),
                 "PRESSURE_CALIBRATION_FACTOR":
-                    str(round(session.ctx.pressure_calibration_factor, 9)),
+                    str(round(session.ctx.calibration_factors.pressure, 9)),
                 "PRESSURE_DATA_SOURCE":
                     session.ctx.pressure_data_source,
             },
@@ -89,7 +89,7 @@ def _generate_pylot23_log_format(session: utils.types.RetrievalSession) -> None:
 
 def run(
     container_factory: retrieval.dispatching.container_factory.ContainerFactory,
-    sensor_data_context: tum_esm_em27_metadata.types.SensorDataContext,
+    sensor_data_context: em27_metadata.types.SensorDataContext,
 ) -> utils.types.RetrievalSession:
     """Create a new container and the pylot config files"""
     new_session = utils.types.RetrievalSession(

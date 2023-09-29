@@ -1,8 +1,8 @@
+from typing import Literal
 import datetime
 import os
-from typing import Literal
 import pytest
-import tum_esm_em27_metadata
+import em27_metadata
 import tum_esm_utils
 from tests.fixtures import (
     wrap_test_with_mainlock,
@@ -15,20 +15,16 @@ from src import utils, retrieval
 PROJECT_DIR = tum_esm_utils.files.get_parent_dir_path(__file__, current_depth=3)
 
 SENSOR_DATA_CONTEXTS = [
-    tum_esm_em27_metadata.types.SensorDataContext(
+    em27_metadata.types.SensorDataContext(
         sensor_id="so",
         serial_number=39,
         from_datetime=datetime.datetime.fromisoformat(date + "T00:00:00+00:00"),
         to_datetime=datetime.datetime.fromisoformat(date + "T23:59:59+00:00"),
         utc_offset=0,
         pressure_data_source="so",
-        pressure_calibration_factor=1,
-        output_calibration_factors_xco2=[],
-        output_calibration_factors_xch4=[],
-        output_calibration_factors_xco=[],
-        output_calibration_scheme=None,
+        calibration_factors=em27_metadata.types.CalibrationFactors(),
         multiple_ctx_on_this_date=False,
-        location=tum_esm_em27_metadata.types.LocationMetadata(
+        location=em27_metadata.types.LocationMetadata(
             location_id="SOD",
             details="Sodankyla",
             lon=26.630,
@@ -37,20 +33,16 @@ SENSOR_DATA_CONTEXTS = [
         ),
     ) for date in ["2017-06-08", "2017-06-09"]
 ] + [
-    tum_esm_em27_metadata.types.SensorDataContext(
+    em27_metadata.types.SensorDataContext(
         sensor_id="mc",
         serial_number=115,
         from_datetime=datetime.datetime.fromisoformat(date + "T00:00:00+00:00"),
         to_datetime=datetime.datetime.fromisoformat(date + "T23:59:59+00:00"),
         utc_offset=0,
         pressure_data_source="mc",
-        pressure_calibration_factor=1,
-        output_calibration_factors_xco2=[],
-        output_calibration_factors_xch4=[],
-        output_calibration_factors_xco=[],
-        output_calibration_scheme=None,
+        calibration_factors=em27_metadata.types.CalibrationFactors(),
         multiple_ctx_on_this_date=False,
-        location=tum_esm_em27_metadata.types.LocationMetadata(
+        location=em27_metadata.types.LocationMetadata(
             location_id="ZEN",
             details="Zentralfriedhof",
             lon=16.438481,
@@ -101,7 +93,7 @@ def test_three_days(
 
 def _run_test_container(
     config: utils.config.Config,
-    sensor_data_contexts: list[tum_esm_em27_metadata.types.SensorDataContext],
+    sensor_data_contexts: list[em27_metadata.types.SensorDataContext],
 ) -> None:
     assert config.retrieval is not None
 

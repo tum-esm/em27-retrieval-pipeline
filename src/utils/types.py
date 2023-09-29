@@ -2,7 +2,7 @@ import datetime
 import os
 from typing import Any
 import pydantic
-import tum_esm_em27_metadata
+import em27_metadata
 import tum_esm_utils
 
 _PROJECT_DIR = tum_esm_utils.files.get_parent_dir_path(
@@ -130,5 +130,5 @@ class RetrievalSession(pydantic.BaseModel):
     """This combines a `SensorDataContext` with a `Proffast10Container`/
     `Proffast22Container`/`Proffast23Container`."""
 
-    ctx: tum_esm_em27_metadata.types.SensorDataContext
+    ctx: em27_metadata.types.SensorDataContext
     ctn: Proffast10Container | Proffast22Container | Proffast23Container

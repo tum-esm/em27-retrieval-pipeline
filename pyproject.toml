@@ -20,11 +20,11 @@ pandas = "^1.5.3"
 scipy = "^1.11.1"
 compact-json = "^1.5.2"
 jsonref = "^1.1.0"
-pydantic = "^2.1.1"
+pydantic = "^2.4.2"
 pendulum = "^2.1.2"
-tum-esm-em27-metadata = "2.0.0-rc.12"
 tum-esm-utils = "^1.5.4"
 polars = "^0.19.3"
+em27-metadata = "^1.0.0rc3"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^7.4.0"
@@ -76,5 +76,5 @@ each_dict_entry_on_separate_line = false
 spaces_around_subscript_colon = true
 
 [[tool.mypy.overrides]]
-module = ["src.prfpylot.prfpylot.pylot", "scipy.signal", "polars"]
+module = ["src.prfpylot.prfpylot.pylot", "scipy", "scipy.signal", "polars"]
 ignore_missing_imports = true

@@ -1,10 +1,10 @@
+from typing import Any, Optional
 import signal
 import sys
 import filelock
 import os
 import time
-from typing import Any, Optional
-import tum_esm_em27_metadata
+import em27_metadata
 import multiprocessing
 import multiprocessing.context
 import tum_esm_utils
@@ -87,7 +87,7 @@ def run() -> None:
         while True:
             # start as many new processes as possible
             next_sensor_data_context: Optional[
-                tum_esm_em27_metadata.types.SensorDataContext] = None
+                em27_metadata.types.SensorDataContext] = None
             while True:
                 if len(processes) == config.retrieval.general.max_core_count:
                     break

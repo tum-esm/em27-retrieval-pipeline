@@ -1,9 +1,9 @@
-import os
 from typing import Literal
+import os
 import numpy as np
-from scipy.signal import savgol_filter
+import scipy.signal
 import polars as pl
-import tum_esm_em27_metadata
+import em27_metadata
 from src import utils
 
 
@@ -38,7 +38,7 @@ def get_empty_sensor_dataframe(
 
 def get_sensor_dataframe(
     config: utils.config.Config,
-    sensor_data_context: tum_esm_em27_metadata.types.SensorDataContext,
+    sensor_data_context: em27_metadata.types.SensorDataContext,
     output_merging_target: utils.config.OutputMergingTargetConfig,
 ) -> pl.DataFrame:
     """
@@ -208,7 +208,7 @@ def post_process_dataframe(
     df = df.select(
         pl.col("utc"),
         pl.exclude("utc").map(
-            lambda x: savgol_filter(x.to_numpy(), 31, 3).tolist()
+            lambda x: scipy.signal.savgol_filter(x.to_numpy(), 31, 3).tolist()
         ).list.explode(),
     )
 
