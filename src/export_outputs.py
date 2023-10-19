@@ -115,6 +115,7 @@ def run() -> None:
                     filename = os.path.join(
                         output_merging_target.dst_dir,
                         f"{output_merging_target.campaign_id}_em27_export" +
+                        f"_v{export.header.get_pipeline_version()}"
                         f"_{date.strftime('%Y%m%d')}.csv",
                     )
                     with open(filename, "w") as f:
