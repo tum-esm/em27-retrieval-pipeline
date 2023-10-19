@@ -247,6 +247,9 @@ def merge_dataframes(dfs: list[pl.DataFrame], ) -> pl.DataFrame:
     data_column_names = merged_df.columns
     data_column_names.remove("utc")
     df_without_null_rows = merged_df.filter(
-        ~pl.all_horizontal(pl.col(data_column_names).is_null())
+        ~pl.all_horizontal(
+            pl.col(data_column_names).is_nan() |
+            pl.col(data_column_names).is_null()
+        )
     )
     return df_without_null_rows.sort("utc")
