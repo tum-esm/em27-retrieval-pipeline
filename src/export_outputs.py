@@ -119,7 +119,7 @@ def run() -> None:
                     )
                     with open(filename, "w") as f:
                         f.write(
-                            export.metadata.get_metadata(
+                            export.header.get_header(
                                 em27_metadata_storage,
                                 campaign,
                                 sdcs_with_data,
