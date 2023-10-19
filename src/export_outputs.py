@@ -70,36 +70,37 @@ def run() -> None:
                     )
 
                 # only consider data at campaign locations
-                sensor_data_contexts = list(
+                # sdc = sensor data context
+                sdcs = list(
                     filter(
                         lambda ctx: ctx.location.location_id in campaign.
                         location_ids,
                         sensor_data_contexts,
                     )
                 )
+                sdcs_with_data: list[em27_metadata.types.SensorDataContext] = []
 
                 ctx_dataframes: list[pl.DataFrame] = []
                 found_data_count: int = 0
 
-                for sensor_data_context in sensor_data_contexts:
+                for sdc in sdcs:
                     try:
                         df = export.dataframes.get_sensor_dataframe(
-                            config,
-                            sensor_data_context,
-                            output_merging_target,
+                            config, sdc, output_merging_target
                         )
                     except AssertionError:
                         continue
 
-                    found_data_count += 1
-                    ctx_dataframes.append(
-                        export.dataframes.post_process_dataframe(
-                            df=df,
-                            sampling_rate=output_merging_target.sampling_rate,
-                            max_interpolation_gap_seconds=output_merging_target.
-                            max_interpolation_gap_seconds,
-                        )
+                    postprocessed_df = export.dataframes.post_process_dataframe(
+                        df=df,
+                        sampling_rate=output_merging_target.sampling_rate,
+                        max_interpolation_gap_seconds=output_merging_target.
+                        max_interpolation_gap_seconds,
                     )
+                    if len(postprocessed_df) > 1:
+                        sdcs_with_data.append(sdc)
+                        found_data_count += 1
+                        ctx_dataframes.append(postprocessed_df)
 
                 if found_data_count > 0:
                     progress.console.print(
@@ -121,7 +122,7 @@ def run() -> None:
                             export.metadata.get_metadata(
                                 em27_metadata_storage,
                                 campaign,
-                                sensor_data_contexts,
+                                sdcs_with_data,
                                 output_merging_target,
                             )
                         )
