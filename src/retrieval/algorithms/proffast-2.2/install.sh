@@ -20,13 +20,17 @@ do
 	if [[ "$OSTYPE" == "darwin"* ]]; then
 		LC_ALL=C sed -i "" "s|pathstr = \".*\"|pathstr = \"/\"|" "./$file"
 		LC_ALL=C sed -i "" "s|character(150)|character(300)|" "./$file"
+		LC_ALL=C sed -i "" "s|character(len=150)|character(300)|" "./$file"
 		LC_ALL=C sed -i "" "s|character(200)|character(300)|" "./$file"
+		LC_ALL=C sed -i "" "s|character(len=200)|character(len=300)|" "./$file"
 	
 	# linux
 	else
 		sed -i"" "s|pathstr = \".*\"|pathstr = \"/\"|" "./$file"
 		sed -i"" "s|character(150)|character(300)|" "./$file"
+		sed -i"" "s|character(len=150)|character(len=300)|" "./$file"
 		sed -i"" "s|character(200)|character(300)|" "./$file"
+		sed -i"" "s|character(len=200)|character(len=300)|" "./$file"
 	fi
 done
 
