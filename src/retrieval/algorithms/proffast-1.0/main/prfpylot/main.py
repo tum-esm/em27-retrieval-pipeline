@@ -5,10 +5,11 @@ import click
 import tum_esm_utils
 
 _PROJECT_DIR = tum_esm_utils.files.get_parent_dir_path(
-    __file__, current_depth=7
+    __file__, current_depth=5
 )
 if os.path.basename(_PROJECT_DIR) != "em27-retrieval-pipeline":
     _PROJECT_DIR = os.path.dirname(_PROJECT_DIR)
+assert os.path.basename(_PROJECT_DIR) == "em27-retrieval-pipeline"
 sys.path.append(_PROJECT_DIR)
 
 import create_input_files, execute_proffast, move_data
