@@ -12,7 +12,7 @@ def upload_request(
     query: utils.types.DownloadQuery,
     ftp: ftplib.FTP,
     version: Literal["GGG2014", "GGG2020"],
-) -> tuple[bool, float]:
+) -> bool:
     """Requests Ginput data by uploading a '.txt' to 'ccycle.gps.caltech.edu'.
     Attempts until upload successful or config.upload_timeout is exceeded.
     Sleeps config.upload_sleep seconds in between each attempt. Returns
@@ -59,7 +59,7 @@ def upload_request(
                 else:
                     raise e
 
-        return success, time.time() - upload_start
+        return success
 
 
 def get_date_suffixes(
@@ -111,7 +111,7 @@ def download_data(
     ftp: ftplib.FTP,
     version: Literal["GGG2014", "GGG2020"],
     wait: bool = False,
-) -> tuple[bool, float, Optional[datetime.date]]:
+) -> bool:
     """Downloads .map, .mod and .vmr data.
 
     Searches exclusively for archive suffixes on the FTP server, given that
@@ -139,7 +139,6 @@ def download_data(
             f"{query.to_coordinates_slug()}_{d}.tar" for d in date_suffixes
         ]
 
-    to_date: Optional[datetime.date] = None
     download_start = time.time()
     while (
         response != remote_dirs and time.time() - download_start
@@ -175,7 +174,7 @@ def download_data(
         if not wait:
             break
 
-    return response == remote_dirs, time.time() - download_start, to_date
+    return response == remote_dirs
 
 
 def _extract_archive(
