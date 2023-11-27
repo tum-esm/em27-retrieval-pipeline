@@ -1,4 +1,5 @@
 import sys
+import time
 import tum_esm_utils
 import ftplib
 import rich.progress
@@ -38,66 +39,71 @@ def run() -> None:
                 for query in download_queries:
                     print(f"    {query}")
 
-                with profiles.reporter.Reporter(
-                    download_queries, version
-                ) as reporter:
-                    with rich.progress.Progress() as progress:
-                        for query in progress.track(
-                            list(
-                                sorted(
-                                    download_queries,
-                                    key=lambda q: q.to_date,
-                                    reverse=True
-                                )
-                            ),
-                            description=f"Downloading ...",
-                        ):
-                            progress.print(
-                                f"Downloading data for {query.lat}°N, {query.lon}°E,"
-                                + f" {query.from_date} - {query.to_date}"
+                with rich.progress.Progress() as progress:
+                    for query in progress.track(
+                        list(
+                            sorted(
+                                download_queries,
+                                key=lambda q: q.to_date,
+                                reverse=True
                             )
+                        ),
+                        description=f"Downloading ...",
+                    ):
+                        progress.print(
+                            f"Downloading data for {query.lat}°N, {query.lon}°E,"
+                            + f" {query.from_date} - {query.to_date}"
+                        )
+                        t1 = time.time()
 
-                            # Check if data already exists on FTP server
-                            up_status, up_time = True, 0.0
-                            (
-                                down_status,
-                                down_time,
-                                to_date,
-                            ) = profiles.transfer_logic.download_data(
+                        # Check if data already exists on FTP server
+                        data_is_already_present = profiles.transfer_logic.download_data(
+                            config, query, ftp, version
+                        )
+                        if data_is_already_present:
+                            progress.print(
+                                f"Data already present on FTP server"
+                            )
+                        else:
+                            progress.print(f"Data not present on FTP server")
+                            request_upload_successful = profiles.transfer_logic.upload_request(
                                 config, query, ftp, version
                             )
-                            if not down_status:
-                                # Request data
-                                (
-                                    up_status,
-                                    up_time,
-                                ) = profiles.transfer_logic.upload_request(
-                                    config, query, ftp, version
+                            if request_upload_successful:
+                                progress.print(f"Request upload successful")
+                                data_could_be_downloaded = profiles.transfer_logic.download_data(
+                                    config, query, ftp, version, wait=True
                                 )
-                                if up_status:
-                                    # Await data if upload successful
-                                    (
-                                        down_status,
-                                        down_time,
-                                        to_date,
-                                    ) = profiles.transfer_logic.download_data(
-                                        config, query, ftp, version, wait=True
-                                    )
+                                if data_could_be_downloaded:
+                                    progress.print(f"Data download successful")
+                                else:
+                                    progress.print(f"Data download failed")
+                            else:
+                                progress.print(f"Request upload failed")
 
-                            # Append query statistics to report
-                            """reporter.report_query(
-                                query,
-                                up_status,
-                                up_time,
-                                down_status,
-                                down_time,
-                                to_date,
-                            )"""
+                            t2 = time.time()
 
-                            if not down_status:
-                                return
+                            remaining_time = 65 - (t2 - t1)
+                            if remaining_time > 0:
+                                progress.print(
+                                    f"Waiting {remaining_time:.1f} seconds"
+                                )
+                                time.sleep(remaining_time)
 
-                            progress.print(f"Done")
+                        # Append query statistics to report
+                        """reporter.report_query(
+                            query,
+                            up_status,
+                            up_time,
+                            down_status,
+                            down_time,
+                            to_date,
+                        )
+
+                        if not down_status:
+                            return
+
+                        progress.print(f"Done")"""
     except KeyboardInterrupt:
         print("Interrupted by user.")
         exit(1)
