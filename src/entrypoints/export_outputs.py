@@ -7,8 +7,10 @@ import rich.progress
 import em27_metadata
 import tum_esm_utils
 
-PROJECT_DIR = tum_esm_utils.files.get_parent_dir_path(__file__, current_depth=2)
-sys.path.append(PROJECT_DIR)
+_PROJECT_DIR = tum_esm_utils.files.get_parent_dir_path(
+    __file__, current_depth=3
+)
+sys.path.append(_PROJECT_DIR)
 
 from src import utils, export
 
