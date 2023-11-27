@@ -1,5 +1,10 @@
 from typing import Optional
+import tum_esm_utils
+import sys
 import click.core
+
+PROJECT_DIR = tum_esm_utils.files.get_parent_dir_path(__file__, current_depth=3)
+sys.path.append(PROJECT_DIR)
 import cli
 
 # credits to https://stackoverflow.com/a/58018765/8255842
