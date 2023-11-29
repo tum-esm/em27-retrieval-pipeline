@@ -83,6 +83,12 @@ def run() -> None:
     )
     main_logger.horizontal_line(variant="=")
 
+    retrieval.utils.process_status.ProcessStatusList.reset()
+    retrieval.utils.process_status.ProcessStatusList.add_items(
+        [(d.sensor_id, d.from_datetime.date(), d.location.location_id)
+         for d in retrieval_queue.queue_items]
+    )
+
     try:
         while True:
             # start as many new processes as possible
