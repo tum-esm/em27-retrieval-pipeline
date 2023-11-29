@@ -49,7 +49,7 @@ class ContainerFactory:
         self.logger.info("ContainerFactory is set up")
 
     def create_container(
-        self,
+        self
     ) -> (
         utils.types.Proffast10Container | utils.types.Proffast22Container |
         utils.types.Proffast23Container
@@ -60,8 +60,8 @@ class ContainerFactory:
         directory and compiling the fortran code. The container is then
         initialized with empty input and output directories."""
 
-        new_container_id = tum_esm_utils.text.get_random_string(
-            length=10, forbidden=[c.container_id for c in self.containers]
+        new_container_id = retrieval.utils.container_names.get_random_container_name(
+            currently_used_names=[c.container_id for c in self.containers]
         )
         container: (
             utils.types.Proffast10Container | utils.types.Proffast22Container |
