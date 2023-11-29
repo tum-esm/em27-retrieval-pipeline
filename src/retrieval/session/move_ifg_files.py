@@ -44,6 +44,11 @@ def run(
         f"src directory ({ifg_src_directory})"
     )
     assert len(ifg_filenames) > 0, "no ifg input files"
+    retrieval.utils.process_status.ProcessStatusList.update_item(
+        session.ctx.sensor_id,
+        session.ctx.from_datetime,
+        ifg_count=len(ifg_filenames),
+    )
 
     # (optional) MAKE INTERFEROGRAM FILES READ-ONLY
 

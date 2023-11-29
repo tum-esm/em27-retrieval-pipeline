@@ -1,3 +1,4 @@
+import datetime
 import os
 import em27_metadata
 import tum_esm_utils
@@ -95,6 +96,12 @@ def run(
     new_session = utils.types.RetrievalSession(
         ctx=sensor_data_context,
         ctn=container_factory.create_container(),
+    )
+    retrieval.utils.process_status.ProcessStatusList.update_item(
+        sensor_data_context.sensor_id,
+        sensor_data_context.from_datetime,
+        container_id=new_session.ctn.container_id,
+        process_start_time=datetime.datetime.utcnow(),
     )
 
     if isinstance(new_session.ctn, utils.types.Proffast22Container):

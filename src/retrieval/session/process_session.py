@@ -1,3 +1,4 @@
+import datetime
 from typing import Any
 import signal
 from src import utils, retrieval
@@ -28,6 +29,11 @@ def run(
     def _graceful_teardown(*args: Any) -> None:
         logger.info(f"Container was killed")
         logger.archive()
+        retrieval.utils.process_status.ProcessStatusList.update_item(
+            session.ctx.sensor_id,
+            session.ctx.from_datetime,
+            process_end_time=datetime.datetime.utcnow(),
+        )
         exit(0)
 
     signal.signal(signal.SIGINT, _graceful_teardown)
@@ -41,22 +47,21 @@ def run(
         logger.warning(message)
         logger.archive()
 
+    label: str = "atmospheric profiles"
     try:
         move_profiles.run(config, session)
-    except Exception as e:
-        log_input_warning(f"Inputs incomplete (atmospheric profiles): {e}")
-        return
-
-    try:
+        label = "datalogger files"
         move_log_files.run(config, logger, session)
-    except Exception as e:
-        log_input_warning(f"Inputs incomplete (datalogger files): {e}")
-        return
-
-    try:
+        label = "ifg files"
         move_ifg_files.run(config, logger, session)
+        pass
     except Exception as e:
-        log_input_warning(f"Inputs incomplete (ifg files): {e}")
+        log_input_warning(f"Inputs incomplete ({label}): {e}")
+        retrieval.utils.process_status.ProcessStatusList.update_item(
+            session.ctx.sensor_id,
+            session.ctx.from_datetime,
+            process_end_time=datetime.datetime.utcnow(),
+        )
         return
 
     # inputs complete no warning to consider anymore
@@ -84,3 +89,8 @@ def run(
         logger.exception(e, label="Moving outputs failed")
 
     logger.archive()
+    retrieval.utils.process_status.ProcessStatusList.update_item(
+        session.ctx.sensor_id,
+        session.ctx.from_datetime,
+        process_end_time=datetime.datetime.utcnow(),
+    )
