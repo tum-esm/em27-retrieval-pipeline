@@ -94,7 +94,7 @@ class RetrievalGeneralConfig(pydantic.BaseModel):
     max_core_count: int = pydantic.Field(
         1,
         ge=1,
-        le=64,
+        le=128,
         description=
         "How many cores to use for parallel processing. There will be one process per sensor-day.",
     )
