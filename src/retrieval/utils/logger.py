@@ -8,7 +8,7 @@ import tum_esm_utils
 _PROJECT_DIR = tum_esm_utils.files.get_parent_dir_path(
     __file__, current_depth=4
 )
-_LOGS_DIR = os.path.join(_PROJECT_DIR, "logs", "retrieval")
+_LOGS_DIR = os.path.join(_PROJECT_DIR, "data", "logs", "retrieval")
 
 # I am not using the logging-library because the proffast-pylot
 # also uses that and figuring out how to not make these two
