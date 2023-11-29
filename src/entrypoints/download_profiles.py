@@ -22,7 +22,7 @@ def run() -> None:
             print(f"Downloading {version} data")
 
             # Generate daily sensor sets
-            download_queries = profiles.download_queries.generate_download_queries(
+            download_queries = profiles.generate_queries.generate_download_queries(
                 config, version
             )
             if len(download_queries) == 0:

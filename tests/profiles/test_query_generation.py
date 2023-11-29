@@ -82,7 +82,7 @@ def test_query_generation(
 
         for version in versions:
             os.mkdir(os.path.join(tmp_dir, version))
-            query_list = profiles.download_queries.generate_download_queries(
+            query_list = profiles.generate_queries.generate_download_queries(
                 config=config,
                 version=version,
                 em27_metadata_storage=em27_metadata_storage,
