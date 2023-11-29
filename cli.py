@@ -45,6 +45,19 @@ def is_running():
 
 
 @retrieval_command_group.command(
+    name="watch",
+    help="Opens an active watch window for the retrieval background process.",
+)
+def watch():
+    pids = tum_esm_utils.processes.get_process_pids(_RETRIEVAL_ENTRYPOINT)
+    if len(pids) == 0:
+        click.echo("automated retrieval is not running")
+    else:
+        import src
+        src.utils.cli.start_retrieval_watcher()
+
+
+@retrieval_command_group.command(
     name="stop",
     help=
     "Stop the retrieval background process. The logs and the current processing queue from this process can be found at `logs/retrieval`.",
