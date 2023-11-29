@@ -40,8 +40,8 @@ def run() -> None:
                     print(f"    {query}")
 
                 with rich.progress.Progress() as progress:
-                    for query in progress.track(
-                        list(
+                    for query_index, query in progress.track(
+                        enumerate(
                             sorted(
                                 download_queries,
                                 key=lambda q: q.to_date,
@@ -66,44 +66,28 @@ def run() -> None:
                             )
                         else:
                             progress.print(f"Data not present on FTP server")
+
+                            # TODO: skip if already requested in the last 48 hours
+
                             request_upload_successful = profiles.transfer_logic.upload_request(
                                 config, query, ftp, version
                             )
                             if request_upload_successful:
                                 progress.print(f"Request upload successful")
-                                data_could_be_downloaded = profiles.transfer_logic.download_data(
-                                    config, query, ftp, version, wait=True
-                                )
-                                if data_could_be_downloaded:
-                                    progress.print(f"Data download successful")
-                                else:
-                                    progress.print(f"Data download failed")
+                                # TODO: store saved requests in a file
                             else:
                                 progress.print(f"Request upload failed")
 
-                            t2 = time.time()
+                            if query_index < len(download_queries) - 1:
+                                t2 = time.time()
+                                remaining_time = 65 - (t2 - t1)
+                                if remaining_time > 0:
+                                    progress.print(
+                                        f"Waiting {remaining_time:.1f} seconds"
+                                    )
+                                    time.sleep(remaining_time)
 
-                            remaining_time = 65 - (t2 - t1)
-                            if remaining_time > 0:
-                                progress.print(
-                                    f"Waiting {remaining_time:.1f} seconds"
-                                )
-                                time.sleep(remaining_time)
-
-                        # Append query statistics to report
-                        """reporter.report_query(
-                            query,
-                            up_status,
-                            up_time,
-                            down_status,
-                            down_time,
-                            to_date,
-                        )
-
-                        if not down_status:
-                            return
-
-                        progress.print(f"Done")"""
+                        progress.print(f"Done")
     except KeyboardInterrupt:
         print("Interrupted by user.")
         exit(1)
