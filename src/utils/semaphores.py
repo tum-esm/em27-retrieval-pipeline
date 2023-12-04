@@ -1,5 +1,5 @@
-import contextlib
 from typing import Generator
+import contextlib
 import filelock
 import tum_esm_utils
 

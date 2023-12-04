@@ -9,7 +9,6 @@ import multiprocessing.context
 import tum_esm_utils
 
 sys.path.append(tum_esm_utils.files.rel_to_abs_path("../.."))
-
 from src import types, utils, retrieval
 
 
@@ -145,5 +144,5 @@ def run() -> None:
 
 
 if __name__ == "__main__":
-    with utils.automation_lock.with_automation_lock():
+    with utils.semaphores.with_automation_lock():
         run()
