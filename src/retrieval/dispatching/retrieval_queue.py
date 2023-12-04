@@ -4,7 +4,8 @@ import json
 import os
 import re
 import em27_metadata
-from src import utils, retrieval
+from src import retrieval
+from src import types, utils
 
 
 class RetrievalQueue:
@@ -13,7 +14,7 @@ class RetrievalQueue:
     3. Takes all items from manual-queue.json with a priority < 0"""
     def __init__(
         self,
-        config: utils.config.Config,
+        config: types.Config,
         logger: retrieval.utils.logger.Logger,
         em27_metadata_storage: Optional[
             em27_metadata.interfaces.EM27MetadataInterface] = None,

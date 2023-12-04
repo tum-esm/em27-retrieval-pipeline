@@ -8,10 +8,9 @@ import multiprocessing
 import multiprocessing.context
 import tum_esm_utils
 
-_PROJECT_DIR = tum_esm_utils.files.rel_to_abs_path("../../")
-sys.path.append(_PROJECT_DIR)
+sys.path.append(tum_esm_utils.files.rel_to_abs_path("../.."))
 
-from src import utils, retrieval
+from src import types, utils, retrieval
 
 
 def run() -> None:
@@ -21,7 +20,7 @@ def run() -> None:
 
     # load config
     try:
-        config = utils.config.Config.load()
+        config = types.Config.load()
         main_logger.info("Config is valid")
     except Exception as e:
         main_logger.exception(e, "Config file invalid")
@@ -77,8 +76,8 @@ def run() -> None:
     )
     main_logger.horizontal_line(variant="=")
 
-    retrieval.utils.process_status.ProcessStatusList.reset()
-    retrieval.utils.process_status.ProcessStatusList.add_items(
+    retrieval.utils.retrieval_status.ProcessStatusList.reset()
+    retrieval.utils.retrieval_status.ProcessStatusList.add_items(
         [(d.sensor_id, d.from_datetime.date(), d.location.location_id)
          for d in retrieval_queue.queue_items]
     )

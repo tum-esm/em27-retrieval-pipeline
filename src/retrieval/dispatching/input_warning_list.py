@@ -1,7 +1,7 @@
 import os
 import datetime
 import tum_esm_utils
-from src import utils
+from src import types
 
 _PROJECT_DIR = tum_esm_utils.files.get_parent_dir_path(
     __file__, current_depth=4
@@ -13,20 +13,19 @@ _LIST_PATH = os.path.join(
 
 class InputWarningsInterface:
     @staticmethod
-    def _load() -> utils.types.InputWarningsList:
+    def _load() -> types.InputWarningsList:
         try:
-            file_content = tum_esm_utils.files.load_json_file(_LIST_PATH)
-            assert isinstance(file_content, list)
-            return utils.types.InputWarningsList(items=file_content)
+            with open(_LIST_PATH, "r") as f:
+                return types.InputWarningsList.model_validate_json(f.read())
         except FileNotFoundError:
-            return utils.types.InputWarningsList(items=[])
+            return types.InputWarningsList(root=[])
         except Exception as e:
             raise ValueError(
                 f"inputs warnings list not in the right format: {e}"
             )
 
     @staticmethod
-    def _dump(new_object: utils.types.InputWarningsList) -> None:
+    def _dump(new_object: types.InputWarningsList) -> None:
         tum_esm_utils.files.dump_json_file(
             _LIST_PATH,
             new_object.model_dump()["items"]
@@ -45,7 +44,7 @@ class InputWarningsInterface:
             )
         )
         warnings_list.items.append(
-            utils.types.InputWarning(
+            types.InputWarning(
                 sensor_id=sensor_id,
                 from_datetime=from_datetime,
                 message=message,

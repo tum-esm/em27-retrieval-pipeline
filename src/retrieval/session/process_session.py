@@ -1,7 +1,7 @@
 import datetime
 from typing import Any
 import signal
-from src import utils, retrieval
+from src import types, utils, retrieval
 from . import (
     move_log_files,
     move_profiles,
@@ -12,8 +12,8 @@ from . import (
 
 
 def run(
-    config: utils.config.Config,
-    session: utils.types.RetrievalSession,
+    config: types.Config,
+    session: types.RetrievalSession,
 ) -> None:
     signal.signal(signal.SIGINT, signal.SIG_IGN)
     logger = retrieval.utils.logger.Logger(
@@ -29,7 +29,7 @@ def run(
     def _graceful_teardown(*args: Any) -> None:
         logger.info(f"Container was killed")
         logger.archive()
-        retrieval.utils.process_status.ProcessStatusList.update_item(
+        retrieval.utils.retrieval_status.ProcessStatusList.update_item(
             session.ctx.sensor_id,
             session.ctx.from_datetime,
             process_end_time=datetime.datetime.utcnow(),
@@ -57,7 +57,7 @@ def run(
         pass
     except Exception as e:
         log_input_warning(f"Inputs incomplete ({label}): {e}")
-        retrieval.utils.process_status.ProcessStatusList.update_item(
+        retrieval.utils.retrieval_status.RetrievalStatusList.update_item(
             session.ctx.sensor_id,
             session.ctx.from_datetime,
             process_end_time=datetime.datetime.utcnow(),
@@ -89,7 +89,7 @@ def run(
         logger.exception(e, label="Moving outputs failed")
 
     logger.archive()
-    retrieval.utils.process_status.ProcessStatusList.update_item(
+    retrieval.utils.retrieval_status.RetrievalStatusList.update_item(
         session.ctx.sensor_id,
         session.ctx.from_datetime,
         process_end_time=datetime.datetime.utcnow(),

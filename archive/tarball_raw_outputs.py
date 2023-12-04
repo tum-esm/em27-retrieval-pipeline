@@ -7,8 +7,7 @@ import tum_esm_utils
 PROJECT_DIR = tum_esm_utils.files.get_parent_dir_path(__file__, current_depth=2)
 sys.path.append(PROJECT_DIR)
 
-from src import utils
-
+from src.utils import utils
 
 if __name__ == "__main__":
     config = utils.load_config()
@@ -27,11 +26,13 @@ if __name__ == "__main__":
 
     tum_esm_utils.shell.run_shell_command(
         command=(
-            f"find  {output_dir_name}/ "
-            + f'-wholename "{output_dir_name}/m?/*2.2*/*/????????/about.json" -o '
-            + f'-wholename "{output_dir_name}/m?/*2.2*/*/????????/automation.log" -o '
-            + f'-wholename "{output_dir_name}/m?/*2.2*/*/????????/comb_*.csv" '
-            + f"| tar -cvf {bundle_file} --files-from -"
+            f"find  {output_dir_name}/ " +
+            f'-wholename "{output_dir_name}/m?/*2.2*/*/????????/about.json" -o '
+            +
+            f'-wholename "{output_dir_name}/m?/*2.2*/*/????????/automation.log" -o '
+            +
+            f'-wholename "{output_dir_name}/m?/*2.2*/*/????????/comb_*.csv" ' +
+            f"| tar -cvf {bundle_file} --files-from -"
         ),
         working_directory=os.path.dirname(output_dir),
     )

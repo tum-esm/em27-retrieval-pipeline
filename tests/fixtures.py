@@ -3,9 +3,9 @@ import shutil
 from typing import Generator
 import pytest
 import tum_esm_utils
-from src import utils
+from src import types, utils
 
-PROJECT_DIR = tum_esm_utils.files.rel_to_abs_path("..")
+_PROJECT_DIR = tum_esm_utils.files.rel_to_abs_path("..")
 
 
 @pytest.fixture
@@ -24,7 +24,7 @@ def download_sample_data() -> Generator[None, None, None]:
     The tar file has about 96MB."""
 
     testing_data_path = os.path.join(
-        PROJECT_DIR, "data", "testing", "container"
+        _PROJECT_DIR, "data", "testing", "container"
     )
     tarball_filename = "em27-retrieval-pipeline-test-inputs-1.0.0.tar.gz"
 
@@ -58,7 +58,7 @@ def clear_output_data() -> Generator[None, None, None]:
     """Remove all directories in the testing output directory"""
 
     testing_data_output_dir = os.path.join(
-        PROJECT_DIR, "data", "testing", "container", "outputs"
+        _PROJECT_DIR, "data", "testing", "container", "outputs"
     )
     for d in os.listdir(testing_data_output_dir):
         subdir = os.path.join(testing_data_output_dir, d)
@@ -102,13 +102,12 @@ def provide_export_config() -> Generator[custom_types.Config, None, None]:
 
 
 @pytest.fixture(scope="session")
-def provide_config_template() -> Generator[utils.config.Config, None, None]:
+def provide_config_template() -> Generator[types.Config, None, None]:
     """Provide a temporary config used in profiles download."""
 
-    config = utils.config.Config(
-        **tum_esm_utils.files.load_json_file(
-            os.path.join(PROJECT_DIR, "config", "config.template.json")
-        )
+    config = types.Config.load(
+        os.path.join(_PROJECT_DIR, "config", "config.template.json"),
+        ignore_path_existence=True,
     )
     config.general.data_src_dirs.datalogger = "/tmp"
     config.general.data_src_dirs.profiles = "/tmp"

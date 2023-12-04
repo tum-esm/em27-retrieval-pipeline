@@ -13,7 +13,7 @@ assert os.path.basename(_PROJECT_DIR) == "em27-retrieval-pipeline"
 sys.path.append(_PROJECT_DIR)
 
 import create_input_files, execute_proffast, move_data
-from src import utils
+from src.utils import utils
 
 _CONTAINER_DIR = tum_esm_utils.files.get_parent_dir_path(
     __file__, current_depth=2

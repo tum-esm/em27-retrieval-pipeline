@@ -1,15 +1,15 @@
 import os
 import shutil
-import src
+from src import types, utils
 
 
 def run(
-    config: src.utils.config.Config,
-    session: src.utils.types.RetrievalSession,
+    config: types.Config,
+    session: types.RetrievalSession,
 ) -> None:
     # TODO: add switch to use either GGG2014 or GGG2020
 
-    coordinates_slug = src.utils.functions.get_coordinates_slug(
+    coordinates_slug = utils.text.get_coordinates_slug(
         lat=session.ctx.location.lat, lon=session.ctx.location.lon
     )
     date_string = session.ctx.from_datetime.strftime("%Y%m%d")

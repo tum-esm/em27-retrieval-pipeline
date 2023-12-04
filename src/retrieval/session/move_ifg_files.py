@@ -2,13 +2,13 @@ import os
 import re
 import subprocess
 import tum_esm_utils
-from src import utils, retrieval
+from src import types, retrieval
 
 
 def run(
-    config: utils.config.Config,
+    config: types.Config,
     logger: retrieval.utils.logger.Logger,
-    session: utils.types.RetrievalSession,
+    session: types.RetrievalSession,
 ) -> None:
     """Move interferogram files from the source directory to the input directory.
 
@@ -44,7 +44,7 @@ def run(
         f"src directory ({ifg_src_directory})"
     )
     assert len(ifg_filenames) > 0, "no ifg input files"
-    retrieval.utils.process_status.ProcessStatusList.update_item(
+    retrieval.utils.retrieval_status.ProcessStatusList.update_item(
         session.ctx.sensor_id,
         session.ctx.from_datetime,
         ifg_count=len(ifg_filenames),

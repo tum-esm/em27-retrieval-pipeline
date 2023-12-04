@@ -4,10 +4,12 @@ from typing import Optional
 import pytest
 import em27_metadata
 import tum_esm_utils
+
+from src.utils import utils
 from ..fixtures import download_sample_data, clear_output_data, provide_config_template
 import dotenv
 
-from src import utils, retrieval
+from src import retrieval
 
 dir = os.path.dirname
 PROJECT_DIR = tum_esm_utils.files.get_parent_dir_path(__file__, current_depth=3)

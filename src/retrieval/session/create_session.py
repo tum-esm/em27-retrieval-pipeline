@@ -2,7 +2,8 @@ import datetime
 import os
 import em27_metadata
 import tum_esm_utils
-from src import retrieval, utils
+from src import retrieval
+from src import types, utils
 
 _PROJECT_DIR = tum_esm_utils.files.get_parent_dir_path(
     __file__, current_depth=4
@@ -12,10 +13,10 @@ _PYLOT_CONFIG_DIR = os.path.join(
 )
 
 
-def _generate_pylot22_config(session: utils.types.RetrievalSession) -> None:
+def _generate_pylot22_config(session: types.RetrievalSession) -> None:
     assert isinstance(
         session.ctn,
-        (utils.types.Proffast22Container, utils.types.Proffast23Container),
+        (types.Proffast22Container, types.Proffast23Container),
     )
 
     file_content = tum_esm_utils.files.load_file(
@@ -53,14 +54,14 @@ def _generate_pylot22_config(session: utils.types.RetrievalSession) -> None:
     )
 
 
-def _generate_pylot23_config(session: utils.types.RetrievalSession) -> None:
+def _generate_pylot23_config(session: types.RetrievalSession) -> None:
     _generate_pylot22_config(session)
 
 
-def _generate_pylot22_log_format(session: utils.types.RetrievalSession) -> None:
+def _generate_pylot22_log_format(session: types.RetrievalSession) -> None:
     assert isinstance(
         session.ctn,
-        (utils.types.Proffast22Container, utils.types.Proffast23Container),
+        (types.Proffast22Container, types.Proffast23Container),
     )
 
     file_content = tum_esm_utils.files.load_file(
@@ -84,34 +85,34 @@ def _generate_pylot22_log_format(session: utils.types.RetrievalSession) -> None:
     )
 
 
-def _generate_pylot23_log_format(session: utils.types.RetrievalSession) -> None:
+def _generate_pylot23_log_format(session: types.RetrievalSession) -> None:
     _generate_pylot22_log_format(session)
 
 
 def run(
     container_factory: retrieval.dispatching.container_factory.ContainerFactory,
     sensor_data_context: em27_metadata.types.SensorDataContext,
-    retrieval_algorithm: utils.types.RetrievalAlgorithm,
-) -> utils.types.RetrievalSession:
+    retrieval_algorithm: types.RetrievalAlgorithm,
+) -> types.RetrievalSession:
     """Create a new container and the pylot config files"""
-    new_session = utils.types.RetrievalSession(
+    new_session = types.RetrievalSession(
         ctx=sensor_data_context,
         ctn=container_factory.create_container(
             retrieval_algorithm=retrieval_algorithm
         ),
     )
-    retrieval.utils.process_status.ProcessStatusList.update_item(
+    retrieval.utils.retrieval_status.RetrievalStatusList.update_item(
         sensor_data_context.sensor_id,
         sensor_data_context.from_datetime,
         container_id=new_session.ctn.container_id,
         process_start_time=datetime.datetime.utcnow(),
     )
 
-    if isinstance(new_session.ctn, utils.types.Proffast22Container):
+    if isinstance(new_session.ctn, types.Proffast22Container):
         _generate_pylot22_config(new_session)
         _generate_pylot22_log_format(new_session)
 
-    if isinstance(new_session.ctn, utils.types.Proffast23Container):
+    if isinstance(new_session.ctn, types.Proffast23Container):
         _generate_pylot23_config(new_session)
         _generate_pylot23_log_format(new_session)
 

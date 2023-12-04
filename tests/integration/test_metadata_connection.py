@@ -1,6 +1,6 @@
 import pytest
 import em27_metadata
-from src import utils
+from src.utils import utils
 
 
 @pytest.mark.integration

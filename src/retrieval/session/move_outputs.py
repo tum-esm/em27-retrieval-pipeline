@@ -6,7 +6,7 @@ import re
 import shutil
 import polars as pl
 import tum_esm_utils
-from src import utils, retrieval
+from src import types, utils, retrieval
 
 
 def _detect_proffast2X_error_type(output_src: str) -> Optional[str]:
@@ -32,9 +32,9 @@ def _detect_proffast2X_error_type(output_src: str) -> Optional[str]:
 
 
 def run(
-    config: utils.config.Config,
+    config: types.Config,
     logger: retrieval.utils.logger.Logger,
-    session: utils.types.RetrievalSession,
+    session: types.RetrievalSession,
 ) -> None:
     assert config.retrieval is not None
 

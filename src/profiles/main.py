@@ -4,11 +4,7 @@ import tum_esm_utils
 import ftplib
 import rich.progress
 
-_PROJECT_DIR = tum_esm_utils.files.get_parent_dir_path(
-    __file__, current_depth=3
-)
-sys.path.append(_PROJECT_DIR)
-
+sys.path.append(tum_esm_utils.files.rel_to_abs_path("../.."))
 from src import utils, profiles
 
 

@@ -2,7 +2,8 @@ from typing import Literal
 import os
 import shutil
 import tum_esm_utils
-from src import utils, retrieval
+from src import retrieval
+from src import types, utils
 
 _RETRIEVAL_CODE_DIR = os.path.join("../algorithms/")
 
@@ -18,7 +19,7 @@ class ContainerFactory:
     The factory keeps track of all containers and can remove them."""
     def __init__(
         self,
-        config: utils.config.Config,
+        config: types.Config,
         logger: retrieval.utils.logger.Logger,
     ):
         """Initialize the factory.
@@ -28,7 +29,7 @@ class ContainerFactory:
 
         self.config = config
         self.logger = logger
-        self.containers: list[utils.types.ProffastContainer] = []
+        self.containers: list[types.ProffastContainer] = []
 
         assert self.config.retrieval is not None
         retrieval_algorithms = [
@@ -48,32 +49,26 @@ class ContainerFactory:
 
     def create_container(
         self,
-        retrieval_algorithm: utils.types.RetrievalAlgorithm,
-    ) -> utils.types.ProffastContainer:
+        retrieval_algorithm: types.RetrievalAlgorithm,
+    ) -> types.RetrievalContainer:
         """Create a new container and return it.
 
         The container is created by copying the pylot code from the main
         directory and compiling the fortran code. The container is then
         initialized with empty input and output directories."""
 
-        new_container_id = retrieval.utils.container_names.get_random_container_name(
+        new_container_id = utils.text.get_random_container_name(
             currently_used_names=[c.container_id for c in self.containers]
         )
-        container: utils.types.ProffastContainer
+        container: types.RetrievalContainer
 
         assert self.config.retrieval is not None
         if retrieval_algorithm == "proffast-1.0":
-            container = utils.types.Proffast10Container(
-                container_id=new_container_id
-            )
+            container = types.Proffast10Container(container_id=new_container_id)
         if retrieval_algorithm == "proffast-2.2":
-            container = utils.types.Proffast22Container(
-                container_id=new_container_id
-            )
+            container = types.Proffast22Container(container_id=new_container_id)
         if retrieval_algorithm == "proffast-2.3":
-            container = utils.types.Proffast23Container(
-                container_id=new_container_id
-            )
+            container = types.Proffast23Container(container_id=new_container_id)
 
         # copy and install the retrieval code into the container
         retrieval_code_root_dir = os.path.join(

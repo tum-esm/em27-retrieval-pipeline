@@ -4,13 +4,14 @@ import os
 import pytest
 import em27_metadata
 import tum_esm_utils
+from src.utils import utils
 from tests.fixtures import (
     wrap_test_with_mainlock,
     download_sample_data,
     provide_config_template,
     clear_output_data,
 )
-from src import utils, retrieval
+from src import retrieval
 
 PROJECT_DIR = tum_esm_utils.files.get_parent_dir_path(__file__, current_depth=3)
 

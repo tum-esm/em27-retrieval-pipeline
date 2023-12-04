@@ -2,15 +2,15 @@ from typing import Literal, Optional
 import datetime
 import os
 import em27_metadata
-from src import utils
+from src import types, utils
 
 
 def generate_download_queries(
-    config: utils.config.Config,
+    config: types.Config,
     version: Literal["GGG2014", "GGG2020"],
     em27_metadata_storage: Optional[
         em27_metadata.interfaces.EM27MetadataInterface] = None,
-) -> list[utils.types.DownloadQuery]:
+) -> list[types.DownloadQuery]:
     """Returns a dictionary that maps query locations to sensor sets.
     Sensor sets map days to a all sensors ids that were located at
     the query location on that day. Note that query locations store

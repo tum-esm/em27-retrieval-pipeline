@@ -4,7 +4,8 @@ import tempfile
 import pytest
 import datetime
 import em27_metadata
-from src import utils, profiles
+from src import profiles
+from src.utils import utils
 from tests.fixtures import provide_config_template
 
 

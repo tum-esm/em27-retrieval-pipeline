@@ -3,7 +3,8 @@ import shutil
 from typing import Any
 import tum_esm_utils
 import polars as pl
-from src import utils, retrieval
+from src import retrieval
+from src.utils import utils
 
 _PYLOT_DIR = tum_esm_utils.files.get_parent_dir_path(__file__)
 _TEMPLATE_DIR = os.path.join(_PYLOT_DIR, "templates")

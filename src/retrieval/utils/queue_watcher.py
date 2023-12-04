@@ -2,11 +2,11 @@ import datetime
 import time
 from typing import Any
 import rich.live, rich.table, rich.panel, rich.console, rich.align, rich.spinner, rich.columns, rich.box
-from .process_status import ProcessStatusList
+from .retrieval_status import RetrievalStatusList
 
 
 def _render() -> Any:
-    processes = ProcessStatusList.load()
+    processes = RetrievalStatusList.load()
 
     if len(processes) == 0:
         return rich.panel.Panel("[white]No processes found.[/white]", height=3)

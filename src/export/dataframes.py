@@ -4,12 +4,12 @@ import numpy as np
 import scipy.signal
 import polars as pl
 import em27_metadata
-from src import utils
+from src import types
 
 
 def get_empty_sensor_dataframe(
     sensor_id: str,
-    export_target: utils.config.ExportTargetConfig,
+    export_target: types.ExportTargetConfig,
 ) -> pl.DataFrame:
     """
     Returns an empty single sensor dataframe.
@@ -34,9 +34,9 @@ def get_empty_sensor_dataframe(
 
 
 def get_sensor_dataframe(
-    config: utils.config.Config,
+    config: types.Config,
     sensor_data_context: em27_metadata.types.SensorDataContext,
-    export_target: utils.config.ExportTargetConfig,
+    export_target: types.ExportTargetConfig,
 ) -> pl.DataFrame:
     """
     Returns a single sensor dataframe.
