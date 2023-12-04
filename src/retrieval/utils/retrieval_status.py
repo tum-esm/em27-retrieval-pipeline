@@ -11,7 +11,7 @@ _PROJECT_DIR = tum_esm_utils.files.get_parent_dir_path(
 )
 
 
-class ProcessStatus(pydantic.BaseModel):
+class RetrievalStatus(pydantic.BaseModel):
     container_id: Optional[str] = None
     sensor_id: str
     from_datetime: datetime.datetime
@@ -21,8 +21,8 @@ class ProcessStatus(pydantic.BaseModel):
     process_end_time: Optional[datetime.datetime] = None
 
 
-class ProcessStatusList(pydantic.RootModel[list[ProcessStatus]]):
-    root: list[ProcessStatus]
+class RetrievalStatusList(pydantic.RootModel[list[RetrievalStatus]]):
+    root: list[RetrievalStatus]
 
     @staticmethod
     @contextlib.contextmanager
@@ -39,17 +39,17 @@ class ProcessStatusList(pydantic.RootModel[list[ProcessStatus]]):
             pass
 
     @staticmethod
-    def load() -> list[ProcessStatus]:
-        with ProcessStatusList.with_filelock():
+    def load() -> list[RetrievalStatus]:
+        with RetrievalStatus.with_filelock():
             try:
                 with open("data/logs/active-processes.json", "r") as f:
-                    return ProcessStatusList.model_validate_json(f.read()).root
+                    return RetrievalStatus.model_validate_json(f.read()).root
             except pydantic.ValidationError:
                 return []
 
     @staticmethod
     def reset() -> None:
-        with ProcessStatusList.with_filelock():
+        with RetrievalStatusList.with_filelock():
             with open("data/logs/active-processes.json", "w") as f:
                 f.write("[]")
 
@@ -59,17 +59,17 @@ class ProcessStatusList(pydantic.RootModel[list[ProcessStatus]]):
         
         Args:
             items: A list of tuples of the form (sensor_id, date, location_id)."""
-        with ProcessStatusList.with_filelock():
+        with RetrievalStatusList.with_filelock():
             try:
                 with open("data/logs/active-processes.json", "r") as f:
-                    process_list = ProcessStatusList.model_validate_json(
+                    process_list = RetrievalStatusList.model_validate_json(
                         f.read()
                     )
             except pydantic.ValidationError:
                 return
             for sensor_id, from_datetime, location_id in items:
                 process_list.root.append(
-                    ProcessStatus(
+                    RetrievalStatus(
                         sensor_id=sensor_id,
                         from_datetime=from_datetime,
                         location_id=location_id,
@@ -81,7 +81,7 @@ class ProcessStatusList(pydantic.RootModel[list[ProcessStatus]]):
     @staticmethod
     def update_item(
         sensor_id: str,
-        from_datetime: str,
+        from_datetime: datetime.datetime,
         container_id: Optional[str] = None,
         ifg_count: Optional[int] = None,
         process_start_time: Optional[datetime.datetime] = None,
@@ -89,7 +89,7 @@ class ProcessStatusList(pydantic.RootModel[list[ProcessStatus]]):
     ) -> None:
         try:
             with open("data/logs/active-processes.json", "r") as f:
-                process_list = ProcessStatusList.model_validate_json(f.read())
+                process_list = RetrievalStatusList.model_validate_json(f.read())
         except pydantic.ValidationError:
             return
         for p in process_list.root:
