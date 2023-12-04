@@ -1,4 +1,4 @@
-from typing import BinaryIO, Callable, Literal, Optional
+from typing import BinaryIO, Callable, Literal
 import time
 import tarfile
 import io
@@ -28,26 +28,24 @@ def upload_request(
         filename = "input_file_2020.txt"
     else:
         # Inclusive to date
-        to_date = query.to_date_string()
+        to_date = query.to_date_str
         filename = "input_file.txt"
 
     # Build request in-memory
     with io.BytesIO(
         "\n".join((
             "tu",
-            query.from_date_string(),
+            query.from_date_str,
             to_date,
             str(query.lat),
             str(query.lon),
-            config.profiles.ftp_server.email,
+            config.profiles.server.email,
         )).encode("utf-8")
     ) as file_:
         success = False
         upload_start = time.time()
-        while (
-            not success and time.time() - upload_start
-            < config.profiles.ftp_server.upload_timeout
-        ):
+        # TODO: use tenacity to retry a few times
+        while (not success and time.time() - upload_start < 10):
             try:
                 # Upload request
                 ftp.storbinary(f"STOR upload/{filename}", file_)
@@ -55,7 +53,7 @@ def upload_request(
             except ftplib.error_perm as e:
                 if str(e) == "553 Could not create file.":
                     # FTP server busy
-                    time.sleep(config.profiles.ftp_server.upload_sleep)
+                    time.sleep(10)
                 else:
                     raise e
 
@@ -77,11 +75,7 @@ def get_date_suffixes(
     sep = "_"
     worst_to_date = max(
         query.from_date,
-        (
-            get_current_datetime() - datetime.timedelta(
-                days=config.profiles.ftp_server.max_day_delay + 1
-            )
-        ).date(),
+        (get_current_datetime() - datetime.timedelta(days=10)).date(),
     )
     best_to_date = query.to_date
 
@@ -110,7 +104,6 @@ def download_data(
     query: types.DownloadQuery,
     ftp: ftplib.FTP,
     version: Literal["GGG2014", "GGG2020"],
-    wait: bool = False,
 ) -> bool:
     """Downloads .map, .mod and .vmr data.
 
@@ -129,24 +122,15 @@ def download_data(
 
     if version == "GGG2020":
         remote_dirs = {"ginput-jobs"}
-        suffixes = [
-            f"{query.to_coordinates_slug(verbose=True)}_{d}.tgz"
-            for d in date_suffixes
-        ]
+        cs = utils.text.get_coordinates_slug(query.lat, query.lon, verbose=True)
+        suffixes = [f"{cs}_{d}.tgz" for d in date_suffixes]
     else:
         remote_dirs = {"upload/modfiles/tar/maps", "upload/modfiles/tar/mods"}
-        suffixes = [
-            f"{query.to_coordinates_slug()}_{d}.tar" for d in date_suffixes
-        ]
+        cs = utils.text.get_coordinates_slug(query.lat, query.lon, verbose=True)
+        suffixes = [f"{cs}_{d}.tar" for d in date_suffixes]
 
     download_start = time.time()
-    while (
-        response != remote_dirs and time.time() - download_start
-        < config.profiles.ftp_server.download_timeout
-    ):
-        if wait:
-            time.sleep(config.profiles.ftp_server.download_sleep)
-
+    while (response != remote_dirs and time.time() - download_start < 30):
         for remote_dir in remote_dirs - response:
             nlst = ftp.nlst(remote_dir)
             # Retrieve archive with largest date range
@@ -171,9 +155,6 @@ def download_data(
                     ).date()
                     _extract_archive(config, archive, query, version)
 
-        if not wait:
-            break
-
     return response == remote_dirs
 
 
@@ -185,7 +166,7 @@ def _extract_archive(
 ) -> None:
     """Extracts, renames and stores archive members."""
 
-    dst_path = f"{config.general.data_src_dirs.profiles}/{version}"
+    dst_path = f"{config.general.data.profiles.root}/{version}"
     with tarfile.open(fileobj=archive) as tar:
         for member in tar:
             name = member.name
@@ -194,7 +175,7 @@ def _extract_archive(
                 # Skip (sub-)directories
                 continue
 
-            coordinates_slug = query.to_coordinates_slug()
+            cs = utils.text.get_coordinates_slug(query.lat, query.lon)
 
             if version == "GGG2020":
                 if name.endswith(".map"):
@@ -203,7 +184,7 @@ def _extract_archive(
                     date, hour, type_ = name[35 : 43], name[43 : 45], "mod"
                 elif name.endswith(".vmr"):
                     date, hour, type_ = name[39 : 47], name[47 : 49], "vmr"
-                member.name = f"{date}{hour}_{coordinates_slug}.{type_}"
+                member.name = f"{date}{hour}_{cs}.{type_}"
                 # 2022010100_48N011E.map
                 # 2022010103_48N011E.map
                 # 20220101??_48N011E.map
@@ -213,7 +194,7 @@ def _extract_archive(
                     date, type_ = name[2 : 10], "map"
                 elif name.endswith(".mod"):
                     date, type_ = name[5 : 13], "mod"
-                member.name = f"{date}_{coordinates_slug}.{type_}"
+                member.name = f"{date}_{cs}.{type_}"
                 # 20220101_48N011E.map
 
             tar.extract(member, dst_path)

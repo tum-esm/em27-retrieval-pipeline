@@ -80,7 +80,7 @@ class ProfilesScopeConfig(pydantic.BaseModel):
     )
 
     @pydantic.model_validator(mode='after')
-    def check_date_order(self) -> ProfilesStandardSitesItemConfig:
+    def check_date_order(self) -> ProfilesScopeConfig:
         if self.from_date > self.to_date:
             raise ValueError('from_date must be before to_date')
         return self
@@ -211,7 +211,7 @@ class RetrievalJobConfig(pydantic.BaseModel):
     )
 
     @pydantic.model_validator(mode='after')
-    def check_model_integrity(self) -> ProfilesStandardSitesItemConfig:
+    def check_model_integrity(self) -> RetrievalJobConfig:
         if self.from_date > self.to_date:
             raise ValueError('from_date must be before to_date')
         if self.algorithm == "proffast-1.0" and self.profiles == "GGG2020":

@@ -31,8 +31,8 @@ def generate_download_queries(
     # Request sensor and location data
     if em27_metadata_storage is None:
         em27_metadata_storage = em27_metadata.load_from_github(
-            github_repository=config.general.location_data.github_repository,
-            access_token=config.general.location_data.access_token,
+            github_repository=config.general.metadata.github_repository,
+            access_token=config.general.metadata.access_token,
         )
 
     # dict[lat][lon] = {datetime.date, ...}
@@ -43,17 +43,17 @@ def generate_download_queries(
             # do not consider sensor locations that are outside of the request scope
             if (
                 sensor_location.to_datetime.date()
-                < config.profiles.request_scope.from_date
+                < config.profiles.scope.from_date
             ) or (
                 sensor_location.from_datetime.date()
-                > config.profiles.request_scope.to_date
+                > config.profiles.scope.to_date
             ):
                 continue
 
             # trim reqested dates to request scope
-            from_date = config.profiles.request_scope.from_date
+            from_date = config.profiles.scope.from_date
             to_date = min(
-                config.profiles.request_scope.to_date,
+                config.profiles.scope.to_date,
                 datetime.date.today() - datetime.timedelta(days=4)
             )
             if sensor_location.from_datetime.date() > from_date:
@@ -94,11 +94,11 @@ def generate_download_queries(
             filtered_queries: set[datetime.date] = set()
             for date in query_dates[lat][lon]:
                 date_slug = date.strftime("%Y%m%d")
-                coordinate_slug = utils.functions.get_coordinates_slug(lat, lon)
+                coordinate_slug = utils.text.get_coordinates_slug(lat, lon)
                 if version == "GGG2014":
                     output_files = [
                         os.path.join(
-                            config.general.data_src_dirs.profiles,
+                            config.general.data.profiles.root,
                             version,
                             f"{date_slug}_{coordinate_slug}.{ending}",
                         ) for ending in ["map", "mod"]
@@ -106,7 +106,7 @@ def generate_download_queries(
                 else:
                     output_files = [
                         os.path.join(
-                            config.general.data_src_dirs.profiles,
+                            config.general.data.profiles.root,
                             version,
                             f"{date_slug}{time:02d}_{coordinate_slug}.{ending}",
                         ) for ending in ["map", "mod", "vmr"]
@@ -124,15 +124,15 @@ def generate_download_queries(
         ])
     )
 
-    total_download_queries: list[utils.types.DownloadQuery] = []
+    total_download_queries: list[types.DownloadQuery] = []
 
     for lat in query_dates.keys():
         for lon in query_dates[lat].keys():
-            download_queries: list[utils.types.DownloadQuery] = []
+            download_queries: list[types.DownloadQuery] = []
             for date in sorted(query_dates[lat][lon]):
                 if len(download_queries) == 0:
                     download_queries.append(
-                        utils.types.DownloadQuery(
+                        types.DownloadQuery(
                             lat=lat, lon=lon, from_date=date, to_date=date
                         )
                     )
@@ -145,7 +145,7 @@ def generate_download_queries(
                                              >= 6)
                     if start_new_query_block:
                         download_queries.append(
-                            utils.types.DownloadQuery(
+                            types.DownloadQuery(
                                 lat=lat, lon=lon, from_date=date, to_date=date
                             )
                         )

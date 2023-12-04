@@ -37,9 +37,9 @@ class RetrievalQueue:
             self.em27_metadata_storage = em27_metadata_storage
         else:
             self.em27_metadata_storage = em27_metadata.load_from_github(
-                github_repository=self.config.general.location_data.
+                github_repository=self.config.general.metadata.
                 github_repository,
-                access_token=self.config.general.location_data.access_token,
+                access_token=self.config.general.metadata.access_token,
             )
 
         self.iteration_index = 0
@@ -173,7 +173,7 @@ class RetrievalQueue:
         date_string = date.strftime("%Y%m%d")
 
         ifg_src_directory = os.path.join(
-            self.config.general.data_src_dirs.interferograms,
+            self.config.general.data.interferograms.root,
             sensor_id,
             date.strftime("%Y%m%d"),
         )
@@ -216,7 +216,7 @@ class RetrievalQueue:
         existing_output_dir_names: set[str] = set()
         for output_dir_type in ["successful", "failed"]:
             output_dir_path = os.path.join(
-                self.config.general.data_dst_dirs.results,
+                self.config.general.data.results.root,
                 sensor_id,
                 self.config.retrieval.general.retrieval_software + "-outputs",
                 output_dir_type,
@@ -224,7 +224,7 @@ class RetrievalQueue:
             if os.path.isdir(output_dir_path):
                 existing_output_dir_names = existing_output_dir_names.union(
                     set(
-                        utils.functions.list_directory(
+                        utils.files.list_directory(
                             output_dir_path,
                             is_directory=True,
                             regex=(
@@ -257,7 +257,7 @@ class RetrievalQueue:
             "changed after a retrieval has been completed. Please remove the " +
             "following directories and try again: " + ", ".join([
                 os.path.join(
-                    self.config.general.data_dst_dirs.results,
+                    self.config.general.data.results.root,
                     sensor_id,
                     self.config.retrieval.general.retrieval_software +
                     "-outputs",
@@ -276,7 +276,7 @@ class RetrievalQueue:
         a completed upload. Otherwise it will just return True
         """
         ifg_dir_path = os.path.join(
-            self.config.general.data_src_dirs.interferograms,
+            self.config.general.data.interferograms.root,
             sensor_id,
             date.strftime("%Y%m%d"),
         )

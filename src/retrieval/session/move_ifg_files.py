@@ -23,7 +23,7 @@ def run(
     date_string = session.ctx.from_datetime.strftime("%Y%m%d")
 
     ifg_src_directory = os.path.join(
-        config.general.data_src_dirs.interferograms,
+        config.general.data.interferograms.root,
         session.ctx.sensor_id,
         date_string,
     )
@@ -44,7 +44,7 @@ def run(
         f"src directory ({ifg_src_directory})"
     )
     assert len(ifg_filenames) > 0, "no ifg input files"
-    retrieval.utils.retrieval_status.ProcessStatusList.update_item(
+    retrieval.utils.retrieval_status.RetrievalStatusList.update_item(
         session.ctx.sensor_id,
         session.ctx.from_datetime,
         ifg_count=len(ifg_filenames),

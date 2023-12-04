@@ -26,9 +26,8 @@ class InputWarningsInterface:
 
     @staticmethod
     def _dump(new_object: types.InputWarningsList) -> None:
-        tum_esm_utils.files.dump_json_file(
-            _LIST_PATH,
-            new_object.model_dump()["items"]
+        tum_esm_utils.files.dump_file(
+            _LIST_PATH, new_object.model_dump_json(indent=4)
         )
 
     @staticmethod
@@ -40,10 +39,10 @@ class InputWarningsInterface:
             filter(
                 lambda w: not ((w.sensor_id == sensor_id) and
                                (w.from_datetime == from_datetime)),
-                warnings_list.items,
+                warnings_list.root,
             )
         )
-        warnings_list.items.append(
+        warnings_list.root.append(
             types.InputWarning(
                 sensor_id=sensor_id,
                 from_datetime=from_datetime,
@@ -60,7 +59,7 @@ class InputWarningsInterface:
             filter(
                 lambda w: not ((w.sensor_id == sensor_id) and
                                (w.from_datetime == from_datetime)),
-                warnings_list.items,
+                warnings_list.root,
             )
         )
         InputWarningsInterface._dump(warnings_list)

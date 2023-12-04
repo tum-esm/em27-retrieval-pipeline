@@ -5,16 +5,16 @@ import ftplib
 import rich.progress
 
 sys.path.append(tum_esm_utils.files.rel_to_abs_path("../.."))
-from src import utils, profiles
+from src import types, profiles
 
 
 def run() -> None:
-    config = utils.config.Config.load()
+    config = types.Config.load()
     assert config.profiles is not None, "No profiles config found"
 
     try:
 
-        for version in config.profiles.request_scope.data_types:
+        for version in config.profiles.scope.data_types:
             print(f"Downloading {version} data")
 
             # Generate daily sensor sets
@@ -27,7 +27,7 @@ def run() -> None:
 
             with ftplib.FTP(
                 host="ccycle.gps.caltech.edu",
-                passwd=config.profiles.ftp_server.email,
+                passwd=config.profiles.server.email,
                 user="anonymous",
                 timeout=60,
             ) as ftp:

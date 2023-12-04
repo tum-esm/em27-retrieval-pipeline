@@ -17,7 +17,7 @@ def run(
     try:
         shutil.copy(
             os.path.join(
-                config.general.data_src_dirs.profiles,
+                config.general.data.profiles.root,
                 "GGG2014",
                 f"{date_string}_{coordinates_slug}.map",
             ),

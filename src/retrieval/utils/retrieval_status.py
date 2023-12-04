@@ -2,6 +2,7 @@ from typing import Optional, Generator
 import contextlib
 import datetime
 import os
+import em27_metadata
 import filelock
 import pydantic
 import tum_esm_utils
@@ -15,6 +16,7 @@ class RetrievalStatus(pydantic.BaseModel):
     container_id: Optional[str] = None
     sensor_id: str
     from_datetime: datetime.datetime
+    to_datetime: datetime.datetime
     location_id: str
     ifg_count: Optional[int] = None
     process_start_time: Optional[datetime.datetime] = None
@@ -40,10 +42,12 @@ class RetrievalStatusList(pydantic.RootModel[list[RetrievalStatus]]):
 
     @staticmethod
     def load() -> list[RetrievalStatus]:
-        with RetrievalStatus.with_filelock():
+        with RetrievalStatusList.with_filelock():
             try:
                 with open("data/logs/active-processes.json", "r") as f:
-                    return RetrievalStatus.model_validate_json(f.read()).root
+                    return RetrievalStatusList.model_validate_json(
+                        f.read()
+                    ).root
             except pydantic.ValidationError:
                 return []
 
@@ -54,7 +58,7 @@ class RetrievalStatusList(pydantic.RootModel[list[RetrievalStatus]]):
                 f.write("[]")
 
     @staticmethod
-    def add_items(items: list[tuple[str, datetime.datetime, str]]) -> None:
+    def add_items(items: list[em27_metadata.types.SensorDataContext]) -> None:
         """Add items to the active process list.
         
         Args:
@@ -67,12 +71,13 @@ class RetrievalStatusList(pydantic.RootModel[list[RetrievalStatus]]):
                     )
             except pydantic.ValidationError:
                 return
-            for sensor_id, from_datetime, location_id in items:
+            for sdc in items:
                 process_list.root.append(
                     RetrievalStatus(
-                        sensor_id=sensor_id,
-                        from_datetime=from_datetime,
-                        location_id=location_id,
+                        sensor_id=sdc.sensor_id,
+                        from_datetime=sdc.from_datetime,
+                        to_datetime=sdc.to_datetime,
+                        location_id=sdc.location.location_id,
                     )
                 )
             with open("data/logs/active-processes.json", "w") as f:

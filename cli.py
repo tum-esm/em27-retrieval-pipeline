@@ -19,7 +19,7 @@ export_command_group = click.Group(name="export")
     help=
     "Start the retrieval as a background process. Prevents spawning multiple processes. The logs and the current processing queue from this process can be found at `logs/retrieval`.",
 )
-def start():
+def start() -> None:
     pid = tum_esm_utils.processes.start_background_process(
         sys.executable, _RETRIEVAL_ENTRYPOINT
     )
@@ -31,7 +31,7 @@ def start():
     help=
     "Checks whether the retrieval background process is running. The logs and the current processing queue from this process can be found at `logs/retrieval`.",
 )
-def is_running():
+def is_running() -> None:
     pids = tum_esm_utils.processes.get_process_pids(_RETRIEVAL_ENTRYPOINT)
     if len(pids) > 0:
         click.echo(f"automated retrieval is running with PID(s) {pids}")
@@ -43,7 +43,7 @@ def is_running():
     name="watch",
     help="Opens an active watch window for the retrieval background process.",
 )
-def watch():
+def watch() -> None:
     pids = tum_esm_utils.processes.get_process_pids(_RETRIEVAL_ENTRYPOINT)
     if len(pids) == 0:
         click.echo("automated retrieval is not running")
@@ -57,7 +57,7 @@ def watch():
     help=
     "Stop the retrieval background process. The logs and the current processing queue from this process can be found at `logs/retrieval`.",
 )
-def stop():
+def stop() -> None:
     pids = tum_esm_utils.processes.terminate_process(_RETRIEVAL_ENTRYPOINT)
     if len(pids) == 0:
         click.echo("No active process to be terminated")
@@ -83,7 +83,7 @@ def run_profiles_download() -> None:
     help=
     "Request ginput status. This will upload a file `upload/ginput_status.txt` to the `ccycle.gps.caltech.edu` FTP server containing the configured email address. You will receive an email with the ginput status which normally takes less than two minutes.",
 )
-def request_ginput_status():
+def request_ginput_status() -> None:
     import src  # import here so that the CLI is more reactive
     config = src.utils.config.Config.load()
     assert config.profiles is not None, "No profiles config found"
@@ -105,7 +105,7 @@ def request_ginput_status():
     help=
     "Run the export script. The logs from this process can be found at `logs/export`.",
 )
-def run_export():
+def run_export() -> None:
     import src  # import here so that the CLI is more reactive
     src.export.main.run()
 

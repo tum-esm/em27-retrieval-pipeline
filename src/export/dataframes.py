@@ -67,7 +67,7 @@ def get_sensor_dataframe(
 
     # TODO: configure this in export target
     raw_csv_path = os.path.join(
-        config.general.data_dst_dirs.results,
+        config.general.data.results.root,
         sensor_data_context.sensor_id,
         "proffast-2.2-outputs/successful",
         output_folder_slug,

@@ -1,12 +1,12 @@
 from typing import Optional
-from datetime import datetime
+import datetime
 import json
 import os
 import re
 import shutil
 import polars as pl
 import tum_esm_utils
-from src import types, utils, retrieval
+from src import types, retrieval
 
 
 def _detect_proffast2X_error_type(output_src: str) -> Optional[str]:
@@ -43,7 +43,7 @@ def run(
     output_parquet_path: str
     day_was_successful: bool
 
-    if isinstance(session.ctn, utils.types.Proffast10Container):
+    if isinstance(session.ctn, types.Proffast10Container):
         output_src_dir = os.path.join(
             session.ctn.container_path, "prf", "out_fast"
         )
@@ -67,7 +67,7 @@ def run(
 
     elif isinstance(
         session.ctn,
-        (utils.types.Proffast22Container, utils.types.Proffast23Container),
+        (types.Proffast22Container, types.Proffast23Container),
     ):
         output_src_dir = (
             f"{session.ctn.data_output_path}/{session.ctx.sensor_id}_" +
@@ -106,14 +106,14 @@ def run(
         output_folder_slug += session.ctx.to_datetime.strftime("_%H%M%S")
 
     output_dst_successful = os.path.join(
-        config.general.data_dst_dirs.results,
+        config.general.data.results.root,
         session.ctx.sensor_id,
         config.retrieval.general.retrieval_software + "-outputs",
         "successful",
         output_folder_slug,
     )
     output_dst_failed = os.path.join(
-        config.general.data_dst_dirs.results,
+        config.general.data.results.root,
         session.ctx.sensor_id,
         config.retrieval.general.retrieval_software + "-outputs",
         "failed",
@@ -145,7 +145,7 @@ def run(
         logger.logfile_path,
         os.path.join(output_dst, "logfiles", "container.log"),
     )
-    if isinstance(session.ctn, utils.types.Proffast22Container):
+    if isinstance(session.ctn, types.Proffast22Container):
         shutil.copyfile(
             session.ctn.pylot_log_format_path,
             os.path.join(output_dst, "pylot_log_format.yml"),
@@ -154,10 +154,10 @@ def run(
     # STORE AUTOMATION INFO
 
     with open(os.path.join(output_dst, "about.json"), "w") as f:
-        now = datetime.utcnow()
+        now = datetime.datetime.now(datetime.UTC)
         dumped_config = config.model_copy(deep=True)
-        if dumped_config.general.location_data.access_token is not None:
-            dumped_config.general.location_data.access_token = "REDACTED"
+        if dumped_config.general.metadata.access_token is not None:
+            dumped_config.general.metadata.access_token = "REDACTED"
 
         about_dict = {
             "automationVersion": tum_esm_utils.shell.get_commit_sha(),
@@ -169,10 +169,7 @@ def run(
 
     # (optional) RESTORE OLD IFG FILE PERMISSIONS
 
-    if (
-        config.retrieval.modified_ifg_file_permissions.after_processing
-        is not None
-    ):
+    if (config.retrieval.ifg_file_permissions.after_processing is not None):
         ifg_src_directory = os.path.join(
             config.general.data.interferograms.root,
             session.ctx.sensor_id,

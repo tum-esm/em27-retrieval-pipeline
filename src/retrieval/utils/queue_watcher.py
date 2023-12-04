@@ -24,7 +24,7 @@ def _render() -> Any:
     table = rich.table.Table(expand=True, box=rich.box.ROUNDED)
     table.add_column("Container ID")
     table.add_column("Sensor ID")
-    table.add_column("Date")
+    table.add_column("Datetime")
     table.add_column("Location ID")
     table.add_column("IFG Count")
     table.add_column("Run Time")
@@ -38,7 +38,7 @@ def _render() -> Any:
         table.add_row(
             p.container_id,
             p.sensor_id,
-            str(p.date),
+            f"{p.from_datetime} - {p.to_datetime}",
             p.location_id,
             "N/A" if p.ifg_count is None else str(p.ifg_count),
             f"{dt.seconds // 60}m {str(dt.seconds % 60).zfill(2)}s",

@@ -76,10 +76,9 @@ def run() -> None:
     )
     main_logger.horizontal_line(variant="=")
 
-    retrieval.utils.retrieval_status.ProcessStatusList.reset()
-    retrieval.utils.retrieval_status.ProcessStatusList.add_items(
-        [(d.sensor_id, d.from_datetime.date(), d.location.location_id)
-         for d in retrieval_queue.queue_items]
+    retrieval.utils.retrieval_status.RetrievalStatusList.reset()
+    retrieval.utils.retrieval_status.RetrievalStatusList.add_items(
+        retrieval_queue.queue_items
     )
 
     try:
@@ -88,7 +87,7 @@ def run() -> None:
             next_sensor_data_context: Optional[
                 em27_metadata.types.SensorDataContext] = None
             while True:
-                if len(processes) == config.retrieval.general.max_core_count:
+                if len(processes) == config.retrieval.general.max_process_count:
                     break
 
                 next_sensor_data_context = retrieval_queue.get_next_item()
@@ -146,5 +145,5 @@ def run() -> None:
 
 
 if __name__ == "__main__":
-    with utils.functions.with_automation_lock():
+    with utils.automation_lock.with_automation_lock():
         run()

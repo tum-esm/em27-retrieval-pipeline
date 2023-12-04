@@ -29,7 +29,7 @@ class ContainerFactory:
 
         self.config = config
         self.logger = logger
-        self.containers: list[types.ProffastContainer] = []
+        self.containers: list[types.RetrievalContainer] = []
 
         assert self.config.retrieval is not None
         retrieval_algorithms = [

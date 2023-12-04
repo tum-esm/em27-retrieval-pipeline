@@ -8,19 +8,20 @@ import em27_metadata
 import tum_esm_utils
 
 sys.path.append(tum_esm_utils.files.rel_to_abs_path("../.."))
-from src import utils, export
+from src import types, export
 
 
 def run() -> None:
-    config = utils.config.Config.load()
-    assert config.export is not None, "no export config found"
-    assert len(config.export.targets) > 0, "no export targets found"
+    config = types.Config.load()
+    assert config.export_targets is not None, "no export config found"
+    assert len(config.export_targets) > 0, "no export targets found"
 
     em27_metadata_storage = em27_metadata.load_from_github(
-        **config.general.location_data.model_dump()
+        github_repository=config.general.metadata.github_repository,
+        access_token=config.general.metadata.access_token,
     )
 
-    for i, output_merging_target in enumerate(config.export.targets):
+    for i, output_merging_target in enumerate(config.export_targets):
         print(f"\nprocessing output merging target #{i+1}")
         print(json.dumps(output_merging_target.model_dump(), indent=4))
         assert (
@@ -47,7 +48,7 @@ def run() -> None:
         print("Removing old outputs")
         os.system(
             "rm -f " + os.path.join(
-                output_merging_target.dst_dir,
+                output_merging_target.dst_dir.root,
                 f"{output_merging_target.campaign_id}_em27_export" +
                 f"_v{export.header.get_pipeline_version()}"
                 f"_*.csv",
@@ -121,7 +122,7 @@ def run() -> None:
 
                     # save merged dataframe to csv
                     filename = os.path.join(
-                        output_merging_target.dst_dir,
+                        output_merging_target.dst_dir.root,
                         f"{output_merging_target.campaign_id}_em27_export" +
                         f"_v{export.header.get_pipeline_version()}"
                         f"_{date.strftime('%Y%m%d')}.csv",
@@ -138,7 +139,7 @@ def run() -> None:
                         f.write(
                             merged_df.write_csv(
                                 null_value="NaN",
-                                has_header=True,
+                                include_header=True,
                                 float_precision=9,
                             )
                         )

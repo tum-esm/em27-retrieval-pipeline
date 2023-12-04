@@ -11,7 +11,7 @@ def run(
     date_string = session.ctx.from_datetime.strftime("%Y%m%d")
 
     src_filepath = os.path.join(
-        config.general.data_src_dirs.datalogger,
+        config.general.data.datalogger.root,
         session.ctx.pressure_data_source,
         f"datalogger-{session.ctx.pressure_data_source}-{date_string}.csv",
     )

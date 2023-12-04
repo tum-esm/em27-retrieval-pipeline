@@ -1,5 +1,5 @@
-import datetime
 from typing import Any
+import datetime
 import signal
 from src import types, utils, retrieval
 from . import (
@@ -29,7 +29,7 @@ def run(
     def _graceful_teardown(*args: Any) -> None:
         logger.info(f"Container was killed")
         logger.archive()
-        retrieval.utils.retrieval_status.ProcessStatusList.update_item(
+        retrieval.utils.retrieval_status.RetrievalStatusList.update_item(
             session.ctx.sensor_id,
             session.ctx.from_datetime,
             process_end_time=datetime.datetime.utcnow(),
