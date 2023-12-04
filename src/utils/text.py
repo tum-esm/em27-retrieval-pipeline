@@ -1,5 +1,23 @@
 import random
 
+
+def get_coordinates_slug(lat: float, lon: float, verbose: bool = False) -> str:
+    """Return a slug for the location
+
+    verbose = false: `48N011E``
+    verbose = true: `48.00N_11.00E`"""
+
+    latv = str(round(lat)).zfill(2)
+    latd = "S" if lat < 0 else "N"
+    lonv = str(round(lon)).zfill(3)
+    lond = "W" if lon < 0 else "E"
+
+    if verbose:
+        return f"{latv}.00{latd}_{lonv}.00{lond}"
+    else:
+        return f"{latv}{latd}{lonv}{lond}"
+
+
 # Source: https://github.com/moby/moby/blob/master/pkg/namesgenerator/names-generator.go
 # I added a few to make it >= 128 adjectives
 
