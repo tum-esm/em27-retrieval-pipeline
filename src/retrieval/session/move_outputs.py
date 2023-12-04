@@ -169,13 +169,12 @@ def run(
 
     # (optional) RESTORE OLD IFG FILE PERMISSIONS
 
-    # TODO: make "failing if permission error" configurable
     if (
         config.retrieval.modified_ifg_file_permissions.after_processing
         is not None
     ):
         ifg_src_directory = os.path.join(
-            config.general.data_src_dirs.interferograms,
+            config.general.data.interferograms.root,
             session.ctx.sensor_id,
             date_string,
         )
@@ -188,10 +187,18 @@ def run(
             if expected_ifg_pattern.match(filename) is not None
         ]
         for filename in ifg_filenames:
-            tum_esm_utils.shell.change_file_permissions(
-                os.path.join(ifg_src_directory, filename),
-                config.retrieval.modified_ifg_file_permissions.after_processing,
-            )
+            try:
+                tum_esm_utils.shell.change_file_permissions(
+                    os.path.join(ifg_src_directory, filename),
+                    config.retrieval.ifg_file_permissions.after_processing,
+                )
+            except PermissionError:
+                if config.retrieval.ifg_file_permissions.fail_on_permission_error:
+                    raise
+                else:
+                    logger.warning(
+                        f"failed to modify permissions of ifg file {f}"
+                    )
         logger.debug(
             f"restored permissions for {len(ifg_filenames)} ifg " +
             f"files in src directory ({ifg_src_directory})"
