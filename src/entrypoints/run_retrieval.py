@@ -1,23 +1,18 @@
 from typing import Any, Optional
 import signal
 import sys
-import filelock
 import os
 import time
 import em27_metadata
 import multiprocessing
 import multiprocessing.context
 import tum_esm_utils
+import src
 
-_PROJECT_DIR = tum_esm_utils.files.get_parent_dir_path(
-    __file__, current_depth=3
-)
+_PROJECT_DIR = tum_esm_utils.files.rel_to_abs_path("../../")
 sys.path.append(_PROJECT_DIR)
 
 from src import utils, retrieval
-
-LOCK_FILE = f"{_PROJECT_DIR}/src/main.lock"
-lock = filelock.FileLock(LOCK_FILE, timeout=0)
 
 
 def run() -> None:
@@ -153,11 +148,5 @@ def run() -> None:
 
 
 if __name__ == "__main__":
-    try:
-        lock.acquire()
-        try:
-            run()
-        finally:
-            lock.release()
-    except filelock.Timeout:
-        print("process is already running")
+    with src.utils.functions.with_automation_lock():
+        run()

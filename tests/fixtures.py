@@ -1,26 +1,17 @@
 import os
 import shutil
 from typing import Generator
-import filelock
 import pytest
 import tum_esm_utils
 from src import utils
 
-# TODO: syncronize mainlock names across codebase
-PROJECT_DIR = tum_esm_utils.files.get_parent_dir_path(__file__, current_depth=2)
-lock = filelock.FileLock(
-    os.path.join(PROJECT_DIR, "src", "main.lock"), timeout=0
-)
+PROJECT_DIR = tum_esm_utils.files.rel_to_abs_path("..")
 
 
 @pytest.fixture
 def wrap_test_with_mainlock() -> Generator[None, None, None]:
-    try:
-        lock.acquire()
+    with utils.functions.with_automation_lock():
         yield
-        lock.release()
-    except filelock.Timeout:
-        raise Exception("automation is already running")
 
 
 @pytest.fixture(scope="session")
