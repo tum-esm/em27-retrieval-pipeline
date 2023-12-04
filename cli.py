@@ -54,7 +54,7 @@ def watch():
         click.echo("automated retrieval is not running")
     else:
         import src
-        src.utils.cli.start_retrieval_watcher()
+        src.retrieval.utils.queue_watcher.start_retrieval_watcher()
 
 
 @retrieval_command_group.command(
