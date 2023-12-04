@@ -1,6 +1,6 @@
 import datetime
 import os
-from typing import Any
+from typing import Any, Literal
 import pydantic
 import em27_metadata
 import tum_esm_utils
@@ -126,9 +126,13 @@ class Proffast23Container(Proffast22Container):
     """No difference to `Proffast22Container`."""
 
 
+ProffastContainer = Proffast10Container | Proffast22Container | Proffast23Container
+RetrievalAlgorithm = Literal["proffast-1.0", "proffast-2.2", "proffast-2.3"]
+
+
 class RetrievalSession(pydantic.BaseModel):
     """This combines a `SensorDataContext` with a `Proffast10Container`/
     `Proffast22Container`/`Proffast23Container`."""
 
     ctx: em27_metadata.types.SensorDataContext
-    ctn: Proffast10Container | Proffast22Container | Proffast23Container
+    ctn: ProffastContainer

@@ -1,14 +1,10 @@
+from typing import Literal
 import os
 import shutil
 import tum_esm_utils
 from src import utils, retrieval
 
-_PROJECT_DIR = tum_esm_utils.files.get_parent_dir_path(
-    __file__, current_depth=4
-)
-_RETRIEVAL_CODE_DIR = os.path.join(
-    _PROJECT_DIR, "src", "retrieval", "algorithms"
-)
+_RETRIEVAL_CODE_DIR = os.path.join("../algorithms/")
 
 
 class ContainerFactory:
@@ -21,7 +17,9 @@ class ContainerFactory:
 
     The factory keeps track of all containers and can remove them."""
     def __init__(
-        self, config: utils.config.Config, logger: retrieval.utils.logger.Logger
+        self,
+        config: utils.config.Config,
+        logger: retrieval.utils.logger.Logger,
     ):
         """Initialize the factory.
 
@@ -30,30 +28,28 @@ class ContainerFactory:
 
         self.config = config
         self.logger = logger
-        self.containers: list[utils.types.Proffast10Container |
-                              utils.types.Proffast22Container] = []
+        self.containers: list[utils.types.ProffastContainer] = []
 
         assert self.config.retrieval is not None
-        if self.config.retrieval.general.retrieval_software == "proffast-1.0":
-            self.logger.info("Initializing ContainerFactory for Proffast 1.0")
+        retrieval_algorithms = [
+            job.algorithm for job in self.config.retrieval.jobs
+        ]
+        if "proffast-1.0" in retrieval_algorithms:
+            self.logger.info("Initializing for Proffast 1.0")
             self._init_proffast10_code()
-
-        if self.config.retrieval.general.retrieval_software == "proffast-2.2":
+        if "proffast-2.2" in retrieval_algorithms:
             self.logger.info("Initializing ContainerFactory for Proffast 2.2")
             self._init_proffast22_code()
-
-        if self.config.retrieval.general.retrieval_software == "proffast-2.3":
+        if "proffast-2.3" in retrieval_algorithms:
             self.logger.info("Initializing ContainerFactory for Proffast 2.3")
             self._init_proffast23_code()
 
         self.logger.info("ContainerFactory is set up")
 
     def create_container(
-        self
-    ) -> (
-        utils.types.Proffast10Container | utils.types.Proffast22Container |
-        utils.types.Proffast23Container
-    ):
+        self,
+        retrieval_algorithm: utils.types.RetrievalAlgorithm,
+    ) -> utils.types.ProffastContainer:
         """Create a new container and return it.
 
         The container is created by copying the pylot code from the main
@@ -63,29 +59,25 @@ class ContainerFactory:
         new_container_id = retrieval.utils.container_names.get_random_container_name(
             currently_used_names=[c.container_id for c in self.containers]
         )
-        container: (
-            utils.types.Proffast10Container | utils.types.Proffast22Container |
-            utils.types.Proffast23Container
-        )
+        container: utils.types.ProffastContainer
 
         assert self.config.retrieval is not None
-        if self.config.retrieval.general.retrieval_software == "proffast-1.0":
+        if retrieval_algorithm == "proffast-1.0":
             container = utils.types.Proffast10Container(
                 container_id=new_container_id
             )
-        if self.config.retrieval.general.retrieval_software == "proffast-2.2":
+        if retrieval_algorithm == "proffast-2.2":
             container = utils.types.Proffast22Container(
                 container_id=new_container_id
             )
-        if self.config.retrieval.general.retrieval_software == "proffast-2.3":
+        if retrieval_algorithm == "proffast-2.3":
             container = utils.types.Proffast23Container(
                 container_id=new_container_id
             )
 
         # copy and install the retrieval code into the container
         retrieval_code_root_dir = os.path.join(
-            _RETRIEVAL_CODE_DIR,
-            self.config.retrieval.general.retrieval_software,
+            _RETRIEVAL_CODE_DIR, retrieval_algorithm
         )
         shutil.copytree(
             os.path.join(retrieval_code_root_dir, "main"),
@@ -143,69 +135,68 @@ class ContainerFactory:
 
         KIT_BASE_URL = "https://www.imk-asf.kit.edu/downloads/Coccon-SW/"
         ZIPFILE_NAME = "2021-03-08_prf96-EM27-fast.zip"
-
-        root_dir = os.path.join(_RETRIEVAL_CODE_DIR, "proffast-1.0", "main")
+        ROOT_DIR = os.path.join(_RETRIEVAL_CODE_DIR, "proffast-1.0", "main")
 
         # DOWNLOAD PROFFAST 1.0 code if it doesn't exist yet
-        if os.path.exists(os.path.join(root_dir, "prf")):
+        if os.path.exists(os.path.join(ROOT_DIR, "prf")):
             self.logger.info(f"Proffast 1.0 has already been downloaded")
             return
 
         self.logger.info(f"Downloading Proffast 1.0 code")
         tum_esm_utils.shell.run_shell_command(
             command=f"wget --quiet {KIT_BASE_URL}/{ZIPFILE_NAME}",
-            working_directory=root_dir,
+            working_directory=ROOT_DIR,
         )
         tum_esm_utils.shell.run_shell_command(
             command=f"unzip -q {ZIPFILE_NAME}",
-            working_directory=root_dir,
+            working_directory=ROOT_DIR,
         )
         os.rename(
-            os.path.join(root_dir, "2021-03-08_prf96-EM27-fast"),
-            os.path.join(root_dir, "prf"),
+            os.path.join(ROOT_DIR, "2021-03-08_prf96-EM27-fast"),
+            os.path.join(ROOT_DIR, "prf"),
         )
 
         # clean up unused directories
         for d in [
-            os.path.join(root_dir, "prf", "preprocess", "125HR-garmisch"),
-            os.path.join(root_dir, "prf", "preprocess", "125HR-karlsruhe"),
-            os.path.join(root_dir, "prf", "preprocess", "sod2017_em27sn039"),
-            os.path.join(root_dir, "prf", "out_fast", "sod2017_em27sn039"),
+            os.path.join(ROOT_DIR, "prf", "preprocess", "125HR-garmisch"),
+            os.path.join(ROOT_DIR, "prf", "preprocess", "125HR-karlsruhe"),
+            os.path.join(ROOT_DIR, "prf", "preprocess", "sod2017_em27sn039"),
+            os.path.join(ROOT_DIR, "prf", "out_fast", "sod2017_em27sn039"),
             os.path.join(
-                root_dir, "prf", "out_fast", "sod2017_em27sn039_Linux"
+                ROOT_DIR, "prf", "out_fast", "sod2017_em27sn039_Linux"
             ),
-            os.path.join(root_dir, "prf", "analysis"),
-            os.path.join(root_dir, "prf", "source"),
+            os.path.join(ROOT_DIR, "prf", "analysis"),
+            os.path.join(ROOT_DIR, "prf", "source"),
         ]:
             shutil.rmtree(d)
 
         # clean up unused files
         for f in [
-            os.path.join(root_dir, ZIPFILE_NAME),
-            os.path.join(root_dir, "prf", "continue.txt"),
+            os.path.join(ROOT_DIR, ZIPFILE_NAME),
+            os.path.join(ROOT_DIR, "prf", "continue.txt"),
             os.path.join(
-                root_dir, "prf", "inp_fast",
+                ROOT_DIR, "prf", "inp_fast",
                 "invers10_sod2017_em27sn039_170608.inp"
             ),
             os.path.join(
-                root_dir, "prf", "inp_fast",
+                ROOT_DIR, "prf", "inp_fast",
                 "invers10_sod2017_em27sn039_170609.inp"
             ),
             os.path.join(
-                root_dir, "prf", "inp_fast",
+                ROOT_DIR, "prf", "inp_fast",
                 "pcxs10_sod2017_em27sn039_170608.inp"
             ),
             os.path.join(
-                root_dir, "prf", "inp_fast",
+                ROOT_DIR, "prf", "inp_fast",
                 "pcxs10_sod2017_em27sn039_170609.inp"
             ),
         ]:
             os.remove(f)
 
         # remove other unused files
-        os.system("rm " + os.path.join(root_dir, "prf", "*.py"))
-        os.system("rm " + os.path.join(root_dir, "prf", "invers10*"))
-        os.system("rm " + os.path.join(root_dir, "prf", "pcxs10*"))
+        os.system("rm " + os.path.join(ROOT_DIR, "prf", "*.py"))
+        os.system("rm " + os.path.join(ROOT_DIR, "prf", "invers10*"))
+        os.system("rm " + os.path.join(ROOT_DIR, "prf", "pcxs10*"))
 
     def _init_proffast22_code(self) -> None:
         """Initialize the Proffast 2.2 and pylot 1.1 code.
@@ -216,28 +207,23 @@ class ContainerFactory:
 
         KIT_BASE_URL = "https://www.imk-asf.kit.edu/downloads/Coccon-SW/"
         ZIPFILE_NAME = "PROFFASTv2.2.zip"
-
-        root_dir = os.path.join(
-            _RETRIEVAL_CODE_DIR,
-            "proffast-2.2",
-            "main",
-        )
+        ROOT_DIR = os.path.join(_RETRIEVAL_CODE_DIR, "proffast-2.2", "main")
 
         # DOWNLOAD PROFFAST 2.2 code if it doesn't exist yet
-        if os.path.exists(os.path.join(root_dir, "prf")):
+        if os.path.exists(os.path.join(ROOT_DIR, "prf")):
             self.logger.info(f"Proffast 2.2 has already been downloaded")
             return
 
         self.logger.info(f"Downloading Proffast 2.2 code")
         tum_esm_utils.shell.run_shell_command(
             command=f"wget --quiet {KIT_BASE_URL}/{ZIPFILE_NAME}",
-            working_directory=root_dir,
+            working_directory=ROOT_DIR,
         )
         tum_esm_utils.shell.run_shell_command(
             command=f"unzip -q {ZIPFILE_NAME}",
-            working_directory=root_dir,
+            working_directory=ROOT_DIR,
         )
-        os.remove(os.path.join(root_dir, ZIPFILE_NAME))
+        os.remove(os.path.join(ROOT_DIR, ZIPFILE_NAME))
 
     def _init_proffast23_code(self) -> None:
         """Initialize the Proffast 2.3 and pylot 1.2 code.
@@ -248,25 +234,20 @@ class ContainerFactory:
 
         KIT_BASE_URL = "https://www.imk-asf.kit.edu/downloads/Coccon-SW/"
         ZIPFILE_NAME = "PROFFASTv2.3.zip"
-
-        root_dir = os.path.join(
-            _RETRIEVAL_CODE_DIR,
-            "proffast-2.3",
-            "main",
-        )
+        ROOT_DIR = os.path.join(_RETRIEVAL_CODE_DIR, "proffast-2.3", "main")
 
         # DOWNLOAD PROFFAST 2.2 code if it doesn't exist yet
-        if os.path.exists(os.path.join(root_dir, "prf")):
+        if os.path.exists(os.path.join(ROOT_DIR, "prf")):
             self.logger.info(f"Proffast 2.3 has already been downloaded")
             return
 
         self.logger.info(f"Downloading Proffast 2.3 code")
         tum_esm_utils.shell.run_shell_command(
             command=f"wget --quiet {KIT_BASE_URL}/{ZIPFILE_NAME}",
-            working_directory=root_dir,
+            working_directory=ROOT_DIR,
         )
         tum_esm_utils.shell.run_shell_command(
             command=f"unzip -q {ZIPFILE_NAME}",
-            working_directory=root_dir,
+            working_directory=ROOT_DIR,
         )
-        os.remove(os.path.join(root_dir, ZIPFILE_NAME))
+        os.remove(os.path.join(ROOT_DIR, ZIPFILE_NAME))

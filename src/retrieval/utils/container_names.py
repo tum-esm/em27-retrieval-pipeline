@@ -3,7 +3,7 @@ import random
 # Source: https://github.com/moby/moby/blob/master/pkg/namesgenerator/names-generator.go
 # I added a few to make it >= 128 adjectives
 
-adjectives = set([
+adjectives = [
     'admiring', 'adoring', 'affectionate', 'agitated', 'amazing', 'ambitious',
     'amused', 'angry', 'astonished', 'audacious', 'awesome', 'backstabbing',
     'beautiful', 'berserk', 'big', 'blissed', 'blissful', 'bohemian', 'bold',
@@ -25,11 +25,11 @@ adjectives = set([
     'suspicious', 'sweet', 'tender', 'thirsty', 'trusting', 'unruffled',
     'upbeat', 'vibrant', 'vigilant', 'vigorous', 'wizardly', 'wonderful',
     'wondering', 'xenodochial', 'youthful', 'zealous', 'zen'
-])
+]
 assert len(adjectives) >= 128, "Not enough adjectives to generate unique names"
 assert "-" not in "".join(adjectives), "Adjectives should not contain '-'"
 
-names = set([
+names = [
     "agnesi", "albattani", "allen", "almeida", "antonelli", "archimedes",
     "ardinghelli", "aryabhata", "austin", "babbage", "banach", "banzai",
     "bardeen", "bartik", "bassi", "beaver", "bell", "benz", "bhabha",
@@ -66,13 +66,13 @@ names = set([
     "turing", "varahamihira", "vaughan", "villani", "visvesvaraya", "volhard",
     "wescoff", "wilbur", "wiles", "williams", "williamson", "wilson", "wing",
     "wozniak", "wright", "wu", "yalow", "yonath", "zhukovsky"
-])
+]
 
 
-def get_random_container_name(currently_used_names: set[str] = []):
-    forbidden_adjectives = set([x.split("-")[0] for x in currently_used_names])
-    allowed_adjectives = adjectives - forbidden_adjectives
+def get_random_container_name(currently_used_names: list[str] = []) -> str:
+    forbidden_adjectives = [x.split("-")[0] for x in currently_used_names]
+    allowed_adjectives = set(adjectives) - set(forbidden_adjectives)
     assert len(
         allowed_adjectives
     ) > 0, "Not enough adjectives to generate unique names"
-    return random.choice(allowed_adjectives) + "-" + random.choice(names)
+    return random.choice(list(allowed_adjectives)) + "-" + random.choice(names)

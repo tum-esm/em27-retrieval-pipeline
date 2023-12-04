@@ -91,11 +91,14 @@ def _generate_pylot23_log_format(session: utils.types.RetrievalSession) -> None:
 def run(
     container_factory: retrieval.dispatching.container_factory.ContainerFactory,
     sensor_data_context: em27_metadata.types.SensorDataContext,
+    retrieval_algorithm: utils.types.RetrievalAlgorithm,
 ) -> utils.types.RetrievalSession:
     """Create a new container and the pylot config files"""
     new_session = utils.types.RetrievalSession(
         ctx=sensor_data_context,
-        ctn=container_factory.create_container(),
+        ctn=container_factory.create_container(
+            retrieval_algorithm=retrieval_algorithm
+        ),
     )
     retrieval.utils.process_status.ProcessStatusList.update_item(
         sensor_data_context.sensor_id,
