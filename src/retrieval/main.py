@@ -7,7 +7,6 @@ import em27_metadata
 import multiprocessing
 import multiprocessing.context
 import tum_esm_utils
-import src
 
 _PROJECT_DIR = tum_esm_utils.files.rel_to_abs_path("../../")
 sys.path.append(_PROJECT_DIR)
@@ -148,5 +147,5 @@ def run() -> None:
 
 
 if __name__ == "__main__":
-    with src.utils.functions.with_automation_lock():
+    with utils.functions.with_automation_lock():
         run()

@@ -5,7 +5,7 @@ import tum_esm_utils
 import click
 
 _RETRIEVAL_ENTRYPOINT = tum_esm_utils.files.rel_to_abs_path(
-    "src", "entrypoints", "run_retrieval.py"
+    "src", "retrieval", "main.py"
 )
 
 cli = click.Group(name="cli")
@@ -74,8 +74,8 @@ def stop():
     "Run the profiles download script. This will check, which profiles are not yet present locally, request and download them from the `ccycle.gps.caltech.edu` FTP server. The logs from this process can be found at `logs/profiles`.",
 )
 def run_profiles_download() -> None:
-    from src.entrypoints.download_profiles import run
-    run()
+    import src
+    src.profiles.main.run()
 
 
 @profiles_command_group.command(
@@ -84,8 +84,8 @@ def run_profiles_download() -> None:
     "Request ginput status. This will upload a file `upload/ginput_status.txt` to the `ccycle.gps.caltech.edu` FTP server containing the configured email address. You will receive an email with the ginput status which normally takes less than two minutes.",
 )
 def request_ginput_status():
-    from src import utils
-    config = utils.config.Config.load()
+    import src  # import here so that the CLI is more reactive
+    config = src.utils.config.Config.load()
     assert config.profiles is not None, "No profiles config found"
     with ftplib.FTP(
         host="ccycle.gps.caltech.edu",
@@ -106,8 +106,8 @@ def request_ginput_status():
     "Run the export script. The logs from this process can be found at `logs/export`.",
 )
 def run_export():
-    from src.entrypoints.export_outputs import run
-    run()
+    import src  # import here so that the CLI is more reactive
+    src.export.main.run()
 
 
 cli.add_command(retrieval_command_group)
