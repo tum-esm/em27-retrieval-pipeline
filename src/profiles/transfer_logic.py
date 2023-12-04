@@ -1,4 +1,4 @@
-from typing import BinaryIO, Callable, Literal
+from typing import BinaryIO, Callable
 import time
 import tarfile
 import io
@@ -11,7 +11,7 @@ def upload_request(
     config: types.Config,
     query: types.DownloadQuery,
     ftp: ftplib.FTP,
-    version: Literal["GGG2014", "GGG2020"],
+    atmospheric_profile_model: types.AtmosphericProfileModel,
 ) -> bool:
     """Requests Ginput data by uploading a '.txt' to 'ccycle.gps.caltech.edu'.
     Attempts until upload successful or config.upload_timeout is exceeded.
@@ -21,7 +21,7 @@ def upload_request(
     assert config.profiles is not None, "this is a bug in the code"
 
     to_date: str
-    if version == "GGG2020":
+    if atmospheric_profile_model == "GGG2020":
         # Exclusive to date
         to_date = (query.to_date +
                    datetime.timedelta(days=1)).strftime("%Y%m%d")
@@ -63,7 +63,7 @@ def upload_request(
 def get_date_suffixes(
     config: types.Config,
     query: types.DownloadQuery,
-    version: Literal["GGG2014", "GGG2020"],
+    atmospheric_profile_model: types.AtmosphericProfileModel,
     get_current_datetime: Callable[
         [], datetime.datetime] = lambda: datetime.datetime.utcnow(),
 ) -> list[str]:
@@ -79,7 +79,7 @@ def get_date_suffixes(
     )
     best_to_date = query.to_date
 
-    if version == "GGG2020":
+    if atmospheric_profile_model == "GGG2020":
         # Exclusive to date
         best_to_date += datetime.timedelta(days=1)
         worst_to_date += datetime.timedelta(days=1)
@@ -103,7 +103,7 @@ def download_data(
     config: types.Config,
     query: types.DownloadQuery,
     ftp: ftplib.FTP,
-    version: Literal["GGG2014", "GGG2020"],
+    atmospheric_profile_model: types.AtmosphericProfileModel,
 ) -> bool:
     """Downloads .map, .mod and .vmr data.
 
@@ -118,9 +118,9 @@ def download_data(
     assert config.profiles is not None, "this is a bug in the code"
 
     response: set[str] = set()
-    date_suffixes = get_date_suffixes(config, query, version)
+    date_suffixes = get_date_suffixes(config, query, atmospheric_profile_model)
 
-    if version == "GGG2020":
+    if atmospheric_profile_model == "GGG2020":
         remote_dirs = {"ginput-jobs"}
         cs = utils.text.get_coordinates_slug(query.lat, query.lon, verbose=True)
         suffixes = [f"{cs}_{d}.tgz" for d in date_suffixes]
@@ -153,7 +153,9 @@ def download_data(
                         suffix[-12 :-4],
                         "%Y%m%d",
                     ).date()
-                    _extract_archive(config, archive, query, version)
+                    _extract_archive(
+                        config, archive, query, atmospheric_profile_model
+                    )
 
     return response == remote_dirs
 
@@ -162,11 +164,11 @@ def _extract_archive(
     config: types.Config,
     archive: BinaryIO,
     query: types.DownloadQuery,
-    version: Literal["GGG2014", "GGG2020"],
+    atmospheric_profile_model: types.AtmosphericProfileModel,
 ) -> None:
     """Extracts, renames and stores archive members."""
 
-    dst_path = f"{config.general.data.profiles.root}/{version}"
+    dst_path = f"{config.general.data.atmospheric_profiles.root}/{atmospheric_profile_model}"
     with tarfile.open(fileobj=archive) as tar:
         for member in tar:
             name = member.name
@@ -177,7 +179,7 @@ def _extract_archive(
 
             cs = utils.text.get_coordinates_slug(query.lat, query.lon)
 
-            if version == "GGG2020":
+            if atmospheric_profile_model == "GGG2020":
                 if name.endswith(".map"):
                     date, hour, type_ = name[47 : 55], name[55 : 57], "map"
                 elif name.endswith(".mod"):

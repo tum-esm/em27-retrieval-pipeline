@@ -3,6 +3,12 @@ from typing import Literal, Optional
 import datetime
 import tum_esm_utils
 import pydantic
+from .basic_types import (
+    RetrievalAlgorithm,
+    AtmosphericProfileModel,
+    SamplingRate,
+    OutputTypes,
+)
 
 
 class MetadataConfig(pydantic.BaseModel):
@@ -28,8 +34,8 @@ class DataConfig(pydantic.BaseModel):
     datalogger: tum_esm_utils.validators.StrictDirectoryPath = pydantic.Field(
         ..., description="directory path to datalogger files"
     )
-    profiles: tum_esm_utils.validators.StrictDirectoryPath = pydantic.Field(
-        ..., description="directory path to vertical profile files"
+    atmospheric_profiles: tum_esm_utils.validators.StrictDirectoryPath = pydantic.Field(
+        ..., description="directory path to atmospheric profile files"
     )
     interferograms: tum_esm_utils.validators.StrictDirectoryPath = pydantic.Field(
         ..., description="directory path to ifg files"
@@ -74,7 +80,7 @@ class ProfilesScopeConfig(pydantic.BaseModel):
         description=
         "date in format `YYYY-MM-DD` until which to request vertical profile data.",
     )
-    data_types: list[Literal["GGG2014", "GGG2020"]] = pydantic.Field(
+    models: list[AtmosphericProfileModel] = pydantic.Field(
         ...,
         description="list of data types to request from the ccycle ftp server.",
     )
@@ -179,19 +185,12 @@ class RetrievalIfgFilePermissionsConfig(pydantic.BaseModel):
 class RetrievalJobConfig(pydantic.BaseModel):
     """Settings for filtering the storage data. Only used if `config.data_sources.storage` is `true`."""
 
-    algorithm: Literal[
-        "proffast-1.0",
-        "proffast-2.2",
-        "proffast-2.3",
-    ] = pydantic.Field(
+    retrieval_algorithm: RetrievalAlgorithm = pydantic.Field(
         ...,
         description=
         "Which retrieval algorithms to use. Proffast 2.2 and 2.3 use the Proffast Pylot under the hood to dispatch it. Proffast 1.0 uses a custom implementation by us similar to the Proffast Pylot."
     )
-    profiles: Literal[
-        "GGG2014",
-        "GGG2020",
-    ] = pydantic.Field(
+    atmospheric_profile_model: AtmosphericProfileModel = pydantic.Field(
         ..., description="Which vertical profiles to use for the retrieval."
     )
     sensor_ids: list[str] = pydantic.Field(
@@ -214,7 +213,7 @@ class RetrievalJobConfig(pydantic.BaseModel):
     def check_model_integrity(self) -> RetrievalJobConfig:
         if self.from_date > self.to_date:
             raise ValueError('from_date must be before to_date')
-        if self.algorithm == "proffast-1.0" and self.profiles == "GGG2020":
+        if self.retrieval_algorithm == "proffast-1.0" and self.atmospheric_profile_model == "GGG2020":
             raise ValueError("proffast-1.0 does not support GGG2020 profiles")
         return self
 
@@ -253,35 +252,21 @@ class ExportTargetConfig(pydantic.BaseModel):
         ...,
         description="Campaign specified in location metadata.",
     )
-    data_types: list[Literal[
-        "gnd_p",
-        "gnd_t",
-        "app_sza",
-        "azimuth",
-        "xh2o",
-        "xair",
-        "xco2",
-        "xch4",
-        "xco",
-        "xch4_s5p",
-    ]] = pydantic.Field(
+    retrieval_algorithm: RetrievalAlgorithm = pydantic.Field(
+        ...,
+        description="Which retrieval algorithm used for the retrieval.",
+    )
+    atmospheric_profile_model: AtmosphericProfileModel = pydantic.Field(
+        ...,
+        description="Which atmospheric profiles used for the retrieval.",
+    )
+    data_types: list[OutputTypes] = pydantic.Field(
         ...,
         min_length=1,
         description=
         "Data columns to keep in the merged output files. The columns will be prefixed with the sensor id, i.e. `$(SENSOR_ID)_$(COLUMN_NAME)`.",
     )
-    sampling_rate: Literal[
-        "10m",
-        "5m",
-        "2m",
-        "1m",
-        "30s",
-        "15s",
-        "10s",
-        "5s",
-        "2s",
-        "1s",
-    ] = pydantic.Field(
+    sampling_rate: SamplingRate = pydantic.Field(
         ...,
         description="Interval of resampled data.",
     )
@@ -306,8 +291,8 @@ class Config(pydantic.BaseModel):
     general: GeneralConfig
     profiles: Optional[ProfilesConfig] = None
     retrieval: Optional[RetrievalConfig] = None
-    export_targets: list[ExportTargetConfig] = pydantic.Field(
-        ...,
+    export_targets: Optional[list[ExportTargetConfig]] = pydantic.Field(
+        None,
         description=
         'List of output merging targets. Relies on specifying "campaigns" in the EM27 metadata.'
     )

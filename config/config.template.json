@@ -2,12 +2,12 @@
   "version": "1.0",
   "general": {
     "metadata": {
-      "github_repository": "tum-esm/em27-location-data",
+      "github_repository": "tum-esm/em27-metadata-storage",
       "access_token": null
     },
     "data": {
       "datalogger": "path-to-datalogger-datalogger-upload-directory",
-      "profiles": "path-to-vertical-profiles",
+      "atmospheric_profiles": "path-to-atmospheric-profiles",
       "interferograms": "path-to-datalogger-ifg-upload-directory",
       "results": "path-to-results-storage"
     }
@@ -21,7 +21,7 @@
     "scope": {
       "from_date": "2022-01-01",
       "to_date": "2022-01-05",
-      "data_types": ["GGG2014", "GGG2020"]
+      "models": ["GGG2014", "GGG2020"]
     },
     "standard_sites": [
       {
@@ -45,15 +45,15 @@
     },
     "jobs": [
       {
-        "profiles": "GGG2014",
-        "algorithm": "proffast-1.0",
+        "retrieval_algorithm": "proffast-1.0",
+        "atmospheric_profile_model": "GGG2014",
         "sensor_ids": ["ma", "mb", "mc", "md", "me"],
         "from_date": "2019-01-01",
         "to_date": "2022-12-31"
       },
       {
-        "profiles": "GGG2020",
-        "algorithm": "proffast-2.3",
+        "retrieval_algorithm": "proffast-2.3",
+        "atmospheric_profile_model": "GGG2020",
         "sensor_ids": ["ma", "mb", "mc", "md", "me"],
         "from_date": "2019-01-01",
         "to_date": "2099-12-31"
@@ -63,6 +63,8 @@
   "export_targets": [
     {
       "campaign_id": "muccnet",
+      "retrieval_algorithm": "proffast-2.3",
+      "atmospheric_profile_model": "GGG2020",
       "data_types": [
         "gnd_p",
         "gnd_t",

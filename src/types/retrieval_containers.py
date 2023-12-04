@@ -1,4 +1,3 @@
-from typing import Literal
 import os
 import pydantic
 import em27_metadata
@@ -59,7 +58,6 @@ class Proffast23Container(Proffast22Container):
 
 
 RetrievalContainer = Proffast10Container | Proffast22Container | Proffast23Container
-RetrievalAlgorithm = Literal["proffast-1.0", "proffast-2.2", "proffast-2.3"]
 
 
 class RetrievalSession(pydantic.BaseModel):

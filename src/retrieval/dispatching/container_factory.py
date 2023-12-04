@@ -1,4 +1,3 @@
-from typing import Literal
 import os
 import shutil
 import tum_esm_utils
@@ -33,7 +32,7 @@ class ContainerFactory:
 
         assert self.config.retrieval is not None
         retrieval_algorithms = [
-            job.algorithm for job in self.config.retrieval.jobs
+            job.retrieval_algorithm for job in self.config.retrieval.jobs
         ]
         if "proffast-1.0" in retrieval_algorithms:
             self.logger.info("Initializing for Proffast 1.0")

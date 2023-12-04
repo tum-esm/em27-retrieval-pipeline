@@ -1,4 +1,3 @@
-from typing import Literal
 import os
 import numpy as np
 import scipy.signal
@@ -131,8 +130,7 @@ def get_sensor_dataframe(
 
 def post_process_dataframe(
     df: pl.DataFrame,
-    sampling_rate: Literal["10m", "5m", "2m", "1m", "30s", "15s", "10s", "5s",
-                           "2s", "1s"],
+    sampling_rate: types.SamplingRate,
     max_interpolation_gap_seconds: int,
 ) -> pl.DataFrame:
     """Post-processes the dataframe.

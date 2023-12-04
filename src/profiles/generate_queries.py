@@ -1,4 +1,4 @@
-from typing import Literal, Optional
+from typing import Optional
 import datetime
 import os
 import em27_metadata
@@ -7,7 +7,7 @@ from src import types, utils
 
 def generate_download_queries(
     config: types.Config,
-    version: Literal["GGG2014", "GGG2020"],
+    atmospheric_profile_model: types.AtmosphericProfileModel,
     em27_metadata_storage: Optional[
         em27_metadata.interfaces.EM27MetadataInterface] = None,
 ) -> list[types.DownloadQuery]:
@@ -95,19 +95,19 @@ def generate_download_queries(
             for date in query_dates[lat][lon]:
                 date_slug = date.strftime("%Y%m%d")
                 coordinate_slug = utils.text.get_coordinates_slug(lat, lon)
-                if version == "GGG2014":
+                if atmospheric_profile_model == "GGG2014":
                     output_files = [
                         os.path.join(
-                            config.general.data.profiles.root,
-                            version,
+                            config.general.data.atmospheric_profiles.root,
+                            atmospheric_profile_model,
                             f"{date_slug}_{coordinate_slug}.{ending}",
                         ) for ending in ["map", "mod"]
                     ]
                 else:
                     output_files = [
                         os.path.join(
-                            config.general.data.profiles.root,
-                            version,
+                            config.general.data.atmospheric_profiles.root,
+                            atmospheric_profile_model,
                             f"{date_slug}{time:02d}_{coordinate_slug}.{ending}",
                         ) for ending in ["map", "mod", "vmr"]
                         for time in [0, 3, 6, 9, 12, 15, 18, 21]

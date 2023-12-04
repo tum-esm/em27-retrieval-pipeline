@@ -14,7 +14,7 @@ def run() -> None:
 
     try:
 
-        for version in config.profiles.scope.data_types:
+        for version in config.profiles.scope.models:
             print(f"Downloading {version} data")
 
             # Generate daily sensor sets
