@@ -1,291 +1,198 @@
-from typing import Optional
 import datetime
-import json
 import os
-import re
 import em27_metadata
-from src import retrieval
 from src import types, utils
 
 
-class RetrievalQueue:
-    """1. Takes all items from manual-queue.json with a priority > 0
-    2. Takes all dates from the config.data_src_dirs.interferograms
-    3. Takes all items from manual-queue.json with a priority < 0"""
-    def __init__(
-        self,
-        config: types.Config,
-        logger: retrieval.utils.logger.Logger,
-        em27_metadata_storage: Optional[
-            em27_metadata.interfaces.EM27MetadataInterface] = None,
-        verbose_reasoning: bool = False,
-    ) -> None:
-        """Initialize the retrieval queue.
+def _date_range(
+    from_date: datetime.date,
+    to_date: datetime.date,
+) -> list[datetime.date]:
+    delta = to_date - from_date
+    assert delta.days >= 0, "from_date must be before to_date"
+    return [
+        from_date + datetime.timedelta(days=i) for i in range(delta.days + 1)
+    ]
 
-        This includes loading the location data from GitHub using the package
-        `tum_esm_em27_metadata`. "verbose reasoning" means that the retrieval
-        queue will log the reason why it skips a certain item."""
 
-        self.logger = logger
-        self.config = config
-        assert self.config.retrieval is not None
-        self.logger.info("Initializing RetrievalQueue")
+def generate_retrieval_queue(
+    config: types.Config,
+    em27_metadata_interface: em27_metadata.EM27MetadataInterface,
+    retrieval_job_config: types.RetrievalJobConfig
+) -> list[em27_metadata.types.SensorDataContext]:
+    retrieval_queue: list[em27_metadata.types.SensorDataContext] = []
 
-        self.logger.debug("Fetching metadata from GitHub")
-        self.em27_metadata_storage: em27_metadata.interfaces.EM27MetadataInterface
-        if em27_metadata_storage is not None:
-            self.em27_metadata_storage = em27_metadata_storage
+    for sensor in em27_metadata_interface.sensors:
+        if sensor.sensor_id not in retrieval_job_config.sensor_ids:
+            print(f"Skipping sensor {sensor.sensor_id}")
+            continue
         else:
-            self.em27_metadata_storage = em27_metadata.load_from_github(
-                github_repository=self.config.general.metadata.
-                github_repository,
-                access_token=self.config.general.metadata.access_token,
-            )
+            print(f"Processing sensor {sensor.sensor_id}")
 
-        self.iteration_index = 0
-        self.verbose_reasoning = verbose_reasoning
+        # Find dates with location data
 
-        self.logger.debug("Precomputing queue items")
-        self.queue_items: list[em27_metadata.types.SensorDataContext
-                              ] = self._get_storage_queue_items()
-
-        self.logger.info("RetrievalQueue is set up")
-
-    def get_next_item(self) -> Optional[em27_metadata.types.SensorDataContext]:
-        """Get the next item to process. Returns `None` if no item is available."""
-
-        # TODO: write remaining queue as json to logs directory
-
-        if self.iteration_index > (len(self.queue_items) - 1):
-            return None
-        else:
-            self.iteration_index += 1
-            return self.queue_items[self.iteration_index - 1]
-
-    def _get_storage_queue_items(
-        self,
-    ) -> list[em27_metadata.types.SensorDataContext]:
-        assert self.config.retrieval is not None
-
-        from_date = self.config.retrieval.data_filter.from_date
-        to_date = min(
-            datetime.date.today() - datetime.timedelta(
-                days=self.config.retrieval.data_filter.min_days_delay
-            ),
-            self.config.retrieval.data_filter.to_date,
-        )
-        dates: list[datetime.date] = [
-            from_date + datetime.timedelta(days=i)
-            for i in range((to_date - from_date).days + 1)
-        ]
-        self.logger.debug(
-            f"Considering data from {from_date} to {to_date} ({len(dates)} date(s))"
-        )
-        self.logger.debug(
-            f"Considering data from sensor(s) {self.config.retrieval.data_filter.sensor_ids_to_consider}"
-        )
-        queue_items: list[em27_metadata.types.SensorDataContext] = []
-
-        logged_progresses: list[int] = []
-        for date_index, date in enumerate(dates[::-1]):
-            progress = int(((date_index + 1) / len(dates)) * 100)
-            if (progress % 5 == 0) and (progress not in logged_progresses):
-                self.logger.debug(f"{progress:3d} % done")
-                logged_progresses.append(progress)
-            for (
-                sensor_id
-            ) in self.config.retrieval.data_filter.sensor_ids_to_consider:
-                if not self._ifgs_exist(sensor_id, date):
-                    if self.verbose_reasoning:
-                        self.logger.debug(
-                            f"skipping {sensor_id}/{date} because ifgs do not exist"
-                        )
-                    continue
-                if self._upload_is_incomplete(sensor_id, date):
-                    if self.verbose_reasoning:
-                        self.logger.debug(
-                            f"skipping {sensor_id}/{date} because upload is incomplete"
-                        )
-                    continue
-
-                try:
-                    sensor_data_contexts = self.em27_metadata_storage.get(
-                        sensor_id=sensor_id,
-                        from_datetime=datetime.datetime(
-                            date.year,
-                            date.month,
-                            date.day,
-                            0,
-                            0,
-                            0,
-                            tzinfo=datetime.timezone.utc,
-                        ),
-                        to_datetime=datetime.datetime(
-                            date.year,
-                            date.month,
-                            date.day,
-                            23,
-                            59,
-                            59,
-                            tzinfo=datetime.timezone.utc,
-                        ),
-                    )
-                except AssertionError as a:
-                    self.logger.debug(str(a))
-                    continue
-
-                if len(sensor_data_contexts) == 0:
-                    if self.verbose_reasoning:
-                        self.logger.debug(
-                            f"skipping {sensor_id}/{date} because no metadata exists"
-                        )
-                    continue
-
-                try:
-                    sensor_data_contexts = self._filter_ctxs_by_existing_outputs(
-                        sensor_id, sensor_data_contexts
-                    )
-                except RuntimeError as e:
-                    self.logger.debug(str(e))
-                    continue
-
-                if len(sensor_data_contexts) == 0:
-                    if self.verbose_reasoning:
-                        self.logger.debug(
-                            f"skipping {sensor_id}/{date} because all outputs exist"
-                        )
-                    continue
-
-                queue_items += sensor_data_contexts
-
-        return list(
-            sorted(
-                queue_items, key=lambda sdc: sdc.from_datetime, reverse=True
-            )
-        )
-
-    def _ifgs_exist(self, sensor_id: str, date: datetime.date) -> bool:
-        """determine whether an ifg directory exists and contains
-        at least one interferogram"""
-
-        assert self.config.retrieval is not None
-
-        date_string = date.strftime("%Y%m%d")
-
-        ifg_src_directory = os.path.join(
-            self.config.general.data.interferograms.root,
-            sensor_id,
-            date.strftime("%Y%m%d"),
-        )
-        if not os.path.isdir(ifg_src_directory):
-            return False
-
-        expected_ifg_regex = (
-            self.config.retrieval.general.ifg_file_regex.replace(
-                "$(SENSOR_ID)", sensor_id
-            ).replace("$(DATE)", f"({date_string}|{date_string[2:]})")
-        )
-        expected_ifg_pattern = re.compile(expected_ifg_regex)
-        return (
-            len([
-                f for f in os.listdir(ifg_src_directory)
-                if expected_ifg_pattern.match(f) is not None
-            ]) > 0
-        )
-
-    def _filter_ctxs_by_existing_outputs(
-        self,
-        sensor_id: str,
-        sensor_data_contexts: list[em27_metadata.types.SensorDataContext],
-    ) -> list[em27_metadata.types.SensorDataContext]:
-        """For a given list of sensor data context of one day, remove those
-        that already have outputs."""
-
-        assert self.config.retrieval is not None
-
-        if len(sensor_data_contexts) == 1:
-            expected_output_dir_names = set([
-                sensor_data_contexts[0].from_datetime.strftime("%Y%m%d")
-            ])
-        else:
-            expected_output_dir_names = set([(
-                sdc.from_datetime.strftime("%Y%m%d_%H:%M:%S") + "_" +
-                sdc.to_datetime.strftime("%H:%M:%S")
-            ) for sdc in sensor_data_contexts])
-
-        existing_output_dir_names: set[str] = set()
-        for output_dir_type in ["successful", "failed"]:
-            output_dir_path = os.path.join(
-                self.config.general.data.results.root,
-                sensor_id,
-                self.config.retrieval.general.retrieval_software + "-outputs",
-                output_dir_type,
-            )
-            if os.path.isdir(output_dir_path):
-                existing_output_dir_names = existing_output_dir_names.union(
-                    set(
-                        utils.files.list_directory(
-                            output_dir_path,
-                            is_directory=True,
-                            regex=(
-                                r"^" + sensor_data_contexts[0].from_datetime.
-                                strftime("%Y%m%d") + r".*"
-                            ),
-                        )
+        dates_with_location: set[datetime.date] = set()
+        for location in sensor.locations:
+            if ((location.to_datetime < retrieval_job_config.from_datetime) or
+                (location.from_datetime > retrieval_job_config.to_datetime)):
+                continue
+            dates_with_location.update(
+                _date_range(
+                    max(
+                        location.from_datetime.date(),
+                        retrieval_job_config.from_date
+                    ),
+                    min(
+                        location.to_datetime.date(),
+                        retrieval_job_config.to_date
                     )
                 )
+            )
+        print(f"  Found {len(dates_with_location)} dates with location data")
 
-        if len(existing_output_dir_names) == 0:
-            return sensor_data_contexts
+        # Only keep dates with interferograms
 
-        if existing_output_dir_names == expected_output_dir_names:
-            return []
-
-        if existing_output_dir_names.issubset(expected_output_dir_names):
-            return [
-                sdc for sdc in sensor_data_contexts if ((
-                    sdc.from_datetime.strftime("%Y%m%d_%H:%M:%S") + "_" +
-                    sdc.to_datetime.strftime("%H:%M:%S")
-                ) not in existing_output_dir_names)
-            ]
-
-        # happens when the metadata time sections are
-        # changed after a retrieval has been completed
-        raise RuntimeError(
-            "Existing output directories are not compatible with the current " +
-            "metadata. This happens when the metadata time sections are " +
-            "changed after a retrieval has been completed. Please remove the " +
-            "following directories and try again: " + ", ".join([
-                os.path.join(
-                    self.config.general.data.results.root,
-                    sensor_id,
-                    self.config.retrieval.general.retrieval_software +
-                    "-outputs",
-                    output_dir_type,
-                    dir_name,
-                ) for dir_name in existing_output_dir_names
-            ])
+        dates_with_interferograms: set[datetime.date] = set()
+        for date in dates_with_location:
+            ifg_path = os.path.join(
+                config.general.data.interferograms.root, sensor.sensor_id,
+                date.strftime("%Y%m%d")
+            )
+            if os.path.isdir(ifg_path):
+                do_not_touch_indicator_file = os.path.join(
+                    ifg_path, ".do-not-touch"
+                )
+                if not os.path.isfile(do_not_touch_indicator_file):
+                    dates_with_interferograms.add(date)
+        print(
+            f"  {len(dates_with_interferograms)} of these dates have interferograms"
         )
 
-    def _upload_is_incomplete(
-        self, sensor_id: str, date: datetime.date
-    ) -> bool:
-        """
-        If the dir_path contains a file "upload-meta.json", then this
-        function returns whether the internally used format indicates
-        a completed upload. Otherwise it will just return True
-        """
-        ifg_dir_path = os.path.join(
-            self.config.general.data.interferograms.root,
-            sensor_id,
-            date.strftime("%Y%m%d"),
+        # Get sensor data contexts for all dates with interferograms
+
+        sensor_data_contexts: list[em27_metadata.types.SensorDataContext] = []
+        for date in dates_with_interferograms:
+            from_datetime = datetime.datetime(
+                date.year, date.month, date.day, 0, 0, 0, tzinfo=datetime.UTC
+            )
+            to_datetime = datetime.datetime(
+                date.year,
+                date.month,
+                date.day,
+                23,
+                59,
+                59,
+                tzinfo=datetime.UTC
+            )
+            sensor_data_contexts.extend(
+                em27_metadata_interface.get(
+                    sensor.sensor_id, from_datetime, to_datetime
+                )
+            )
+        print(
+            f"  Generated {len(sensor_data_contexts)} sensor data contexts for these dates"
         )
 
-        if os.path.isfile(os.path.join(ifg_dir_path, ".do-no-touch")):
-            return True
+        # Filter out the sensor data contexts which have already been processed
+        # i.e. there is a results directory for them
 
-        try:
-            with open(os.path.join(ifg_dir_path, "upload-meta.json")) as f:
-                return json.load(f)["complete"] == False  # type: ignore
-        except:
-            return False
+        unprocessed_sensor_data_contexts: list[
+            em27_metadata.types.SensorDataContext] = []
+        results_dir = os.path.join(
+            config.general.data.results.root,
+            retrieval_job_config.retrieval_algorithm,
+            retrieval_job_config.atmospheric_profile_model, sensor.sensor_id
+        )
+        for sdc in sensor_data_contexts:
+            output_folder = sdc.from_datetime.strftime("%Y%m%d")
+            if sdc.multiple_ctx_on_this_date:
+                output_folder += sdc.from_datetime.strftime("_%H%M%S")
+                output_folder += sdc.to_datetime.strftime("_%H%M%S")
+            success_dir = os.path.join(results_dir, "successful", output_folder)
+            failure_dir = os.path.join(results_dir, "failed", output_folder)
+            if (
+                not os.path.isdir(success_dir) and
+                not os.path.isdir(failure_dir)
+            ):
+                unprocessed_sensor_data_contexts.append(sdc)
+        print(
+            f"  {len(unprocessed_sensor_data_contexts)} of these sensor data contexts "
+            "have not been processed yet"
+        )
+
+        # Only keep the sensor data contexts with datalogger files
+
+        unprocessed_sensor_data_contexts_with_datalogger_files: list[
+            em27_metadata.types.SensorDataContext] = []
+        for sdc in unprocessed_sensor_data_contexts:
+            datalogger_file_path = os.path.join(
+                config.general.data.dataloggers.root,
+                sdc.pressure_data_source,
+                (
+                    f"datalogger-{sdc.pressure_data_source}-" +
+                    sdc.from_datetime.strftime("%Y%m%d") + ".csv"
+                ),
+            )
+            if os.path.isfile(datalogger_file_path):
+                unprocessed_sensor_data_contexts_with_datalogger_files.append(
+                    sdc
+                )
+        print(
+            f"  {len(unprocessed_sensor_data_contexts_with_datalogger_files)} of these "
+            "sensor data contexts have datalogger files"
+        )
+
+        # Only keep the sensor data contexts with atmospheric profiles
+
+        unprocessed_sensor_data_contexts_with_atmospheric_profiles: list[
+            em27_metadata.types.SensorDataContext] = []
+        for sdc in unprocessed_sensor_data_contexts_with_datalogger_files:
+            profiles_dir = os.path.join(
+                config.general.data.atmospheric_profiles.root,
+                retrieval_job_config.atmospheric_profile_model
+            )
+            cd = utils.text.get_coordinates_slug(
+                sdc.location.lat, sdc.location.lon
+            )
+            date_slugs = sdc.from_datetime.strftime("%Y%m%d")
+            datetime_slugs: list[str]
+            if retrieval_job_config.atmospheric_profile_model == "GGG2014":
+                datetime_slugs = [date_slugs]
+            else:
+                datetime_slugs = [
+                    f"{date_slugs}{d:02}" for d in [0, 3, 6, 9, 12, 15, 18, 21]
+                ]
+
+            # Using this logic instead of something like `all([... for ...])`
+            # so that it stops looking on the first encountered missing file
+            profiles_complete: bool = True
+            for datetime_slug in datetime_slugs:
+                if not os.path.isfile(
+                    os.path.join(profiles_dir, f"{datetime_slug}_{cd}.map")
+                ):
+                    profiles_complete = False
+                    break
+            if profiles_complete:
+                unprocessed_sensor_data_contexts_with_atmospheric_profiles.append(
+                    sdc
+                )
+        print(
+            f"  {len(unprocessed_sensor_data_contexts_with_atmospheric_profiles)} of these "
+            "sensor data contexts have atmospheric profiles"
+        )
+
+        # Append the files
+
+        retrieval_queue.extend(
+            unprocessed_sensor_data_contexts_with_atmospheric_profiles
+        )
+
+    return sorted(
+        sorted(
+            retrieval_queue,
+            key=lambda sdc: sdc.sensor_id,
+            reverse=False,
+        ),
+        key=lambda sdc: sdc.from_datetime,
+        reverse=True
+    )
