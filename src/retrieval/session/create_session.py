@@ -93,6 +93,7 @@ def run(
     container_factory: retrieval.dispatching.container_factory.ContainerFactory,
     sensor_data_context: em27_metadata.types.SensorDataContext,
     retrieval_algorithm: types.RetrievalAlgorithm,
+    atmospheric_profile_model: types.AtmosphericProfileModel,
 ) -> types.RetrievalSession:
     """Create a new container and the pylot config files"""
     new_session = types.RetrievalSession(
@@ -100,10 +101,13 @@ def run(
         ctn=container_factory.create_container(
             retrieval_algorithm=retrieval_algorithm
         ),
+        atmospheric_profile_model=atmospheric_profile_model,
     )
     retrieval.utils.retrieval_status.RetrievalStatusList.update_item(
-        sensor_data_context.sensor_id,
-        sensor_data_context.from_datetime,
+        retrieval_algorithm=retrieval_algorithm,
+        atmospheric_profile_model=atmospheric_profile_model,
+        sensor_id=sensor_data_context.sensor_id,
+        from_datetime=sensor_data_context.from_datetime,
         container_id=new_session.ctn.container_id,
         process_start_time=datetime.datetime.utcnow(),
     )

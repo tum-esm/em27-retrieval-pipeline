@@ -4,7 +4,11 @@ from .basic_types import (
     SamplingRate,
     OutputTypes,
 )
-from .config import Config, ExportTargetConfig
+from .config import (
+    Config,
+    ExportTargetConfig,
+    RetrievalJobConfig,
+)
 from .download_query import DownloadQuery
 from .input_warnings import InputWarning, InputWarningsList
 from .retrieval_containers import (
