@@ -1,16 +1,11 @@
 import ftplib
 import io
-import os
 import sys
 import tum_esm_utils
 import click
 
-_PROJECT_DIR = tum_esm_utils.files.get_parent_dir_path(__file__)
-_RETRIEVAL_ENTRYPOINT = os.path.join(
-    _PROJECT_DIR,
-    "src",
-    "entrypoints",
-    "run_retrieval.py",
+_RETRIEVAL_ENTRYPOINT = tum_esm_utils.files.rel_to_abs_path(
+    "src", "entrypoints", "run_retrieval.py"
 )
 
 cli = click.Group(name="cli")

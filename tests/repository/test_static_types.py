@@ -3,7 +3,7 @@ import shutil
 import pytest
 import tum_esm_utils
 
-PROJECT_DIR = tum_esm_utils.files.get_parent_dir_path(__file__, current_depth=2)
+PROJECT_DIR = tum_esm_utils.files.rel_to_abs_path("../../")
 
 
 def _rmdir(path: str) -> None:
@@ -17,14 +17,15 @@ def _rmdir(path: str) -> None:
 @pytest.mark.ci_intensive
 @pytest.mark.ci_complete
 def test_static_types() -> None:
+    os.system(f"cd {PROJECT_DIR} && rm -f .mypy_cache/3.*/cli.*")
     _rmdir(".mypy_cache/3.11/src")
     _rmdir(".mypy_cache/3.11/tests")
 
     for path in [
-        "src/cli.py",
-        "src/run_retrieval.py",
-        "src/download_profiles.py",
-        "src/export_outputs.py",
+        "cli.py",
+        "src/entrypoints/run_retrieval.py",
+        "src/entrypoints/download_profiles.py",
+        "src/entrypoints/export_outputs.py",
         "src/retrieval/algorithms/proffast-1.0/main/prfpylot/main.py",
         "tests/",
     ]:

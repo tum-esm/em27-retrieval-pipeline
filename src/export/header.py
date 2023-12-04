@@ -20,7 +20,7 @@ def get_header(
     em27_metadata_storage: em27_metadata.interfaces.EM27MetadataInterface,
     campaign: em27_metadata.types.CampaignMetadata,
     sensor_data_contexts: list[em27_metadata.types.SensorDataContext],
-    output_merging_target: utils.config.OutputMergingTargetConfig,
+    export_target: utils.config.ExportTargetConfig,
 ) -> str:
     """Returns a description of the campaign."""
 
@@ -44,8 +44,8 @@ def get_header(
         f"    campaign sensor ids:    {', '.join(campaign.sensor_ids)}",
         f"    campaign location ids:  {', '.join(campaign.location_ids)}",
         f"    date:                   {sensor_data_contexts[0].from_datetime.strftime('%Y-%m-%d')}",
-        f"    data types:             {', '.join(output_merging_target.data_types)}",
-        f"    sampling rate:          {output_merging_target.sampling_rate}",
+        f"    data types:             {', '.join(export_target.data_types)}",
+        f"    sampling rate:          {export_target.sampling_rate}",
         f"",
     ]
 

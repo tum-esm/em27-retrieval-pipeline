@@ -9,7 +9,7 @@ from src import utils
 
 def get_empty_sensor_dataframe(
     sensor_id: str,
-    output_merging_target: utils.config.OutputMergingTargetConfig,
+    export_target: utils.config.ExportTargetConfig,
 ) -> pl.DataFrame:
     """
     Returns an empty single sensor dataframe.
@@ -20,18 +20,15 @@ def get_empty_sensor_dataframe(
 
     ```
     utc  me_gnd_p  me_gnd_t  me_app_sza  ...
-    ```
-    """
-
-    column_names = [
-        f"{sensor_id}_{type_}" for type_ in output_merging_target.data_types
-    ]
+    ```"""
 
     return pl.DataFrame(
         schema={
             "utc": pl.Datetime,
-            **{c: pl.Float32
-               for c in column_names},
+            **{
+                f"{sensor_id}_{t}": pl.Float32
+                for t in export_target.data_types
+            },
         }
     )
 
@@ -39,7 +36,7 @@ def get_empty_sensor_dataframe(
 def get_sensor_dataframe(
     config: utils.config.Config,
     sensor_data_context: em27_metadata.types.SensorDataContext,
-    output_merging_target: utils.config.OutputMergingTargetConfig,
+    export_target: utils.config.ExportTargetConfig,
 ) -> pl.DataFrame:
     """
     Returns a single sensor dataframe.
@@ -128,7 +125,7 @@ def get_sensor_dataframe(
     # only keep the requested columns
     return df.select([
         "utc",
-        *[column_names[t] for t in output_merging_target.data_types],
+        *[column_names[t] for t in export_target.data_types],
     ])
 
 
