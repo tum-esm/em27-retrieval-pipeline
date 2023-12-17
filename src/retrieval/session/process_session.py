@@ -26,49 +26,36 @@ def run(
     )
     logger.debug(f"Session object: {session.model_dump_json(indent=4)}")
 
-    def _graceful_teardown(*args: Any) -> None:
-        logger.info(f"Container was killed")
+    def _last_will() -> None:
         logger.archive()
         retrieval.utils.retrieval_status.RetrievalStatusList.update_item(
             session.ctx.sensor_id,
             session.ctx.from_datetime,
             process_end_time=datetime.datetime.utcnow(),
         )
+
+    def _graceful_teardown(*args: Any) -> None:
+        logger.info(f"Container was killed")
+        _last_will()
         exit(0)
 
     signal.signal(signal.SIGINT, _graceful_teardown)
     signal.signal(signal.SIGTERM, _graceful_teardown)
     logger.info("Established graceful teardown hook")
 
-    def log_input_warning(message: str) -> None:
-        retrieval.dispatching.input_warning_list.InputWarningsInterface.add(
-            session.ctx.sensor_id, session.ctx.from_datetime, message
-        )
-        logger.warning(message)
-        logger.archive()
-
-    label: str = "atmospheric profiles"
     try:
+        logger.debug("Moving atmospheric profiles")
         move_profiles.run(config, session)
-        label = "datalogger files"
-        move_log_files.run(config, logger, session)
-        label = "ifg files"
-        move_ifg_files.run(config, logger, session)
-        pass
-    except Exception as e:
-        log_input_warning(f"Inputs incomplete ({label}): {e}")
-        retrieval.utils.retrieval_status.RetrievalStatusList.update_item(
-            session.ctx.sensor_id,
-            session.ctx.from_datetime,
-            process_end_time=datetime.datetime.utcnow(),
-        )
-        return
 
-    # inputs complete no warning to consider anymore
-    retrieval.dispatching.input_warning_list.InputWarningsInterface.remove(
-        session.ctx.sensor_id,
-        session.ctx.from_datetime,
-    )
+        logger.debug("Moving atmospheric datalogger files")
+        move_log_files.run(config, logger, session)
+
+        logger.debug("Moving interferograms")
+        move_ifg_files.run(config, logger, session)
+    except Exception as e:
+        logger.warning(f"Inputs incomplete: {e}")
+        _last_will()
+        return
 
     logger.info(f"Running proffast")
     try:
@@ -88,9 +75,4 @@ def run(
     except Exception as e:
         logger.exception(e, label="Moving outputs failed")
 
-    logger.archive()
-    retrieval.utils.retrieval_status.RetrievalStatusList.update_item(
-        session.ctx.sensor_id,
-        session.ctx.from_datetime,
-        process_end_time=datetime.datetime.utcnow(),
-    )
+    _last_will()
