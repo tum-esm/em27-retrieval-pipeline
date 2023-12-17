@@ -4,8 +4,7 @@ import tempfile
 import pytest
 import datetime
 import em27_metadata
-from src import profiles
-from src.utils import utils
+from src import types, profiles
 from tests.fixtures import provide_config_template
 
 
@@ -13,9 +12,7 @@ from tests.fixtures import provide_config_template
 @pytest.mark.ci_quick
 @pytest.mark.ci_intensive
 @pytest.mark.ci_complete
-def test_query_generation(
-    provide_config_template: utils.config.Config,
-) -> None:
+def test_query_generation(provide_config_template: types.Config, ) -> None:
     config = provide_config_template
     assert config.profiles is not None
 
@@ -73,19 +70,21 @@ def test_query_generation(
         campaigns=[],
     )
 
-    versions: list[Literal["GGG2014", "GGG2020"]] = ["GGG2014", "GGG2020"]
+    atmospheric_profile_models: list[Literal["GGG2014", "GGG2020"]] = [
+        "GGG2014", "GGG2020"
+    ]
 
     # create a "with tmp dir"
     with tempfile.TemporaryDirectory() as tmp_dir:
-        config.general.data_src_dirs.profiles = tmp_dir
-        config.profiles.request_scope.from_date = datetime.date(2000, 1, 1)
-        config.profiles.request_scope.to_date = datetime.date(2000, 5, 30)
+        config.general.data.atmospheric_profiles.root = tmp_dir
+        config.profiles.scope.from_date = datetime.date(2000, 1, 1)
+        config.profiles.scope.to_date = datetime.date(2000, 5, 30)
 
-        for version in versions:
-            os.mkdir(os.path.join(tmp_dir, version))
+        for atmospheric_profile_model in atmospheric_profile_models:
+            os.mkdir(os.path.join(tmp_dir, atmospheric_profile_model))
             query_list = profiles.generate_queries.generate_download_queries(
                 config=config,
-                version=version,
+                atmospheric_profile_model=atmospheric_profile_model,
                 em27_metadata_storage=em27_metadata_storage,
             )
             [print(q) for q in query_list]

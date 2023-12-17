@@ -1,15 +1,13 @@
 import datetime
 import os
-from typing import Optional
 import pytest
 import em27_metadata
 import tum_esm_utils
-
-from src.utils import utils
 from ..fixtures import download_sample_data, clear_output_data, provide_config_template
 import dotenv
 
-from src import retrieval
+from src import types
+from src.retrieval.dispatching.retrieval_queue import generate_retrieval_queue
 
 dir = os.path.dirname
 PROJECT_DIR = tum_esm_utils.files.get_parent_dir_path(__file__, current_depth=3)
@@ -46,14 +44,14 @@ em27_metadata_storage = em27_metadata.interfaces.EM27MetadataInterface(
 )
 
 
-def _check_next_item(
-    i: Optional[em27_metadata.types.SensorDataContext],
-    expected_date: Optional[datetime.date],
+def _check_retrieval_queue(
+    expected: list[datetime.date],
+    actual: list[em27_metadata.types.SensorDataContext],
 ) -> None:
-    if i is None:
-        assert expected_date is None
-    else:
-        assert i.from_datetime.date() == expected_date
+    assert len(expected) == len(actual)
+    for expected_item, actual_item in zip(expected, actual):
+        assert actual_item.from_datetime.date() == expected_item
+        assert actual_item.to_datetime.date() == expected_item
 
 
 @pytest.mark.order(1)
@@ -63,80 +61,111 @@ def _check_next_item(
 def test_retrieval_queue(
     download_sample_data: None,
     clear_output_data: None,
-    provide_config_template: utils.config.Config,
+    provide_config_template: types.Config,
 ) -> None:
     config = provide_config_template
     assert config.retrieval is not None
 
     # target config at test data
-    config.retrieval.data_filter.sensor_ids_to_consider = ["so"]
-    config.retrieval.general.retrieval_software = "proffast-2.2"
-    config.general.data_src_dirs.datalogger = os.path.join(
+    config.general.data.datalogger.root = os.path.join(
         PROJECT_DIR, "data", "testing", "container", "inputs", "log"
     )
-    config.general.data_src_dirs.interferograms = os.path.join(
+    config.general.data.interferograms.root = os.path.join(
         PROJECT_DIR, "data", "testing", "container", "inputs", "ifg"
     )
-    config.general.data_src_dirs.profiles = os.path.join(
+    config.general.data.atmospheric_profiles.root = os.path.join(
         PROJECT_DIR, "data", "testing", "container", "inputs", "map"
     )
-    config.general.data_dst_dirs.results = os.path.join(
+    config.general.data.results.root = os.path.join(
         PROJECT_DIR, "data", "testing", "container", "outputs"
     )
 
-    config.retrieval.data_filter.from_date = datetime.date(2017, 6, 8)
-    config.retrieval.data_filter.to_date = datetime.date(2017, 6, 9)
-    logger = retrieval.utils.logger.Logger("testing", print_only=True)
-
     # test case 1
-    config.retrieval.data_filter.from_date = datetime.date(2017, 6, 9)
-    config.retrieval.data_filter.to_date = datetime.date(2017, 6, 10)
-    retrieval_queue = retrieval.dispatching.retrieval_queue.RetrievalQueue(
+    retrieval_queue = generate_retrieval_queue(
         config,
-        logger,
-        em27_metadata_storage=em27_metadata_storage,
-        verbose_reasoning=True
+        em27_metadata_interface=em27_metadata_storage,
+        retrieval_job_config=types.RetrievalJobConfig(
+            retrieval_algorithm="proffast-2.2",
+            atmospheric_profile_model="GGG2014",
+            sensor_ids=["so"],
+            from_date=datetime.date(2017, 6, 9),
+            to_date=datetime.date(2017, 6, 10),
+        )
     )
-    _check_next_item(retrieval_queue.get_next_item(), datetime.date(2017, 6, 9))
-    _check_next_item(retrieval_queue.get_next_item(), None)
-    _check_next_item(retrieval_queue.get_next_item(), None)
+    _check_retrieval_queue(
+        expected=[
+            datetime.date(2017, 6, 9),
+        ],
+        actual=retrieval_queue,
+    )
 
     # test case 2
-    config.retrieval.data_filter.from_date = datetime.date(2017, 6, 1)
-    config.retrieval.data_filter.to_date = datetime.date(2017, 6, 10)
-    retrieval_queue = retrieval.dispatching.retrieval_queue.RetrievalQueue(
-        config, logger, em27_metadata_storage=em27_metadata_storage
+    retrieval_queue = generate_retrieval_queue(
+        config,
+        em27_metadata_interface=em27_metadata_storage,
+        retrieval_job_config=types.RetrievalJobConfig(
+            retrieval_algorithm="proffast-2.2",
+            atmospheric_profile_model="GGG2014",
+            sensor_ids=["so"],
+            from_date=datetime.date(2017, 6, 1),
+            to_date=datetime.date(2017, 6, 10),
+        )
     )
-    _check_next_item(retrieval_queue.get_next_item(), datetime.date(2017, 6, 9))
-    _check_next_item(retrieval_queue.get_next_item(), datetime.date(2017, 6, 8))
-    _check_next_item(retrieval_queue.get_next_item(), None)
-    _check_next_item(retrieval_queue.get_next_item(), None)
+    _check_retrieval_queue(
+        expected=[
+            datetime.date(2017, 6, 9),
+            datetime.date(2017, 6, 8),
+        ],
+        actual=retrieval_queue,
+    )
 
     # test case 3
-    config.retrieval.data_filter.from_date = datetime.date(2017, 6, 1)
-    config.retrieval.data_filter.to_date = datetime.date(2017, 6, 8)
-    retrieval_queue = retrieval.dispatching.retrieval_queue.RetrievalQueue(
-        config, logger, em27_metadata_storage=em27_metadata_storage
+    retrieval_queue = generate_retrieval_queue(
+        config,
+        em27_metadata_interface=em27_metadata_storage,
+        retrieval_job_config=types.RetrievalJobConfig(
+            retrieval_algorithm="proffast-2.2",
+            atmospheric_profile_model="GGG2014",
+            sensor_ids=["so"],
+            from_date=datetime.date(2017, 6, 1),
+            to_date=datetime.date(2017, 6, 8),
+        )
     )
-    _check_next_item(retrieval_queue.get_next_item(), datetime.date(2017, 6, 8))
-    _check_next_item(retrieval_queue.get_next_item(), None)
-    _check_next_item(retrieval_queue.get_next_item(), None)
+    _check_retrieval_queue(
+        expected=[datetime.date(2017, 6, 8)],
+        actual=retrieval_queue,
+    )
 
     # test case 4
-    config.retrieval.data_filter.from_date = datetime.date(2017, 6, 8)
-    config.retrieval.data_filter.to_date = datetime.date(2017, 6, 8)
-    retrieval_queue = retrieval.dispatching.retrieval_queue.RetrievalQueue(
-        config, logger, em27_metadata_storage=em27_metadata_storage
+    retrieval_queue = generate_retrieval_queue(
+        config,
+        em27_metadata_interface=em27_metadata_storage,
+        retrieval_job_config=types.RetrievalJobConfig(
+            retrieval_algorithm="proffast-2.2",
+            atmospheric_profile_model="GGG2014",
+            sensor_ids=["so"],
+            from_date=datetime.date(2017, 6, 8),
+            to_date=datetime.date(2017, 6, 8),
+        )
     )
-    _check_next_item(retrieval_queue.get_next_item(), datetime.date(2017, 6, 8))
-    _check_next_item(retrieval_queue.get_next_item(), None)
-    _check_next_item(retrieval_queue.get_next_item(), None)
+    _check_retrieval_queue(
+        expected=[datetime.date(2017, 6, 8)],
+        actual=retrieval_queue,
+    )
 
     # test case 5
-    config.retrieval.data_filter.from_date = datetime.date(2017, 6, 1)
-    config.retrieval.data_filter.to_date = datetime.date(2017, 6, 7)
-    retrieval_queue = retrieval.dispatching.retrieval_queue.RetrievalQueue(
-        config, logger, em27_metadata_storage=em27_metadata_storage
+    retrieval_queue = generate_retrieval_queue(
+        config,
+        em27_metadata_interface=em27_metadata_storage,
+        retrieval_job_config=types.RetrievalJobConfig(
+            retrieval_algorithm="proffast-2.2",
+            atmospheric_profile_model="GGG2014",
+            sensor_ids=["so"],
+            from_date=datetime.date(2017, 6, 1),
+            to_date=datetime.date(2017, 6, 7),
+        )
     )
-    _check_next_item(retrieval_queue.get_next_item(), None)
-    _check_next_item(retrieval_queue.get_next_item(), None)
+    _check_retrieval_queue(
+        expected=[],
+        actual=retrieval_queue,
+    )

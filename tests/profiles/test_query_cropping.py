@@ -2,8 +2,7 @@ from typing import Literal
 import pytest
 import datetime
 
-from src import profiles
-from src.utils import utils
+from src import types, utils, profiles
 from tests.fixtures import provide_config_template
 
 
@@ -12,14 +11,14 @@ from tests.fixtures import provide_config_template
 @pytest.mark.ci_intensive
 @pytest.mark.ci_complete
 def test_get_date_suffixes(
-    provide_config_template: utils.config.Config
+    provide_config_template: types.config.Config
 ) -> None:
     global_config = provide_config_template
     assert global_config.profiles is not None
 
     def call(
-        config: utils.config.Config,
-        query: utils.types.DownloadQuery,
+        config: types.config.Config,
+        query: types.DownloadQuery,
         version: Literal["GGG2014", "GGG2020"],
     ) -> list[str]:
         return profiles.transfer_logic.get_date_suffixes(
@@ -30,19 +29,19 @@ def test_get_date_suffixes(
         )
 
     queries = [
-        utils.types.DownloadQuery(
+        types.DownloadQuery(
             from_date="2000-01-01", to_date="2000-01-01", lat=0, lon=0
         ),
-        utils.types.DownloadQuery(
+        types.DownloadQuery(
             from_date="2000-01-01", to_date="2000-01-03", lat=0, lon=0
         ),
-        utils.types.DownloadQuery(
+        types.DownloadQuery(
             from_date="2000-01-01", to_date="2000-01-04", lat=0, lon=0
         ),
-        utils.types.DownloadQuery(
+        types.DownloadQuery(
             from_date="2000-01-03", to_date="2000-01-06", lat=0, lon=0
         ),
-        utils.types.DownloadQuery(
+        types.DownloadQuery(
             from_date="2000-01-05", to_date="2000-01-06", lat=0, lon=0
         ),
     ]
@@ -136,9 +135,7 @@ def test_get_date_suffixes(
     for version in versions:
         for i, query in enumerate(queries):
             for max_days_delay in max_days_delays:
-                global_config.profiles.ftp_server.max_day_delay = (
-                    max_days_delay
-                )
+                global_config.profiles.server.max_day_delay = (max_days_delay)
                 print("trying", max_days_delay, version, i)
                 print("  query", query)
                 assert expected_responses[max_days_delay][version][i] == call(

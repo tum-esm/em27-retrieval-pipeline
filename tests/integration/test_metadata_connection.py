@@ -1,12 +1,12 @@
 import pytest
 import em27_metadata
-from src.utils import utils
+from src import types
 
 
 @pytest.mark.integration
 def test_metadata_connection() -> None:
-    config = utils.config.Config.load()
+    config = types.Config.load()
     em27_metadata.load_from_github(
-        github_repository=config.general.location_data.github_repository,
-        access_token=config.general.location_data.access_token,
+        github_repository=config.general.metadata.github_repository,
+        access_token=config.general.metadata.access_token,
     )

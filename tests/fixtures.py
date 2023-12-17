@@ -10,7 +10,7 @@ _PROJECT_DIR = tum_esm_utils.files.rel_to_abs_path("..")
 
 @pytest.fixture
 def wrap_test_with_mainlock() -> Generator[None, None, None]:
-    with utils.functions.with_automation_lock():
+    with utils.semaphores.with_automation_lock():
         yield
 
 
@@ -109,10 +109,10 @@ def provide_config_template() -> Generator[types.Config, None, None]:
         os.path.join(_PROJECT_DIR, "config", "config.template.json"),
         ignore_path_existence=True,
     )
-    config.general.data_src_dirs.datalogger = "/tmp"
-    config.general.data_src_dirs.profiles = "/tmp"
-    config.general.data_src_dirs.interferograms = "/tmp"
-    config.general.data_dst_dirs.results = "/tmp"
-    config.export = utils.config.ExportConfig(targets=[])
+    config.general.data.datalogger.root = "/tmp"
+    config.general.data.atmospheric_profiles.root = "/tmp"
+    config.general.data.interferograms.root = "/tmp"
+    config.general.data.results.root = "/tmp"
+    config.export_targets = []
 
     yield config

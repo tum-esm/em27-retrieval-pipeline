@@ -1,7 +1,7 @@
 import pytest
-import src
+from src import types
 
 
 @pytest.mark.integration
 def test_config() -> None:
-    src.utils.config.Config.load()
+    types.Config.load()
