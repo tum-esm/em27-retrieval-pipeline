@@ -1,31 +1,19 @@
+from typing import Literal
 import datetime
 import os
-from typing import Literal
-from rich.console import Console
-from rich.table import Table
-from rich.rule import Rule
 import em27_metadata
+import polars as pl
+import tum_esm_utils
+import rich.console
+import rich.progress
 from src import types, utils
 
+console = rich.console.Console()
 
-def generate_new_table() -> Table:
-    table = Table()
-    table.add_column("date")
-    table.add_column("interfe-\nrograms")
-    table.add_column("data-\nlogger")
-    table.add_column("GGG2014\nprofiles", overflow="fold")
-    table.add_column("GGG2014\nprf1.0 out", overflow="fold")
-    table.add_column("GGG2014\nprf2.2 out", overflow="fold")
-    table.add_column("GGG2014\nprf2.3 out", overflow="fold")
-    table.add_column("GGG2020\nprofiles", overflow="fold")
-    table.add_column("GGG2020\nprf2.2 out", overflow="fold")
-    table.add_column("GGG2020\nprf2.3 out", overflow="fold")
-    return table
-
-
-# date | location id | interferograms | datalogger | profiles | prf1.0 GGG2014 | prf2.2 GGG2014 | prf2.2 GGG2020 | prf2.3 GGG202014 | prf2.3 GGG2020
-
+console.print("loading config")
 config = types.Config.load()
+
+console.print("loading metadata")
 metadata = em27_metadata.load_from_github(
     github_repository=config.general.metadata.github_repository,
     access_token=config.general.metadata.access_token,
@@ -51,10 +39,9 @@ def _ggg2014_profiles_exists(
 ) -> bool:
     date_string = date.strftime("%Y%m%d")
     coords_string = utils.text.get_coordinates_slug(lat, lon)
-    print(os.path.join(path, "GGG2014", f"{date_string}_{coords_string}.map"))
-    return os.path.isfile(
+    return "✅" if os.path.isfile(
         os.path.join(path, "GGG2014", f"{date_string}_{coords_string}.map")
-    )
+    ) else "-"
 
 
 def _ggg2020_profiles_exists(
@@ -62,19 +49,18 @@ def _ggg2020_profiles_exists(
     lat: float,
     lon: float,
     date: datetime.date,
-) -> bool:
+) -> str:
     date_string = date.strftime("%Y%m%d")
     coords_string = utils.text.get_coordinates_slug(lat, lon)
-    return all([
+    return "✅" if all([
         os.path.isfile(
-            os.path.join(
-                path, "GGG2020", f"{date_string}{h:02d}_{coords_string}.map"
-            )
+            os.path.
+            join(path, "GGG2020", f"{date_string}{h:02d}_{coords_string}.map")
         ) for h in range(0, 22, 3)
-    ])
+    ]) else "-"
 
 
-def _interferogram_datapoints(
+def _count_ifg_datapoints(
     path: str,
     sensor_id: str,
     date: datetime.date,
@@ -88,7 +74,7 @@ def _interferogram_datapoints(
         return 0
 
 
-def _datalogger_datapoints(
+def _count_datalogger_datapoints(
     path: str,
     sensor_id: str,
     date: datetime.date,
@@ -105,120 +91,162 @@ def _datalogger_datapoints(
         return 0
 
 
-def convert_stat_to_string(stat: list[int]) -> str:
-    if stat[0] == 0 and stat[1] == 0:
-        return "-"
-    if stat[0] == 0 and stat[2] == 0:
-        return "❌"
-    if stat[1] == 0 and stat[2] == 0:
+def _check_retrieval_output(
+    sdc: em27_metadata.types.SensorDataContext,
+    retrieval_algorithm: Literal["proffast-1.0", "proffast-2.2",
+                                 "proffast-2.3"],
+    atmospheric_model: Literal["GGG2014", "GGG2020"],
+) -> Literal["✅", "❌", "-"]:
+    output_folder_slug = sdc.from_datetime.strftime("%Y%m%d")
+    if sdc.multiple_ctx_on_this_date:
+        output_folder_slug += sdc.from_datetime.strftime("_%H%M%S")
+        output_folder_slug += sdc.to_datetime.strftime("_%H%M%S")
+
+    success_path = os.path.join(
+        config.general.data.results.root,
+        retrieval_algorithm,
+        atmospheric_model,
+        sensor.sensor_id,
+        "successful",
+        output_folder_slug,
+    )
+    failed_path = os.path.join(
+        config.general.data.results.root,
+        retrieval_algorithm,
+        atmospheric_model,
+        sensor.sensor_id,
+        "failed",
+        output_folder_slug,
+    )
+    if os.path.isdir(success_path):
         return "✅"
-    return f"⏳\n{stat[0]}S,{stat[1]}F,{stat[2]}P"
+    elif os.path.isdir(failed_path):
+        return "❌"
+    else:
+        return "-"
 
 
-config = types.Config.load()
-
-for sensor in metadata.sensors[: 1]:
-    console = Console(record=True)
-    for location in sensor.locations[: 2]:
-        l = next(
-            filter(
-                lambda l: l.location_id == location.location_id,
-                metadata.locations
-            )
-        )
+try:
+    for sensor in metadata.sensors:
+        from_datetimes: list[datetime.datetime] = []
+        to_datetimes: list[datetime.datetime] = []
+        location_ids: list[str] = []
+        interferograms: list[int] = []
+        datalogger: list[int] = []
+        ggg2014_profiles: list[str] = []
+        ggg2020_profiles: list[str] = []
+        ggg2014_proffast_10_outputs: list[str] = []
+        ggg2014_proffast_22_outputs: list[str] = []
+        ggg2014_proffast_23_outputs: list[str] = []
+        ggg2020_proffast_22_outputs: list[str] = []
+        ggg2020_proffast_23_outputs: list[str] = []
         console.print(
-            Rule(
-                f"{sensor.sensor_id} - {location.location_id} ({l.lat}, {l.lon})"
-                + f" - {location.from_datetime} to {location.to_datetime}"
-            )
+            f"determining sensor data contexts for sensor {sensor.sensor_id}"
         )
-        table = generate_new_table()
-        for date in _date_range(
-            location.from_datetime.date(), location.to_datetime.date()
-        ):
-            out_states: list[Literal["successful", "failed", "missing"]] = []
-            _gg2014 = _ggg2014_profiles_exists(
-                config.general.data.atmospheric_profiles.root, l.lat, l.lon,
-                date
+        sdcs = metadata.get(
+            sensor_id=sensor.sensor_id,
+            from_datetime=sensor.locations[0].from_datetime,
+            to_datetime=sensor.locations[-1].to_datetime
+        )
+        with rich.progress.Progress() as progress:
+            task = progress.add_task(
+                "parsing all sensor data contexts", total=len(sdcs)
             )
-            _gg2020 = _ggg2020_profiles_exists(
-                config.general.data.atmospheric_profiles.root, l.lat, l.lon,
-                date
-            )
-            stats = {
-                "GGG2014": {
-                    "proffast-1.0": [0, 0, 0],
-                    "proffast-2.2": [0, 0, 0],
-                    "proffast-2.3": [0, 0, 0],
-                },
-                "GGG2020": {
-                    "proffast-2.2": [0, 0, 0],
-                    "proffast-2.3": [0, 0, 0],
-                },
-            }
-            for sdc in metadata.get(
-                sensor_id=sensor.sensor_id,
-                from_datetime=max(
-                    datetime.datetime.combine(
-                        date, datetime.time.min, tzinfo=datetime.UTC
-                    ), location.from_datetime
-                ),
-                to_datetime=min(
-                    datetime.datetime.combine(
-                        date, datetime.time.max, tzinfo=datetime.UTC
-                    ), location.to_datetime
-                ),
-            ):
-                output_folder_slug = sdc.from_datetime.strftime("%Y%m%d")
-                if sdc.multiple_ctx_on_this_date:
-                    output_folder_slug += sdc.from_datetime.strftime("_%H%M%S")
-                    output_folder_slug += sdc.to_datetime.strftime("_%H%M%S")
-
-                for a in stats.keys():
-                    for r in stats[a].keys():
-                        success_path = os.path.join(
-                            config.general.data.results.root,
-                            f"{r}/{a}/{sensor.sensor_id}/successful",
-                            output_folder_slug
+            for sdc in sdcs:
+                date_range = _date_range(
+                    sdc.from_datetime.date(), sdc.to_datetime.date()
+                )
+                subtask = progress.add_task(
+                    f"{sdc.from_datetime.date()} - {sdc.to_datetime.date()} ({sdc.location.location_id})",
+                    total=len(date_range)
+                )
+                for date in date_range:
+                    from_datetimes.append(
+                        max(
+                            datetime.datetime.combine(
+                                date, datetime.time.min, tzinfo=datetime.UTC
+                            ), sdc.from_datetime
                         )
-                        failed_path = os.path.join(
-                            config.general.data.results.root,
-                            f"{r}/{a}/{sensor.sensor_id}/failed",
-                            output_folder_slug
+                    )
+                    to_datetimes.append(
+                        min(
+                            datetime.datetime.combine(
+                                date, datetime.time.max, tzinfo=datetime.UTC
+                            ), sdc.to_datetime
                         )
-                        if os.path.isdir(success_path):
-                            stats[a][r][0] += 1
-                        elif os.path.isdir(failed_path):
-                            stats[a][r][1] += 1
-                        else:
-                            stats[a][r][2] += 1
-
-            table.add_row(
-                str(date),
-                str(
-                    _interferogram_datapoints(
-                        config.general.data.interferograms.root,
-                        sensor.sensor_id,
-                        date,
                     )
-                ),
-                str(
-                    _datalogger_datapoints(
-                        config.general.data.datalogger.root,
-                        sensor.sensor_id,
-                        date,
+                    location_ids.append(sdc.location.location_id)
+                    interferograms.append(
+                        _count_ifg_datapoints(
+                            config.general.data.interferograms.root,
+                            sensor.sensor_id,
+                            date,
+                        )
                     )
-                ),
-                "✅" if _gg2014 else "-",
-                convert_stat_to_string(stats["GGG2014"]["proffast-1.0"]),
-                convert_stat_to_string(stats["GGG2014"]["proffast-2.2"]),
-                convert_stat_to_string(stats["GGG2014"]["proffast-2.3"]),
-                "✅" if _gg2020 else "-",
-                convert_stat_to_string(stats["GGG2020"]["proffast-2.2"]),
-                convert_stat_to_string(stats["GGG2020"]["proffast-2.3"]),
-            )
+                    datalogger.append(
+                        _count_datalogger_datapoints(
+                            config.general.data.datalogger.root,
+                            sensor.sensor_id,
+                            date,
+                        )
+                    )
+                    ggg2014_profiles.append(
+                        _ggg2014_profiles_exists(
+                            config.general.data.atmospheric_profiles.root,
+                            sdc.location.lat,
+                            sdc.location.lon,
+                            date,
+                        )
+                    )
+                    ggg2020_profiles.append(
+                        _ggg2020_profiles_exists(
+                            config.general.data.atmospheric_profiles.root,
+                            sdc.location.lat,
+                            sdc.location.lon,
+                            date,
+                        )
+                    )
+                    ggg2014_proffast_10_outputs.append(
+                        _check_retrieval_output(sdc, "proffast-1.0", "GGG2014")
+                    )
+                    ggg2014_proffast_22_outputs.append(
+                        _check_retrieval_output(sdc, "proffast-2.2", "GGG2014")
+                    )
+                    ggg2014_proffast_23_outputs.append(
+                        _check_retrieval_output(sdc, "proffast-2.3", "GGG2014")
+                    )
+                    ggg2020_proffast_22_outputs.append(
+                        _check_retrieval_output(sdc, "proffast-2.2", "GGG2020")
+                    )
+                    ggg2020_proffast_23_outputs.append(
+                        _check_retrieval_output(sdc, "proffast-2.3", "GGG2020")
+                    )
+                    progress.advance(subtask)
+                progress.remove_task(subtask)
+                progress.advance(task)
 
-        console.print(table)
-
-    with open(f"{sensor.sensor_id}.txt", "w") as f:
-        f.write(console.export_text())
+        df = pl.DataFrame({
+            "from_datetime": from_datetimes,
+            "to_datetime": to_datetimes,
+            "location_id": location_ids,
+            "interferograms": interferograms,
+            "datalogger": datalogger,
+            "ggg2014_profiles": ggg2014_profiles,
+            "ggg2014_proffast_10_outputs": ggg2014_proffast_10_outputs,
+            "ggg2014_proffast_22_outputs": ggg2014_proffast_22_outputs,
+            "ggg2014_proffast_23_outputs": ggg2014_proffast_23_outputs,
+            "ggg2020_profiles": ggg2020_profiles,
+            "ggg2020_proffast_22_outputs": ggg2020_proffast_22_outputs,
+            "ggg2020_proffast_23_outputs": ggg2020_proffast_23_outputs,
+        }).with_columns([
+            pl.col("location_id").str.pad_start(8),
+            pl.col("interferograms").cast(str).str.pad_start(5),
+            pl.col("datalogger").cast(str).str.pad_start(5),
+        ])
+        df.write_csv(
+            tum_esm_utils.files.
+            rel_to_abs_path(f"./data/reports/{sensor.sensor_id}.csv"),
+            datetime_format="%Y-%m-%dT%H:%M:%S%z",
+        )
+except KeyboardInterrupt:
+    console.print("aborted by user")
