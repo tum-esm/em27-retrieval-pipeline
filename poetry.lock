@@ -371,13 +371,13 @@ tests = ["pytest", "pytest-cov", "pytest-xdist"]
 
 [[package]]
 name = "em27-metadata"
-version = "1.0.0rc3"
+version = "1.0.0rc4"
 description = "Single source of truth for ESM's EM27 measurement logistics"
 optional = false
 python-versions = ">=3.8,<4.0"
 files = [
-    {file = "em27_metadata-1.0.0rc3-py3-none-any.whl", hash = "sha256:f5279edac49b51a46c5477053d0426920cebf38c60c9d2bb88c8dc2f08c5af0c"},
-    {file = "em27_metadata-1.0.0rc3.tar.gz", hash = "sha256:39d3a9b034f0203b06c335f047507c44f80d229859d1b02cbc8983bdfb078fec"},
+    {file = "em27_metadata-1.0.0rc4-py3-none-any.whl", hash = "sha256:66cae5f6bbab9b009372c7ad914c7a124de73413eac79a88452d0f4a37830e81"},
+    {file = "em27_metadata-1.0.0rc4.tar.gz", hash = "sha256:27ef1bc774a537d98bc7fdd243800e89fe6cff1d1a47b2817593d583b4d1a1d2"},
 ]
 
 [package.dependencies]
@@ -1100,6 +1100,23 @@ xlsx2csv = ["xlsx2csv (>=0.8.0)"]
 xlsxwriter = ["xlsxwriter"]
 
 [[package]]
+name = "prettytable"
+version = "3.9.0"
+description = "A simple Python library for easily displaying tabular data in a visually appealing ASCII table format"
+optional = false
+python-versions = ">=3.8"
+files = [
+    {file = "prettytable-3.9.0-py3-none-any.whl", hash = "sha256:a71292ab7769a5de274b146b276ce938786f56c31cf7cea88b6f3775d82fe8c8"},
+    {file = "prettytable-3.9.0.tar.gz", hash = "sha256:f4ed94803c23073a90620b201965e5dc0bccf1760b7a7eaf3158cab8aaffdf34"},
+]
+
+[package.dependencies]
+wcwidth = "*"
+
+[package.extras]
+tests = ["pytest", "pytest-cov", "pytest-lazy-fixture"]
+
+[[package]]
 name = "psutil"
 version = "5.9.6"
 description = "Cross-platform lib for process and system monitoring in Python."
@@ -1776,4 +1793,4 @@ testing = ["big-O", "jaraco.functools", "jaraco.itertools", "more-itertools", "p
 [metadata]
 lock-version = "2.0"
 python-versions = "3.11.*"
-content-hash = "f8430429d92db05e47b46b1a2430eaf22099451522de9b00cd5d8d7fc67503ad"
+content-hash = "759697317889912751fabe5d5594aa53b8e400cdab501d0d0a68b5dd0c287cac"
