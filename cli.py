@@ -3,6 +3,7 @@ import io
 import sys
 import tum_esm_utils
 import click
+import em27_metadata
 
 _RETRIEVAL_ENTRYPOINT = tum_esm_utils.files.rel_to_abs_path(
     "src", "retrieval", "main.py"
@@ -108,6 +109,36 @@ def request_ginput_status() -> None:
 def run_export() -> None:
     import src  # import here so that the CLI is more reactive
     src.export.main.run()
+
+
+@cli.command(
+    name="data-report",
+    help="exports a report of the data present on the configured system",
+)
+def print_data_report() -> None:
+    import src
+    import rich.console
+
+    console = rich.console.Console()
+    console.print("loading config")
+    config = src.types.Config.load()
+    console.print("loading metadata")
+    metadata = em27_metadata.load_from_github(
+        github_repository=config.general.metadata.github_repository,
+        access_token=config.general.metadata.access_token,
+    )
+    console.print(
+        f"printing report for the data paths: " +
+        config.general.data.model_dump_json(indent=4)
+    )
+    try:
+        src.utils.report.export_data_report(
+            config=config,
+            metadata=metadata,
+            console=console,
+        )
+    except KeyboardInterrupt:
+        console.print("aborted by user")
 
 
 cli.add_command(retrieval_command_group)
