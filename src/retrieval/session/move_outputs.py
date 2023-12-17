@@ -40,7 +40,6 @@ def run(
 
     date_string = session.ctx.from_datetime.strftime("%Y%m%d")
     output_src_dir: str
-    output_parquet_path: str
     day_was_successful: bool
 
     if isinstance(session.ctn, types.Proffast10Container):
@@ -100,25 +99,17 @@ def run(
 
     # DETERMINE OUTPUT DIRECTORY PATHS
 
-    output_folder_slug = session.ctx.from_datetime.strftime("%Y%m%d")
+    output_slug = session.ctx.from_datetime.strftime("%Y%m%d")
     if session.ctx.multiple_ctx_on_this_date:
-        output_folder_slug += session.ctx.from_datetime.strftime("_%H%M%S")
-        output_folder_slug += session.ctx.to_datetime.strftime("_%H%M%S")
+        output_slug += session.ctx.from_datetime.strftime("_%H%M%S")
+        output_slug += session.ctx.to_datetime.strftime("_%H%M%S")
 
-    output_dst_successful = os.path.join(
-        config.general.data.results.root,
-        session.ctx.sensor_id,
-        config.retrieval.general.retrieval_software + "-outputs",
-        "successful",
-        output_folder_slug,
+    output_dst = os.path.join(
+        config.general.data.results.root, session.retrieval_algorithm,
+        session.atmospheric_profile_model, session.ctx.sensor_id
     )
-    output_dst_failed = os.path.join(
-        config.general.data.results.root,
-        session.ctx.sensor_id,
-        config.retrieval.general.retrieval_software + "-outputs",
-        "failed",
-        output_folder_slug,
-    )
+    output_dst_successful = os.path.join(output_dst, "successful", output_slug)
+    output_dst_failed = os.path.join(output_dst, "failed", output_slug)
 
     # REMOVE OLD OUTPUTS
 
