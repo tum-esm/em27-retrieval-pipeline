@@ -23,7 +23,7 @@
       "to_date": "2022-01-05",
       "models": ["GGG2014", "GGG2020"]
     },
-    "standard_sites": [
+    "GGG2020_standard_sites": [
       {
         "identifier": "mu",
         "lat": 48.151,

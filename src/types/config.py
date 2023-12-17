@@ -92,7 +92,7 @@ class ProfilesScopeConfig(pydantic.BaseModel):
         return self
 
 
-class ProfilesStandardSitesItemConfig(pydantic.BaseModel):
+class ProfilesGGG2020StandardSitesItemConfig(pydantic.BaseModel):
     identifier: str = pydantic.Field(
         ...,
         description="The identifier on the caltech server",
@@ -119,7 +119,7 @@ class ProfilesStandardSitesItemConfig(pydantic.BaseModel):
     )
 
     @pydantic.model_validator(mode='after')
-    def check_date_order(self) -> ProfilesStandardSitesItemConfig:
+    def check_date_order(self) -> ProfilesGGG2020StandardSitesItemConfig:
         if self.from_date > self.to_date:
             raise ValueError('from_date must be before to_date')
         return self
@@ -228,7 +228,9 @@ class ProfilesConfig(pydantic.BaseModel):
 
     server: ProfilesServerConfig
     scope: ProfilesScopeConfig
-    standard_sites: list[ProfilesStandardSitesItemConfig] = pydantic.Field(
+    GGG2020_standard_sites: list[
+        ProfilesGGG2020StandardSitesItemConfig
+    ] = pydantic.Field(
         ...,
         description=
         "List of standard sites to request from the ccycle ftp server. The requests for these standard sites are done before any other requests so that data available for these is not rerequested for other sensors.",
