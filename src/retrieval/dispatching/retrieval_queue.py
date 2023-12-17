@@ -4,17 +4,6 @@ import em27_metadata
 from src import types, utils
 
 
-def _date_range(
-    from_date: datetime.date,
-    to_date: datetime.date,
-) -> list[datetime.date]:
-    delta = to_date - from_date
-    assert delta.days >= 0, "from_date must be before to_date"
-    return [
-        from_date + datetime.timedelta(days=i) for i in range(delta.days + 1)
-    ]
-
-
 def generate_retrieval_queue(
     config: types.Config,
     em27_metadata_interface: em27_metadata.EM27MetadataInterface,
@@ -37,7 +26,7 @@ def generate_retrieval_queue(
                 (location.from_datetime > retrieval_job_config.to_datetime)):
                 continue
             dates_with_location.update(
-                _date_range(
+                utils.functions.date_range(
                     max(
                         location.from_datetime.date(),
                         retrieval_job_config.from_date

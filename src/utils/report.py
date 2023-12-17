@@ -6,18 +6,8 @@ import polars as pl
 import tum_esm_utils
 import rich.console
 import rich.progress
+from .functions import date_range
 from src import types, utils
-
-
-def _date_range(
-    from_date: datetime.date,
-    to_date: datetime.date,
-) -> list[datetime.date]:
-    delta = to_date - from_date
-    assert delta.days >= 0, "from_date must be before to_date"
-    return [
-        from_date + datetime.timedelta(days=i) for i in range(delta.days + 1)
-    ]
 
 
 def _ggg2014_profiles_exists(
@@ -147,14 +137,14 @@ def export_data_report(
                 "parsing all sensor data contexts", total=len(sdcs)
             )
             for sdc in sdcs:
-                date_range = _date_range(
+                dates = date_range(
                     sdc.from_datetime.date(), sdc.to_datetime.date()
                 )
                 subtask = progress.add_task(
                     f"{sdc.from_datetime.date()} - {sdc.to_datetime.date()} ({sdc.location.location_id})",
-                    total=len(date_range)
+                    total=len(dates)
                 )
-                for date in date_range:
+                for date in dates:
                     from_datetimes.append(
                         max(
                             datetime.datetime.combine(
