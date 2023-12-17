@@ -150,10 +150,14 @@ def run(
         if dumped_config.general.metadata.access_token is not None:
             dumped_config.general.metadata.access_token = "REDACTED"
 
+        assert dumped_config.retrieval is not None
         about_dict = {
             "automationVersion": tum_esm_utils.shell.get_commit_sha(),
-            "generationTime": now.strftime("%Y%m%dT%H:%M:%S+00:00"),
-            "config": dumped_config.model_dump(),
+            "generationTime": now.strftime("%Y-%m-%dT%H:%M:%S%z"),
+            "config": {
+                "general": dumped_config.general.model_dump(),
+                "retrieval": dumped_config.retrieval.model_dump(),
+            },
             "session": session.model_dump(),
         }
         json.dump(about_dict, f, indent=4)
