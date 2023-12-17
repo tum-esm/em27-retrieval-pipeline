@@ -2,8 +2,7 @@ import datetime
 import os
 import em27_metadata
 import tum_esm_utils
-from src import retrieval
-from src import types, utils
+from src import types, retrieval
 
 _PROJECT_DIR = tum_esm_utils.files.get_parent_dir_path(
     __file__, current_depth=4
@@ -97,11 +96,12 @@ def run(
 ) -> types.RetrievalSession:
     """Create a new container and the pylot config files"""
     new_session = types.RetrievalSession(
+        retrieval_algorithm=retrieval_algorithm,
+        atmospheric_profile_model=atmospheric_profile_model,
         ctx=sensor_data_context,
         ctn=container_factory.create_container(
             retrieval_algorithm=retrieval_algorithm
         ),
-        atmospheric_profile_model=atmospheric_profile_model,
     )
     retrieval.utils.retrieval_status.RetrievalStatusList.update_item(
         retrieval_algorithm=retrieval_algorithm,

@@ -66,6 +66,7 @@ class RetrievalSession(pydantic.BaseModel):
     """This combines a `SensorDataContext` with a `Proffast10Container`/
     `Proffast22Container`/`Proffast23Container`."""
 
+    retrieval_algorithm: types.RetrievalAlgorithm
+    atmospheric_profile_model: types.AtmosphericProfileModel
     ctx: em27_metadata.types.SensorDataContext
     ctn: RetrievalContainer
-    atmospheric_profile_model: types.AtmosphericProfileModel
