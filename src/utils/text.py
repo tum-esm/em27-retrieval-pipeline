@@ -1,4 +1,5 @@
 import random
+import prettytable
 
 
 def get_coordinates_slug(lat: float, lon: float, verbose: bool = False) -> str:
@@ -7,9 +8,9 @@ def get_coordinates_slug(lat: float, lon: float, verbose: bool = False) -> str:
     verbose = false: `48N011E``
     verbose = true: `48.00N_11.00E`"""
 
-    latv = str(round(lat)).zfill(2)
+    latv = str(round(abs(lat))).zfill(2)
     latd = "S" if lat < 0 else "N"
-    lonv = str(round(lon)).zfill(3)
+    lonv = str(round(abs(lon))).zfill(3)
     lond = "W" if lon < 0 else "E"
 
     if verbose:
