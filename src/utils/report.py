@@ -6,18 +6,7 @@ import polars as pl
 import tum_esm_utils
 import rich.console
 import rich.progress
-from src import types, utils
-
-console = rich.console.Console()
-
-console.print("loading config")
-config = types.Config.load()
-
-console.print("loading metadata")
-metadata = em27_metadata.load_from_github(
-    github_repository=config.general.metadata.github_repository,
-    access_token=config.general.metadata.access_token,
-)
+import src
 
 
 def _date_range(
@@ -36,9 +25,9 @@ def _ggg2014_profiles_exists(
     lat: float,
     lon: float,
     date: datetime.date,
-) -> bool:
+) -> str:
     date_string = date.strftime("%Y%m%d")
-    coords_string = utils.text.get_coordinates_slug(lat, lon)
+    coords_string = src.utils.text.get_coordinates_slug(lat, lon)
     return "✅" if os.path.isfile(
         os.path.join(path, "GGG2014", f"{date_string}_{coords_string}.map")
     ) else "-"
@@ -51,7 +40,7 @@ def _ggg2020_profiles_exists(
     date: datetime.date,
 ) -> str:
     date_string = date.strftime("%Y%m%d")
-    coords_string = utils.text.get_coordinates_slug(lat, lon)
+    coords_string = src.utils.text.get_coordinates_slug(lat, lon)
     return "✅" if all([
         os.path.isfile(
             os.path.
@@ -92,6 +81,7 @@ def _count_datalogger_datapoints(
 
 
 def _check_retrieval_output(
+    config: src.types.Config,
     sdc: em27_metadata.types.SensorDataContext,
     retrieval_algorithm: Literal["proffast-1.0", "proffast-2.2",
                                  "proffast-2.3"],
@@ -106,7 +96,7 @@ def _check_retrieval_output(
         config.general.data.results.root,
         retrieval_algorithm,
         atmospheric_model,
-        sensor.sensor_id,
+        sdc.sensor_id,
         "successful",
         output_folder_slug,
     )
@@ -114,7 +104,7 @@ def _check_retrieval_output(
         config.general.data.results.root,
         retrieval_algorithm,
         atmospheric_model,
-        sensor.sensor_id,
+        sdc.sensor_id,
         "failed",
         output_folder_slug,
     )
@@ -126,7 +116,11 @@ def _check_retrieval_output(
         return "-"
 
 
-try:
+def export_data_report(
+    config: src.types.Config,
+    metadata: em27_metadata.interfaces.EM27MetadataInterface,
+    console: rich.console.Console,
+) -> None:
     for sensor in metadata.sensors:
         from_datetimes: list[datetime.datetime] = []
         to_datetimes: list[datetime.datetime] = []
@@ -207,19 +201,29 @@ try:
                         )
                     )
                     ggg2014_proffast_10_outputs.append(
-                        _check_retrieval_output(sdc, "proffast-1.0", "GGG2014")
+                        _check_retrieval_output(
+                            config, sdc, "proffast-1.0", "GGG2014"
+                        )
                     )
                     ggg2014_proffast_22_outputs.append(
-                        _check_retrieval_output(sdc, "proffast-2.2", "GGG2014")
+                        _check_retrieval_output(
+                            config, sdc, "proffast-2.2", "GGG2014"
+                        )
                     )
                     ggg2014_proffast_23_outputs.append(
-                        _check_retrieval_output(sdc, "proffast-2.3", "GGG2014")
+                        _check_retrieval_output(
+                            config, sdc, "proffast-2.3", "GGG2014"
+                        )
                     )
                     ggg2020_proffast_22_outputs.append(
-                        _check_retrieval_output(sdc, "proffast-2.2", "GGG2020")
+                        _check_retrieval_output(
+                            config, sdc, "proffast-2.2", "GGG2020"
+                        )
                     )
                     ggg2020_proffast_23_outputs.append(
-                        _check_retrieval_output(sdc, "proffast-2.3", "GGG2020")
+                        _check_retrieval_output(
+                            config, sdc, "proffast-2.3", "GGG2020"
+                        )
                     )
                     progress.advance(subtask)
                 progress.remove_task(subtask)
@@ -245,8 +249,10 @@ try:
         ])
         df.write_csv(
             tum_esm_utils.files.
-            rel_to_abs_path(f"./data/reports/{sensor.sensor_id}.csv"),
+            rel_to_abs_path(f"../../data/reports/{sensor.sensor_id}.csv"),
             datetime_format="%Y-%m-%dT%H:%M:%S%z",
         )
-except KeyboardInterrupt:
-    console.print("aborted by user")
+        console.print(
+            f"exported report for sensor {sensor.sensor_id} " +
+            f"to data/reports/{sensor.sensor_id}.csv"
+        )
