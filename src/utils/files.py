@@ -1,6 +1,6 @@
+from typing import Optional
 import os
 import re
-from typing import Optional
 
 
 def list_directory(

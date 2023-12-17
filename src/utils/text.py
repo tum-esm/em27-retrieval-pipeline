@@ -1,5 +1,4 @@
 import random
-import prettytable
 
 
 def get_coordinates_slug(lat: float, lon: float, verbose: bool = False) -> str:

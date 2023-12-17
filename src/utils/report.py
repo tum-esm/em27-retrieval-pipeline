@@ -6,7 +6,7 @@ import polars as pl
 import tum_esm_utils
 import rich.console
 import rich.progress
-import src
+from src import types, utils
 
 
 def _date_range(
@@ -27,7 +27,7 @@ def _ggg2014_profiles_exists(
     date: datetime.date,
 ) -> str:
     date_string = date.strftime("%Y%m%d")
-    coords_string = src.utils.text.get_coordinates_slug(lat, lon)
+    coords_string = utils.text.get_coordinates_slug(lat, lon)
     return "✅" if os.path.isfile(
         os.path.join(path, "GGG2014", f"{date_string}_{coords_string}.map")
     ) else "-"
@@ -40,7 +40,7 @@ def _ggg2020_profiles_exists(
     date: datetime.date,
 ) -> str:
     date_string = date.strftime("%Y%m%d")
-    coords_string = src.utils.text.get_coordinates_slug(lat, lon)
+    coords_string = utils.text.get_coordinates_slug(lat, lon)
     return "✅" if all([
         os.path.isfile(
             os.path.
@@ -81,7 +81,7 @@ def _count_datalogger_datapoints(
 
 
 def _check_retrieval_output(
-    config: src.types.Config,
+    config: types.Config,
     sdc: em27_metadata.types.SensorDataContext,
     retrieval_algorithm: Literal["proffast-1.0", "proffast-2.2",
                                  "proffast-2.3"],
@@ -117,7 +117,7 @@ def _check_retrieval_output(
 
 
 def export_data_report(
-    config: src.types.Config,
+    config: types.Config,
     metadata: em27_metadata.interfaces.EM27MetadataInterface,
     console: rich.console.Console,
 ) -> None:

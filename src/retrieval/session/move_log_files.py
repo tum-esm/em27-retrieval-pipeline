@@ -1,6 +1,6 @@
 import os
 import shutil
-from src import types, utils, retrieval
+from src import types, retrieval
 
 
 def run(

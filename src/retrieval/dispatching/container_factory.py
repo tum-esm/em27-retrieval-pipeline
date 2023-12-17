@@ -1,8 +1,7 @@
 import os
 import shutil
 import tum_esm_utils
-from src import retrieval
-from src import types, utils
+from src import types, utils, retrieval
 
 _RETRIEVAL_CODE_DIR = os.path.join("../algorithms/")
 

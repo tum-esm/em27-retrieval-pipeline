@@ -24,7 +24,6 @@ pydantic = "^2.4.2"
 pendulum = "^2.1.2"
 tum-esm-utils = "^1.7.0"
 polars = "^0.19.3"
-prettytable = "^3.9.0"
 em27-metadata = "^1.0.0rc4"
 
 [tool.poetry.group.dev.dependencies]

@@ -1,7 +1,7 @@
 from typing import Any
 import datetime
 import signal
-from src import types, utils, retrieval
+from src import types, retrieval
 from . import (
     move_log_files,
     move_profiles,
