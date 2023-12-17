@@ -86,18 +86,18 @@ def run_profiles_download() -> None:
 )
 def request_ginput_status() -> None:
     import src  # import here so that the CLI is more reactive
-    config = src.utils.config.Config.load()
+    config = src.types.config.Config.load()
     assert config.profiles is not None, "No profiles config found"
     with ftplib.FTP(
         host="ccycle.gps.caltech.edu",
-        passwd=config.profiles.ftp_server.email,
+        passwd=config.profiles.server.email,
         user="anonymous",
         timeout=60,
     ) as ftp:
-        with io.BytesIO(config.profiles.ftp_server.email.encode("utf-8")) as f:
+        with io.BytesIO(config.profiles.server.email.encode("utf-8")) as f:
             ftp.storbinary(f"STOR upload/ginput_status.txt", f)
     click.echo(
-        f"Requested ginput status for email address {config.profiles.ftp_server.email}"
+        f"Requested ginput status for email address {config.profiles.server.email}"
     )
 
 

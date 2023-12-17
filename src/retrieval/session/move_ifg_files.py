@@ -45,6 +45,8 @@ def run(
     )
     assert len(ifg_filenames) > 0, "no ifg input files"
     retrieval.utils.retrieval_status.RetrievalStatusList.update_item(
+        session.retrieval_algorithm,
+        session.atmospheric_profile_model,
         session.ctx.sensor_id,
         session.ctx.from_datetime,
         ifg_count=len(ifg_filenames),

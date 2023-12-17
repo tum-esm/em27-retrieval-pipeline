@@ -22,8 +22,9 @@ def generate_retrieval_queue(
 
         dates_with_location: set[datetime.date] = set()
         for location in sensor.locations:
-            if ((location.to_datetime < retrieval_job_config.from_datetime) or
-                (location.from_datetime > retrieval_job_config.to_datetime)):
+            if ((location.to_datetime.date()
+                 < retrieval_job_config.from_date) or
+                (location.from_datetime.date() > retrieval_job_config.to_date)):
                 continue
             dates_with_location.update(
                 utils.functions.date_range(
@@ -115,7 +116,7 @@ def generate_retrieval_queue(
             em27_metadata.types.SensorDataContext] = []
         for sdc in unprocessed_sensor_data_contexts:
             datalogger_file_path = os.path.join(
-                config.general.data.dataloggers.root,
+                config.general.data.datalogger.root,
                 sdc.pressure_data_source,
                 (
                     f"datalogger-{sdc.pressure_data_source}-" +

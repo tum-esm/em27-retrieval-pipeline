@@ -1,10 +1,9 @@
 import glob
 import os
-from src import retrieval
-from src.utils import utils
+from src import types, retrieval
 
 
-def move_bin_files(session: utils.types.RetrievalSession) -> None:
+def move_bin_files(session: types.RetrievalSession) -> None:
     date_string = session.ctx.from_datetime.strftime("%Y%m%d")
     src_dir = os.path.join(
         session.ctn.data_input_path, "ifg", date_string[2 :], "cal"
@@ -20,7 +19,7 @@ def move_bin_files(session: utils.types.RetrievalSession) -> None:
     os.rename(src_dir, dst_dir)
 
 
-def merge_output_files(session: utils.types.RetrievalSession) -> None:
+def merge_output_files(session: types.RetrievalSession) -> None:
     out_dir = os.path.join(session.ctn.container_path, "prf", "out_fast")
     date_string = session.ctx.from_datetime.strftime("%Y%m%d")
     output_table_name = f"{session.ctx.sensor_id}{date_string[2:]}-combined-invparms"
@@ -37,7 +36,7 @@ def merge_output_files(session: utils.types.RetrievalSession) -> None:
     merged_df.write_csv(
         os.path.join(out_dir, f"{output_table_name}.csv"),
         separator=",",
-        has_header=True,
+        include_header=True,
     )
     merged_df.write_parquet(
         os.path.join(out_dir, f"{output_table_name}.parquet"),

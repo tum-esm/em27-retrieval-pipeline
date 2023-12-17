@@ -29,6 +29,8 @@ def run(
     def _last_will() -> None:
         logger.archive()
         retrieval.utils.retrieval_status.RetrievalStatusList.update_item(
+            session.retrieval_algorithm,
+            session.atmospheric_profile_model,
             session.ctx.sensor_id,
             session.ctx.from_datetime,
             process_end_time=datetime.datetime.utcnow(),

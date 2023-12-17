@@ -23,9 +23,9 @@ def test_static_types() -> None:
 
     for path in [
         "cli.py",
-        "src/entrypoints/run_retrieval.py",
-        "src/entrypoints/download_profiles.py",
-        "src/entrypoints/export_outputs.py",
+        "src/retrieval/main.py",
+        "src/profiles/main.py",
+        "src/export/main.py",
         "src/retrieval/algorithms/proffast-1.0/main/prfpylot/main.py",
         "tests/",
     ]:

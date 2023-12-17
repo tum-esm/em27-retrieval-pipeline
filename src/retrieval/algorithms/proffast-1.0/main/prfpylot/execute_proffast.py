@@ -2,11 +2,11 @@ import datetime
 import os
 from typing import Callable
 import tum_esm_utils
-from src.utils import utils
+from src import types, utils
 
 
 def execute_preprocess(
-    session: utils.types.RetrievalSession,
+    session: types.RetrievalSession,
     log: Callable[[str], None],
 ) -> None:
     prf_dir = os.path.join(session.ctn.container_path, "prf")
@@ -25,7 +25,7 @@ def execute_preprocess(
 
 
 def execute_pcxs(
-    session: utils.types.RetrievalSession,
+    session: types.RetrievalSession,
     log: Callable[[str], None],
 ) -> None:
     prf_dir = os.path.join(session.ctn.container_path, "prf")
@@ -61,7 +61,7 @@ def execute_pcxs(
 
 
 def execute_invers(
-    session: utils.types.RetrievalSession,
+    session: types.RetrievalSession,
     log: Callable[[str], None],
 ) -> None:
     prf_dir = os.path.join(session.ctn.container_path, "prf")
