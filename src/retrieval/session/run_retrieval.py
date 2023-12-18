@@ -77,7 +77,7 @@ def create_test_outputs(session: types.RetrievalSession) -> None:
             session.ctn.data_output_path, f"{session.ctx.sensor_id}_" +
             f"SN{str(session.ctx.serial_number).zfill(3)}_{date_string[2:]}-{date_string[2:]}"
         )
-    os.makedirs(output_dir, "logfiles", exist_ok=True)
+    os.makedirs(os.path.join(output_dir, "logfiles"), exist_ok=True)
 
     # list dummy files to be created
     filepaths: list[str] = []

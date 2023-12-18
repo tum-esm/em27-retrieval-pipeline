@@ -2,7 +2,7 @@ from typing import Literal
 import pytest
 import datetime
 
-from src import types, utils, profiles
+from src import types, profiles
 from tests.fixtures import provide_config_template
 
 

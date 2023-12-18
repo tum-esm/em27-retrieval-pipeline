@@ -16,11 +16,11 @@ dotenv.load_dotenv(os.path.join(PROJECT_DIR, "tests", ".env"))
 em27_metadata_storage = em27_metadata.interfaces.EM27MetadataInterface(
     locations=[
         em27_metadata.types.LocationMetadata(
-            location_id="LOC1",
-            details="...",
-            lat=0.0,
-            lon=0.0,
-            alt=0.0,
+            location_id="SOD",
+            details="Sodankyla",
+            lon=26.630,
+            lat=67.366,
+            alt=181.0,
         )
     ],
     sensors=[
@@ -35,7 +35,7 @@ em27_metadata_storage = em27_metadata.interfaces.EM27MetadataInterface(
                 em27_metadata.types.SensorTypes.Location(
                     from_datetime="2017-01-01T00:00:00+00:00",
                     to_datetime="2017-12-31T23:59:59+00:00",
-                    location_id="LOC1",
+                    location_id="SOD",
                 )
             ],
         )
