@@ -22,8 +22,10 @@ def run(
         ]
     if session.atmospheric_profile_model == "GGG2020":
         files_to_copy = [(
-            f"{date_string}{t:02d}_{coordinates_slug}.map",
-            f"{session.ctx.sensor_id}{date_string}{t:02d}.map"
+            f"{date_string}{t:02d}_{coordinates_slug}.map", (
+                f"{session.ctx.sensor_id}_{coordinates_slug[:3]}_" +
+                f"{coordinates_slug[3:]}_{date_string}{t:02d}Z.map"
+            )
         ) for t in range(0, 22, 3)]
     try:
         for src, dst in files_to_copy:
