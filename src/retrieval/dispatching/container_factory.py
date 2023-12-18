@@ -19,6 +19,7 @@ class ContainerFactory:
         self,
         config: types.Config,
         logger: retrieval.utils.logger.Logger,
+        test_mode: bool = False,
     ):
         """Initialize the factory.
 
@@ -34,19 +35,19 @@ class ContainerFactory:
             job.retrieval_algorithm for job in self.config.retrieval.jobs
         ]
 
-        if "proffast-1.0" in retrieval_algorithms:
+        if "proffast-1.0" in retrieval_algorithms or test_mode:
             self.logger.info("Initializing for Proffast 1.0")
             self._init_proffast10_code()
         else:
             self.logger.info("Not initializing Proffast 1.0 (unused)")
 
-        if "proffast-2.2" in retrieval_algorithms:
+        if "proffast-2.2" in retrieval_algorithms or test_mode:
             self.logger.info("Initializing ContainerFactory for Proffast 2.2")
             self._init_proffast22_code()
         else:
             self.logger.info("Not initializing Proffast 2.2 (unused)")
 
-        if "proffast-2.3" in retrieval_algorithms:
+        if "proffast-2.3" in retrieval_algorithms or test_mode:
             self.logger.info("Initializing ContainerFactory for Proffast 2.3")
             self._init_proffast23_code()
         else:

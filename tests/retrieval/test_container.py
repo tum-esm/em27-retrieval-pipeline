@@ -68,38 +68,16 @@ ATMOSPHERIC_PROFILE_MODELS: list[types.AtmosphericProfileModel] = [
 ]
 
 
-@pytest.mark.order(2)
-@pytest.mark.ci_intensive
-def test_one_day(
-    wrap_test_with_mainlock: None,
-    download_sample_data: None,
-    clear_output_data: None,
-    provide_config_template: types.Config,
-) -> None:
-    _run_test_container(
-        config=provide_config_template,
-        sensor_data_contexts=[SENSOR_DATA_CONTEXTS[2]],
-    )
-
-
 @pytest.mark.order(3)
 @pytest.mark.ci_complete
-def test_three_days(
+def test_containers(
     wrap_test_with_mainlock: None,
     download_sample_data: None,
     clear_output_data: None,
     provide_config_template: types.Config,
 ) -> None:
-    _run_test_container(
-        config=provide_config_template,
-        sensor_data_contexts=SENSOR_DATA_CONTEXTS,
-    )
-
-
-def _run_test_container(
-    config: types.Config,
-    sensor_data_contexts: list[em27_metadata.types.SensorDataContext],
-) -> None:
+    config = provide_config_template
+    sensor_data_contexts = SENSOR_DATA_CONTEXTS
     assert config.retrieval is not None
 
     # target config at test data
@@ -115,15 +93,25 @@ def _run_test_container(
     config.general.data.results.root = os.path.join(
         PROJECT_DIR, "data", "testing", "container", "outputs"
     )
+    retrieval.utils.retrieval_status.RetrievalStatusList.reset()
+
+    # set up container factory
+    logger = retrieval.utils.logger.Logger(
+        "pytest",
+        write_to_file=False,
+        print_to_console=True,
+    )
+    container_factory = retrieval.dispatching.container_factory.ContainerFactory(
+        config, logger, test_mode=True
+    )
 
     for retrieval_algorithm in RETRIEVAL_ALGORITHMS:
         for atmospheric_profile_model in ATMOSPHERIC_PROFILE_MODELS:
-            # set up container factory
-            logger = retrieval.utils.logger.Logger("pytest", print_only=True)
-            container_factory = retrieval.dispatching.container_factory.ContainerFactory(
-                config, logger
+            retrieval.utils.retrieval_status.RetrievalStatusList.add_items(
+                sensor_data_contexts,
+                retrieval_algorithm,
+                atmospheric_profile_model,
             )
-
             for sdc in sensor_data_contexts:
                 # create session and run container
                 session = retrieval.session.create_session.run(
@@ -133,7 +121,9 @@ def _run_test_container(
                     atmospheric_profile_model=atmospheric_profile_model,
                 )
                 retrieval.session.process_session.run(
-                    config, session, test_mode=True
+                    config,
+                    session,
+                    test_mode=True,
                 )
 
                 # assert output correctness

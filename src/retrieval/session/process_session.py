@@ -18,7 +18,8 @@ def run(
 ) -> None:
     signal.signal(signal.SIGINT, signal.SIG_IGN)
     logger = retrieval.utils.logger.Logger(
-        container_id=session.ctn.container_id
+        container_id=session.ctn.container_id,
+        print_to_console=test_mode,
     )
     logger.info(f"Starting session in container id {session.ctn.container_id}")
     logger.info(
@@ -73,7 +74,7 @@ def run(
 
     logger.info(f"Moving the outputs")
     try:
-        move_outputs.run(config, logger, session)
+        move_outputs.run(config, logger, session, test_mode=test_mode)
         logger.info(f"Finished")
     except Exception as e:
         logger.exception(e, label="Moving outputs failed")
