@@ -1,5 +1,6 @@
 import datetime
 import os
+from typing import Generator
 import pytest
 import em27_metadata
 import tum_esm_utils
@@ -57,28 +58,57 @@ SENSOR_DATA_CONTEXTS = [
     ]
 ]
 
-RETRIEVAL_ALGORITHMS: list[types.RetrievalAlgorithm] = [
-    "proffast-1.0",
-    "proffast-2.2",
-    "proffast-2.3",
-]
-ATMOSPHERIC_PROFILE_MODELS: list[types.AtmosphericProfileModel] = [
-    "GGG2014",
-    "GGG2020",
-]
+
+@pytest.fixture(scope="session")
+def provide_container_factory(
+    provide_config_template: types.Config,
+) -> Generator[retrieval.dispatching.container_factory.ContainerFactory, None,
+               None]:
+    logger = retrieval.utils.logger.Logger(
+        "pytest",
+        write_to_file=False,
+        print_to_console=True,
+    )
+    yield retrieval.dispatching.container_factory.ContainerFactory(
+        provide_config_template, logger, test_mode=True
+    )
 
 
 @pytest.mark.order(3)
 @pytest.mark.ci_complete
-def test_containers(
+@pytest.mark.parametrize(
+    "sensor_data_context",
+    SENSOR_DATA_CONTEXTS,
+    ids=[
+        f"{sdc.sensor_id}-{sdc.from_datetime.date()}"
+        for sdc in SENSOR_DATA_CONTEXTS
+    ],
+)
+@pytest.mark.parametrize(
+    "atmospheric_profile_model",
+    ["GGG2014", "GGG2020"],
+)
+@pytest.mark.parametrize(
+    "retrieval_algorithm",
+    ["proffast-1.0", "proffast-2.2", "proffast-2.3"],
+)
+def test_container_lifecycle(
+    retrieval_algorithm: types.RetrievalAlgorithm,
+    atmospheric_profile_model: types.AtmosphericProfileModel,
+    sensor_data_context: em27_metadata.types.SensorDataContext,
     wrap_test_with_mainlock: None,
     download_sample_data: None,
     clear_output_data: None,
     provide_config_template: types.Config,
+    provide_container_factory: retrieval.dispatching.container_factory.
+    ContainerFactory,
 ) -> None:
     config = provide_config_template
-    sensor_data_contexts = SENSOR_DATA_CONTEXTS
+    container_factory = provide_container_factory
     assert config.retrieval is not None
+
+    if retrieval_algorithm == "proffast-1.0" and atmospheric_profile_model == "GGG2020":
+        return
 
     # target config at test data
     config.general.data.datalogger.root = os.path.join(
@@ -96,75 +126,67 @@ def test_containers(
     retrieval.utils.retrieval_status.RetrievalStatusList.reset()
 
     # set up container factory
-    logger = retrieval.utils.logger.Logger(
-        "pytest",
-        write_to_file=False,
-        print_to_console=True,
-    )
-    container_factory = retrieval.dispatching.container_factory.ContainerFactory(
-        config, logger, test_mode=True
+    retrieval.utils.retrieval_status.RetrievalStatusList.add_items(
+        [sensor_data_context],
+        retrieval_algorithm,
+        atmospheric_profile_model,
     )
 
-    for retrieval_algorithm in RETRIEVAL_ALGORITHMS:
-        for atmospheric_profile_model in ATMOSPHERIC_PROFILE_MODELS:
-            retrieval.utils.retrieval_status.RetrievalStatusList.add_items(
-                sensor_data_contexts,
-                retrieval_algorithm,
-                atmospheric_profile_model,
-            )
-            for sdc in sensor_data_contexts:
-                # create session and run container
-                session = retrieval.session.create_session.run(
-                    container_factory,
-                    sdc,
-                    retrieval_algorithm=retrieval_algorithm,
-                    atmospheric_profile_model=atmospheric_profile_model,
-                )
-                retrieval.session.process_session.run(
-                    config,
-                    session,
-                    test_mode=True,
-                )
+    # create session and run container
+    session = retrieval.session.create_session.run(
+        container_factory,
+        sensor_data_context,
+        retrieval_algorithm=retrieval_algorithm,
+        atmospheric_profile_model=atmospheric_profile_model,
+    )
+    retrieval.session.process_session.run(
+        config,
+        session,
+        test_mode=True,
+    )
 
-                # assert output correctness
-                date_string = sdc.from_datetime.strftime("%Y%m%d")
-                out_path = os.path.join(
-                    PROJECT_DIR, "data/testing/container/outputs",
-                    retrieval_algorithm, atmospheric_profile_model,
-                    sdc.sensor_id, "successful", date_string
-                )
-                expected_files = [
-                    "about.json",
-                    "logfiles/container.log",
-                ]
-                if retrieval_algorithm in ["proffast-2.2", "proffast-2.3"]:
-                    expected_files.extend([
-                        (
-                            f"comb_invparms_{sdc.sensor_id}_SN{str(sdc.serial_number).zfill(3)}"
-                            + f"_{date_string[2:]}-{date_string[2:]}.csv"
-                        ),
-                        "pylot_config.yml",
-                        "pylot_log_format.yml",
-                        "logfiles/preprocess_output.log",
-                        "logfiles/pcxs_output.log",
-                        "logfiles/inv_output.log",
-                    ])
-                if retrieval_algorithm == "proffast-1.0":
-                    expected_files.extend([
-                        (
-                            f"{sdc.sensor_id}{date_string[2:]}-combined-invparms.csv"
-                        ),
-                        (
-                            f"{sdc.sensor_id}{date_string[2:]}-combined-invparms.parquet"
-                        ),
-                        "logfiles/wrapper.log",
-                        "logfiles/preprocess4.log",
-                        "logfiles/pcxs10.log",
-                        "logfiles/invers10.log",
-                    ])
+    # assert output correctness
+    date_string = sensor_data_context.from_datetime.strftime("%Y%m%d")
+    out_path = os.path.join(
+        PROJECT_DIR, "data/testing/container/outputs", retrieval_algorithm,
+        atmospheric_profile_model, sensor_data_context.sensor_id, "successful",
+        date_string
+    )
+    expected_files = [
+        "about.json",
+        "logfiles/container.log",
+    ]
+    if retrieval_algorithm in ["proffast-2.2", "proffast-2.3"]:
+        expected_files.extend([
+            (
+                f"comb_invparms_{sensor_data_context.sensor_id}_" +
+                f"SN{str(sensor_data_context.serial_number).zfill(3)}" +
+                f"_{date_string[2:]}-{date_string[2:]}.csv"
+            ),
+            "pylot_config.yml",
+            "pylot_log_format.yml",
+            "logfiles/preprocess_output.log",
+            "logfiles/pcxs_output.log",
+            "logfiles/inv_output.log",
+        ])
+    if retrieval_algorithm == "proffast-1.0":
+        expected_files.extend([
+            (
+                f"{sensor_data_context.sensor_id}{date_string[2:]}-" +
+                f"combined-invparms.csv"
+            ),
+            (
+                f"{sensor_data_context.sensor_id}{date_string[2:]}-" +
+                f"combined-invparms.parquet"
+            ),
+            "logfiles/wrapper.log",
+            "logfiles/preprocess4.log",
+            "logfiles/pcxs10.log",
+            "logfiles/invers10.log",
+        ])
 
-                for filename in expected_files:
-                    filepath = os.path.join(out_path, filename)
-                    assert os.path.isfile(
-                        filepath
-                    ), f"output file does not exist ({filepath})"
+    for filename in expected_files:
+        filepath = os.path.join(out_path, filename)
+        assert os.path.isfile(
+            filepath
+        ), f"output file does not exist ({filepath})"
