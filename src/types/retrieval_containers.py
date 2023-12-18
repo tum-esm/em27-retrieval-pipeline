@@ -42,7 +42,7 @@ class Proffast22Container(RetrievalContainerBase):
     def pylot_config_path(self) -> str:
         return os.path.join(
             _CONTAINERS_DIR,
-            f"pylot-container-{self.container_id}-inputs",
+            f"retrieval-container-{self.container_id}-inputs",
             "pylot_config.yml",
         )
 
@@ -50,7 +50,7 @@ class Proffast22Container(RetrievalContainerBase):
     def pylot_log_format_path(self) -> str:
         return os.path.join(
             _CONTAINERS_DIR,
-            f"pylot-container-{self.container_id}-inputs",
+            f"retrieval-container-{self.container_id}-inputs",
             "pylot_log_format.yml",
         )
 

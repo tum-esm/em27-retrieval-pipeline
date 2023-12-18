@@ -3,7 +3,7 @@ import shutil
 import tum_esm_utils
 from src import types, utils, retrieval
 
-_RETRIEVAL_CODE_DIR = os.path.join("../algorithms/")
+_RETRIEVAL_CODE_DIR = tum_esm_utils.files.rel_to_abs_path("../algorithms")
 
 
 class ContainerFactory:

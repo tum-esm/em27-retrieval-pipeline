@@ -3,7 +3,6 @@ import json
 import os
 import re
 import shutil
-import polars as pl
 import tum_esm_utils
 from src import types, retrieval
 
@@ -24,25 +23,11 @@ def run(
         output_src_dir = os.path.join(
             session.ctn.container_path, "prf", "out_fast"
         )
-        output_parquet_path = os.path.join(
+        output_csv_path = os.path.join(
             output_src_dir,
-            f"{session.ctx.sensor_id}{date_string[2:]}-combined-invparms.parquet",
+            f"{session.ctx.sensor_id}{date_string[2:]}-combined-invparms.csv",
         )
-
-        # DETERMINE WHETHER RETRIEVAL HAS BEEN SUCCESSFUL OR NOT
-
-        day_was_successful = os.path.isfile(output_parquet_path)
-        if day_was_successful:
-            df = pl.read_parquet(output_parquet_path)
-            if len(df) > 1:
-                logger.debug(f"Retrieval output csv exists")
-            else:
-                day_was_successful = False
-                logger.warning(f"Retrieval output csv exists but is empty")
-        else:
-            logger.debug(f"Retrieval output csv is missing")
-
-    elif isinstance(
+    if isinstance(
         session.ctn,
         (types.Proffast22Container, types.Proffast23Container),
     ):
@@ -55,20 +40,22 @@ def run(
             f"SN{str(session.ctx.serial_number).zfill(3)}_" +
             f"{date_string[2:]}-{date_string[2:]}.csv"
         )
-        assert os.path.isdir(output_src_dir), "pylot output directory missing"
 
-        # DETERMINE WHETHER RETRIEVAL HAS BEEN SUCCESSFUL OR NOT
+    assert os.path.isdir(output_src_dir), "pylot output directory missing"
 
-        day_was_successful = os.path.isfile(output_csv_path)
-        if day_was_successful:
-            with open(output_csv_path, "r") as f:
-                if len(f.readlines()) > 1:
-                    logger.debug(f"Retrieval output csv exists")
-                else:
+    # DETERMINE WHETHER RETRIEVAL HAS BEEN SUCCESSFUL OR NOT
+
+    day_was_successful = os.path.isfile(output_csv_path)
+    if day_was_successful:
+        with open(output_csv_path, "r") as f:
+            if len(f.readlines()) > 1:
+                logger.debug(f"Retrieval output csv exists")
+            else:
+                if not test_mode:
                     day_was_successful = False
-                    logger.warning(f"Retrieval output csv exists but is empty")
-        else:
-            logger.debug(f"Retrieval output csv is missing")
+                logger.warning(f"Retrieval output csv exists but is empty")
+    else:
+        logger.debug(f"Retrieval output csv is missing")
 
     # DETERMINE OUTPUT DIRECTORY PATHS
 
@@ -128,10 +115,10 @@ def run(
             "automationVersion": tum_esm_utils.shell.get_commit_sha(),
             "generationTime": now.strftime("%Y-%m-%dT%H:%M:%S%z"),
             "config": {
-                "general": dumped_config.general.model_dump(),
-                "retrieval": dumped_config.retrieval.model_dump(),
+                "general": dumped_config.general.model_dump(mode="json"),
+                "retrieval": dumped_config.retrieval.model_dump(mode="json"),
             },
-            "session": session.model_dump(),
+            "session": session.model_dump(mode="json"),
         }
         json.dump(about_dict, f, indent=4)
 
