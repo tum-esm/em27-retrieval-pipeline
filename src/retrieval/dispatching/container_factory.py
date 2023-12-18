@@ -33,15 +33,24 @@ class ContainerFactory:
         retrieval_algorithms = [
             job.retrieval_algorithm for job in self.config.retrieval.jobs
         ]
+
         if "proffast-1.0" in retrieval_algorithms:
             self.logger.info("Initializing for Proffast 1.0")
             self._init_proffast10_code()
+        else:
+            self.logger.info("Not initializing Proffast 1.0 (unused)")
+
         if "proffast-2.2" in retrieval_algorithms:
             self.logger.info("Initializing ContainerFactory for Proffast 2.2")
             self._init_proffast22_code()
+        else:
+            self.logger.info("Not initializing Proffast 2.2 (unused)")
+
         if "proffast-2.3" in retrieval_algorithms:
             self.logger.info("Initializing ContainerFactory for Proffast 2.3")
             self._init_proffast23_code()
+        else:
+            self.logger.info("Not initializing Proffast 2.3 (unused)")
 
         self.logger.info("ContainerFactory is set up")
 
