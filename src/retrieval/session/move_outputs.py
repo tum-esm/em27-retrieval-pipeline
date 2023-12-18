@@ -1,4 +1,3 @@
-from typing import Optional
 import datetime
 import json
 import os
@@ -7,28 +6,6 @@ import shutil
 import polars as pl
 import tum_esm_utils
 from src import types, retrieval
-
-
-def _detect_proffast2X_error_type(output_src: str) -> Optional[str]:
-    if not os.path.isdir(f"{output_src}/logfiles"):
-        return None
-
-    known_errors: list[tuple[str, str]] = [
-        ("preprocess_output.log", "charfilter not found!"),
-        ("preprocess_output.log", "Zero IFG block size!"),
-        ("inv_output.log", "CO channel: no natural grid!"),
-        ("inv_output.log", "Cannot access tabellated x-sections!"),
-    ]
-
-    for logfile_name, message in known_errors:
-        logfile_path = os.path.join(output_src, "logfiles", logfile_name)
-        if os.path.isfile(logfile_path):
-            with open(logfile_path) as f:
-                file_content = "".join(f.readlines())
-            if message in file_content:
-                return message
-
-    return None
 
 
 def run(
@@ -91,11 +68,6 @@ def run(
                     logger.warning(f"Retrieval output csv exists but is empty")
         else:
             logger.debug(f"Retrieval output csv is missing")
-            error_type = _detect_proffast2X_error_type(output_src_dir)
-            if error_type is None:
-                logger.debug("Unknown error type")
-            else:
-                logger.debug(f"Known error type: {error_type}")
 
     # DETERMINE OUTPUT DIRECTORY PATHS
 
