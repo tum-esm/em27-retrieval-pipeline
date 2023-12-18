@@ -14,6 +14,7 @@ from . import (
 def run(
     config: types.Config,
     session: types.RetrievalSession,
+    test_mode: bool = False
 ) -> None:
     signal.signal(signal.SIGINT, signal.SIG_IGN)
     logger = retrieval.utils.logger.Logger(
@@ -61,7 +62,7 @@ def run(
 
     logger.info(f"Running proffast")
     try:
-        run_retrieval.run(session)
+        run_retrieval.run(session, test_mode=test_mode)
         logger.debug("Pylot execution was successful")
     except Exception as e:
         logger.exception(e, label="Proffast execution failed")

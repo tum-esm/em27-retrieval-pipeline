@@ -128,7 +128,9 @@ def _run_test_container(
                 retrieval_algorithm=retrieval_algorithm,
                 atmospheric_profile_model="GGG2014",
             )
-            retrieval.session.process_session.run(config, session)
+            retrieval.session.process_session.run(
+                config, session, test_mode=True
+            )
 
             # assert output correctness
             date_string = sdc.from_datetime.strftime("%Y%m%d")
