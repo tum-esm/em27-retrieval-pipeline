@@ -137,7 +137,7 @@ def run() -> None:
                     target=retrieval.session.process_session.run,
                     args=(config, new_session),
                     name=(
-                        f"pylot-session-{new_session.ctx.sensor_id}-" +
+                        f"retrieval-session-{new_session.ctx.sensor_id}-" +
                         f"{new_session.ctx.from_datetime.strftime('%Y-%m-%dT%H:%M:%S')}-"
                         + f"{new_session.ctn.container_id}"
                     ),
@@ -155,7 +155,7 @@ def run() -> None:
                     f'process "{finished_process.name}": finished processing'
                 )
                 container_factory.remove_container(
-                    finished_process.name.split("-")[-1]
+                    "-".join(finished_process.name.split("-")[-2 :])
                 )
                 main_logger.info(
                     f'process "{finished_process.name}": removed container'

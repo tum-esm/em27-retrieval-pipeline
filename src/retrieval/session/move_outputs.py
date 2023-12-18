@@ -41,7 +41,7 @@ def run(
             f"{date_string[2:]}-{date_string[2:]}.csv"
         )
 
-    assert os.path.isdir(output_src_dir), "pylot output directory missing"
+    assert os.path.isdir(output_src_dir), "retrieval output directory missing"
 
     # DETERMINE WHETHER RETRIEVAL HAS BEEN SUCCESSFUL OR NOT
 

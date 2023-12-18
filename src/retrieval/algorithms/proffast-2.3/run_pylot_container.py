@@ -27,7 +27,7 @@ if __name__ == "__main__":
         _PROJECT_DIR,
         "data",
         "containers",
-        f"pylot-container-{container_id}",
+        f"retrieval-container-{container_id}",
     )
     assert os.path.isdir(container_path), "container does not exist"
 
