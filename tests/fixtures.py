@@ -57,13 +57,14 @@ def download_sample_data() -> Generator[None, None, None]:
 def clear_output_data() -> Generator[None, None, None]:
     """Remove all directories in the testing output directory"""
 
-    testing_data_output_dir = os.path.join(
-        _PROJECT_DIR, "data", "testing", "container", "outputs"
-    )
-    for d in os.listdir(testing_data_output_dir):
-        subdir = os.path.join(testing_data_output_dir, d)
-        if os.path.isdir(subdir):
-            shutil.rmtree(subdir)
+    for d in [
+        os.path.join(_PROJECT_DIR, "data", "testing", "container", "outputs"),
+        os.path.join(_PROJECT_DIR, "data", "containers")
+    ]:
+        for sd in os.listdir(d):
+            subdir = os.path.join(d, sd)
+            if os.path.isdir(subdir):
+                shutil.rmtree(subdir)
 
     yield
 

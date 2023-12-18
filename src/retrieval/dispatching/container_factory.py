@@ -4,6 +4,7 @@ import tum_esm_utils
 from src import types, utils, retrieval
 
 _RETRIEVAL_CODE_DIR = tum_esm_utils.files.rel_to_abs_path("../algorithms")
+_CONTAINER_DIR = tum_esm_utils.files.rel_to_abs_path("../../../data/containers")
 
 
 class ContainerFactory:
@@ -34,6 +35,10 @@ class ContainerFactory:
         retrieval_algorithms = [
             job.retrieval_algorithm for job in self.config.retrieval.jobs
         ]
+
+        self.logger.info("Removing all old containers")
+        self.remove_all_containers(include_unknown=True)
+        self.logger.info("All old containers have been removed")
 
         if "proffast-1.0" in retrieval_algorithms or test_mode:
             self.logger.info("Initializing for Proffast 1.0")
@@ -127,10 +132,16 @@ class ContainerFactory:
         except IndexError:
             raise ValueError(f'no container with id "{container_id}"')
 
-    def remove_all_containers(self) -> None:
+    def remove_all_containers(self, include_unknown: bool = False) -> None:
         """Remove all containers."""
-        for container in self.containers:
-            shutil.rmtree(container.container_path)
+        if include_unknown:
+            for d in os.listdir(_CONTAINER_DIR):
+                subdir = os.path.join(_CONTAINER_DIR, d)
+                if os.path.isdir(subdir):
+                    shutil.rmtree(subdir)
+        else:
+            for container in self.containers:
+                shutil.rmtree(container.container_path)
         self.containers = []
 
     def _init_proffast10_code(self) -> None:
