@@ -43,25 +43,32 @@ def generate_retrieval_queue(
         # Only keep dates with interferograms
 
         dates_with_interferograms: set[datetime.date] = set()
+        dates_with_unlocked_interferograms: set[datetime.date] = set()
         for date in dates_with_location:
             ifg_path = os.path.join(
                 config.general.data.interferograms.root, sensor.sensor_id,
                 date.strftime("%Y%m%d")
             )
             if os.path.isdir(ifg_path):
+                dates_with_interferograms.add(date)
                 do_not_touch_indicator_file = os.path.join(
                     ifg_path, ".do-not-touch"
                 )
                 if not os.path.isfile(do_not_touch_indicator_file):
-                    dates_with_interferograms.add(date)
+                    dates_with_unlocked_interferograms.add(date)
         print(
-            f"  {len(dates_with_interferograms)} of these dates have interferograms"
+            f"  {len(dates_with_interferograms)} of these " +
+            "dates have interferograms"
+        )
+        print(
+            f"  {len(dates_with_unlocked_interferograms)} of these " +
+            "dates have interferograms with no process lock"
         )
 
         # Get sensor data contexts for all dates with interferograms
 
         sensor_data_contexts: list[em27_metadata.types.SensorDataContext] = []
-        for date in dates_with_interferograms:
+        for date in dates_with_unlocked_interferograms:
             from_datetime = datetime.datetime(
                 date.year, date.month, date.day, 0, 0, 0, tzinfo=datetime.UTC
             )
