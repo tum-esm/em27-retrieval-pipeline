@@ -1,22 +1,21 @@
 import datetime
 import os
 import em27_metadata
-from src import types, utils
+from src import types, utils, retrieval
 
 
 def generate_retrieval_queue(
-    config: types.Config,
+    config: types.Config, logger: retrieval.utils.logger.Logger,
     em27_metadata_interface: em27_metadata.EM27MetadataInterface,
     retrieval_job_config: types.RetrievalJobConfig
 ) -> list[em27_metadata.types.SensorDataContext]:
     retrieval_queue: list[em27_metadata.types.SensorDataContext] = []
-
     for sensor in em27_metadata_interface.sensors:
         if sensor.sensor_id not in retrieval_job_config.sensor_ids:
-            print(f"Skipping sensor {sensor.sensor_id}")
+            logger.info(f"Skipping sensor {sensor.sensor_id}")
             continue
         else:
-            print(f"Processing sensor {sensor.sensor_id}")
+            logger.info(f"Processing sensor {sensor.sensor_id}")
 
         # Find dates with location data
 
@@ -38,7 +37,9 @@ def generate_retrieval_queue(
                     )
                 )
             )
-        print(f"  Found {len(dates_with_location)} dates with location data")
+        logger.info(
+            f"  Found {len(dates_with_location)} dates with location data"
+        )
 
         # Only keep dates with interferograms
 
@@ -56,11 +57,11 @@ def generate_retrieval_queue(
                 )
                 if not os.path.isfile(do_not_touch_indicator_file):
                     dates_with_unlocked_interferograms.add(date)
-        print(
+        logger.info(
             f"  {len(dates_with_interferograms)} of these " +
             "dates have interferograms"
         )
-        print(
+        logger.info(
             f"  {len(dates_with_unlocked_interferograms)} of these " +
             "dates have interferograms with no process lock"
         )
@@ -86,7 +87,7 @@ def generate_retrieval_queue(
                     sensor.sensor_id, from_datetime, to_datetime
                 )
             )
-        print(
+        logger.info(
             f"  Generated {len(sensor_data_contexts)} sensor data contexts for these dates"
         )
 
@@ -112,7 +113,7 @@ def generate_retrieval_queue(
                 not os.path.isdir(failure_dir)
             ):
                 unprocessed_sensor_data_contexts.append(sdc)
-        print(
+        logger.info(
             f"  {len(unprocessed_sensor_data_contexts)} of these sensor data contexts "
             "have not been processed yet"
         )
@@ -134,7 +135,7 @@ def generate_retrieval_queue(
                 unprocessed_sensor_data_contexts_with_datalogger_files.append(
                     sdc
                 )
-        print(
+        logger.info(
             f"  {len(unprocessed_sensor_data_contexts_with_datalogger_files)} of these "
             "sensor data contexts have datalogger files"
         )
@@ -173,7 +174,7 @@ def generate_retrieval_queue(
                 unprocessed_sensor_data_contexts_with_atmospheric_profiles.append(
                     sdc
                 )
-        print(
+        logger.info(
             f"  {len(unprocessed_sensor_data_contexts_with_atmospheric_profiles)} of these "
             "sensor data contexts have atmospheric profiles"
         )

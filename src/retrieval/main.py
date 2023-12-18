@@ -91,7 +91,7 @@ def run() -> None:
             f"Generating retrieval queue for job {job_index+1}: {job.model_dump_json()}"
         )
         job_retrieval_queue = retrieval.dispatching.retrieval_queue.generate_retrieval_queue(
-            config, em27_metadata_interface, job
+            config, main_logger, em27_metadata_interface, job
         )
         main_logger.info(
             f"Found {len(job_retrieval_queue)} items for job {job_index+1}"
