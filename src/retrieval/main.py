@@ -1,4 +1,3 @@
-import queue
 from typing import Any, Optional
 import signal
 import sys
@@ -82,56 +81,50 @@ def run() -> None:
 
     # generate retrieval queue
     retrieval.utils.retrieval_status.RetrievalStatusList.reset()
-    retrieval_queue: queue.Queue[tuple[types.RetrievalAlgorithm,
-                                       types.AtmosphericProfileModel,
-                                       em27_metadata.types.SensorDataContext]
-                                ] = queue.Queue()
+    job_queue = retrieval.utils.job_queue.RetrievalJobQueue()
+
     for job_index, job in enumerate(config.retrieval.jobs):
         main_logger.info(
             f"Generating retrieval queue for job {job_index+1}: {job.model_dump_json()}"
         )
-        job_retrieval_queue = retrieval.dispatching.retrieval_queue.generate_retrieval_queue(
+        retrieval_sdcs = retrieval.dispatching.retrieval_queue.generate_retrieval_queue(
             config, main_logger, em27_metadata_interface, job
         )
         main_logger.info(
-            f"Found {len(job_retrieval_queue)} items for job {job_index+1}"
+            f"Found {len(retrieval_sdcs)} items for job {job_index+1}"
         )
-        for item in job_retrieval_queue:
-            retrieval_queue.put(
-                (job.retrieval_algorithm, job.atmospheric_profile_model, item)
+        for sdc in retrieval_sdcs:
+            job_queue.push(
+                job.retrieval_algorithm,
+                job.atmospheric_profile_model,
+                sdc,
             )
         retrieval.utils.retrieval_status.RetrievalStatusList.add_items(
-            job_retrieval_queue,
+            retrieval_sdcs,
             retrieval_algorithm=job.retrieval_algorithm,
             atmospheric_profile_model=job.atmospheric_profile_model
         )
-    main_logger.info(
-        f"Generated retrieval queue with {retrieval_queue.qsize()} items"
-    )
+    main_logger.info(f"Generated retrieval queue with {len(job_queue)} items")
     main_logger.horizontal_line(variant="=")
 
     try:
         while True:
-            next_sensor_data_context: Optional[
-                tuple[types.RetrievalAlgorithm, types.AtmosphericProfileModel,
-                      em27_metadata.types.SensorDataContext]] = None
-
             # start as many new processes as possible
             while True:
                 if len(processes) == config.retrieval.general.max_process_count:
                     break
 
-                try:
-                    next_sensor_data_context = retrieval_queue.get()
-                except queue.Empty:
+                if job_queue.is_empty():
                     break
 
                 # start new processes
+                next_retrieval_job = job_queue.pop()
+                assert next_retrieval_job is not None
                 new_session = retrieval.session.create_session.run(
                     container_factory,
-                    next_sensor_data_context[2],
-                    next_sensor_data_context[0],
-                    next_sensor_data_context[1],
+                    next_retrieval_job.sensor_data_context,
+                    next_retrieval_job.retrieval_algorithm,
+                    next_retrieval_job.atmospheric_profile_model,
                 )
                 new_process = multiprocessing.get_context("spawn").Process(
                     target=retrieval.session.process_session.run,
@@ -161,7 +154,7 @@ def run() -> None:
                     f'process "{finished_process.name}": removed container'
                 )
 
-            if (next_sensor_data_context is None) and (len(processes) == 0):
+            if job_queue.is_empty() and (len(processes) == 0):
                 main_logger.info(f"No more things to process")
                 break
 
