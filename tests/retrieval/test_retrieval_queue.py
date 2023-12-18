@@ -6,7 +6,7 @@ import tum_esm_utils
 from ..fixtures import download_sample_data, clear_output_data, provide_config_template
 import dotenv
 
-from src import types
+from src import types, utils, retrieval
 from src.retrieval.dispatching.retrieval_queue import generate_retrieval_queue
 
 dir = os.path.dirname
@@ -64,6 +64,9 @@ def test_retrieval_queue(
     provide_config_template: types.Config,
 ) -> None:
     config = provide_config_template
+    logger = retrieval.utils.logger.Logger(
+        "pytest", write_to_file=False, print_to_console=True
+    )
     assert config.retrieval is not None
 
     # target config at test data
@@ -83,6 +86,7 @@ def test_retrieval_queue(
     # test case 1
     retrieval_queue = generate_retrieval_queue(
         config,
+        logger,
         em27_metadata_interface=em27_metadata_storage,
         retrieval_job_config=types.RetrievalJobConfig(
             retrieval_algorithm="proffast-2.2",
@@ -102,6 +106,7 @@ def test_retrieval_queue(
     # test case 2
     retrieval_queue = generate_retrieval_queue(
         config,
+        logger,
         em27_metadata_interface=em27_metadata_storage,
         retrieval_job_config=types.RetrievalJobConfig(
             retrieval_algorithm="proffast-2.2",
@@ -122,6 +127,7 @@ def test_retrieval_queue(
     # test case 3
     retrieval_queue = generate_retrieval_queue(
         config,
+        logger,
         em27_metadata_interface=em27_metadata_storage,
         retrieval_job_config=types.RetrievalJobConfig(
             retrieval_algorithm="proffast-2.2",
@@ -139,6 +145,7 @@ def test_retrieval_queue(
     # test case 4
     retrieval_queue = generate_retrieval_queue(
         config,
+        logger,
         em27_metadata_interface=em27_metadata_storage,
         retrieval_job_config=types.RetrievalJobConfig(
             retrieval_algorithm="proffast-2.2",
@@ -156,6 +163,7 @@ def test_retrieval_queue(
     # test case 5
     retrieval_queue = generate_retrieval_queue(
         config,
+        logger,
         em27_metadata_interface=em27_metadata_storage,
         retrieval_job_config=types.RetrievalJobConfig(
             retrieval_algorithm="proffast-2.2",

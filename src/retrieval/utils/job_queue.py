@@ -1,7 +1,6 @@
 from typing import Optional
 import em27_metadata
 import pydantic
-
 from src import types
 
 
@@ -11,7 +10,7 @@ class RetrievalJob(pydantic.BaseModel):
     sensor_data_context: em27_metadata.types.SensorDataContext
 
 
-class RetrievalJobQueue(pydantic.BaseModel):
+class RetrievalJobQueue():
     def __init__(self) -> None:
         self.queue: list[RetrievalJob] = []
         self.current_job_index: int = 0
