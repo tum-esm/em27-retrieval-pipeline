@@ -11,6 +11,9 @@ from src import types
 _PROJECT_DIR = tum_esm_utils.files.get_parent_dir_path(
     __file__, current_depth=4
 )
+_ACTIVE_PROCESS_LIST = os.path.join(
+    _PROJECT_DIR, "data", "logs", "active-processes.json"
+)
 
 
 class RetrievalStatus(pydantic.BaseModel):
@@ -47,7 +50,7 @@ class RetrievalStatusList(pydantic.RootModel[list[RetrievalStatus]]):
     def load() -> list[RetrievalStatus]:
         with RetrievalStatusList.with_filelock():
             try:
-                with open("data/logs/active-processes.json", "r") as f:
+                with open(_ACTIVE_PROCESS_LIST, "r") as f:
                     return RetrievalStatusList.model_validate_json(
                         f.read()
                     ).root
@@ -57,7 +60,7 @@ class RetrievalStatusList(pydantic.RootModel[list[RetrievalStatus]]):
     @staticmethod
     def reset() -> None:
         with RetrievalStatusList.with_filelock():
-            with open("data/logs/active-processes.json", "w") as f:
+            with open(_ACTIVE_PROCESS_LIST, "w") as f:
                 f.write("[]")
 
     @staticmethod
@@ -72,7 +75,7 @@ class RetrievalStatusList(pydantic.RootModel[list[RetrievalStatus]]):
             items: A list of tuples of the form (sensor_id, date, location_id)."""
         with RetrievalStatusList.with_filelock():
             try:
-                with open("data/logs/active-processes.json", "r") as f:
+                with open(_ACTIVE_PROCESS_LIST, "r") as f:
                     process_list = RetrievalStatusList.model_validate_json(
                         f.read()
                     )
@@ -89,7 +92,7 @@ class RetrievalStatusList(pydantic.RootModel[list[RetrievalStatus]]):
                         location_id=sdc.location.location_id,
                     )
                 )
-            with open("data/logs/active-processes.json", "w") as f:
+            with open(_ACTIVE_PROCESS_LIST, "w") as f:
                 f.write(process_list.model_dump_json(indent=4))
 
     @staticmethod
@@ -104,7 +107,7 @@ class RetrievalStatusList(pydantic.RootModel[list[RetrievalStatus]]):
         process_end_time: Optional[datetime.datetime] = None
     ) -> None:
         try:
-            with open("data/logs/active-processes.json", "r") as f:
+            with open(_ACTIVE_PROCESS_LIST, "r") as f:
                 process_list = RetrievalStatusList.model_validate_json(f.read())
         except pydantic.ValidationError:
             return
@@ -122,5 +125,5 @@ class RetrievalStatusList(pydantic.RootModel[list[RetrievalStatus]]):
                 if process_end_time is not None:
                     p.process_end_time = process_end_time
                 break
-        with open("data/logs/active-processes.json", "w") as f:
+        with open(_ACTIVE_PROCESS_LIST, "w") as f:
             f.write(process_list.model_dump_json(indent=4))
