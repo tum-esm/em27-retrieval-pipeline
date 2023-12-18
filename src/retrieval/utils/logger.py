@@ -19,24 +19,30 @@ logfile_time = datetime.datetime.utcnow().strftime("%Y%m%d-%H-%M")
 
 
 class Logger:
-    def __init__(self, container_id: str, print_only: bool = False) -> None:
+    def __init__(
+        self,
+        container_id: str,
+        write_to_file: bool = True,
+        print_to_console: bool = False
+    ) -> None:
         self.container_id = container_id
         self.logfile_name = f"{logfile_time}_{self.container_id}.log"
         self.logfile_path = os.path.join(_LOGS_DIR, self.logfile_name)
-        self.print_only = print_only
+        self.write_to_file = write_to_file
+        self.print_to_console = print_to_console
 
-    def _print(
+    def _log(
         self,
         m: str,
         level: Literal["DEBUG", "INFO", "WARNING", "ERROR", "EXCEPTION"],
     ) -> None:
         t = datetime.datetime.utcnow().strftime("%Y%m%d %H:%M:%S")
         log_line = f"{t} - {level} - {m}\n"
-        if self.print_only:
-            print(log_line, end="")
-        else:
+        if self.write_to_file:
             with open(self.logfile_path, "a") as f:
                 f.write(log_line)
+        if self.print_to_console:
+            print(log_line, end="")
 
     def exception(
         self,
@@ -74,26 +80,26 @@ class Logger:
             f"------------------------------"
         )
 
-        self._print(f"{subject_string}\n{details_string}", "EXCEPTION")
+        self._log(f"{subject_string}\n{details_string}", "EXCEPTION")
 
     def error(self, m: str) -> None:
-        self._print(m, "ERROR")
+        self._log(m, "ERROR")
 
     def warning(self, m: str) -> None:
-        self._print(m, "WARNING")
+        self._log(m, "WARNING")
 
     def info(self, m: str) -> None:
-        self._print(m, "INFO")
+        self._log(m, "INFO")
 
     def debug(self, m: str) -> None:
-        self._print(m, "DEBUG")
+        self._log(m, "DEBUG")
 
     def horizontal_line(self, variant: str = "-") -> None:
         """
         log a horizontal line with 52 characters
         why 52? that is a very good question!
         """
-        self._print(variant * 52, "INFO")
+        self._log(variant * 52, "INFO")
 
     def archive(self) -> None:
         """move the used log file into the archive"""
