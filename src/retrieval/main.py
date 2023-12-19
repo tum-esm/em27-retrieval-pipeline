@@ -87,7 +87,7 @@ def run() -> None:
 
     for job_index, job in enumerate(config.retrieval.jobs):
         main_logger.info(
-            f"Generating retrieval queue for job {job_index+1}: {job.model_dump_json()}"
+            f"Generating retrieval queue for job {job_index+1}: {job.model_dump_json(indent=4)}"
         )
         retrieval_sdcs = retrieval.dispatching.retrieval_queue.generate_retrieval_queue(
             config, main_logger, em27_metadata_interface, job
