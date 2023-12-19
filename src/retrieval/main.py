@@ -58,7 +58,9 @@ def run() -> None:
 
                 time.sleep(0.2)
 
-            container_factory.remove_container(process.name.split("-")[-1])
+            container_factory.remove_container(
+                "-".join(process.name.split("-")[-2 :])
+            )
             main_logger.info(f'Process "{process.name}": removed container')
 
         main_logger.info(f"Killed all containers")
