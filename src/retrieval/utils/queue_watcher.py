@@ -2,6 +2,7 @@ import datetime
 import time
 from typing import Any
 import rich.live, rich.table, rich.panel, rich.console, rich.align, rich.spinner, rich.columns, rich.box
+import tum_esm_utils
 from .retrieval_status import RetrievalStatusList
 
 
@@ -70,12 +71,12 @@ def _render() -> Any:
 def start_retrieval_watcher() -> None:
     console = rich.console.Console()
     console.clear()
-    with rich.live.Live(refresh_per_second=4) as live:
+    with rich.live.Live(refresh_per_second=1) as live:
         live
         try:
             while True:
-                live.update(_render())
-                time.sleep(2)
+                with tum_esm_utils.context.ensure_section_duration(1):
+                    live.update(_render())
         except KeyboardInterrupt:
             live.update(
                 "[white]Stopped watching, automation is still running.[/white]"
