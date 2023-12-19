@@ -1,4 +1,5 @@
 import os
+from typing import Literal
 import pydantic
 import em27_metadata
 import tum_esm_utils
@@ -62,11 +63,23 @@ class Proffast23Container(Proffast22Container):
 RetrievalContainer = Proffast10Container | Proffast22Container | Proffast23Container
 
 
-class RetrievalSession(pydantic.BaseModel):
-    """This combines a `SensorDataContext` with a `Proffast10Container`/
-    `Proffast22Container`/`Proffast23Container`."""
+class Proffast1RetrievalSession(pydantic.BaseModel):
+    """This combines a `SensorDataContext` with a `Proffast10Container`"""
 
-    retrieval_algorithm: types.RetrievalAlgorithm
-    atmospheric_profile_model: types.AtmosphericProfileModel
+    retrieval_algorithm: Literal["proffast-1.0"] = "proffast-1.0"
+    atmospheric_profile_model: Literal["GGG2014"] = "GGG2014"
     ctx: em27_metadata.types.SensorDataContext
-    ctn: RetrievalContainer
+    ctn: Proffast10Container
+
+
+class Proffast2RetrievalSession(pydantic.BaseModel):
+    """This combines a `SensorDataContext` with a `Proffast22Container`/
+    `Proffast23Container`."""
+
+    retrieval_algorithm: Literal["proffast-2.2", "proffast-2.3"]
+    atmospheric_profile_model: Literal["GGG2014", "GGG2020"]
+    ctx: em27_metadata.types.SensorDataContext
+    ctn: Proffast22Container | Proffast23Container
+
+
+RetrievalSession = Proffast1RetrievalSession | Proffast2RetrievalSession

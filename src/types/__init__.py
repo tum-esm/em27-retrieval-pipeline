@@ -16,5 +16,7 @@ from .retrieval_containers import (
     Proffast22Container,
     Proffast23Container,
     RetrievalContainer,
+    Proffast1RetrievalSession,
+    Proffast2RetrievalSession,
     RetrievalSession,
 )

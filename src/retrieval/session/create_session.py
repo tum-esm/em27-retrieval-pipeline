@@ -7,19 +7,21 @@ from src import types, retrieval
 _PROJECT_DIR = tum_esm_utils.files.get_parent_dir_path(
     __file__, current_depth=4
 )
-_PYLOT_CONFIG_DIR = os.path.join(
-    _PROJECT_DIR, "src", "retrieval", "algorithms", "proffast-2.2", "config"
+_RETRIEVAL_ALGORITHMS_DIR = os.path.join(
+    _PROJECT_DIR, "src", "retrieval", "algorithms"
 )
 
 
-def _generate_pylot22_config(session: types.RetrievalSession) -> None:
-    assert isinstance(
-        session.ctn,
-        (types.Proffast22Container, types.Proffast23Container),
-    )
+def _generate_pylot2_config(session: types.Proffast2RetrievalSession) -> None:
+    assert session.retrieval_algorithm in ["proffast-2.2", "proffast-2.3"]
 
     file_content = tum_esm_utils.files.load_file(
-        os.path.join(_PYLOT_CONFIG_DIR, "pylot_config_template.yml")
+        os.path.join(
+            _RETRIEVAL_ALGORITHMS_DIR,
+            session.retrieval_algorithm,
+            "config",
+            "pylot_config_template.yml",
+        )
     )
     tum_esm_utils.files.dump_file(
         session.ctn.pylot_config_path,
@@ -53,18 +55,16 @@ def _generate_pylot22_config(session: types.RetrievalSession) -> None:
     )
 
 
-def _generate_pylot23_config(session: types.RetrievalSession) -> None:
-    _generate_pylot22_config(session)
-
-
-def _generate_pylot22_log_format(session: types.RetrievalSession) -> None:
-    assert isinstance(
-        session.ctn,
-        (types.Proffast22Container, types.Proffast23Container),
-    )
-
+def _generate_pylot2_log_format(
+    session: types.Proffast2RetrievalSession
+) -> None:
     file_content = tum_esm_utils.files.load_file(
-        os.path.join(_PYLOT_CONFIG_DIR, "pylot_log_format_template.yml")
+        os.path.join(
+            _RETRIEVAL_ALGORITHMS_DIR,
+            session.retrieval_algorithm,
+            "config",
+            "pylot_log_format_template.yml",
+        )
     )
     tum_esm_utils.files.dump_file(
         session.ctn.pylot_log_format_path,
@@ -84,10 +84,6 @@ def _generate_pylot22_log_format(session: types.RetrievalSession) -> None:
     )
 
 
-def _generate_pylot23_log_format(session: types.RetrievalSession) -> None:
-    _generate_pylot22_log_format(session)
-
-
 def run(
     container_factory: retrieval.dispatching.container_factory.ContainerFactory,
     sensor_data_context: em27_metadata.types.SensorDataContext,
@@ -95,14 +91,27 @@ def run(
     atmospheric_profile_model: types.AtmosphericProfileModel,
 ) -> types.RetrievalSession:
     """Create a new container and the pylot config files"""
-    new_session = types.RetrievalSession(
-        retrieval_algorithm=retrieval_algorithm,
-        atmospheric_profile_model=atmospheric_profile_model,
-        ctx=sensor_data_context,
-        ctn=container_factory.create_container(
-            retrieval_algorithm=retrieval_algorithm
-        ),
-    )
+    new_session: types.RetrievalSession
+
+    if retrieval_algorithm == "proffast-1.0":
+        new_session = types.Proffast1RetrievalSession(
+            ctx=sensor_data_context,
+            ctn=container_factory.create_container(
+                retrieval_algorithm=retrieval_algorithm
+            ),
+        )
+    else:
+        new_session = types.Proffast2RetrievalSession(
+            retrieval_algorithm=retrieval_algorithm,
+            atmospheric_profile_model=atmospheric_profile_model,
+            ctx=sensor_data_context,
+            ctn=container_factory.create_container(
+                retrieval_algorithm=retrieval_algorithm
+            ),
+        )
+        _generate_pylot2_config(new_session)
+        _generate_pylot2_log_format(new_session)
+
     retrieval.utils.retrieval_status.RetrievalStatusList.update_item(
         retrieval_algorithm=retrieval_algorithm,
         atmospheric_profile_model=atmospheric_profile_model,
@@ -111,13 +120,4 @@ def run(
         container_id=new_session.ctn.container_id,
         process_start_time=datetime.datetime.utcnow(),
     )
-
-    if isinstance(new_session.ctn, types.Proffast22Container):
-        _generate_pylot22_config(new_session)
-        _generate_pylot22_log_format(new_session)
-
-    if isinstance(new_session.ctn, types.Proffast23Container):
-        _generate_pylot23_config(new_session)
-        _generate_pylot23_log_format(new_session)
-
     return new_session

@@ -13,7 +13,7 @@ def run(session: types.RetrievalSession, test_mode: bool = False) -> None:
         create_test_outputs(session)
         return
 
-    if isinstance(session.ctn, types.Proffast10Container):
+    if isinstance(session.ctn, types.Proffast1RetrievalSession):
         tum_esm_utils.shell.run_shell_command(
             " ".join([
                 os.path.join(
@@ -31,11 +31,7 @@ def run(session: types.RetrievalSession, test_mode: bool = False) -> None:
                 '"',
             ])
         )
-
-    if isinstance(
-        session.ctn,
-        (types.Proffast22Container, types.Proffast23Container),
-    ):
+    if isinstance(session, types.Proffast2RetrievalSession):
         tum_esm_utils.shell.run_shell_command(
             " ".join([
                 os.path.join(
@@ -49,11 +45,7 @@ def run(session: types.RetrievalSession, test_mode: bool = False) -> None:
                     "src",
                     "retrieval",
                     "algorithms",
-                    (
-                        "proffast-2.2"
-                        if isinstance(session.ctn, types.Proffast22Container)
-                        else "proffast-2.3"
-                    ),
+                    session.retrieval_algorithm,
                     "run_pylot_container.py",
                 ),
                 session.ctn.container_id,
