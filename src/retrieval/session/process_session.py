@@ -29,7 +29,6 @@ def run(
     logger.debug(f"Session object: {session.model_dump_json(indent=4)}")
 
     def _last_will() -> None:
-        logger.archive()
         retrieval.utils.retrieval_status.RetrievalStatusList.update_item(
             session.retrieval_algorithm,
             session.atmospheric_profile_model,
@@ -37,6 +36,7 @@ def run(
             session.ctx.from_datetime,
             process_end_time=datetime.datetime.utcnow(),
         )
+        logger.archive()
 
     def _graceful_teardown(*args: Any) -> None:
         logger.info(f"Container was killed")

@@ -106,24 +106,27 @@ class RetrievalStatusList(pydantic.RootModel[list[RetrievalStatus]]):
         process_start_time: Optional[datetime.datetime] = None,
         process_end_time: Optional[datetime.datetime] = None
     ) -> None:
-        try:
-            with open(_ACTIVE_PROCESS_LIST, "r") as f:
-                process_list = RetrievalStatusList.model_validate_json(f.read())
-        except pydantic.ValidationError:
-            return
-        for p in process_list.root:
-            if ((p.retrieval_algorithm == retrieval_algorithm) and
-                (p.atmospheric_profile_model == atmospheric_profile_model) and
-                (p.sensor_id == sensor_id) and
-                (p.from_datetime == from_datetime)):
-                if container_id is not None:
-                    p.container_id = container_id
-                if ifg_count is not None:
-                    p.ifg_count = ifg_count
-                if process_start_time is not None:
-                    p.process_start_time = process_start_time
-                if process_end_time is not None:
-                    p.process_end_time = process_end_time
-                break
-        with open(_ACTIVE_PROCESS_LIST, "w") as f:
-            f.write(process_list.model_dump_json(indent=4))
+        with RetrievalStatusList.with_filelock():
+            try:
+                with open(_ACTIVE_PROCESS_LIST, "r") as f:
+                    process_list = RetrievalStatusList.model_validate_json(
+                        f.read()
+                    )
+            except pydantic.ValidationError:
+                return
+            for p in process_list.root:
+                if ((p.retrieval_algorithm == retrieval_algorithm) and
+                    (p.atmospheric_profile_model == atmospheric_profile_model)
+                    and (p.sensor_id == sensor_id) and
+                    (p.from_datetime == from_datetime)):
+                    if container_id is not None:
+                        p.container_id = container_id
+                    if ifg_count is not None:
+                        p.ifg_count = ifg_count
+                    if process_start_time is not None:
+                        p.process_start_time = process_start_time
+                    if process_end_time is not None:
+                        p.process_end_time = process_end_time
+                    break
+            with open(_ACTIVE_PROCESS_LIST, "w") as f:
+                f.write(process_list.model_dump_json(indent=4))
