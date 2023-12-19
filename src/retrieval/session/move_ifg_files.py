@@ -73,12 +73,26 @@ def run(
             "skipping modification of ifg file permissions during processing"
         )
 
+    # SYMLINK ALL VALID INTERFEROGRAM FILES AND
+    # RENAME THEM TO THE FORMAT EXPECTED BY THE
+    # PYLOT
+
+    dst_date_path = os.path.join(
+        session.ctn.data_input_path, "ifg", date_string[2 :]
+    )
+    os.mkdir(dst_date_path)
+    for ifg_index, filename in enumerate(ifg_filenames):
+        os.symlink(
+            os.path.join(ifg_src_directory, filename),
+            os.path.join(dst_date_path, f"{date_string[2:]}SN.{ifg_index + 1}"),
+        )
+
     # EXCLUDE CORRUPT INTERFEROGRAM FILES
 
     try:
         corrupt_filenames = list(
             tum_esm_utils.interferograms.detect_corrupt_ifgs(
-                ifg_directory=ifg_src_directory
+                ifg_directory=dst_date_path
             ).keys()
         )
     except subprocess.CalledProcessError:
@@ -92,20 +106,5 @@ def run(
             0 else ""
         )
     )
-    valid_ifg_filenames = [
-        f for f in ifg_filenames if f not in corrupt_filenames
-    ]
-
-    # SYMLINK ALL VALID INTERFEROGRAM FILES AND
-    # RENAME THEM TO THE FORMAT EXPECTED BY THE
-    # PYLOT
-
-    dst_date_path = os.path.join(
-        session.ctn.data_input_path, "ifg", date_string[2 :]
-    )
-    os.mkdir(dst_date_path)
-    for ifg_index, filename in enumerate(valid_ifg_filenames):
-        os.symlink(
-            os.path.join(ifg_src_directory, filename),
-            os.path.join(dst_date_path, f"{date_string[2:]}SN.{ifg_index + 1}"),
-        )
+    for f in corrupt_filenames:
+        os.remove(os.path.join(dst_date_path, f))
