@@ -21,6 +21,8 @@ export_command_group = click.Group(name="export")
     "Start the retrieval as a background process. Prevents spawning multiple processes. The logs and the current processing queue from this process can be found at `logs/retrieval`.",
 )
 def start() -> None:
+    import src
+    src.types.Config.load()
     pid = tum_esm_utils.processes.start_background_process(
         sys.executable, _RETRIEVAL_ENTRYPOINT
     )

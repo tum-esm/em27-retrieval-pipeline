@@ -90,11 +90,15 @@ def _check_retrieval_output(
     if sdc.multiple_ctx_on_this_date:
         output_folder_slug += max(
             sdc.from_datetime,
-            datetime.datetime.combine(date, datetime.time.min),
+            datetime.datetime.combine(
+                date, datetime.time.min, tzinfo=datetime.UTC
+            ),
         ).strftime("_%H%M%S")
         output_folder_slug += min(
             sdc.to_datetime,
-            datetime.datetime.combine(date, datetime.time.max),
+            datetime.datetime.combine(
+                date, datetime.time.max, tzinfo=datetime.UTC
+            ),
         ).strftime("_%H%M%S")
 
     success_path = os.path.join(
