@@ -46,10 +46,12 @@ def _count_ifg_datapoints(
 ) -> int:
 
     try:
-        return len(
-            os.listdir(os.path.join(path, sensor_id, date.strftime('%Y%m%d')))
+        return int(
+            tum_esm_utils.shell.run_shell_command(
+                f"ls -f {os.path.join(path, sensor_id, date.strftime('%Y%m%d'))} | wc -l"
+            )
         )
-    except FileNotFoundError:
+    except Exception:
         return 0
 
 
@@ -72,15 +74,28 @@ def _count_datalogger_datapoints(
 
 def _check_retrieval_output(
     config: types.Config,
+    date: datetime.date,
     sdc: em27_metadata.types.SensorDataContext,
-    retrieval_algorithm: Literal["proffast-1.0", "proffast-2.2",
-                                 "proffast-2.3"],
-    atmospheric_model: Literal["GGG2014", "GGG2020"],
+    retrieval_algorithm: Literal[
+        "proffast-1.0",
+        "proffast-2.2",
+        "proffast-2.3",
+    ],
+    atmospheric_model: Literal[
+        "GGG2014",
+        "GGG2020",
+    ],
 ) -> Literal["✅", "❌", "-"]:
-    output_folder_slug = sdc.from_datetime.strftime("%Y%m%d")
+    output_folder_slug = date.strftime("%Y%m%d")
     if sdc.multiple_ctx_on_this_date:
-        output_folder_slug += sdc.from_datetime.strftime("_%H%M%S")
-        output_folder_slug += sdc.to_datetime.strftime("_%H%M%S")
+        output_folder_slug += max(
+            sdc.from_datetime,
+            datetime.datetime.combine(date, datetime.time.min),
+        ).strftime("_%H%M%S")
+        output_folder_slug += min(
+            sdc.to_datetime,
+            datetime.datetime.combine(date, datetime.time.max),
+        ).strftime("_%H%M%S")
 
     success_path = os.path.join(
         config.general.data.results.root,
@@ -192,27 +207,27 @@ def export_data_report(
                     )
                     ggg2014_proffast_10_outputs.append(
                         _check_retrieval_output(
-                            config, sdc, "proffast-1.0", "GGG2014"
+                            config, date, sdc, "proffast-1.0", "GGG2014"
                         )
                     )
                     ggg2014_proffast_22_outputs.append(
                         _check_retrieval_output(
-                            config, sdc, "proffast-2.2", "GGG2014"
+                            config, date, sdc, "proffast-2.2", "GGG2014"
                         )
                     )
                     ggg2014_proffast_23_outputs.append(
                         _check_retrieval_output(
-                            config, sdc, "proffast-2.3", "GGG2014"
+                            config, date, sdc, "proffast-2.3", "GGG2014"
                         )
                     )
                     ggg2020_proffast_22_outputs.append(
                         _check_retrieval_output(
-                            config, sdc, "proffast-2.2", "GGG2020"
+                            config, date, sdc, "proffast-2.2", "GGG2020"
                         )
                     )
                     ggg2020_proffast_23_outputs.append(
                         _check_retrieval_output(
-                            config, sdc, "proffast-2.3", "GGG2020"
+                            config, date, sdc, "proffast-2.3", "GGG2020"
                         )
                     )
                     progress.advance(subtask)
