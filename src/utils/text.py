@@ -7,15 +7,15 @@ def get_coordinates_slug(lat: float, lon: float, verbose: bool = False) -> str:
     verbose = false: `48N011E``
     verbose = true: `48.00N_11.00E`"""
 
-    latv = str(round(abs(lat))).zfill(2)
+    latv = str(round(abs(lat)))
     latd = "S" if lat < 0 else "N"
-    lonv = str(round(abs(lon))).zfill(3)
+    lonv = str(round(abs(lon)))
     lond = "W" if lon < 0 else "E"
 
     if verbose:
         return f"{latv}.00{latd}_{lonv}.00{lond}"
     else:
-        return f"{latv}{latd}{lonv}{lond}"
+        return f"{latv.zfill(2)}{latd}{lonv.zfill(3)}{lond}"
 
 
 # Source: https://github.com/moby/moby/blob/master/pkg/namesgenerator/names-generator.go
