@@ -3,95 +3,40 @@ import datetime
 from src.profiles.generate_queries_new import TimePeriod
 
 
-def test_construct_time_periods() -> None:
+def _date_range(
+    from_date: datetime.date,
+    to_date: datetime.date,
+) -> list[datetime.date]:
+    delta = to_date - from_date
+    assert delta.days >= 0, "from_date must be before to_date"
+    return [
+        from_date + datetime.timedelta(days=i) for i in range(delta.days + 1)
+    ]
+
+
+def test_time_period_construction() -> None:
     for _ in range(100):
         from_date = datetime.date(
             random.randint(2000, 2023),
             random.randint(1, 12),
             random.randint(1, 28),
         )
-        to_date = from_date + datetime.timedelta(days=random.randint(1, 365))
-        xs = TimePeriod.construct(from_date=from_date, to_date=to_date)
-        assert len(xs) >= 1
-        assert xs[0].from_date <= from_date
-        assert xs[-1].to_date >= to_date
-        assert all([x.from_date.weekday() == 0 for x in xs])
-        assert all([x.to_date.weekday() == 6 for x in xs])
-        assert all([
-            x1.to_date == x2.from_date - datetime.timedelta(days=1)
-            for x1, x2 in zip(xs[:-1], xs[1 :])
-        ])
+        to_date = from_date + datetime.timedelta(days=random.randint(100, 365))
+        requested_dates = random.sample(
+            _date_range(from_date, to_date), random.randint(10, 100)
+        )
 
+        time_periods = TimePeriod.construct(
+            requested_dates=set(requested_dates)
+        )
+        for tp1, tp2 in zip(time_periods[:-1], time_periods[1 :]):
+            assert tp1.to_date < tp2.from_date
 
-def test_minify_time_periods() -> None:
-    ts = [
-        TimePeriod(
-            from_date=datetime.date(2021, 1, 1),
-            to_date=datetime.date(2021, 1, 7),
-        ),
-        TimePeriod(
-            from_date=datetime.date(2021, 1, 8),
-            to_date=datetime.date(2021, 1, 14),
-        ),
-        TimePeriod(
-            from_date=datetime.date(2021, 1, 15),
-            to_date=datetime.date(2021, 1, 21),
-        ),
-        TimePeriod(
-            from_date=datetime.date(2021, 1, 22),
-            to_date=datetime.date(2021, 1, 28),
-        ),
-    ]
-    present_dates = [
-        # tp1 (all present)
-        datetime.date(2021, 1, 1),
-        datetime.date(2021, 1, 2),
-        datetime.date(2021, 1, 3),
-        datetime.date(2021, 1, 4),
-        datetime.date(2021, 1, 5),
-        datetime.date(2021, 1, 6),
-        datetime.date(2021, 1, 7),
-
-        # tp2 (part missing)
-        datetime.date(2021, 1, 8),
-        datetime.date(2021, 1, 9),
-        datetime.date(2021, 1, 10),
-        # datetime.date(2021, 1, 11),
-        datetime.date(2021, 1, 12),
-        datetime.date(2021, 1, 13),
-        datetime.date(2021, 1, 14),
-
-        # tp3 (part missing)
-        datetime.date(2021, 1, 15),
-        # datetime.date(2021, 1, 16),
-        # datetime.date(2021, 1, 17),
-        # datetime.date(2021, 1, 18),
-        # datetime.date(2021, 1, 19),
-        # datetime.date(2021, 1, 20),
-        datetime.date(2021, 1, 21),
-
-        # tp4 (all missing)
-        # datetime.date(2021, 1, 22),
-        # datetime.date(2021, 1, 23),
-        # datetime.date(2021, 1, 24),
-        # datetime.date(2021, 1, 25),
-        # datetime.date(2021, 1, 26),
-        # datetime.date(2021, 1, 27),
-        # datetime.date(2021, 1, 28),
-    ]
-    assert TimePeriod.minify(
-        present_dates=present_dates, all_time_periods=ts
-    ) == [
-        TimePeriod(
-            from_date=datetime.date(2021, 1, 11),
-            to_date=datetime.date(2021, 1, 11),
-        ),
-        TimePeriod(
-            from_date=datetime.date(2021, 1, 16),
-            to_date=datetime.date(2021, 1, 20),
-        ),
-        TimePeriod(
-            from_date=datetime.date(2021, 1, 22),
-            to_date=datetime.date(2021, 1, 28),
-        ),
-    ]
+        actually_requested_dates: set[datetime.date] = set()
+        for tp in time_periods:
+            assert tp.from_date <= tp.to_date
+            assert (tp.to_date - tp.from_date).days <= 6
+            assert min(tp.requested_dates) == tp.from_date
+            assert max(tp.requested_dates) == tp.to_date
+            actually_requested_dates.update(tp.requested_dates)
+        assert actually_requested_dates == set(requested_dates)
