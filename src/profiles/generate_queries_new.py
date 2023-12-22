@@ -13,13 +13,6 @@ class TimePeriod(pydantic.BaseModel):
     to_date: datetime.date
     requested_dates: list[datetime.date]
 
-    def possible_to_dates(self) -> list[datetime.date]:
-        """Returns a list of possible to_dates for this time period. This is
-        because when requesting dates 1 to 7, the server might only return 1
-        to 5 because 6 and 7 cannot be generated yet."""
-
-        return [self.to_date - datetime.timedelta(days=i) for i in range(7)]
-
     @staticmethod
     def construct(requested_dates: set[datetime.date]) -> list[TimePeriod]:
         """Given a start and end date, construct a list of time periods
@@ -73,6 +66,15 @@ def generate_queries(
     em27_metadata_storage: Optional[
         em27_metadata.interfaces.EM27MetadataInterface] = None,
 ) -> list[DownloadQuery]:
+    """Returns a list of `DownloadQuery` objects for which the
+    data has not been downloaded yet. Example:
+
+    ```python
+    [
+        DownloadQuery(lat=48, lon=11, from_date=2020-01-01, to_date=2020-01-03),
+        DownloadQuery(lat=48, lon=12, from_date=2020-01-01, to_date=2020-01-08),
+    ]
+    ```"""
 
     # if profiles download is not configured
     if config.profiles is None:
@@ -93,13 +95,6 @@ def generate_queries(
 
     for sensor in em27_metadata_storage.sensors:
         for sensor_location in sensor.locations:
-            """if ((
-                sensor_location.to_datetime.date() < config.profiles.from_date
-            ) or (
-                sensor_location.from_datetime.date() > config.profiles.to_date
-            )):
-                continue"""
-
             location = next(
                 filter(
                     lambda l: l.location_id == sensor_location.location_id,
@@ -178,8 +173,10 @@ def generate_queries(
             )
         requested_dates = set(
             filter(
-                lambda d: (d >= config.profiles.from_date) and
-                (d <= config.profiles.to_date), requested_dates
+                lambda d: ((d >= config.profiles.from_date) and
+                           (d <= config.profiles.to_date) and
+                           (d < datetime.date.today())),
+                requested_dates,
             )
         )
         missing_dates = requested_dates.difference(
