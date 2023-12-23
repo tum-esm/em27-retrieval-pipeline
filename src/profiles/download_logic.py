@@ -2,6 +2,7 @@ from typing import BinaryIO
 import tarfile
 import io
 import ftplib
+import rich.progress
 from src import types, utils
 
 
@@ -24,28 +25,34 @@ def download_data(
     # GGG2020: /ginput-jobs/job_000034641_tu_48.00N_12.00E_20221001-20221008.tgz
 
     fulfilled_queries: list[types.DownloadQuery] = []
-    for query in queries:
-        cs = utils.text.get_coordinates_slug(query.lat, query.lon, verbose=True)
-        ds = query.from_date.strftime("%Y%m%d")
-        tarballs_to_download = [
-            t for t in tarballs_on_server if f"{cs}_{ds}" in t
-        ]
-        if atmospheric_profile_model == "GGG2020":
-            if len(tarballs_to_download) >= 1:
-                fulfilled_queries.append(query)
-        else:
-            if len(tarballs_to_download) >= 2:
-                fulfilled_queries.append(query)
-        for t in tarballs_to_download:
-            with io.BytesIO() as archive:
-                ftp.retrbinary(
-                    f"RETR {t}",
-                    archive.write,
-                )
-                archive.seek(0)
-                _extract_archive(
-                    config, archive, query, atmospheric_profile_model
-                )
+
+    with rich.progress.Progress() as progress:
+        for query in progress.track(queries, description=f"Downloading ..."):
+            progress.print(f"Downloading {query}")
+
+            cs = utils.text.get_coordinates_slug(
+                query.lat, query.lon, verbose=True
+            )
+            ds = query.from_date.strftime("%Y%m%d")
+            tarballs_to_download = [
+                t for t in tarballs_on_server if f"{cs}_{ds}" in t
+            ]
+            if atmospheric_profile_model == "GGG2020":
+                if len(tarballs_to_download) >= 1:
+                    fulfilled_queries.append(query)
+            else:
+                if len(tarballs_to_download) >= 2:
+                    fulfilled_queries.append(query)
+            for t in tarballs_to_download:
+                with io.BytesIO() as archive:
+                    ftp.retrbinary(
+                        f"RETR {t}",
+                        archive.write,
+                    )
+                    archive.seek(0)
+                    _extract_archive(
+                        config, archive, query, atmospheric_profile_model
+                    )
 
 
 def _extract_archive(

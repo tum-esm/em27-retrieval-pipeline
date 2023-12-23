@@ -59,6 +59,9 @@ class DownloadQuery(pydantic.BaseModel):
     def from_date_str(self, sep: str = "") -> str:
         return self.from_date.strftime(f"%Y{sep}%m{sep}%d")
 
+    def __str__(self) -> str:
+        return f"DownloadQuery({self.lat}°N | {self.lon}°E | {self.from_date} - {self.to_date})"
+
 
 def generate_download_queries(
     config: types.Config,
