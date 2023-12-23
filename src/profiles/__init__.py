@@ -1,1 +1,1 @@
-from . import generate_queries, transfer_logic, main
+from . import main, generate_queries, upload_logic, download_logic
