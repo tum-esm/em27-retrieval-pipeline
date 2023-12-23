@@ -1,153 +1,33 @@
-from typing import Literal
-import os
-import tempfile
-import pytest
+import random
 import datetime
-import em27_metadata
-from src import types, profiles
-from tests.fixtures import provide_config_template
+import src
+from src.profiles.generate_queries import TimePeriod
 
 
-@pytest.mark.order(1)
-@pytest.mark.ci_quick
-@pytest.mark.ci_intensive
-@pytest.mark.ci_complete
-def test_query_generation(provide_config_template: types.Config, ) -> None:
-    config = provide_config_template
-    assert config.profiles is not None
+def test_time_period_construction() -> None:
+    for _ in range(100):
+        from_date = datetime.date(
+            random.randint(2000, 2023),
+            random.randint(1, 12),
+            random.randint(1, 28),
+        )
+        to_date = from_date + datetime.timedelta(days=random.randint(100, 365))
+        requested_dates = random.sample(
+            src.utils.functions.date_range(from_date, to_date),
+            random.randint(10, 100)
+        )
 
-    em27_metadata_storage = em27_metadata.EM27MetadataInterface(
-        locations=[
-            em27_metadata.types.LocationMetadata(
-                location_id="l1", details="l1d", lat=1, lon=2, alt=0
-            ),
-            em27_metadata.types.LocationMetadata(
-                location_id="l2", details="l2d", lat=1, lon=3, alt=0
-            ),
-            em27_metadata.types.LocationMetadata(
-                location_id="l3", details="l3d", lat=2, lon=3, alt=0
-            ),
-        ],
-        sensors=[
-            em27_metadata.types.SensorMetadata(
-                sensor_id="s1",
-                serial_number=1,
-                locations=[
-                    em27_metadata.types.SensorTypes.Location(
-                        from_datetime="2000-01-01T00:00:00+00:00",
-                        to_datetime="2000-03-01T11:59:59+00:00",
-                        location_id="l1",
-                    ),
-                    em27_metadata.types.SensorTypes.Location(
-                        from_datetime="2000-03-01T12:00:00+00:00",
-                        to_datetime="2000-05-01T23:59:59+00:00",
-                        location_id="l3",
-                    ),
-                    em27_metadata.types.SensorTypes.Location(
-                        from_datetime="2000-05-04T12:00:00+00:00",
-                        to_datetime="2000-05-07T23:59:59+00:00",
-                        location_id="l2",
-                    ),
-                ],
-            ),
-            em27_metadata.types.SensorMetadata(
-                sensor_id="s2",
-                serial_number=2,
-                locations=[
-                    em27_metadata.types.SensorTypes.Location(
-                        from_datetime="2000-01-07T00:00:00+00:00",
-                        to_datetime="2000-02-23T23:59:59+00:00",
-                        location_id="l1",
-                    ),
-                    em27_metadata.types.SensorTypes.Location(
-                        from_datetime="2000-05-05T12:00:00+00:00",
-                        to_datetime="2000-05-08T23:59:59+00:00",
-                        location_id="l2",
-                    ),
-                ],
-            ),
-        ],
-        campaigns=[],
-    )
+        time_periods = TimePeriod.construct(
+            requested_dates=set(requested_dates)
+        )
+        for tp1, tp2 in zip(time_periods[:-1], time_periods[1 :]):
+            assert tp1.to_date < tp2.from_date
 
-    atmospheric_profile_models: list[Literal["GGG2014", "GGG2020"]] = [
-        "GGG2014", "GGG2020"
-    ]
-
-    # create a "with tmp dir"
-    with tempfile.TemporaryDirectory() as tmp_dir:
-        config.general.data.atmospheric_profiles.root = tmp_dir
-        config.profiles.scope.from_date = datetime.date(2000, 1, 1)
-        config.profiles.scope.to_date = datetime.date(2000, 5, 30)
-
-        for atmospheric_profile_model in atmospheric_profile_models:
-            os.mkdir(os.path.join(tmp_dir, atmospheric_profile_model))
-            query_list = profiles.generate_queries.generate_download_queries(
-                config=config,
-                atmospheric_profile_model=atmospheric_profile_model,
-                em27_metadata_storage=em27_metadata_storage,
-            )
-            [print(q) for q in query_list]
-            assert len(query_list) == 7
-
-            def assert_query_exists(
-                lat: int,
-                lon: int,
-                from_date: datetime.date,
-                to_date: datetime.date,
-            ) -> None:
-                assert (
-                    sum([
-                        all([
-                            (q.lat == lat),
-                            (q.lon == lon),
-                            (q.from_date == from_date),
-                            (q.to_date == to_date),
-                        ]) for q in query_list
-                    ]) == 1
-                )
-
-            print(query_list)
-
-            assert_query_exists(
-                lat=1,
-                lon=2,
-                from_date=datetime.date(2000, 1, 1),
-                to_date=datetime.date(2000, 1, 28),
-            )
-            assert_query_exists(
-                lat=1,
-                lon=2,
-                from_date=datetime.date(2000, 1, 29),
-                to_date=datetime.date(2000, 2, 25),
-            )
-            assert_query_exists(
-                lat=1,
-                lon=2,
-                from_date=datetime.date(2000, 2, 26),
-                to_date=datetime.date(2000, 3, 1),
-            )
-            assert_query_exists(
-                lat=2,
-                lon=3,
-                from_date=datetime.date(2000, 3, 1),
-                to_date=datetime.date(2000, 3, 28),
-            )
-            assert_query_exists(
-                lat=2,
-                lon=3,
-                from_date=datetime.date(2000, 3, 29),
-                to_date=datetime.date(2000, 4, 25),
-            )
-            assert_query_exists(
-                lat=2,
-                lon=3,
-                from_date=datetime.date(2000, 4, 26),
-                to_date=datetime.date(2000, 5, 1),
-            )
-            assert_query_exists(
-                lat=1,
-                lon=3,
-                from_date=datetime.date(2000, 5, 4),
-                to_date=datetime.date(2000, 5, 8),
-            )
+        actually_requested_dates: set[datetime.date] = set()
+        for tp in time_periods:
+            assert tp.from_date <= tp.to_date
+            assert (tp.to_date - tp.from_date).days <= 6
+            assert min(tp.requested_dates) == tp.from_date
+            assert max(tp.requested_dates) == tp.to_date
+            actually_requested_dates.update(tp.requested_dates)
+        assert actually_requested_dates == set(requested_dates)
