@@ -1,17 +1,7 @@
 import random
 import datetime
-from src.profiles.generate_queries_new import TimePeriod
-
-
-def _date_range(
-    from_date: datetime.date,
-    to_date: datetime.date,
-) -> list[datetime.date]:
-    delta = to_date - from_date
-    assert delta.days >= 0, "from_date must be before to_date"
-    return [
-        from_date + datetime.timedelta(days=i) for i in range(delta.days + 1)
-    ]
+import src
+from src.profiles.generate_queries import TimePeriod
 
 
 def test_time_period_construction() -> None:
@@ -23,7 +13,8 @@ def test_time_period_construction() -> None:
         )
         to_date = from_date + datetime.timedelta(days=random.randint(100, 365))
         requested_dates = random.sample(
-            _date_range(from_date, to_date), random.randint(10, 100)
+            src.utils.functions.date_range(from_date, to_date),
+            random.randint(10, 100)
         )
 
         time_periods = TimePeriod.construct(
