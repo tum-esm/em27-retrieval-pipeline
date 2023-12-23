@@ -8,21 +8,23 @@ import datetime
 from src import types, utils
 
 
-class TimePeriod(pydantic.BaseModel):
+class _TimePeriod(pydantic.BaseModel):
     from_date: datetime.date
     to_date: datetime.date
     requested_dates: list[datetime.date]
 
     @staticmethod
-    def construct(requested_dates: set[datetime.date]) -> list[TimePeriod]:
+    def generate_periods(
+        requested_dates: set[datetime.date]
+    ) -> list[_TimePeriod]:
         """Given a start and end date, construct a list of time periods
         that cover the whole range. The time periods will be weeks, starting
         on Monday and ending on Sunday."""
-        time_periods: list[TimePeriod] = []
+        time_periods: list[_TimePeriod] = []
         for d in sorted(requested_dates):
             if (len(time_periods) == 0) or (d > time_periods[-1].to_date):
                 time_periods.append(
-                    TimePeriod(
+                    _TimePeriod(
                         from_date=d - datetime.timedelta(days=d.weekday()),
                         to_date=d + datetime.timedelta(days=6 - d.weekday()),
                         requested_dates=[d]
@@ -37,30 +39,12 @@ class TimePeriod(pydantic.BaseModel):
         return time_periods
 
 
-class Location(pydantic.BaseModel):
+class _Location(pydantic.BaseModel):
     lat: float
     lon: float
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         return hash((int(self.lat), int(self.lon)))
-
-
-class DownloadQuery(pydantic.BaseModel):
-    lat: int = pydantic.Field(..., ge=-90, le=90, frozen=True)
-    lon: int = pydantic.Field(..., ge=-180, le=180, frozen=True)
-    from_date: datetime.date
-    to_date: datetime.date
-
-    @property
-    def to_date_str(self, sep: str = "") -> str:
-        return self.to_date.strftime(f"%Y{sep}%m{sep}%d")
-
-    @property
-    def from_date_str(self, sep: str = "") -> str:
-        return self.from_date.strftime(f"%Y{sep}%m{sep}%d")
-
-    def __str__(self) -> str:
-        return f"DownloadQuery({self.lat}°N | {self.lon}°E | {self.from_date} - {self.to_date})"
 
 
 def generate_download_queries(
@@ -68,7 +52,7 @@ def generate_download_queries(
     atmospheric_profile_model: types.AtmosphericProfileModel,
     em27_metadata_storage: Optional[
         em27_metadata.interfaces.EM27MetadataInterface] = None,
-) -> list[DownloadQuery]:
+) -> list[types.DownloadQuery]:
     """Returns a list of `DownloadQuery` objects for which the
     data has not been downloaded yet. Example:
 
@@ -92,7 +76,7 @@ def generate_download_queries(
 
     # dates_by_location[lat][lon] = [...]
     dates_by_location: dict[
-        Location,
+        _Location,
         list[em27_metadata.types.SensorTypes.Location],
     ] = {}
 
@@ -105,7 +89,7 @@ def generate_download_queries(
                 )
             )
 
-            l = Location(lat=location.lat, lon=location.lon)
+            l = _Location(lat=location.lat, lon=location.lon)
             if l not in dates_by_location.keys():
                 dates_by_location[l] = []
             dates_by_location[l].append(sensor_location)
@@ -115,7 +99,7 @@ def generate_download_queries(
         f"query locations (rounded lat/lon): {dates_by_location}"
     )
 
-    downloaded_dates_by_location: dict[Location, set[datetime.date]] = {}
+    downloaded_dates_by_location: dict[_Location, set[datetime.date]] = {}
 
     # GGG2014: /mnt/dss-0002/atmospheric-profiles/GGG2014/20150826_48N012E.map
     # GGG2020: /mnt/dss-0002/atmospheric-profiles/GGG2020/2022100100_48N011E.map
@@ -127,8 +111,8 @@ def generate_download_queries(
             )
         )
     )
-    locations: list[Location] = [
-        Location(
+    locations: list[_Location] = [
+        _Location(
             lat=int(f.split("_")[1][0 : 2]) *
             (-1 if f.split("_")[1][2] == "S" else 1),
             lon=int(f.split("_")[1][3 : 6]) *
@@ -136,8 +120,8 @@ def generate_download_queries(
         ) for f in filenames
         if re.match(r"\d{8,10}_\d{2}(N|S)\d{3}(E|W)\.map", f)
     ]
-    for location in locations:
-        cs = utils.text.get_coordinates_slug(lat=location.lat, lon=location.lon)
+    for l in locations:
+        cs = utils.text.get_coordinates_slug(lat=l.lat, lon=l.lon)
         dates: list[datetime.date] = [
             datetime.date(
                 year=int(f[0 : 4]),
@@ -160,9 +144,9 @@ def generate_download_queries(
                 ])
             if expected_filenames.issubset(filenames):
                 downloaded_dates.add(date)
-        downloaded_dates_by_location[location] = downloaded_dates
+        downloaded_dates_by_location[l] = downloaded_dates
 
-    download_queries: list[DownloadQuery] = []
+    download_queries: list[types.DownloadQuery] = []
 
     # construct time periods
     for l, sensor_locations in dates_by_location.items():
@@ -174,26 +158,25 @@ def generate_download_queries(
                     to_date=sensor_location.to_datetime.date(),
                 )
             )
-        requested_dates = set(
-            filter(
-                lambda d: ((d >= config.profiles.from_date) and
-                           (d <= config.profiles.to_date) and
-                           (d < datetime.date.today())),
-                requested_dates,
+        requested_dates = set([
+            d for d in requested_dates if (
+                d >= config.profiles.scope.from_date and
+                d <= config.profiles.scope.to_date and d < datetime.date.today()
             )
-        )
+        ])
         missing_dates = requested_dates.difference(
             downloaded_dates_by_location.get(l, set())
         )
         print(f"Location {l} has {len(missing_dates)} missing dates")
 
         new_download_queries = [
-            DownloadQuery(
+            types.DownloadQuery(
                 lat=int(l.lat),
                 lon=int(l.lon),
                 from_date=tp.from_date,
                 to_date=tp.to_date,
-            ) for tp in TimePeriod.construct(requested_dates=missing_dates)
+            ) for tp in
+            _TimePeriod.generate_periods(requested_dates=missing_dates)
         ]
         print(f"Location {l} has {len(new_download_queries)} new queries")
 

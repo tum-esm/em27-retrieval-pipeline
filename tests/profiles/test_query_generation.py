@@ -4,7 +4,7 @@ import src
 from src.profiles.generate_queries import TimePeriod
 
 
-def test_time_period_construction() -> None:
+def test_time_period_generation() -> None:
     for _ in range(100):
         from_date = datetime.date(
             random.randint(2000, 2023),
@@ -17,7 +17,7 @@ def test_time_period_construction() -> None:
             random.randint(10, 100)
         )
 
-        time_periods = TimePeriod.construct(
+        time_periods = TimePeriod.generate_periods(
             requested_dates=set(requested_dates)
         )
         for tp1, tp2 in zip(time_periods[:-1], time_periods[1 :]):

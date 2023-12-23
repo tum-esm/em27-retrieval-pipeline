@@ -54,6 +54,8 @@ def download_data(
                         config, archive, query, atmospheric_profile_model
                     )
 
+    return fulfilled_queries
+
 
 def _extract_archive(
     config: types.Config,
