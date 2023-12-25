@@ -190,7 +190,6 @@ def generate_download_queries(
         requested_data=requested_data,
         downloaded_data=downloaded_data,
     )
-
     download_queries: list[types.DownloadQuery] = []
     for l, dates in missing_data.items():
         download_queries.extend([

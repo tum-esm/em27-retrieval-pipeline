@@ -6,7 +6,43 @@ from src.profiles.generate_queries import (
     list_requested_data,
     compute_missing_data,
     compute_time_periods,
+    ProfilesQueryLocation,
 )
+
+
+def test_compute_missing_data() -> None:
+    for _ in range(100):
+        random_locations = [
+            ProfilesQueryLocation(lat=lat, lon=lon)
+            for lat in random.sample(range(-90, 90), 5)
+            for lon in random.sample(range(-180, 180), 5)
+        ]
+        random_dates = [
+            datetime.date(
+                random.randint(2021, 2023),
+                random.randint(1, 12),
+                random.randint(1, 28),
+            ) for _ in range(2000)
+        ]
+        downloaded_data = {
+            l: set(random.sample(random_dates, 300))
+            for l in random.sample(random_locations, 15)
+        }
+        requested_data = {
+            l: set(random.sample(random_dates, 300))
+            for l in random.sample(random_locations, 15)
+        }
+        missing_data = compute_missing_data(requested_data, downloaded_data)
+        for l in requested_data.keys():
+            rq = requested_data[l] if l in requested_data else set()
+            dl = downloaded_data[l] if l in downloaded_data else set()
+            ms = missing_data[l] if l in missing_data else set()
+            if l not in missing_data.keys():
+                assert rq.issubset(dl)
+            else:
+                assert ms.issubset(rq)
+                assert ms.isdisjoint(dl)
+                assert ms.union(dl).issuperset(rq)
 
 
 def test_time_period_generation() -> None:
