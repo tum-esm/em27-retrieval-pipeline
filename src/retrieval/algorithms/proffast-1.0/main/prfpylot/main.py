@@ -32,7 +32,9 @@ def main(session_string: str) -> None:
 
     log("Parsing session string")
     try:
-        session = types.RetrievalSession(**json.loads(session_string))
+        session = types.Proffast1RetrievalSession.model_validate_json(
+            session_string
+        )
     except Exception as e:
         log("Invalid session string")
         raise e

@@ -8,12 +8,12 @@ import datetime
 from src import types, utils
 
 
-class _TimePeriod(pydantic.BaseModel):
+class ProfilesQueryTimePeriod(pydantic.BaseModel):
     from_date: datetime.date
     to_date: datetime.date
 
 
-class _Location(pydantic.BaseModel):
+class ProfilesQueryLocation(pydantic.BaseModel):
     lat: int
     lon: int
 
@@ -24,10 +24,10 @@ class _Location(pydantic.BaseModel):
 def list_downloaded_data(
     config: types.Config,
     atmospheric_profile_model: types.AtmosphericProfileModel,
-) -> dict[_Location, set[datetime.date]]:
+) -> dict[ProfilesQueryLocation, set[datetime.date]]:
 
     assert config.profiles is not None
-    downloaded_data: dict[_Location, set[datetime.date]] = {}
+    downloaded_data: dict[ProfilesQueryLocation, set[datetime.date]] = {}
 
     r = re.compile(r"^\d{8,10}_\d{2}(N|S)\d{3}(E|W)\.(map|mod|vmr)$")
     filenames: set[str] = set([
@@ -48,8 +48,8 @@ def list_downloaded_data(
         ] if ((config.profiles.scope.from_date <= d) and
               (d <= config.profiles.scope.to_date))
     ])
-    locations: set[_Location] = set([
-        _Location(
+    locations: set[ProfilesQueryLocation] = set([
+        ProfilesQueryLocation(
             lat=int(f.split("_")[1][0 : 2]) *
             (-1 if f.split("_")[1][2] == "S" else 1),
             lon=int(f.split("_")[1][3 : 6]) *
@@ -84,10 +84,10 @@ def list_downloaded_data(
 def list_requested_data(
     config: types.Config,
     em27_metadata_storage: em27_metadata.interfaces.EM27MetadataInterface
-) -> dict[_Location, set[datetime.date]]:
+) -> dict[ProfilesQueryLocation, set[datetime.date]]:
 
     assert config.profiles is not None
-    requested_data: dict[_Location, set[datetime.date]] = {}
+    requested_data: dict[ProfilesQueryLocation, set[datetime.date]] = {}
 
     for sensor in em27_metadata_storage.sensors:
         for sensor_location in sensor.locations:
@@ -98,7 +98,9 @@ def list_requested_data(
                 )
             )
 
-            l = _Location(lat=round(location.lat), lon=round(location.lon))
+            l = ProfilesQueryLocation(
+                lat=round(location.lat), lon=round(location.lon)
+            )
             if l not in requested_data.keys():
                 requested_data[l] = set()
             requested_data[l].update(
@@ -118,11 +120,11 @@ def list_requested_data(
 
 
 def compute_missing_data(
-    requested_data: dict[_Location, set[datetime.date]],
-    downloaded_data: dict[_Location, set[datetime.date]],
-) -> dict[_Location, set[datetime.date]]:
+    requested_data: dict[ProfilesQueryLocation, set[datetime.date]],
+    downloaded_data: dict[ProfilesQueryLocation, set[datetime.date]],
+) -> dict[ProfilesQueryLocation, set[datetime.date]]:
 
-    missing_data: dict[_Location, set[datetime.date]] = {}
+    missing_data: dict[ProfilesQueryLocation, set[datetime.date]] = {}
 
     for l in requested_data.keys():
         if l not in downloaded_data.keys():
@@ -135,16 +137,18 @@ def compute_missing_data(
     return missing_data
 
 
-def compute_time_periods(missing_data: set[datetime.date]) -> list[_TimePeriod]:
+def compute_time_periods(
+    missing_data: set[datetime.date]
+) -> list[ProfilesQueryTimePeriod]:
     mondays = set([
         d - datetime.timedelta(days=d.weekday()) for d in missing_data
     ])
-    time_periods: list[_TimePeriod] = []
+    time_periods: list[ProfilesQueryTimePeriod] = []
     for d in mondays:
         dates = set([d + datetime.timedelta(days=i)
                      for i in range(0, 7)]).intersection(missing_data)
         time_periods.append(
-            _TimePeriod(from_date=min(dates), to_date=max(dates))
+            ProfilesQueryTimePeriod(from_date=min(dates), to_date=max(dates))
         )
     return time_periods
 
