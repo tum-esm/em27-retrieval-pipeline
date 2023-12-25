@@ -25,10 +25,8 @@ class DownloadQueryCache(pydantic.RootModel[list[DownloadQueryCacheEntry]]):
                 c = DownloadQueryCache.model_validate_json(f.read())
             c.root = [
                 e for e in c.root if (
-                    e.request_time > (
-                        datetime.datetime.now(tz=datetime.UTC) -
-                        datetime.timedelta(days=1)
-                    )
+                    e.request_time >
+                    (datetime.datetime.now() - datetime.timedelta(days=1))
                 )
             ]
             return c

@@ -67,12 +67,15 @@ def upload_requests(
             cache.dump()
             print("Updated cache")
 
-            t2 = time.time()
+            if query == queries[-1]:
+                print("All queries uploaded")
+            else:
+                t2 = time.time()
 
-            # sleeping 65 seconds because these files are parsed by a cron
-            # job every minute, so we need to wait for the cron job to
-            # finish before we can upload the next request
-            request_time = (t2 - t1)
-            if request_time < 65:
-                progress.print(f"Sleeping for {65 - request_time} seconds")
-                time.sleep(65 - request_time)
+                # sleeping 65 seconds because these files are parsed by a cron
+                # job every minute, so we need to wait for the cron job to
+                # finish before we can upload the next request
+                request_time = (t2 - t1)
+                if request_time < 65:
+                    progress.print(f"Sleeping for {65 - request_time} seconds")
+                    time.sleep(65 - request_time)
