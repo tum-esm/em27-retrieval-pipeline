@@ -59,9 +59,6 @@ def run() -> None:
                 profiles.upload_logic.upload_requests(
                     config, missing_queries, ftp, version
                 )
-                cache.add_queries(version, missing_queries)
-                cache.dump()
-                print("Updated cache")
                 print(
                     "Done. Run this script again (after waiting " +
                     "a bit to download the reqested data)."

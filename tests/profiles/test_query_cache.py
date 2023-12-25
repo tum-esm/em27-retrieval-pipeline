@@ -21,49 +21,45 @@ def test_query_cache(keep_query_cache: None) -> None:
 
     # GGG2014
     assert len(cache.get_active_queries("GGG2014")) == 0
-    cache.add_queries(
-        "GGG2014",
-        [
-            types.DownloadQuery(
-                lat=24,
-                lon=30,
-                from_date=datetime.date(2014, 1, 1),
-                to_date=datetime.date(2014, 1, 6),
-            ),
-            types.DownloadQuery(
-                lat=28,
-                lon=30,
-                from_date=datetime.date(2014, 1, 1),
-                to_date=datetime.date(2014, 1, 2),
-            )
-        ],
-    )
+    for q in [
+        types.DownloadQuery(
+            lat=24,
+            lon=30,
+            from_date=datetime.date(2014, 1, 1),
+            to_date=datetime.date(2014, 1, 6),
+        ),
+        types.DownloadQuery(
+            lat=28,
+            lon=30,
+            from_date=datetime.date(2014, 1, 1),
+            to_date=datetime.date(2014, 1, 2),
+        ),
+    ]:
+        cache.add_query("GGG2014", q)
     assert len(cache.get_active_queries("GGG2014")) == 2
 
     # GGG2014
     assert len(cache.get_active_queries("GGG2020")) == 0
-    cache.add_queries(
-        "GGG2020",
-        [
-            types.DownloadQuery(
-                lat=24,
-                lon=30,
-                from_date=datetime.date(2014, 1, 1),
-                to_date=datetime.date(2014, 1, 6),
-            ),
-            types.DownloadQuery(
-                lat=28,
-                lon=30,
-                from_date=datetime.date(2014, 1, 1),
-                to_date=datetime.date(2014, 1, 2),
-            ),
-            types.DownloadQuery(
-                lat=30,
-                lon=30,
-                from_date=datetime.date(2014, 4, 1),
-                to_date=datetime.date(2014, 4, 5),
-            )
-        ],
-    )
+    for q in [
+        types.DownloadQuery(
+            lat=24,
+            lon=30,
+            from_date=datetime.date(2014, 1, 1),
+            to_date=datetime.date(2014, 1, 6),
+        ),
+        types.DownloadQuery(
+            lat=28,
+            lon=30,
+            from_date=datetime.date(2014, 1, 1),
+            to_date=datetime.date(2014, 1, 2),
+        ),
+        types.DownloadQuery(
+            lat=30,
+            lon=30,
+            from_date=datetime.date(2014, 4, 1),
+            to_date=datetime.date(2014, 4, 5),
+        )
+    ]:
+        cache.add_query("GGG2020", q)
     assert len(cache.get_active_queries("GGG2014")) == 2
     assert len(cache.get_active_queries("GGG2020")) == 3

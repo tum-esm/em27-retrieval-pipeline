@@ -3,7 +3,7 @@ import io
 import ftplib
 import datetime
 import rich.progress
-from src import types
+from src import types, profiles
 
 
 def upload_requests(
@@ -18,6 +18,8 @@ def upload_requests(
     whether successful and time.time() - upload_start."""
 
     assert config.profiles is not None, "this is a bug in the code"
+
+    cache = profiles.cache.DownloadQueryCache.load()
 
     with rich.progress.Progress() as progress:
         for query in progress.track(queries, description=f"Requesting ..."):
@@ -61,6 +63,10 @@ def upload_requests(
                         else:
                             raise e
 
+            cache.add_query(atmospheric_profile_model, query)
+            cache.dump()
+            print("Updated cache")
+
             t2 = time.time()
 
             # sleeping 65 seconds because these files are parsed by a cron
@@ -68,4 +74,5 @@ def upload_requests(
             # finish before we can upload the next request
             request_time = (t2 - t1)
             if request_time < 65:
+                progress.print(f"Sleeping for {65 - request_time} seconds")
                 time.sleep(65 - request_time)

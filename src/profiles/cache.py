@@ -25,12 +25,14 @@ class DownloadQueryCache(pydantic.RootModel[list[DownloadQueryCacheEntry]]):
                 c = DownloadQueryCache.model_validate_json(f.read())
             c.root = [
                 e for e in c.root if (
-                    e.request_time > datetime.datetime.now() -
-                    datetime.timedelta(days=1)
+                    e.request_time > (
+                        datetime.datetime.now(tz=datetime.UTC) -
+                        datetime.timedelta(days=1)
+                    )
                 )
             ]
             return c
-        except:
+        except (FileNotFoundError, pydantic.ValidationError):
             return DownloadQueryCache(root=[])
 
     def dump(self) -> None:
@@ -63,18 +65,18 @@ class DownloadQueryCache(pydantic.RootModel[list[DownloadQueryCacheEntry]]):
             key=lambda q: q.from_date,
         )
 
-    def add_queries(
+    def add_query(
         self,
         atmospheric_profile_model: types.AtmosphericProfileModel,
-        download_queries: list[types.DownloadQuery],
+        download_query: types.DownloadQuery,
     ) -> None:
-        self.root.extend([
+        self.root.append(
             DownloadQueryCacheEntry(
                 atmospheric_profile_model=atmospheric_profile_model,
-                download_query=q,
+                download_query=download_query,
                 request_time=datetime.datetime.now()
-            ) for q in download_queries
-        ])
+            )
+        )
 
     def remove_queries(
         self,
