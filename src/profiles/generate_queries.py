@@ -104,18 +104,22 @@ def list_requested_data(
             )
             if l not in requested_data.keys():
                 requested_data[l] = set()
-            requested_data[l].update(
-                utils.functions.date_range(
-                    from_date=max(
-                        config.profiles.scope.from_date,
-                        sensor_location.from_datetime.date(),
-                    ),
-                    to_date=min(
-                        config.profiles.scope.to_date,
-                        sensor_location.to_datetime.date(),
-                    ),
-                )
+
+            from_date = max(
+                config.profiles.scope.from_date,
+                sensor_location.from_datetime.date(),
             )
+            to_date = min(
+                config.profiles.scope.to_date,
+                sensor_location.to_datetime.date(),
+                datetime.date.today() - datetime.timedelta(days=1),
+            )
+            if from_date <= to_date:
+                requested_data[l].update(
+                    utils.functions.date_range(
+                        from_date=from_date, to_date=to_date
+                    )
+                )
 
     return requested_data
 
