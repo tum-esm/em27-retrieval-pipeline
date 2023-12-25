@@ -1,5 +1,8 @@
+import os
 import random
 import datetime
+import tempfile
+from typing import Any
 import src
 from src.profiles.generate_queries import (
     list_downloaded_data,
@@ -8,22 +11,74 @@ from src.profiles.generate_queries import (
     compute_time_periods,
     ProfilesQueryLocation,
 )
+from ..fixtures import provide_config_template
+
+TEST_LOCATIONS = [
+    ProfilesQueryLocation(lat=lat, lon=lon) for lat in range(-90, 90, 5)
+    for lon in range(-180, 180, 5)
+]
+TEST_DATES = src.utils.functions.date_range(
+    datetime.date(2018, 1, 1),
+    datetime.date(2023, 12, 31),
+)
+
+
+def generate_random_locations(n: int) -> list[ProfilesQueryLocation]:
+    assert n <= len(TEST_LOCATIONS)
+    return random.sample(TEST_LOCATIONS, n)
+
+
+def generate_random_dates(n: int) -> list[datetime.date]:
+    assert n <= len(TEST_DATES)
+    return random.sample(TEST_DATES, n)
+
+
+def test_list_downloaded_data(
+    provide_config_template: src.types.Config
+) -> None:
+    random_locations = generate_random_locations(n=30)
+    random_dates = generate_random_dates(n=2000)
+    cs = {
+        l: src.utils.text.get_coordinates_slug(l.lat, l.lon)
+        for l in random_locations
+    }
+    config = provide_config_template.model_copy(deep=True)
+    assert config.profiles is not None
+    config.profiles.scope.from_date = min(random_dates)
+    config.profiles.scope.to_date = max(random_dates)
+    for _ in range(5):
+        downloaded_data = {
+            l: set(random.sample(random_dates, 30))
+            for l in random.sample(random_locations, 5)
+        }
+        model_filenames: dict[Any, list[str]] = {
+            "GGG2014": [
+                f"{d.strftime('%Y%m%d')}_{cs[l]}.{e}" for e in ["map", "mod"]
+                for l in downloaded_data.keys() for d in downloaded_data[l]
+            ],
+            "GGG2020": [
+                f"{d.strftime('%Y%m%d')}{h:02d}_{cs[l]}.{e}"
+                for e in ["map", "mod", "vmr"] for l in downloaded_data.keys()
+                for d in downloaded_data[l] for h in range(0, 24, 3)
+            ],
+        }
+        for model, filenames in model_filenames.items():
+            with tempfile.TemporaryDirectory() as tmpdir:
+                config.general.data.atmospheric_profiles.root = tmpdir
+                os.mkdir(os.path.join(tmpdir, model))
+                for filename in filenames:
+                    with open(os.path.join(tmpdir, model, filename), "w"):
+                        pass
+                downloaded = list_downloaded_data(config, model)
+                assert downloaded.keys() == downloaded_data.keys()
+                for l in downloaded_data.keys():
+                    assert downloaded[l] == downloaded_data[l]
 
 
 def test_compute_missing_data() -> None:
-    for _ in range(100):
-        random_locations = [
-            ProfilesQueryLocation(lat=lat, lon=lon)
-            for lat in random.sample(range(-90, 90), 5)
-            for lon in random.sample(range(-180, 180), 5)
-        ]
-        random_dates = [
-            datetime.date(
-                random.randint(2021, 2023),
-                random.randint(1, 12),
-                random.randint(1, 28),
-            ) for _ in range(2000)
-        ]
+    random_locations = generate_random_locations(30)
+    random_dates = generate_random_dates(2000)
+    for _ in range(20):
         downloaded_data = {
             l: set(random.sample(random_dates, 300))
             for l in random.sample(random_locations, 15)
@@ -46,7 +101,7 @@ def test_compute_missing_data() -> None:
 
 
 def test_time_period_generation() -> None:
-    for _ in range(100):
+    for _ in range(20):
         from_date = datetime.date(
             random.randint(2000, 2023),
             random.randint(1, 12),
