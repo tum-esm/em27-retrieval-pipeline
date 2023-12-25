@@ -6,6 +6,7 @@ import em27_metadata
 import pydantic
 import datetime
 from src import types, utils
+from .cache import DownloadQueryCache
 
 
 class ProfilesQueryTimePeriod(pydantic.BaseModel):
@@ -137,6 +138,27 @@ def compute_missing_data(
     return missing_data
 
 
+def remove_already_requested_data(
+    missing_data: dict[ProfilesQueryLocation, set[datetime.date]],
+    atmospheric_profile_model: types.AtmosphericProfileModel,
+) -> dict[ProfilesQueryLocation, set[datetime.date]]:
+    cache = DownloadQueryCache.load()
+    active_queries = cache.get_active_queries(atmospheric_profile_model)
+    for l in missing_data.keys():
+        already_requested_dates: set[datetime.date] = set()
+        for q in active_queries:
+            if q.lat == l.lat and q.lon == l.lon:
+                already_requested_dates.update(
+                    utils.functions.date_range(
+                        from_date=q.from_date, to_date=q.to_date
+                    )
+                )
+        missing_data[l].difference_update(already_requested_dates)
+        if len(missing_data[l]) == 0:
+            missing_data.pop(l)
+    return missing_data
+
+
 def compute_time_periods(
     missing_data: set[datetime.date]
 ) -> list[ProfilesQueryTimePeriod]:
@@ -171,7 +193,6 @@ def generate_download_queries(
 
     assert config.profiles is not None
 
-    # request sensor and location data
     if em27_metadata_storage is None:
         em27_metadata_storage = em27_metadata.load_from_github(
             github_repository=config.general.metadata.github_repository,
@@ -190,8 +211,12 @@ def generate_download_queries(
         requested_data=requested_data,
         downloaded_data=downloaded_data,
     )
+    not_requested_data = remove_already_requested_data(
+        missing_data=missing_data,
+        atmospheric_profile_model=atmospheric_profile_model,
+    )
     download_queries: list[types.DownloadQuery] = []
-    for l, dates in missing_data.items():
+    for l, dates in not_requested_data.items():
         download_queries.extend([
             types.DownloadQuery(
                 lat=l.lat,
