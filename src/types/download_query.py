@@ -17,3 +17,6 @@ class DownloadQuery(pydantic.BaseModel):
     @property
     def from_date_str(self, sep: str = "") -> str:
         return self.from_date.strftime(f"%Y{sep}%m{sep}%d")
+
+    def __hash__(self) -> int:
+        return hash((self.lat, self.lon, self.from_date, self.to_date))

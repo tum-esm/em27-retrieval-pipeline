@@ -148,7 +148,7 @@ def remove_already_requested_data(
 ) -> dict[ProfilesQueryLocation, set[datetime.date]]:
     cache = DownloadQueryCache.load()
     active_queries = cache.get_active_queries(atmospheric_profile_model)
-    for l in missing_data.keys():
+    for l in list(missing_data.keys()):
         already_requested_dates: set[datetime.date] = set()
         for q in active_queries:
             if q.lat == l.lat and q.lon == l.lon:

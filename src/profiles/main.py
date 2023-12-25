@@ -48,16 +48,17 @@ def run() -> None:
                 fulfilled_queries = profiles.download_logic.download_data(
                     config, missing_queries, ftp, version
                 )
-                missing_queries = list(
-                    set(missing_queries).difference(set(fulfilled_queries))
+                missing_queries = sorted(
+                    set(missing_queries).difference(set(fulfilled_queries)),
+                    key=lambda q: q.from_date,
                 )
                 print(
                     f"Successfully downloaded {len(fulfilled_queries)} queries"
                 )
                 print(f"Requesting {len(missing_queries)} queries")
-                #profiles.upload_logic.upload_requests(
-                #    config, missing_queries, ftp, version
-                #)
+                profiles.upload_logic.upload_requests(
+                    config, missing_queries, ftp, version
+                )
                 cache.add_queries(version, missing_queries)
                 cache.dump()
                 print("Updated cache")

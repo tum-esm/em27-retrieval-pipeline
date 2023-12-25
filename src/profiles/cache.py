@@ -55,10 +55,13 @@ class DownloadQueryCache(pydantic.RootModel[list[DownloadQueryCacheEntry]]):
         self,
         atmospheric_profile_model: types.AtmosphericProfileModel,
     ) -> list[types.DownloadQuery]:
-        return [
-            e.download_query for e in self.root
-            if e.atmospheric_profile_model == atmospheric_profile_model
-        ]
+        return sorted(
+            [
+                e.download_query for e in self.root
+                if e.atmospheric_profile_model == atmospheric_profile_model
+            ],
+            key=lambda q: q.from_date,
+        )
 
     def add_queries(
         self,
