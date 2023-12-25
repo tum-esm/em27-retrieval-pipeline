@@ -38,18 +38,16 @@ def list_downloaded_data(
             )
         ) if r.match(f)
     ])
-    dates: set[datetime.date] = set(
-        filter(
-            lambda d: ((config.profiles.scope.from_date <= d) and
-                       (d <= config.profiles.scope.to_date)), [
-                           datetime.date(
-                               year=int(f[0 : 4]),
-                               month=int(f[4 : 6]),
-                               day=int(f[6 : 8]),
-                           ) for f in filenames
-                       ]
-        )
-    )
+    dates: set[datetime.date] = set([
+        d for d in [
+            datetime.date(
+                year=int(f[0 : 4]),
+                month=int(f[4 : 6]),
+                day=int(f[6 : 8]),
+            ) for f in filenames
+        ] if ((config.profiles.scope.from_date <= d) and
+              (d <= config.profiles.scope.to_date))
+    ])
     locations: set[_Location] = set([
         _Location(
             lat=int(f.split("_")[1][0 : 2]) *
@@ -77,7 +75,7 @@ def list_downloaded_data(
             ])
             if expected_filenames.issubset(filenames):
                 if l not in downloaded_data.keys():
-                    downloaded_data[l] = {}
+                    downloaded_data[l] = set()
                 downloaded_data[l].add(d)
 
     return downloaded_data
@@ -148,6 +146,7 @@ def compute_time_periods(missing_data: set[datetime.date]) -> list[_TimePeriod]:
         time_periods.append(
             _TimePeriod(from_date=min(dates), to_date=max(dates))
         )
+    return time_periods
 
 
 def generate_download_queries(
@@ -167,6 +166,13 @@ def generate_download_queries(
     ```"""
 
     assert config.profiles is not None
+
+    # request sensor and location data
+    if em27_metadata_storage is None:
+        em27_metadata_storage = em27_metadata.load_from_github(
+            github_repository=config.general.metadata.github_repository,
+            access_token=config.general.metadata.access_token,
+        )
 
     downloaded_data = list_downloaded_data(
         config=config,
@@ -189,7 +195,7 @@ def generate_download_queries(
                 lon=l.lon,
                 from_date=tp.from_date,
                 to_date=tp.to_date,
-            ) for tp in _TimePeriod.generate_periods(requested_dates=dates)
+            ) for tp in compute_time_periods(dates)
         ])
 
     return download_queries
