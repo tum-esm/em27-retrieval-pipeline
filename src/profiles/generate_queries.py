@@ -11,40 +11,143 @@ from src import types, utils
 class _TimePeriod(pydantic.BaseModel):
     from_date: datetime.date
     to_date: datetime.date
-    requested_dates: list[datetime.date]
-
-    @staticmethod
-    def generate_periods(
-        requested_dates: set[datetime.date]
-    ) -> list[_TimePeriod]:
-        """Given a start and end date, construct a list of time periods
-        that cover the whole range. The time periods will be weeks, starting
-        on Monday and ending on Sunday."""
-        time_periods: list[_TimePeriod] = []
-        for d in sorted(requested_dates):
-            if (len(time_periods) == 0) or (d > time_periods[-1].to_date):
-                time_periods.append(
-                    _TimePeriod(
-                        from_date=d - datetime.timedelta(days=d.weekday()),
-                        to_date=d + datetime.timedelta(days=6 - d.weekday()),
-                        requested_dates=[d]
-                    )
-                )
-            else:
-                time_periods[-1].requested_dates.append(d)
-
-        for tp in time_periods:
-            tp.from_date = min(tp.requested_dates)
-            tp.to_date = max(tp.requested_dates)
-        return time_periods
 
 
 class _Location(pydantic.BaseModel):
-    lat: float
-    lon: float
+    lat: int
+    lon: int
 
     def __hash__(self) -> int:
-        return hash((int(self.lat), int(self.lon)))
+        return hash((self.lat, self.lon))
+
+
+def list_downloaded_data(
+    config: types.Config,
+    atmospheric_profile_model: types.AtmosphericProfileModel,
+) -> dict[_Location, set[datetime.date]]:
+
+    assert config.profiles is not None
+    downloaded_data: dict[_Location, set[datetime.date]] = {}
+
+    r = re.compile(r"^\d{8,10}_\d{2}(N|S)\d{3}(E|W)\.(map|mod|vmr)$")
+    filenames: set[str] = set([
+        f for f in os.listdir(
+            os.path.join(
+                config.general.data.atmospheric_profiles.root,
+                atmospheric_profile_model
+            )
+        ) if r.match(f)
+    ])
+    dates: set[datetime.date] = set(
+        filter(
+            lambda d: ((config.profiles.scope.from_date <= d) and
+                       (d <= config.profiles.scope.to_date)), [
+                           datetime.date(
+                               year=int(f[0 : 4]),
+                               month=int(f[4 : 6]),
+                               day=int(f[6 : 8]),
+                           ) for f in filenames
+                       ]
+        )
+    )
+    locations: set[_Location] = set([
+        _Location(
+            lat=int(f.split("_")[1][0 : 2]) *
+            (-1 if f.split("_")[1][2] == "S" else 1),
+            lon=int(f.split("_")[1][3 : 6]) *
+            (-1 if f.split("_")[1][6] == "W" else 1),
+        ) for f in filenames
+    ])
+
+    required_prefixes: list[str]
+    required_extensions: list[str]
+    if atmospheric_profile_model == "GGG2014":
+        required_prefixes = ["%Y%m%d"]
+        required_extensions = ["map", "mod"]
+    else:
+        required_prefixes = [f"%Y%m%d{h:02d}" for h in range(0, 24, 3)]
+        required_extensions = ["map", "mod", "vmr"]
+
+    for l in locations:
+        cs = utils.text.get_coordinates_slug(lat=l.lat, lon=l.lon)
+        for d in dates:
+            expected_filenames = set([
+                f"{d.strftime(p)}_{cs}.{e}" for e in required_extensions
+                for p in required_prefixes
+            ])
+            if expected_filenames.issubset(filenames):
+                if l not in downloaded_data.keys():
+                    downloaded_data[l] = {}
+                downloaded_data[l].add(d)
+
+    return downloaded_data
+
+
+def list_requested_data(
+    config: types.Config,
+    em27_metadata_storage: em27_metadata.interfaces.EM27MetadataInterface
+) -> dict[_Location, set[datetime.date]]:
+
+    assert config.profiles is not None
+    requested_data: dict[_Location, set[datetime.date]] = {}
+
+    for sensor in em27_metadata_storage.sensors:
+        for sensor_location in sensor.locations:
+            location = next(
+                filter(
+                    lambda l: l.location_id == sensor_location.location_id,
+                    em27_metadata_storage.locations
+                )
+            )
+
+            l = _Location(lat=round(location.lat), lon=round(location.lon))
+            if l not in requested_data.keys():
+                requested_data[l] = set()
+            requested_data[l].update(
+                utils.functions.date_range(
+                    from_date=max(
+                        config.profiles.scope.from_date,
+                        sensor_location.from_datetime.date(),
+                    ),
+                    to_date=min(
+                        config.profiles.scope.to_date,
+                        sensor_location.to_datetime.date(),
+                    ),
+                )
+            )
+
+    return requested_data
+
+
+def compute_missing_data(
+    requested_data: dict[_Location, set[datetime.date]],
+    downloaded_data: dict[_Location, set[datetime.date]],
+) -> dict[_Location, set[datetime.date]]:
+
+    missing_data: dict[_Location, set[datetime.date]] = {}
+
+    for l in requested_data.keys():
+        if l not in downloaded_data.keys():
+            missing_data[l] = requested_data[l]
+        else:
+            missing_data[l] = set(requested_data[l]).difference(
+                downloaded_data[l]
+            )
+
+    return missing_data
+
+
+def compute_time_periods(missing_data: set[datetime.date]) -> list[_TimePeriod]:
+    mondays = set([
+        d - datetime.timedelta(days=d.weekday()) for d in missing_data
+    ])
+    time_periods: list[_TimePeriod] = []
+    for d in mondays:
+        dates = set([d + datetime.timedelta(days=i)
+                     for i in range(0, 7)]).intersection(missing_data)
+        time_periods.append(
+            _TimePeriod(from_date=min(dates), to_date=max(dates))
+        )
 
 
 def generate_download_queries(
@@ -63,123 +166,30 @@ def generate_download_queries(
     ]
     ```"""
 
-    # if profiles download is not configured
-    if config.profiles is None:
-        return []
+    assert config.profiles is not None
 
-    # request sensor and location data
-    if em27_metadata_storage is None:
-        em27_metadata_storage = em27_metadata.load_from_github(
-            github_repository=config.general.metadata.github_repository,
-            access_token=config.general.metadata.access_token,
-        )
-
-    # dates_by_location[lat][lon] = [...]
-    dates_by_location: dict[
-        _Location,
-        list[em27_metadata.types.SensorTypes.Location],
-    ] = {}
-
-    for sensor in em27_metadata_storage.sensors:
-        for sensor_location in sensor.locations:
-            location = next(
-                filter(
-                    lambda l: l.location_id == sensor_location.location_id,
-                    em27_metadata_storage.locations
-                )
-            )
-
-            l = _Location(lat=location.lat, lon=location.lon)
-            if l not in dates_by_location.keys():
-                dates_by_location[l] = []
-            dates_by_location[l].append(sensor_location)
-
-    print(
-        f"Bundeled location data into {len(dates_by_location)} " +
-        f"query locations (rounded lat/lon): {dates_by_location}"
+    downloaded_data = list_downloaded_data(
+        config=config,
+        atmospheric_profile_model=atmospheric_profile_model,
     )
-
-    downloaded_dates_by_location: dict[_Location, set[datetime.date]] = {}
-
-    # GGG2014: /mnt/dss-0002/atmospheric-profiles/GGG2014/20150826_48N012E.map
-    # GGG2020: /mnt/dss-0002/atmospheric-profiles/GGG2020/2022100100_48N011E.map
-    filenames = set(
-        os.listdir(
-            os.path.join(
-                config.general.data.atmospheric_profiles.root,
-                atmospheric_profile_model,
-            )
-        )
+    requested_data = list_requested_data(
+        config=config,
+        em27_metadata_storage=em27_metadata_storage,
     )
-    locations: list[_Location] = [
-        _Location(
-            lat=int(f.split("_")[1][0 : 2]) *
-            (-1 if f.split("_")[1][2] == "S" else 1),
-            lon=int(f.split("_")[1][3 : 6]) *
-            (-1 if f.split("_")[1][6] == "W" else 1),
-        ) for f in filenames
-        if re.match(r"\d{8,10}_\d{2}(N|S)\d{3}(E|W)\.map", f)
-    ]
-    for l in locations:
-        cs = utils.text.get_coordinates_slug(lat=l.lat, lon=l.lon)
-        dates: list[datetime.date] = [
-            datetime.date(
-                year=int(f[0 : 4]),
-                month=int(f[4 : 6]),
-                day=int(f[6 : 8]),
-            ) for f in filenames if re.match(r"\d{8,10}_" + cs + r"\.map", f)
-        ]
-        downloaded_dates: set[datetime.date] = set()
-        for date in dates:
-            expected_filenames: set[str]
-            if atmospheric_profile_model == "GGG2014":
-                expected_filenames = set([
-                    f"{date.strftime('%Y%m%d')}_{cs}.{p}"
-                    for p in ["map", "mod"]
-                ])
-            if atmospheric_profile_model == "GGG2020":
-                expected_filenames = set([
-                    f"{date.strftime('%Y%m%d')}{t:02d}_{cs}.{p}"
-                    for t in range(0, 24, 3) for p in ["map", "mod", "vmr"]
-                ])
-            if expected_filenames.issubset(filenames):
-                downloaded_dates.add(date)
-        downloaded_dates_by_location[l] = downloaded_dates
+    missing_data = compute_missing_data(
+        requested_data=requested_data,
+        downloaded_data=downloaded_data,
+    )
 
     download_queries: list[types.DownloadQuery] = []
-
-    # construct time periods
-    for l, sensor_locations in dates_by_location.items():
-        requested_dates: set[datetime.date] = set()
-        for sensor_location in sensor_locations:
-            requested_dates.update(
-                utils.functions.date_range(
-                    from_date=sensor_location.from_datetime.date(),
-                    to_date=sensor_location.to_datetime.date(),
-                )
-            )
-        requested_dates = set([
-            d for d in requested_dates if (
-                d >= config.profiles.scope.from_date and
-                d <= config.profiles.scope.to_date and d < datetime.date.today()
-            )
-        ])
-        missing_dates = requested_dates.difference(
-            downloaded_dates_by_location.get(l, set())
-        )
-        print(f"Location {l} has {len(missing_dates)} missing dates")
-
-        new_download_queries = [
+    for l, dates in missing_data.items():
+        download_queries.extend([
             types.DownloadQuery(
-                lat=int(l.lat),
-                lon=int(l.lon),
+                lat=l.lat,
+                lon=l.lon,
                 from_date=tp.from_date,
                 to_date=tp.to_date,
-            ) for tp in
-            _TimePeriod.generate_periods(requested_dates=missing_dates)
-        ]
-        print(f"Location {l} has {len(new_download_queries)} new queries")
-
-        download_queries.extend(new_download_queries)
+            ) for tp in _TimePeriod.generate_periods(requested_dates=dates)
+        ])
 
     return download_queries
