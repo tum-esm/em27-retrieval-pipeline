@@ -47,8 +47,8 @@ def list_downloaded_data(
                 month=int(f[4 : 6]),
                 day=int(f[6 : 8]),
             ) for f in filenames
-        ] if ((config.profiles.scope.from_date <= d) and
-              (d <= config.profiles.scope.to_date))
+        ]
+        if ((std_site_config.from_date <= d) and (d <= std_site_config.to_date))
     ])
 
     required_prefixes = [f"%Y%m%d{h:02d}" for h in range(0, 24, 3)]
@@ -93,9 +93,9 @@ def download_data(
                 downloaded_data=downloaded_data,
             )
             progress.print(
-                f"Requested days: {requested_data}\n"
-                f"Downloaded days: {downloaded_data}\n"
-                f"Missing days (req - dow): {missing_data}"
+                f"Requested days: {len(requested_data)}\n"
+                f"Downloaded days: {len(downloaded_data)}\n"
+                f"Missing days (req - dow): {len(missing_data)}"
             )
             if len(missing_data) > 0:
                 subtask = progress.add_task(
@@ -105,7 +105,7 @@ def download_data(
                 tarballs_on_server = ftp.nlst(
                     f"ginput-std-sites/tarballs/{std_site_config.identifier}/"
                 )
-                for date in missing_data:
+                for date in sorted(missing_data):
                     progress.print(date.strftime("%Y-%m-%d"))
                     try:
                         filename = next(
