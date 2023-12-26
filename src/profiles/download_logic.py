@@ -40,9 +40,15 @@ def download_data(
             if atmospheric_profile_model == "GGG2020":
                 if len(tarballs_to_download) >= 1:
                     fulfilled_queries.append(query)
+                    progress.print(f"Found!")
+                else:
+                    progress.print(f"Not found!")
             else:
                 if len(tarballs_to_download) >= 2:
                     fulfilled_queries.append(query)
+                    progress.print(f"Found!")
+                else:
+                    progress.print(f"Not found!")
             for t in tarballs_to_download:
                 with io.BytesIO() as archive:
                     ftp.retrbinary(

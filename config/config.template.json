@@ -15,8 +15,7 @@
   "profiles": {
     "server": {
       "email": "...@...",
-      "max_requests_in_parallel": 20,
-      "max_requests_per_day": 100
+      "max_parallel_requests": 25
     },
     "scope": {
       "from_date": "2022-01-01",

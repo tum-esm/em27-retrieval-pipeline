@@ -54,18 +54,12 @@ class ProfilesServerConfig(pydantic.BaseModel):
         min_length=3,
         description="Email address to use to log in to the ccycle ftp server.",
     )
-    max_requests_in_parallel: int = pydantic.Field(
+    max_parallel_requests: int = pydantic.Field(
         ...,
         ge=1,
-        le=100,
+        le=200,
         description=
         "Maximum number of requests to put in the queue on the ccycle server at the same time. Only when a request is finished, a new one can enter the queue.",
-    )
-    max_requests_per_day: int = pydantic.Field(
-        ...,
-        ge=1,
-        le=1000,
-        description="Maximum number of requests to the ccycle server per day.",
     )
 
 

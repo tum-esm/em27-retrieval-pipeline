@@ -39,6 +39,21 @@ def run() -> None:
                     cache.dump()
                     print("Updated cache")
 
+                still_running_query_count = len(running_queries
+                                               ) - len(fulfilled_queries)
+                open_query_count = config.profiles.server.max_parallel_requests - still_running_query_count
+
+                print(f"{still_running_query_count} queries are still running")
+                if open_query_count <= 0:
+                    print(
+                        "No open slots for new queries " +
+                        "(config.profiles.server.max_parallel_requests = " +
+                        f"{config.profiles.server.max_parallel_requests})"
+                    )
+                    continue
+                else:
+                    print(f"{open_query_count} open slots for new queries")
+
                 # Generate daily sensor sets
                 missing_queries = profiles.generate_queries.generate_download_queries(
                     config, version
@@ -47,6 +62,8 @@ def run() -> None:
                     print("No data to request.")
                     continue
 
+                # queries might not be in cache anymore but still
+                # downloadable from the server
                 print(f"Trying to download {len(missing_queries)} queries")
                 fulfilled_queries = profiles.download_logic.download_data(
                     config, missing_queries, ftp, version
@@ -58,9 +75,12 @@ def run() -> None:
                 print(
                     f"Successfully downloaded {len(fulfilled_queries)} queries"
                 )
-                print(f"Requesting {len(missing_queries)} queries")
+                query_count = min(open_query_count, len(missing_queries))
+                print(
+                    f"Requesting {query_count} out of {len(missing_queries)} queries"
+                )
                 profiles.upload_logic.upload_requests(
-                    config, missing_queries, ftp, version
+                    config, missing_queries[: query_count], ftp, version
                 )
                 print(
                     "Done. Run this script again (after waiting " +

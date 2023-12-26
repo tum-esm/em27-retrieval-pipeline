@@ -37,20 +37,6 @@ class DownloadQueryCache(pydantic.RootModel[list[DownloadQueryCacheEntry]]):
         with open(_CACHE_FILE, "w") as f:
             f.write(self.model_dump_json(indent=4))
 
-    """    def get_already_requested_dates(
-        self,
-        location: profiles.generate_queries.ProfilesQueryLocation,
-    ) -> set[datetime.date]:
-        already_requested_dates: set[datetime.date] = set()
-        for entry in self.root:
-            if entry.location == location:
-                already_requested_dates.update(
-                    tum_esm_utils.time.date_range(
-                        entry.from_date, entry.to_date
-                    )
-                )
-        return already_requested_dates"""
-
     def get_active_queries(
         self,
         atmospheric_profile_model: types.AtmosphericProfileModel,
