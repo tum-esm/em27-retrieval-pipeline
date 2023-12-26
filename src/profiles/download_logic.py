@@ -50,7 +50,7 @@ def download_data(
                         archive.write,
                     )
                     archive.seek(0)
-                    _extract_archive(
+                    extract_archive(
                         config=config,
                         archive=archive,
                         lat=query.lat,
@@ -61,7 +61,7 @@ def download_data(
     return fulfilled_queries
 
 
-def _extract_archive(
+def extract_archive(
     config: types.Config,
     archive: BinaryIO,
     lat: float,

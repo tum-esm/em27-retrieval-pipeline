@@ -69,3 +69,67 @@ def compute_missing_data(
     downloaded_data: set[datetime.date],
 ) -> set[datetime.date]:
     return requested_data.difference(downloaded_data)
+
+
+def download_data(
+    config: types.Config,
+    ftp: ftplib.FTP,
+) -> None:
+    with rich.progress.Progress() as progress:
+        task = progress.add_task(
+            description="Processing standard sites",
+            total=len(config.profiles.GGG2020_standard_sites),
+        )
+        for std_site_config in config.profiles.GGG2020_standard_sites:
+            progress.print(
+                f"Processing {std_site_config.model_dump_json(indent=4)}"
+            )
+            requested_data = list_requested_data(std_site_config)
+            downloaded_data = list_downloaded_data(config, std_site_config)
+            missing_data = compute_missing_data(
+                requested_data=requested_data,
+                downloaded_data=downloaded_data,
+            )
+            progress.print(
+                f"Requested days: {requested_data}\n"
+                f"Downloaded days: {downloaded_data}\n"
+                f"Missing days (req - dow): {missing_data}"
+            )
+            if len(missing_data) > 0:
+                subtask = progress.add_task(
+                    description=f"Downloading {std_site_config.identifier}",
+                    total=len(missing_data),
+                )
+                tarballs_on_server = ftp.nlst(
+                    f"ginput-std-sites/tarballs/{std_site_config.identifier}/"
+                )
+                for date in missing_data:
+                    progress.print(date.strftime("%Y-%m-%d"))
+                    try:
+                        filename = next(
+                            filter(
+                                lambda f: f.
+                                endswith(date.strftime("%Y%m%d.tgz")),
+                                tarballs_on_server,
+                            )
+                        )
+                        print("Found!")
+                        with io.BytesIO() as archive:
+                            ftp.retrbinary(
+                                f"RETR {filename}",
+                                archive.write,
+                            )
+                            archive.seek(0)
+                            profiles.download_logic.extract_archive(
+                                config=config,
+                                archive=archive,
+                                lat=std_site_config.lat,
+                                lon=std_site_config.lon,
+                                atmospheric_profile_model="GGG2020",
+                            )
+                    except StopIteration:
+                        progress.print(f"No tarball")
+                    progress.advance(subtask)
+            else:
+                progress.print("No data to download")
+            progress.advance(task)
