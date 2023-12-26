@@ -25,16 +25,17 @@ def run() -> None:
                 cache = profiles.cache.DownloadQueryCache.load()
                 running_queries = cache.get_active_queries(version)
                 print(f"Found {len(running_queries)} already requested queries")
-                print(f"Trying to download {len(running_queries)} queries")
-                fulfilled_queries = profiles.download_logic.download_data(
-                    config, running_queries, ftp, version
-                )
-                print(
-                    f"Successfully downloaded {len(fulfilled_queries)} queries"
-                )
-                cache.remove_queries(version, fulfilled_queries)
-                cache.dump()
-                print("Updated cache")
+                if len(running_queries) > 0:
+                    print(f"Trying to download {len(running_queries)} queries")
+                    fulfilled_queries = profiles.download_logic.download_data(
+                        config, running_queries, ftp, version
+                    )
+                    print(
+                        f"Successfully downloaded {len(fulfilled_queries)} queries"
+                    )
+                    cache.remove_queries(version, fulfilled_queries)
+                    cache.dump()
+                    print("Updated cache")
 
                 # Generate daily sensor sets
                 missing_queries = profiles.generate_queries.generate_download_queries(
