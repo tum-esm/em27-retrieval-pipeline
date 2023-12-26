@@ -51,7 +51,11 @@ def download_data(
                     )
                     archive.seek(0)
                     _extract_archive(
-                        config, archive, query, atmospheric_profile_model
+                        config=config,
+                        archive=archive,
+                        lat=query.lat,
+                        lon=query.lon,
+                        atmospheric_profile_model=atmospheric_profile_model,
                     )
 
     return fulfilled_queries
@@ -60,7 +64,8 @@ def download_data(
 def _extract_archive(
     config: types.Config,
     archive: BinaryIO,
-    query: types.DownloadQuery,
+    lat: float,
+    lon: float,
     atmospheric_profile_model: types.AtmosphericProfileModel,
 ) -> None:
     """Extracts, renames and stores archive members."""
@@ -74,7 +79,7 @@ def _extract_archive(
                 # Skip (sub-)directories
                 continue
 
-            cs = utils.text.get_coordinates_slug(query.lat, query.lon)
+            cs = utils.text.get_coordinates_slug(lat, lon)
 
             if atmospheric_profile_model == "GGG2020":
                 if name.endswith(".map"):
