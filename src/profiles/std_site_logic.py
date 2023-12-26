@@ -27,6 +27,7 @@ def list_downloaded_data(
     config: types.Config,
     std_site_config: types.config.ProfilesGGG2020StandardSitesItemConfig,
 ) -> set[datetime.date]:
+    assert config.profiles is not None
     downloaded_data: set[datetime.date] = set()
 
     cs = utils.text.get_coordinates_slug(
@@ -75,6 +76,7 @@ def download_data(
     config: types.Config,
     ftp: ftplib.FTP,
 ) -> None:
+    assert config.profiles is not None
     with rich.progress.Progress() as progress:
         task = progress.add_task(
             description="Processing standard sites",
@@ -84,7 +86,7 @@ def download_data(
             progress.print(
                 f"Processing {std_site_config.model_dump_json(indent=4)}"
             )
-            requested_data = list_requested_data(std_site_config)
+            requested_data = list_requested_data(config, std_site_config)
             downloaded_data = list_downloaded_data(config, std_site_config)
             missing_data = compute_missing_data(
                 requested_data=requested_data,

@@ -168,6 +168,7 @@ def remove_std_site_data(
     config: types.Config,
     missing_data: dict[ProfilesQueryLocation, set[datetime.date]],
 ) -> dict[ProfilesQueryLocation, set[datetime.date]]:
+    assert config.profiles is not None
     filtered_data: dict[ProfilesQueryLocation,
                         set[datetime.date]] = copy.deepcopy(missing_data)
     for std_site_config in config.profiles.GGG2020_standard_sites:
