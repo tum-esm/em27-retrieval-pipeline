@@ -22,6 +22,8 @@ def run() -> None:
             ) as ftp:
                 print("Connected to FTP server")
 
+                profiles.std_site_logic.download_data(config, ftp)
+
                 cache = profiles.cache.DownloadQueryCache.load()
                 running_queries = cache.get_active_queries(version)
                 print(f"Found {len(running_queries)} already requested queries")
