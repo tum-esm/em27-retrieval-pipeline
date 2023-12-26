@@ -1,4 +1,5 @@
 from __future__ import annotations
+import copy
 from typing import Optional
 import os
 import re
@@ -163,6 +164,28 @@ def remove_already_requested_data(
     return missing_data
 
 
+def remove_std_site_data(
+    config: types.Config,
+    missing_data: dict[ProfilesQueryLocation, set[datetime.date]],
+) -> dict[ProfilesQueryLocation, set[datetime.date]]:
+    filtered_data: dict[ProfilesQueryLocation,
+                        set[datetime.date]] = copy.deepcopy(missing_data)
+    for std_site_config in config.profiles.GGG2020_standard_sites:
+        location = ProfilesQueryLocation(
+            lat=std_site_config.lat, lon=std_site_config.lon
+        )
+        if location in filtered_data.keys():
+            filtered_data[location].difference_update(
+                utils.functions.date_range(
+                    from_date=std_site_config.from_date,
+                    to_date=std_site_config.to_date,
+                )
+            )
+            if len(filtered_data[location]) == 0:
+                filtered_data.pop(location)
+    return filtered_data
+
+
 def compute_time_periods(
     missing_data: set[datetime.date]
 ) -> list[ProfilesQueryTimePeriod]:
@@ -215,12 +238,15 @@ def generate_download_queries(
         requested_data=requested_data,
         downloaded_data=downloaded_data,
     )
-    not_requested_data = remove_already_requested_data(
-        missing_data=missing_data,
-        atmospheric_profile_model=atmospheric_profile_model,
+    data_to_request = remove_std_site_data(
+        config=config,
+        missing_data=remove_already_requested_data(
+            missing_data=missing_data,
+            atmospheric_profile_model=atmospheric_profile_model,
+        )
     )
     download_queries: list[types.DownloadQuery] = []
-    for l, dates in not_requested_data.items():
+    for l, dates in data_to_request.items():
         download_queries.extend([
             types.DownloadQuery(
                 lat=l.lat,
