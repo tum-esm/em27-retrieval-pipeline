@@ -173,7 +173,8 @@ def remove_std_site_data(
                         set[datetime.date]] = copy.deepcopy(missing_data)
     for std_site_config in config.profiles.GGG2020_standard_sites:
         location = ProfilesQueryLocation(
-            lat=std_site_config.lat, lon=std_site_config.lon
+            lat=round(std_site_config.lat),
+            lon=round(std_site_config.lon),
         )
         if location in filtered_data.keys():
             filtered_data[location].difference_update(
@@ -257,4 +258,4 @@ def generate_download_queries(
             ) for tp in compute_time_periods(dates)
         ])
 
-    return download_queries
+    return sorted(download_queries, key=lambda q: q.from_date)

@@ -76,6 +76,7 @@ def upload_requests(
                 # job every minute, so we need to wait for the cron job to
                 # finish before we can upload the next request
                 request_time = (t2 - t1)
-                if request_time < 65:
-                    progress.print(f"Sleeping for {65 - request_time} seconds")
-                    time.sleep(65 - request_time)
+                sleep_time = max(round(65 - request_time, 3), 0)
+                if sleep_time > 0:
+                    progress.print(f"Sleeping for {sleep_time} seconds")
+                    time.sleep(sleep_time)
