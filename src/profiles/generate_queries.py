@@ -113,7 +113,8 @@ def list_requested_data(
             to_date = min(
                 config.profiles.scope.to_date,
                 sensor_location.to_datetime.date(),
-                datetime.date.today() - datetime.timedelta(days=1),
+                (datetime.datetime.utcnow() -
+                 datetime.timedelta(hours=12)).date(),
             )
             if from_date <= to_date:
                 requested_data[l].update(
