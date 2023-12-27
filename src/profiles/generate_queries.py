@@ -259,4 +259,4 @@ def generate_download_queries(
             ) for tp in compute_time_periods(dates)
         ])
 
-    return sorted(download_queries, key=lambda q: q.from_date)
+    return sorted(download_queries, key=lambda q: q.from_date, reverse=True)

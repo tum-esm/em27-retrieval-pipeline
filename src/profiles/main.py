@@ -27,6 +27,7 @@ def run() -> None:
                 cache = profiles.cache.DownloadQueryCache.load()
                 running_queries = cache.get_active_queries(version)
                 print(f"Found {len(running_queries)} already requested queries")
+                still_running_query_count = len(running_queries)
                 if len(running_queries) > 0:
                     print(f"Trying to download {len(running_queries)} queries")
                     fulfilled_queries = profiles.download_logic.download_data(
@@ -38,9 +39,9 @@ def run() -> None:
                     cache.remove_queries(version, fulfilled_queries)
                     cache.dump()
                     print("Updated cache")
+                    still_running_query_count = len(running_queries
+                                                   ) - len(fulfilled_queries)
 
-                still_running_query_count = len(running_queries
-                                               ) - len(fulfilled_queries)
                 open_query_count = config.profiles.server.max_parallel_requests - still_running_query_count
 
                 print(f"{still_running_query_count} queries are still running")
@@ -71,6 +72,7 @@ def run() -> None:
                 missing_queries = sorted(
                     set(missing_queries).difference(set(fulfilled_queries)),
                     key=lambda q: q.from_date,
+                    reverse=True,
                 )
                 print(
                     f"Successfully downloaded {len(fulfilled_queries)} queries"
