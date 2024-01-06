@@ -1,9 +1,11 @@
 import datetime
 import os
+import time
 from typing import Generator
 import pytest
 import em27_metadata
 import tum_esm_utils
+import multiprocessing
 from src import types
 from tests.fixtures import (
     wrap_test_with_mainlock,
@@ -139,6 +141,10 @@ def test_container_lifecycle_ci(
     )
 
 
+# TODO: remove all output data before test
+# TODO: remove all containers after test
+
+
 # this test will run the actual retrieval algorithm
 @pytest.mark.order(5)
 @pytest.mark.complete
@@ -156,30 +162,78 @@ def test_container_lifecycle_complete(
     _point_config_to_test_data(config)
     retrieval.utils.retrieval_status.RetrievalStatusList.reset()
 
+    NUMBER_OF_JOBS = len(SENSOR_DATA_CONTEXTS) * 2 * 3
+    print(f"Running {NUMBER_OF_JOBS} retrieval jobs in parallel")
+
+    def run_session(
+        session: types.RetrievalSession,
+        config: types.Config,
+    ) -> None:
+        retrieval.session.process_session.run(config, session, test_mode=False)
+        _assert_output_correctness(
+            session.retrieval_algorithm, session.atmospheric_profile_model,
+            session.ctx
+        )
+
+    atm: types.AtmosphericProfileModel
+    alg: types.RetrievalAlgorithm
+    processes: list[multiprocessing.Process] = []
     for sdc in SENSOR_DATA_CONTEXTS:
-        for atm in ["GGG2014", "GGG2020"]:
-            for alg in ["proffast-1.0", "proffast-2.2", "proffast-2.3"]:
+        for atm in [  # type: ignore
+            "GGG2014", "GGG2020"
+        ]:
+            for alg in [ # type: ignore
+                "proffast-1.0", "proffast-2.2", "proffast-2.3"
+            ]:
                 assert config.retrieval is not None
                 if alg == "proffast-1.0" and atm == "GGG2020":
                     return
 
                 # set up container factory
-                retrieval.utils.retrieval_status.RetrievalStatusList.add_items([
-                    sdc
-                ], alg, atm)
-
+                retrieval.utils.retrieval_status.RetrievalStatusList.add_items(
+                    [sdc],
+                    alg,
+                    atm,
+                )
                 # create session and run container
-                # TODO: parallelize this
                 session = retrieval.session.create_session.run(
                     container_factory,
                     sdc,
                     retrieval_algorithm=alg,
                     atmospheric_profile_model=atm
                 )
-                retrieval.session.process_session.run(
-                    config, session, test_mode=False
+                name = (
+                    f"{session.ctn.container_id}:{alg}-{atm}-" +
+                    f"{sdc.sensor_id}-{sdc.from_datetime.date()}"
                 )
-                _assert_output_correctness(alg, atm, sdc)
+                p = multiprocessing.Process(
+                    target=run_session,
+                    args=(session, config),
+                    name=name,
+                    daemon=True,
+                )
+                print(f"Starting process {p.name}")
+                p.start()
+                processes.append(p)
+
+    # wait for all processes to finish
+    while True:
+        finished_processes: list[multiprocessing.Process] = []
+        for p in processes:
+            if not p.is_alive():
+                p.join()
+                finished_processes.append(p)
+                print(f"Finished process {p.name}")
+                container_factory.remove_container(p.name.split(":")[0])
+                print(f"Removed container {p.name.split(':')[0]}")
+
+        for p in finished_processes:
+            processes.remove(p)
+
+        if len(processes) == 0:
+            break
+
+        time.sleep(15)
 
 
 def _point_config_to_test_data(config: types.Config, ) -> None:
