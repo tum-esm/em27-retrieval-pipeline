@@ -104,39 +104,45 @@ def test_container_lifecycle_ci(
     provide_container_factory: retrieval.dispatching.container_factory.
     ContainerFactory,
 ) -> None:
-    _run(
+    container_factory = provide_container_factory
+    config = provide_config_template
+    _point_config_to_test_data(config)
+
+    assert config.retrieval is not None
+    if retrieval_algorithm == "proffast-1.0" and atmospheric_profile_model == "GGG2020":
+        return
+
+    # set up retrieval status list
+    retrieval.utils.retrieval_status.RetrievalStatusList.reset()
+    retrieval.utils.retrieval_status.RetrievalStatusList.add_items(
+        [sensor_data_context],
+        retrieval_algorithm,
+        atmospheric_profile_model,
+    )
+
+    # create session and run container
+    session = retrieval.session.create_session.run(
+        container_factory,
+        sensor_data_context,
+        retrieval_algorithm=retrieval_algorithm,
+        atmospheric_profile_model=atmospheric_profile_model,
+    )
+    retrieval.session.process_session.run(
+        config,
+        session,
+        test_mode=True,
+    )
+    _assert_output_correctness(
         retrieval_algorithm,
         atmospheric_profile_model,
         sensor_data_context,
-        provide_config_template,
-        provide_container_factory,
-        only_run_mock_retrieval=True,
     )
 
 
 # this test will run the actual retrieval algorithm
 @pytest.mark.order(5)
 @pytest.mark.complete
-@pytest.mark.parametrize(
-    "sensor_data_context",
-    SENSOR_DATA_CONTEXTS,
-    ids=[
-        f"{sdc.sensor_id}-{sdc.from_datetime.date()}"
-        for sdc in SENSOR_DATA_CONTEXTS
-    ],
-)
-@pytest.mark.parametrize(
-    "atmospheric_profile_model",
-    ["GGG2014", "GGG2020"],
-)
-@pytest.mark.parametrize(
-    "retrieval_algorithm",
-    ["proffast-1.0", "proffast-2.2", "proffast-2.3"],
-)
 def test_container_lifecycle_complete(
-    retrieval_algorithm: types.RetrievalAlgorithm,
-    atmospheric_profile_model: types.AtmosphericProfileModel,
-    sensor_data_context: em27_metadata.types.SensorDataContext,
     wrap_test_with_mainlock: None,
     download_sample_data: None,
     clear_output_data: None,
@@ -144,30 +150,39 @@ def test_container_lifecycle_complete(
     provide_container_factory: retrieval.dispatching.container_factory.
     ContainerFactory,
 ) -> None:
-    _run(
-        retrieval_algorithm,
-        atmospheric_profile_model,
-        sensor_data_context,
-        provide_config_template,
-        provide_container_factory,
-        only_run_mock_retrieval=False,
-    )
+
+    config = provide_config_template
+    container_factory = provide_container_factory
+    _point_config_to_test_data(config)
+    retrieval.utils.retrieval_status.RetrievalStatusList.reset()
+
+    for sdc in SENSOR_DATA_CONTEXTS:
+        for atm in ["GGG2014", "GGG2020"]:
+            for alg in ["proffast-1.0", "proffast-2.2", "proffast-2.3"]:
+                assert config.retrieval is not None
+                if alg == "proffast-1.0" and atm == "GGG2020":
+                    return
+
+                # set up container factory
+                retrieval.utils.retrieval_status.RetrievalStatusList.add_items([
+                    sdc
+                ], alg, atm)
+
+                # create session and run container
+                # TODO: parallelize this
+                session = retrieval.session.create_session.run(
+                    container_factory,
+                    sdc,
+                    retrieval_algorithm=alg,
+                    atmospheric_profile_model=atm
+                )
+                retrieval.session.process_session.run(
+                    config, session, test_mode=False
+                )
+                _assert_output_correctness(alg, atm, sdc)
 
 
-def _run(
-    retrieval_algorithm: types.RetrievalAlgorithm,
-    atmospheric_profile_model: types.AtmosphericProfileModel,
-    sensor_data_context: em27_metadata.types.SensorDataContext,
-    config: types.Config,
-    container_factory: retrieval.dispatching.container_factory.ContainerFactory,
-    only_run_mock_retrieval: bool,
-) -> None:
-    assert config.retrieval is not None
-
-    if retrieval_algorithm == "proffast-1.0" and atmospheric_profile_model == "GGG2020":
-        return
-
-    # target config at test data
+def _point_config_to_test_data(config: types.Config, ) -> None:
     config.general.data.datalogger.root = os.path.join(
         PROJECT_DIR, "data", "testing", "container", "inputs", "log"
     )
@@ -180,6 +195,21 @@ def _run(
     config.general.data.results.root = os.path.join(
         PROJECT_DIR, "data", "testing", "container", "outputs"
     )
+
+
+def _run(
+    retrieval_algorithm: types.RetrievalAlgorithm,
+    atmospheric_profile_model: types.AtmosphericProfileModel,
+    sensor_data_context: em27_metadata.types.SensorDataContext,
+    config: types.Config,
+    container_factory: retrieval.dispatching.container_factory.ContainerFactory,
+    only_run_mock_retrieval: bool,
+) -> None:
+    assert config.retrieval is not None
+    if retrieval_algorithm == "proffast-1.0" and atmospheric_profile_model == "GGG2020":
+        return
+
+    _point_config_to_test_data(config)
     retrieval.utils.retrieval_status.RetrievalStatusList.reset()
 
     # set up container factory
@@ -202,7 +232,18 @@ def _run(
         test_mode=only_run_mock_retrieval,
     )
 
-    # assert output correctness
+    _assert_output_correctness(
+        retrieval_algorithm,
+        atmospheric_profile_model,
+        sensor_data_context,
+    )
+
+
+def _assert_output_correctness(
+    retrieval_algorithm: types.RetrievalAlgorithm,
+    atmospheric_profile_model: types.AtmosphericProfileModel,
+    sensor_data_context: em27_metadata.types.SensorDataContext,
+) -> None:
     date_string = sensor_data_context.from_datetime.strftime("%Y%m%d")
     out_path = os.path.join(
         PROJECT_DIR, "data/testing/container/outputs", retrieval_algorithm,
