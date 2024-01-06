@@ -12,6 +12,8 @@ def keep_query_cache() -> Generator[None, None, None]:
     cache.dump()
 
 
+@pytest.mark.order(3)
+@pytest.mark.quick
 def test_query_cache(keep_query_cache: None) -> None:
     cache = DownloadQueryCache(root=[])
     cache.dump()

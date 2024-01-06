@@ -6,7 +6,7 @@ import tum_esm_utils
 from ..fixtures import download_sample_data, clear_output_data, provide_config_template
 import dotenv
 
-from src import types, utils, retrieval
+from src import types, retrieval
 from src.retrieval.dispatching.retrieval_queue import generate_retrieval_queue
 
 dir = os.path.dirname
@@ -54,10 +54,8 @@ def _check_retrieval_queue(
         assert actual_item.to_datetime.date() == expected_item
 
 
-@pytest.mark.order(1)
-@pytest.mark.ci_quick
-@pytest.mark.ci_intensive
-@pytest.mark.ci_complete
+@pytest.mark.order(3)
+@pytest.mark.quick
 def test_retrieval_queue(
     download_sample_data: None,
     clear_output_data: None,

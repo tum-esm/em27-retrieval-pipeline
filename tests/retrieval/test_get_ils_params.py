@@ -3,10 +3,8 @@ import pytest
 from src import retrieval
 
 
-@pytest.mark.order(1)
-@pytest.mark.ci_quick
-@pytest.mark.ci_intensive
-@pytest.mark.ci_complete
+@pytest.mark.order(3)
+@pytest.mark.quick
 def test_get_ils_params() -> None:
     for month in [1, 5, 11]:
         print(month)

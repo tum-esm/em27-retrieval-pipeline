@@ -57,15 +57,14 @@ build-backend = "poetry.core.masonry.api"
 [tool.pytest.ini_options]
 markers = [
     "integration: can only be run on a configured system",
-    "ci_quick: can be run in a CI environment, < 1 min, everything except running actual retrievals",
-    "ci_intensive: can be run in a CI environment, ~ 20 min, runs one sample day for every retrieval algorithm",
-    "ci_complete: can be run in a CI environment, ~ 60 min, runs three sample days for every retrieval algorithm with data from different instruments and locations",
+    "quick: can be run in a CI environment, < 1 min, everything except running actual retrievals",
+    "ci: can be run in a CI environment, ~ 3 min, run the complete tests but without running the actual retrieval algorithms",
+    "complete: can be run in a CI environment, ~ 3-4 hours, runs three sample days from different instruments and locations for every retrieval algorithm and every atmospheric profile combination",
 ]
 
 [tool.mypy]
 strict = true
 implicit_reexport = true
-no_warn_unused_ignores = true
 plugins = ["pydantic.mypy"]
 
 [tool.yapf]

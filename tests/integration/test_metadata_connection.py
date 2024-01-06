@@ -3,6 +3,7 @@ import em27_metadata
 from src import types
 
 
+@pytest.mark.order(3)
 @pytest.mark.integration
 def test_metadata_connection() -> None:
     config = types.Config.load()

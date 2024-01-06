@@ -1,10 +1,14 @@
 import random
 import datetime
+
+import pytest
 import src
 from src.profiles.generate_queries import compute_missing_data, compute_time_periods
 from .utils import generate_random_locations, generate_random_dates
 
 
+@pytest.mark.order(3)
+@pytest.mark.quick
 def test_compute_missing_data() -> None:
     random_locations = generate_random_locations(30)
     random_dates = generate_random_dates(2000)
@@ -30,6 +34,7 @@ def test_compute_missing_data() -> None:
                 assert ms.union(dl).issuperset(rq)
 
 
+@pytest.mark.order(3)
 def test_time_period_generation() -> None:
     for _ in range(20):
         from_date = datetime.date(

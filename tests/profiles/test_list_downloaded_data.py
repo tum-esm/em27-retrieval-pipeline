@@ -1,13 +1,16 @@
+from typing import Any
 import os
 import random
 import tempfile
-from typing import Any
+import pytest
 import src
 from src.profiles.generate_queries import list_downloaded_data
 from ..fixtures import provide_config_template
 from .utils import generate_random_locations, generate_random_dates
 
 
+@pytest.mark.order(3)
+@pytest.mark.quick
 def test_list_downloaded_data(
     provide_config_template: src.types.Config
 ) -> None:

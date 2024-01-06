@@ -13,9 +13,7 @@ def _rmdir(path: str) -> None:
 
 
 @pytest.mark.order(1)
-@pytest.mark.ci_quick
-@pytest.mark.ci_intensive
-@pytest.mark.ci_complete
+@pytest.mark.quick
 def test_static_types() -> None:
     os.system(f"cd {PROJECT_DIR} && rm -f .mypy_cache/3.*/cli.*")
     _rmdir(".mypy_cache/3.11/src")

@@ -1,10 +1,13 @@
 import datetime
 import em27_metadata
+import pytest
 import src
 from src.profiles.generate_queries import ProfilesQueryLocation, list_requested_data
 from ..fixtures import provide_config_template
 
 
+@pytest.mark.order(3)
+@pytest.mark.quick
 def test_list_requested_data(provide_config_template: src.types.Config) -> None:
     metadata = em27_metadata.EM27MetadataInterface(
         locations=[

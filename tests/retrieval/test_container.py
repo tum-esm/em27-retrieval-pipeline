@@ -74,8 +74,9 @@ def provide_container_factory(
     )
 
 
-@pytest.mark.order(3)
-@pytest.mark.ci_complete
+# this test will only mock the retrieval algorithm
+@pytest.mark.order(4)
+@pytest.mark.ci
 @pytest.mark.parametrize(
     "sensor_data_context",
     SENSOR_DATA_CONTEXTS,
@@ -92,7 +93,7 @@ def provide_container_factory(
     "retrieval_algorithm",
     ["proffast-1.0", "proffast-2.2", "proffast-2.3"],
 )
-def test_container_lifecycle(
+def test_container_lifecycle_ci(
     retrieval_algorithm: types.RetrievalAlgorithm,
     atmospheric_profile_model: types.AtmosphericProfileModel,
     sensor_data_context: em27_metadata.types.SensorDataContext,
@@ -103,8 +104,64 @@ def test_container_lifecycle(
     provide_container_factory: retrieval.dispatching.container_factory.
     ContainerFactory,
 ) -> None:
-    config = provide_config_template
-    container_factory = provide_container_factory
+    _run(
+        retrieval_algorithm,
+        atmospheric_profile_model,
+        sensor_data_context,
+        provide_config_template,
+        provide_container_factory,
+        only_run_mock_retrieval=True,
+    )
+
+
+# this test will run the actual retrieval algorithm
+@pytest.mark.order(5)
+@pytest.mark.complete
+@pytest.mark.parametrize(
+    "sensor_data_context",
+    SENSOR_DATA_CONTEXTS,
+    ids=[
+        f"{sdc.sensor_id}-{sdc.from_datetime.date()}"
+        for sdc in SENSOR_DATA_CONTEXTS
+    ],
+)
+@pytest.mark.parametrize(
+    "atmospheric_profile_model",
+    ["GGG2014", "GGG2020"],
+)
+@pytest.mark.parametrize(
+    "retrieval_algorithm",
+    ["proffast-1.0", "proffast-2.2", "proffast-2.3"],
+)
+def test_container_lifecycle_complete(
+    retrieval_algorithm: types.RetrievalAlgorithm,
+    atmospheric_profile_model: types.AtmosphericProfileModel,
+    sensor_data_context: em27_metadata.types.SensorDataContext,
+    wrap_test_with_mainlock: None,
+    download_sample_data: None,
+    clear_output_data: None,
+    provide_config_template: types.Config,
+    provide_container_factory: retrieval.dispatching.container_factory.
+    ContainerFactory,
+) -> None:
+    _run(
+        retrieval_algorithm,
+        atmospheric_profile_model,
+        sensor_data_context,
+        provide_config_template,
+        provide_container_factory,
+        only_run_mock_retrieval=False,
+    )
+
+
+def _run(
+    retrieval_algorithm: types.RetrievalAlgorithm,
+    atmospheric_profile_model: types.AtmosphericProfileModel,
+    sensor_data_context: em27_metadata.types.SensorDataContext,
+    config: types.Config,
+    container_factory: retrieval.dispatching.container_factory.ContainerFactory,
+    only_run_mock_retrieval: bool,
+) -> None:
     assert config.retrieval is not None
 
     if retrieval_algorithm == "proffast-1.0" and atmospheric_profile_model == "GGG2020":
@@ -142,7 +199,7 @@ def test_container_lifecycle(
     retrieval.session.process_session.run(
         config,
         session,
-        test_mode=True,
+        test_mode=only_run_mock_retrieval,
     )
 
     # assert output correctness
