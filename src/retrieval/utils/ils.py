@@ -19,6 +19,14 @@ def get_ils_params(serial_number: int, date: datetime.date) -> ILSParams:
     df = pl.read_csv(
         _ILS_PARAMS_PATH,
         columns=[
+            "Instrument",
+            "Channel1ME",
+            "Channel1PE",
+            "Channel2ME",
+            "Channel2PE",
+            "ValidSince",
+        ],
+        new_columns=[
             "SERIAL_NUMBER",
             "CHANNEL1_ME",
             "CHANNEL1_PE",
@@ -27,7 +35,7 @@ def get_ils_params(serial_number: int, date: datetime.date) -> ILSParams:
             "VALID_SINCE",
         ],
         dtypes={
-            "SERIAL_NUMBER": pl.Int32,
+            "SERIAL_NUMBER": pl.Utf8,
             "CHANNEL1_ME": pl.Float64,
             "CHANNEL1_PE": pl.Float64,
             "CHANNEL2_ME": pl.Float64,
@@ -36,7 +44,7 @@ def get_ils_params(serial_number: int, date: datetime.date) -> ILSParams:
         },
     )
 
-    df = df.filter(pl.col("SERIAL_NUMBER") == serial_number)
+    df = df.filter(pl.col("SERIAL_NUMBER") == f"SN{serial_number:03d}")
     df = df.filter(pl.col("VALID_SINCE") <= date)
     df = df.sort("VALID_SINCE", descending=True)
 
