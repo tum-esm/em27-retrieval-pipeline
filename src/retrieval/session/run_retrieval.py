@@ -10,7 +10,7 @@ _PROJECT_DIR = tum_esm_utils.files.get_parent_dir_path(
 
 def run(session: types.RetrievalSession, test_mode: bool = False) -> None:
     if test_mode:
-        create_test_outputs(session)
+        _create_mock_outputs(session)
         return
 
     if isinstance(session, types.Proffast1RetrievalSession):
@@ -58,7 +58,7 @@ def run(session: types.RetrievalSession, test_mode: bool = False) -> None:
         )
 
 
-def create_test_outputs(session: types.RetrievalSession) -> None:
+def _create_mock_outputs(session: types.RetrievalSession) -> None:
     date_string = session.ctx.from_datetime.strftime("%Y%m%d")
 
     # create output directory
@@ -106,7 +106,5 @@ def create_test_outputs(session: types.RetrievalSession) -> None:
 
     # create dummy files
     for filepath in filepaths:
-        full_path = os.path.join(output_dir, filepath)
-        assert os.system(
-            f"touch {full_path}"
-        ) == 0, f"Could not create file {full_path}"
+        with open(os.path.join(output_dir, filepath), "w") as f:
+            f.write("...")

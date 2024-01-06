@@ -89,7 +89,6 @@ def run(
 
     os.makedirs(os.path.dirname(output_dst), exist_ok=True)
     shutil.copytree(output_src_dir, output_dst)
-    shutil.rmtree(output_src_dir)
 
     # (OPTIONAL) STORE BINARY SPECTRA
 
@@ -106,6 +105,7 @@ def run(
 
     # STORE AUTOMATION LOGS
 
+    os.makedirs(os.path.join(output_dst, "logfiles"), exist_ok=True)
     shutil.copyfile(
         logger.logfile_path,
         os.path.join(output_dst, "logfiles", "container.log"),

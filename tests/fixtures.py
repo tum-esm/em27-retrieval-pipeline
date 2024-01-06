@@ -84,8 +84,8 @@ def remove_temporary_retrieval_data() -> Generator[None, None, None]:
     yield
 
     # remove all containers after test
-    container_path = tum_esm_utils.files.rel_to_abs_path("../data/containers")
+    """container_path = tum_esm_utils.files.rel_to_abs_path("../data/containers")
     for f in os.listdir(container_path):
         p = os.path.join(container_path, f)
         if os.path.isdir(p):
-            shutil.rmtree(p)
+            shutil.rmtree(p)"""

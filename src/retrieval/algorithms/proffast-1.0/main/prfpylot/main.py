@@ -1,4 +1,3 @@
-import json
 import os
 import sys
 import click
@@ -7,8 +6,6 @@ import tum_esm_utils
 _PROJECT_DIR = tum_esm_utils.files.get_parent_dir_path(
     __file__, current_depth=5
 )
-if os.path.basename(_PROJECT_DIR) != "em27-retrieval-pipeline":
-    _PROJECT_DIR = os.path.dirname(_PROJECT_DIR)
 assert os.path.basename(_PROJECT_DIR) == "em27-retrieval-pipeline"
 sys.path.append(_PROJECT_DIR)
 
@@ -21,47 +18,48 @@ _CONTAINER_DIR = tum_esm_utils.files.get_parent_dir_path(
 _LOGS_DIR = os.path.join(_CONTAINER_DIR, "prf", "out_fast", "logfiles")
 
 
+def _log(msg: str) -> None:
+    with open(os.path.join(_LOGS_DIR, "wrapper.log"), "a") as f:
+        f.write(msg + "\n")
+
+
 @click.command(help="Run proffast 1.0 for a given proffast session")
 @click.argument("session_string", type=str)
 def main(session_string: str) -> None:
     os.makedirs(_LOGS_DIR, exist_ok=True)
 
-    def log(msg: str) -> None:
-        with open(os.path.join(_LOGS_DIR, "wrapper.log"), "a") as f:
-            f.write(msg + "\n")
-
-    log("Parsing session string")
+    _log("Parsing session string")
     try:
         session = types.Proffast1RetrievalSession.model_validate_json(
             session_string
         )
     except Exception as e:
-        log("Invalid session string")
+        _log("Invalid session string")
         raise e
 
-    log("preparing data")
+    _log("preparing data")
     create_input_files.move_profiles_and_datalogger_files(session)
 
-    log("creating preprocess input file")
+    _log("creating preprocess input file")
     create_input_files.create_preprocess_input_file(session)
-    log("run preprocess")
-    execute_proffast.execute_preprocess(session, log)
-    log("move BIN files")
+    _log("run preprocess")
+    execute_proffast.execute_preprocess(session, _log)
+    _log("move BIN files")
     move_data.move_bin_files(session)
 
-    log("creating pcxs input file")
+    _log("creating pcxs input file")
     create_input_files.create_pcxs_input_file(session)
-    log("run pcxs")
-    execute_proffast.execute_pcxs(session, log)
+    _log("run pcxs")
+    execute_proffast.execute_pcxs(session, _log)
 
-    log("creating invers input file")
+    _log("creating invers input file")
     create_input_files.create_invers_input_file(session)
-    log("run invers")
-    execute_proffast.execute_invers(session, log)
-    log("merge invers output files")
+    _log("run invers")
+    execute_proffast.execute_invers(session, _log)
+    _log("merge invers output files")
     move_data.merge_output_files(session)
 
-    log("done")
+    _log("done")
 
 
 if __name__ == "__main__":
