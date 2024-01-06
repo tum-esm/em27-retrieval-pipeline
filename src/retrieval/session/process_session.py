@@ -19,7 +19,7 @@ def run(
     signal.signal(signal.SIGINT, signal.SIG_IGN)
     logger = retrieval.utils.logger.Logger(
         container_id=session.ctn.container_id,
-        print_to_console=test_mode,
+        # print_to_console=test_mode,
     )
     logger.info(f"Starting session in container id {session.ctn.container_id}")
     logger.info(
