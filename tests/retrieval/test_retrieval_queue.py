@@ -3,7 +3,7 @@ import os
 import pytest
 import em27_metadata
 import tum_esm_utils
-from ..fixtures import download_sample_data, clear_output_data, provide_config_template
+from ..fixtures import download_sample_data, provide_config_template, remove_temporary_retrieval_data
 import dotenv
 
 from src import types, retrieval
@@ -58,7 +58,7 @@ def _check_retrieval_queue(
 @pytest.mark.quick
 def test_retrieval_queue(
     download_sample_data: None,
-    clear_output_data: None,
+    remove_temporary_retrieval_data: None,
     provide_config_template: types.Config,
 ) -> None:
     config = provide_config_template

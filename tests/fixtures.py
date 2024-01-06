@@ -53,55 +53,6 @@ def download_sample_data() -> Generator[None, None, None]:
     yield
 
 
-@pytest.fixture(scope="function")
-def clear_output_data() -> Generator[None, None, None]:
-    """Remove all directories in the testing output directory"""
-
-    for d in [
-        os.path.join(_PROJECT_DIR, "data", "testing", "container", "outputs"),
-        os.path.join(_PROJECT_DIR, "data", "containers")
-    ]:
-        for sd in os.listdir(d):
-            subdir = os.path.join(d, sd)
-            if os.path.isdir(subdir):
-                shutil.rmtree(subdir)
-
-    yield
-
-
-"""
-@pytest.fixture(scope="session")
-def provide_export_config() -> Generator[custom_types.Config, None, None]:
-    # Provide a temporary config file that points to the export testing data.
-
-    # LOAD CONFIG TEMPLATE
-
-    config_template = tum_esm_utils.files.load_json_file(
-        os.path.join(PROJECT_DIR, "config", "config.template.json")
-    )
-
-    # UPDATE INPUTS
-
-    config_template["general"]["data_dst_dirs"]["results"] = os.path.join(
-        PROJECT_DIR, "data", "testing", "merging", "raw"
-    )
-
-    # UPDATE OUTPUTS
-
-    config_template["output_merging_targets"][0]["dst_dir"] = os.path.join(
-        PROJECT_DIR, "data", "testing", "merging", "merged"
-    )
-
-    # PARSE CONFIG OBJECT
-
-    config = custom_types.Config(**config_template)
-
-    # RUN TEST
-
-    yield config
-"""
-
-
 @pytest.fixture(scope="session")
 def provide_config_template() -> Generator[types.Config, None, None]:
     """Provide a temporary config used in profiles download."""
@@ -117,3 +68,24 @@ def provide_config_template() -> Generator[types.Config, None, None]:
     config.export_targets = []
 
     yield config
+
+
+@pytest.fixture(scope="function")
+def remove_temporary_retrieval_data() -> Generator[None, None, None]:
+    # remove all output data before test
+    output_path = tum_esm_utils.files.rel_to_abs_path(
+        "../data/testing/container/outputs"
+    )
+    for f in os.listdir(output_path):
+        p = os.path.join(output_path, f)
+        if os.path.isdir(p):
+            shutil.rmtree(p)
+
+    yield
+
+    # remove all containers after test
+    container_path = tum_esm_utils.files.rel_to_abs_path("../data/containers")
+    for f in os.listdir(container_path):
+        p = os.path.join(container_path, f)
+        if os.path.isdir(p):
+            shutil.rmtree(p)
