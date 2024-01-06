@@ -90,6 +90,19 @@ def run(
     shutil.copytree(output_src_dir, output_dst)
     shutil.rmtree(output_src_dir)
 
+    # (OPTIONAL) STORE BINARY SPECTRA
+
+    if config.retrieval.general.store_binary_spectra:
+        if session.retrieval_algorithm in ["proffast-2.2", "proffast-2.3"]:
+            shutil.copytree(
+                os.path.join(
+                    session.ctn.data_output_path, "analysis",
+                    f"{session.ctx.sensor_id}_SN{session.ctx.serial_number:03d}",
+                    session.ctx.from_datetime.strftime("%y%m%d"), "cal"
+                ),
+                os.path.join(output_dst, "binary_spectra"),
+            )
+
     # STORE AUTOMATION LOGS
 
     shutil.copyfile(

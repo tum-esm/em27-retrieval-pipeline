@@ -137,6 +137,11 @@ class RetrievalGeneralConfig(pydantic.BaseModel):
             r"^$(SENSOR_ID)$(DATE).*\.nc$",
         ],
     )
+    store_binary_spectra: bool = pydantic.Field(
+        ...,
+        description=
+        "Whether to store the binary spectra files. These are the files that are used by the retrieval algorithm. They are not needed for the output files, but can be useful for debugging.",
+    )
 
 
 class RetrievalIfgFilePermissionsConfig(pydantic.BaseModel):
