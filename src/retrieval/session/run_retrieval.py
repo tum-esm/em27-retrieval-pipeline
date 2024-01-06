@@ -13,7 +13,7 @@ def run(session: types.RetrievalSession, test_mode: bool = False) -> None:
         create_test_outputs(session)
         return
 
-    if isinstance(session.ctn, types.Proffast1RetrievalSession):
+    if isinstance(session, types.Proffast1RetrievalSession):
         tum_esm_utils.shell.run_shell_command(
             " ".join([
                 os.path.join(
@@ -31,7 +31,7 @@ def run(session: types.RetrievalSession, test_mode: bool = False) -> None:
                 '"',
             ])
         )
-    if isinstance(session, types.Proffast2RetrievalSession):
+    elif isinstance(session, types.Proffast2RetrievalSession):
         tum_esm_utils.shell.run_shell_command(
             " ".join([
                 os.path.join(
@@ -51,6 +51,10 @@ def run(session: types.RetrievalSession, test_mode: bool = False) -> None:
                 session.ctn.container_id,
                 session.ctn.pylot_config_path,
             ])
+        )
+    else:
+        raise NotImplementedError(
+            f"Retrieval session type {type(session)} not implemented"
         )
 
 

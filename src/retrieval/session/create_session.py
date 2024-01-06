@@ -100,7 +100,7 @@ def run(
                 retrieval_algorithm=retrieval_algorithm
             ),
         )
-    else:
+    elif retrieval_algorithm in ["proffast-2.2", "proffast-2.3"]:
         new_session = types.Proffast2RetrievalSession(
             retrieval_algorithm=retrieval_algorithm,
             atmospheric_profile_model=atmospheric_profile_model,
@@ -111,6 +111,10 @@ def run(
         )
         _generate_pylot2_config(new_session)
         _generate_pylot2_log_format(new_session)
+    else:
+        raise NotImplementedError(
+            f"Retrieval algorithm {retrieval_algorithm} not implemented"
+        )
 
     retrieval.utils.retrieval_status.RetrievalStatusList.update_item(
         retrieval_algorithm=retrieval_algorithm,

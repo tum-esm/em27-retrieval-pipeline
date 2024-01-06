@@ -19,7 +19,7 @@ def run(
     output_src_dir: str
     day_was_successful: bool
 
-    if isinstance(session.ctn, types.Proffast10Container):
+    if isinstance(session, types.Proffast1RetrievalSession):
         output_src_dir = os.path.join(
             session.ctn.container_path, "prf", "out_fast"
         )
@@ -27,10 +27,7 @@ def run(
             output_src_dir,
             f"{session.ctx.sensor_id}{date_string[2:]}-combined-invparms.csv",
         )
-    if isinstance(
-        session.ctn,
-        (types.Proffast22Container, types.Proffast23Container),
-    ):
+    elif isinstance(session, types.Proffast2RetrievalSession):
         output_src_dir = (
             f"{session.ctn.data_output_path}/{session.ctx.sensor_id}_" +
             f"SN{str(session.ctx.serial_number).zfill(3)}_{date_string[2:]}-{date_string[2:]}"
@@ -39,6 +36,10 @@ def run(
             f"{output_src_dir}/comb_invparms_{session.ctx.sensor_id}_" +
             f"SN{str(session.ctx.serial_number).zfill(3)}_" +
             f"{date_string[2:]}-{date_string[2:]}.csv"
+        )
+    else:
+        raise NotImplementedError(
+            f"Retrieval session type {type(session)} not implemented"
         )
 
     assert os.path.isdir(output_src_dir), "retrieval output directory missing"
@@ -93,7 +94,7 @@ def run(
     # (OPTIONAL) STORE BINARY SPECTRA
 
     if config.retrieval.general.store_binary_spectra:
-        if session.retrieval_algorithm in ["proffast-2.2", "proffast-2.3"]:
+        if isinstance(session, types.Proffast2RetrievalSession):
             shutil.copytree(
                 os.path.join(
                     session.ctn.data_output_path, "analysis",
