@@ -34,31 +34,38 @@ def run() -> None:
             if campaign.campaign_id == output_merging_target.campaign_id
         )
 
-        from_date = campaign.from_datetime.date()
-        to_date = min(
-            datetime.datetime.utcnow().date(), campaign.to_datetime.date()
-        )
-
-        dates: list[datetime.date] = []
-        current_date = from_date
-        while current_date <= to_date:
-            dates.append(current_date)
-            current_date += datetime.timedelta(days=1)
-
-        print("Removing old outputs")
-        os.system(
-            "rm -f " + os.path.join(
-                output_merging_target.dst_dir.root,
-                f"{output_merging_target.campaign_id}_em27_export" +
-                f"_v{export.header.get_pipeline_version()}"
-                f"_*.csv",
+        dates: list[datetime.date] = tum_esm_utils.timing.date_range(
+            from_date=campaign.from_datetime.date(),
+            to_date=min(
+                (datetime.datetime.utcnow() -
+                 datetime.timedelta(days=1)).date(), campaign.to_datetime.date()
             )
         )
+        print(
+            f"Exporting data from {dates[0]} to {dates[-1]} " +
+            f"({len(dates)} dates)"
+        )
+
+        dst_dir = os.path.join(
+            output_merging_target.dst_dir.root,
+            f"em27-retrieval-pipeline-v{export.header.get_pipeline_version()}-exports",
+            f"{output_merging_target.campaign_id}",
+            output_merging_target.retrieval_algorithm,
+            output_merging_target.atmospheric_profile_model,
+        )
+        if not os.path.exists(dst_dir):
+            print("Creating output directory at", dst_dir)
+            os.makedirs(dst_dir)
+        else:
+            print("Output directory already exists at", dst_dir)
+
+        print("Removing old outputs (output dir/*.csv)")
+        os.system(f"rm -f {dst_dir}/*.csv")
 
         with rich.progress.Progress() as progress:
             task = progress.add_task("processing dataframes", total=len(dates))
 
-            for date in dates:
+            for date in dates[::-1]:
                 sensor_data_contexts: list[em27_metadata.types.SensorDataContext
                                           ] = []
 
@@ -89,7 +96,7 @@ def run() -> None:
                 )
                 sdcs_with_data: list[em27_metadata.types.SensorDataContext] = []
 
-                ctx_dataframes: list[pl.DataFrame] = []
+                dataframes: list[pl.DataFrame] = []
                 found_data_count: int = 0
 
                 for sdc in sdcs:
@@ -109,23 +116,22 @@ def run() -> None:
                     if len(postprocessed_df) > 1:
                         sdcs_with_data.append(sdc)
                         found_data_count += 1
-                        ctx_dataframes.append(postprocessed_df)
+                        dataframes.append(postprocessed_df)
 
                 if found_data_count > 0:
                     progress.console.print(
                         f"{date}: {found_data_count} sensor(s) with data"
                     )
 
-                    merged_df = export.dataframes.merge_dataframes(
-                        ctx_dataframes
-                    )
+                    merged_df = export.dataframes.merge_dataframes(dataframes)
 
                     # save merged dataframe to csv
                     filename = os.path.join(
-                        output_merging_target.dst_dir.root,
-                        f"{output_merging_target.campaign_id}_em27_export" +
-                        f"_v{export.header.get_pipeline_version()}"
-                        f"_{date.strftime('%Y%m%d')}.csv",
+                        dst_dir,
+                        (
+                            f"{output_merging_target.campaign_id}_" +
+                            f"export_{date.strftime('%Y%m%d')}.csv"
+                        ),
                     )
                     with open(filename, "w") as f:
                         f.write(

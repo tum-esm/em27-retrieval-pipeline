@@ -63,12 +63,12 @@ def get_sensor_dataframe(
         output_folder_slug += sensor_data_context.to_datetime.strftime(
             "_%H%M%S"
         )
-
-    # TODO: configure this in export target
     raw_csv_path = os.path.join(
         config.general.data.results.root,
+        export_target.retrieval_algorithm,
+        export_target.atmospheric_profile_model,
         sensor_data_context.sensor_id,
-        "proffast-2.2-outputs/successful",
+        "successful",
         output_folder_slug,
         f"comb_invparms_{sensor_data_context.sensor_id}_" +
         f"SN{str(sensor_data_context.serial_number).zfill(3)}_" +
@@ -120,6 +120,8 @@ def get_sensor_dataframe(
                for t in all_data_types},
         },
     )
+
+    # TODO: remove data outside of the sdcs datetime range
 
     # only keep the requested columns
     return df.select([
