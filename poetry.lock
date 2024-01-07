@@ -1065,31 +1065,32 @@ testing = ["pytest", "pytest-benchmark"]
 
 [[package]]
 name = "polars"
-version = "0.19.19"
+version = "0.20.3"
 description = "Blazingly fast DataFrame library"
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "polars-0.19.19-cp38-abi3-macosx_10_12_x86_64.whl", hash = "sha256:812dbb0cc7027fd41ce6b3eaf100b94828fc082fab026409d48792e3e7014095"},
-    {file = "polars-0.19.19-cp38-abi3-macosx_11_0_arm64.whl", hash = "sha256:21a334e18c83a259211ca6ec182498f3a89297fde9b8f75021c6881ff4411201"},
-    {file = "polars-0.19.19-cp38-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:d383fac392b08a6d5830c99f6e735a48e390c1535c8f1e67707fcaab6863ade5"},
-    {file = "polars-0.19.19-cp38-abi3-manylinux_2_24_aarch64.whl", hash = "sha256:eec0e72dce84b85c427bbf395d2e181f33e60677695b95ee2e87fed51043bdea"},
-    {file = "polars-0.19.19-cp38-abi3-win_amd64.whl", hash = "sha256:6c9e597efac74f00ef9cdfd9ba8a9128ed24276916bd3d60adc6e604530e4b37"},
-    {file = "polars-0.19.19.tar.gz", hash = "sha256:3e904d197aabf36e37fda263470eaf51ec92fb865cdea4f93947713480199303"},
+    {file = "polars-0.20.3-cp38-abi3-macosx_10_12_x86_64.whl", hash = "sha256:ff5ad360f5fab35cbc608eccaea583e387fe4e629f44d4ebfa752dc79502d3f5"},
+    {file = "polars-0.20.3-cp38-abi3-macosx_11_0_arm64.whl", hash = "sha256:6450d62becd40175661c5143c4e967d89e46104771aded951d1f0faadc63709e"},
+    {file = "polars-0.20.3-cp38-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:c89848562e3176d0e7bc517d1761c6fb5a9fca57ca2950cb58d3d001958dc285"},
+    {file = "polars-0.20.3-cp38-abi3-manylinux_2_24_aarch64.whl", hash = "sha256:dc685edd2d8742c71ffb238c2c25c17354631ddcfc8e9a105aaf9c228c1a0eb3"},
+    {file = "polars-0.20.3-cp38-abi3-win_amd64.whl", hash = "sha256:89e08f669b63017124f1ea197ab4c14730cc5edee32d9bf2bddb2753b2726091"},
+    {file = "polars-0.20.3.tar.gz", hash = "sha256:8562bffe602b131036e996e0161d96ea7ba1c004e513e49cbec55debc8b5fada"},
 ]
 
 [package.extras]
 adbc = ["adbc_driver_sqlite"]
-all = ["polars[adbc,cloudpickle,connectorx,deltalake,fsspec,gevent,matplotlib,numpy,pandas,pyarrow,pydantic,pyiceberg,sqlalchemy,timezone,xlsx2csv,xlsxwriter]"]
+all = ["polars[adbc,cloudpickle,connectorx,deltalake,fsspec,gevent,numpy,pandas,plot,pyarrow,pydantic,pyiceberg,sqlalchemy,timezone,xlsx2csv,xlsxwriter]"]
 cloudpickle = ["cloudpickle"]
 connectorx = ["connectorx (>=0.3.2)"]
-deltalake = ["deltalake (>=0.13.0)"]
+deltalake = ["deltalake (>=0.14.0)"]
 fsspec = ["fsspec"]
 gevent = ["gevent"]
 matplotlib = ["matplotlib"]
 numpy = ["numpy (>=1.16.0)"]
 openpyxl = ["openpyxl (>=3.0.0)"]
 pandas = ["pandas", "pyarrow (>=7.0.0)"]
+plot = ["hvplot (>=0.9.1)"]
 pyarrow = ["pyarrow (>=7.0.0)"]
 pydantic = ["pydantic"]
 pyiceberg = ["pyiceberg (>=0.5.0)"]
@@ -1674,18 +1675,18 @@ telegram = ["requests"]
 
 [[package]]
 name = "tum-esm-utils"
-version = "1.7.1"
+version = "1.8.0"
 description = "Python utilities by the Professorship of Environmental Sensing and Modeling at the Technical University of Munich"
 optional = false
 python-versions = ">=3.8,<4.0"
 files = [
-    {file = "tum_esm_utils-1.7.1-py3-none-any.whl", hash = "sha256:5a51ca8ed5d30ad39858e6e7d4aa90b4792ababe69c2a5e5387a3750b7711f19"},
-    {file = "tum_esm_utils-1.7.1.tar.gz", hash = "sha256:5c2536f36f344381f874fd2b0bfdd3cd76e76297ce0895807bde905c928fc22c"},
+    {file = "tum_esm_utils-1.8.0-py3-none-any.whl", hash = "sha256:0da8ccf4a0ad3f89bf25acda9b434126a86ff5e31e03634fe35d8655e136164c"},
+    {file = "tum_esm_utils-1.8.0.tar.gz", hash = "sha256:a6fc6bf21783ff4dc239b5e33abbceab7d8d6dcbe850ab2ced1903a4f21e8b2b"},
 ]
 
 [package.dependencies]
 filelock = ">=3.12.4,<4.0.0"
-polars = ">=0.19.5,<0.20.0"
+polars = ">=0.20.2,<0.21.0"
 psutil = ">=5.9.4,<6.0.0"
 pydantic = ">=2.5.2,<3.0.0"
 requests = ">=2.31.0,<3.0.0"
@@ -1776,4 +1777,4 @@ testing = ["big-O", "jaraco.functools", "jaraco.itertools", "more-itertools", "p
 [metadata]
 lock-version = "2.0"
 python-versions = "3.11.*"
-content-hash = "c83fd4b0720d05f2af7816935e4d68de034940e846ccdb373de9b139dea391bd"
+content-hash = "bab656698cad8fd31d25ddac5eb9d4f917e0d16dca7bf995e074054b7f4a812a"
