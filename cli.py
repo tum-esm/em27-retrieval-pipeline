@@ -20,7 +20,7 @@ def _check_config_validity() -> None:
     import src
     try:
         src.types.Config.load()
-        click.echo(click.style("Config is valid", fg="green"))
+        click.echo(click.style("Config is valid", fg="green", bold=True))
     except pydantic.ValidationError as e:
         click.echo(
             click.style(

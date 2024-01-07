@@ -14,33 +14,33 @@ PROJECT_DIR = tum_esm_utils.files.get_parent_dir_path(__file__, current_depth=3)
 dotenv.load_dotenv(os.path.join(PROJECT_DIR, "tests", ".env"))
 
 em27_metadata_storage = em27_metadata.interfaces.EM27MetadataInterface(
-    locations=[
-        em27_metadata.types.LocationMetadata(
-            location_id="SOD",
-            details="Sodankyla",
-            lon=26.630,
-            lat=67.366,
-            alt=181.0,
-        )
-    ],
-    sensors=[
-        em27_metadata.types.SensorMetadata(
-            sensor_id="so",
-            serial_number=1,
-            different_utc_offsets=[],
-            different_pressure_data_sources=[],
-            different_pressure_calibration_factors=[],
-            different_output_calibration_factors=[],
-            locations=[
-                em27_metadata.types.SensorTypes.Location(
-                    from_datetime="2017-01-01T00:00:00+00:00",
-                    to_datetime="2017-12-31T23:59:59+00:00",
-                    location_id="SOD",
-                )
-            ],
-        )
-    ],
-    campaigns=[],
+    locations=em27_metadata.types.LocationMetadataList(
+        root=[
+            em27_metadata.types.LocationMetadata(
+                location_id="SOD",
+                details="Sodankyla",
+                lon=26.630,
+                lat=67.366,
+                alt=181.0,
+            )
+        ]
+    ),
+    sensors=em27_metadata.types.SensorMetadataList(
+        root=[
+            em27_metadata.types.SensorMetadata(
+                sensor_id="so",
+                serial_number=1,
+                setups=[
+                    em27_metadata.types.SetupsListItem(
+                        from_datetime="2017-01-01T00:00:00+0000",
+                        to_datetime="2017-12-31T23:59:59+0000",
+                        value=em27_metadata.types.Setup(location_id="SOD"),
+                    )
+                ],
+            )
+        ]
+    ),
+    campaigns=em27_metadata.types.CampaignMetadataList(root=[]),
 )
 
 

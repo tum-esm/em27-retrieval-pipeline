@@ -26,11 +26,11 @@ def run() -> None:
         print(json.dumps(output_merging_target.model_dump(), indent=4))
         assert (
             output_merging_target.campaign_id
-            in em27_metadata_storage.campaign_ids
+            in em27_metadata_storage.campaigns.campaign_ids
         ), f"unknown campaign_id {output_merging_target.campaign_id}"
 
         campaign = next(
-            campaign for campaign in em27_metadata_storage.campaigns
+            campaign for campaign in em27_metadata_storage.campaigns.root
             if campaign.campaign_id == output_merging_target.campaign_id
         )
 

@@ -130,7 +130,7 @@ def export_data_report(
     metadata: em27_metadata.interfaces.EM27MetadataInterface,
     console: rich.console.Console,
 ) -> None:
-    for sensor in metadata.sensors:
+    for sensor in metadata.sensors.root:
         from_datetimes: list[datetime.datetime] = []
         to_datetimes: list[datetime.datetime] = []
         location_ids: list[str] = []
@@ -148,8 +148,8 @@ def export_data_report(
         )
         sdcs = metadata.get(
             sensor_id=sensor.sensor_id,
-            from_datetime=sensor.locations[0].from_datetime,
-            to_datetime=sensor.locations[-1].to_datetime
+            from_datetime=sensor.setups[0].from_datetime,
+            to_datetime=sensor.setups[-1].to_datetime
         )
         with rich.progress.Progress() as progress:
             task = progress.add_task(

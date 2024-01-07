@@ -91,12 +91,12 @@ def list_requested_data(
     assert config.profiles is not None
     requested_data: dict[ProfilesQueryLocation, set[datetime.date]] = {}
 
-    for sensor in em27_metadata_storage.sensors:
-        for sensor_location in sensor.locations:
+    for sensor in em27_metadata_storage.sensors.root:
+        for sensor_setup in sensor.setups:
             location = next(
                 filter(
-                    lambda l: l.location_id == sensor_location.location_id,
-                    em27_metadata_storage.locations
+                    lambda l: l.location_id == sensor_setup.value.location_id,
+                    em27_metadata_storage.locations.root
                 )
             )
 
@@ -108,11 +108,11 @@ def list_requested_data(
 
             from_date = max(
                 config.profiles.scope.from_date,
-                sensor_location.from_datetime.date(),
+                sensor_setup.from_datetime.date(),
             )
             to_date = min(
                 config.profiles.scope.to_date,
-                sensor_location.to_datetime.date(),
+                sensor_setup.to_datetime.date(),
                 (datetime.datetime.utcnow() -
                  datetime.timedelta(hours=36)).date(),
             )

@@ -52,7 +52,9 @@ def get_header(
     header_lines.append("SENSOR SERIAL NUMBERS:")
     for sid in campaign.sensor_ids:
         s = next(
-            filter(lambda s: s.sensor_id == sid, em27_metadata_storage.sensors)
+            filter(
+                lambda s: s.sensor_id == sid, em27_metadata_storage.sensors.root
+            )
         )
         header_lines.append(
             "    " + tum_esm_utils.text.
@@ -66,7 +68,8 @@ def get_header(
     for lid in campaign.location_ids:
         l = next(
             filter(
-                lambda l: l.location_id == lid, em27_metadata_storage.locations
+                lambda l: l.location_id == lid,
+                em27_metadata_storage.locations.root
             )
         )
         header_lines.append(

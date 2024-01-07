@@ -10,7 +10,7 @@ def generate_retrieval_queue(
     retrieval_job_config: types.RetrievalJobConfig
 ) -> list[em27_metadata.types.SensorDataContext]:
     retrieval_queue: list[em27_metadata.types.SensorDataContext] = []
-    for sensor in em27_metadata_interface.sensors:
+    for sensor in em27_metadata_interface.sensors.root:
         if sensor.sensor_id not in retrieval_job_config.sensor_ids:
             logger.info(f"Skipping sensor {sensor.sensor_id}")
             continue
@@ -20,19 +20,21 @@ def generate_retrieval_queue(
         # Find dates with location data
 
         dates_with_location: set[datetime.date] = set()
-        for location in sensor.locations:
-            if ((location.to_datetime.date()
-                 < retrieval_job_config.from_date) or
-                (location.from_datetime.date() > retrieval_job_config.to_date)):
+        for sensor_setup in sensor.setups:
+            if ((
+                sensor_setup.to_datetime.date() < retrieval_job_config.from_date
+            ) or (
+                sensor_setup.from_datetime.date() > retrieval_job_config.to_date
+            )):
                 continue
             dates_with_location.update(
                 utils.functions.date_range(
                     max(
-                        location.from_datetime.date(),
+                        sensor_setup.from_datetime.date(),
                         retrieval_job_config.from_date
                     ),
                     min(
-                        location.to_datetime.date(),
+                        sensor_setup.to_datetime.date(),
                         retrieval_job_config.to_date
                     )
                 )
