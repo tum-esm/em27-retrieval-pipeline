@@ -87,7 +87,7 @@ def _check_retrieval_output(
     ],
 ) -> Literal["✅", "❌", "-"]:
     output_folder_slug = date.strftime("%Y%m%d")
-    if sdc.multiple_ctx_on_this_date:
+    if not utils.functions.sdc_covers_the_full_day(sdc):
         output_folder_slug += max(
             sdc.from_datetime,
             datetime.datetime.combine(

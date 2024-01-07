@@ -4,7 +4,7 @@ import os
 import re
 import shutil
 import tum_esm_utils
-from src import types, retrieval
+from src import types, utils, retrieval
 
 
 def run(
@@ -61,7 +61,7 @@ def run(
     # DETERMINE OUTPUT DIRECTORY PATHS
 
     output_slug = session.ctx.from_datetime.strftime("%Y%m%d")
-    if session.ctx.multiple_ctx_on_this_date:
+    if not utils.functions.sdc_covers_the_full_day(session.ctx):
         output_slug += session.ctx.from_datetime.strftime("_%H%M%S")
         output_slug += session.ctx.to_datetime.strftime("_%H%M%S")
 

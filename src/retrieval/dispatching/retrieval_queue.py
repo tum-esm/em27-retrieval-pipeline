@@ -105,7 +105,7 @@ def generate_retrieval_queue(
         )
         for sdc in sensor_data_contexts:
             output_folder = sdc.from_datetime.strftime("%Y%m%d")
-            if sdc.multiple_ctx_on_this_date:
+            if not utils.functions.sdc_covers_the_full_day(sdc):
                 output_folder += sdc.from_datetime.strftime("_%H%M%S")
                 output_folder += sdc.to_datetime.strftime("_%H%M%S")
             success_dir = os.path.join(results_dir, "successful", output_folder)

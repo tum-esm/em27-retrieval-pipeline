@@ -1,5 +1,7 @@
 import datetime
 
+import em27_metadata
+
 
 def date_range(
     from_date: datetime.date,
@@ -10,3 +12,12 @@ def date_range(
     return [
         from_date + datetime.timedelta(days=i) for i in range(delta.days + 1)
     ]
+
+
+def sdc_covers_the_full_day(
+    sdc: em27_metadata.types.SensorDataContext,
+) -> bool:
+    return (
+        sdc.from_datetime.time() == datetime.time.min and
+        sdc.to_datetime.time() == datetime.time.max.replace(microsecond=0)
+    )
