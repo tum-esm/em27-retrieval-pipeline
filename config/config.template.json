@@ -39,7 +39,7 @@
       "store_binary_spectra": false
     },
     "ifg_file_permissions": {
-      "fail_on_permission_error": true,
+      "fail_on_permission_error": false,
       "before_processing": null,
       "after_processing": null
     },

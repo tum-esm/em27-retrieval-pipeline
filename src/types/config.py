@@ -145,17 +145,21 @@ class RetrievalGeneralConfig(pydantic.BaseModel):
 
 
 class RetrievalIfgFilePermissionsConfig(pydantic.BaseModel):
-    """Change the file permissions on the interferogram before the
-    retrieval algorithm accesses them. This is done to avoid accidental
-    modification of the original interferograms by any retrieval
-    algorithm. This is only done for the interferograms files because
-    they are not copied into the working directory, but only linked.
-    The profiles and datalogger files are copied."""
+    """Change the file permissions on the interferogram before the retrieval
+    algorithm accesses them. This is done to avoid accidental modification of
+    the original interferograms by any retrieval algorithm. This is only done
+    for the interferograms files because they are not copied into the working
+    directory, but only linked. The profiles and datalogger files are copied.
+    
+    **CAUTION:** If you use this option and the user you are running the
+    retrieval with does not have write permissions on the interferogram files,
+    the retrieval will fail if `fail_on_permission_error` is enabled. It will
+    only log a warning if `fail_on_permission_error` is set to `false`."""
 
     fail_on_permission_error: bool = pydantic.Field(
         ...,
         description=
-        "Whether to fail if the file permissions cannot be changed. If `False`, a warning will be logged instead.",
+        "Whether to fail if the file permissions cannot be changed. If `false`, a warning will be logged instead.",
     )
     before_processing: Optional[str] = pydantic.Field(
         ...,
