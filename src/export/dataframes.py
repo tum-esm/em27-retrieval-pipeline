@@ -119,9 +119,14 @@ def get_sensor_dataframe(
             **{column_names[t]: pl.Float32
                for t in all_data_types},
         },
+    ).with_columns(
+        pl.col('utc').cast(pl.Datetime).dt.replace_time_zone("UTC"),
     )
 
-    # TODO: remove data outside of the sdcs datetime range
+    # remove data outside of the sdcs datetime range
+    if sensor_data_context.multiple_ctx_on_this_date:
+        df = df.filter((pl.col("utc") >= sensor_data_context.from_datetime) &
+                       (pl.col("utc") <= sensor_data_context.to_datetime))
 
     # only keep the requested columns
     return df.select([
