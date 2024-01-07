@@ -1,5 +1,4 @@
 import datetime
-import time
 from typing import Any
 import rich.live, rich.table, rich.panel, rich.console, rich.align, rich.spinner, rich.columns, rich.box
 import tum_esm_utils

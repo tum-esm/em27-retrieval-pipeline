@@ -1,6 +1,7 @@
 import ftplib
 import io
 import sys
+import pydantic
 import tum_esm_utils
 import click
 import em27_metadata
@@ -15,14 +16,34 @@ profiles_command_group = click.Group(name="profiles")
 export_command_group = click.Group(name="export")
 
 
+def _check_config_validity() -> None:
+    import src
+    try:
+        src.types.Config.load()
+        click.echo(click.style("Config is valid", fg="green"))
+    except pydantic.ValidationError as e:
+        click.echo(
+            click.style(
+                f"Detected {e.error_count()} error(s) in the config:",
+                bold=True,
+                fg="red"
+            )
+        )
+        for error in e.errors():
+            loc = click.style(
+                '.'.join([str(l) for l in error['loc']]) + ":", bold=True
+            )
+            click.echo(f"  - {loc} {error['msg']}")
+        exit(1)
+
+
 @retrieval_command_group.command(
     name="start",
     help=
     "Start the retrieval as a background process. Prevents spawning multiple processes. The logs and the current processing queue from this process can be found at `logs/retrieval`.",
 )
 def start() -> None:
-    import src
-    src.types.Config.load()
+    _check_config_validity()
     pid = tum_esm_utils.processes.start_background_process(
         sys.executable, _RETRIEVAL_ENTRYPOINT
     )
@@ -35,6 +56,8 @@ def start() -> None:
     "Checks whether the retrieval background process is running. The logs and the current processing queue from this process can be found at `logs/retrieval`.",
 )
 def is_running() -> None:
+    # no config check because this does not require a config
+
     pids = tum_esm_utils.processes.get_process_pids(_RETRIEVAL_ENTRYPOINT)
     if len(pids) > 0:
         click.echo(f"automated retrieval is running with PID(s) {pids}")
@@ -47,6 +70,8 @@ def is_running() -> None:
     help="Opens an active watch window for the retrieval background process.",
 )
 def watch() -> None:
+    # no config check because this does not require a config
+
     pids = tum_esm_utils.processes.get_process_pids(_RETRIEVAL_ENTRYPOINT)
     if len(pids) == 0:
         click.echo("automated retrieval is not running")
@@ -61,6 +86,8 @@ def watch() -> None:
     "Stop the retrieval background process. The logs and the current processing queue from this process can be found at `logs/retrieval`.",
 )
 def stop() -> None:
+    # no config check so that the process can always be terminated
+
     pids = tum_esm_utils.processes.terminate_process(_RETRIEVAL_ENTRYPOINT)
     if len(pids) == 0:
         click.echo("No active process to be terminated")
@@ -77,7 +104,9 @@ def stop() -> None:
     "Run the profiles download script. This will check, which profiles are not yet present locally, request and download them from the `ccycle.gps.caltech.edu` FTP server. The logs from this process can be found at `logs/profiles`.",
 )
 def run_profiles_download() -> None:
-    import src
+    _check_config_validity()
+
+    import src  # import here so that the CLI is more reactive
     src.profiles.main.run()
 
 
@@ -87,8 +116,10 @@ def run_profiles_download() -> None:
     "Request ginput status. This will upload a file `upload/ginput_status.txt` to the `ccycle.gps.caltech.edu` FTP server containing the configured email address. You will receive an email with the ginput status which normally takes less than two minutes.",
 )
 def request_ginput_status() -> None:
+    _check_config_validity()
+
     import src  # import here so that the CLI is more reactive
-    config = src.types.config.Config.load()
+    config = src.types.Config.load()
     assert config.profiles is not None, "No profiles config found"
     with ftplib.FTP(
         host="ccycle.gps.caltech.edu",
@@ -109,6 +140,8 @@ def request_ginput_status() -> None:
     "Run the export script. The logs from this process can be found at `logs/export`.",
 )
 def run_export() -> None:
+    _check_config_validity()
+
     import src  # import here so that the CLI is more reactive
     src.export.main.run()
 
@@ -118,7 +151,9 @@ def run_export() -> None:
     help="exports a report of the data present on the configured system",
 )
 def print_data_report() -> None:
-    import src
+    _check_config_validity()
+
+    import src  # import here so that the CLI is more reactive
     import rich.console
 
     console = rich.console.Console()
