@@ -17,7 +17,7 @@ def get_pipeline_version() -> str:
 
 
 def get_header(
-    em27_metadata_storage: em27_metadata.interfaces.EM27MetadataInterface,
+    em27_metadata_interface: em27_metadata.interfaces.EM27MetadataInterface,
     campaign: em27_metadata.types.CampaignMetadata,
     sensor_data_contexts: list[em27_metadata.types.SensorDataContext],
     export_target: types.ExportTargetConfig,
@@ -53,7 +53,8 @@ def get_header(
     for sid in campaign.sensor_ids:
         s = next(
             filter(
-                lambda s: s.sensor_id == sid, em27_metadata_storage.sensors.root
+                lambda s: s.sensor_id == sid,
+                em27_metadata_interface.sensors.root
             )
         )
         header_lines.append(
@@ -69,7 +70,7 @@ def get_header(
         l = next(
             filter(
                 lambda l: l.location_id == lid,
-                em27_metadata_storage.locations.root
+                em27_metadata_interface.locations.root
             )
         )
         header_lines.append(

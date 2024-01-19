@@ -13,7 +13,7 @@ dir = os.path.dirname
 PROJECT_DIR = tum_esm_utils.files.get_parent_dir_path(__file__, current_depth=3)
 dotenv.load_dotenv(os.path.join(PROJECT_DIR, "tests", ".env"))
 
-em27_metadata_storage = em27_metadata.interfaces.EM27MetadataInterface(
+em27_metadata_interface = em27_metadata.interfaces.EM27MetadataInterface(
     locations=em27_metadata.types.LocationMetadataList(
         root=[
             em27_metadata.types.LocationMetadata(
@@ -85,7 +85,7 @@ def test_retrieval_queue(
     retrieval_queue = generate_retrieval_queue(
         config,
         logger,
-        em27_metadata_interface=em27_metadata_storage,
+        em27_metadata_interface=em27_metadata_interface,
         retrieval_job_config=types.RetrievalJobConfig(
             retrieval_algorithm="proffast-2.2",
             atmospheric_profile_model="GGG2014",
@@ -105,7 +105,7 @@ def test_retrieval_queue(
     retrieval_queue = generate_retrieval_queue(
         config,
         logger,
-        em27_metadata_interface=em27_metadata_storage,
+        em27_metadata_interface=em27_metadata_interface,
         retrieval_job_config=types.RetrievalJobConfig(
             retrieval_algorithm="proffast-2.2",
             atmospheric_profile_model="GGG2014",
@@ -126,7 +126,7 @@ def test_retrieval_queue(
     retrieval_queue = generate_retrieval_queue(
         config,
         logger,
-        em27_metadata_interface=em27_metadata_storage,
+        em27_metadata_interface=em27_metadata_interface,
         retrieval_job_config=types.RetrievalJobConfig(
             retrieval_algorithm="proffast-2.2",
             atmospheric_profile_model="GGG2014",
@@ -144,7 +144,7 @@ def test_retrieval_queue(
     retrieval_queue = generate_retrieval_queue(
         config,
         logger,
-        em27_metadata_interface=em27_metadata_storage,
+        em27_metadata_interface=em27_metadata_interface,
         retrieval_job_config=types.RetrievalJobConfig(
             retrieval_algorithm="proffast-2.2",
             atmospheric_profile_model="GGG2014",
@@ -162,7 +162,7 @@ def test_retrieval_queue(
     retrieval_queue = generate_retrieval_queue(
         config,
         logger,
-        em27_metadata_interface=em27_metadata_storage,
+        em27_metadata_interface=em27_metadata_interface,
         retrieval_job_config=types.RetrievalJobConfig(
             retrieval_algorithm="proffast-2.2",
             atmospheric_profile_model="GGG2014",

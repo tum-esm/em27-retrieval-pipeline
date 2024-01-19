@@ -6,7 +6,7 @@ import tum_esm_utils
 CONFIG_DIR = tum_esm_utils.files.rel_to_abs_path("../../config")
 
 
-def load_local_em27_metadata_storage(
+def load_local_em27_metadata_interface(
 ) -> Optional[em27_metadata.EM27MetadataInterface]:
     assert os.path.isdir(CONFIG_DIR)
     locations_path = os.path.join(CONFIG_DIR, "locations.json")

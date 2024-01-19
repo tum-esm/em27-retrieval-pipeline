@@ -34,25 +34,25 @@ def store_local_metadata_during_test() -> Generator[None, None, None]:
 @pytest.mark.order(3)
 @pytest.mark.quick
 def test_local_metadata_loader(store_local_metadata_during_test: None) -> None:
-    assert utils.metadata.load_local_em27_metadata_storage() is None
+    assert utils.metadata.load_local_em27_metadata_interface() is None
 
     with open(LOCATIONS_PATH, "w") as f:
         f.write("[]")
 
     with pytest.raises(FileNotFoundError):
-        utils.metadata.load_local_em27_metadata_storage()
+        utils.metadata.load_local_em27_metadata_interface()
 
     with open(SENSORS_PATH, "w") as f:
         f.write("[]")
 
     with pytest.raises(FileNotFoundError):
-        utils.metadata.load_local_em27_metadata_storage()
+        utils.metadata.load_local_em27_metadata_interface()
 
     with open(CAMPAIGNS_PATH, "w") as f:
         f.write("[]")
 
-    metadata_storage = utils.metadata.load_local_em27_metadata_storage()
-    assert metadata_storage is not None
-    assert len(metadata_storage.locations.root) == 0
-    assert len(metadata_storage.sensors.root) == 0
-    assert len(metadata_storage.campaigns.root) == 0
+    interface = utils.metadata.load_local_em27_metadata_interface()
+    assert interface is not None
+    assert len(interface.locations.root) == 0
+    assert len(interface.sensors.root) == 0
+    assert len(interface.campaigns.root) == 0

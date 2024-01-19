@@ -16,13 +16,14 @@ def run() -> None:
     assert config.export_targets is not None, "no export config found"
     assert len(config.export_targets) > 0, "no export targets found"
 
-    em27_metadata_storage = utils.metadata.load_local_em27_metadata_storage()
-    if em27_metadata_storage is not None:
+    em27_metadata_interface = utils.metadata.load_local_em27_metadata_interface(
+    )
+    if em27_metadata_interface is not None:
         print("Found local metadata")
     else:
         print("Did not find local metadata -> fetching metadata from GitHub")
         assert config.general.metadata is not None, "Remote metadata not configured"
-        em27_metadata_storage = em27_metadata.load_from_github(
+        em27_metadata_interface = em27_metadata.load_from_github(
             github_repository=config.general.metadata.github_repository,
             access_token=config.general.metadata.access_token,
         )
@@ -33,11 +34,11 @@ def run() -> None:
         print(json.dumps(output_merging_target.model_dump(), indent=4))
         assert (
             output_merging_target.campaign_id
-            in em27_metadata_storage.campaigns.campaign_ids
+            in em27_metadata_interface.campaigns.campaign_ids
         ), f"unknown campaign_id {output_merging_target.campaign_id}"
 
         campaign = next(
-            campaign for campaign in em27_metadata_storage.campaigns.root
+            campaign for campaign in em27_metadata_interface.campaigns.root
             if campaign.campaign_id == output_merging_target.campaign_id
         )
 
@@ -78,7 +79,7 @@ def run() -> None:
 
                 # get all sensor data contexts for this campaign's sensors
                 for sid in campaign.sensor_ids:
-                    sensor_data_contexts += em27_metadata_storage.get(
+                    sensor_data_contexts += em27_metadata_interface.get(
                         sid,
                         from_datetime=datetime.datetime.combine(
                             date,
@@ -143,7 +144,7 @@ def run() -> None:
                     with open(filename, "w") as f:
                         f.write(
                             export.header.get_header(
-                                em27_metadata_storage,
+                                em27_metadata_interface,
                                 campaign,
                                 sdcs_with_data,
                                 output_merging_target,

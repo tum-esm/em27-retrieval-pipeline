@@ -121,8 +121,9 @@ def run(
     with open(os.path.join(output_dst, "about.json"), "w") as f:
         now = datetime.datetime.now(datetime.UTC)
         dumped_config = config.model_copy(deep=True)
-        if dumped_config.general.metadata.access_token is not None:
-            dumped_config.general.metadata.access_token = "REDACTED"
+        if dumped_config.general.metadata is not None:
+            if dumped_config.general.metadata.access_token is not None:
+                dumped_config.general.metadata.access_token = "REDACTED"
 
         assert dumped_config.retrieval is not None
         about_dict = {

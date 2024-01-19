@@ -85,13 +85,13 @@ def list_downloaded_data(
 
 def list_requested_data(
     config: types.Config,
-    em27_metadata_storage: em27_metadata.interfaces.EM27MetadataInterface
+    em27_metadata_interface: em27_metadata.interfaces.EM27MetadataInterface
 ) -> dict[ProfilesQueryLocation, set[datetime.date]]:
 
     assert config.profiles is not None
     requested_data: dict[ProfilesQueryLocation, set[datetime.date]] = {}
 
-    for sensor in em27_metadata_storage.sensors.root:
+    for sensor in em27_metadata_interface.sensors.root:
         for sensor_setup in sensor.setups:
             atmospheric_profile_location_id = sensor_setup.value.location_id
             if sensor_setup.value.atmospheric_profile_location_id is not None:
@@ -99,7 +99,7 @@ def list_requested_data(
             location = next(
                 filter(
                     lambda l: l.location_id == atmospheric_profile_location_id,
-                    em27_metadata_storage.locations.root
+                    em27_metadata_interface.locations.root
                 )
             )
 
@@ -213,7 +213,7 @@ def compute_time_periods(
 def generate_download_queries(
     config: types.Config,
     atmospheric_profile_model: types.AtmosphericProfileModel,
-    em27_metadata_storage: Optional[
+    em27_metadata_interface: Optional[
         em27_metadata.interfaces.EM27MetadataInterface] = None,
 ) -> list[types.DownloadQuery]:
     """Returns a list of `DownloadQuery` objects for which the
@@ -228,17 +228,17 @@ def generate_download_queries(
 
     assert config.profiles is not None
 
-    if em27_metadata_storage is None:
-        em27_metadata_storage = utils.metadata.load_local_em27_metadata_storage(
+    if em27_metadata_interface is None:
+        em27_metadata_interface = utils.metadata.load_local_em27_metadata_interface(
         )
-        if em27_metadata_storage is not None:
+        if em27_metadata_interface is not None:
             print("Found local metadata")
         else:
             print(
                 "Did not find local metadata -> fetching metadata from GitHub"
             )
             assert config.general.metadata is not None, "Remote metadata not configured"
-            em27_metadata_storage = em27_metadata.load_from_github(
+            em27_metadata_interface = em27_metadata.load_from_github(
                 github_repository=config.general.metadata.github_repository,
                 access_token=config.general.metadata.access_token,
             )
@@ -250,7 +250,7 @@ def generate_download_queries(
     )
     requested_data = list_requested_data(
         config=config,
-        em27_metadata_storage=em27_metadata_storage,
+        em27_metadata_interface=em27_metadata_interface,
     )
     missing_data = compute_missing_data(
         requested_data=requested_data,
