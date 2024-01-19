@@ -152,7 +152,8 @@ def generate_retrieval_queue(
                 retrieval_job_config.atmospheric_profile_model
             )
             cd = utils.text.get_coordinates_slug(
-                sdc.location.lat, sdc.location.lon
+                sdc.atmospheric_profile_location.lat,
+                sdc.atmospheric_profile_location.lon
             )
             date_slugs = sdc.from_datetime.strftime("%Y%m%d")
             datetime_slugs: list[str]

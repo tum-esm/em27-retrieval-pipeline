@@ -8,7 +8,8 @@ def run(
     session: types.RetrievalSession,
 ) -> None:
     coordinates_slug = utils.text.get_coordinates_slug(
-        lat=session.ctx.location.lat, lon=session.ctx.location.lon
+        lat=session.ctx.atmospheric_profile_location.lat,
+        lon=session.ctx.atmospheric_profile_location.lon
     )
     date_string = session.ctx.from_datetime.strftime("%Y%m%d")
 
