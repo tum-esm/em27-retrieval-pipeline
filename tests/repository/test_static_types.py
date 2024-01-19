@@ -1,5 +1,6 @@
 import os
 import shutil
+import sys
 import pytest
 import tum_esm_utils
 
@@ -28,5 +29,5 @@ def test_static_types() -> None:
         "tests/",
     ]:
         assert os.system(
-            f"cd {PROJECT_DIR} && .venv/bin/python -m mypy {path}"
+            f"cd {PROJECT_DIR} && {sys.executable} -m mypy {path}"
         ) == 0

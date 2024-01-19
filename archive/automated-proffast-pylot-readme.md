@@ -18,7 +18,7 @@ _This chart only the flow from automatic upload to retrieval outputs. The manual
 
 **Only works in Unix systems!**
 
-1. Install Python3.9: https://python.org/
+1. Install Python3.12: https://python.org/
 
 2. Install Poetry: https://python-poetry.org/
 
@@ -33,9 +33,9 @@ bash scripts/installation/install-prf-submodules.sh
 5. Install python dependencies
 
 ```bash
-python3.10 -m venv .venv
+python3.12 -m venv .venv
 source .venv/bin/activate
-poetry install
+pdm install
 ```
 
 <br/>

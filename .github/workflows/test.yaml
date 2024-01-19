@@ -1,0 +1,34 @@
+name: "test"
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  test-sensor-codebase:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+      - name: Install dependencies
+        run: pip install ".[dev]"
+
+      - name: Load cached sample data
+        id: cached-sample-data
+        uses: actions/cache@v4
+        with:
+          path: data/testing/container/em27-retrieval-pipeline-test-inputs-1.0.0.tar.gz
+          key: sample-data-1.0.0
+
+      # run test suite
+      - name: Run pytests
+        run: |
+          pytest -m "ci" --verbose --cov=src tests/
