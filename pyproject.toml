@@ -16,23 +16,22 @@ dependencies = [
     "scipy>=1.11.4",
     "compact-json>=1.6.1",
     "jsonref>=1.1.0",
-    "pendulum>=3.0.0",
+    "pendulum>=2.1.2",
     "pydantic>=2.5.3",
     "polars>=0.20.5",
     "tum-esm-utils>=1.8.0",
     "em27-metadata>=1.0.0rc6",
-
     # the following dependencies are
     # used by the Proffast Pylot only
     "numpy>=1.26.3",
     "tqdm>=4.66.1",
-    "fortranformat>=2.0.0",
-    "pandas>=2.1.4",
-    "pytz>=2023.3.post1",
+    "pandas>=1.5.3",
+    "pytz>=2022.7.1",
     "timezonefinder>=6.2.0",
     "pyyaml>=6.0.1",
+    "fortranformat>=1.2.2",
 ]
-requires-python = "==3.12.*"
+requires-python = "==3.11.*"
 readme = "README.md"
 license = { text = "MIT" }
 
