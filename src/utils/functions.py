@@ -17,7 +17,10 @@ def date_range(
 def sdc_covers_the_full_day(
     sdc: em27_metadata.types.SensorDataContext,
 ) -> bool:
-    return (
-        sdc.from_datetime.time() == datetime.time.min and
-        sdc.to_datetime.time() == datetime.time.max.replace(microsecond=0)
-    )
+    return ((
+        sdc.from_datetime.time().replace(microsecond=0)
+        == datetime.time.min.replace(microsecond=0)
+    ) and (
+        sdc.to_datetime.time().replace(microsecond=0)
+        == datetime.time.max.replace(microsecond=0)
+    ))

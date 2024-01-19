@@ -7,7 +7,7 @@ import pytest
 import em27_metadata
 import tum_esm_utils
 import multiprocessing
-from src import types
+from src import types, utils
 from tests.fixtures import (
     wrap_test_with_mainlock, download_sample_data, provide_config_template,
     remove_temporary_retrieval_data
@@ -87,6 +87,13 @@ def provide_container_factory(
     )
 
 
+@pytest.mark.order(3)
+@pytest.mark.quick
+def test_sdc_covers_the_full_day() -> None:
+    for sdc in SENSOR_DATA_CONTEXTS:
+        assert utils.functions.sdc_covers_the_full_day(sdc)
+
+
 # this test will only mock the retrieval algorithm
 @pytest.mark.order(4)
 @pytest.mark.ci
@@ -123,6 +130,22 @@ def test_container_lifecycle_complete(
     )
 
 
+def run_session(
+    session: types.RetrievalSession, config: types.Config,
+    only_run_mock_retrieval: bool
+) -> None:
+    retrieval.session.process_session.run(
+        config,
+        session,
+        test_mode=only_run_mock_retrieval,
+    )
+    _assert_output_correctness(
+        session.retrieval_algorithm,
+        session.atmospheric_profile_model,
+        session.ctx,
+    )
+
+
 def _run(
     config: types.Config,
     container_factory: retrieval.dispatching.container_factory.ContainerFactory,
@@ -134,21 +157,6 @@ def _run(
 
     NUMBER_OF_JOBS = len(SENSOR_DATA_CONTEXTS) * 2 * 3
     print(f"Running {NUMBER_OF_JOBS} retrieval jobs in parallel")
-
-    def run_session(
-        session: types.RetrievalSession,
-        config: types.Config,
-    ) -> None:
-        retrieval.session.process_session.run(
-            config,
-            session,
-            test_mode=only_run_mock_retrieval,
-        )
-        _assert_output_correctness(
-            session.retrieval_algorithm,
-            session.atmospheric_profile_model,
-            session.ctx,
-        )
 
     atm: types.AtmosphericProfileModel
     alg: types.RetrievalAlgorithm
@@ -183,7 +191,7 @@ def _run(
                 )
                 p = multiprocessing.Process(
                     target=run_session,
-                    args=(session, config),
+                    args=(session, config, only_run_mock_retrieval),
                     name=name,
                     daemon=True,
                 )

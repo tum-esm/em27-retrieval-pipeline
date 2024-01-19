@@ -31,4 +31,5 @@ jobs:
       # run test suite
       - name: Run pytests
         run: |
+          pytest -m "quick" --verbose --cov=src tests/
           pytest -m "ci" --verbose --cov=src tests/
