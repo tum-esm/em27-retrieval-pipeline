@@ -1,56 +1,58 @@
-[tool.poetry]
+[project]
 name = "em27-retrieval-pipeline"
-version = "1.0.0"
-description = ""
+version = "0.1.0"
+description = "automated EM27 data processing"
 authors = [
-    "Moritz Makowski <moritz.makowski@tum.de>",
-    "Marlon Müller <marlon.mueller@tum.de>",
-    "Vyas Giridhard <vyas.giridharan@tum.de>",
-    "Andreas Luther <andreas.luther@tum.de>",
+    { name = "Moritz Makowski", email = "moritz.makowski@tum.de" },
+    { name = "Andreas Luther", email = "andreas.luther@tum.de" },
+    { name = "Marlon Müller", email = "marlon.mueller@tum.de" },
+    { name = "Vyas Giridhard", email = "vyas.giridharan@tum.de" },
 ]
+dependencies = [
+    "requests>=2.31.0",
+    "rich>=13.7.0",
+    "click>=8.1.7",
+    "filelock>=3.13.1",
+    "scipy>=1.11.4",
+    "compact-json>=1.6.1",
+    "jsonref>=1.1.0",
+    "pendulum>=3.0.0",
+    "pydantic>=2.5.3",
+    "polars>=0.20.5",
+    "tum-esm-utils>=1.8.0",
+    "em27-metadata>=1.0.0rc6",
+
+    # the following dependencies are
+    # used by the Proffast Pylot only
+    "numpy>=1.26.3",
+    "tqdm>=4.66.1",
+    "fortranformat>=2.0.0",
+    "pandas>=2.1.4",
+    "pytz>=2023.3.post1",
+    "timezonefinder>=6.2.0",
+    "pyyaml>=6.0.1",
+]
+requires-python = "==3.12.*"
 readme = "README.md"
+license = { text = "MIT" }
 
-[tool.poetry.dependencies]
-python = "3.11.*"
-requests = "^2.31.0"
-rich = "^13.5.2"
-click = "^8.1.6"
-filelock = "^3.12.2"
-pandas = "^1.5.3"
-scipy = "^1.11.1"
-compact-json = "^1.5.2"
-jsonref = "^1.1.0"
-pendulum = "^2.1.2"
-pydantic = "^2.5.2"
-polars = "^0.20.3"
-tum-esm-utils = "^1.8.0"
-em27-metadata = "1.0.0rc6"
 
-[tool.poetry.group.dev.dependencies]
-pytest = "^7.4.0"
-types-requests = "^2.31.0.2"
-pytest-cov = "^4.1.0"
-python-dotenv = "^0.21.1"
-mypy = "^1.4.1"
-matplotlib = "^3.7.2"
-pyarrow = "^11.0.0"
-tailwind-colors = "^1.2.1"
-pytest-order = "^1.1.0"
-yapf = "^0.40.2"
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.4.4",
+    "types-requests>=2.31.0.20240106",
+    "pytest-cov>=4.1.0",
+    "python-dotenv>=1.0.0",
+    "mypy>=1.8.0",
+    "matplotlib>=3.8.2",
+    "pyarrow>=14.0.2",
+    "tailwind-colors>=1.2.1",
+    "pytest-order>=1.2.0",
+    "yapf>=0.40.2",
+]
 
-[tool.poetry.group.prfpylot.dependencies]
-numpy = "^1.24.2"
-tqdm = "^4.65.0"
-requests = "^2.31.0"
-fortranformat = "^1.2.2"
-pandas = "^1.5.3"
-pytz = "^2022.7.1"
-timezonefinder = "^6.2.0"
-pyyaml = "^6.0.1"
-
-[build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
+[tool.pdm]
+distribution = false
 
 # using pytest markers from the `pytest-order` library, we run the
 # quick tests before the retrieval tests to fail fast
