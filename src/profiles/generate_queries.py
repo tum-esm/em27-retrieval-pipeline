@@ -113,8 +113,10 @@ def list_requested_data(
             to_date = min(
                 config.profiles.scope.to_date,
                 sensor_setup.to_datetime.date(),
-                (datetime.datetime.utcnow() -
-                 datetime.timedelta(hours=36)).date(),
+                (
+                    datetime.datetime.now(datetime.UTC) -
+                    datetime.timedelta(hours=36)
+                ).date(),
             )
             if from_date <= to_date:
                 requested_data[l].update(

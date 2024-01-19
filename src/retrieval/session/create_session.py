@@ -122,6 +122,6 @@ def run(
         sensor_id=sensor_data_context.sensor_id,
         from_datetime=sensor_data_context.from_datetime,
         container_id=new_session.ctn.container_id,
-        process_start_time=datetime.datetime.utcnow(),
+        process_start_time=datetime.datetime.now(datetime.UTC),
     )
     return new_session

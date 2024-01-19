@@ -30,18 +30,18 @@ def test_list_requested_data(provide_config_template: src.types.Config) -> None:
                     serial_number=1,
                     setups=[
                         em27_metadata.types.SetupsListItem(
-                            from_datetime="2000-01-01T00:00:00+00:00",
-                            to_datetime="2000-03-01T11:59:59+00:00",
+                            from_datetime="2000-01-01T00:00:00+0000",
+                            to_datetime="2000-03-01T11:59:59+0000",
                             value=em27_metadata.types.Setup(location_id="l1"),
                         ),
                         em27_metadata.types.SetupsListItem(
-                            from_datetime="2000-03-01T12:00:00+00:00",
-                            to_datetime="2000-05-01T23:59:59+00:00",
+                            from_datetime="2000-03-01T12:00:00+0000",
+                            to_datetime="2000-05-01T23:59:59+0000",
                             value=em27_metadata.types.Setup(location_id="l3"),
                         ),
                         em27_metadata.types.SetupsListItem(
-                            from_datetime="2000-05-04T12:00:00+00:00",
-                            to_datetime="2000-05-07T23:59:59+00:00",
+                            from_datetime="2000-05-04T12:00:00+0000",
+                            to_datetime="2000-05-07T23:59:59+0000",
                             value=em27_metadata.types.Setup(location_id="l2"),
                         ),
                     ],
@@ -51,13 +51,13 @@ def test_list_requested_data(provide_config_template: src.types.Config) -> None:
                     serial_number=2,
                     setups=[
                         em27_metadata.types.SetupsListItem(
-                            from_datetime="2000-01-07T00:00:00+00:00",
-                            to_datetime="2000-02-23T23:59:59+00:00",
+                            from_datetime="2000-01-07T00:00:00+0000",
+                            to_datetime="2000-02-23T23:59:59+0000",
                             value=em27_metadata.types.Setup(location_id="l1"),
                         ),
                         em27_metadata.types.SetupsListItem(
-                            from_datetime="2000-05-05T12:00:00+00:00",
-                            to_datetime="2000-05-08T23:59:59+00:00",
+                            from_datetime="2000-05-05T12:00:00+0000",
+                            to_datetime="2000-05-08T23:59:59+0000",
                             value=em27_metadata.types.Setup(location_id="l2"),
                         ),
                     ],
