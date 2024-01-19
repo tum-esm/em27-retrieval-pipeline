@@ -21,12 +21,15 @@ jobs:
       - name: Install dependencies
         run: pip install ".[dev]"
 
-      - name: Load cached sample data
-        id: cached-sample-data
+      - name: Load cached sample data and proffast code
         uses: actions/cache@v4
         with:
-          path: data/testing/container/em27-retrieval-pipeline-test-inputs-1.0.0.tar.gz
-          key: sample-data-1.0.0
+          path: |
+            data/testing/container/em27-retrieval-pipeline-test-inputs-1.0.0.tar.gz
+            src/retrieval/algorithms/proffast-1.0/main/prf
+            src/retrieval/algorithms/proffast-2.2/main/prf
+            src/retrieval/algorithms/proffast-2.3/main/prf
+          key: v1.0.0-ci-cache
 
       # run test suite
       - name: Run pytests
