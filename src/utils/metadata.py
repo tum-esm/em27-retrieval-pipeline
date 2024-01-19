@@ -18,11 +18,12 @@ def load_local_em27_metadata_storage(
         os.path.isfile(campaigns_path),
     ]
     if any(file_existence):
-        assert all(file_existence), (
-            "Found some local metadata files but not all (locations.json, " +
-            "sensors.json, campaigns.json). Please add all files or remove " +
-            "the local files entirely."
-        )
+        if not all(file_existence):
+            raise FileNotFoundError(
+                "Found some local metadata files but not all (loca)" +
+                "tions.json, sensors.json, campaigns.json). Please " +
+                "add or remove all local metadata files."
+            )
         return em27_metadata.loader.load_from_local_files(
             locations_path, sensors_path, campaigns_path
         )
