@@ -8,7 +8,7 @@ import em27_metadata
 import tum_esm_utils
 
 sys.path.append(tum_esm_utils.files.rel_to_abs_path("../.."))
-from src import types, export
+from src import types, utils, export
 
 
 def run() -> None:
@@ -16,10 +16,17 @@ def run() -> None:
     assert config.export_targets is not None, "no export config found"
     assert len(config.export_targets) > 0, "no export targets found"
 
-    em27_metadata_storage = em27_metadata.load_from_github(
-        github_repository=config.general.metadata.github_repository,
-        access_token=config.general.metadata.access_token,
-    )
+    em27_metadata_storage = utils.metadata.load_local_em27_metadata_storage()
+    if em27_metadata_storage is not None:
+        print("Found local metadata")
+    else:
+        print("Did not find local metadata -> fetching metadata from GitHub")
+        assert config.general.metadata is not None, "Remote metadata not configured"
+        em27_metadata_storage = em27_metadata.load_from_github(
+            github_repository=config.general.metadata.github_repository,
+            access_token=config.general.metadata.access_token,
+        )
+        print("Successfully fetched metadata from GitHub")
 
     for i, output_merging_target in enumerate(config.export_targets):
         print(f"\nprocessing output merging target #{i+1}")
