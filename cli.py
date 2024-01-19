@@ -157,25 +157,36 @@ def print_data_report() -> None:
     import rich.console
 
     console = rich.console.Console()
-    console.print("loading config")
+    console.print("Loading config")
     config = src.types.Config.load()
-    console.print("loading metadata")
-    metadata = em27_metadata.load_from_github(
-        github_repository=config.general.metadata.github_repository,
-        access_token=config.general.metadata.access_token,
+
+    # load metadata interface
+    console.print("Loading metadata")
+    em27_metadata_interface = src.utils.metadata.load_local_em27_metadata_interface(
     )
+    if em27_metadata_interface is not None:
+        print("Found local metadata")
+    else:
+        print("Did not find local metadata -> fetching metadata from GitHub")
+        assert config.general.metadata is not None, "Remote metadata not configured"
+        em27_metadata_interface = em27_metadata.load_from_github(
+            github_repository=config.general.metadata.github_repository,
+            access_token=config.general.metadata.access_token,
+        )
+        print("Successfully fetched metadata from GitHub")
+
     console.print(
-        f"printing report for the data paths: " +
+        f"Printing report for the data paths: " +
         config.general.data.model_dump_json(indent=4)
     )
     try:
         src.utils.report.export_data_report(
             config=config,
-            metadata=metadata,
+            em27_metadata_interface=em27_metadata_interface,
             console=console,
         )
     except KeyboardInterrupt:
-        console.print("aborted by user")
+        console.print("Aborted by user")
 
 
 cli.add_command(retrieval_command_group)

@@ -127,10 +127,10 @@ def _check_retrieval_output(
 
 def export_data_report(
     config: types.Config,
-    metadata: em27_metadata.interfaces.EM27MetadataInterface,
+    em27_metadata_interface: em27_metadata.interfaces.EM27MetadataInterface,
     console: rich.console.Console,
 ) -> None:
-    for sensor in metadata.sensors.root:
+    for sensor in em27_metadata_interface.sensors.root:
         from_datetimes: list[datetime.datetime] = []
         to_datetimes: list[datetime.datetime] = []
         location_ids: list[str] = []
@@ -146,7 +146,7 @@ def export_data_report(
         console.print(
             f"determining sensor data contexts for sensor {sensor.sensor_id}"
         )
-        sdcs = metadata.get(
+        sdcs = em27_metadata_interface.get(
             sensor_id=sensor.sensor_id,
             from_datetime=sensor.setups[0].from_datetime,
             to_datetime=sensor.setups[-1].to_datetime
