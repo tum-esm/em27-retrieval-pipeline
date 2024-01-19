@@ -93,9 +93,12 @@ def list_requested_data(
 
     for sensor in em27_metadata_storage.sensors.root:
         for sensor_setup in sensor.setups:
+            atmospheric_profile_location_id = sensor_setup.value.location_id
+            if sensor_setup.value.atmospheric_profile_location_id is not None:
+                atmospheric_profile_location_id = sensor_setup.value.atmospheric_profile_location_id
             location = next(
                 filter(
-                    lambda l: l.location_id == sensor_setup.value.location_id,
+                    lambda l: l.location_id == atmospheric_profile_location_id,
                     em27_metadata_storage.locations.root
                 )
             )
