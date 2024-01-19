@@ -1,1 +1,1 @@
-from . import files, functions, report, semaphores, text
+from . import files, functions, metadata, report, semaphores, text
