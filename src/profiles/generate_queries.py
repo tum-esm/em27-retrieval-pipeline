@@ -229,10 +229,20 @@ def generate_download_queries(
     assert config.profiles is not None
 
     if em27_metadata_storage is None:
-        em27_metadata_storage = em27_metadata.load_from_github(
-            github_repository=config.general.metadata.github_repository,
-            access_token=config.general.metadata.access_token,
+        em27_metadata_storage = utils.metadata.load_local_em27_metadata_storage(
         )
+        if em27_metadata_storage is not None:
+            print("Found local metadata")
+        else:
+            print(
+                "Did not find local metadata -> fetching metadata from GitHub"
+            )
+            assert config.general.metadata is not None, "Remote metadata not configured"
+            em27_metadata_storage = em27_metadata.load_from_github(
+                github_repository=config.general.metadata.github_repository,
+                access_token=config.general.metadata.access_token,
+            )
+            print("Successfully fetched metadata from GitHub")
 
     downloaded_data = list_downloaded_data(
         config=config,
