@@ -222,7 +222,11 @@ class RetrievalJobConfig(pydantic.BaseModel):
 
 
 class GeneralConfig(pydantic.BaseModel):
-    metadata: MetadataConfig
+    metadata: Optional[MetadataConfig] = pydantic.Field(
+        None,
+        description=
+        "If not set, the pipeline will use local metadata files or abort if the local files are not found. If local files are found, they will always be preferred over the remote data even if the remote source is configured.",
+    )
     data: DataConfig
 
 
