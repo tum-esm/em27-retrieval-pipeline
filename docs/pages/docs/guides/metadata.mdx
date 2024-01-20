@@ -1,1 +1,156 @@
-Helo?
+import { Callout } from 'nextra/components'
+
+# Metadata
+
+In order to use the pipeline, you have to specify the metadata of your EM27/SUN network: "how was each instrument set up over time?". The metadata consists of three files `locations.json`, `sensors.json` and `campaigns.json`.
+
+<Callout type="info" emoji="💡">
+
+Below, you can find example files for each of the three metadata files. The full schema specification and description of each parameter can be found [in the API Reference section](/docs/api-reference/metadata).
+
+</Callout>
+
+## Example Files
+
+### `locations.json`
+
+Use this to define your measurement locations. `alt` refers to altitude above sea level in meters. In the rest of the metadata, you will just use the `location_id` to refer to one of these.
+
+```json
+[
+  {
+    "location_id": "lid1",
+    "details": "description of location 1",
+    "lon": 10.5,
+    "lat": 48.1,
+    "alt": 500
+  },
+  {
+    "location_id": "lid2",
+    "details": "description of location 2",
+    "lon": 11.3,
+    "lat": 48.0,
+    "alt": 600
+  }
+]
+```
+
+### `sensors.json`
+
+Use this to specify a history of measurement setups for each of your EM27/SUN devices. Many of these fields are optional: If you do not specify `setups.#.value.pressure_data_source`, it will just take the pressure source named like the sensor id, and so on.
+
+As an example, we use the sensor ids `ma`, `mb`, `mc`, `md`, and `me`.
+
+```json
+[
+  {
+    "sensor_id": "sid1",
+    "serial_number": 50,
+    "setups": [
+      {
+        "from_datetime": "2020-08-22T00:00:00+0000",
+        "to_datetime": "2020-08-25T23:59:59+0000",
+        "value": {
+          "location_id": "lid1",
+          "pressure_data_source": "LMU-MIM01-height-adjusted",
+          "atmospheric_profile_location_id": "lid2",
+          "utc_offset": 2
+        }
+      },
+      {
+        "from_datetime": "2020-08-26T00:00:00+0000",
+        "to_datetime": "2020-08-30T23:59:59+0000",
+        "value": {
+          "location_id": "lid1",
+          "pressure_data_source": "LMU-MIM01-height-adjusted",
+          "utc_offset": 2
+        }
+      },
+      {
+        "from_datetime": "2020-08-31T00:00:00+0000",
+        "to_datetime": "2020-09-26T23:59:59+0000",
+        "value": { "location_id": "lid1", "utc_offset": 2 }
+      },
+      {
+        "from_datetime": "2020-09-27T00:00:00+0000",
+        "to_datetime": "2020-10-01T23:59:59+0000",
+        "value": { "location_id": "lid2" }
+      }
+    ],
+    "calibration_factors": [
+      {
+        "from_datetime": "2020-08-26T00:00:00+0000",
+        "to_datetime": "2020-10-01T23:59:59+0000",
+        "value": {
+          "pressure": 1.001,
+          "xco2": {
+            "factors": [1.001, 0.0007],
+            "scheme": "Ohyama2021"
+          },
+          "xch4": {
+            "factors": [1.002, 0.0008],
+            "scheme": "Ohyama2021"
+          },
+          "xco": {
+            "factors": [1.003, 0.0009],
+            "scheme": "Ohyama2021"
+          }
+        }
+      }
+    ]
+  },
+  {
+    "sensor_id": "sid2",
+    "serial_number": 51,
+    "setups": [
+      {
+        "from_datetime": "2020-08-26T00:00:00+0000",
+        "to_datetime": "2020-10-01T23:59:59+0000",
+        "value": {
+          "location_id": "lid1"
+        }
+      }
+    ]
+  }
+]
+```
+
+### `campaigns.json`
+
+This list can be left empty. If specified, the export will merge all data from the involved sensors and locations into daily CSV files.
+
+As an example, we use the campaign ids `muccnet`, `san-francisco`, `vienna`, and so on.
+
+```json
+[
+  {
+    "campaign_id": "cid1",
+    "from_datetime": "2019-09-13T00:00:00+0000",
+    "to_datetime": "2100-01-01T23:59:59+0000",
+    "sensor_ids": ["sid1", "sid2"],
+    "location_ids": ["lid1", "lid2"]
+  }
+]
+```
+
+## Connecting the Metadata
+
+To configure the pipeline with the metadata, you have two options: Save them locally, or store them in a GitHub repository. The latter option is a bit more work to set up but then the metadata can be edited anywhere and is version-controlled.
+
+### Option 1: Local Files
+
+For this option, you can just save the three files `locations.json`, `sensors.json` and `campaigns.json` to the `config/` directory of the pipeline directory. Be sure to include all of them files - even if you don't have any campaigns, save an empty list to `campaigns.json`.
+
+### Option 2: GitHub Repository
+
+Use the repository [tum-esm/em27-metadata-storage-template](https://github.com/tum-esm/em27-metadata-storage-template) as a template to create your own metadata-storage repository. On the top right, there is a button "Use this template".
+
+The repository has already been configured with a GitHub Actions workflow to test whether the metadata matches the required schema.
+
+In the configuration file of the pipeline at `config/config.json` you have to specify the GitHub repository. If you want to keep the repository private, you have to specify an [access token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens#creating-a-personal-access-token-classic) with read access to this repository.
+
+When running the integration tests with `pytest -m integration`, the connection and validity of the repository will be tested.
+
+## Reusing this Metadata
+
+We actually use this metadata in many places: for plotting, data analysis, calibration factor computation, etc.. You do not have to rewrite the parsing logic for every single project, but can simply use our `em27-metadata` Python library: https://github.com/tum-esm/em27-metadata.
