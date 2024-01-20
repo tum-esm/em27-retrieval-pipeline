@@ -4,31 +4,30 @@ import Link from 'next/link';
     <h1 className='text-4xl md:text-5xl font-bold text-slate-900 dark:text-white text-center'>
         EM27 Retrieval Pipeline
     </h1>
-    <div className='max-w-2xl text-center text-xl leading-8 text-slate-700 dark:text-slate-200'>
-        This tool automates the retrieval of EM27/SUN data with [**Proffast
-        2**](https://www.imk-asf.kit.edu/english/3225.php) by extending the
+    <div className='max-w-2xl text-center text-lg leading-7 text-slate-700 dark:text-slate-200'>
+        This tool automates the retrieval of EM27/SUN spectrometer data with [**Proffast
+        1 and 2**](https://www.imk-asf.kit.edu/english/3225.php). Under the hood, it uses the
         [**Proffast
-        Pylot**](https://gitlab.eudat.eu/coccon-kit/proffastpylot.git) with more
-        capabilities oriented towards a fully automatic retrieval.
+        Pylot**](https://gitlab.eudat.eu/coccon-kit/proffastpylot.git) to trigger Proffast 2 and a in-house connector (inspired by the Pylot) to trigger Proffast 1.
     </div>
     <div className='flex flex-col md:flex-row items-center justify-center gap-x-2 gap-y-2'>
         <Link
-            href='/docs/overview/introduction'
-            className='bg-teal-100 text-teal-950 shadow-md px-2 py-1 rounded font-semibold border border-teal-300 hover:bg-teal-200'
+            href='/docs'
+            className='text-sm bg-white text-slate-950 shadow-sm h-9 px-3 py-2 rounded-lg font-medium border border-gray-200 hover:bg-slate-50 hover:text-black inline-flex items-center justify-center'
         >
-            🌋 The Purpose of This Tool
+            📚 Docs & API Reference
         </Link>
         <Link
-            href='/docs'
-            className='bg-white text-slate-950 shadow-md px-2 py-1 rounded font-semibold border border-slate-300 hover:bg-slate-100'
+            href='https://github.com/tum-esm/em27-retrieval-pipeline/issues'
+            className='text-sm bg-white text-slate-950 shadow-sm h-9 px-3 py-2 rounded-lg font-medium border border-gray-200 hover:bg-slate-50 hover:text-black inline-flex items-center justify-center'
         >
-            📚 Guides
+            🐛 Issue Tracker
         </Link>
         <Link
-            href='/docs'
-            className='bg-white text-slate-950 shadow-md px-2 py-1 rounded font-semibold border border-slate-300 hover:bg-slate-100'
+            href='https://github.com/tum-esm/em27-retrieval-pipeline'
+            className='text-sm bg-white text-slate-950 shadow-sm h-9 px-3 py-2 rounded-lg font-medium border border-gray-200 hover:bg-slate-50 hover:text-black inline-flex items-center justify-center'
         >
-            ⚙️ API Reference
+            💾 Source Code
         </Link>
     </div>
 </div>
