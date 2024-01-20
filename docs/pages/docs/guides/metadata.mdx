@@ -143,11 +143,17 @@ For this option, you can just save the three files `locations.json`, `sensors.js
 
 ### Option 2: GitHub Repository
 
+**1. Create a repository**
+
 Use the repository [tum-esm/em27-metadata-storage-template](https://github.com/tum-esm/em27-metadata-storage-template) as a template to create your own metadata-storage repository. On the top right, there is a button "Use this template".
 
 The repository has already been configured with a GitHub Actions workflow to test whether the metadata matches the required schema.
 
+**2. Connect the repository to the pipeline**
+
 In the configuration file of the pipeline at `config/config.json` you have to specify the GitHub repository. If you want to keep the repository private, you have to specify an [access token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens#creating-a-personal-access-token-classic) with read access to this repository.
+
+**3. Test the connection**
 
 When running the integration tests with `pytest -m integration`, the connection and validity of the repository will be tested.
 

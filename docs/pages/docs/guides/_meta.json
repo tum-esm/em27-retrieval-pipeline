@@ -1,5 +1,6 @@
 {
   "configuration": "Configuration",
+  "directories": "Directories",
   "metadata": "Metadata",
   "tests": "Automatic Test Suite",
   "atmospheric-profiles": "Atmospheric Profiles",
