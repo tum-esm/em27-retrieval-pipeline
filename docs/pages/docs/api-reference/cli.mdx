@@ -1,0 +1,93 @@
+# CLI Reference
+
+## `data-report`
+
+**Usage: python cli.py data-report [OPTIONS]**
+
+exports a report of the data present on the configured system
+
+**Options:**
+
+--help  Show this message and exit.
+
+## `retrieval start`
+
+**Usage: python cli.py retrieval start [OPTIONS]**
+
+Start the retrieval as a background process. Prevents spawning multiple
+processes. The logs and the current processing queue from this process can
+be found at `logs/retrieval`.
+
+**Options:**
+
+--help  Show this message and exit.
+
+## `retrieval is-running`
+
+**Usage: python cli.py retrieval is-running [OPTIONS]**
+
+Checks whether the retrieval background process is running. The logs and the
+current processing queue from this process can be found at `logs/retrieval`.
+
+**Options:**
+
+--help  Show this message and exit.
+
+## `retrieval watch`
+
+**Usage: python cli.py retrieval watch [OPTIONS]**
+
+Opens an active watch window for the retrieval background process.
+
+**Options:**
+
+--help  Show this message and exit.
+
+## `retrieval stop`
+
+**Usage: python cli.py retrieval stop [OPTIONS]**
+
+Stop the retrieval background process. The logs and the current processing
+queue from this process can be found at `logs/retrieval`.
+
+**Options:**
+
+--help  Show this message and exit.
+
+## `profiles run`
+
+**Usage: python cli.py profiles run [OPTIONS]**
+
+Run the profiles download script. This will check, which profiles are not
+yet present locally, request and download them from the
+`ccycle.gps.caltech.edu` FTP server. The logs from this process can be found
+at `logs/profiles`.
+
+**Options:**
+
+--help  Show this message and exit.
+
+## `profiles request-ginput-status`
+
+**Usage: python cli.py profiles request-ginput-status [OPTIONS]**
+
+Request ginput status. This will upload a file `upload/ginput_status.txt` to
+the `ccycle.gps.caltech.edu` FTP server containing the configured email
+address. You will receive an email with the ginput status which normally
+takes less than two minutes.
+
+**Options:**
+
+--help  Show this message and exit.
+
+## `export run`
+
+**Usage: python cli.py export run [OPTIONS]**
+
+Run the export script. The logs from this process can be found at
+`logs/export`.
+
+**Options:**
+
+--help  Show this message and exit.
+

@@ -1,330 +1,89 @@
 /* prettier-ignore */
 const CONFIG_SCHEMA_OBJECT: any = {
-  "title": "Config",
-  "type": "object",
-  "properties": {
-    "general": {
-      "title": "GeneralConfig",
-      "type": "object",
+  "$defs": {
+    "DataConfig": {
+      "description": "Location where the input data sourced from.",
       "properties": {
-        "location_data": {
-          "title": "LocationDataConfig",
-          "description": "GitHub repository where the location data is stored",
-          "type": "object",
-          "properties": {
-            "github_repository": {
-              "title": "Github Repository",
-              "description": "GitHub repository name, e.g. `my-org/my-repo`",
-              "pattern": "^[a-z0-9-_]+/[a-z0-9-_]+$",
-              "type": "string"
-            },
-            "access_token": {
-              "title": "Access Token",
-              "description": "GitHub access token with read access to the repository, only required if the repository is private",
-              "minLength": 1,
+        "datalogger": {
+          "allOf": [
+            {
+              "description": "A pydantic model that validates a directory path.\n\nExample usage:\n\n```python\nclass MyModel(pyndatic.BaseModel):\n    path: StrictDirectoryPath\n\nm = MyModel(path='/path/to/directory') # validates that the directory exists\n```\n\nThe validation can be ignored by setting the context variable:\n\n```python\nm = MyModel.model_validate(\n    {\"path\": \"somenonexistingpath\"},\n    context={\"ignore-path-existence\": True},\n) # does not raise an error\n```",
+              "title": "StrictDirectoryPath",
               "type": "string"
             }
-          },
-          "required": [
-            "github_repository"
-          ]
+          ],
+          "description": "directory path to datalogger files"
         },
-        "data_src_dirs": {
-          "title": "DataSrcDirsConfig",
-          "description": "Location where the input data sourced from",
-          "type": "object",
-          "properties": {
-            "datalogger": {
-              "title": "Datalogger",
-              "description": "directory path to datalogger files",
-              "type": "string"
-            },
-            "vertical_profiles": {
-              "title": "Vertical Profiles",
-              "description": "directory path to vertical profile files",
-              "type": "string"
-            },
-            "interferograms": {
-              "title": "Interferograms",
-              "description": "directory path to ifg files",
+        "atmospheric_profiles": {
+          "allOf": [
+            {
+              "description": "A pydantic model that validates a directory path.\n\nExample usage:\n\n```python\nclass MyModel(pyndatic.BaseModel):\n    path: StrictDirectoryPath\n\nm = MyModel(path='/path/to/directory') # validates that the directory exists\n```\n\nThe validation can be ignored by setting the context variable:\n\n```python\nm = MyModel.model_validate(\n    {\"path\": \"somenonexistingpath\"},\n    context={\"ignore-path-existence\": True},\n) # does not raise an error\n```",
+              "title": "StrictDirectoryPath",
               "type": "string"
             }
-          },
-          "required": [
-            "datalogger",
-            "vertical_profiles",
-            "interferograms"
-          ]
+          ],
+          "description": "directory path to atmospheric profile files"
         },
-        "data_dst_dirs": {
-          "title": "DataDstDirsConfig",
-          "type": "object",
-          "properties": {
-            "results": {
-              "title": "Results",
-              "description": "directory path to results",
+        "interferograms": {
+          "allOf": [
+            {
+              "description": "A pydantic model that validates a directory path.\n\nExample usage:\n\n```python\nclass MyModel(pyndatic.BaseModel):\n    path: StrictDirectoryPath\n\nm = MyModel(path='/path/to/directory') # validates that the directory exists\n```\n\nThe validation can be ignored by setting the context variable:\n\n```python\nm = MyModel.model_validate(\n    {\"path\": \"somenonexistingpath\"},\n    context={\"ignore-path-existence\": True},\n) # does not raise an error\n```",
+              "title": "StrictDirectoryPath",
               "type": "string"
             }
-          },
-          "required": [
-            "results"
-          ]
+          ],
+          "description": "directory path to ifg files"
+        },
+        "results": {
+          "allOf": [
+            {
+              "description": "A pydantic model that validates a directory path.\n\nExample usage:\n\n```python\nclass MyModel(pyndatic.BaseModel):\n    path: StrictDirectoryPath\n\nm = MyModel(path='/path/to/directory') # validates that the directory exists\n```\n\nThe validation can be ignored by setting the context variable:\n\n```python\nm = MyModel.model_validate(\n    {\"path\": \"somenonexistingpath\"},\n    context={\"ignore-path-existence\": True},\n) # does not raise an error\n```",
+              "title": "StrictDirectoryPath",
+              "type": "string"
+            }
+          ],
+          "description": "directory path to results"
         }
       },
       "required": [
-        "location_data",
-        "data_src_dirs",
-        "data_dst_dirs"
-      ]
+        "datalogger",
+        "atmospheric_profiles",
+        "interferograms",
+        "results"
+      ],
+      "title": "DataConfig",
+      "type": "object"
     },
-    "vertical_profiles": {
-      "title": "VerticalProfilesConfig",
-      "description": "Settings for vertical profiles retrieval. If `null`, the vertical profiles script will stop and log a warning",
-      "type": "object",
+    "ExportTargetConfig": {
       "properties": {
-        "ftp_server": {
-          "title": "VerticalProfilesFTPServerConfig",
-          "description": "Settings for accessing the ccycle ftp server. Besides the\n`email` field, these can be left as default in most cases.",
-          "type": "object",
-          "properties": {
-            "email": {
-              "title": "Email",
-              "description": "email address to use to log in to the ccycle ftp server",
-              "minLength": 3,
-              "type": "string"
-            },
-            "max_day_delay": {
-              "title": "Max Day Delay",
-              "description": "maximum number of days of data availability delay of the ccycle ftp server. For example, on day 20 with `max delay = 7` the server should have data up to at least day 13. This is necessary because when requesting data from day 1-20 the output file might be names `day_1_13.tar` or `day_1_14.tar` -> with a delay of 7 days, the download process does not look for possible files named `day_1_12.tar`, `day_1_11.tar.`, etc.",
-              "default": 7,
-              "minimum": 0,
-              "maximum": 10,
-              "type": "integer"
-            },
-            "upload_sleep": {
-              "title": "Upload Sleep",
-              "description": "TODO",
-              "default": 60,
-              "minimum": 0,
-              "type": "integer"
-            },
-            "upload_timeout": {
-              "title": "Upload Timeout",
-              "description": "TODO",
-              "default": 180,
-              "minimum": 0,
-              "type": "integer"
-            },
-            "download_sleep": {
-              "title": "Download Sleep",
-              "description": "TODO",
-              "default": 60,
-              "minimum": 0,
-              "type": "integer"
-            },
-            "download_timeout": {
-              "title": "Download Timeout",
-              "description": "in seconds, how long to wait for a `.tar` file to be generated before aborting the download",
-              "default": 600,
-              "minimum": 0,
-              "type": "integer"
-            }
-          },
-          "required": [
-            "email"
-          ]
+        "campaign_id": {
+          "description": "Campaign specified in location metadata.",
+          "title": "Campaign Id",
+          "type": "string"
         },
-        "request_scope": {
-          "title": "VerticalProfilesRequestScopeConfig",
-          "type": "object",
-          "properties": {
-            "from_date": {
-              "title": "From Date",
-              "description": "date string in format `YYYYMMDD` from which to request vertical profile data",
-              "default": "19000101",
-              "type": "string"
-            },
-            "to_date": {
-              "title": "To Date",
-              "description": "date string in format `YYYYMMDD` until which to request vertical profile data",
-              "default": "21000101",
-              "type": "string"
-            },
-            "data_types": {
-              "title": "Data Types",
-              "description": "list of data types to request from the ccycle ftp server",
-              "default": [
-                "GGG2014",
-                "GGG2020"
-              ],
-              "minItems": 1,
-              "type": "array",
-              "items": {
-                "enum": [
-                  "GGG2014",
-                  "GGG2020"
-                ],
-                "type": "string"
-              }
-            }
-          }
-        }
-      },
-      "required": [
-        "ftp_server",
-        "request_scope"
-      ]
-    },
-    "automated_proffast": {
-      "title": "AutomatedProffastConfig",
-      "description": "Settings for automated proffast processing. If `null`, the automated proffast script will stop and log a warning",
-      "type": "object",
-      "properties": {
-        "general": {
-          "title": "AutomatedProffastGeneralConfig",
-          "type": "object",
-          "properties": {
-            "max_core_count": {
-              "title": "Max Core Count",
-              "description": "How many cores to use for parallel processing. There will be one process per sensor-day.",
-              "default": 1,
-              "minimum": 1,
-              "maximum": 64,
-              "type": "integer"
-            },
-            "ifg_file_regex": {
-              "title": "Ifg File Regex",
-              "description": "A regex string to match the ifg file names. In this string, `$(SENSOR_ID)` and `$(DATE)` are placeholders for the sensor id and the date of the ifg file.",
-              "default": "^$(SENSOR_ID)$(DATE).*\\.\\d+$",
-              "minLength": 1,
-              "type": "string"
-            }
-          }
+        "retrieval_algorithm": {
+          "description": "Which retrieval algorithm used for the retrieval.",
+          "enum": [
+            "proffast-1.0",
+            "proffast-2.2",
+            "proffast-2.3"
+          ],
+          "title": "Retrieval Algorithm",
+          "type": "string"
         },
-        "data_sources": {
-          "title": "AutomatedProffastDataSourcesConfig",
-          "description": "Which data sources to use (storage/manual queue)",
-          "type": "object",
-          "properties": {
-            "storage": {
-              "title": "Storage",
-              "description": "Whether to use the storage data. Run every sensor-day, where there is input data (`config.data_src_dirs.interferograms`) but no output data (`config.data_dst_dirs.results`).",
-              "default": true,
-              "type": "boolean"
-            },
-            "manual_queue": {
-              "title": "Manual Queue",
-              "description": "Whether to use the manual queue. Compute a sensor-day if data is available at `config.data_src_dirs.interferograms`, independently of results-existence. Will overwrite existing results.",
-              "default": true,
-              "type": "boolean"
-            }
-          }
+        "atmospheric_profile_model": {
+          "description": "Which atmospheric profiles used for the retrieval.",
+          "enum": [
+            "GGG2014",
+            "GGG2020"
+          ],
+          "title": "Atmospheric Profile Model",
+          "type": "string"
         },
-        "modified_ifg_file_permissions": {
-          "title": "AutomatedProffastModifiedIfgFilePermissionsConfig",
-          "type": "object",
-          "properties": {
-            "during_processing": {
-              "title": "During Processing",
-              "description": "A unix-like file permission string, e.g. `rwxr-xr-x`. This can be used to make the ifg files read-only during processing, to avoid accidental modification. Only used if not `null`.",
-              "pattern": "^((r|-)(w|-)(x|-)){3}$",
-              "type": "string"
-            },
-            "after_processing": {
-              "title": "After Processing",
-              "description": "A unix-like file permission string, e.g. `rwxr-xr-x`. Same as `during_processing`, but restoring the permissions after processing. Only used if not `null`.",
-              "pattern": "^((r|-)(w|-)(x|-)){3}$",
-              "type": "string"
-            }
-          }
-        },
-        "storage_data_filter": {
-          "title": "AutomatedProffastStorageDataFilterConfig",
-          "description": "Settings for filtering the storage data. Only used if `config.data_sources.storage` is `true`.",
-          "type": "object",
-          "properties": {
-            "sensor_ids_to_consider": {
-              "title": "Sensor Ids To Consider",
-              "description": "Sensor ids to consider in the retrieval",
-              "minItems": 1,
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            },
-            "from_date": {
-              "title": "From Date",
-              "description": "Date string in format `YYYYMMDD` from which to consider data in the storage directory",
-              "default": "19000101",
-              "type": "string"
-            },
-            "to_date": {
-              "title": "To Date",
-              "description": "Date string in format `YYYYMMDD` until which to consider data in the storage directory",
-              "default": "21000101",
-              "type": "string"
-            },
-            "min_days_delay": {
-              "title": "Min Days Delay",
-              "description": "Minimum numbers of days to wait until processing. E.g. the vertical profiles from ccyle are available with a delay of 5 days, so it doesn't make sence to try processing earlier and get a lot of error messages because of missing vertical profiles.",
-              "default": 5,
-              "minimum": 0,
-              "maximum": 60,
-              "type": "integer"
-            }
-          },
-          "required": [
-            "sensor_ids_to_consider"
-          ]
-        }
-      },
-      "required": [
-        "general",
-        "data_sources",
-        "modified_ifg_file_permissions",
-        "storage_data_filter"
-      ]
-    },
-    "output_merging_targets": {
-      "title": "Output Merging Targets",
-      "description": "List of output merging targets. Relies on specifying \"campaigns\" in the EM27 metadata.",
-      "default": [],
-      "type": "array",
-      "items": {
-        "title": "OutputMergingTargetConfig",
-        "type": "object",
-        "properties": {
-          "campaign_id": {
-            "title": "Campaign Id",
-            "description": "Campaign specified in location metadata.",
-            "type": "string"
-          },
-          "sampling_rate": {
-            "title": "Sampling Rate",
-            "description": "Interval of resampled data.",
+        "data_types": {
+          "description": "Data columns to keep in the merged output files. The columns will be prefixed with the sensor id, i.e. `$(SENSOR_ID)_$(COLUMN_NAME)`.",
+          "items": {
             "enum": [
-              "10m",
-              "5m",
-              "2m",
-              "1m",
-              "30s",
-              "15s",
-              "10s",
-              "5s",
-              "2s",
-              "1s"
-            ],
-            "type": "string"
-          },
-          "dst_dir": {
-            "title": "Dst Dir",
-            "description": "Directory to write the output to.",
-            "type": "string"
-          },
-          "data_types": {
-            "title": "Data Types",
-            "description": "Data columns to keep in the merged output files. The columns will be prefixed with the sensor id, i.e. `$(SENSOR_ID)_$(COLUMN_NAME)`.",
-            "default": [
               "gnd_p",
               "gnd_t",
               "app_sza",
@@ -336,585 +95,13 @@ const CONFIG_SCHEMA_OBJECT: any = {
               "xco",
               "xch4_s5p"
             ],
-            "minItems": 1,
-            "type": "array",
-            "items": {
-              "enum": [
-                "gnd_p",
-                "gnd_t",
-                "app_sza",
-                "azimuth",
-                "xh2o",
-                "xair",
-                "xco2",
-                "xch4",
-                "xco",
-                "xch4_s5p"
-              ],
-              "type": "string"
-            }
+            "type": "string"
           },
-          "max_interpolation_gap_seconds": {
-            "title": "Max Interpolation Gap Seconds",
-            "description": "Maximum gap in seconds to interpolate over.",
-            "default": 180,
-            "minimum": 6,
-            "maximum": 43200,
-            "type": "integer"
-          }
-        },
-        "required": [
-          "campaign_id",
-          "sampling_rate",
-          "dst_dir"
-        ]
-      }
-    }
-  },
-  "required": [
-    "general"
-  ],
-  "definitions": {
-    "LocationDataConfig": {
-      "title": "LocationDataConfig",
-      "description": "GitHub repository where the location data is stored",
-      "type": "object",
-      "properties": {
-        "github_repository": {
-          "title": "Github Repository",
-          "description": "GitHub repository name, e.g. `my-org/my-repo`",
-          "pattern": "^[a-z0-9-_]+/[a-z0-9-_]+$",
-          "type": "string"
-        },
-        "access_token": {
-          "title": "Access Token",
-          "description": "GitHub access token with read access to the repository, only required if the repository is private",
-          "minLength": 1,
-          "type": "string"
-        }
-      },
-      "required": [
-        "github_repository"
-      ]
-    },
-    "DataSrcDirsConfig": {
-      "title": "DataSrcDirsConfig",
-      "description": "Location where the input data sourced from",
-      "type": "object",
-      "properties": {
-        "datalogger": {
-          "title": "Datalogger",
-          "description": "directory path to datalogger files",
-          "type": "string"
-        },
-        "vertical_profiles": {
-          "title": "Vertical Profiles",
-          "description": "directory path to vertical profile files",
-          "type": "string"
-        },
-        "interferograms": {
-          "title": "Interferograms",
-          "description": "directory path to ifg files",
-          "type": "string"
-        }
-      },
-      "required": [
-        "datalogger",
-        "vertical_profiles",
-        "interferograms"
-      ]
-    },
-    "DataDstDirsConfig": {
-      "title": "DataDstDirsConfig",
-      "type": "object",
-      "properties": {
-        "results": {
-          "title": "Results",
-          "description": "directory path to results",
-          "type": "string"
-        }
-      },
-      "required": [
-        "results"
-      ]
-    },
-    "GeneralConfig": {
-      "title": "GeneralConfig",
-      "type": "object",
-      "properties": {
-        "location_data": {
-          "title": "LocationDataConfig",
-          "description": "GitHub repository where the location data is stored",
-          "type": "object",
-          "properties": {
-            "github_repository": {
-              "title": "Github Repository",
-              "description": "GitHub repository name, e.g. `my-org/my-repo`",
-              "pattern": "^[a-z0-9-_]+/[a-z0-9-_]+$",
-              "type": "string"
-            },
-            "access_token": {
-              "title": "Access Token",
-              "description": "GitHub access token with read access to the repository, only required if the repository is private",
-              "minLength": 1,
-              "type": "string"
-            }
-          },
-          "required": [
-            "github_repository"
-          ]
-        },
-        "data_src_dirs": {
-          "title": "DataSrcDirsConfig",
-          "description": "Location where the input data sourced from",
-          "type": "object",
-          "properties": {
-            "datalogger": {
-              "title": "Datalogger",
-              "description": "directory path to datalogger files",
-              "type": "string"
-            },
-            "vertical_profiles": {
-              "title": "Vertical Profiles",
-              "description": "directory path to vertical profile files",
-              "type": "string"
-            },
-            "interferograms": {
-              "title": "Interferograms",
-              "description": "directory path to ifg files",
-              "type": "string"
-            }
-          },
-          "required": [
-            "datalogger",
-            "vertical_profiles",
-            "interferograms"
-          ]
-        },
-        "data_dst_dirs": {
-          "title": "DataDstDirsConfig",
-          "type": "object",
-          "properties": {
-            "results": {
-              "title": "Results",
-              "description": "directory path to results",
-              "type": "string"
-            }
-          },
-          "required": [
-            "results"
-          ]
-        }
-      },
-      "required": [
-        "location_data",
-        "data_src_dirs",
-        "data_dst_dirs"
-      ]
-    },
-    "VerticalProfilesFTPServerConfig": {
-      "title": "VerticalProfilesFTPServerConfig",
-      "description": "Settings for accessing the ccycle ftp server. Besides the\n`email` field, these can be left as default in most cases.",
-      "type": "object",
-      "properties": {
-        "email": {
-          "title": "Email",
-          "description": "email address to use to log in to the ccycle ftp server",
-          "minLength": 3,
-          "type": "string"
-        },
-        "max_day_delay": {
-          "title": "Max Day Delay",
-          "description": "maximum number of days of data availability delay of the ccycle ftp server. For example, on day 20 with `max delay = 7` the server should have data up to at least day 13. This is necessary because when requesting data from day 1-20 the output file might be names `day_1_13.tar` or `day_1_14.tar` -> with a delay of 7 days, the download process does not look for possible files named `day_1_12.tar`, `day_1_11.tar.`, etc.",
-          "default": 7,
-          "minimum": 0,
-          "maximum": 10,
-          "type": "integer"
-        },
-        "upload_sleep": {
-          "title": "Upload Sleep",
-          "description": "TODO",
-          "default": 60,
-          "minimum": 0,
-          "type": "integer"
-        },
-        "upload_timeout": {
-          "title": "Upload Timeout",
-          "description": "TODO",
-          "default": 180,
-          "minimum": 0,
-          "type": "integer"
-        },
-        "download_sleep": {
-          "title": "Download Sleep",
-          "description": "TODO",
-          "default": 60,
-          "minimum": 0,
-          "type": "integer"
-        },
-        "download_timeout": {
-          "title": "Download Timeout",
-          "description": "in seconds, how long to wait for a `.tar` file to be generated before aborting the download",
-          "default": 600,
-          "minimum": 0,
-          "type": "integer"
-        }
-      },
-      "required": [
-        "email"
-      ]
-    },
-    "VerticalProfilesRequestScopeConfig": {
-      "title": "VerticalProfilesRequestScopeConfig",
-      "type": "object",
-      "properties": {
-        "from_date": {
-          "title": "From Date",
-          "description": "date string in format `YYYYMMDD` from which to request vertical profile data",
-          "default": "19000101",
-          "type": "string"
-        },
-        "to_date": {
-          "title": "To Date",
-          "description": "date string in format `YYYYMMDD` until which to request vertical profile data",
-          "default": "21000101",
-          "type": "string"
-        },
-        "data_types": {
+          "minItems": 1,
           "title": "Data Types",
-          "description": "list of data types to request from the ccycle ftp server",
-          "default": [
-            "GGG2014",
-            "GGG2020"
-          ],
-          "minItems": 1,
-          "type": "array",
-          "items": {
-            "enum": [
-              "GGG2014",
-              "GGG2020"
-            ],
-            "type": "string"
-          }
-        }
-      }
-    },
-    "VerticalProfilesConfig": {
-      "title": "VerticalProfilesConfig",
-      "description": "Settings for vertical profiles retrieval. If `null`, the vertical profiles script will stop and log a warning",
-      "type": "object",
-      "properties": {
-        "ftp_server": {
-          "title": "VerticalProfilesFTPServerConfig",
-          "description": "Settings for accessing the ccycle ftp server. Besides the\n`email` field, these can be left as default in most cases.",
-          "type": "object",
-          "properties": {
-            "email": {
-              "title": "Email",
-              "description": "email address to use to log in to the ccycle ftp server",
-              "minLength": 3,
-              "type": "string"
-            },
-            "max_day_delay": {
-              "title": "Max Day Delay",
-              "description": "maximum number of days of data availability delay of the ccycle ftp server. For example, on day 20 with `max delay = 7` the server should have data up to at least day 13. This is necessary because when requesting data from day 1-20 the output file might be names `day_1_13.tar` or `day_1_14.tar` -> with a delay of 7 days, the download process does not look for possible files named `day_1_12.tar`, `day_1_11.tar.`, etc.",
-              "default": 7,
-              "minimum": 0,
-              "maximum": 10,
-              "type": "integer"
-            },
-            "upload_sleep": {
-              "title": "Upload Sleep",
-              "description": "TODO",
-              "default": 60,
-              "minimum": 0,
-              "type": "integer"
-            },
-            "upload_timeout": {
-              "title": "Upload Timeout",
-              "description": "TODO",
-              "default": 180,
-              "minimum": 0,
-              "type": "integer"
-            },
-            "download_sleep": {
-              "title": "Download Sleep",
-              "description": "TODO",
-              "default": 60,
-              "minimum": 0,
-              "type": "integer"
-            },
-            "download_timeout": {
-              "title": "Download Timeout",
-              "description": "in seconds, how long to wait for a `.tar` file to be generated before aborting the download",
-              "default": 600,
-              "minimum": 0,
-              "type": "integer"
-            }
-          },
-          "required": [
-            "email"
-          ]
-        },
-        "request_scope": {
-          "title": "VerticalProfilesRequestScopeConfig",
-          "type": "object",
-          "properties": {
-            "from_date": {
-              "title": "From Date",
-              "description": "date string in format `YYYYMMDD` from which to request vertical profile data",
-              "default": "19000101",
-              "type": "string"
-            },
-            "to_date": {
-              "title": "To Date",
-              "description": "date string in format `YYYYMMDD` until which to request vertical profile data",
-              "default": "21000101",
-              "type": "string"
-            },
-            "data_types": {
-              "title": "Data Types",
-              "description": "list of data types to request from the ccycle ftp server",
-              "default": [
-                "GGG2014",
-                "GGG2020"
-              ],
-              "minItems": 1,
-              "type": "array",
-              "items": {
-                "enum": [
-                  "GGG2014",
-                  "GGG2020"
-                ],
-                "type": "string"
-              }
-            }
-          }
-        }
-      },
-      "required": [
-        "ftp_server",
-        "request_scope"
-      ]
-    },
-    "AutomatedProffastGeneralConfig": {
-      "title": "AutomatedProffastGeneralConfig",
-      "type": "object",
-      "properties": {
-        "max_core_count": {
-          "title": "Max Core Count",
-          "description": "How many cores to use for parallel processing. There will be one process per sensor-day.",
-          "default": 1,
-          "minimum": 1,
-          "maximum": 64,
-          "type": "integer"
-        },
-        "ifg_file_regex": {
-          "title": "Ifg File Regex",
-          "description": "A regex string to match the ifg file names. In this string, `$(SENSOR_ID)` and `$(DATE)` are placeholders for the sensor id and the date of the ifg file.",
-          "default": "^$(SENSOR_ID)$(DATE).*\\.\\d+$",
-          "minLength": 1,
-          "type": "string"
-        }
-      }
-    },
-    "AutomatedProffastDataSourcesConfig": {
-      "title": "AutomatedProffastDataSourcesConfig",
-      "description": "Which data sources to use (storage/manual queue)",
-      "type": "object",
-      "properties": {
-        "storage": {
-          "title": "Storage",
-          "description": "Whether to use the storage data. Run every sensor-day, where there is input data (`config.data_src_dirs.interferograms`) but no output data (`config.data_dst_dirs.results`).",
-          "default": true,
-          "type": "boolean"
-        },
-        "manual_queue": {
-          "title": "Manual Queue",
-          "description": "Whether to use the manual queue. Compute a sensor-day if data is available at `config.data_src_dirs.interferograms`, independently of results-existence. Will overwrite existing results.",
-          "default": true,
-          "type": "boolean"
-        }
-      }
-    },
-    "AutomatedProffastModifiedIfgFilePermissionsConfig": {
-      "title": "AutomatedProffastModifiedIfgFilePermissionsConfig",
-      "type": "object",
-      "properties": {
-        "during_processing": {
-          "title": "During Processing",
-          "description": "A unix-like file permission string, e.g. `rwxr-xr-x`. This can be used to make the ifg files read-only during processing, to avoid accidental modification. Only used if not `null`.",
-          "pattern": "^((r|-)(w|-)(x|-)){3}$",
-          "type": "string"
-        },
-        "after_processing": {
-          "title": "After Processing",
-          "description": "A unix-like file permission string, e.g. `rwxr-xr-x`. Same as `during_processing`, but restoring the permissions after processing. Only used if not `null`.",
-          "pattern": "^((r|-)(w|-)(x|-)){3}$",
-          "type": "string"
-        }
-      }
-    },
-    "AutomatedProffastStorageDataFilterConfig": {
-      "title": "AutomatedProffastStorageDataFilterConfig",
-      "description": "Settings for filtering the storage data. Only used if `config.data_sources.storage` is `true`.",
-      "type": "object",
-      "properties": {
-        "sensor_ids_to_consider": {
-          "title": "Sensor Ids To Consider",
-          "description": "Sensor ids to consider in the retrieval",
-          "minItems": 1,
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
-        },
-        "from_date": {
-          "title": "From Date",
-          "description": "Date string in format `YYYYMMDD` from which to consider data in the storage directory",
-          "default": "19000101",
-          "type": "string"
-        },
-        "to_date": {
-          "title": "To Date",
-          "description": "Date string in format `YYYYMMDD` until which to consider data in the storage directory",
-          "default": "21000101",
-          "type": "string"
-        },
-        "min_days_delay": {
-          "title": "Min Days Delay",
-          "description": "Minimum numbers of days to wait until processing. E.g. the vertical profiles from ccyle are available with a delay of 5 days, so it doesn't make sence to try processing earlier and get a lot of error messages because of missing vertical profiles.",
-          "default": 5,
-          "minimum": 0,
-          "maximum": 60,
-          "type": "integer"
-        }
-      },
-      "required": [
-        "sensor_ids_to_consider"
-      ]
-    },
-    "AutomatedProffastConfig": {
-      "title": "AutomatedProffastConfig",
-      "description": "Settings for automated proffast processing. If `null`, the automated proffast script will stop and log a warning",
-      "type": "object",
-      "properties": {
-        "general": {
-          "title": "AutomatedProffastGeneralConfig",
-          "type": "object",
-          "properties": {
-            "max_core_count": {
-              "title": "Max Core Count",
-              "description": "How many cores to use for parallel processing. There will be one process per sensor-day.",
-              "default": 1,
-              "minimum": 1,
-              "maximum": 64,
-              "type": "integer"
-            },
-            "ifg_file_regex": {
-              "title": "Ifg File Regex",
-              "description": "A regex string to match the ifg file names. In this string, `$(SENSOR_ID)` and `$(DATE)` are placeholders for the sensor id and the date of the ifg file.",
-              "default": "^$(SENSOR_ID)$(DATE).*\\.\\d+$",
-              "minLength": 1,
-              "type": "string"
-            }
-          }
-        },
-        "data_sources": {
-          "title": "AutomatedProffastDataSourcesConfig",
-          "description": "Which data sources to use (storage/manual queue)",
-          "type": "object",
-          "properties": {
-            "storage": {
-              "title": "Storage",
-              "description": "Whether to use the storage data. Run every sensor-day, where there is input data (`config.data_src_dirs.interferograms`) but no output data (`config.data_dst_dirs.results`).",
-              "default": true,
-              "type": "boolean"
-            },
-            "manual_queue": {
-              "title": "Manual Queue",
-              "description": "Whether to use the manual queue. Compute a sensor-day if data is available at `config.data_src_dirs.interferograms`, independently of results-existence. Will overwrite existing results.",
-              "default": true,
-              "type": "boolean"
-            }
-          }
-        },
-        "modified_ifg_file_permissions": {
-          "title": "AutomatedProffastModifiedIfgFilePermissionsConfig",
-          "type": "object",
-          "properties": {
-            "during_processing": {
-              "title": "During Processing",
-              "description": "A unix-like file permission string, e.g. `rwxr-xr-x`. This can be used to make the ifg files read-only during processing, to avoid accidental modification. Only used if not `null`.",
-              "pattern": "^((r|-)(w|-)(x|-)){3}$",
-              "type": "string"
-            },
-            "after_processing": {
-              "title": "After Processing",
-              "description": "A unix-like file permission string, e.g. `rwxr-xr-x`. Same as `during_processing`, but restoring the permissions after processing. Only used if not `null`.",
-              "pattern": "^((r|-)(w|-)(x|-)){3}$",
-              "type": "string"
-            }
-          }
-        },
-        "storage_data_filter": {
-          "title": "AutomatedProffastStorageDataFilterConfig",
-          "description": "Settings for filtering the storage data. Only used if `config.data_sources.storage` is `true`.",
-          "type": "object",
-          "properties": {
-            "sensor_ids_to_consider": {
-              "title": "Sensor Ids To Consider",
-              "description": "Sensor ids to consider in the retrieval",
-              "minItems": 1,
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            },
-            "from_date": {
-              "title": "From Date",
-              "description": "Date string in format `YYYYMMDD` from which to consider data in the storage directory",
-              "default": "19000101",
-              "type": "string"
-            },
-            "to_date": {
-              "title": "To Date",
-              "description": "Date string in format `YYYYMMDD` until which to consider data in the storage directory",
-              "default": "21000101",
-              "type": "string"
-            },
-            "min_days_delay": {
-              "title": "Min Days Delay",
-              "description": "Minimum numbers of days to wait until processing. E.g. the vertical profiles from ccyle are available with a delay of 5 days, so it doesn't make sence to try processing earlier and get a lot of error messages because of missing vertical profiles.",
-              "default": 5,
-              "minimum": 0,
-              "maximum": 60,
-              "type": "integer"
-            }
-          },
-          "required": [
-            "sensor_ids_to_consider"
-          ]
-        }
-      },
-      "required": [
-        "general",
-        "data_sources",
-        "modified_ifg_file_permissions",
-        "storage_data_filter"
-      ]
-    },
-    "OutputMergingTargetConfig": {
-      "title": "OutputMergingTargetConfig",
-      "type": "object",
-      "properties": {
-        "campaign_id": {
-          "title": "Campaign Id",
-          "description": "Campaign specified in location metadata.",
-          "type": "string"
+          "type": "array"
         },
         "sampling_rate": {
-          "title": "Sampling Rate",
           "description": "Interval of resampled data.",
           "enum": [
             "10m",
@@ -928,62 +115,1043 @@ const CONFIG_SCHEMA_OBJECT: any = {
             "2s",
             "1s"
           ],
+          "title": "Sampling Rate",
           "type": "string"
-        },
-        "dst_dir": {
-          "title": "Dst Dir",
-          "description": "Directory to write the output to.",
-          "type": "string"
-        },
-        "data_types": {
-          "title": "Data Types",
-          "description": "Data columns to keep in the merged output files. The columns will be prefixed with the sensor id, i.e. `$(SENSOR_ID)_$(COLUMN_NAME)`.",
-          "default": [
-            "gnd_p",
-            "gnd_t",
-            "app_sza",
-            "azimuth",
-            "xh2o",
-            "xair",
-            "xco2",
-            "xch4",
-            "xco",
-            "xch4_s5p"
-          ],
-          "minItems": 1,
-          "type": "array",
-          "items": {
-            "enum": [
-              "gnd_p",
-              "gnd_t",
-              "app_sza",
-              "azimuth",
-              "xh2o",
-              "xair",
-              "xco2",
-              "xch4",
-              "xco",
-              "xch4_s5p"
-            ],
-            "type": "string"
-          }
         },
         "max_interpolation_gap_seconds": {
-          "title": "Max Interpolation Gap Seconds",
-          "description": "Maximum gap in seconds to interpolate over.",
           "default": 180,
-          "minimum": 6,
+          "description": "Maximum gap in seconds to interpolate over.",
           "maximum": 43200,
+          "minimum": 6,
+          "title": "Max Interpolation Gap Seconds",
           "type": "integer"
+        },
+        "dst_dir": {
+          "allOf": [
+            {
+              "description": "A pydantic model that validates a directory path.\n\nExample usage:\n\n```python\nclass MyModel(pyndatic.BaseModel):\n    path: StrictDirectoryPath\n\nm = MyModel(path='/path/to/directory') # validates that the directory exists\n```\n\nThe validation can be ignored by setting the context variable:\n\n```python\nm = MyModel.model_validate(\n    {\"path\": \"somenonexistingpath\"},\n    context={\"ignore-path-existence\": True},\n) # does not raise an error\n```",
+              "title": "StrictDirectoryPath",
+              "type": "string"
+            }
+          ],
+          "description": "Directory to write the output to."
         }
       },
       "required": [
         "campaign_id",
+        "retrieval_algorithm",
+        "atmospheric_profile_model",
+        "data_types",
         "sampling_rate",
         "dst_dir"
-      ]
+      ],
+      "title": "ExportTargetConfig",
+      "type": "object"
+    },
+    "GeneralConfig": {
+      "properties": {
+        "metadata": {
+          "anyOf": [
+            {
+              "description": "GitHub repository where the location data is stored.",
+              "properties": {
+                "github_repository": {
+                  "description": "GitHub repository name, e.g. `my-org/my-repo`.",
+                  "pattern": "^[a-z0-9-_]+/[a-z0-9-_]+$",
+                  "title": "Github Repository",
+                  "type": "string"
+                },
+                "access_token": {
+                  "anyOf": [
+                    {
+                      "minLength": 1,
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "default": null,
+                  "description": "GitHub access token with read access to the repository, only required if the repository is private.",
+                  "title": "Access Token"
+                }
+              },
+              "required": [
+                "github_repository"
+              ],
+              "title": "MetadataConfig",
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "If not set, the pipeline will use local metadata files or abort if the local files are not found. If local files are found, they will always be preferred over the remote data even if the remote source is configured."
+        },
+        "data": {
+          "description": "Location where the input data sourced from.",
+          "properties": {
+            "datalogger": {
+              "allOf": [
+                {
+                  "description": "A pydantic model that validates a directory path.\n\nExample usage:\n\n```python\nclass MyModel(pyndatic.BaseModel):\n    path: StrictDirectoryPath\n\nm = MyModel(path='/path/to/directory') # validates that the directory exists\n```\n\nThe validation can be ignored by setting the context variable:\n\n```python\nm = MyModel.model_validate(\n    {\"path\": \"somenonexistingpath\"},\n    context={\"ignore-path-existence\": True},\n) # does not raise an error\n```",
+                  "title": "StrictDirectoryPath",
+                  "type": "string"
+                }
+              ],
+              "description": "directory path to datalogger files"
+            },
+            "atmospheric_profiles": {
+              "allOf": [
+                {
+                  "description": "A pydantic model that validates a directory path.\n\nExample usage:\n\n```python\nclass MyModel(pyndatic.BaseModel):\n    path: StrictDirectoryPath\n\nm = MyModel(path='/path/to/directory') # validates that the directory exists\n```\n\nThe validation can be ignored by setting the context variable:\n\n```python\nm = MyModel.model_validate(\n    {\"path\": \"somenonexistingpath\"},\n    context={\"ignore-path-existence\": True},\n) # does not raise an error\n```",
+                  "title": "StrictDirectoryPath",
+                  "type": "string"
+                }
+              ],
+              "description": "directory path to atmospheric profile files"
+            },
+            "interferograms": {
+              "allOf": [
+                {
+                  "description": "A pydantic model that validates a directory path.\n\nExample usage:\n\n```python\nclass MyModel(pyndatic.BaseModel):\n    path: StrictDirectoryPath\n\nm = MyModel(path='/path/to/directory') # validates that the directory exists\n```\n\nThe validation can be ignored by setting the context variable:\n\n```python\nm = MyModel.model_validate(\n    {\"path\": \"somenonexistingpath\"},\n    context={\"ignore-path-existence\": True},\n) # does not raise an error\n```",
+                  "title": "StrictDirectoryPath",
+                  "type": "string"
+                }
+              ],
+              "description": "directory path to ifg files"
+            },
+            "results": {
+              "allOf": [
+                {
+                  "description": "A pydantic model that validates a directory path.\n\nExample usage:\n\n```python\nclass MyModel(pyndatic.BaseModel):\n    path: StrictDirectoryPath\n\nm = MyModel(path='/path/to/directory') # validates that the directory exists\n```\n\nThe validation can be ignored by setting the context variable:\n\n```python\nm = MyModel.model_validate(\n    {\"path\": \"somenonexistingpath\"},\n    context={\"ignore-path-existence\": True},\n) # does not raise an error\n```",
+                  "title": "StrictDirectoryPath",
+                  "type": "string"
+                }
+              ],
+              "description": "directory path to results"
+            }
+          },
+          "required": [
+            "datalogger",
+            "atmospheric_profiles",
+            "interferograms",
+            "results"
+          ],
+          "title": "DataConfig",
+          "type": "object"
+        }
+      },
+      "required": [
+        "data"
+      ],
+      "title": "GeneralConfig",
+      "type": "object"
+    },
+    "MetadataConfig": {
+      "description": "GitHub repository where the location data is stored.",
+      "properties": {
+        "github_repository": {
+          "description": "GitHub repository name, e.g. `my-org/my-repo`.",
+          "pattern": "^[a-z0-9-_]+/[a-z0-9-_]+$",
+          "title": "Github Repository",
+          "type": "string"
+        },
+        "access_token": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "GitHub access token with read access to the repository, only required if the repository is private.",
+          "title": "Access Token"
+        }
+      },
+      "required": [
+        "github_repository"
+      ],
+      "title": "MetadataConfig",
+      "type": "object"
+    },
+    "ProfilesConfig": {
+      "description": "Settings for vertical profiles retrieval. If `null`, the vertical profiles script will stop and log a warning",
+      "properties": {
+        "server": {
+          "description": "Settings for accessing the ccycle ftp server. Besides the\n`email` field, these can be left as default in most cases.",
+          "properties": {
+            "email": {
+              "description": "Email address to use to log in to the ccycle ftp server.",
+              "minLength": 3,
+              "title": "Email",
+              "type": "string"
+            },
+            "max_parallel_requests": {
+              "description": "Maximum number of requests to put in the queue on the ccycle server at the same time. Only when a request is finished, a new one can enter the queue.",
+              "maximum": 200,
+              "minimum": 1,
+              "title": "Max Parallel Requests",
+              "type": "integer"
+            }
+          },
+          "required": [
+            "email",
+            "max_parallel_requests"
+          ],
+          "title": "ProfilesServerConfig",
+          "type": "object"
+        },
+        "scope": {
+          "properties": {
+            "from_date": {
+              "default": "1900-01-01",
+              "description": "date in format `YYYY-MM-DD` from which to request vertical profile data.",
+              "format": "date",
+              "title": "From Date",
+              "type": "string"
+            },
+            "to_date": {
+              "default": "2100-01-01",
+              "description": "date in format `YYYY-MM-DD` until which to request vertical profile data.",
+              "format": "date",
+              "title": "To Date",
+              "type": "string"
+            },
+            "models": {
+              "description": "list of data types to request from the ccycle ftp server.",
+              "items": {
+                "enum": [
+                  "GGG2014",
+                  "GGG2020"
+                ],
+                "type": "string"
+              },
+              "title": "Models",
+              "type": "array"
+            }
+          },
+          "required": [
+            "models"
+          ],
+          "title": "ProfilesScopeConfig",
+          "type": "object"
+        },
+        "GGG2020_standard_sites": {
+          "description": "List of standard sites to request from the ccycle ftp server. The requests for these standard sites are done before any other requests so that data available for these is not rerequested for other sensors.",
+          "items": {
+            "properties": {
+              "identifier": {
+                "description": "The identifier on the caltech server",
+                "title": "Identifier",
+                "type": "string"
+              },
+              "lat": {
+                "maximum": 90.0,
+                "minimum": -90.0,
+                "title": "Lat",
+                "type": "number"
+              },
+              "lon": {
+                "maximum": 180.0,
+                "minimum": -180.0,
+                "title": "Lon",
+                "type": "number"
+              },
+              "from_date": {
+                "description": "Date in format `YYYY-MM-DD` from which this standard site is active.",
+                "format": "date",
+                "title": "From Date",
+                "type": "string"
+              },
+              "to_date": {
+                "description": "Date in format `YYYY-MM-DD` until which this standard site is active.",
+                "format": "date",
+                "title": "To Date",
+                "type": "string"
+              }
+            },
+            "required": [
+              "identifier",
+              "lat",
+              "lon",
+              "from_date",
+              "to_date"
+            ],
+            "title": "ProfilesGGG2020StandardSitesItemConfig",
+            "type": "object"
+          },
+          "title": "Ggg2020 Standard Sites",
+          "type": "array"
+        }
+      },
+      "required": [
+        "server",
+        "scope",
+        "GGG2020_standard_sites"
+      ],
+      "title": "ProfilesConfig",
+      "type": "object"
+    },
+    "ProfilesGGG2020StandardSitesItemConfig": {
+      "properties": {
+        "identifier": {
+          "description": "The identifier on the caltech server",
+          "title": "Identifier",
+          "type": "string"
+        },
+        "lat": {
+          "maximum": 90.0,
+          "minimum": -90.0,
+          "title": "Lat",
+          "type": "number"
+        },
+        "lon": {
+          "maximum": 180.0,
+          "minimum": -180.0,
+          "title": "Lon",
+          "type": "number"
+        },
+        "from_date": {
+          "description": "Date in format `YYYY-MM-DD` from which this standard site is active.",
+          "format": "date",
+          "title": "From Date",
+          "type": "string"
+        },
+        "to_date": {
+          "description": "Date in format `YYYY-MM-DD` until which this standard site is active.",
+          "format": "date",
+          "title": "To Date",
+          "type": "string"
+        }
+      },
+      "required": [
+        "identifier",
+        "lat",
+        "lon",
+        "from_date",
+        "to_date"
+      ],
+      "title": "ProfilesGGG2020StandardSitesItemConfig",
+      "type": "object"
+    },
+    "ProfilesScopeConfig": {
+      "properties": {
+        "from_date": {
+          "default": "1900-01-01",
+          "description": "date in format `YYYY-MM-DD` from which to request vertical profile data.",
+          "format": "date",
+          "title": "From Date",
+          "type": "string"
+        },
+        "to_date": {
+          "default": "2100-01-01",
+          "description": "date in format `YYYY-MM-DD` until which to request vertical profile data.",
+          "format": "date",
+          "title": "To Date",
+          "type": "string"
+        },
+        "models": {
+          "description": "list of data types to request from the ccycle ftp server.",
+          "items": {
+            "enum": [
+              "GGG2014",
+              "GGG2020"
+            ],
+            "type": "string"
+          },
+          "title": "Models",
+          "type": "array"
+        }
+      },
+      "required": [
+        "models"
+      ],
+      "title": "ProfilesScopeConfig",
+      "type": "object"
+    },
+    "ProfilesServerConfig": {
+      "description": "Settings for accessing the ccycle ftp server. Besides the\n`email` field, these can be left as default in most cases.",
+      "properties": {
+        "email": {
+          "description": "Email address to use to log in to the ccycle ftp server.",
+          "minLength": 3,
+          "title": "Email",
+          "type": "string"
+        },
+        "max_parallel_requests": {
+          "description": "Maximum number of requests to put in the queue on the ccycle server at the same time. Only when a request is finished, a new one can enter the queue.",
+          "maximum": 200,
+          "minimum": 1,
+          "title": "Max Parallel Requests",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "email",
+        "max_parallel_requests"
+      ],
+      "title": "ProfilesServerConfig",
+      "type": "object"
+    },
+    "RetrievalConfig": {
+      "description": "Settings for automated proffast processing. If `null`, the automated proffast script will stop and log a warning",
+      "properties": {
+        "general": {
+          "properties": {
+            "max_process_count": {
+              "default": 1,
+              "description": "How many parallel processes to dispatch. There will be one process per sensor-day. With hyper-threaded CPUs, this can be higher than the number of physical cores.",
+              "maximum": 128,
+              "minimum": 1,
+              "title": "Max Process Count",
+              "type": "integer"
+            },
+            "ifg_file_regex": {
+              "description": "A regex string to match the ifg file names. In this string, `$(SENSOR_ID)` and `$(DATE)` are placeholders for the sensor id and the date of the ifg file.",
+              "examples": [
+                "^$(SENSOR_ID)$(DATE).*\\.\\d+$",
+                "^$(SENSOR_ID)$(DATE).*\\.nc$"
+              ],
+              "minLength": 1,
+              "title": "Ifg File Regex",
+              "type": "string"
+            },
+            "store_binary_spectra": {
+              "description": "Whether to store the binary spectra files. These are the files that are used by the retrieval algorithm. They are not needed for the output files, but can be useful for debugging.",
+              "title": "Store Binary Spectra",
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "ifg_file_regex",
+            "store_binary_spectra"
+          ],
+          "title": "RetrievalGeneralConfig",
+          "type": "object"
+        },
+        "jobs": {
+          "description": "List of retrievals to run. The list will be processed sequentially.",
+          "items": {
+            "description": "Settings for filtering the storage data. Only used if `config.data_sources.storage` is `true`.",
+            "properties": {
+              "retrieval_algorithm": {
+                "description": "Which retrieval algorithms to use. Proffast 2.2 and 2.3 use the Proffast Pylot under the hood to dispatch it. Proffast 1.0 uses a custom implementation by us similar to the Proffast Pylot.",
+                "enum": [
+                  "proffast-1.0",
+                  "proffast-2.2",
+                  "proffast-2.3"
+                ],
+                "title": "Retrieval Algorithm",
+                "type": "string"
+              },
+              "atmospheric_profile_model": {
+                "description": "Which vertical profiles to use for the retrieval.",
+                "enum": [
+                  "GGG2014",
+                  "GGG2020"
+                ],
+                "title": "Atmospheric Profile Model",
+                "type": "string"
+              },
+              "sensor_ids": {
+                "description": "Sensor ids to consider in the retrieval.",
+                "items": {
+                  "type": "string"
+                },
+                "minItems": 1,
+                "title": "Sensor Ids",
+                "type": "array"
+              },
+              "from_date": {
+                "description": "Date string in format `YYYY-MM-DD` from which to consider data in the storage directory.",
+                "format": "date",
+                "title": "From Date",
+                "type": "string"
+              },
+              "to_date": {
+                "description": "Date string in format `YYYY-MM-DD` until which to consider data in the storage directory.",
+                "format": "date",
+                "title": "To Date",
+                "type": "string"
+              }
+            },
+            "required": [
+              "retrieval_algorithm",
+              "atmospheric_profile_model",
+              "sensor_ids",
+              "from_date",
+              "to_date"
+            ],
+            "title": "RetrievalJobConfig",
+            "type": "object"
+          },
+          "title": "Jobs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "general",
+        "jobs"
+      ],
+      "title": "RetrievalConfig",
+      "type": "object"
+    },
+    "RetrievalGeneralConfig": {
+      "properties": {
+        "max_process_count": {
+          "default": 1,
+          "description": "How many parallel processes to dispatch. There will be one process per sensor-day. With hyper-threaded CPUs, this can be higher than the number of physical cores.",
+          "maximum": 128,
+          "minimum": 1,
+          "title": "Max Process Count",
+          "type": "integer"
+        },
+        "ifg_file_regex": {
+          "description": "A regex string to match the ifg file names. In this string, `$(SENSOR_ID)` and `$(DATE)` are placeholders for the sensor id and the date of the ifg file.",
+          "examples": [
+            "^$(SENSOR_ID)$(DATE).*\\.\\d+$",
+            "^$(SENSOR_ID)$(DATE).*\\.nc$"
+          ],
+          "minLength": 1,
+          "title": "Ifg File Regex",
+          "type": "string"
+        },
+        "store_binary_spectra": {
+          "description": "Whether to store the binary spectra files. These are the files that are used by the retrieval algorithm. They are not needed for the output files, but can be useful for debugging.",
+          "title": "Store Binary Spectra",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "ifg_file_regex",
+        "store_binary_spectra"
+      ],
+      "title": "RetrievalGeneralConfig",
+      "type": "object"
+    },
+    "RetrievalJobConfig": {
+      "description": "Settings for filtering the storage data. Only used if `config.data_sources.storage` is `true`.",
+      "properties": {
+        "retrieval_algorithm": {
+          "description": "Which retrieval algorithms to use. Proffast 2.2 and 2.3 use the Proffast Pylot under the hood to dispatch it. Proffast 1.0 uses a custom implementation by us similar to the Proffast Pylot.",
+          "enum": [
+            "proffast-1.0",
+            "proffast-2.2",
+            "proffast-2.3"
+          ],
+          "title": "Retrieval Algorithm",
+          "type": "string"
+        },
+        "atmospheric_profile_model": {
+          "description": "Which vertical profiles to use for the retrieval.",
+          "enum": [
+            "GGG2014",
+            "GGG2020"
+          ],
+          "title": "Atmospheric Profile Model",
+          "type": "string"
+        },
+        "sensor_ids": {
+          "description": "Sensor ids to consider in the retrieval.",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Sensor Ids",
+          "type": "array"
+        },
+        "from_date": {
+          "description": "Date string in format `YYYY-MM-DD` from which to consider data in the storage directory.",
+          "format": "date",
+          "title": "From Date",
+          "type": "string"
+        },
+        "to_date": {
+          "description": "Date string in format `YYYY-MM-DD` until which to consider data in the storage directory.",
+          "format": "date",
+          "title": "To Date",
+          "type": "string"
+        }
+      },
+      "required": [
+        "retrieval_algorithm",
+        "atmospheric_profile_model",
+        "sensor_ids",
+        "from_date",
+        "to_date"
+      ],
+      "title": "RetrievalJobConfig",
+      "type": "object"
+    },
+    "StrictDirectoryPath": {
+      "description": "A pydantic model that validates a directory path.\n\nExample usage:\n\n```python\nclass MyModel(pyndatic.BaseModel):\n    path: StrictDirectoryPath\n\nm = MyModel(path='/path/to/directory') # validates that the directory exists\n```\n\nThe validation can be ignored by setting the context variable:\n\n```python\nm = MyModel.model_validate(\n    {\"path\": \"somenonexistingpath\"},\n    context={\"ignore-path-existence\": True},\n) # does not raise an error\n```",
+      "title": "StrictDirectoryPath",
+      "type": "string"
     }
-  }
+  },
+  "properties": {
+    "version": {
+      "const": "1.0",
+      "description": "Version of the retrieval pipeline which is compatible with this config file. Retrievals done with any version `1.x` will produce the same output files as retrievals done with version `1.0`. But higher version numbers might use a different config file structure and produce more output files.",
+      "title": "Version"
+    },
+    "general": {
+      "properties": {
+        "metadata": {
+          "anyOf": [
+            {
+              "description": "GitHub repository where the location data is stored.",
+              "properties": {
+                "github_repository": {
+                  "description": "GitHub repository name, e.g. `my-org/my-repo`.",
+                  "pattern": "^[a-z0-9-_]+/[a-z0-9-_]+$",
+                  "title": "Github Repository",
+                  "type": "string"
+                },
+                "access_token": {
+                  "anyOf": [
+                    {
+                      "minLength": 1,
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "default": null,
+                  "description": "GitHub access token with read access to the repository, only required if the repository is private.",
+                  "title": "Access Token"
+                }
+              },
+              "required": [
+                "github_repository"
+              ],
+              "title": "MetadataConfig",
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "If not set, the pipeline will use local metadata files or abort if the local files are not found. If local files are found, they will always be preferred over the remote data even if the remote source is configured."
+        },
+        "data": {
+          "description": "Location where the input data sourced from.",
+          "properties": {
+            "datalogger": {
+              "allOf": [
+                {
+                  "description": "A pydantic model that validates a directory path.\n\nExample usage:\n\n```python\nclass MyModel(pyndatic.BaseModel):\n    path: StrictDirectoryPath\n\nm = MyModel(path='/path/to/directory') # validates that the directory exists\n```\n\nThe validation can be ignored by setting the context variable:\n\n```python\nm = MyModel.model_validate(\n    {\"path\": \"somenonexistingpath\"},\n    context={\"ignore-path-existence\": True},\n) # does not raise an error\n```",
+                  "title": "StrictDirectoryPath",
+                  "type": "string"
+                }
+              ],
+              "description": "directory path to datalogger files"
+            },
+            "atmospheric_profiles": {
+              "allOf": [
+                {
+                  "description": "A pydantic model that validates a directory path.\n\nExample usage:\n\n```python\nclass MyModel(pyndatic.BaseModel):\n    path: StrictDirectoryPath\n\nm = MyModel(path='/path/to/directory') # validates that the directory exists\n```\n\nThe validation can be ignored by setting the context variable:\n\n```python\nm = MyModel.model_validate(\n    {\"path\": \"somenonexistingpath\"},\n    context={\"ignore-path-existence\": True},\n) # does not raise an error\n```",
+                  "title": "StrictDirectoryPath",
+                  "type": "string"
+                }
+              ],
+              "description": "directory path to atmospheric profile files"
+            },
+            "interferograms": {
+              "allOf": [
+                {
+                  "description": "A pydantic model that validates a directory path.\n\nExample usage:\n\n```python\nclass MyModel(pyndatic.BaseModel):\n    path: StrictDirectoryPath\n\nm = MyModel(path='/path/to/directory') # validates that the directory exists\n```\n\nThe validation can be ignored by setting the context variable:\n\n```python\nm = MyModel.model_validate(\n    {\"path\": \"somenonexistingpath\"},\n    context={\"ignore-path-existence\": True},\n) # does not raise an error\n```",
+                  "title": "StrictDirectoryPath",
+                  "type": "string"
+                }
+              ],
+              "description": "directory path to ifg files"
+            },
+            "results": {
+              "allOf": [
+                {
+                  "description": "A pydantic model that validates a directory path.\n\nExample usage:\n\n```python\nclass MyModel(pyndatic.BaseModel):\n    path: StrictDirectoryPath\n\nm = MyModel(path='/path/to/directory') # validates that the directory exists\n```\n\nThe validation can be ignored by setting the context variable:\n\n```python\nm = MyModel.model_validate(\n    {\"path\": \"somenonexistingpath\"},\n    context={\"ignore-path-existence\": True},\n) # does not raise an error\n```",
+                  "title": "StrictDirectoryPath",
+                  "type": "string"
+                }
+              ],
+              "description": "directory path to results"
+            }
+          },
+          "required": [
+            "datalogger",
+            "atmospheric_profiles",
+            "interferograms",
+            "results"
+          ],
+          "title": "DataConfig",
+          "type": "object"
+        }
+      },
+      "required": [
+        "data"
+      ],
+      "title": "GeneralConfig",
+      "type": "object"
+    },
+    "profiles": {
+      "anyOf": [
+        {
+          "description": "Settings for vertical profiles retrieval. If `null`, the vertical profiles script will stop and log a warning",
+          "properties": {
+            "server": {
+              "description": "Settings for accessing the ccycle ftp server. Besides the\n`email` field, these can be left as default in most cases.",
+              "properties": {
+                "email": {
+                  "description": "Email address to use to log in to the ccycle ftp server.",
+                  "minLength": 3,
+                  "title": "Email",
+                  "type": "string"
+                },
+                "max_parallel_requests": {
+                  "description": "Maximum number of requests to put in the queue on the ccycle server at the same time. Only when a request is finished, a new one can enter the queue.",
+                  "maximum": 200,
+                  "minimum": 1,
+                  "title": "Max Parallel Requests",
+                  "type": "integer"
+                }
+              },
+              "required": [
+                "email",
+                "max_parallel_requests"
+              ],
+              "title": "ProfilesServerConfig",
+              "type": "object"
+            },
+            "scope": {
+              "properties": {
+                "from_date": {
+                  "default": "1900-01-01",
+                  "description": "date in format `YYYY-MM-DD` from which to request vertical profile data.",
+                  "format": "date",
+                  "title": "From Date",
+                  "type": "string"
+                },
+                "to_date": {
+                  "default": "2100-01-01",
+                  "description": "date in format `YYYY-MM-DD` until which to request vertical profile data.",
+                  "format": "date",
+                  "title": "To Date",
+                  "type": "string"
+                },
+                "models": {
+                  "description": "list of data types to request from the ccycle ftp server.",
+                  "items": {
+                    "enum": [
+                      "GGG2014",
+                      "GGG2020"
+                    ],
+                    "type": "string"
+                  },
+                  "title": "Models",
+                  "type": "array"
+                }
+              },
+              "required": [
+                "models"
+              ],
+              "title": "ProfilesScopeConfig",
+              "type": "object"
+            },
+            "GGG2020_standard_sites": {
+              "description": "List of standard sites to request from the ccycle ftp server. The requests for these standard sites are done before any other requests so that data available for these is not rerequested for other sensors.",
+              "items": {
+                "properties": {
+                  "identifier": {
+                    "description": "The identifier on the caltech server",
+                    "title": "Identifier",
+                    "type": "string"
+                  },
+                  "lat": {
+                    "maximum": 90.0,
+                    "minimum": -90.0,
+                    "title": "Lat",
+                    "type": "number"
+                  },
+                  "lon": {
+                    "maximum": 180.0,
+                    "minimum": -180.0,
+                    "title": "Lon",
+                    "type": "number"
+                  },
+                  "from_date": {
+                    "description": "Date in format `YYYY-MM-DD` from which this standard site is active.",
+                    "format": "date",
+                    "title": "From Date",
+                    "type": "string"
+                  },
+                  "to_date": {
+                    "description": "Date in format `YYYY-MM-DD` until which this standard site is active.",
+                    "format": "date",
+                    "title": "To Date",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "identifier",
+                  "lat",
+                  "lon",
+                  "from_date",
+                  "to_date"
+                ],
+                "title": "ProfilesGGG2020StandardSitesItemConfig",
+                "type": "object"
+              },
+              "title": "Ggg2020 Standard Sites",
+              "type": "array"
+            }
+          },
+          "required": [
+            "server",
+            "scope",
+            "GGG2020_standard_sites"
+          ],
+          "title": "ProfilesConfig",
+          "type": "object"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "retrieval": {
+      "anyOf": [
+        {
+          "description": "Settings for automated proffast processing. If `null`, the automated proffast script will stop and log a warning",
+          "properties": {
+            "general": {
+              "properties": {
+                "max_process_count": {
+                  "default": 1,
+                  "description": "How many parallel processes to dispatch. There will be one process per sensor-day. With hyper-threaded CPUs, this can be higher than the number of physical cores.",
+                  "maximum": 128,
+                  "minimum": 1,
+                  "title": "Max Process Count",
+                  "type": "integer"
+                },
+                "ifg_file_regex": {
+                  "description": "A regex string to match the ifg file names. In this string, `$(SENSOR_ID)` and `$(DATE)` are placeholders for the sensor id and the date of the ifg file.",
+                  "examples": [
+                    "^$(SENSOR_ID)$(DATE).*\\.\\d+$",
+                    "^$(SENSOR_ID)$(DATE).*\\.nc$"
+                  ],
+                  "minLength": 1,
+                  "title": "Ifg File Regex",
+                  "type": "string"
+                },
+                "store_binary_spectra": {
+                  "description": "Whether to store the binary spectra files. These are the files that are used by the retrieval algorithm. They are not needed for the output files, but can be useful for debugging.",
+                  "title": "Store Binary Spectra",
+                  "type": "boolean"
+                }
+              },
+              "required": [
+                "ifg_file_regex",
+                "store_binary_spectra"
+              ],
+              "title": "RetrievalGeneralConfig",
+              "type": "object"
+            },
+            "jobs": {
+              "description": "List of retrievals to run. The list will be processed sequentially.",
+              "items": {
+                "description": "Settings for filtering the storage data. Only used if `config.data_sources.storage` is `true`.",
+                "properties": {
+                  "retrieval_algorithm": {
+                    "description": "Which retrieval algorithms to use. Proffast 2.2 and 2.3 use the Proffast Pylot under the hood to dispatch it. Proffast 1.0 uses a custom implementation by us similar to the Proffast Pylot.",
+                    "enum": [
+                      "proffast-1.0",
+                      "proffast-2.2",
+                      "proffast-2.3"
+                    ],
+                    "title": "Retrieval Algorithm",
+                    "type": "string"
+                  },
+                  "atmospheric_profile_model": {
+                    "description": "Which vertical profiles to use for the retrieval.",
+                    "enum": [
+                      "GGG2014",
+                      "GGG2020"
+                    ],
+                    "title": "Atmospheric Profile Model",
+                    "type": "string"
+                  },
+                  "sensor_ids": {
+                    "description": "Sensor ids to consider in the retrieval.",
+                    "items": {
+                      "type": "string"
+                    },
+                    "minItems": 1,
+                    "title": "Sensor Ids",
+                    "type": "array"
+                  },
+                  "from_date": {
+                    "description": "Date string in format `YYYY-MM-DD` from which to consider data in the storage directory.",
+                    "format": "date",
+                    "title": "From Date",
+                    "type": "string"
+                  },
+                  "to_date": {
+                    "description": "Date string in format `YYYY-MM-DD` until which to consider data in the storage directory.",
+                    "format": "date",
+                    "title": "To Date",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "retrieval_algorithm",
+                  "atmospheric_profile_model",
+                  "sensor_ids",
+                  "from_date",
+                  "to_date"
+                ],
+                "title": "RetrievalJobConfig",
+                "type": "object"
+              },
+              "title": "Jobs",
+              "type": "array"
+            }
+          },
+          "required": [
+            "general",
+            "jobs"
+          ],
+          "title": "RetrievalConfig",
+          "type": "object"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "export_targets": {
+      "anyOf": [
+        {
+          "items": {
+            "properties": {
+              "campaign_id": {
+                "description": "Campaign specified in location metadata.",
+                "title": "Campaign Id",
+                "type": "string"
+              },
+              "retrieval_algorithm": {
+                "description": "Which retrieval algorithm used for the retrieval.",
+                "enum": [
+                  "proffast-1.0",
+                  "proffast-2.2",
+                  "proffast-2.3"
+                ],
+                "title": "Retrieval Algorithm",
+                "type": "string"
+              },
+              "atmospheric_profile_model": {
+                "description": "Which atmospheric profiles used for the retrieval.",
+                "enum": [
+                  "GGG2014",
+                  "GGG2020"
+                ],
+                "title": "Atmospheric Profile Model",
+                "type": "string"
+              },
+              "data_types": {
+                "description": "Data columns to keep in the merged output files. The columns will be prefixed with the sensor id, i.e. `$(SENSOR_ID)_$(COLUMN_NAME)`.",
+                "items": {
+                  "enum": [
+                    "gnd_p",
+                    "gnd_t",
+                    "app_sza",
+                    "azimuth",
+                    "xh2o",
+                    "xair",
+                    "xco2",
+                    "xch4",
+                    "xco",
+                    "xch4_s5p"
+                  ],
+                  "type": "string"
+                },
+                "minItems": 1,
+                "title": "Data Types",
+                "type": "array"
+              },
+              "sampling_rate": {
+                "description": "Interval of resampled data.",
+                "enum": [
+                  "10m",
+                  "5m",
+                  "2m",
+                  "1m",
+                  "30s",
+                  "15s",
+                  "10s",
+                  "5s",
+                  "2s",
+                  "1s"
+                ],
+                "title": "Sampling Rate",
+                "type": "string"
+              },
+              "max_interpolation_gap_seconds": {
+                "default": 180,
+                "description": "Maximum gap in seconds to interpolate over.",
+                "maximum": 43200,
+                "minimum": 6,
+                "title": "Max Interpolation Gap Seconds",
+                "type": "integer"
+              },
+              "dst_dir": {
+                "allOf": [
+                  {
+                    "description": "A pydantic model that validates a directory path.\n\nExample usage:\n\n```python\nclass MyModel(pyndatic.BaseModel):\n    path: StrictDirectoryPath\n\nm = MyModel(path='/path/to/directory') # validates that the directory exists\n```\n\nThe validation can be ignored by setting the context variable:\n\n```python\nm = MyModel.model_validate(\n    {\"path\": \"somenonexistingpath\"},\n    context={\"ignore-path-existence\": True},\n) # does not raise an error\n```",
+                    "title": "StrictDirectoryPath",
+                    "type": "string"
+                  }
+                ],
+                "description": "Directory to write the output to."
+              }
+            },
+            "required": [
+              "campaign_id",
+              "retrieval_algorithm",
+              "atmospheric_profile_model",
+              "data_types",
+              "sampling_rate",
+              "dst_dir"
+            ],
+            "title": "ExportTargetConfig",
+            "type": "object"
+          },
+          "type": "array"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "List of output merging targets. Relies on specifying \"campaigns\" in the EM27 metadata.",
+      "title": "Export Targets"
+    }
+  },
+  "required": [
+    "version",
+    "general"
+  ],
+  "title": "Config",
+  "type": "object"
 };
 
 export default CONFIG_SCHEMA_OBJECT;
