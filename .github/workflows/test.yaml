@@ -8,7 +8,7 @@ on:
       - main
 
 jobs:
-  test-sensor-codebase:
+  test:
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository

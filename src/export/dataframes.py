@@ -236,8 +236,6 @@ def post_process_dataframe(
                 )
     )
 
-    # TODO: apply output calibration factors
-
     return df
 
 
