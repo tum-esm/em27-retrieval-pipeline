@@ -9,21 +9,21 @@ authors = [
     { name = "Vyas Giridhard", email = "vyas.giridharan@tum.de" },
 ]
 dependencies = [
-    "rich>=13.7.0",
-    "click>=8.1.7",
     "filelock>=3.13.1",
-    "scipy>=1.11.4",           # used for the interpolation in the export
     "pydantic>=2.5.3",
-    "polars>=0.20.5",
     "tum-esm-utils>=1.8.0",
     "em27-metadata>=1.0.0rc6",
-    "numpy>=1.26.3",           # used by the Proffast Pylot only
-    "tqdm>=4.66.1",            # used by the Proffast Pylot only
-    "pandas>=1.5.3",           # used by the Proffast Pylot only
-    "pytz>=2022.7.1",          # used by the Proffast Pylot only
-    "timezonefinder>=6.2.0",   # used by the Proffast Pylot only
-    "pyyaml>=6.0.1",           # used by the Proffast Pylot only
-    "fortranformat>=1.2.2",    # used by the Proffast Pylot only
+    "rich>=13.7.0",            # used by export and profiles download
+    "click>=8.1.7",            # used by CLI
+    "scipy>=1.11.4",           # used by export (interpolation)
+    "polars>=0.20.5",          # used by export
+    "numpy>=1.26.3",           # used by Proffast Pylot only
+    "tqdm>=4.66.1",            # used by Proffast Pylot only
+    "pandas>=2.2.0",           # used by Proffast Pylot only
+    "pytz>=2023.3.post1",      # used by Proffast Pylot only
+    "timezonefinder>=6.2.0",   # used by Proffast Pylot only
+    "pyyaml>=6.0.1",           # used by Proffast Pylot only
+    "fortranformat>=2.0.0",    # used by Proffast Pylot only
 ]
 requires-python = "==3.11.*"
 readme = "README.md"
@@ -39,8 +39,6 @@ dev = [
     "pytest-cov>=4.1.0",
     "python-dotenv>=1.0.0",
     "mypy>=1.8.0",
-    "matplotlib>=3.8.2",
-    "pyarrow>=14.0.2",
     "tailwind-colors>=1.2.1",
     "pytest-order>=1.2.0",
     "yapf>=0.40.2",
@@ -72,5 +70,5 @@ each_dict_entry_on_separate_line = false
 spaces_around_subscript_colon = true
 
 [[tool.mypy.overrides]]
-module = ["src.prfpylot.prfpylot.pylot", "scipy", "scipy.signal", "polars"]
+module = ["src.prfpylot.prfpylot.pylot", "scipy", "scipy.signal", "polars", "matplotlib.*"]
 ignore_missing_imports = true
