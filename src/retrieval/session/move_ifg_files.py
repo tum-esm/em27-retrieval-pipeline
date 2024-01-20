@@ -2,13 +2,14 @@ import os
 import re
 import subprocess
 import tum_esm_utils
-from src import types, retrieval
+import src
+from src import retrieval
 
 
 def run(
-    config: types.Config,
+    config: src.types.Config,
     logger: retrieval.utils.logger.Logger,
-    session: types.RetrievalSession,
+    session: src.types.RetrievalSession,
 ) -> None:
     """Move interferogram files from the source directory to the input directory.
 

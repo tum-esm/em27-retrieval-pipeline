@@ -1,18 +1,16 @@
+from typing import Generator
 import datetime
 import os
-import shutil
 import time
-from typing import Generator
 import pytest
 import em27_metadata
 import tum_esm_utils
 import multiprocessing
-from src import types, utils
+import src
 from tests.fixtures import (
     wrap_test_with_mainlock, download_sample_data, provide_config_template,
     remove_temporary_retrieval_data
 )
-from src import retrieval
 
 PROJECT_DIR = tum_esm_utils.files.get_parent_dir_path(__file__, current_depth=3)
 
@@ -74,15 +72,15 @@ SENSOR_DATA_CONTEXTS = [
 
 @pytest.fixture(scope="session")
 def provide_container_factory(
-    provide_config_template: types.Config,
-) -> Generator[retrieval.dispatching.container_factory.ContainerFactory, None,
-               None]:
-    logger = retrieval.utils.logger.Logger(
+    provide_config_template: src.types.Config,
+) -> Generator[src.retrieval.dispatching.container_factory.ContainerFactory,
+               None, None]:
+    logger = src.retrieval.utils.logger.Logger(
         "pytest",
         write_to_file=False,
         print_to_console=True,
     )
-    yield retrieval.dispatching.container_factory.ContainerFactory(
+    yield src.retrieval.dispatching.container_factory.ContainerFactory(
         provide_config_template, logger, test_mode=True
     )
 
@@ -91,7 +89,7 @@ def provide_container_factory(
 @pytest.mark.quick
 def test_sdc_covers_the_full_day() -> None:
     for sdc in SENSOR_DATA_CONTEXTS:
-        assert utils.functions.sdc_covers_the_full_day(sdc)
+        assert src.utils.functions.sdc_covers_the_full_day(sdc)
 
 
 # this test will only mock the retrieval algorithm
@@ -101,8 +99,8 @@ def test_container_lifecycle_ci(
     wrap_test_with_mainlock: None,
     download_sample_data: None,
     remove_temporary_retrieval_data: None,
-    provide_config_template: types.Config,
-    provide_container_factory: retrieval.dispatching.container_factory.
+    provide_config_template: src.types.Config,
+    provide_container_factory: src.retrieval.dispatching.container_factory.
     ContainerFactory,
 ) -> None:
     _run(
@@ -119,8 +117,8 @@ def test_container_lifecycle_complete(
     wrap_test_with_mainlock: None,
     download_sample_data: None,
     remove_temporary_retrieval_data: None,
-    provide_config_template: types.Config,
-    provide_container_factory: retrieval.dispatching.container_factory.
+    provide_config_template: src.types.Config,
+    provide_container_factory: src.retrieval.dispatching.container_factory.
     ContainerFactory,
 ) -> None:
     _run(
@@ -131,10 +129,10 @@ def test_container_lifecycle_complete(
 
 
 def run_session(
-    session: types.RetrievalSession, config: types.Config,
+    session: src.types.RetrievalSession, config: src.types.Config,
     only_run_mock_retrieval: bool
 ) -> None:
-    retrieval.session.process_session.run(
+    src.retrieval.session.process_session.run(
         config,
         session,
         test_mode=only_run_mock_retrieval,
@@ -147,19 +145,20 @@ def run_session(
 
 
 def _run(
-    config: types.Config,
-    container_factory: retrieval.dispatching.container_factory.ContainerFactory,
+    config: src.types.Config,
+    container_factory: src.retrieval.dispatching.container_factory.
+    ContainerFactory,
     only_run_mock_retrieval: bool,
 ) -> None:
 
     _point_config_to_test_data(config)
-    retrieval.utils.retrieval_status.RetrievalStatusList.reset()
+    src.retrieval.utils.retrieval_status.RetrievalStatusList.reset()
 
     NUMBER_OF_JOBS = len(SENSOR_DATA_CONTEXTS) * 2 * 3
     print(f"Running {NUMBER_OF_JOBS} retrieval jobs in parallel")
 
-    atm: types.AtmosphericProfileModel
-    alg: types.RetrievalAlgorithm
+    atm: src.types.AtmosphericProfileModel
+    alg: src.types.RetrievalAlgorithm
     processes: list[multiprocessing.Process] = []
     for sdc in SENSOR_DATA_CONTEXTS:
         for atm in [  # type: ignore
@@ -173,13 +172,13 @@ def _run(
                     continue
 
                 # set up container factory
-                retrieval.utils.retrieval_status.RetrievalStatusList.add_items(
+                src.retrieval.utils.retrieval_status.RetrievalStatusList.add_items(
                     [sdc],
                     alg,
                     atm,
                 )
                 # create session and run container
-                session = retrieval.session.create_session.run(
+                session = src.retrieval.session.create_session.run(
                     container_factory,
                     sdc,
                     retrieval_algorithm=alg,
@@ -223,7 +222,7 @@ def _run(
         time.sleep(15)
 
 
-def _point_config_to_test_data(config: types.Config, ) -> None:
+def _point_config_to_test_data(config: src.types.Config) -> None:
     config.general.data.datalogger.root = os.path.join(
         PROJECT_DIR, "data", "testing", "container", "inputs", "log"
     )
@@ -239,8 +238,8 @@ def _point_config_to_test_data(config: types.Config, ) -> None:
 
 
 def _assert_output_correctness(
-    retrieval_algorithm: types.RetrievalAlgorithm,
-    atmospheric_profile_model: types.AtmosphericProfileModel,
+    retrieval_algorithm: src.types.RetrievalAlgorithm,
+    atmospheric_profile_model: src.types.AtmosphericProfileModel,
     sensor_data_context: em27_metadata.types.SensorDataContext,
 ) -> None:
     date_string = sensor_data_context.from_datetime.strftime("%Y%m%d")

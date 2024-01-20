@@ -8,15 +8,15 @@ import em27_metadata
 import tum_esm_utils
 
 sys.path.append(tum_esm_utils.files.rel_to_abs_path("../.."))
-from src import types, utils, export
+import src
 
 
 def run() -> None:
-    config = types.Config.load()
+    config = src.types.Config.load()
     assert config.export_targets is not None, "no export config found"
     assert len(config.export_targets) > 0, "no export targets found"
 
-    em27_metadata_interface = utils.metadata.load_local_em27_metadata_interface(
+    em27_metadata_interface = src.utils.metadata.load_local_em27_metadata_interface(
     )
     if em27_metadata_interface is not None:
         print("Found local metadata")
@@ -56,7 +56,7 @@ def run() -> None:
 
         dst_dir = os.path.join(
             output_merging_target.dst_dir.root,
-            f"em27-retrieval-pipeline-v{export.header.get_pipeline_version()}-exports",
+            f"em27-retrieval-pipeline-v{src.export.header.get_pipeline_version()}-exports",
             f"{output_merging_target.campaign_id}",
             output_merging_target.retrieval_algorithm,
             output_merging_target.atmospheric_profile_model,
@@ -109,13 +109,13 @@ def run() -> None:
 
                 for sdc in sdcs:
                     try:
-                        df = export.dataframes.get_sensor_dataframe(
+                        df = src.export.dataframes.get_sensor_dataframe(
                             config, sdc, output_merging_target
                         )
                     except AssertionError:
                         continue
 
-                    postprocessed_df = export.dataframes.post_process_dataframe(
+                    postprocessed_df = src.export.dataframes.post_process_dataframe(
                         df=df,
                         sampling_rate=output_merging_target.sampling_rate,
                         max_interpolation_gap_seconds=output_merging_target.
@@ -131,7 +131,9 @@ def run() -> None:
                         f"{date}: {found_data_count} sensor(s) with data"
                     )
 
-                    merged_df = export.dataframes.merge_dataframes(dataframes)
+                    merged_df = src.export.dataframes.merge_dataframes(
+                        dataframes
+                    )
 
                     # save merged dataframe to csv
                     filename = os.path.join(
@@ -143,7 +145,7 @@ def run() -> None:
                     )
                     with open(filename, "w") as f:
                         f.write(
-                            export.header.get_header(
+                            src.export.header.get_header(
                                 em27_metadata_interface,
                                 campaign,
                                 sdcs_with_data,

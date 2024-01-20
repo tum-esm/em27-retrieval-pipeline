@@ -1,19 +1,19 @@
 import json
 import os
 import tum_esm_utils
-from src import types
+import src
 
 _PROJECT_DIR = tum_esm_utils.files.get_parent_dir_path(
     __file__, current_depth=4
 )
 
 
-def run(session: types.RetrievalSession, test_mode: bool = False) -> None:
+def run(session: src.types.RetrievalSession, test_mode: bool = False) -> None:
     if test_mode:
         _create_mock_outputs(session)
         return
 
-    if isinstance(session, types.Proffast1RetrievalSession):
+    if isinstance(session, src.types.Proffast1RetrievalSession):
         tum_esm_utils.shell.run_shell_command(
             " ".join([
                 os.path.join(
@@ -31,7 +31,7 @@ def run(session: types.RetrievalSession, test_mode: bool = False) -> None:
                 '"',
             ])
         )
-    elif isinstance(session, types.Proffast2RetrievalSession):
+    elif isinstance(session, src.types.Proffast2RetrievalSession):
         tum_esm_utils.shell.run_shell_command(
             " ".join([
                 os.path.join(
@@ -58,16 +58,16 @@ def run(session: types.RetrievalSession, test_mode: bool = False) -> None:
         )
 
 
-def _create_mock_outputs(session: types.RetrievalSession) -> None:
+def _create_mock_outputs(session: src.types.RetrievalSession) -> None:
     date_string = session.ctx.from_datetime.strftime("%Y%m%d")
 
     # create output directory
     output_dir: str
-    if isinstance(session.ctn, types.Proffast10Container):
+    if isinstance(session.ctn, src.types.Proffast10Container):
         output_dir = os.path.join(session.ctn.container_path, "prf", "out_fast")
     if isinstance(
         session.ctn,
-        (types.Proffast22Container, types.Proffast23Container),
+        (src.types.Proffast22Container, src.types.Proffast23Container),
     ):
         output_dir = os.path.join(
             session.ctn.data_output_path, f"{session.ctx.sensor_id}_" +
@@ -77,7 +77,7 @@ def _create_mock_outputs(session: types.RetrievalSession) -> None:
 
     # list dummy files to be created
     filepaths: list[str] = []
-    if isinstance(session.ctn, types.Proffast10Container):
+    if isinstance(session.ctn, src.types.Proffast10Container):
         filepaths = [
             (f"{session.ctx.sensor_id}{date_string[2:]}-combined-invparms.csv"),
             (
@@ -90,7 +90,7 @@ def _create_mock_outputs(session: types.RetrievalSession) -> None:
         ]
     if isinstance(
         session.ctn,
-        (types.Proffast22Container, types.Proffast23Container),
+        (src.types.Proffast22Container, src.types.Proffast23Container),
     ):
         filepaths = [
             (

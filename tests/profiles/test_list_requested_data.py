@@ -2,7 +2,6 @@ import datetime
 import em27_metadata
 import pytest
 import src
-from src.profiles.generate_queries import ProfilesQueryLocation, list_requested_data
 from ..fixtures import provide_config_template
 
 
@@ -67,21 +66,21 @@ def test_list_requested_data(provide_config_template: src.types.Config) -> None:
         campaigns=em27_metadata.types.CampaignMetadataList(root=[]),
     )
     expected_data = {
-        ProfilesQueryLocation(lat=1, lon=2):
+        src.profiles.generate_queries.ProfilesQueryLocation(lat=1, lon=2):
             set(
                 src.utils.functions.date_range(
                     datetime.date(2000, 1, 1),
                     datetime.date(2000, 3, 1),
                 )
             ),
-        ProfilesQueryLocation(lat=1, lon=3):
+        src.profiles.generate_queries.ProfilesQueryLocation(lat=1, lon=3):
             set(
                 src.utils.functions.date_range(
                     datetime.date(2000, 5, 4),
                     datetime.date(2000, 5, 8),
                 )
             ),
-        ProfilesQueryLocation(lat=2, lon=3):
+        src.profiles.generate_queries.ProfilesQueryLocation(lat=2, lon=3):
             set(
                 src.utils.functions.date_range(
                     datetime.date(2000, 3, 1),
@@ -94,7 +93,9 @@ def test_list_requested_data(provide_config_template: src.types.Config) -> None:
     config.profiles.scope.from_date = datetime.date(2000, 1, 1)
     config.profiles.scope.to_date = datetime.date(2000, 5, 8)
 
-    actual_data = list_requested_data(config, metadata)
+    actual_data = src.profiles.generate_queries.list_requested_data(
+        config, metadata
+    )
     assert actual_data.keys() == expected_data.keys()
     for k in actual_data.keys():
         assert actual_data[k] == expected_data[k]

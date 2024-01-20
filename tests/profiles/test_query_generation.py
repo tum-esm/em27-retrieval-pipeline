@@ -1,9 +1,7 @@
 import random
 import datetime
-
 import pytest
 import src
-from src.profiles.generate_queries import compute_missing_data, compute_time_periods
 from .utils import generate_random_locations, generate_random_dates
 
 
@@ -21,7 +19,9 @@ def test_compute_missing_data() -> None:
             l: set(random.sample(random_dates, 300))
             for l in random.sample(random_locations, 15)
         }
-        missing_data = compute_missing_data(requested_data, downloaded_data)
+        missing_data = src.profiles.generate_queries.compute_missing_data(
+            requested_data, downloaded_data
+        )
         for l in requested_data.keys():
             rq = requested_data[l] if l in requested_data else set()
             dl = downloaded_data[l] if l in downloaded_data else set()
@@ -50,7 +50,8 @@ def test_time_period_generation() -> None:
             )
         )
         time_periods = sorted(
-            compute_time_periods(required_dates), key=lambda tp: tp.from_date
+            src.profiles.generate_queries.compute_time_periods(required_dates),
+            key=lambda tp: tp.from_date
         )
         for tp1, tp2 in zip(time_periods[:-1], time_periods[1 :]):
             assert tp1.to_date < tp2.from_date

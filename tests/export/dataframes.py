@@ -1,8 +1,8 @@
-import datetime
 from typing import Any
+import datetime
 import polars as pl
 import pytest
-from src import export
+import src
 
 
 def _is_subset(df1: pl.DataFrame, df2: pl.DataFrame) -> bool:
@@ -38,7 +38,7 @@ def test_merge_dataframes() -> None:
         "utc": [get_t(2), get_t(3), get_t(4)], "c": [7, None, 9]
     })
 
-    df4 = export.dataframes.merge_dataframes([df1, df2, df3])
+    df4 = src.export.dataframes.merge_dataframes([df1, df2, df3])
     print(df4)
 
     assert _is_subset(df1, df4)

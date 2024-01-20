@@ -2,7 +2,7 @@ import os
 import datetime
 import em27_metadata
 import tum_esm_utils
-from src import types
+import src
 
 PROJECT_DIR = tum_esm_utils.files.get_parent_dir_path(__file__, current_depth=3)
 
@@ -20,7 +20,7 @@ def get_header(
     em27_metadata_interface: em27_metadata.interfaces.EM27MetadataInterface,
     campaign: em27_metadata.types.CampaignMetadata,
     sensor_data_contexts: list[em27_metadata.types.SensorDataContext],
-    export_target: types.ExportTargetConfig,
+    export_target: src.types.ExportTargetConfig,
 ) -> str:
     """Returns a description of the campaign."""
 

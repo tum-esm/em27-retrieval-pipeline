@@ -1,16 +1,16 @@
 import datetime
 import json
 import os
-import re
 import shutil
 import tum_esm_utils
-from src import types, utils, retrieval
+import src
+from src import retrieval
 
 
 def run(
-    config: types.Config,
+    config: src.types.Config,
     logger: retrieval.utils.logger.Logger,
-    session: types.RetrievalSession,
+    session: src.types.RetrievalSession,
     test_mode: bool = False,
 ) -> None:
     assert config.retrieval is not None
@@ -19,7 +19,7 @@ def run(
     output_src_dir: str
     day_was_successful: bool
 
-    if isinstance(session, types.Proffast1RetrievalSession):
+    if isinstance(session, src.types.Proffast1RetrievalSession):
         output_src_dir = os.path.join(
             session.ctn.container_path, "prf", "out_fast"
         )
@@ -27,7 +27,7 @@ def run(
             output_src_dir,
             f"{session.ctx.sensor_id}{date_string[2:]}-combined-invparms.csv",
         )
-    elif isinstance(session, types.Proffast2RetrievalSession):
+    elif isinstance(session, src.types.Proffast2RetrievalSession):
         output_src_dir = (
             f"{session.ctn.data_output_path}/{session.ctx.sensor_id}_" +
             f"SN{str(session.ctx.serial_number).zfill(3)}_{date_string[2:]}-{date_string[2:]}"
@@ -61,7 +61,7 @@ def run(
     # DETERMINE OUTPUT DIRECTORY PATHS
 
     output_slug = session.ctx.from_datetime.strftime("%Y%m%d")
-    if not utils.functions.sdc_covers_the_full_day(session.ctx):
+    if not src.utils.functions.sdc_covers_the_full_day(session.ctx):
         output_slug += session.ctx.from_datetime.strftime("_%H%M%S")
         output_slug += session.ctx.to_datetime.strftime("_%H%M%S")
 
@@ -93,7 +93,7 @@ def run(
     # (OPTIONAL) STORE BINARY SPECTRA
 
     if config.retrieval.general.store_binary_spectra:
-        if isinstance(session, types.Proffast2RetrievalSession):
+        if isinstance(session, src.types.Proffast2RetrievalSession):
             shutil.copytree(
                 os.path.join(
                     session.ctn.data_output_path, "analysis",
@@ -110,7 +110,7 @@ def run(
         logger.logfile_path,
         os.path.join(output_dst, "logfiles", "container.log"),
     )
-    if isinstance(session.ctn, types.Proffast22Container):
+    if isinstance(session.ctn, src.types.Proffast22Container):
         shutil.copyfile(
             session.ctn.pylot_log_format_path,
             os.path.join(output_dst, "pylot_log_format.yml"),

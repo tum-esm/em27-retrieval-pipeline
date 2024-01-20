@@ -1,4 +1,4 @@
-from typing import Any, Optional
+from typing import Any
 import signal
 import sys
 import os
@@ -9,17 +9,17 @@ import multiprocessing.context
 import tum_esm_utils
 
 sys.path.append(tum_esm_utils.files.rel_to_abs_path("../.."))
-from src import types, utils, retrieval
+import src
 
 
 def run() -> None:
-    main_logger = retrieval.utils.logger.Logger("main")
+    main_logger = src.retrieval.utils.logger.Logger("main")
     main_logger.horizontal_line(variant="=")
     main_logger.info(f"Starting the automation with PID {os.getpid()}")
 
     # load config
     try:
-        config = types.Config.load()
+        config = src.types.Config.load()
         main_logger.info("Config is valid")
     except Exception as e:
         main_logger.exception(e, "Config file invalid")
@@ -28,7 +28,7 @@ def run() -> None:
     assert config.retrieval is not None, "no retrieval config found"
 
     # set up process list and container factory
-    container_factory = retrieval.dispatching.container_factory.ContainerFactory(
+    container_factory = src.retrieval.dispatching.container_factory.ContainerFactory(
         config, main_logger
     )
     processes: list[multiprocessing.context.SpawnProcess] = []
@@ -64,7 +64,7 @@ def run() -> None:
             main_logger.info(f'Process "{process.name}": removed container')
 
         main_logger.info(f"Killed all containers")
-        retrieval.utils.retrieval_status.RetrievalStatusList.reset()
+        src.retrieval.utils.retrieval_status.RetrievalStatusList.reset()
         main_logger.info(f"Reset retrieval status list")
         main_logger.info(f"Teardown is done")
         main_logger.archive()
@@ -75,7 +75,7 @@ def run() -> None:
     main_logger.info("Established graceful teardown hook")
 
     # load metadata interface
-    em27_metadata_interface = utils.metadata.load_local_em27_metadata_interface(
+    em27_metadata_interface = src.utils.metadata.load_local_em27_metadata_interface(
     )
     if em27_metadata_interface is not None:
         print("Found local metadata")
@@ -89,14 +89,14 @@ def run() -> None:
         print("Successfully fetched metadata from GitHub")
 
     # generate retrieval queue
-    retrieval.utils.retrieval_status.RetrievalStatusList.reset()
-    job_queue = retrieval.utils.job_queue.RetrievalJobQueue()
+    src.retrieval.utils.retrieval_status.RetrievalStatusList.reset()
+    job_queue = src.retrieval.utils.job_queue.RetrievalJobQueue()
 
     for job_index, job in enumerate(config.retrieval.jobs):
         main_logger.info(
             f"Generating retrieval queue for job {job_index+1}: {job.model_dump_json(indent=4)}"
         )
-        retrieval_sdcs = retrieval.dispatching.retrieval_queue.generate_retrieval_queue(
+        retrieval_sdcs = src.retrieval.dispatching.retrieval_queue.generate_retrieval_queue(
             config, main_logger, em27_metadata_interface, job
         )
         main_logger.info(
@@ -108,7 +108,7 @@ def run() -> None:
                 job.atmospheric_profile_model,
                 sdc,
             )
-        retrieval.utils.retrieval_status.RetrievalStatusList.add_items(
+        src.retrieval.utils.retrieval_status.RetrievalStatusList.add_items(
             retrieval_sdcs,
             retrieval_algorithm=job.retrieval_algorithm,
             atmospheric_profile_model=job.atmospheric_profile_model
@@ -129,14 +129,14 @@ def run() -> None:
                 # start new processes
                 next_retrieval_job = job_queue.pop()
                 assert next_retrieval_job is not None
-                new_session = retrieval.session.create_session.run(
+                new_session = src.retrieval.session.create_session.run(
                     container_factory,
                     next_retrieval_job.sensor_data_context,
                     next_retrieval_job.retrieval_algorithm,
                     next_retrieval_job.atmospheric_profile_model,
                 )
                 new_process = multiprocessing.get_context("spawn").Process(
-                    target=retrieval.session.process_session.run,
+                    target=src.retrieval.session.process_session.run,
                     args=(config, new_session),
                     name=(
                         f"retrieval-session-{new_session.ctx.sensor_id}-" +
@@ -181,5 +181,5 @@ def run() -> None:
 
 
 if __name__ == "__main__":
-    with utils.semaphores.with_automation_lock():
+    with src.utils.semaphores.with_automation_lock():
         run()

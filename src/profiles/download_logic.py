@@ -3,15 +3,15 @@ import tarfile
 import io
 import ftplib
 import rich.progress
-from src import types, utils
+import src
 
 
 def download_data(
-    config: types.Config,
-    queries: list[types.DownloadQuery],
+    config: src.types.Config,
+    queries: list[src.types.DownloadQuery],
     ftp: ftplib.FTP,
-    atmospheric_profile_model: types.AtmosphericProfileModel,
-) -> list[types.DownloadQuery]:
+    atmospheric_profile_model: src.types.AtmosphericProfileModel,
+) -> list[src.types.DownloadQuery]:
     """Downloads data from 'ccycle.gps.caltech.edu' and returns a list of
     queries that were fulfilled."""
 
@@ -24,13 +24,13 @@ def download_data(
 
     # GGG2020: /ginput-jobs/job_000034641_tu_48.00N_12.00E_20221001-20221008.tgz
 
-    fulfilled_queries: list[types.DownloadQuery] = []
+    fulfilled_queries: list[src.types.DownloadQuery] = []
 
     with rich.progress.Progress() as progress:
         for query in progress.track(queries, description=f"Downloading ..."):
             progress.print(f"Downloading {query}")
 
-            cs = utils.text.get_coordinates_slug(
+            cs = src.utils.text.get_coordinates_slug(
                 query.lat, query.lon, verbose=True
             )
             ds = query.from_date.strftime("%Y%m%d")
@@ -68,11 +68,11 @@ def download_data(
 
 
 def extract_archive(
-    config: types.Config,
+    config: src.types.Config,
     archive: BinaryIO,
     lat: float,
     lon: float,
-    atmospheric_profile_model: types.AtmosphericProfileModel,
+    atmospheric_profile_model: src.types.AtmosphericProfileModel,
 ) -> None:
     """Extracts, renames and stores archive members."""
 
@@ -85,7 +85,7 @@ def extract_archive(
                 # Skip (sub-)directories
                 continue
 
-            cs = utils.text.get_coordinates_slug(lat, lon)
+            cs = src.utils.text.get_coordinates_slug(lat, lon)
 
             if atmospheric_profile_model == "GGG2020":
                 if name.endswith(".map"):

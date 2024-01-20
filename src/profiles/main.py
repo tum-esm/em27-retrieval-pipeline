@@ -3,11 +3,11 @@ import tum_esm_utils
 import ftplib
 
 sys.path.append(tum_esm_utils.files.rel_to_abs_path("../.."))
-from src import types, profiles
+import src
 
 
 def run() -> None:
-    config = types.Config.load()
+    config = src.types.Config.load()
     assert config.profiles is not None, "No profiles config found"
 
     try:
@@ -22,15 +22,15 @@ def run() -> None:
             ) as ftp:
                 print("Connected to FTP server")
 
-                profiles.std_site_logic.download_data(config, ftp)
+                src.profiles.std_site_logic.download_data(config, ftp)
 
-                cache = profiles.cache.DownloadQueryCache.load()
+                cache = src.profiles.cache.DownloadQueryCache.load()
                 running_queries = cache.get_active_queries(version)
                 print(f"Found {len(running_queries)} already requested queries")
                 still_running_query_count = len(running_queries)
                 if len(running_queries) > 0:
                     print(f"Trying to download {len(running_queries)} queries")
-                    fulfilled_queries = profiles.download_logic.download_data(
+                    fulfilled_queries = src.profiles.download_logic.download_data(
                         config, running_queries, ftp, version
                     )
                     print(
@@ -56,7 +56,7 @@ def run() -> None:
                     print(f"{open_query_count} open slots for new queries")
 
                 # Generate daily sensor sets
-                missing_queries = profiles.generate_queries.generate_download_queries(
+                missing_queries = src.profiles.generate_queries.generate_download_queries(
                     config, version
                 )
                 if len(missing_queries) == 0:
@@ -66,7 +66,7 @@ def run() -> None:
                 # queries might not be in cache anymore but still
                 # downloadable from the server
                 print(f"Trying to download {len(missing_queries)} queries")
-                fulfilled_queries = profiles.download_logic.download_data(
+                fulfilled_queries = src.profiles.download_logic.download_data(
                     config, missing_queries, ftp, version
                 )
                 missing_queries = sorted(
@@ -81,7 +81,7 @@ def run() -> None:
                 print(
                     f"Requesting {query_count} out of {len(missing_queries)} queries"
                 )
-                profiles.upload_logic.upload_requests(
+                src.profiles.upload_logic.upload_requests(
                     config, missing_queries[: query_count], ftp, version
                 )
                 print(

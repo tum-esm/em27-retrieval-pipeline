@@ -1,10 +1,10 @@
 import datetime
 import os
 import pytest
+import dotenv
 import em27_metadata
 import tum_esm_utils
 from ..fixtures import download_sample_data, provide_config_template, remove_temporary_retrieval_data
-import dotenv
 
 from src import types, retrieval
 from src.retrieval.dispatching.retrieval_queue import generate_retrieval_queue

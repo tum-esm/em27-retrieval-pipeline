@@ -1,12 +1,12 @@
 import pytest
 import tum_esm_utils
-from src import types
+import src
 
 
 @pytest.mark.order(2)
 @pytest.mark.quick
 def test_config_template() -> None:
-    config = types.Config.load(
+    config = src.types.Config.load(
         path=tum_esm_utils.files.
         rel_to_abs_path("../../config/config.template.json"),
         ignore_path_existence=True,

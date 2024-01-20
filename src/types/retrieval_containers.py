@@ -1,10 +1,8 @@
-import os
 from typing import Literal
+import os
 import pydantic
 import em27_metadata
 import tum_esm_utils
-
-from src import types
 
 _CONTAINERS_DIR = tum_esm_utils.files.rel_to_abs_path("../../data/containers")
 

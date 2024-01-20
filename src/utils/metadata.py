@@ -1,5 +1,5 @@
-import os
 from typing import Optional
+import os
 import em27_metadata
 import tum_esm_utils
 

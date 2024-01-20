@@ -1,8 +1,8 @@
 import pytest
-from src import types
+import src
 
 
 @pytest.mark.order(2)
 @pytest.mark.integration
 def test_config() -> None:
-    types.Config.load()
+    src.types.Config.load()

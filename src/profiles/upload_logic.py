@@ -3,14 +3,14 @@ import io
 import ftplib
 import datetime
 import rich.progress
-from src import types, profiles
+import src
 
 
 def upload_requests(
-    config: types.Config,
-    queries: list[types.DownloadQuery],
+    config: src.types.Config,
+    queries: list[src.types.DownloadQuery],
     ftp: ftplib.FTP,
-    atmospheric_profile_model: types.AtmosphericProfileModel,
+    atmospheric_profile_model: src.types.AtmosphericProfileModel,
 ) -> None:
     """Requests Ginput data by uploading a '.txt' to 'ccycle.gps.caltech.edu'.
     Attempts until upload successful or config.upload_timeout is exceeded.
@@ -19,7 +19,7 @@ def upload_requests(
 
     assert config.profiles is not None, "this is a bug in the code"
 
-    cache = profiles.cache.DownloadQueryCache.load()
+    cache = src.profiles.cache.DownloadQueryCache.load()
 
     with rich.progress.Progress() as progress:
         for query in progress.track(queries, description=f"Requesting ..."):

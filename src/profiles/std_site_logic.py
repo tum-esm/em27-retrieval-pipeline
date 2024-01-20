@@ -4,12 +4,12 @@ import io
 import os
 import re
 import rich.progress
-from src import types, utils, profiles
+import src
 
 
 def list_requested_data(
-    config: types.Config,
-    std_site_config: types.config.ProfilesGGG2020StandardSitesItemConfig,
+    config: src.types.Config,
+    std_site_config: src.types.config.ProfilesGGG2020StandardSitesItemConfig,
 ) -> set[datetime.date]:
     assert config.profiles is not None
     from_date = std_site_config.from_date
@@ -20,17 +20,17 @@ def list_requested_data(
     if from_date > to_date:
         return set()
     else:
-        return set(utils.functions.date_range(from_date, to_date))
+        return set(src.utils.functions.date_range(from_date, to_date))
 
 
 def list_downloaded_data(
-    config: types.Config,
-    std_site_config: types.config.ProfilesGGG2020StandardSitesItemConfig,
+    config: src.types.Config,
+    std_site_config: src.types.config.ProfilesGGG2020StandardSitesItemConfig,
 ) -> set[datetime.date]:
     assert config.profiles is not None
     downloaded_data: set[datetime.date] = set()
 
-    cs = utils.text.get_coordinates_slug(
+    cs = src.utils.text.get_coordinates_slug(
         lat=std_site_config.lat, lon=std_site_config.lon
     )
     r = re.compile(r"^\d{8,10}_" + cs + r"\.(map|mod|vmr)$")
@@ -73,7 +73,7 @@ def compute_missing_data(
 
 
 def download_data(
-    config: types.Config,
+    config: src.types.Config,
     ftp: ftplib.FTP,
 ) -> None:
     assert config.profiles is not None
@@ -122,7 +122,7 @@ def download_data(
                                 archive.write,
                             )
                             archive.seek(0)
-                            profiles.download_logic.extract_archive(
+                            src.profiles.download_logic.extract_archive(
                                 config=config,
                                 archive=archive,
                                 lat=std_site_config.lat,

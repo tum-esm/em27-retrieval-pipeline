@@ -4,7 +4,6 @@ import random
 import tempfile
 import pytest
 import src
-from src.profiles.generate_queries import list_downloaded_data
 from ..fixtures import provide_config_template
 from .utils import generate_random_locations, generate_random_dates
 
@@ -47,7 +46,9 @@ def test_list_downloaded_data(
                 for filename in filenames:
                     with open(os.path.join(tmpdir, model, filename), "w"):
                         pass
-                downloaded = list_downloaded_data(config, model)
+                downloaded = src.profiles.generate_queries.list_downloaded_data(
+                    config, model
+                )
                 assert downloaded.keys() == downloaded_data.keys()
                 for l in downloaded_data.keys():
                     assert downloaded[l] == downloaded_data[l]

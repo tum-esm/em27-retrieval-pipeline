@@ -1,15 +1,14 @@
-import datetime
 import os
 import numpy as np
 import scipy.signal
 import polars as pl
 import em27_metadata
-from src import types, utils
+import src
 
 
 def get_empty_sensor_dataframe(
     sensor_id: str,
-    export_target: types.ExportTargetConfig,
+    export_target: src.types.ExportTargetConfig,
 ) -> pl.DataFrame:
     """
     Returns an empty single sensor dataframe.
@@ -34,9 +33,9 @@ def get_empty_sensor_dataframe(
 
 
 def get_sensor_dataframe(
-    config: types.Config,
+    config: src.types.Config,
     sensor_data_context: em27_metadata.types.SensorDataContext,
-    export_target: types.ExportTargetConfig,
+    export_target: src.types.ExportTargetConfig,
 ) -> pl.DataFrame:
     """
     Returns a single sensor dataframe.
@@ -57,7 +56,7 @@ def get_sensor_dataframe(
 
     date_string = sensor_data_context.from_datetime.strftime("%Y%m%d")
     output_folder_slug = date_string
-    if not utils.functions.sdc_covers_the_full_day(sensor_data_context):
+    if not src.utils.functions.sdc_covers_the_full_day(sensor_data_context):
         output_folder_slug += sensor_data_context.from_datetime.strftime(
             "_%H%M%S"
         )
@@ -125,7 +124,7 @@ def get_sensor_dataframe(
     )
 
     # remove data outside of the sdcs datetime range
-    if not utils.functions.sdc_covers_the_full_day(sensor_data_context):
+    if not src.utils.functions.sdc_covers_the_full_day(sensor_data_context):
         df = df.filter((pl.col("utc") >= sensor_data_context.from_datetime) &
                        (pl.col("utc") <= sensor_data_context.to_datetime))
 
@@ -138,7 +137,7 @@ def get_sensor_dataframe(
 
 def post_process_dataframe(
     df: pl.DataFrame,
-    sampling_rate: types.SamplingRate,
+    sampling_rate: src.types.SamplingRate,
     max_interpolation_gap_seconds: int,
 ) -> pl.DataFrame:
     """Post-processes the dataframe.

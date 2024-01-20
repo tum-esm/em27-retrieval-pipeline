@@ -1,16 +1,16 @@
+from typing import Generator
 import os
 import shutil
-from typing import Generator
 import pytest
 import tum_esm_utils
-from src import types, utils
+import src
 
 _PROJECT_DIR = tum_esm_utils.files.rel_to_abs_path("..")
 
 
 @pytest.fixture
 def wrap_test_with_mainlock() -> Generator[None, None, None]:
-    with utils.semaphores.with_automation_lock():
+    with src.utils.semaphores.with_automation_lock():
         yield
 
 
@@ -54,10 +54,10 @@ def download_sample_data() -> Generator[None, None, None]:
 
 
 @pytest.fixture(scope="session")
-def provide_config_template() -> Generator[types.Config, None, None]:
+def provide_config_template() -> Generator[src.types.Config, None, None]:
     """Provide a temporary config used in profiles download."""
 
-    config = types.Config.load(
+    config = src.types.Config.load(
         os.path.join(_PROJECT_DIR, "config", "config.template.json"),
         ignore_path_existence=True,
     )

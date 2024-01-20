@@ -1,11 +1,12 @@
 import os
 import shutil
-from src import types, utils
+import src
+from src import utils
 
 
 def run(
-    config: types.Config,
-    session: types.RetrievalSession,
+    config: src.types.Config,
+    session: src.types.RetrievalSession,
 ) -> None:
     coordinates_slug = utils.text.get_coordinates_slug(
         lat=session.ctx.atmospheric_profile_location.lat,

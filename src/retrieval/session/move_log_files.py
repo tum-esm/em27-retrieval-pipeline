@@ -1,12 +1,13 @@
 import os
 import shutil
-from src import types, retrieval
+import src
+from src import retrieval
 
 
 def run(
-    config: types.Config,
+    config: src.types.Config,
     logger: retrieval.utils.logger.Logger,
-    session: types.RetrievalSession,
+    session: src.types.RetrievalSession,
 ) -> None:
     date_string = session.ctx.from_datetime.strftime("%Y%m%d")
 

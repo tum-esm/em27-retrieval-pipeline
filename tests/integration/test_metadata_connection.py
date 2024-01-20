@@ -1,12 +1,12 @@
 import pytest
 import em27_metadata
-from src import types
+import src
 
 
 @pytest.mark.order(3)
 @pytest.mark.integration
 def test_metadata_connection() -> None:
-    config = types.Config.load()
+    config = src.types.Config.load()
     if config.general.metadata is None:
         pytest.skip("Remote metadata not configured")
     else:

@@ -6,8 +6,7 @@ import polars as pl
 import tum_esm_utils
 import rich.console
 import rich.progress
-from .functions import date_range
-from src import types, utils
+import src
 
 
 def _ggg2014_profiles_exists(
@@ -17,7 +16,7 @@ def _ggg2014_profiles_exists(
     date: datetime.date,
 ) -> str:
     date_string = date.strftime("%Y%m%d")
-    coords_string = utils.text.get_coordinates_slug(lat, lon)
+    coords_string = src.utils.text.get_coordinates_slug(lat, lon)
     return "✅" if os.path.isfile(
         os.path.join(path, "GGG2014", f"{date_string}_{coords_string}.map")
     ) else "-"
@@ -30,7 +29,7 @@ def _ggg2020_profiles_exists(
     date: datetime.date,
 ) -> str:
     date_string = date.strftime("%Y%m%d")
-    coords_string = utils.text.get_coordinates_slug(lat, lon)
+    coords_string = src.utils.text.get_coordinates_slug(lat, lon)
     return "✅" if all([
         os.path.isfile(
             os.path.
@@ -73,7 +72,7 @@ def _count_datalogger_datapoints(
 
 
 def _check_retrieval_output(
-    config: types.Config,
+    config: src.types.Config,
     date: datetime.date,
     sdc: em27_metadata.types.SensorDataContext,
     retrieval_algorithm: Literal[
@@ -87,7 +86,7 @@ def _check_retrieval_output(
     ],
 ) -> Literal["✅", "❌", "-"]:
     output_folder_slug = date.strftime("%Y%m%d")
-    if not utils.functions.sdc_covers_the_full_day(sdc):
+    if not src.utils.functions.sdc_covers_the_full_day(sdc):
         output_folder_slug += max(
             sdc.from_datetime,
             datetime.datetime.combine(
@@ -126,7 +125,7 @@ def _check_retrieval_output(
 
 
 def export_data_report(
-    config: types.Config,
+    config: src.types.Config,
     em27_metadata_interface: em27_metadata.interfaces.EM27MetadataInterface,
     console: rich.console.Console,
 ) -> None:
@@ -156,7 +155,7 @@ def export_data_report(
                 "parsing all sensor data contexts", total=len(sdcs)
             )
             for sdc in sdcs:
-                dates = date_range(
+                dates = src.utils.functions.date_range(
                     sdc.from_datetime.date(), sdc.to_datetime.date()
                 )
                 subtask = progress.add_task(

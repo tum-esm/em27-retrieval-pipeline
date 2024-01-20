@@ -1,13 +1,13 @@
 import pytest
 import ftplib
 import warnings
-from src import types
+import src
 
 
 @pytest.mark.order(3)
 @pytest.mark.integration
 def test_profiles_connection() -> None:
-    config = types.Config.load()
+    config = src.types.Config.load()
     if config.profiles is None:
         warnings.warn(pytest.PytestWarning("Profiles configured"))
         return
