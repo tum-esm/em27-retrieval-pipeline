@@ -2,6 +2,15 @@
 @tailwind components;
 @tailwind utilities;
 
+.nx-duration-500 {
+  transition-duration: 100ms;
+}
+
+.nx-transition-colors {
+  transition-duration: 50ms;
+}
+
+/*
 .background-paper-pattern {
     opacity: 0.8;
     background-size: 50px 50px, 50px 50px, 10px 10px, 10px 10px;
@@ -76,3 +85,4 @@
 footer div.nx-py-12 {
     @apply py-3 font-semibold text-sm text-gray-800 items-center justify-center;
 }
+*/
