@@ -38,11 +38,6 @@
       "ifg_file_regex": "^$(SENSOR_ID)$(DATE).*\\.\\d+$",
       "store_binary_spectra": false
     },
-    "ifg_file_permissions": {
-      "fail_on_permission_error": false,
-      "before_processing": null,
-      "after_processing": null
-    },
     "jobs": [
       {
         "retrieval_algorithm": "proffast-1.0",

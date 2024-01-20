@@ -52,27 +52,6 @@ def run(
         ifg_count=len(ifg_filenames),
     )
 
-    # (optional) MAKE INTERFEROGRAM FILES READ-ONLY
-
-    if (config.retrieval.ifg_file_permissions.before_processing is not None):
-        for f in ifg_filenames:
-            try:
-                tum_esm_utils.shell.change_file_permissions(
-                    os.path.join(ifg_src_directory, f),
-                    config.retrieval.ifg_file_permissions.before_processing,
-                )
-            except PermissionError:
-                if config.retrieval.ifg_file_permissions.fail_on_permission_error:
-                    raise
-                else:
-                    logger.warning(
-                        f"failed to modify permissions of ifg file {f}"
-                    )
-    else:
-        logger.debug(
-            "skipping modification of ifg file permissions during processing"
-        )
-
     # SYMLINK ALL VALID INTERFEROGRAM FILES AND
     # RENAME THEM TO THE FORMAT EXPECTED BY THE
     # PYLOT
