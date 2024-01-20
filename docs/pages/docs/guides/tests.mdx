@@ -1,0 +1,38 @@
+---
+title: Automatic Test Suite
+---
+
+# Automatic Test Suite
+
+The Pipeline comes with a suite of test. This ensures that the code is doing what it's supposed to, and enables developers to change code with confidence.
+
+## Test Classes
+
+There are four test classes ([using pytest marks](https://docs.pytest.org/en/7.1.x/example/markers.html)):
+
+1. `integration`: Test, whether the pipeline is properly set up on your system (testing config validity, etc.)
+2. `quick`: Test static type hints and small utility functions
+3. `ci`: Test whether the pipeline is doing what it should
+4. `complete`: Test whether the retrieval is doing what it should
+
+The `ci` and `complete` tests download a sample dataset of three days (from two systems) and run all retrieval algorithms (Proffast 1 with GGG2014, Proffast 2.2 and 2.3 with GGG2014 and GGG2020). The `ci` does everything that `complete` does (spawning containers, moving files, etc.), but does not run the retrieval code itself. The reason for this difference is that the `complete` tests take about 10-15 minutes on our 10-Core VM, whereas the `ci` tests can be run in the GitHub CI environment on a small machine.
+
+You can run the different test classes with: 
+
+```bash
+# one class
+pytest -m 'quick'
+
+# multiple classes
+pytest -m 'quick or integration'
+```
+
+## Order of the Tests
+
+The tests are ordered in the following way - the fast tests should run first to get a quick feedback loop. Add the `--exitfirst` flag to stop the tests after the first failure.
+
+1. Static types (`quick`)
+2. Config Template/Documentation (`quick`) & Config (`integration`)
+3. Utility functions (`quick`) & Metadata/Profiles connection (`integration`)
+4. Run mock retrieval (`ci`)
+5. Run full retrieval (`complete`)
