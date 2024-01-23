@@ -32,3 +32,9 @@ The tests are ordered in the following way - the fast tests should run first to 
 3. Utility functions (`quick`) & Metadata/Profiles connection (`integration`)
 4. Run mock retrieval (`ci`)
 5. Run full retrieval (`complete`)
+
+## Retrieval Tests
+
+When running the `ci` or `complete` tests, the test suite will download some sample data to `data/testing/container/em27-retrieval-pipeline-test-inputs-1.0.0.tar.gz` and unpack this into `data/testing/container/inputs`. After the tests are completed, the `data/testing/container/outputs` directory will be fully populated with the results of any retrieval algorithm using any atmospheric profiles.
+
+**🌈 You can use this as a demonstration on the input and output format of the pipeline.**
