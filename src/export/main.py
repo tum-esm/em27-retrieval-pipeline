@@ -56,7 +56,7 @@ def run() -> None:
 
         dst_dir = os.path.join(
             output_merging_target.dst_dir.root,
-            f"em27-retrieval-pipeline-v{src.export.header.get_pipeline_version()}-exports",
+            f"em27-retrieval-pipeline-v{src.utils.functions.get_pipeline_version()}-exports",
             f"{output_merging_target.campaign_id}",
             output_merging_target.retrieval_algorithm,
             output_merging_target.atmospheric_profile_model,

@@ -34,8 +34,10 @@ def get_pipeline_version() -> str:
         tum_esm_utils.files.rel_to_abs_path("../../pyproject.toml"), "rb"
     ) as f:
         try:
-            tomllib.load(f)["project"]["version"]
-        except KeyError:
+            v = tomllib.load(f)["project"]["version"]
+            assert isinstance(v, str)
+            return v
+        except (KeyError, AssertionError):
             raise ValueError(
                 "Could not find project version in `pyproject.toml`"
             )
