@@ -127,7 +127,8 @@ def run(
 
         assert dumped_config.retrieval is not None
         about_dict = {
-            "automationVersion": tum_esm_utils.shell.get_commit_sha(),
+            "automationVersion": src.utils.functions.get_pipeline_version(),
+            "automationCommitSha": tum_esm_utils.shell.get_commit_sha(),
             "generationTime": now.strftime("%Y-%m-%dT%H:%M:%S%z"),
             "config": {
                 "general": dumped_config.general.model_dump(mode="json"),

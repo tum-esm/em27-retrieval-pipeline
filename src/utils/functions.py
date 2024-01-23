@@ -1,5 +1,7 @@
 import datetime
+import tomllib
 import em27_metadata
+import tum_esm_utils
 
 
 def date_range(
@@ -23,3 +25,17 @@ def sdc_covers_the_full_day(
         sdc.to_datetime.time().replace(microsecond=0)
         == datetime.time.max.replace(microsecond=0)
     ))
+
+
+def get_pipeline_version() -> str:
+    """Returns the current version (`x.y.z`) of the pipeline."""
+
+    with open(
+        tum_esm_utils.files.rel_to_abs_path("../../pyproject.toml"), "rb"
+    ) as f:
+        try:
+            tomllib.load(f)["project"]["version"]
+        except KeyError:
+            raise ValueError(
+                "Could not find project version in `pyproject.toml`"
+            )
