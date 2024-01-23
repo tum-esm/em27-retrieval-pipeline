@@ -2,6 +2,7 @@ import os
 import datetime
 import em27_metadata
 import tum_esm_utils
+import tomllib
 import src
 
 PROJECT_DIR = tum_esm_utils.files.get_parent_dir_path(__file__, current_depth=3)
@@ -10,10 +11,13 @@ PROJECT_DIR = tum_esm_utils.files.get_parent_dir_path(__file__, current_depth=3)
 def get_pipeline_version() -> str:
     """Returns the current version (`x.y.z`) of the pipeline."""
 
-    with open(os.path.join(PROJECT_DIR, "pyproject.toml"), "r") as f:
-        version_line = f.read().split("\n")[2]
-        assert version_line.startswith("version = ")
-        return version_line.split(" = ")[1].strip(' "')
+    with open(os.path.join(PROJECT_DIR, "pyproject.toml"), "rb") as f:
+        try:
+            tomllib.load(f)["project"]["version"]
+        except KeyError:
+            raise ValueError(
+                "Could not find pipeline version in `pyproject.toml`"
+            )
 
 
 def get_header(
