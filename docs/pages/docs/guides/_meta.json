@@ -2,7 +2,7 @@
   "configuration": "Configuration",
   "directories": "Directories",
   "metadata": "Metadata",
+  "usage": "Using the Pipeline",
   "tests": "Automatic Test Suite",
-  "atmospheric-profiles": "Atmospheric Profiles",
   "miscellaneous": "Miscellaneous"
 }
