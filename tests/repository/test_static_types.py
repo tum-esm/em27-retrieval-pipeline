@@ -20,14 +20,10 @@ def test_static_types() -> None:
     _rmdir(".mypy_cache/3.11/src")
     _rmdir(".mypy_cache/3.11/tests")
 
-    for path in [
-        "cli.py",
-        "src/retrieval/main.py",
-        "src/profiles/main.py",
-        "src/export/main.py",
-        "src/retrieval/algorithms/proffast-1.0/main/prfpylot/main.py",
-        "tests/",
+    for call in [
+        "mypy -p src",
+        "mypy -p tests",
+        "mypy cli.py",
+        "mypy src/retrieval/algorithms/proffast-1.0/main/prfpylot/main.py",
     ]:
-        assert os.system(
-            f"cd {PROJECT_DIR} && {sys.executable} -m mypy {path}"
-        ) == 0
+        assert os.system(f"cd {PROJECT_DIR} && {sys.executable} -m {call}") == 0
