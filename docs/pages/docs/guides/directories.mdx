@@ -1,7 +1,12 @@
+import { Callout } from "nextra/components";
 
-## Directory Structure
+# Directory Structure
+
+The pipeline and none of the retrieval algorithms manipulate any data in the directories `config.general.data.datalogger`, `config.general.data.atmospheric_profiles`, and `config.general.data.interferograms`. The retrieval only writes to `config.general.data.results`.
 
 <Callout type="info" emoji="💡">
+
+We can ensure that this pipeline doesn't modify any data from the input directories. We cannot guarantee this for the retrieval algorithms, but we are very certain about this, and have never observed this.
 
 If you want to make sure that the retrieval cannot manipulate any of your interferograms or datalogger files, you can create a read-only mount of the directories and configure the pipeline to use those read-only directories.
 
@@ -11,30 +16,238 @@ See https://askubuntu.com/a/243390.
 
 ### Interferograms
 
-TODO
+Point the `config.general.data.interferograms` variable to the directory, your interferograms are stored in.
+
+```
+📂 <config.general.data.interferograms>
++--- 📂 ma
+|    +--- 📂 20220101
+|    |    +--- 📄 ma20210101.ifg.001
+|    |    +--- 📄 ma20210101.ifg.002
+|    |    +--- 📄 ma20210101.ifg.003
+|    |    +--- ...
+|    +--- 📂 20220101
+|    |    +--- 📄 ma20210102.ifg.001
+|    |    +--- 📄 ma20210102.ifg.002
+|    |    +--- 📄 ma20210102.ifg.003
+|    |    +--- ...
+|    +--- 📂 ...
++--- 📂 mb
+|    +--- 📂 20220101
+|    +--- 📂 ...
++--- 📂 ...
+```
+
+In this example `ma`, `mb`, and so on are the "sensor ids" used by us (see the [next section about metadata](/docs/guides/metadata)).
+
+You have to set the `config.retrieval.general.ifg_file_regex` value to a regex that matches your files. In the example above, we can use `^$(SENSOR_ID)$(DATE).*ifg.\\d+$`.
 
 ### Datalogger Files
 
-TODO
+Point the `config.general.data.datalogger` variable to the directory, your local meteorological files are stored in = your ground pressure logs.
+
+```
+📂 <config.general.data.datalogger>
++--- 📂 ma
+|    +--- 📄 datalogger-ma-20210101.csv
+|    +--- 📄 datalogger-ma-20210102.csv
+|    +--- 📄 ...
++--- 📂 mb
+|    +--- 📄 datalogger-mb-20210101.csv
+|    +--- 📄 ...
++--- 📂 ...
+```
+
+Each file looks like the following. It can have as many columns as you want, as long as you include the `UTCtime___` and `BaroYoung` columns.
+
+```csv
+UTCtime___,BaroYoung
+00:00:20,942.350
+00:01:20,942.35
+00:02:20,942.33
+00:03:20,942.3
+00:04:20,942.29
+```
+
+<Callout type="info" emoji="💡">
+
+Since the format of the local meteorological is not as standardized as the interferograms, we decided to support this format - for now.
+
+If your data is a different format than this, you could write a small parsing script that runs on a cronjob and creates a new directory in this format. One year of data in this format is about 9MB, so the duplication of data is not a big deal.
+
+Or, we are happy to accept contributions to our codebase to add support for different formats - best, open an issue first to discuss the format.
+
+</Callout>
 
 ### Atmospheric Profiles
 
-TODO
+Point the `config.general.data.atmospheric_profiles` variable to the directory, you want to store the atmospheric profiles.
+
+```
+📂 <config.general.data.atmospheric_profiles>
++--- 📂 GGG2014
+|    +--- 📄 20210101_48N011E.map
+|    +--- 📄 20210101_48N011E.mod
+|    +--- 📄 20210101_48N012E.map
+|    +--- 📄 20210101_48N012E.mod
+|    +--- 📄 20210102_48N011E.map
+|    +--- 📄 ...
++--- 📂 GGG2020
+     +--- 📄 2021010100_48N011E.map
+     +--- 📄 2021010100_48N011E.mod
+     +--- 📄 2021010100_48N011E.vmr
+     +--- 📄 2021010100_48N012E.map
+     +--- 📄 2021010100_48N012E.mod
+     +--- 📄 2021010100_48N012E.vmr
+     +--- 📄 2021010103_48N011E.map
+     +--- 📄 ...
+```
+
+<Callout type="info" emoji="💡">
+
+Since this pipeline includes a fully automated downloader for this data, you can also just point it to an empty directory and let the pipeline populate it.
+
+</Callout>
 
 ### Results
 
-TODO
+This is how the outputs of this pipeline are stored:
+
+```
+📂 <config.general.data.results>
++--- 📂 proffast-2.3/GGG2020
+|    +--- 📂 ma
+|    |    +--- 📂 failed
+|    |    +--- 📂 successful
+|    |         +--- 📂 20210101
+|    |         |    +--- 📂 input_files
+|    |         |    |    +--- 📄 invers20ma_210101_a.inp
+|    |         |    |    +--- 📄 pcxs20ma_210101.inp
+|    |         |    |    +--- 📄 preprocess5ma_210101.inp
+|    |         |    +--- 📂 logfiles
+|    |         |    |    +--- 📄 container.log
+|    |         |    |    +--- 📄 inv_output.log
+|    |         |    |    +--- 📄 pcxs_output.log
+|    |         |    |    +--- 📄 preprocess_output.log
+|    |         |    +--- 📄 comb_invparms_ma_SN061_210101-210101.csv
+|    |         |    +--- 📄 about.json
+|    |         |    +--- 📄 pylot_config.yml
+|    |         |    +--- 📄 pylot_log_format.yml
+|    |         |    +--- 📄 ... (more files depending on retrieval algorithm)
+|    +--- 📂 mb
+|         +--- 📂 failed
+|         +--- 📂 successful
++--- 📂 proffast-2.3/GGG2014
++--- 📂 ...
+```
+
+The `about.json` file in each successful retrieval directory contains all information required to reproduce the respective retrieval results. The structure of the directories in `failed/` and `successful/` is the same - the outputs will be moved to `successful/` if the retrieval produced a final CSV file.
 
 ### Exports
 
-TODO
+With `config.export_targets`, you can specify a list of targets that the data produced should be exported to. This is based on the definition of "campaigns" in the [metadata (next section)](/docs/guides/metadata). The export bundles the data of a campaign (all involved sensors at the involved locations) into daily CSV files. In the process, modifies the concentration timeseries to be easier accessible:
+
+1. Smoothening the data using `scipy.signal.savgol_filter` (https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.savgol_filter.html, https://en.wikipedia.org/wiki/Savitzky%E2%80%93Golay_filter) with a window size of 30 and a polygon order of 3.
+2. Resampling the data at a rate given by `config.export_targets.#.sampling_rate`
+3. Linearly interpolating within gaps smaller than `config.export_targets.#.max_interpolation_gap_seconds`
+
+The export directory will be populated like the following. Just the `dst_dir` has to be created beforehand:
+
+```
+📂 <config.export_targets.#.dst_dir>
++--- 📂 em27-retrieval-pipeline-v1.0.0-exports
+     +--- 📂 muccnet
+          +--- 📂 proffast-2.3
+               +--- 📂 GGG2020
+                    +--- 📄 muccnet_export_20190913.csv
+                    +--- 📄 muccnet_export_20190914.csv
+                    +--- 📄 muccnet_export_20190915.csv
+                    +--- ...
+```
+
+In this case, `muccnet` is a campaign id, and `v1.0.0` is the version of the pipeline.
+
+The CSV files look like the following:
+
+```csv
+## CONTACT:
+##     person:                 Prof. Dr.-Ing. Jia Chen <jia.chen@tum.de>
+##     department:             Professorship of Environmental Sensing and Modeling
+##     institution:            Technical University of Munich
+##     website:                https://www.ee.cit.tum.de/en/esm
+## 
+## FILE GENERATION:
+##     retrieval software:     proffast-2.3
+##     meteorological model:   GGG2020
+##     file generated by:      https://github.com/tum-esm/em27-retrieval-pipeline
+##     pipeline commit sha:    cbc6ac8
+##     pipeline version:       1.0.0
+##     file generated at:      2024-01-23 23:23:08.228027
+## 
+## FILE CONTENT:
+##     campaign id:            muccnet
+##     campaign sensor ids:    ma, mb, mc, md, me
+##     campaign location ids:  TUM_I, FEL, GRAE, OBE, TAU, DLR_2
+##     date:                   2023-09-25
+##     data types:             gnd_p, gnd_t, app_sza, azimuth, xh2o, xair, xco2, xch4, xco, xch4_s5p
+##     sampling rate:          10s
+## 
+## SENSOR SERIAL NUMBERS:
+##     ma:       61
+##     mb:       86
+##     mc:       115
+##     md:       116
+##     me:       117
+## 
+## LOCATION COORDINATES [lat, lon, alt]:
+##     TUM_I:    48.151, 11.569, 539.0 
+##     FEL:      48.148, 11.73, 536.0 
+##     GRAE:     48.121, 11.425, 556.0 
+##     OBE:      48.258, 11.548, 483.0 
+##     TAU:      48.047, 11.608, 579.0 
+##     DLR_2:    48.087, 11.28, 597.0 
+## 
+## SENSOR LOCATIONS:
+##     ma: TUM_I
+##     mb: FEL
+##     mc: DLR_2
+##     md: OBE
+##     me: TAU
+## 
+################################################################################
+utc,ma__TUM_I__gnd_p,ma__TUM_I__gnd_t,ma__TUM_I__app_sza,ma__TUM_I__azimuth,ma__TUM_I__xh2o,ma__TUM_I__xair,ma__TUM_I__xco2,ma__TUM_I__xch4,ma__TUM_I__xco,ma__TUM_I__xch4_s5p,mb__FEL__gnd_p,mb__FEL__gnd_t,mb__FEL__app_sza,mb__FEL__azimuth,mb__FEL__xh2o,mb__FEL__xair,mb__FEL__xco2,mb__FEL__xch4,mb__FEL__xco,mb__FEL__xch4_s5p,mc__DLR_2__gnd_p,mc__DLR_2__gnd_t,mc__DLR_2__app_sza,mc__DLR_2__azimuth,mc__DLR_2__xh2o,mc__DLR_2__xair,mc__DLR_2__xco2,mc__DLR_2__xch4,mc__DLR_2__xco,mc__DLR_2__xch4_s5p,md__OBE__gnd_p,md__OBE__gnd_t,md__OBE__app_sza,md__OBE__azimuth,md__OBE__xh2o,md__OBE__xair,md__OBE__xco2,md__OBE__xch4,md__OBE__xco,md__OBE__xch4_s5p,me__TAU__gnd_p,me__TAU__gnd_t,me__TAU__app_sza,me__TAU__azimuth,me__TAU__xh2o,me__TAU__xair,me__TAU__xco2,me__TAU__xch4,me__TAU__xco,me__TAU__xch4_s5p
+2023-09-25T10:22:10.000000+0000,960.974420820,290.970001221,49.865560293,-14.211820049,2377.288676671,0.998177689,416.935051101,1.905482511,0.098009499,1.906132623,961.447929891,291.010009766,49.836297798,-13.998383061,2381.492110189,1.000755845,417.445559692,1.907221204,0.000000000,0.000000000,955.072216797,290.059997559,49.852906799,-14.591092555,2317.545572917,0.998974639,416.958888753,1.902899535,0.000000000,0.000000000,968.788363037,291.579986572,49.971623306,-14.207473615,2491.905289714,0.997800016,417.138318075,1.906429649,0.000000000,0.000000000,957.589013672,290.540008545,49.755933507,-14.170102660,2326.939672852,1.000365547,417.933425903,1.904517404,0.000000000,0.000000000
+2023-09-25T10:22:20.000000+0000,960.974240984,290.970001221,49.858036995,-14.153594392,2376.788242885,0.998137444,416.954382760,1.905566522,0.097986722,1.906192516,961.444798787,291.010009766,49.829779837,-13.944420682,2381.992750380,1.000763539,417.448686388,1.907172034,0.000000000,0.000000000,955.070825195,290.059997559,49.846197891,-14.538292122,2317.411059570,0.998983747,416.939431763,1.902858508,0.000000000,0.000000000,968.788372803,291.579986572,49.964937210,-14.155156390,2491.403206380,0.997786665,417.137073771,1.906468944,0.000000000,0.000000000,957.584649658,290.540008545,49.748842875,-14.115894922,2326.814868164,1.000376423,417.939343262,1.904526134,0.000000000,0.000000000
+```
+
+Each column is named like this: `<sensorid>__<location_id>__<datatype>`. The allowed data types are listed in the [config schema](/docs/api-reference/configuration).
+
+**The export is not implemented for Proffast 1.0.**
 
 ### Logs
 
-TODO
+The logs are stored within the directory of the pipeline at `data/logs`: 
+
+```
+📂 data
++--- 📂 logs
+     +--- 📂 retrieval
+          +--- 📄 20240106-23-54_main.log
+          +--- 📄 20240106-22-55_generous-easley.log
+          +--- 📄 20240106-23-10_eloquent-oppenheimer.log
+          +--- 📂 archive
+               +--- 📂 container (old container logs)
+               +--- 📂 main (old main logs)
+```
+
+The files are either from containers (`startingdate-startingtime_containername.log`) or from the main process (`startingdate-startingtime_main.log`), which orchestrates the containers.
 
 ### Internal
 
-TODO: containers
-TODO: testing data
-TODO: Profiles Query Cache
+#### Containers
+
+The containers where the retrieval is actually running, are working on `data/containers`. Each container with a container name like `eloquent-oppenheimer` has TODO
+
+#### Profiles Query Cache
+
+The profiles downloader uses the file `data/profiles_query_cache.json` to save the information, which profiles have already been requested. Profiles will only be re-requested if they have not been produced within 24 hours.
