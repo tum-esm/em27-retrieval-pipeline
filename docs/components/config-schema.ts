@@ -1,5 +1,5 @@
 /* prettier-ignore */
-const CONFIG_SCHEMA_OBJECT: any = {
+const CONFIG_SCHEMA: any = {
   "$defs": {
     "DataConfig": {
       "description": "Location where the input data sourced from.",
@@ -1154,4 +1154,4 @@ const CONFIG_SCHEMA_OBJECT: any = {
   "type": "object"
 };
 
-export default CONFIG_SCHEMA_OBJECT;
+export default CONFIG_SCHEMA;
