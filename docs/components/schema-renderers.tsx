@@ -2,67 +2,25 @@ import React from "react";
 import CONFIG_SCHEMA from "./config-schema";
 
 const COLORS: {
-  [key in number]: { text: string; panel: string; divider: string };
+  [key in number]: string;
 } = {
-  0: {
-    text: "text-[17px]",
-    panel:
-      "bg-balancedSlate-50 dark:bg-balancedSlate-900 border border-balancedSlate-150 dark:border-balancedSlate-800",
-    divider: "divide-balancedSlate-150 dark:divide-balancedSlate-800",
-  },
-  1: {
-    text: "text-[16px]",
-    panel:
-      "bg-balancedSlate-100 dark:bg-balancedSlate-850 border border-balancedSlate-200 dark:border-balancedSlate-750",
-    divider: "divide-balancedSlate-200 dark:divide-balancedSlate-750",
-  },
-  2: {
-    text: "text-[15px]",
-    panel:
-      "bg-balancedSlate-150 dark:bg-balancedSlate-800 border border-balancedSlate-250 dark:border-balancedSlate-700",
-    divider: "divide-balancedSlate-250 dark:divide-balancedSlate-700",
-  },
-  3: {
-    text: "text-[14px]",
-    panel:
-      "bg-balancedSlate-200 dark:bg-balancedSlate-750 border border-balancedSlate-300 dark:border-balancedSlate-650",
-    divider: "divide-balancedSlate-300 dark:divide-balancedSlate-650",
-  },
-  4: {
-    text: "text-[13px]",
-    panel:
-      "bg-balancedSlate-250 dark:bg-balancedSlate-700 border border-balancedSlate-350 dark:border-balancedSlate-600",
-    divider: "divide-balancedSlate-350 dark:divide-balancedSlate-600",
-  },
-  5: {
-    text: "text-[12px]",
-    panel:
-      "bg-balancedSlate-300 dark:bg-balancedSlate-650 border border-balancedSlate-400 dark:border-balancedSlate-550",
-    divider: "divide-balancedSlate-400 dark:divide-balancedSlate-550",
-  },
-  6: {
-    text: "text-[11px]",
-    panel:
-      "bg-balancedSlate-350 dark:bg-balancedSlate-600 border border-balancedSlate-450 dark:border-balancedSlate-500",
-    divider: "divide-balancedSlate-450 dark:divide-balancedSlate-500",
-  },
-  7: {
-    text: "text-[10px]",
-    panel:
-      "bg-balancedSlate-400 dark:bg-balancedSlate-550 border border-balancedSlate-500 dark:border-balancedSlate-450",
-    divider: "divide-balancedSlate-500 dark:divide-balancedSlate-450",
-  },
-  8: {
-    text: "text-[9px]",
-    panel:
-      "bg-balancedSlate-450 dark:bg-balancedSlate-500 border border-balancedSlate-550 dark:border-balancedSlate-400",
-    divider: "divide-balancedSlate-550 dark:divide-balancedSlate-400",
-  },
+  0: "text-[17px]",
+  1: "text-[16px]",
+  2: "text-[15px]",
+  3: "text-[14px]",
+  4: "text-[13px]",
+  5: "text-[12px]",
+  6: "text-[11px]",
+  7: "text-[10px]",
+  8: "text-[9px]",
 };
+
+const CONTAINER_CLASSES =
+  "border border-slate-300 dark:border-slate-700 rounded first:rounded-t-lg last:rounded-b-lg";
 
 function ObjectTitle(props: { name: string; required: boolean; type: string }) {
   return (
-    <div className={`font-semibold leading-tight`}>
+    <div className={`font-semibold leading-tight mb-0.5`}>
       <span className="font-bold text-slate-950 dark:text-slate-100">
         {props.name}
       </span>
@@ -153,7 +111,7 @@ function ConstProperty(props: {
   required: boolean;
 }) {
   return (
-    <div className={`${props.className} p-4 flex flex-col gap-y-2`}>
+    <div className={`${props.className || ""} p-4 flex flex-col gap-y-1`}>
       <ObjectTitle
         name={props.name}
         required={props.required}
@@ -175,7 +133,7 @@ function NullProperty(props: {
   required: boolean;
 }) {
   return (
-    <div className={`${props.className} p-4 flex flex-col gap-y-2`}>
+    <div className={`${props.className || ""} p-4 flex flex-col gap-y-1`}>
       <ObjectTitle name={props.name} required={props.required} type="null" />
     </div>
   );
@@ -188,7 +146,7 @@ function EnumProperty(props: {
   required: boolean;
 }) {
   return (
-    <div className={`${props.className} p-4 flex flex-col gap-y-2`}>
+    <div className={`${props.className || ""} p-4 flex flex-col gap-y-1`}>
       <ObjectTitle name={props.name} required={props.required} type="enum" />
       <ObjectDescription text={props.value.description} />
       <ObjectAttributeList
@@ -206,7 +164,7 @@ function StringProperty(props: {
   required: boolean;
 }) {
   return (
-    <div className={`${props.className} p-4 flex flex-col gap-y-2`}>
+    <div className={`${props.className || ""} p-4 flex flex-col gap-y-1`}>
       <ObjectTitle name={props.name} required={props.required} type="string" />
       <ObjectDescription text={props.value.description} />
       <ObjectAttributeList
@@ -230,7 +188,7 @@ function NumberProperty(props: {
   required: boolean;
 }) {
   return (
-    <div className={`${props.className} p-4 flex flex-col gap-y-2`}>
+    <div className={`${props.className || ""} p-4 flex flex-col gap-y-1`}>
       <ObjectTitle
         name={props.name}
         required={props.required}
@@ -258,7 +216,7 @@ function renderConfigProperty(
   if ("const" in propertyObject) {
     console.log({ propertyKey, propertyObject });
     return (
-      <div className={COLORS[depth].text}>
+      <div className={`${COLORS[depth]} ${CONTAINER_CLASSES}`}>
         <ConstProperty
           name={propertyKey}
           value={propertyObject}
@@ -270,7 +228,7 @@ function renderConfigProperty(
   if ("enum" in propertyObject) {
     console.log({ propertyKey, propertyObject });
     return (
-      <div className={COLORS[depth].text}>
+      <div className={`${COLORS[depth]} ${CONTAINER_CLASSES}`}>
         <EnumProperty
           name={propertyKey}
           value={propertyObject}
@@ -281,7 +239,7 @@ function renderConfigProperty(
   }
   if (propertyObject.type === "string") {
     return (
-      <div className={COLORS[depth].text}>
+      <div className={`${COLORS[depth]} ${CONTAINER_CLASSES}`}>
         <StringProperty
           name={propertyKey}
           value={propertyObject}
@@ -296,7 +254,7 @@ function renderConfigProperty(
     propertyObject.type === "float"
   ) {
     return (
-      <div className={COLORS[depth].text}>
+      <div className={`${COLORS[depth]} ${CONTAINER_CLASSES}`}>
         <NumberProperty
           name={propertyKey}
           value={propertyObject}
@@ -307,7 +265,7 @@ function renderConfigProperty(
   }
   if (propertyObject.type === "null") {
     return (
-      <div className={COLORS[depth].text}>
+      <div className={`${COLORS[depth]} ${CONTAINER_CLASSES}`}>
         <NullProperty
           name={propertyKey}
           value={propertyObject}
@@ -320,15 +278,17 @@ function renderConfigProperty(
   // union
   if (propertyObject.anyOf) {
     return (
-      <div className={`flex flex-col p-4 gap-y-2 ${COLORS[depth].text}`}>
+      <div
+        className={`flex flex-col p-4 gap-y-2 ${COLORS[depth]} ${CONTAINER_CLASSES}`}
+      >
         <ObjectTitle
           name={propertyKey}
           required={propertyObject}
           type="union"
         />
         <ObjectDescription text={propertyObject.description} />
-        <div className={`flex flex-col rounded-lg ${COLORS[depth].panel} mt-2`}>
-          <div className={`flex flex-col divide-y ${COLORS[depth].divider}`}>
+        <div className={`flex flex-col rounded-lg mt-2`}>
+          <div className={`flex flex-col gap-y-1`}>
             {propertyObject.anyOf.map((option: any, i: number) =>
               renderConfigProperty(depth + 1, `option ${i + 1}`, option, false)
             )}
@@ -341,7 +301,9 @@ function renderConfigProperty(
   // object
   if (propertyObject.type === "object") {
     return (
-      <div className={`flex flex-col p-4 gap-y-2 ${COLORS[depth].text}`}>
+      <div
+        className={`flex flex-col p-4 gap-y-1 ${COLORS[depth]} ${CONTAINER_CLASSES}`}
+      >
         <ObjectTitle name={propertyKey} required={required} type="object" />
         <ObjectDescription text={propertyObject.description} />
         <div className="text-slate-800 dark:text-slate-300">
@@ -352,9 +314,7 @@ function renderConfigProperty(
           )}
         </div>
         {propertyObject.properties && (
-          <div
-            className={`flex flex-col gap-y-2 rounded-lg ${COLORS[depth].panel} mt-2 divide-y ${COLORS[depth].divider}`}
-          >
+          <div className={`flex flex-col gap-y-1 rounded-lg mt-2`}>
             {Object.keys(propertyObject.properties).map((key) =>
               renderConfigProperty(
                 depth + 1,
@@ -377,17 +337,17 @@ function renderConfigProperty(
   // array
   if (propertyObject.type === "array") {
     return (
-      <div className={`flex flex-col p-4 gap-y-2 ${COLORS[depth].text}`}>
+      <div
+        className={`flex flex-col p-4 gap-y-2 ${COLORS[depth]} ${CONTAINER_CLASSES}`}
+      >
         <ObjectTitle name={propertyKey} required={required} type="array" />
         <ObjectDescription text={propertyObject.description} />
         <ObjectAttributeList
           consideredAttributes={["default", "examples"]}
           object={propertyObject}
         />
-        <div
-          className={`flex flex-col gap-y-2 rounded-lg ${COLORS[depth].panel} mt-2`}
-        >
-          <div className={`flex flex-col divide-y ${COLORS[depth].divider}`}>
+        <div className={`flex flex-col gap-y-2 rounded-lg mt-2`}>
+          <div className={`flex flex-col`}>
             {renderConfigProperty(depth + 1, "#", propertyObject.items, false)}
           </div>
         </div>
@@ -401,9 +361,7 @@ function renderConfigProperty(
 
 function Schema(props: { schema: any }) {
   return (
-    <div
-      className={`flex flex-col mt-4 rounded-lg gap-y-2 text-slate-950 ${COLORS[0].panel}`}
-    >
+    <div className={`flex flex-col mt-4 rounded-lg gap-y-2 text-slate-950`}>
       {renderConfigProperty(1, "root", props.schema, true)}
     </div>
   );
