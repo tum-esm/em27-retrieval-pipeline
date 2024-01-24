@@ -1,14 +1,12 @@
 {
-    "index": {
-        "display": "hidden"
-    },
-    "overview": "🌋 Overview",
-    "---1": {
-        "type": "separator"
-    },
-    "guides": "📚 Guides",
-    "---2": {
-        "type": "separator"
-    },
-    "api-reference": "⚙️ API Reference"
+  "index": "Index",
+  "introduction": "🌋 Introduction",
+  "---1": {
+    "type": "separator"
+  },
+  "guides": "📚 Guides",
+  "---2": {
+    "type": "separator"
+  },
+  "api-reference": "⚙️ API Reference"
 }
