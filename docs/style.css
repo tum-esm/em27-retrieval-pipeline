@@ -10,6 +10,10 @@
   transition-duration: 50ms;
 }
 
+.nextra-banner-container {
+  @apply !bg-amber-200 !text-amber-950 !border-b !border-amber-300 dark:!border-0 !bg-none;
+}
+
 /*
 .background-paper-pattern {
     opacity: 0.8;
