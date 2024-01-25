@@ -58,22 +58,27 @@ with open(
 # EXPORT JSON SCHEMAS
 
 
-def _remove_allof_wrapping(o: dict[str, Any]) -> dict[str, Any]:
-    if "properties" in o.keys():
-        return {
-            **o,
-            "properties": {
-                k: _remove_allof_wrapping(v)
-                for k, v in o["properties"].items()
-            },
-        }
-    elif "allOf" in o.keys():
-        assert len(o["allOf"]) == 1
-        return {
-            **o["allOf"][0],
-            **{k: v
-               for k, v in o.items() if k != "allOf"},
-        }
+def _remove_allof_wrapping(o: Any) -> Any:
+    if isinstance(o, list):
+        return [_remove_allof_wrapping(x) for x in o]
+    elif isinstance(o, dict):
+        if "properties" in o.keys():
+            return {
+                **o,
+                "properties": {
+                    k: _remove_allof_wrapping(v)
+                    for k, v in o["properties"].items()
+                },
+            }
+        elif "allOf" in o.keys():
+            assert len(o["allOf"]) == 1
+            return {
+                **o["allOf"][0],
+                **{k: v
+                   for k, v in o.items() if k != "allOf"},
+            }
+        else:
+            return {k: _remove_allof_wrapping(v) for k, v in o.items()}
     else:
         return o
 

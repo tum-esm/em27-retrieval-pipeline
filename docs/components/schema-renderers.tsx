@@ -184,6 +184,24 @@ function StringProperty(props: {
   );
 }
 
+function BooleanProperty(props: {
+  name: string;
+  value: any;
+  className?: string;
+  required: boolean;
+}) {
+  return (
+    <div className={`${props.className || ""} p-4 flex flex-col gap-y-1`}>
+      <ObjectTitle name={props.name} required={props.required} type="boolean" />
+      <ObjectDescription text={props.value.description} />
+      <ObjectAttributeList
+        consideredAttributes={["default"]}
+        object={props.value}
+      />
+    </div>
+  );
+}
+
 function NumberProperty(props: {
   name: string;
   value: any;
@@ -244,6 +262,17 @@ function renderConfigProperty(
     return (
       <div className={`${COLORS[depth]} ${CONTAINER_CLASSES}`}>
         <StringProperty
+          name={propertyKey}
+          value={propertyObject}
+          required={required}
+        />
+      </div>
+    );
+  }
+  if (propertyObject.type === "boolean") {
+    return (
+      <div className={`${COLORS[depth]} ${CONTAINER_CLASSES}`}>
+        <BooleanProperty
           name={propertyKey}
           value={propertyObject}
           required={required}
