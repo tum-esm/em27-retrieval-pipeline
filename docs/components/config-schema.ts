@@ -51,22 +51,22 @@ const CONFIG_SCHEMA: any = {
                     "description": "Location where the input data sourced from.",
                     "properties": {
                         "datalogger": {
-                            "description": "A pydantic model that validates a directory path.\n\nExample usage:\n\n```python\nclass MyModel(pyndatic.BaseModel):\n    path: StrictDirectoryPath\n\nm = MyModel(path='/path/to/directory') # validates that the directory exists\n```\n\nThe validation can be ignored by setting the context variable:\n\n```python\nm = MyModel.model_validate(\n    {\"path\": \"somenonexistingpath\"},\n    context={\"ignore-path-existence\": True},\n) # does not raise an error\n```",
+                            "description": "directory path to datalogger files",
                             "title": "StrictDirectoryPath",
                             "type": "string"
                         },
                         "atmospheric_profiles": {
-                            "description": "A pydantic model that validates a directory path.\n\nExample usage:\n\n```python\nclass MyModel(pyndatic.BaseModel):\n    path: StrictDirectoryPath\n\nm = MyModel(path='/path/to/directory') # validates that the directory exists\n```\n\nThe validation can be ignored by setting the context variable:\n\n```python\nm = MyModel.model_validate(\n    {\"path\": \"somenonexistingpath\"},\n    context={\"ignore-path-existence\": True},\n) # does not raise an error\n```",
+                            "description": "directory path to atmospheric profile files",
                             "title": "StrictDirectoryPath",
                             "type": "string"
                         },
                         "interferograms": {
-                            "description": "A pydantic model that validates a directory path.\n\nExample usage:\n\n```python\nclass MyModel(pyndatic.BaseModel):\n    path: StrictDirectoryPath\n\nm = MyModel(path='/path/to/directory') # validates that the directory exists\n```\n\nThe validation can be ignored by setting the context variable:\n\n```python\nm = MyModel.model_validate(\n    {\"path\": \"somenonexistingpath\"},\n    context={\"ignore-path-existence\": True},\n) # does not raise an error\n```",
+                            "description": "directory path to ifg files",
                             "title": "StrictDirectoryPath",
                             "type": "string"
                         },
                         "results": {
-                            "description": "A pydantic model that validates a directory path.\n\nExample usage:\n\n```python\nclass MyModel(pyndatic.BaseModel):\n    path: StrictDirectoryPath\n\nm = MyModel(path='/path/to/directory') # validates that the directory exists\n```\n\nThe validation can be ignored by setting the context variable:\n\n```python\nm = MyModel.model_validate(\n    {\"path\": \"somenonexistingpath\"},\n    context={\"ignore-path-existence\": True},\n) # does not raise an error\n```",
+                            "description": "directory path to results",
                             "title": "StrictDirectoryPath",
                             "type": "string"
                         }

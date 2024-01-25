@@ -1,6 +1,7 @@
+import contextlib
 import json
 import re
-from typing import Any, Optional
+from typing import Any, Generator, Optional
 import os
 import em27_metadata
 import tum_esm_utils
@@ -71,9 +72,9 @@ def _remove_allof_wrapping(o: dict[str, Any]) -> dict[str, Any]:
     elif "allOf" in o.keys():
         assert len(o["allOf"]) == 1
         return {
+            **o["allOf"][0],
             **{k: v
                for k, v in o.items() if k != "allOf"},
-            **o["allOf"][0],
         }
     else:
         return o
@@ -186,10 +187,66 @@ with open(
 # ---------------------------------------------------------
 # Replace config example file
 
-# TODO
-"""src.types.Config.load(
-            tum_esm_utils.files.rel_to_abs_path(
-                os.path.join(PROJECT_DIR, "config", "config.template.json")
-            ),
-            ignore_path_existence=True
-        ).model_dump_json(),"""
+config_string = src.types.Config.load(
+    tum_esm_utils.files.rel_to_abs_path(
+        os.path.join(PROJECT_DIR, "config", "config.template.json")
+    ),
+    ignore_path_existence=True,
+).model_dump_json(indent=4)
+
+### reference
+
+with open(
+    os.path.join(
+        PROJECT_DIR, "docs", "pages", "docs", "api-reference",
+        "configuration.mdx"
+    ), "r"
+) as _f:
+    current_config_reference = _f.read()
+
+match4 = re.search(
+    r"## `config.json`\n\n### Example File\n\n```json[^`]+```",
+    current_config_reference,
+    flags=re.MULTILINE,
+)
+assert match4 is not None
+current_config_reference = current_config_reference.replace(
+    match4.group(0),
+    "## `config.json`\n\n### Example File\n\n```json\n" + config_string +
+    "\n```",
+)
+
+with open(
+    os.path.join(
+        PROJECT_DIR, "docs", "pages", "docs", "api-reference",
+        "configuration.mdx"
+    ), "w"
+) as _f:
+    _f.write(current_config_reference)
+
+### guide
+
+with open(
+    os.path.join(
+        PROJECT_DIR, "docs", "pages", "docs", "guides", "configuration.mdx"
+    ), "r"
+) as _f:
+    current_config_guide = _f.read()
+
+match5 = re.search(
+    r"\nTemplate:\n\n```json[^`]+```",
+    current_config_guide,
+    flags=re.MULTILINE,
+)
+assert match5 is not None
+current_config_guide = current_config_guide.replace(
+    match5.group(0),
+    "\nTemplate:\n\n```json\n" + config_string + "\n```",
+)
+
+with open(
+    os.path.join(
+        PROJECT_DIR, "docs", "pages", "docs", "guides", "configuration.mdx"
+    ), "w"
+) as _f:
+    _f.write(current_config_guide)

@@ -16,87 +16,100 @@ Template:
 
 ```json
 {
-  "version": "1.0",
-  "general": {
-    "metadata": {
-      "github_repository": "tum-esm/em27-metadata-storage",
-      "access_token": null
-    },
-    "data": {
-      "datalogger": "path-to-datalogger-datalogger-upload-directory",
-      "atmospheric_profiles": "path-to-atmospheric-profiles",
-      "interferograms": "path-to-datalogger-ifg-upload-directory",
-      "results": "path-to-results-storage"
-    }
-  },
-  "profiles": {
-    "server": {
-      "email": "...@...",
-      "max_parallel_requests": 25
-    },
-    "scope": {
-      "from_date": "2022-01-01",
-      "to_date": "2022-01-05",
-      "models": ["GGG2014", "GGG2020"]
-    },
-    "GGG2020_standard_sites": [
-      {
-        "identifier": "mu",
-        "lat": 48.151,
-        "lon": 11.569,
-        "from_date": "2019-01-01",
-        "to_date": "2099-12-31"
-      }
-    ]
-  },
-  "retrieval": {
+    "version": "1.0",
     "general": {
-      "max_process_count": 9,
-      "ifg_file_regex": "^$(SENSOR_ID)$(DATE).*\\.\\d+$",
-      "store_binary_spectra": false
+        "metadata": {
+            "github_repository": "tum-esm/em27-metadata-storage",
+            "access_token": null
+        },
+        "data": {
+            "datalogger": "path-to-datalogger-datalogger-upload-directory",
+            "atmospheric_profiles": "path-to-atmospheric-profiles",
+            "interferograms": "path-to-datalogger-ifg-upload-directory",
+            "results": "path-to-results-storage"
+        }
     },
-    "jobs": [
-      {
-        "retrieval_algorithm": "proffast-1.0",
-        "atmospheric_profile_model": "GGG2014",
-        "sensor_ids": ["ma", "mb", "mc", "md", "me"],
-        "from_date": "2019-01-01",
-        "to_date": "2022-12-31"
-      },
-      {
-        "retrieval_algorithm": "proffast-2.3",
-        "atmospheric_profile_model": "GGG2020",
-        "sensor_ids": ["ma", "mb", "mc", "md", "me"],
-        "from_date": "2019-01-01",
-        "to_date": "2099-12-31"
-      }
+    "profiles": {
+        "server": {
+            "email": "...@...",
+            "max_parallel_requests": 25
+        },
+        "scope": {
+            "from_date": "2022-01-01",
+            "to_date": "2022-01-05",
+            "models": [
+                "GGG2014",
+                "GGG2020"
+            ]
+        },
+        "GGG2020_standard_sites": [
+            {
+                "identifier": "mu",
+                "lat": 48.151,
+                "lon": 11.569,
+                "from_date": "2019-01-01",
+                "to_date": "2099-12-31"
+            }
+        ]
+    },
+    "retrieval": {
+        "general": {
+            "max_process_count": 9,
+            "ifg_file_regex": "^$(SENSOR_ID)$(DATE).*\\.\\d+$",
+            "store_binary_spectra": false
+        },
+        "jobs": [
+            {
+                "retrieval_algorithm": "proffast-1.0",
+                "atmospheric_profile_model": "GGG2014",
+                "sensor_ids": [
+                    "ma",
+                    "mb",
+                    "mc",
+                    "md",
+                    "me"
+                ],
+                "from_date": "2019-01-01",
+                "to_date": "2022-12-31"
+            },
+            {
+                "retrieval_algorithm": "proffast-2.3",
+                "atmospheric_profile_model": "GGG2020",
+                "sensor_ids": [
+                    "ma",
+                    "mb",
+                    "mc",
+                    "md",
+                    "me"
+                ],
+                "from_date": "2019-01-01",
+                "to_date": "2099-12-31"
+            }
+        ]
+    },
+    "export_targets": [
+        {
+            "campaign_id": "muccnet",
+            "retrieval_algorithm": "proffast-2.3",
+            "atmospheric_profile_model": "GGG2020",
+            "data_types": [
+                "gnd_p",
+                "gnd_t",
+                "app_sza",
+                "azimuth",
+                "xh2o",
+                "xair",
+                "xco2",
+                "xch4",
+                "xco",
+                "xch4_s5p"
+            ],
+            "sampling_rate": "1m",
+            "max_interpolation_gap_seconds": 180,
+            "dst_dir": "path-to-merged-output"
+        }
     ]
-  },
-  "export_targets": [
-    {
-      "campaign_id": "muccnet",
-      "retrieval_algorithm": "proffast-2.3",
-      "atmospheric_profile_model": "GGG2020",
-      "data_types": [
-        "gnd_p",
-        "gnd_t",
-        "app_sza",
-        "azimuth",
-        "xh2o",
-        "xair",
-        "xco2",
-        "xch4",
-        "xco",
-        "xch4_s5p"
-      ],
-      "sampling_rate": "1m",
-      "max_interpolation_gap_seconds": 180,
-      "dst_dir": "path-to-merged-output"
-    }
-  ]
 }
 ```
-
-TODO: dynamically sync this
 
 The [next section](/docs/guides/directories) describes how the directories for the data sources (interferograms, etc.), the outputs of this pipeline (retrieval results, exports, logs) and the internal directories (containers, etc.) are structured.
