@@ -235,7 +235,6 @@ function renderConfigProperty(
   }
 
   if ("const" in propertyObject) {
-    console.log({ propertyKey, propertyObject });
     return (
       <div className={`${COLORS[depth]} ${CONTAINER_CLASSES}`}>
         <ConstProperty
@@ -247,7 +246,6 @@ function renderConfigProperty(
     );
   }
   if ("enum" in propertyObject) {
-    console.log({ propertyKey, propertyObject });
     return (
       <div className={`${COLORS[depth]} ${CONTAINER_CLASSES}`}>
         <EnumProperty
