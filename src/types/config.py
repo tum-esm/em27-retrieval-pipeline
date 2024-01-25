@@ -11,7 +11,7 @@ from .basic_types import (
 )
 
 
-class MetadataConfig(pydantic.BaseModel):
+class _MetadataConfig(pydantic.BaseModel):
     """GitHub repository where the location data is stored."""
 
     github_repository: str = pydantic.Field(
@@ -28,7 +28,7 @@ class MetadataConfig(pydantic.BaseModel):
     )
 
 
-class DataConfig(pydantic.BaseModel):
+class _DataConfig(pydantic.BaseModel):
     """Location where the input data sourced from."""
 
     datalogger: tum_esm_utils.validators.StrictDirectoryPath = pydantic.Field(
@@ -45,7 +45,7 @@ class DataConfig(pydantic.BaseModel):
     )
 
 
-class ProfilesServerConfig(pydantic.BaseModel):
+class _ProfilesServerConfig(pydantic.BaseModel):
     """Settings for accessing the ccycle ftp server. Besides the
     `email` field, these can be left as default in most cases."""
 
@@ -63,7 +63,7 @@ class ProfilesServerConfig(pydantic.BaseModel):
     )
 
 
-class ProfilesScopeConfig(pydantic.BaseModel):
+class _ProfilesScopeConfig(pydantic.BaseModel):
     from_date: datetime.date = pydantic.Field(
         datetime.date(1900, 1, 1),
         description=
@@ -80,13 +80,13 @@ class ProfilesScopeConfig(pydantic.BaseModel):
     )
 
     @pydantic.model_validator(mode='after')
-    def check_date_order(self) -> ProfilesScopeConfig:
+    def check_date_order(self) -> _ProfilesScopeConfig:
         if self.from_date > self.to_date:
             raise ValueError('from_date must be before to_date')
         return self
 
 
-class ProfilesGGG2020StandardSitesItemConfig(pydantic.BaseModel):
+class _ProfilesGGG2020StandardSitesItemConfig(pydantic.BaseModel):
     identifier: str = pydantic.Field(
         ...,
         description="The identifier on the caltech server",
@@ -113,13 +113,13 @@ class ProfilesGGG2020StandardSitesItemConfig(pydantic.BaseModel):
     )
 
     @pydantic.model_validator(mode='after')
-    def check_date_order(self) -> ProfilesGGG2020StandardSitesItemConfig:
+    def check_date_order(self) -> _ProfilesGGG2020StandardSitesItemConfig:
         if self.from_date > self.to_date:
             raise ValueError('from_date must be before to_date')
         return self
 
 
-class RetrievalGeneralConfig(pydantic.BaseModel):
+class _RetrievalGeneralConfig(pydantic.BaseModel):
     max_process_count: int = pydantic.Field(
         1,
         ge=1,
@@ -144,7 +144,7 @@ class RetrievalGeneralConfig(pydantic.BaseModel):
     )
 
 
-class RetrievalJobConfig(pydantic.BaseModel):
+class _RetrievalJobConfig(pydantic.BaseModel):
     """Settings for filtering the storage data. Only used if `config.data_sources.storage` is `true`."""
 
     retrieval_algorithm: RetrievalAlgorithm = pydantic.Field(
@@ -172,7 +172,7 @@ class RetrievalJobConfig(pydantic.BaseModel):
     )
 
     @pydantic.model_validator(mode='after')
-    def check_model_integrity(self) -> RetrievalJobConfig:
+    def check_model_integrity(self) -> _RetrievalJobConfig:
         if self.from_date > self.to_date:
             raise ValueError('from_date must be before to_date')
         if self.retrieval_algorithm == "proffast-1.0" and self.atmospheric_profile_model == "GGG2020":
@@ -180,22 +180,22 @@ class RetrievalJobConfig(pydantic.BaseModel):
         return self
 
 
-class GeneralConfig(pydantic.BaseModel):
-    metadata: Optional[MetadataConfig] = pydantic.Field(
+class _GeneralConfig(pydantic.BaseModel):
+    metadata: Optional[_MetadataConfig] = pydantic.Field(
         None,
         description=
         "If not set, the pipeline will use local metadata files or abort if the local files are not found. If local files are found, they will always be preferred over the remote data even if the remote source is configured.",
     )
-    data: DataConfig
+    data: _DataConfig
 
 
-class ProfilesConfig(pydantic.BaseModel):
+class _ProfilesConfig(pydantic.BaseModel):
     """Settings for vertical profiles retrieval. If `null`, the vertical profiles script will stop and log a warning"""
 
-    server: ProfilesServerConfig
-    scope: ProfilesScopeConfig
+    server: _ProfilesServerConfig
+    scope: _ProfilesScopeConfig
     GGG2020_standard_sites: list[
-        ProfilesGGG2020StandardSitesItemConfig
+        _ProfilesGGG2020StandardSitesItemConfig
     ] = pydantic.Field(
         ...,
         description=
@@ -203,18 +203,18 @@ class ProfilesConfig(pydantic.BaseModel):
     )
 
 
-class RetrievalConfig(pydantic.BaseModel):
+class _RetrievalConfig(pydantic.BaseModel):
     """Settings for automated proffast processing. If `null`, the automated proffast script will stop and log a warning"""
 
-    general: RetrievalGeneralConfig
-    jobs: list[RetrievalJobConfig] = pydantic.Field(
+    general: _RetrievalGeneralConfig
+    jobs: list[_RetrievalJobConfig] = pydantic.Field(
         ...,
         description=
         "List of retrievals to run. The list will be processed sequentially.",
     )
 
 
-class ExportTargetConfig(pydantic.BaseModel):
+class _ExportTargetConfig(pydantic.BaseModel):
     campaign_id: str = pydantic.Field(
         ...,
         description="Campaign specified in location metadata.",
@@ -250,15 +250,17 @@ class ExportTargetConfig(pydantic.BaseModel):
 
 
 class Config(pydantic.BaseModel):
+    """A pydantic model describing the config file schema."""
+
     version: Literal["1.0"] = pydantic.Field(
         ...,
         description=
         "Version of the retrieval pipeline which is compatible with this config file. Retrievals done with any version `1.x` will produce the same output files as retrievals done with version `1.0`. But higher version numbers might use a different config file structure and produce more output files."
     )
-    general: GeneralConfig
-    profiles: Optional[ProfilesConfig] = None
-    retrieval: Optional[RetrievalConfig] = None
-    export_targets: Optional[list[ExportTargetConfig]] = pydantic.Field(
+    general: _GeneralConfig
+    profiles: Optional[_ProfilesConfig] = None
+    retrieval: Optional[_RetrievalConfig] = None
+    export_targets: Optional[list[_ExportTargetConfig]] = pydantic.Field(
         None,
         description=
         'List of output merging targets. Relies on specifying "campaigns" in the EM27 metadata.'
