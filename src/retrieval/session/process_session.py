@@ -64,7 +64,7 @@ def run(
 
     logger.info(f"Updating retrieval templates")
     try:
-        update_templates.run(session)
+        update_templates.run(logger, session)
     except Exception as e:
         logger.exception(e, label="Failed to update templates")
         _last_will()
