@@ -217,7 +217,7 @@ def _run(
     while True:
         while ((len(active_processes) < process_count) and
                (len(pending_processes) > 0)):
-            p = pending_processes.pop()
+            p = pending_processes.pop(0)
             p.start()
             active_processes.append(p)
             print(f"Started process {p.name}")
