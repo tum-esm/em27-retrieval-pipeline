@@ -1,11 +1,12 @@
 import datetime
-from typing import Any
+from typing import Any, Optional
 import skyfield.iokit
 import skyfield.api
 import skyfield.timelib
 import skyfield.almanac
 import polars as pl
 import tum_esm_utils
+from .logger import Logger
 
 
 def compute_solar_noon_time(
@@ -41,19 +42,22 @@ def compute_solar_noon_time(
 
 
 def compute_mean_pressure_around_noon(
-    solar_noon_datetime: datetime.date,
+    solar_noon_datetime: datetime.datetime,
     filepath: str,
+    logger: Optional[Logger] = None,
 ) -> float:
     df = pl.read_csv(
         filepath,
         dtypes={
-            "UTCtime___": str,
+            "UTCtime___": pl.Utf8,
             "BaroYoung": pl.Float64,
         },
     ).with_columns(
         pl.col("UTCtime___").str.strptime(dtype=pl.Time, format="%H:%M:%S"
                                          ).alias("UTCtime___")
     )
+    if logger is not None:
+        logger.debug(f"Found {len(df)} pressure data points")
     df_around_noon = df.filter((
         pl.col("UTCtime___") >=
         (solar_noon_datetime - datetime.timedelta(minutes=120)).time()
@@ -61,6 +65,10 @@ def compute_mean_pressure_around_noon(
         pl.col("UTCtime___") <=
         (solar_noon_datetime + datetime.timedelta(minutes=120)).time()
     ))
+    if logger is not None:
+        logger.debug(
+            f"Found {len(df_around_noon)} pressure data points around noon (+- 2h)"
+        )
     assert len(df_around_noon
               ) > 10, ("Did not find enough pressure data around solar noon")
     return float(df_around_noon.select("BaroYoung").to_numpy().flatten().mean())
