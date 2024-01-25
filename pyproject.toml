@@ -4,8 +4,8 @@ version = "1.0.0"
 description = "automated EM27 data processing"
 authors = [
     { name = "Moritz Makowski", email = "moritz.makowski@tum.de" },
-    { name = "Andreas Luther", email = "andreas.luther@tum.de" },
     { name = "Marlon Müller", email = "marlon.mueller@tum.de" },
+    { name = "Andreas Luther", email = "andreas.luther@tum.de" },
     { name = "Vyas Giridhard", email = "vyas.giridharan@tum.de" },
 ]
 dependencies = [
@@ -30,6 +30,9 @@ requires-python = "==3.11.*"
 readme = "README.md"
 license = { text = "MIT" }
 
+[project.urls]
+repository = "https://github.com/tum-esm/em27-retrieval-pipeline"
+documentation = "https://em27-retrieval-pipeline.netlify.app"
 
 [project.optional-dependencies]
 dev = [
