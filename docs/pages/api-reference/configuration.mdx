@@ -1,6 +1,6 @@
 import {
     ConfigSchema,
-} from '../../../components/schema-renderers';
+} from '../../components/schema-renderers';
 
 # Configuration
 
@@ -49,8 +49,7 @@ import {
     "retrieval": {
         "general": {
             "max_process_count": 9,
-            "ifg_file_regex": "^$(SENSOR_ID)$(DATE).*\\.\\d+$",
-            "store_binary_spectra": false
+            "ifg_file_regex": "^$(SENSOR_ID)$(DATE).*\\.\\d+$"
         },
         "jobs": [
             {
@@ -64,7 +63,10 @@ import {
                     "me"
                 ],
                 "from_date": "2019-01-01",
-                "to_date": "2022-12-31"
+                "to_date": "2022-12-31",
+                "settings": {
+                    "store_binary_spectra": true
+                }
             },
             {
                 "retrieval_algorithm": "proffast-2.3",
@@ -77,7 +79,10 @@ import {
                     "me"
                 ],
                 "from_date": "2019-01-01",
-                "to_date": "2099-12-31"
+                "to_date": "2099-12-31",
+                "settings": {
+                    "store_binary_spectra": false
+                }
             }
         ]
     },

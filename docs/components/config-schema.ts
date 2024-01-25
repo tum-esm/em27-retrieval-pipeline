@@ -238,16 +238,10 @@ const CONFIG_SCHEMA: any = {
                                     "minLength": 1,
                                     "title": "Ifg File Regex",
                                     "type": "string"
-                                },
-                                "store_binary_spectra": {
-                                    "description": "Whether to store the binary spectra files. These are the files that are used by the retrieval algorithm. They are not needed for the output files, but can be useful for debugging.",
-                                    "title": "Store Binary Spectra",
-                                    "type": "boolean"
                                 }
                             },
                             "required": [
-                                "ifg_file_regex",
-                                "store_binary_spectra"
+                                "ifg_file_regex"
                             ],
                             "title": "RetrievalGeneralConfig",
                             "type": "object"
@@ -296,6 +290,22 @@ const CONFIG_SCHEMA: any = {
                                         "format": "date",
                                         "title": "To Date",
                                         "type": "string"
+                                    },
+                                    "settings": {
+                                        "properties": {
+                                            "store_binary_spectra": {
+                                                "default": false,
+                                                "description": "Whether to store the binary spectra files. These are the files that are used by the retrieval algorithm. They are not needed for the output files, but can be useful for debugging.",
+                                                "title": "Store Binary Spectra",
+                                                "type": "boolean"
+                                            }
+                                        },
+                                        "title": "RetrievalJobSettingsConfig",
+                                        "type": "object",
+                                        "default": {
+                                            "store_binary_spectra": false
+                                        },
+                                        "description": "Advanced settings that only apply to this retrieval job"
                                     }
                                 },
                                 "required": [
