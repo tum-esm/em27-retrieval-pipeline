@@ -145,6 +145,20 @@ class RetrievalJobSettingsConfig(pydantic.BaseModel):
         description=
         "Whether to store the binary spectra files. These are the files that are used by the retrieval algorithm. They are not needed for the output files, but can be useful for debugging.",
     )
+    dc_min_threshold: float = pydantic.Field(
+        0.05,
+        ge=0.001,
+        le=0.999,
+        description=
+        "Value used for the `DC_min` threshold in Proffast. If not set, defaults to the Proffast default.",
+    )
+    dc_var_threshold: float = pydantic.Field(
+        0.10,
+        ge=0.001,
+        le=0.999,
+        description=
+        "Value used for the `DC_var` threshold in Proffast. If not set, defaults to the Proffast default.",
+    )
 
 
 class RetrievalJobConfig(pydantic.BaseModel):

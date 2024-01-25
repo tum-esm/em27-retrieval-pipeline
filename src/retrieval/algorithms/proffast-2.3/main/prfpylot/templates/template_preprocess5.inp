@@ -7,8 +7,8 @@ DCvar
 $
 .false.
 %mpow_fft%
-0.05
-0.10
+%DC_MIN_THRESHOLD%
+%DC_VAR_THRESHOLD%
 
 
 

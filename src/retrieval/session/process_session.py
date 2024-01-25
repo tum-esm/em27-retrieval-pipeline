@@ -7,6 +7,7 @@ from . import (
     move_profiles,
     move_ifg_files,
     move_outputs,
+    update_templates,
     run_retrieval,
 )
 
@@ -58,6 +59,14 @@ def run(
         move_ifg_files.run(config, logger, session)
     except Exception as e:
         logger.warning(f"Inputs incomplete: {e}")
+        _last_will()
+        return
+
+    logger.info(f"Updating retrieval templates")
+    try:
+        update_templates.run(session)
+    except Exception as e:
+        logger.exception(e, label="Failed to update templates")
         _last_will()
         return
 
