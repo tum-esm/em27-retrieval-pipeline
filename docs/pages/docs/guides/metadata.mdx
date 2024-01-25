@@ -1,143 +1,14 @@
-import { Callout } from 'nextra/components'
-
 # Metadata
 
 In order to use the pipeline, you have to specify the metadata of your EM27/SUN network: "how was each instrument set up over time?". The metadata consists of three files `locations.json`, `sensors.json` and `campaigns.json`.
 
-<Callout type="info" emoji="💡">
+The [API Reference section](/docs/api-reference/metadata) contains example files for the metadata as well as a full specification of the schema.
 
-Below, you can find example files for each of the three metadata files. The full schema specification and description of each parameter can be found [in the API Reference section](/docs/api-reference/metadata).
+**`locations.json`** contains a list of measurement locations. You will have to assign each of your measurement locations a `location_id`. For example, we use the location ids `TUM_I`, `FEL`, and so on.
 
-</Callout>
+**`sensors.json`** contains a list of measurement setups for each of your EM27/SUN devices. You will have to assign each of your sensor systems - each housing one EM27/SUN - a `sensor_id`. For example, we use the sensor ids `ma`, `mb`, `mc`, `md`, and `me`.
 
-## Example Files
-
-### `locations.json`
-
-Use this to define your measurement locations. `alt` refers to altitude above sea level in meters. In the rest of the metadata, you will just use the `location_id` to refer to one of these.
-
-```json
-[
-  {
-    "location_id": "lid1",
-    "details": "description of location 1",
-    "lon": 10.5,
-    "lat": 48.1,
-    "alt": 500
-  },
-  {
-    "location_id": "lid2",
-    "details": "description of location 2",
-    "lon": 11.3,
-    "lat": 48.0,
-    "alt": 600
-  }
-]
-```
-
-TODO: dynamically sync this
-
-### `sensors.json`
-
-Use this to specify a history of measurement setups for each of your EM27/SUN devices. Many of these fields are optional: If you do not specify `setups.#.value.pressure_data_source`, it will just take the pressure source named like the sensor id, and so on.
-
-As an example, we use the sensor ids `ma`, `mb`, `mc`, `md`, and `me`.
-
-```json
-[
-  {
-    "sensor_id": "sid1",
-    "serial_number": 50,
-    "setups": [
-      {
-        "from_datetime": "2020-08-22T00:00:00+0000",
-        "to_datetime": "2020-08-25T23:59:59+0000",
-        "value": {
-          "location_id": "lid1",
-          "pressure_data_source": "LMU-MIM01-height-adjusted",
-          "atmospheric_profile_location_id": "lid2",
-          "utc_offset": 2
-        }
-      },
-      {
-        "from_datetime": "2020-08-26T00:00:00+0000",
-        "to_datetime": "2020-08-30T23:59:59+0000",
-        "value": {
-          "location_id": "lid1",
-          "pressure_data_source": "LMU-MIM01-height-adjusted",
-          "utc_offset": 2
-        }
-      },
-      {
-        "from_datetime": "2020-08-31T00:00:00+0000",
-        "to_datetime": "2020-09-26T23:59:59+0000",
-        "value": { "location_id": "lid1", "utc_offset": 2 }
-      },
-      {
-        "from_datetime": "2020-09-27T00:00:00+0000",
-        "to_datetime": "2020-10-01T23:59:59+0000",
-        "value": { "location_id": "lid2" }
-      }
-    ],
-    "calibration_factors": [
-      {
-        "from_datetime": "2020-08-26T00:00:00+0000",
-        "to_datetime": "2020-10-01T23:59:59+0000",
-        "value": {
-          "pressure": 1.001,
-          "xco2": {
-            "factors": [1.001, 0.0007],
-            "scheme": "Ohyama2021"
-          },
-          "xch4": {
-            "factors": [1.002, 0.0008],
-            "scheme": "Ohyama2021"
-          },
-          "xco": {
-            "factors": [1.003, 0.0009],
-            "scheme": "Ohyama2021"
-          }
-        }
-      }
-    ]
-  },
-  {
-    "sensor_id": "sid2",
-    "serial_number": 51,
-    "setups": [
-      {
-        "from_datetime": "2020-08-26T00:00:00+0000",
-        "to_datetime": "2020-10-01T23:59:59+0000",
-        "value": {
-          "location_id": "lid1"
-        }
-      }
-    ]
-  }
-]
-```
-
-TODO: dynamically sync this
-
-### `campaigns.json`
-
-This list can be left empty. If specified, the export will merge all data from the involved sensors and locations into daily CSV files.
-
-As an example, we use the campaign ids `muccnet`, `san-francisco`, `vienna`, and so on.
-
-```json
-[
-  {
-    "campaign_id": "cid1",
-    "from_datetime": "2019-09-13T00:00:00+0000",
-    "to_datetime": "2100-01-01T23:59:59+0000",
-    "sensor_ids": ["sid1", "sid2"],
-    "location_ids": ["lid1", "lid2"]
-  }
-]
-```
-
-TODO: dynamically sync this
+**`campaigns.json`** contains a list of campaigns. You can leave this list empty. If specified, you can use the exporting functionality of the pipeline to merge all data of a "campaign" into daily CSV files. For example, we use the campaign ids `muccnet`, `san-francisco`, `vienna`, and so on.
 
 ## Connecting the Metadata
 

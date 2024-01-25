@@ -5,10 +5,23 @@
 ### Example File
 
 ```json
-{}
+[
+    {
+        "location_id": "lid1",
+        "details": "description of location 1",
+        "lon": 10.5,
+        "lat": 48.1,
+        "alt": 500.0
+    },
+    {
+        "location_id": "lid2",
+        "details": "description of location 2",
+        "lon": 11.3,
+        "lat": 48.0,
+        "alt": 600.0
+    }
+]
 ```
-
-TODO: dynamically sync this
 
 ### Schema definition
 
@@ -19,10 +32,105 @@ TODO
 ### Example File
 
 ```json
-{}
+[
+    {
+        "sensor_id": "sid1",
+        "serial_number": 50,
+        "setups": [
+            {
+                "from_datetime": "2020-08-22T00:00:00+00:00",
+                "to_datetime": "2020-08-25T23:59:59+00:00",
+                "value": {
+                    "location_id": "lid1",
+                    "pressure_data_source": "LMU-MIM01-height-adjusted",
+                    "utc_offset": 2.0,
+                    "atmospheric_profile_location_id": "lid2"
+                }
+            },
+            {
+                "from_datetime": "2020-08-26T00:00:00+00:00",
+                "to_datetime": "2020-08-30T23:59:59+00:00",
+                "value": {
+                    "location_id": "lid1",
+                    "pressure_data_source": "LMU-MIM01-height-adjusted",
+                    "utc_offset": 2.0,
+                    "atmospheric_profile_location_id": null
+                }
+            },
+            {
+                "from_datetime": "2020-08-31T00:00:00+00:00",
+                "to_datetime": "2020-09-26T23:59:59+00:00",
+                "value": {
+                    "location_id": "lid1",
+                    "pressure_data_source": null,
+                    "utc_offset": 2.0,
+                    "atmospheric_profile_location_id": null
+                }
+            },
+            {
+                "from_datetime": "2020-09-27T00:00:00+00:00",
+                "to_datetime": "2020-10-01T23:59:59+00:00",
+                "value": {
+                    "location_id": "lid2",
+                    "pressure_data_source": null,
+                    "utc_offset": 0.0,
+                    "atmospheric_profile_location_id": null
+                }
+            }
+        ],
+        "calibration_factors": [
+            {
+                "from_datetime": "2020-08-26T00:00:00+00:00",
+                "to_datetime": "2020-10-01T23:59:59+00:00",
+                "value": {
+                    "pressure": 1.001,
+                    "xco2": {
+                        "factors": [
+                            1.001,
+                            0.0007
+                        ],
+                        "scheme": "Ohyama2021",
+                        "note": null
+                    },
+                    "xch4": {
+                        "factors": [
+                            1.002,
+                            0.0008
+                        ],
+                        "scheme": "Ohyama2021",
+                        "note": null
+                    },
+                    "xco": {
+                        "factors": [
+                            1.003,
+                            0.0009
+                        ],
+                        "scheme": "Ohyama2021",
+                        "note": null
+                    }
+                }
+            }
+        ]
+    },
+    {
+        "sensor_id": "sid2",
+        "serial_number": 51,
+        "setups": [
+            {
+                "from_datetime": "2020-08-26T00:00:00+00:00",
+                "to_datetime": "2020-10-01T23:59:59+00:00",
+                "value": {
+                    "location_id": "lid1",
+                    "pressure_data_source": null,
+                    "utc_offset": 0.0,
+                    "atmospheric_profile_location_id": null
+                }
+            }
+        ],
+        "calibration_factors": []
+    }
+]
 ```
-
-TODO: dynamically sync this
 
 ### Schema definition
 
@@ -33,10 +141,22 @@ TODO
 ### Example File
 
 ```json
-{}
+[
+    {
+        "from_datetime": "2019-09-13T00:00:00+00:00",
+        "to_datetime": "2100-01-01T23:59:59+00:00",
+        "campaign_id": "cid1",
+        "sensor_ids": [
+            "sid1",
+            "sid2"
+        ],
+        "location_ids": [
+            "lid1",
+            "lid2"
+        ]
+    }
+]
 ```
-
-TODO: dynamically sync this
 
 ### Schema definition
 

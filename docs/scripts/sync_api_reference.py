@@ -129,31 +129,67 @@ export_schema(
 )
 
 # ---------------------------------------------------------
-# Update the example files in the documentation
-"""
-TODO: renew this
+# Replace metadata example files
 
-with open(MD_FILE_TARGET) as f:
-    md_file_content = f.read()
+example_metadata = em27_metadata.load_from_example_data()
 
-example_file_blocks = re.findall(
-    r"Example File\n\n```[\s\S]*?```", md_file_content
+with open(
+    os.path.join(
+        PROJECT_DIR, "docs", "pages", "docs", "api-reference", "metadata.mdx"
+    ), "r"
+) as _f:
+    current_metadata_reference = _f.read()
+
+match1 = re.search(
+    r"## `locations.json`\n\n### Example File\n\n```json[^`]+```",
+    current_metadata_reference,
+    flags=re.MULTILINE,
 )
-assert len(example_file_blocks) == 2
-assert len(example_file_blocks[0]) > len(example_file_blocks[1])
-
-with open(os.path.join(PROJECT_DIR, "config", "config.template.json")) as f:
-    config_template_content = f.read()
-
-md_file_content = md_file_content.replace(
-    example_file_blocks[0],
-    f"Example File\n\n```json\n{config_template_content.strip()}\n```",
-)
-md_file_content = md_file_content.replace(
-    example_file_blocks[1],
-    f"Example File\n\n```json\n{manual_queue_template_content.strip()}\n```",
+assert match1 is not None
+current_metadata_reference = current_metadata_reference.replace(
+    match1.group(0),
+    "## `locations.json`\n\n### Example File\n\n```json\n" +
+    example_metadata.locations.model_dump_json(indent=4) + "\n```",
 )
 
-with open(MD_FILE_TARGET, "w") as f:
-    f.write(md_file_content)
-"""
+match2 = re.search(
+    r"## `sensors.json`\n\n### Example File\n\n```json[^`]+```",
+    current_metadata_reference,
+    flags=re.MULTILINE,
+)
+assert match2 is not None
+current_metadata_reference = current_metadata_reference.replace(
+    match2.group(0),
+    "## `sensors.json`\n\n### Example File\n\n```json\n" +
+    example_metadata.sensors.model_dump_json(indent=4) + "\n```",
+)
+
+match3 = re.search(
+    r"## `campaigns.json`\n\n### Example File\n\n```json[^`]+```",
+    current_metadata_reference,
+    flags=re.MULTILINE,
+)
+assert match3 is not None
+current_metadata_reference = current_metadata_reference.replace(
+    match3.group(0),
+    "## `campaigns.json`\n\n### Example File\n\n```json\n" +
+    example_metadata.campaigns.model_dump_json(indent=4) + "\n```",
+)
+
+with open(
+    os.path.join(
+        PROJECT_DIR, "docs", "pages", "docs", "api-reference", "metadata.mdx"
+    ), "w"
+) as _f:
+    _f.write(current_metadata_reference)
+
+# ---------------------------------------------------------
+# Replace config example file
+
+# TODO
+"""src.types.Config.load(
+            tum_esm_utils.files.rel_to_abs_path(
+                os.path.join(PROJECT_DIR, "config", "config.template.json")
+            ),
+            ignore_path_existence=True
+        ).model_dump_json(),"""

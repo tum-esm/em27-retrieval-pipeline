@@ -5,7 +5,7 @@
 groups = ["default", "dev"]
 strategy = ["cross_platform", "inherit_metadata"]
 lock_version = "4.4.1"
-content_hash = "sha256:23c391a483facafa3e6752c25a1c1d86e0e655bfa676ad0b36a120bbfcc36d73"
+content_hash = "sha256:df0133923199e988effeaf3e3446993fd1e56b6c1b15f7073f57b49c659f615e"
 
 [[package]]
 name = "annotated-types"
@@ -153,17 +153,17 @@ files = [
 
 [[package]]
 name = "em27-metadata"
-version = "1.0.0rc6"
-requires_python = ">=3.8,<4.0"
+version = "1.0.0rc7"
+requires_python = "<4.0,>=3.8"
 summary = "Single source of truth for ESM's EM27 measurement logistics"
 groups = ["default"]
 dependencies = [
-    "pydantic<3.0.0,>=2.5.3",
-    "requests<3.0.0,>=2.31.0",
+    "pydantic>=2.5.3",
+    "requests>=2.31.0",
 ]
 files = [
-    {file = "em27_metadata-1.0.0rc6-py3-none-any.whl", hash = "sha256:dab715bf7416cd2a6ada4aa29facf899640fa422b688c51eac171a405aa5c9b4"},
-    {file = "em27_metadata-1.0.0rc6.tar.gz", hash = "sha256:29061e70baa160319a51218e119b34996ddc11a0623ddfb2f24fe40fef8c2c0b"},
+    {file = "em27_metadata-1.0.0rc7-py3-none-any.whl", hash = "sha256:2ba249648bb0ba957f2258134dedb6aa181e0c66f2f1df3e1cd2221780d45598"},
+    {file = "em27_metadata-1.0.0rc7.tar.gz", hash = "sha256:a267869e658b4d79849a5e27cfd9153b18adca0089f7b3051087f307fe53bf1d"},
 ]
 
 [[package]]
@@ -372,13 +372,13 @@ files = [
 
 [[package]]
 name = "pluggy"
-version = "1.3.0"
+version = "1.4.0"
 requires_python = ">=3.8"
 summary = "plugin and hook calling mechanisms for python"
 groups = ["dev"]
 files = [
-    {file = "pluggy-1.3.0-py3-none-any.whl", hash = "sha256:d89c696a773f8bd377d18e5ecda92b7a3793cbe66c87060a6fb58c7b6e1061f7"},
-    {file = "pluggy-1.3.0.tar.gz", hash = "sha256:cf61ae8f126ac6f7c451172cf30e3e43d3ca77615509771b3a984a0730651e12"},
+    {file = "pluggy-1.4.0-py3-none-any.whl", hash = "sha256:7db9f7b503d67d1c5b95f59773ebb58a8c1c288129a88665838012cfb07b8981"},
+    {file = "pluggy-1.4.0.tar.gz", hash = "sha256:8c85c2876142a764e5b7548e7d9a0e0ddb46f5185161049a79b7e974454223be"},
 ]
 
 [[package]]
@@ -568,13 +568,13 @@ files = [
 
 [[package]]
 name = "python-dotenv"
-version = "1.0.0"
+version = "1.0.1"
 requires_python = ">=3.8"
 summary = "Read key-value pairs from a .env file and set them as environment variables"
 groups = ["dev"]
 files = [
-    {file = "python-dotenv-1.0.0.tar.gz", hash = "sha256:a8df96034aae6d2d50a4ebe8216326c61c3eb64836776504fcca410e5937a3ba"},
-    {file = "python_dotenv-1.0.0-py3-none-any.whl", hash = "sha256:f5971a9226b701070a4bf2c38c89e5a3f0d64de8debda981d1db98583009122a"},
+    {file = "python-dotenv-1.0.1.tar.gz", hash = "sha256:e324ee90a023d808f1959c46bcbc04446a10ced277783dc6ee09987c37ec10ca"},
+    {file = "python_dotenv-1.0.1-py3-none-any.whl", hash = "sha256:f7b63ef50f1b690dddf550d03497b66d609393b40b564ed0d674909a68ebf16a"},
 ]
 
 [[package]]
@@ -639,21 +639,21 @@ files = [
 
 [[package]]
 name = "scipy"
-version = "1.11.4"
+version = "1.12.0"
 requires_python = ">=3.9"
 summary = "Fundamental algorithms for scientific computing in Python"
 groups = ["default"]
 dependencies = [
-    "numpy<1.28.0,>=1.21.6",
+    "numpy<1.29.0,>=1.22.4",
 ]
 files = [
-    {file = "scipy-1.11.4-cp311-cp311-macosx_10_9_x86_64.whl", hash = "sha256:f313b39a7e94f296025e3cffc2c567618174c0b1dde173960cf23808f9fae4be"},
-    {file = "scipy-1.11.4-cp311-cp311-macosx_12_0_arm64.whl", hash = "sha256:1b7c3dca977f30a739e0409fb001056484661cb2541a01aba0bb0029f7b68db8"},
-    {file = "scipy-1.11.4-cp311-cp311-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:00150c5eae7b610c32589dda259eacc7c4f1665aedf25d921907f4d08a951b1c"},
-    {file = "scipy-1.11.4-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:530f9ad26440e85766509dbf78edcfe13ffd0ab7fec2560ee5c36ff74d6269ff"},
-    {file = "scipy-1.11.4-cp311-cp311-musllinux_1_1_x86_64.whl", hash = "sha256:5e347b14fe01003d3b78e196e84bd3f48ffe4c8a7b8a1afbcb8f5505cb710993"},
-    {file = "scipy-1.11.4-cp311-cp311-win_amd64.whl", hash = "sha256:acf8ed278cc03f5aff035e69cb511741e0418681d25fbbb86ca65429c4f4d9cd"},
-    {file = "scipy-1.11.4.tar.gz", hash = "sha256:90a2b78e7f5733b9de748f589f09225013685f9b218275257f8a8168ededaeaa"},
+    {file = "scipy-1.12.0-cp311-cp311-macosx_10_9_x86_64.whl", hash = "sha256:408c68423f9de16cb9e602528be4ce0d6312b05001f3de61fe9ec8b1263cad08"},
+    {file = "scipy-1.12.0-cp311-cp311-macosx_12_0_arm64.whl", hash = "sha256:5adfad5dbf0163397beb4aca679187d24aec085343755fcdbdeb32b3679f254c"},
+    {file = "scipy-1.12.0-cp311-cp311-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:c3003652496f6e7c387b1cf63f4bb720951cfa18907e998ea551e6de51a04467"},
+    {file = "scipy-1.12.0-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:8b8066bce124ee5531d12a74b617d9ac0ea59245246410e19bca549656d9a40a"},
+    {file = "scipy-1.12.0-cp311-cp311-musllinux_1_1_x86_64.whl", hash = "sha256:8bee4993817e204d761dba10dbab0774ba5a8612e57e81319ea04d84945375ba"},
+    {file = "scipy-1.12.0-cp311-cp311-win_amd64.whl", hash = "sha256:a24024d45ce9a675c1fb8494e8e5244efea1c7a09c60beb1eeb80373d0fecc70"},
+    {file = "scipy-1.12.0.tar.gz", hash = "sha256:4bf5abab8a36d20193c698b0f1fc282c1d083c94723902c447e5d2f1780936a3"},
 ]
 
 [[package]]
@@ -732,20 +732,20 @@ files = [
 
 [[package]]
 name = "tum-esm-utils"
-version = "1.8.0"
-requires_python = ">=3.8,<4.0"
+version = "1.8.1"
+requires_python = "<4.0,>=3.8"
 summary = "Python utilities by the Professorship of Environmental Sensing and Modeling at the Technical University of Munich"
 groups = ["default"]
 dependencies = [
-    "filelock<4.0.0,>=3.12.4",
-    "polars<0.21.0,>=0.20.2",
-    "psutil<6.0.0,>=5.9.4",
-    "pydantic<3.0.0,>=2.5.2",
-    "requests<3.0.0,>=2.31.0",
+    "filelock>=3.13.1",
+    "polars>=0.20.5",
+    "psutil>=5.9.8",
+    "pydantic>=2.5.3",
+    "requests>=2.31.0",
 ]
 files = [
-    {file = "tum_esm_utils-1.8.0-py3-none-any.whl", hash = "sha256:0da8ccf4a0ad3f89bf25acda9b434126a86ff5e31e03634fe35d8655e136164c"},
-    {file = "tum_esm_utils-1.8.0.tar.gz", hash = "sha256:a6fc6bf21783ff4dc239b5e33abbceab7d8d6dcbe850ab2ced1903a4f21e8b2b"},
+    {file = "tum_esm_utils-1.8.1-py3-none-any.whl", hash = "sha256:af16925e4065bc4d1a717faf73e14a8555f839fabbde15c3fe51777eacde4ab6"},
+    {file = "tum_esm_utils-1.8.1.tar.gz", hash = "sha256:ded8c769e3bfc9382e7d73ddf8114f1be51f997915a6ee5de163197caba62c77"},
 ]
 
 [[package]]
