@@ -5,7 +5,7 @@
 groups = ["default", "dev"]
 strategy = ["cross_platform", "inherit_metadata"]
 lock_version = "4.4.1"
-content_hash = "sha256:af68693948ed8eaa46dc3f2a93f2acd228e6235c91c1c5a8754f8240b4e87788"
+content_hash = "sha256:43a5ce03ac4e99a11a15c83c85e48051660194955577aa2989770786f1a023c8"
 
 [[package]]
 name = "annotated-types"
@@ -732,7 +732,7 @@ files = [
 
 [[package]]
 name = "tum-esm-utils"
-version = "1.8.1"
+version = "1.8.3"
 requires_python = "<4.0,>=3.8"
 summary = "Python utilities by the Professorship of Environmental Sensing and Modeling at the Technical University of Munich"
 groups = ["default"]
@@ -744,8 +744,8 @@ dependencies = [
     "requests>=2.31.0",
 ]
 files = [
-    {file = "tum_esm_utils-1.8.1-py3-none-any.whl", hash = "sha256:af16925e4065bc4d1a717faf73e14a8555f839fabbde15c3fe51777eacde4ab6"},
-    {file = "tum_esm_utils-1.8.1.tar.gz", hash = "sha256:ded8c769e3bfc9382e7d73ddf8114f1be51f997915a6ee5de163197caba62c77"},
+    {file = "tum_esm_utils-1.8.3-py3-none-any.whl", hash = "sha256:82ee3ed9c05acd981a66a9ad76ce1a1ef85fa69436179904afdb62649e14c969"},
+    {file = "tum_esm_utils-1.8.3.tar.gz", hash = "sha256:9a83e59323cb036f3cc2c6fbf3058f69a5ed1fb92b8249e9d4b2998b74c2a07e"},
 ]
 
 [[package]]
