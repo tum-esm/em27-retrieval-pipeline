@@ -298,12 +298,30 @@ const CONFIG_SCHEMA: any = {
                                                 "description": "Whether to store the binary spectra files. These are the files that are used by the retrieval algorithm. They are not needed for the output files, but can be useful for debugging.",
                                                 "title": "Store Binary Spectra",
                                                 "type": "boolean"
+                                            },
+                                            "dc_min_threshold": {
+                                                "default": 0.05,
+                                                "description": "Value used for the `DC_min` threshold in Proffast. If not set, defaults to the Proffast default.",
+                                                "maximum": 0.999,
+                                                "minimum": 0.001,
+                                                "title": "Dc Min Threshold",
+                                                "type": "number"
+                                            },
+                                            "dc_var_threshold": {
+                                                "default": 0.1,
+                                                "description": "Value used for the `DC_var` threshold in Proffast. If not set, defaults to the Proffast default.",
+                                                "maximum": 0.999,
+                                                "minimum": 0.001,
+                                                "title": "Dc Var Threshold",
+                                                "type": "number"
                                             }
                                         },
                                         "title": "RetrievalJobSettingsConfig",
                                         "type": "object",
                                         "default": {
-                                            "store_binary_spectra": false
+                                            "store_binary_spectra": false,
+                                            "dc_min_threshold": 0.05,
+                                            "dc_var_threshold": 0.1
                                         },
                                         "description": "Advanced settings that only apply to this retrieval job"
                                     }
