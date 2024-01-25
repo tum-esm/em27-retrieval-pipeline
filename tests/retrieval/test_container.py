@@ -150,9 +150,9 @@ def _run(
     ContainerFactory,
     only_run_mock_retrieval: bool,
 ) -> None:
-
     _point_config_to_test_data(config)
     src.retrieval.utils.retrieval_status.RetrievalStatusList.reset()
+    assert config.retrieval is not None
 
     NUMBER_OF_JOBS = len(SENSOR_DATA_CONTEXTS) * 2 * 3
     print(f"Running {NUMBER_OF_JOBS} retrieval jobs in parallel")
@@ -160,17 +160,17 @@ def _run(
     atm: src.types.AtmosphericProfileModel
     alg: src.types.RetrievalAlgorithm
     pending_processes: list[multiprocessing.Process] = []
-    for sdc in SENSOR_DATA_CONTEXTS:
+
+    # start proffast 1.0 first because it takes the longest
+    for alg in [ # type: ignore
+        "proffast-1.0", "proffast-2.2", "proffast-2.3"
+    ]:
         for atm in [  # type: ignore
             "GGG2014", "GGG2020"
         ]:
-            for alg in [ # type: ignore
-                "proffast-1.0", "proffast-2.2", "proffast-2.3"
-            ]:
-                assert config.retrieval is not None
-                if alg == "proffast-1.0" and atm == "GGG2020":
-                    continue
-
+            if alg == "proffast-1.0" and atm == "GGG2020":
+                continue
+            for sdc in SENSOR_DATA_CONTEXTS:
                 # set up container factory
                 src.retrieval.utils.retrieval_status.RetrievalStatusList.add_items(
                     [sdc],
