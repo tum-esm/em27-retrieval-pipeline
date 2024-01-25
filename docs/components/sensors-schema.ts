@@ -121,51 +121,47 @@ const SENSORS_SCHEMA: any = {
                                     "type": "number"
                                 },
                                 "xco2": {
-                                    "allOf": [
-                                        {
-                                            "properties": {
-                                                "factors": {
-                                                    "default": [
-                                                        1
-                                                    ],
-                                                    "description": "List of calibration factors. The scheme defines how to use them.",
-                                                    "items": {
-                                                        "type": "number"
-                                                    },
-                                                    "title": "Factors",
-                                                    "type": "array"
-                                                },
-                                                "scheme": {
-                                                    "anyOf": [
-                                                        {
-                                                            "type": "string"
-                                                        },
-                                                        {
-                                                            "type": "null"
-                                                        }
-                                                    ],
-                                                    "default": null,
-                                                    "description": "Used calibration scheme - for example \"Ohyama 2021\". This can be an arbitrary string or `null`.",
-                                                    "title": "Scheme"
-                                                },
-                                                "note": {
-                                                    "anyOf": [
-                                                        {
-                                                            "type": "string"
-                                                        },
-                                                        {
-                                                            "type": "null"
-                                                        }
-                                                    ],
-                                                    "default": null,
-                                                    "description": "Optional note, e.g. \"actual = factors[0] * measured + factors[1]\"",
-                                                    "title": "Note"
-                                                }
+                                    "properties": {
+                                        "factors": {
+                                            "default": [
+                                                1
+                                            ],
+                                            "description": "List of calibration factors. The scheme defines how to use them.",
+                                            "items": {
+                                                "type": "number"
                                             },
-                                            "title": "GasSpecificCalibrationFactors",
-                                            "type": "object"
+                                            "title": "Factors",
+                                            "type": "array"
+                                        },
+                                        "scheme": {
+                                            "anyOf": [
+                                                {
+                                                    "type": "string"
+                                                },
+                                                {
+                                                    "type": "null"
+                                                }
+                                            ],
+                                            "default": null,
+                                            "description": "Used calibration scheme - for example \"Ohyama 2021\". This can be an arbitrary string or `null`.",
+                                            "title": "Scheme"
+                                        },
+                                        "note": {
+                                            "anyOf": [
+                                                {
+                                                    "type": "string"
+                                                },
+                                                {
+                                                    "type": "null"
+                                                }
+                                            ],
+                                            "default": null,
+                                            "description": "Optional note, e.g. \"actual = factors[0] * measured + factors[1]\"",
+                                            "title": "Note"
                                         }
-                                    ],
+                                    },
+                                    "title": "GasSpecificCalibrationFactors",
+                                    "type": "object",
                                     "default": {
                                         "factors": [
                                             1.0
@@ -175,51 +171,47 @@ const SENSORS_SCHEMA: any = {
                                     }
                                 },
                                 "xch4": {
-                                    "allOf": [
-                                        {
-                                            "properties": {
-                                                "factors": {
-                                                    "default": [
-                                                        1
-                                                    ],
-                                                    "description": "List of calibration factors. The scheme defines how to use them.",
-                                                    "items": {
-                                                        "type": "number"
-                                                    },
-                                                    "title": "Factors",
-                                                    "type": "array"
-                                                },
-                                                "scheme": {
-                                                    "anyOf": [
-                                                        {
-                                                            "type": "string"
-                                                        },
-                                                        {
-                                                            "type": "null"
-                                                        }
-                                                    ],
-                                                    "default": null,
-                                                    "description": "Used calibration scheme - for example \"Ohyama 2021\". This can be an arbitrary string or `null`.",
-                                                    "title": "Scheme"
-                                                },
-                                                "note": {
-                                                    "anyOf": [
-                                                        {
-                                                            "type": "string"
-                                                        },
-                                                        {
-                                                            "type": "null"
-                                                        }
-                                                    ],
-                                                    "default": null,
-                                                    "description": "Optional note, e.g. \"actual = factors[0] * measured + factors[1]\"",
-                                                    "title": "Note"
-                                                }
+                                    "properties": {
+                                        "factors": {
+                                            "default": [
+                                                1
+                                            ],
+                                            "description": "List of calibration factors. The scheme defines how to use them.",
+                                            "items": {
+                                                "type": "number"
                                             },
-                                            "title": "GasSpecificCalibrationFactors",
-                                            "type": "object"
+                                            "title": "Factors",
+                                            "type": "array"
+                                        },
+                                        "scheme": {
+                                            "anyOf": [
+                                                {
+                                                    "type": "string"
+                                                },
+                                                {
+                                                    "type": "null"
+                                                }
+                                            ],
+                                            "default": null,
+                                            "description": "Used calibration scheme - for example \"Ohyama 2021\". This can be an arbitrary string or `null`.",
+                                            "title": "Scheme"
+                                        },
+                                        "note": {
+                                            "anyOf": [
+                                                {
+                                                    "type": "string"
+                                                },
+                                                {
+                                                    "type": "null"
+                                                }
+                                            ],
+                                            "default": null,
+                                            "description": "Optional note, e.g. \"actual = factors[0] * measured + factors[1]\"",
+                                            "title": "Note"
                                         }
-                                    ],
+                                    },
+                                    "title": "GasSpecificCalibrationFactors",
+                                    "type": "object",
                                     "default": {
                                         "factors": [
                                             1.0
@@ -229,51 +221,47 @@ const SENSORS_SCHEMA: any = {
                                     }
                                 },
                                 "xco": {
-                                    "allOf": [
-                                        {
-                                            "properties": {
-                                                "factors": {
-                                                    "default": [
-                                                        1
-                                                    ],
-                                                    "description": "List of calibration factors. The scheme defines how to use them.",
-                                                    "items": {
-                                                        "type": "number"
-                                                    },
-                                                    "title": "Factors",
-                                                    "type": "array"
-                                                },
-                                                "scheme": {
-                                                    "anyOf": [
-                                                        {
-                                                            "type": "string"
-                                                        },
-                                                        {
-                                                            "type": "null"
-                                                        }
-                                                    ],
-                                                    "default": null,
-                                                    "description": "Used calibration scheme - for example \"Ohyama 2021\". This can be an arbitrary string or `null`.",
-                                                    "title": "Scheme"
-                                                },
-                                                "note": {
-                                                    "anyOf": [
-                                                        {
-                                                            "type": "string"
-                                                        },
-                                                        {
-                                                            "type": "null"
-                                                        }
-                                                    ],
-                                                    "default": null,
-                                                    "description": "Optional note, e.g. \"actual = factors[0] * measured + factors[1]\"",
-                                                    "title": "Note"
-                                                }
+                                    "properties": {
+                                        "factors": {
+                                            "default": [
+                                                1
+                                            ],
+                                            "description": "List of calibration factors. The scheme defines how to use them.",
+                                            "items": {
+                                                "type": "number"
                                             },
-                                            "title": "GasSpecificCalibrationFactors",
-                                            "type": "object"
+                                            "title": "Factors",
+                                            "type": "array"
+                                        },
+                                        "scheme": {
+                                            "anyOf": [
+                                                {
+                                                    "type": "string"
+                                                },
+                                                {
+                                                    "type": "null"
+                                                }
+                                            ],
+                                            "default": null,
+                                            "description": "Used calibration scheme - for example \"Ohyama 2021\". This can be an arbitrary string or `null`.",
+                                            "title": "Scheme"
+                                        },
+                                        "note": {
+                                            "anyOf": [
+                                                {
+                                                    "type": "string"
+                                                },
+                                                {
+                                                    "type": "null"
+                                                }
+                                            ],
+                                            "default": null,
+                                            "description": "Optional note, e.g. \"actual = factors[0] * measured + factors[1]\"",
+                                            "title": "Note"
                                         }
-                                    ],
+                                    },
+                                    "title": "GasSpecificCalibrationFactors",
+                                    "type": "object",
                                     "default": {
                                         "factors": [
                                             1.0

@@ -401,14 +401,9 @@ const CONFIG_SCHEMA: any = {
                                 "type": "integer"
                             },
                             "dst_dir": {
-                                "allOf": [
-                                    {
-                                        "description": "A pydantic model that validates a directory path.\n\nExample usage:\n\n```python\nclass MyModel(pyndatic.BaseModel):\n    path: StrictDirectoryPath\n\nm = MyModel(path='/path/to/directory') # validates that the directory exists\n```\n\nThe validation can be ignored by setting the context variable:\n\n```python\nm = MyModel.model_validate(\n    {\"path\": \"somenonexistingpath\"},\n    context={\"ignore-path-existence\": True},\n) # does not raise an error\n```",
-                                        "title": "StrictDirectoryPath",
-                                        "type": "string"
-                                    }
-                                ],
-                                "description": "Directory to write the output to."
+                                "description": "Directory to write the output to.",
+                                "title": "StrictDirectoryPath",
+                                "type": "string"
                             }
                         },
                         "required": [
