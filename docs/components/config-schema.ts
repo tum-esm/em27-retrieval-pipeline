@@ -314,6 +314,12 @@ const CONFIG_SCHEMA: any = {
                                                 "minimum": 0.001,
                                                 "title": "Dc Var Threshold",
                                                 "type": "number"
+                                            },
+                                            "use_local_pressure_in_pcxs": {
+                                                "default": false,
+                                                "description": "Whether to use the local pressure in the pcxs files. If not used, it will tell PCXS to use the pressure from the atmospheric profiles (set the input value in the `.inp` file to `9999.9`). If used, the pipeline computes the solar noon time using `skyfield` and averages the local pressure over the time period noon-2h to noon+2h.",
+                                                "title": "Use Local Pressure In Pcxs",
+                                                "type": "boolean"
                                             }
                                         },
                                         "title": "RetrievalJobSettingsConfig",
@@ -321,7 +327,8 @@ const CONFIG_SCHEMA: any = {
                                         "default": {
                                             "store_binary_spectra": false,
                                             "dc_min_threshold": 0.05,
-                                            "dc_var_threshold": 0.1
+                                            "dc_var_threshold": 0.1,
+                                            "use_local_pressure_in_pcxs": false
                                         },
                                         "description": "Advanced settings that only apply to this retrieval job"
                                     }

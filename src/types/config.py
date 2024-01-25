@@ -159,6 +159,11 @@ class RetrievalJobSettingsConfig(pydantic.BaseModel):
         description=
         "Value used for the `DC_var` threshold in Proffast. If not set, defaults to the Proffast default.",
     )
+    use_local_pressure_in_pcxs: bool = pydantic.Field(
+        False,
+        description=
+        "Whether to use the local pressure in the pcxs files. If not used, it will tell PCXS to use the pressure from the atmospheric profiles (set the input value in the `.inp` file to `9999.9`). If used, the pipeline computes the solar noon time using `skyfield` and averages the local pressure over the time period noon-2h to noon+2h.",
+    )
 
 
 class RetrievalJobConfig(pydantic.BaseModel):
