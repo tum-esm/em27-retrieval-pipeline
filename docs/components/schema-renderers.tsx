@@ -1,5 +1,8 @@
 import React from "react";
 import CONFIG_SCHEMA from "./config-schema";
+import LOCATIONS_SCHEMA from "./locations-schema";
+import SENSORS_SCHEMA from "./sensors-schema";
+import CAMPAIGNS_SCHEMA from "./campaigns-schema";
 
 const COLORS: {
   [key in number]: string;
@@ -369,4 +372,16 @@ function Schema(props: { schema: any }) {
 
 export function ConfigSchema() {
   return <Schema schema={CONFIG_SCHEMA} />;
+}
+
+export function LocationsSchema() {
+  return <Schema schema={LOCATIONS_SCHEMA} />;
+}
+
+export function SensorsSchema() {
+  return <Schema schema={SENSORS_SCHEMA} />;
+}
+
+export function CampaignsSchema() {
+  return <Schema schema={CAMPAIGNS_SCHEMA} />;
 }
