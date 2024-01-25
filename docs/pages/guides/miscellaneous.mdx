@@ -1,6 +1,12 @@
 
 # Miscellaneous
 
+## How does the Pipeline determine which days to process?
+
+The general philosophy of this pipeline is that "it populates output directories, with minimal internal queing logic". This means, that it does not keep track of which processes it has already run. If you point it to some input and output directories, it will produce any output that is not there and use the output directories as a source of truth "which processes have already been run".
+
+If it finds an output directory for a sensor-day combination (and selected retrieval algorithm and atmospheric profile model) it will not re-retrieve it. If you want to re-retrieve something because the inputs have changed (which should normally not happen), you have to delete the respective output directory or point the pipeline to a new output path.
+
 ## In the Proffast 2.X preprocessing, how to interpret `errflag` and `errflag_CO`?
 
 The errflags are added up in the following way:
