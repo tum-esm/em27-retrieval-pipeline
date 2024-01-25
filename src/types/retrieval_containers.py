@@ -3,6 +3,7 @@ import os
 import pydantic
 import em27_metadata
 import tum_esm_utils
+from .config import RetrievalJobSettingsConfig
 
 _CONTAINERS_DIR = tum_esm_utils.files.rel_to_abs_path("../../data/containers")
 
@@ -66,6 +67,7 @@ class Proffast1RetrievalSession(pydantic.BaseModel):
 
     retrieval_algorithm: Literal["proffast-1.0"] = "proffast-1.0"
     atmospheric_profile_model: Literal["GGG2014"] = "GGG2014"
+    job_settings: RetrievalJobSettingsConfig
     ctx: em27_metadata.types.SensorDataContext
     ctn: Proffast10Container
 
@@ -76,6 +78,7 @@ class Proffast2RetrievalSession(pydantic.BaseModel):
 
     retrieval_algorithm: Literal["proffast-2.2", "proffast-2.3"]
     atmospheric_profile_model: Literal["GGG2014", "GGG2020"]
+    job_settings: RetrievalJobSettingsConfig
     ctx: em27_metadata.types.SensorDataContext
     ctn: Proffast22Container | Proffast23Container
 

@@ -8,6 +8,7 @@ class RetrievalJob(pydantic.BaseModel):
     retrieval_algorithm: types.RetrievalAlgorithm
     atmospheric_profile_model: types.AtmosphericProfileModel
     sensor_data_context: em27_metadata.types.SensorDataContext
+    job_settings: types.config.RetrievalJobSettingsConfig
 
 
 class RetrievalJobQueue():
@@ -20,12 +21,14 @@ class RetrievalJobQueue():
         retrieval_algorithm: types.RetrievalAlgorithm,
         atmospheric_profile_model: types.AtmosphericProfileModel,
         sensor_data_context: em27_metadata.types.SensorDataContext,
+        job_settings: types.config.RetrievalJobSettingsConfig,
     ) -> None:
         self.queue.append(
             RetrievalJob(
                 retrieval_algorithm=retrieval_algorithm,
                 atmospheric_profile_model=atmospheric_profile_model,
                 sensor_data_context=sensor_data_context,
+                job_settings=job_settings,
             )
         )
 

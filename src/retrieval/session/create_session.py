@@ -89,12 +89,14 @@ def run(
     sensor_data_context: em27_metadata.types.SensorDataContext,
     retrieval_algorithm: types.RetrievalAlgorithm,
     atmospheric_profile_model: types.AtmosphericProfileModel,
+    job_settings: types.config.RetrievalJobSettingsConfig
 ) -> types.RetrievalSession:
     """Create a new container and the pylot config files"""
     new_session: types.RetrievalSession
 
     if retrieval_algorithm == "proffast-1.0":
         new_session = types.Proffast1RetrievalSession(
+            job_settings=job_settings,
             ctx=sensor_data_context,
             ctn=container_factory.create_container(
                 retrieval_algorithm=retrieval_algorithm
@@ -104,6 +106,7 @@ def run(
         new_session = types.Proffast2RetrievalSession(
             retrieval_algorithm=retrieval_algorithm,
             atmospheric_profile_model=atmospheric_profile_model,
+            job_settings=job_settings,
             ctx=sensor_data_context,
             ctn=container_factory.create_container(
                 retrieval_algorithm=retrieval_algorithm

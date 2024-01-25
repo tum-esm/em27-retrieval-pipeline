@@ -91,7 +91,7 @@ def run(
 
     # (OPTIONAL) STORE BINARY SPECTRA
 
-    if config.retrieval.general.store_binary_spectra:
+    if session.job_settings.store_binary_spectra:
         if isinstance(session, types.Proffast2RetrievalSession):
             shutil.copytree(
                 os.path.join(

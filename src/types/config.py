@@ -137,8 +137,11 @@ class RetrievalGeneralConfig(pydantic.BaseModel):
             r"^$(SENSOR_ID)$(DATE).*\.nc$",
         ],
     )
+
+
+class RetrievalJobSettingsConfig(pydantic.BaseModel):
     store_binary_spectra: bool = pydantic.Field(
-        ...,
+        False,
         description=
         "Whether to store the binary spectra files. These are the files that are used by the retrieval algorithm. They are not needed for the output files, but can be useful for debugging.",
     )
@@ -169,6 +172,10 @@ class RetrievalJobConfig(pydantic.BaseModel):
         ...,
         description=
         "Date string in format `YYYY-MM-DD` until which to consider data in the storage directory."
+    )
+    settings: RetrievalJobSettingsConfig = pydantic.Field(
+        RetrievalJobSettingsConfig(),
+        description="Advanced settings that only apply to this retrieval job"
     )
 
     @pydantic.model_validator(mode='after')

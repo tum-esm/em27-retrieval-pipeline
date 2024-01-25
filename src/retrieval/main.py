@@ -107,6 +107,7 @@ def run() -> None:
                 job.retrieval_algorithm,
                 job.atmospheric_profile_model,
                 sdc,
+                job.settings,
             )
         retrieval.utils.retrieval_status.RetrievalStatusList.add_items(
             retrieval_sdcs,
@@ -134,6 +135,7 @@ def run() -> None:
                     next_retrieval_job.sensor_data_context,
                     next_retrieval_job.retrieval_algorithm,
                     next_retrieval_job.atmospheric_profile_model,
+                    next_retrieval_job.job_settings,
                 )
                 new_process = multiprocessing.get_context("spawn").Process(
                     target=retrieval.session.process_session.run,

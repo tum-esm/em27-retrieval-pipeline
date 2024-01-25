@@ -182,7 +182,8 @@ def _run(
                     container_factory,
                     sdc,
                     retrieval_algorithm=alg,
-                    atmospheric_profile_model=atm
+                    atmospheric_profile_model=atm,
+                    job_settings=src.types.config.RetrievalJobSettingsConfig()
                 )
                 name = (
                     f"{session.ctn.container_id}:{alg}-{atm}-" +
