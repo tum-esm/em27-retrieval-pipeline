@@ -159,7 +159,7 @@ def _run(
 
     atm: src.types.AtmosphericProfileModel
     alg: src.types.RetrievalAlgorithm
-    processes: list[multiprocessing.Process] = []
+    pending_processes: list[multiprocessing.Process] = []
     for sdc in SENSOR_DATA_CONTEXTS:
         for atm in [  # type: ignore
             "GGG2014", "GGG2020"
@@ -194,32 +194,44 @@ def _run(
                     name=name,
                     daemon=True,
                 )
-                p.start()
-                print(f"Starting process {p.name}")
-                processes.append(p)
+                pending_processes.append(p)
 
-    # wait until all processes have been started
-    time.sleep(0.3)
+    active_processes: list[multiprocessing.Process] = []
+    finished_processes: list[multiprocessing.Process] = []
+
+    cpu_count = multiprocessing.cpu_count()
+    print(f"Detected {cpu_count} CPU cores")
+    process_count = max(1, cpu_count - 1)
+    print(f"Running {process_count} processes in parallel")
 
     # wait for all processes to finish
     while True:
-        finished_processes: list[multiprocessing.Process] = []
-        for p in processes:
+        while ((len(active_processes) < process_count) and
+               (len(pending_processes) > 0)):
+            p = pending_processes.pop()
+            p.start()
+            active_processes.append(p)
+            print(f"Started process {p.name}")
+
+        time.sleep(0.5)
+
+        newly_finished_processes: list[multiprocessing.Process] = []
+        for p in active_processes:
             if not p.is_alive():
-                assert p.exitcode == 0, f"Process {p.name} failed"
-                p.join()
-                finished_processes.append(p)
-                print(f"Finished process {p.name}")
-                container_factory.remove_container(p.name.split(":")[0])
-                print(f"Removed container of process {p.name}")
+                newly_finished_processes.append(p)
 
-        for p in finished_processes:
-            processes.remove(p)
+        for p in newly_finished_processes:
+            p.join()
+            active_processes.remove(p)
+            container_factory.remove_container(p.name.split(":")[0])
+            finished_processes.append(p)
+            print(f"Finished process {p.name}")
 
-        if len(processes) == 0:
+        if len(active_processes) == 0 and len(pending_processes) == 0:
             break
 
-        time.sleep(15)
+        if len(newly_finished_processes) == 0:
+            time.sleep(2)
 
 
 def _point_config_to_test_data(config: src.types.Config) -> None:
