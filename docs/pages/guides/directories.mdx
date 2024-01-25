@@ -38,7 +38,7 @@ Point the `config.general.data.interferograms` variable to the directory, your i
 +--- 📂 ...
 ```
 
-In this example `ma`, `mb`, and so on are the "sensor ids" used by us (see the [next section about metadata](/docs/guides/metadata)).
+In this example `ma`, `mb`, and so on are the "sensor ids" used by us (see the [next section about metadata](/guides/metadata)).
 
 You have to set the `config.retrieval.general.ifg_file_regex` value to a regex that matches your files. In the example above, we can use `^$(SENSOR_ID)$(DATE).*ifg.\\d+$`.
 
@@ -145,7 +145,7 @@ The `about.json` file in each successful retrieval directory contains all inform
 
 ### Exports
 
-With `config.export_targets`, you can specify a list of targets that the data produced should be exported to. This is based on the definition of "campaigns" in the [metadata (next section)](/docs/guides/metadata). The export bundles the data of a campaign (all involved sensors at the involved locations) into daily CSV files. In the process, modifies the concentration timeseries to be easier accessible:
+With `config.export_targets`, you can specify a list of targets that the data produced should be exported to. This is based on the definition of "campaigns" in the [metadata (next section)](/guides/metadata). The export bundles the data of a campaign (all involved sensors at the involved locations) into daily CSV files. In the process, modifies the concentration timeseries to be easier accessible:
 
 1. Smoothening the data using `scipy.signal.savgol_filter` (https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.savgol_filter.html, https://en.wikipedia.org/wiki/Savitzky%E2%80%93Golay_filter) with a window size of 30 and a polygon order of 3.
 2. Resampling the data at a rate given by `config.export_targets.#.sampling_rate`
@@ -220,7 +220,7 @@ utc,ma__TUM_I__gnd_p,ma__TUM_I__gnd_t,ma__TUM_I__app_sza,ma__TUM_I__azimuth,ma__
 2023-09-25T10:22:20.000000+0000,960.974240984,290.970001221,49.858036995,-14.153594392,2376.788242885,0.998137444,416.954382760,1.905566522,0.097986722,1.906192516,961.444798787,291.010009766,49.829779837,-13.944420682,2381.992750380,1.000763539,417.448686388,1.907172034,0.000000000,0.000000000,955.070825195,290.059997559,49.846197891,-14.538292122,2317.411059570,0.998983747,416.939431763,1.902858508,0.000000000,0.000000000,968.788372803,291.579986572,49.964937210,-14.155156390,2491.403206380,0.997786665,417.137073771,1.906468944,0.000000000,0.000000000,957.584649658,290.540008545,49.748842875,-14.115894922,2326.814868164,1.000376423,417.939343262,1.904526134,0.000000000,0.000000000
 ```
 
-Each column is named like this: `<sensorid>__<location_id>__<datatype>`. The allowed data types are listed in the [config schema](/docs/api-reference/configuration).
+Each column is named like this: `<sensorid>__<location_id>__<datatype>`. The allowed data types are listed in the [config schema](/api-reference/configuration).
 
 **The export is not implemented for Proffast 1.0.**
 
