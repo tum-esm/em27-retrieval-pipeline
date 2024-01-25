@@ -8,6 +8,7 @@ manual-queue.json
 .pdm-python
 *.lock
 !pdm.lock
+de421.bsp
 
 data/**/*.map
 data/**/*.mod

@@ -5,7 +5,7 @@
 groups = ["default", "dev"]
 strategy = ["cross_platform", "inherit_metadata"]
 lock_version = "4.4.1"
-content_hash = "sha256:43a5ce03ac4e99a11a15c83c85e48051660194955577aa2989770786f1a023c8"
+content_hash = "sha256:452829a413e06f20dc836cd56e1925988283580cfbd4814d215bbf334c506f71"
 
 [[package]]
 name = "annotated-types"
@@ -235,6 +235,19 @@ groups = ["dev"]
 files = [
     {file = "iniconfig-2.0.0-py3-none-any.whl", hash = "sha256:b6a85871a79d2e3b22d2d1b94ac2824226a63c6b741c88f7ae975f18b6778374"},
     {file = "iniconfig-2.0.0.tar.gz", hash = "sha256:2d91e135bf72d31a410b17c16da610a82cb55f6b0477d1a902134b24a455b8b3"},
+]
+
+[[package]]
+name = "jplephem"
+version = "2.21"
+summary = "Use a JPL ephemeris to predict planet positions."
+groups = ["default"]
+dependencies = [
+    "numpy",
+]
+files = [
+    {file = "jplephem-2.21-py3-none-any.whl", hash = "sha256:487fd8c94c458bba74f43bcf332702bbcb2b8e5a4e3fb15c36159fc92e69e6a1"},
+    {file = "jplephem-2.21.tar.gz", hash = "sha256:34194b610695f21b89217b9852b8dabadbce80848cb369d9567ef12dc4828d55"},
 ]
 
 [[package]]
@@ -668,6 +681,22 @@ files = [
 ]
 
 [[package]]
+name = "sgp4"
+version = "2.23"
+summary = "Track Earth satellites given TLE data, using up-to-date 2020 SGP4 routines."
+groups = ["default"]
+files = [
+    {file = "sgp4-2.23-cp311-cp311-macosx_10_9_universal2.whl", hash = "sha256:90dbea63ea1f288ce90448b3d7a1e9728292f1b9c9fa61839053e9277d98e96f"},
+    {file = "sgp4-2.23-cp311-cp311-macosx_10_9_x86_64.whl", hash = "sha256:e7b043fb0f628a3759ef649ee12b6e76ee65a0ec86b94dc41dfc90129fcbc81e"},
+    {file = "sgp4-2.23-cp311-cp311-macosx_11_0_arm64.whl", hash = "sha256:7d55529102283821054ece00f95dd2b82843d1c72c80e39026c78e2f400ac9b9"},
+    {file = "sgp4-2.23-cp311-cp311-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:4d9f4f39be2b85a4772a184cd4d160f9ed345116afcda79a0a1852ccfa12b030"},
+    {file = "sgp4-2.23-cp311-cp311-manylinux_2_5_x86_64.manylinux1_x86_64.manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:72868cd01169f45562954cdaaa9f1a2f738cac3c9ba3fdbd12b07a5f99bcb9d1"},
+    {file = "sgp4-2.23-cp311-cp311-win32.whl", hash = "sha256:137adf0e0fbe4d9a514284bb809590c5a2c52dc506b977ec7896165df8bc2a5e"},
+    {file = "sgp4-2.23-cp311-cp311-win_amd64.whl", hash = "sha256:34efb27f9f281c76b5650c9a39a0b8f43d383d5575a4f7b3d4d597c9b7ff3d75"},
+    {file = "sgp4-2.23.tar.gz", hash = "sha256:d8addc53a2fb9f88dee6bfd401d2865b014cc0b57bf2cee69bdee8d9685d5429"},
+]
+
+[[package]]
 name = "six"
 version = "1.16.0"
 requires_python = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*"
@@ -676,6 +705,22 @@ groups = ["default"]
 files = [
     {file = "six-1.16.0-py2.py3-none-any.whl", hash = "sha256:8abb2f1d86890a2dfb989f9a77cfcfd3e47c2a354b01111771326f8aa26e0254"},
     {file = "six-1.16.0.tar.gz", hash = "sha256:1e61c37477a1626458e36f7b1d82aa5c9b094fa4802892072e49de9c60c4c926"},
+]
+
+[[package]]
+name = "skyfield"
+version = "1.47"
+summary = "Elegant astronomy for Python"
+groups = ["default"]
+dependencies = [
+    "certifi>=2017.4.17",
+    "jplephem>=2.13",
+    "numpy",
+    "sgp4>=2.2",
+]
+files = [
+    {file = "skyfield-1.47-py3-none-any.whl", hash = "sha256:add77b3851d008ea8633de82efee54761df42896ffdc1b11f552e394adfb8cd1"},
+    {file = "skyfield-1.47.tar.gz", hash = "sha256:3ac3e178c20547fa8e86adae4fdebcc8b4a744a184394268ce55338426bfe208"},
 ]
 
 [[package]]

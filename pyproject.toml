@@ -24,6 +24,7 @@ dependencies = [
     "timezonefinder>=6.2.0",   # used by Proffast Pylot only
     "pyyaml>=6.0.1",           # used by Proffast Pylot only
     "fortranformat>=2.0.0",    # used by Proffast Pylot only
+    "skyfield>=1.47",
 ]
 requires-python = "==3.11.*"
 readme = "README.md"
@@ -52,7 +53,7 @@ distribution = false
 [tool.pytest.ini_options]
 markers = [
     "integration: can only be run on a configured system",
-    "quick: can be run in a CI environment, < 1 min, everything except running actual retrievals",
+    "quick: can be run in a CI environment, < 30 seconds, everything except running actual retrievals",
     "ci: can be run in a CI environment, ~ 3 min, run the complete tests but without running the actual retrieval algorithms",
     "complete: can be run in a CI environment, ~ 10 - 20 minutes, runs three sample days from different instruments and locations for every retrieval algorithm and every atmospheric profile",
 ]
@@ -70,5 +71,12 @@ each_dict_entry_on_separate_line = false
 spaces_around_subscript_colon = true
 
 [[tool.mypy.overrides]]
-module = ["src.prfpylot.prfpylot.pylot", "scipy", "scipy.signal", "polars", "matplotlib.*"]
+module = [
+    "src.prfpylot.prfpylot.pylot",
+    "scipy",
+    "scipy.signal",
+    "polars",
+    "matplotlib.*",
+    "skyfield.*",
+]
 ignore_missing_imports = true
