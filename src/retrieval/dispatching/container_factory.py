@@ -58,13 +58,6 @@ class ContainerFactory:
         else:
             self.logger.info("Not initializing Proffast 2.3 (unused)")
 
-        self.logger.info(
-            "Running `tum_esm_utils.interferograms.detect_corrupt_ifgs` to make sure, it is not corrupted"
-        )
-        tum_esm_utils.interferograms.detect_corrupt_ifgs(
-            tum_esm_utils.files.rel_to_abs_path(".")
-        )
-
         self.logger.info("ContainerFactory is set up")
 
     def create_container(
