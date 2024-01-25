@@ -49,9 +49,7 @@ def recursive_help(
 
 
 with open(
-    os.path.join(
-        PROJECT_DIR, "docs", "pages", "docs", "api-reference", "cli.mdx"
-    ), "w"
+    os.path.join(PROJECT_DIR, "docs", "pages", "api-reference", "cli.mdx"), "w"
 ) as f:
     f.write("# CLI Reference\n\n")
     f.write(recursive_help(cli.cli))
@@ -135,9 +133,8 @@ export_schema(
 example_metadata = em27_metadata.load_from_example_data()
 
 with open(
-    os.path.join(
-        PROJECT_DIR, "docs", "pages", "docs", "api-reference", "metadata.mdx"
-    ), "r"
+    os.path.join(PROJECT_DIR, "docs", "pages", "api-reference", "metadata.mdx"),
+    "r"
 ) as _f:
     current_metadata_reference = _f.read()
 
@@ -178,9 +175,8 @@ current_metadata_reference = current_metadata_reference.replace(
 )
 
 with open(
-    os.path.join(
-        PROJECT_DIR, "docs", "pages", "docs", "api-reference", "metadata.mdx"
-    ), "w"
+    os.path.join(PROJECT_DIR, "docs", "pages", "api-reference", "metadata.mdx"),
+    "w"
 ) as _f:
     _f.write(current_metadata_reference)
 
@@ -198,8 +194,7 @@ config_string = src.types.Config.load(
 
 with open(
     os.path.join(
-        PROJECT_DIR, "docs", "pages", "docs", "api-reference",
-        "configuration.mdx"
+        PROJECT_DIR, "docs", "pages", "api-reference", "configuration.mdx"
     ), "r"
 ) as _f:
     current_config_reference = _f.read()
@@ -218,8 +213,7 @@ current_config_reference = current_config_reference.replace(
 
 with open(
     os.path.join(
-        PROJECT_DIR, "docs", "pages", "docs", "api-reference",
-        "configuration.mdx"
+        PROJECT_DIR, "docs", "pages", "api-reference", "configuration.mdx"
     ), "w"
 ) as _f:
     _f.write(current_config_reference)
@@ -227,9 +221,8 @@ with open(
 ### guide
 
 with open(
-    os.path.join(
-        PROJECT_DIR, "docs", "pages", "docs", "guides", "configuration.mdx"
-    ), "r"
+    os.path.join(PROJECT_DIR, "docs", "pages", "guides", "configuration.mdx"),
+    "r"
 ) as _f:
     current_config_guide = _f.read()
 
@@ -245,8 +238,26 @@ current_config_guide = current_config_guide.replace(
 )
 
 with open(
-    os.path.join(
-        PROJECT_DIR, "docs", "pages", "docs", "guides", "configuration.mdx"
-    ), "w"
+    os.path.join(PROJECT_DIR, "docs", "pages", "guides", "configuration.mdx"),
+    "w"
 ) as _f:
     _f.write(current_config_guide)
+
+# ---------------------------------------------------------
+# Sync README
+
+with open(os.path.join(PROJECT_DIR, "docs", "pages", "index.mdx")) as _f:
+    current_docs_landing_page = _f.read()
+
+xs = current_docs_landing_page.split(
+    'import { Callout } from "nextra/components";'
+)
+assert len(xs) == 2
+
+with open(os.path.join(PROJECT_DIR, "README.md")) as _f:
+    readme = _f.read()
+
+with open(os.path.join(PROJECT_DIR, "docs", "pages", "index.mdx"), "w") as _f:
+    _f.write(
+        readme + '\n\nimport { Callout } from "nextra/components";' + xs[1]
+    )
