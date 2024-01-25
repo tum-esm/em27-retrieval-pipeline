@@ -1,8 +1,7 @@
 from typing import Any
 import datetime
 import signal
-import src
-from src import retrieval
+from src import types, retrieval
 from . import (
     move_log_files,
     move_profiles,
@@ -13,8 +12,8 @@ from . import (
 
 
 def run(
-    config: src.types.Config,
-    session: src.types.RetrievalSession,
+    config: types.Config,
+    session: types.RetrievalSession,
     test_mode: bool = False
 ) -> None:
     signal.signal(signal.SIGINT, signal.SIG_IGN)

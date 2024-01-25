@@ -1,6 +1,7 @@
 import datetime
 import em27_metadata
 import pytest
+import tum_esm_utils
 import src
 from ..fixtures import provide_config_template
 
@@ -68,21 +69,21 @@ def test_list_requested_data(provide_config_template: src.types.Config) -> None:
     expected_data = {
         src.profiles.generate_queries.ProfilesQueryLocation(lat=1, lon=2):
             set(
-                src.utils.functions.date_range(
+                tum_esm_utils.timing.date_range(
                     datetime.date(2000, 1, 1),
                     datetime.date(2000, 3, 1),
                 )
             ),
         src.profiles.generate_queries.ProfilesQueryLocation(lat=1, lon=3):
             set(
-                src.utils.functions.date_range(
+                tum_esm_utils.timing.date_range(
                     datetime.date(2000, 5, 4),
                     datetime.date(2000, 5, 8),
                 )
             ),
         src.profiles.generate_queries.ProfilesQueryLocation(lat=2, lon=3):
             set(
-                src.utils.functions.date_range(
+                tum_esm_utils.timing.date_range(
                     datetime.date(2000, 3, 1),
                     datetime.date(2000, 5, 1),
                 )

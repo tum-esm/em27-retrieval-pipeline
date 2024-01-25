@@ -1,12 +1,12 @@
 from typing import Optional
 import em27_metadata
 import pydantic
-import src
+from src import types
 
 
 class RetrievalJob(pydantic.BaseModel):
-    retrieval_algorithm: src.types.RetrievalAlgorithm
-    atmospheric_profile_model: src.types.AtmosphericProfileModel
+    retrieval_algorithm: types.RetrievalAlgorithm
+    atmospheric_profile_model: types.AtmosphericProfileModel
     sensor_data_context: em27_metadata.types.SensorDataContext
 
 
@@ -17,8 +17,8 @@ class RetrievalJobQueue():
 
     def push(
         self,
-        retrieval_algorithm: src.types.RetrievalAlgorithm,
-        atmospheric_profile_model: src.types.AtmosphericProfileModel,
+        retrieval_algorithm: types.RetrievalAlgorithm,
+        atmospheric_profile_model: types.AtmosphericProfileModel,
         sensor_data_context: em27_metadata.types.SensorDataContext,
     ) -> None:
         self.queue.append(

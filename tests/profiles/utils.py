@@ -1,12 +1,13 @@
 import datetime
 import random
+import tum_esm_utils
 import src
 
 TEST_LOCATIONS = [
     src.profiles.generate_queries.ProfilesQueryLocation(lat=lat, lon=lon)
     for lat in range(-90, 90, 5) for lon in range(-180, 180, 5)
 ]
-TEST_DATES = src.utils.functions.date_range(
+TEST_DATES = tum_esm_utils.timing.date_range(
     datetime.date(2018, 1, 1),
     datetime.date(2023, 12, 31),
 )

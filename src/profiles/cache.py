@@ -2,7 +2,7 @@ from __future__ import annotations
 import datetime
 import pydantic
 import tum_esm_utils
-import src
+from src import types
 
 _CACHE_FILE = tum_esm_utils.files.rel_to_abs_path(
     "../../data/profiles_query_cache.json"
@@ -10,8 +10,8 @@ _CACHE_FILE = tum_esm_utils.files.rel_to_abs_path(
 
 
 class DownloadQueryCacheEntry(pydantic.BaseModel):
-    atmospheric_profile_model: src.types.AtmosphericProfileModel
-    download_query: src.types.DownloadQuery
+    atmospheric_profile_model: types.AtmosphericProfileModel
+    download_query: types.DownloadQuery
     request_time: datetime.datetime
 
 
@@ -39,8 +39,8 @@ class DownloadQueryCache(pydantic.RootModel[list[DownloadQueryCacheEntry]]):
 
     def get_active_queries(
         self,
-        atmospheric_profile_model: src.types.AtmosphericProfileModel,
-    ) -> list[src.types.DownloadQuery]:
+        atmospheric_profile_model: types.AtmosphericProfileModel,
+    ) -> list[types.DownloadQuery]:
         return sorted(
             [
                 e.download_query for e in self.root
@@ -51,8 +51,8 @@ class DownloadQueryCache(pydantic.RootModel[list[DownloadQueryCacheEntry]]):
 
     def add_query(
         self,
-        atmospheric_profile_model: src.types.AtmosphericProfileModel,
-        download_query: src.types.DownloadQuery,
+        atmospheric_profile_model: types.AtmosphericProfileModel,
+        download_query: types.DownloadQuery,
     ) -> None:
         self.root.append(
             DownloadQueryCacheEntry(
@@ -64,8 +64,8 @@ class DownloadQueryCache(pydantic.RootModel[list[DownloadQueryCacheEntry]]):
 
     def remove_queries(
         self,
-        atmospheric_profile_model: src.types.AtmosphericProfileModel,
-        download_queries: list[src.types.DownloadQuery],
+        atmospheric_profile_model: types.AtmosphericProfileModel,
+        download_queries: list[types.DownloadQuery],
     ) -> None:
         self.root = [
             e for e in self.root

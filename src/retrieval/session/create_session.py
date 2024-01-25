@@ -2,8 +2,7 @@ import datetime
 import os
 import em27_metadata
 import tum_esm_utils
-import src
-from src import retrieval
+from src import types, retrieval
 
 _PROJECT_DIR = tum_esm_utils.files.get_parent_dir_path(
     __file__, current_depth=4
@@ -13,9 +12,7 @@ _RETRIEVAL_ALGORITHMS_DIR = os.path.join(
 )
 
 
-def _generate_pylot2_config(
-    session: src.types.Proffast2RetrievalSession
-) -> None:
+def _generate_pylot2_config(session: types.Proffast2RetrievalSession) -> None:
     assert session.retrieval_algorithm in ["proffast-2.2", "proffast-2.3"]
 
     file_content = tum_esm_utils.files.load_file(
@@ -59,7 +56,7 @@ def _generate_pylot2_config(
 
 
 def _generate_pylot2_log_format(
-    session: src.types.Proffast2RetrievalSession
+    session: types.Proffast2RetrievalSession
 ) -> None:
     file_content = tum_esm_utils.files.load_file(
         os.path.join(
@@ -90,21 +87,21 @@ def _generate_pylot2_log_format(
 def run(
     container_factory: retrieval.dispatching.container_factory.ContainerFactory,
     sensor_data_context: em27_metadata.types.SensorDataContext,
-    retrieval_algorithm: src.types.RetrievalAlgorithm,
-    atmospheric_profile_model: src.types.AtmosphericProfileModel,
-) -> src.types.RetrievalSession:
+    retrieval_algorithm: types.RetrievalAlgorithm,
+    atmospheric_profile_model: types.AtmosphericProfileModel,
+) -> types.RetrievalSession:
     """Create a new container and the pylot config files"""
-    new_session: src.types.RetrievalSession
+    new_session: types.RetrievalSession
 
     if retrieval_algorithm == "proffast-1.0":
-        new_session = src.types.Proffast1RetrievalSession(
+        new_session = types.Proffast1RetrievalSession(
             ctx=sensor_data_context,
             ctn=container_factory.create_container(
                 retrieval_algorithm=retrieval_algorithm
             ),
         )
     elif retrieval_algorithm in ["proffast-2.2", "proffast-2.3"]:
-        new_session = src.types.Proffast2RetrievalSession(
+        new_session = types.Proffast2RetrievalSession(
             retrieval_algorithm=retrieval_algorithm,
             atmospheric_profile_model=atmospheric_profile_model,
             ctx=sensor_data_context,

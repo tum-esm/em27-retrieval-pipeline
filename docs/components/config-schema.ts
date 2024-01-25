@@ -1,5 +1,6 @@
 /* prettier-ignore */
 const CONFIG_SCHEMA: any = {
+    "description": "A pydantic model describing the config file schema.",
     "properties": {
         "version": {
             "const": "1.0",

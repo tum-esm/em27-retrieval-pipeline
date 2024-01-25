@@ -6,6 +6,8 @@ import re
 import em27_metadata
 import pydantic
 import datetime
+
+import tum_esm_utils
 from src import types, utils
 from .cache import DownloadQueryCache
 
@@ -123,7 +125,7 @@ def list_requested_data(
             )
             if from_date <= to_date:
                 requested_data[l].update(
-                    utils.functions.date_range(
+                    tum_esm_utils.timing.date_range(
                         from_date=from_date, to_date=to_date
                     )
                 )
@@ -160,7 +162,7 @@ def remove_already_requested_data(
         for q in active_queries:
             if q.lat == l.lat and q.lon == l.lon:
                 already_requested_dates.update(
-                    utils.functions.date_range(
+                    tum_esm_utils.timing.date_range(
                         from_date=q.from_date, to_date=q.to_date
                     )
                 )
@@ -184,7 +186,7 @@ def remove_std_site_data(
         )
         if location in filtered_data.keys():
             filtered_data[location].difference_update(
-                utils.functions.date_range(
+                tum_esm_utils.timing.date_range(
                     from_date=std_site_config.from_date,
                     to_date=std_site_config.to_date,
                 )
