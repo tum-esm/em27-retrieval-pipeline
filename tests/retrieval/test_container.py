@@ -183,7 +183,15 @@ def _run(
                     sdc,
                     retrieval_algorithm=alg,
                     atmospheric_profile_model=atm,
-                    job_settings=src.types.config.RetrievalJobSettingsConfig()
+                    job_settings=src.types.config.RetrievalJobSettingsConfig(
+                        # test this for all alg/atm combinations
+                        # for one of the sensor data contexts
+                        use_local_pressure_in_pcxs=(
+                            sdc.from_datetime.date() == datetime.date(
+                                2017, 6, 9
+                            )
+                        ),
+                    )
                 )
                 name = (
                     f"{session.ctn.container_id}:{alg}-{atm}-" +

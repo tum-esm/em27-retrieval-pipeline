@@ -71,4 +71,6 @@ def compute_mean_pressure_around_noon(
         )
     assert len(df_around_noon
               ) > 10, ("Did not find enough pressure data around solar noon")
-    return float(df_around_noon.select("BaroYoung").to_numpy().flatten().mean())
+    return round(
+        float(df_around_noon.select("BaroYoung").to_numpy().flatten().mean()), 3
+    )
