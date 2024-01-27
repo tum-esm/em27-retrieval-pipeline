@@ -261,4 +261,4 @@ with open(os.path.join(PROJECT_DIR, "README.md")) as _f:
     readme = _f.read()
 
 with open(os.path.join(PROJECT_DIR, "docs", "pages", "index.mdx"), "w") as _f:
-    _f.write(readme + '##' + "##".join(xs[1 :]))
+    _f.write(readme + '\n##' + "##".join(xs[1 :]))
