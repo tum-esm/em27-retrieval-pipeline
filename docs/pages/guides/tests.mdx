@@ -1,17 +1,17 @@
 # Automatic Test Suite
 
-The Pipeline comes with a suite of test. This ensures that the code is doing what it's supposed to, and enables developers to change code with confidence.
+The pipeline comes with a suite of tests: They ensure the code is doing what it's supposed to and enable developers to change code confidently.
 
 ## Test Classes
 
 There are four test classes ([using pytest marks](https://docs.pytest.org/en/7.1.x/example/markers.html)):
 
-1. `integration`: Test, whether the pipeline is properly set up on your system (testing config validity, etc.)
+1. `integration`: Test whether the pipeline is correctly set up on your system (testing config validity, connection to metadata, etc.)
 2. `quick`: Test static type hints and small utility functions
 3. `ci`: Test whether the pipeline is doing what it should
 4. `complete`: Test whether the retrieval is doing what it should
 
-The `ci` and `complete` tests download a sample dataset of three days (from two systems) and run all retrieval algorithms (Proffast 1 with GGG2014, Proffast 2.2 and 2.3 with GGG2014 and GGG2020). The `ci` does everything that `complete` does (spawning containers, moving files, etc.), but does not run the retrieval code itself. The reason for this difference is that the `complete` tests take about 10-15 minutes on our 10-Core VM, whereas the `ci` tests can be run in the GitHub CI environment on a small machine.
+The `ci` and `complete` tests download a sample dataset of three days (from two systems) and run all retrieval algorithms (Proffast 1 with GGG2014, Proffast 2.2 and 2.3 with GGG2014 and GGG2020). The `ci` does everything that `complete` does (spawning containers, moving files, etc.) but does not run the retrieval code itself. These two classes exist because the `complete` tests take 10-15 minutes on our 10-Core VM, whereas the `ci` tests can be run within 2-3 minutes in the GitHub CI environment on a 2-Core machine.
 
 You can run the different test classes with: 
 
@@ -25,16 +25,16 @@ pytest -m 'quick or integration'
 
 ## Order of the Tests
 
-The tests are ordered in the following way - the fast tests should run first to get a quick feedback loop. Add the `--exitfirst` flag to stop the tests after the first failure.
+The tests are ordered the following way - the fast tests should run first to get a quick feedback loop. Add the `--exitfirst` flag to stop the tests after the first failure.
 
 1. Static types (`quick`)
-2. Config Template/Documentation (`quick`) & Config (`integration`)
-3. Utility functions (`quick`) & Metadata/Profiles connection (`integration`)
+2. Config template/documentation (`quick`) and local config (`integration`)
+3. Utility functions (`quick`) and metadata/profiles connection (`integration`)
 4. Run mock retrieval (`ci`)
 5. Run full retrieval (`complete`)
 
 ## Retrieval Tests
 
-When running the `ci` or `complete` tests, the test suite will download some sample data to `data/testing/container/em27-retrieval-pipeline-test-inputs-1.0.0.tar.gz` and unpack this into `data/testing/container/inputs`. After the tests are completed, the `data/testing/container/outputs` directory will be fully populated with the results of any retrieval algorithm using any atmospheric profiles.
+When running the `ci` or `complete` tests, the test suite will download some sample data to `data/testing/container/em27-retrieval-pipeline-test-inputs-1.0.0.tar.gz` and unpack this into `data/testing/container/inputs`. After the tests have run successfully, the directory `data/testing/container/outputs` will be fully populated with the results of any retrieval algorithm using any atmospheric profiles.
 
-**🌈 You can use this as a demonstration on the input and output format of the pipeline.**
+**🌈 You can use this as a demonstration of the input and output format of the pipeline.**

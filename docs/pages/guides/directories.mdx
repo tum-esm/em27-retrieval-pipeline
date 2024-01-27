@@ -6,9 +6,9 @@ The pipeline and none of the retrieval algorithms manipulate any data in the dir
 
 <Callout type="info" emoji="💡">
 
-We can ensure that this pipeline doesn't modify any data from the input directories. We cannot guarantee this for the retrieval algorithms, but we are very certain about this, and have never observed this.
+We can ensure this pipeline doesn't modify any data from the input directories. We cannot guarantee this for the retrieval algorithms, but we are very confident about this and have never observed it on our systems.
 
-If you want to make sure that the retrieval cannot manipulate any of your interferograms or datalogger files, you can create a read-only mount of the directories and configure the pipeline to use those read-only directories.
+However, if you want to ensure the retrieval cannot manipulate any of your interferograms or datalogger files, you can create a read-only mount of the directories. Only point the pipeline to those read-only directories.
 
 See https://askubuntu.com/a/243390.
 
@@ -16,7 +16,7 @@ See https://askubuntu.com/a/243390.
 
 ### Interferograms
 
-Point the `config.general.data.interferograms` variable to the directory, your interferograms are stored in.
+Point the `config.general.data.interferograms` variable to the directory your interferograms are stored in.
 
 ```
 📂 <config.general.data.interferograms>
@@ -38,13 +38,13 @@ Point the `config.general.data.interferograms` variable to the directory, your i
 +--- 📂 ...
 ```
 
-In this example `ma`, `mb`, and so on are the "sensor ids" used by us (see the [next section about metadata](/guides/metadata)).
+In this example, `ma`, `mb`, and so on are the "sensor ids" used by us (see the [next section about metadata](/guides/metadata)).
 
-You have to set the `config.retrieval.general.ifg_file_regex` value to a regex that matches your files. In the example above, we can use `^$(SENSOR_ID)$(DATE).*ifg.\\d+$`.
+You must set the `config.retrieval.general.ifg_file_regex` value to a regex matching your files. In the example above, we can use `^$(SENSOR_ID)$(DATE).*ifg.\\d+$`.
 
 ### Datalogger Files
 
-Point the `config.general.data.datalogger` variable to the directory, your local meteorological files are stored in = your ground pressure logs.
+Point the `config.general.data.datalogger` variable to the directory where you store your local meteorological files = your ground pressure logs.
 
 ```
 📂 <config.general.data.datalogger>
@@ -71,17 +71,17 @@ UTCtime___,BaroYoung
 
 <Callout type="info" emoji="💡">
 
-Since the format of the local meteorological is not as standardized as the interferograms, we decided to support this format - for now.
+Since the format of the local meteorological is less standardized than the interferograms, we decided to support this format - for now.
 
-If your data is a different format than this, you could write a small parsing script that runs on a cronjob and creates a new directory in this format. One year of data in this format is about 9MB, so the duplication of data is not a big deal.
+If your data is in a different format than this, write a small parsing script that runs on a cronjob and creates a new directory in this format. One year of data in this format is about 9MB, so the data duplication is acceptable.
 
-Or, we are happy to accept contributions to our codebase to add support for different formats - best, open an issue first to discuss the format.
+We are also happy to accept contributions to our codebase to add support for different formats! Please open an issue to discuss first.
 
 </Callout>
 
 ### Atmospheric Profiles
 
-Point the `config.general.data.atmospheric_profiles` variable to the directory, you want to store the atmospheric profiles.
+Point the `config.general.data.atmospheric_profiles` variable to the directory you want to store the atmospheric profiles.
 
 ```
 📂 <config.general.data.atmospheric_profiles>
@@ -105,13 +105,13 @@ Point the `config.general.data.atmospheric_profiles` variable to the directory, 
 
 <Callout type="info" emoji="💡">
 
-Since this pipeline includes a fully automated downloader for this data, you can also just point it to an empty directory and let the pipeline populate it.
+Since this pipeline includes a fully automated downloader for this data, you can point it to an empty directory and let the pipeline populate it.
 
 </Callout>
 
 ### Results
 
-This is how the outputs of this pipeline are stored:
+The pipeline populates the results directory in the following way:
 
 ```
 📂 <config.general.data.results>
@@ -141,17 +141,17 @@ This is how the outputs of this pipeline are stored:
 +--- 📂 ...
 ```
 
-The `about.json` file in each successful retrieval directory contains all information required to reproduce the respective retrieval results. The structure of the directories in `failed/` and `successful/` is the same - the outputs will be moved to `successful/` if the retrieval produced a final CSV file.
+The `about.json` file in each successful retrieval directory contains all information required to reproduce the respective retrieval results. The structure of the directories in `failed/` and `successful/` is the same - the outputs are moved to `successful/` if the retrieval has produced a final CSV file and to `failed` otherwise.
 
 ### Exports
 
-With `config.export_targets`, you can specify a list of targets that the data produced should be exported to. This is based on the definition of "campaigns" in the [metadata (next section)](/guides/metadata). The export bundles the data of a campaign (all involved sensors at the involved locations) into daily CSV files. In the process, modifies the concentration timeseries to be easier accessible:
+With `config.export_targets`, you can specify a list of targets to which the data produced should be exported. This export is based on the definition of "campaigns" in the [metadata (next section)](/guides/metadata). The export bundles the data of a campaign (all involved sensors at the involved locations) into daily CSV files. In the process, modifies the concentration time series to be easier accessible:
 
 1. Smoothening the data using `scipy.signal.savgol_filter` (https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.savgol_filter.html, https://en.wikipedia.org/wiki/Savitzky%E2%80%93Golay_filter) with a window size of 30 and a polygon order of 3.
 2. Resampling the data at a rate given by `config.export_targets.#.sampling_rate`
 3. Linearly interpolating within gaps smaller than `config.export_targets.#.max_interpolation_gap_seconds`
 
-The export directory will be populated like the following. Just the `dst_dir` has to be created beforehand:
+The export directory will be populated in the following way - just point `dst_dir` to an empty directory.
 
 ```
 📂 <config.export_targets.#.dst_dir>
@@ -165,7 +165,7 @@ The export directory will be populated like the following. Just the `dst_dir` ha
                     +--- ...
 ```
 
-In this case, `muccnet` is a campaign id, and `v1.0.0` is the version of the pipeline.
+In this case, `muccnet` is a campaign ID, and `v1.0.0` is the pipeline version.
 
 The CSV files look like the following:
 
@@ -220,7 +220,7 @@ utc,ma__TUM_I__gnd_p,ma__TUM_I__gnd_t,ma__TUM_I__app_sza,ma__TUM_I__azimuth,ma__
 2023-09-25T10:22:20.000000+0000,960.974240984,290.970001221,49.858036995,-14.153594392,2376.788242885,0.998137444,416.954382760,1.905566522,0.097986722,1.906192516,961.444798787,291.010009766,49.829779837,-13.944420682,2381.992750380,1.000763539,417.448686388,1.907172034,0.000000000,0.000000000,955.070825195,290.059997559,49.846197891,-14.538292122,2317.411059570,0.998983747,416.939431763,1.902858508,0.000000000,0.000000000,968.788372803,291.579986572,49.964937210,-14.155156390,2491.403206380,0.997786665,417.137073771,1.906468944,0.000000000,0.000000000,957.584649658,290.540008545,49.748842875,-14.115894922,2326.814868164,1.000376423,417.939343262,1.904526134,0.000000000,0.000000000
 ```
 
-Each column is named like this: `<sensorid>__<location_id>__<datatype>`. The allowed data types are listed in the [config schema](/api-reference/configuration).
+The column names follow the schema `<sensorid>__<location_id>__<datatype>`. The [config schema](/api-reference/configuration) lists the allowed data types.
 
 **The export is not implemented for Proffast 1.0.**
 
@@ -246,8 +246,8 @@ The files are either from containers (`startingdate-startingtime_containername.l
 
 #### Containers
 
-The containers where the retrieval is actually running, are working on `data/containers`. Each container with a container name like `eloquent-oppenheimer` has three active directories: `data/containers/retrieval-container-$containername`, `data/containers/retrieval-container-$containername-input`, and `data/containers/retrieval-container-$containername-output`.
+The containers in which the retrieval is running are working on `data/containers`. Each container with a container name like `eloquent-oppenheimer` has three active directories: `data/containers/retrieval-container-$containername`, `data/containers/retrieval-container-$containername-input`, and `data/containers/retrieval-container-$containername-output`.
 
 #### Profiles Query Cache
 
-The profiles downloader uses the file `data/profiles_query_cache.json` to save the information, which profiles have already been requested. Profiles will only be re-requested if they have not been produced within 24 hours.
+The profiles downloader uses the file `data/profiles_query_cache.json` to save the information on which profiles have already been requested. Profiles will only be re-requested if they have not been produced within 24 hours.

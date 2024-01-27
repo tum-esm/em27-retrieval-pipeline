@@ -254,15 +254,11 @@ with open(
 with open(os.path.join(PROJECT_DIR, "docs", "pages", "index.mdx")) as _f:
     current_docs_landing_page = _f.read()
 
-xs = current_docs_landing_page.split(
-    'import { Callout } from "nextra/components";'
-)
-assert len(xs) == 2
+xs = current_docs_landing_page.split('##')
+assert len(xs) >= 2
 
 with open(os.path.join(PROJECT_DIR, "README.md")) as _f:
     readme = _f.read()
 
 with open(os.path.join(PROJECT_DIR, "docs", "pages", "index.mdx"), "w") as _f:
-    _f.write(
-        readme + '\n\nimport { Callout } from "nextra/components";' + xs[1]
-    )
+    _f.write(readme + '##' + "##".join(xs[1 :]))

@@ -1,39 +1,39 @@
 # Metadata
 
-In order to use the pipeline, you have to specify the metadata of your EM27/SUN network: "how was each instrument set up over time?". The metadata consists of three files `locations.json`, `sensors.json` and `campaigns.json`.
+To use the pipeline, you have to specify the metadata of your EM27/SUN network: "How was each instrument set up over time?". The metadata consists of three files `locations.json`, `sensors.json`, and `campaigns.json`.
 
-The [API Reference section](/api-reference/metadata) contains example files for the metadata as well as a full specification of the schema.
+The [API Reference section](/api-reference/metadata) contains example files for the metadata as well as a complete specification of the schema.
 
-**`locations.json`** contains a list of measurement locations. You will have to assign each of your measurement locations a `location_id`. For example, we use the location ids `TUM_I`, `FEL`, and so on.
+**`locations.json`** contains a list of measurement locations. You must assign each of your measurement locations a `location_id`. For example, we use the location IDs `TUM_I`, `FEL`, and so on.
 
-**`sensors.json`** contains a list of measurement setups for each of your EM27/SUN devices. You will have to assign each of your sensor systems - each housing one EM27/SUN - a `sensor_id`. For example, we use the sensor ids `ma`, `mb`, `mc`, `md`, and `me`.
+**`sensors.json`** contains a list of measurement setups for each of your EM27/SUN systems. You must assign each sensor system - each housing one EM27/SUN - a `sensor_id`. For example, we use the sensor ids `ma`, `mb`, `mc`, `md`, and `me`.
 
 **`campaigns.json`** contains a list of campaigns. You can leave this list empty. If specified, you can use the exporting functionality of the pipeline to merge all data of a "campaign" into daily CSV files. For example, we use the campaign ids `muccnet`, `san-francisco`, `vienna`, and so on.
 
 ## Connecting the Metadata
 
-To configure the pipeline with the metadata, you have two options: Save them locally, or store them in a GitHub repository. The latter option is a bit more work to set up but then the metadata can be edited anywhere and is version-controlled.
+To configure the pipeline with the metadata, you have two options: Save them locally or store them in a GitHub repository. The latter option is a bit more work to set up, but then the metadata can be edited anywhere and is version-controlled.
 
 ### Option 1: Local Files
 
-For this option, you can just save the three files `locations.json`, `sensors.json` and `campaigns.json` to the `config/` directory of the pipeline directory. Be sure to include all of them files - even if you don't have any campaigns, save an empty list to `campaigns.json`.
+For this option, you can save the three files `locations.json`, `sensors.json`, and `campaigns.json` to the `config/` directory of the pipeline directory. Be sure to include all the files - even if you don't have any campaigns, save an empty list to `campaigns.json`.
 
 ### Option 2: GitHub Repository
 
 **1. Create a repository**
 
-Use the repository [tum-esm/em27-metadata-storage-template](https://github.com/tum-esm/em27-metadata-storage-template) as a template to create your own metadata-storage repository. On the top right, there is a button "Use this template".
+Use the repository [tum-esm/em27-metadata-storage-template](https://github.com/tum-esm/em27-metadata-storage-template) as a template to create your own metadata-storage repository. On the top right is a button "Use this template".
 
 The repository has already been configured with a GitHub Actions workflow to test whether the metadata matches the required schema.
 
 **2. Connect the repository to the pipeline**
 
-In the configuration file of the pipeline at `config/config.json` you have to specify the GitHub repository. If you want to keep the repository private, you have to specify an [access token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens#creating-a-personal-access-token-classic) with read access to this repository.
+In the pipeline configuration file at `config/config.json`, you have to specify the GitHub repository. If you want to keep the repository private, you can use an [access token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens#creating-a-personal-access-token-classic) with read access to this repository.
 
 **3. Test the connection**
 
-When running the integration tests with `pytest -m integration`, the connection and validity of the repository will be tested.
+You can test the connection to the repository and the integrity of the data in it by running the integration tests with `pytest -m integration`.
 
 ## Reusing this Metadata
 
-We actually use this metadata in many places: for plotting, data analysis, calibration factor computation, etc.. You do not have to rewrite the parsing logic for every single project, but can simply use our `em27-metadata` Python library: https://github.com/tum-esm/em27-metadata.
+We use this metadata in many places: for plotting, data analysis, calibration factor computation, and so on. You do not have to rewrite the parsing logic for every single project but can use our `em27-metadata` Python library: [github.com/tum-esm/em27-metadata](https://github.com/tum-esm/em27-metadata).

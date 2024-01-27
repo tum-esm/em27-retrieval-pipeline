@@ -7,7 +7,7 @@
 
 Due to operating [MUCCnet (Dietrich et al., 2021)](https://doi.org/10.5194/amt-14-1111-2021), we retrieve a lot of EM27/SUN data and have used this pipeline since early 2022 (release date of Proffast 2.0).
 
-This codebase provides an automated data pipeline for Proffast 1 and 2.X (https://www.imk-asf.kit.edu/english/3225.php). Under the hood, it uses the Proffast Pylot (https://gitlab.eudat.eu/coccon-kit/proffastpylot.git, Commit b9f5d7040dfeb8be5dba9c9a314fe7ab6dd98a9f) to interact with Proffast 2 and an in-house connector to interact with Proffast 1. Whenever using this pipeline for Proffast retrievals, please make sure to also cite [Proffast](https://www.imk-asf.kit.edu/english/3225.php) and the [Proffast Pylot](https://gitlab.eudat.eu/coccon-kit/proffastpylot) (for Proffast 2.X retrievals).
+This codebase provides an automated data pipeline for Proffast 1 and 2.X (https://www.imk-asf.kit.edu/english/3225.php). Under the hood, it uses the Proffast Pylot (https://gitlab.eudat.eu/coccon-kit/proffastpylot.git, Commit `b9f5d7040dfeb8be5dba9c9a314fe7ab6dd98a9f`) to interact with Proffast 2 and an in-house connector to interact with Proffast 1. Whenever using this pipeline for Proffast retrievals, please make sure to also cite [Proffast](https://www.imk-asf.kit.edu/english/3225.php) and the [Proffast Pylot](https://gitlab.eudat.eu/coccon-kit/proffastpylot) (for Proffast 2.X retrievals).
 
 📚 Read the documentation at [em27-retrieval-pipeline.netlify.app](https://em27-retrieval-pipeline.netlify.app).<br/>
 💾 Get the source code at [github.com/tum-esm/em27-retrieval-pipeline](https://github.com/tum-esm/em27-retrieval-pipeline).<br/>
@@ -15,19 +15,15 @@ This codebase provides an automated data pipeline for Proffast 1 and 2.X (https:
 
 **Related Projects:**
 
-⚙️ Many of our projects use a lot of functionality from the `tum-esm-utils` package: [github.com/tum-esm/utils](https://github.com/tum-esm/utils).<br/>
+⚙️ Many of our projects use much functionality from the `tum-esm-utils` package: [github.com/tum-esm/utils](https://github.com/tum-esm/utils).<br/>
 🤖 Our EM27/SUN systems are running autonomously with the help of Pyra: [github.com/tum-esm/pyra](https://github.com/tum-esm/pyra).
-
-
-import { Callout } from "nextra/components";
-
 ## EM27 Retrieval Pipeline vs. Proffast Pylot
 
-This pipeline is not intended to replace the Proffast Pylot by any means. It uses most of the Pylot's functionality and provides an automation layer on top of that. You can use Proffast directly for full flexibility, or the Pylot for some flexibility, or this pipeline which is more opinionated than the Pylot but highly automated.
+This pipeline does not intend to replace the Proffast Pylot by any means. It uses most of the Pylot's functionality and provides an automation layer on top of that. You can use Proffast directly for full flexibility, the Pylot for some flexibility, or this pipeline, which is more opinionated than the Pylot but highly automated.
 
-Furthermore, this pipeline will continue to include support for the different retrieval algorithms. Advanced features - like the export - might be reserved for newer retrieval algorithms/versions.
+Furthermore, this pipeline will continue to include support for the different retrieval algorithms. We might reserve advanced features - like the export - for newer retrieval algorithms/versions, but keeping the support for old ones is little effort with our architecture.
 
-We decided to include a copy of the Python codebase of the Proffast Pylot inside this repository, so we can have less complexity due to Git Submodules or on-demand downloads.
+We decided to include a copy of the Python codebase of the Proffast Pylot inside this repository so we can have less complexity due to Git Submodules or on-demand downloads.
 
 Since the Proffast Pylot only supports Proffast 2.X, we have added our own wrapper for Proffast 1 in this pipeline.
 
@@ -63,23 +59,23 @@ The pipeline offers:
 
 -   **Easy configuration of using a validated `config.json` (and metadata files):** By "validated", we mean that before the processing starts, the config files content will be parsed and validated against a JSON schema. This way, you can be sure that the pipeline will not fail due to a misconfiguration, and you will immediately get precise error messages.
 -   **Opinionated management of station metadata:** We manage our EM27 metadata using JSON files instead of database tables, which has several benefits mentioned in the metadata repository https://github.com/tum-esm/em27-metadata
--   **Filtering of interferogram files that Proffast cannot process:** With the plain Pylot, Proffast will fail for whole days of data even when only a few out of thousands of interferograms are corrupted. The pipeline will filter out these interferograms and only pass the valid ones to Proffast. This filtering functionality can be used standalone using our utility library: https://tum-esm-utils.netlify.app/api-reference#tum_esm_utilsinterferograms
--   **Parallelization of the Proffast Pylot execution:** The Pylot already provides a parallelization. Still, the outputs of multiple days are merged into one output directory, and the Pylot can only process data from one station at a time. The pipeline will run the Pylot execution for each station and date individually inside a containerized environment.
--   **Fully automated interface to obtain Ginput Data:** The atmospheric profiles downloader of this pipeline automates the request for GGG2014 and GGG2020 data (supporting standard sites) from `ftp://ccycle.gps.caltech.edu`. The manualy instructions can be found here: https://tccon-wiki.caltech.edu/Main/ObtainingGinputData.
+-   **Filtering of interferogram files that Proffast cannot process:** When some interferograms are corrupted, Proffast will fail during preprocessing for whole days of data even when only a few out of thousands of interferograms are bad. The pipeline filters out these interferograms and only passes the valid ones to Proffast. A standalone version of this filtering functionality is included in our utility library: https://tum-esm-utils.netlify.app/api-reference#tum_esm_utilsinterferograms
+-   **Parallelization of the Proffast Pylot execution:** The Pylot already provides parallelization. However, we decided to isolate the approach of the Pylot more and run the retrieval execution for each station and date individually inside a containerized environment. This way, errors during the retrieval don't affect separate days/stations, and we have separated outputs and logs.
+-   **Fully automated interface to obtain Ginput Data:** The atmospheric profiles downloader of this pipeline automates the request for GGG2014 and GGG2020 data (supporting standard sites) from `ftp://ccycle.gps.caltech.edu`. The manual instructions can be found here: https://tccon-wiki.caltech.edu/Main/ObtainingGinputData.
 -   **Comprehensive logs and output data management:** It will store failed and succeeded containers. The output is the same as with the Pylot but also contains all config files the pipeline used to run this container and logs generated by the container.
--   **Postprocessing of raw timeseries:** Data of correlated stations can be smoothed and merged into daily output files. The output files contain header sections with everything needed to reproduce the output file based on the raw interferograms ([read about the format here](/guides/directories#exports)).
+-   **Postprocessing of raw time series:** Data of correlated stations can be smoothed and merged into daily output files. The output files contain header sections with everything needed to reproduce the output file based on the raw interferograms ([read about the format here](/guides/directories#exports)).
 -   **Documentation and complete API reference:** hosted at https://em27-retrieval-pipeline.netlify.app/
 
 ## Getting Started
 
-In order to fully understand the pipeline, you should read into the following sections
+To fully understand the pipeline, you should read the following sections:
 
-* The [configuration section](/guides/configuration) explains, how the pipeline uses a `config.json` file to read in the parameters of your environment.
+* The [configuration section](/guides/configuration) explains how the pipeline uses a `config.json` file to read the parameters of your environment.
 * The [directories section](/guides/directories) explains how the input directories should be structured and how the pipeline structures its outputs.
-* The [metadata section](/guides/metadata) explains, what the metadata the pipeline required is structured, and how you can connect it to the pipeline.
+* The [metadata section](/guides/metadata) explains what the metadata the pipeline requires is structured and how to connect it to the pipeline.
 
-For an exact schema definition and explanation of every parameter, you can look into the API Reference pages. You can also use this documentation's search function (top right) to find what you are looking for.
+You can look into the API Reference pages for an exact schema definition and explanation of every parameter. You can also use this documentation's search function (top right) to find what you are looking for.
 
-Once you have read the sections above, you are read to use the pipeline. The [usage section](/guides/usage) explains how to run the pipeline.
+The [usage section](/guides/usage) explains how to run the pipeline.
 
 If you have issues or feature requests, please open an [issue on GitHub](https://github.com/tum-esm/em27-retrieval-pipeline/issues) or ask [Moritz Makowski (moritz.makowski@tum.de)](mailto:moritz.makowski@tum.de).

@@ -7,7 +7,7 @@
 
 1. Clone the repository or download the source code of a specific release.
 2. Create a virtual environment using `python3.11 -m venv .venv`
-3. Always ctivate the virtual environment using `source .venv/bin/activate`
+3. Always activate the virtual environment using `source .venv/bin/activate`
 4. Install the dependencies using `pip install ".[dev]"` or `pdm sync --group dev`
 
 **Configure it on your system**
@@ -25,10 +25,7 @@
 
 ## Downloading Atmospheric Profiles
 
-This pipeline automated the way of obtaining atmospheric profiles described in
-https://tccon-wiki.caltech.edu/Main/ObtainingGinputData. You can simply add the email
-address, you used to access the FTP server to `config.profiles.server.email` and configure
-the scope you want to download in `config.profiles.scope`.
+This pipeline automated the way of obtaining atmospheric profiles described in https://tccon-wiki.caltech.edu/Main/ObtainingGinputData. Add the email address to access the FTP server to `config.profiles.server.email` and configure the scope you want to download in `config.profiles.scope`.
 
 Run the following command to download all the profiles:
 
@@ -36,19 +33,12 @@ Run the following command to download all the profiles:
 python cli.py profiles run
 ```
 
-This script will use the metadata and the configured local profiles directory to determine,
-which profiles to request. When calling the script once, it will request all missing profiles.
-When calling the script again, it will check, whether the requests have been fulfilled since
-the last call.
+This script will use the metadata and the configured local profiles directory to determine which profiles to request. Every time you call this script, it will request the profiles it has not already requested and check for the results of ongoing requests.
 
-During this process, it ensures that only `config.profiles.server.max_parallel_requests` are
-running at the same time. It only request the same profiles again, if they have not been generated
-within 24 hours. The script can download partial query results (e.g. when only day 1 to 5 of a
-7-day request could be fulfilled).
+This process ensures that only `config.profiles.server.max_parallel_requests` are
+running simultaneously. It only requests the same profiles again if they have not been generated within 24 hours. The script can download partial query results (e.g. if only days 1 to 5 of a 7-day request could be fulfilled).
 
-You can use `config.profiles.GGG2020_standard_sites` to configure a list of standard sites
-you want to download. The script will never request profiles for these standard sites but only
-downloads the pregenerated data.
+You can use `config.profiles.GGG2020_standard_sites` to configure a list of standard sites you want to download. The script will never request profiles for these standard sites but only download the pre-generated data.
 
 Run the following to request the current queue status of your account:
 
@@ -66,8 +56,7 @@ python cli.py retrieval start
 
 You can limit the number of cores used by the retrieval process using `config.retrievals.general.max_process_count`.
 
-Using the following commands, you can check whether the retrievals are still
-running and open a dashboard to monitor the progress.
+Using the following commands, you can check whether the retrievals are still running and open a dashboard to monitor the progress.
 
 ```bash
 python cli.py retrieval is-running
@@ -96,7 +85,7 @@ You can generate a report about the data on your system using the following comm
 python cli.py data-report
 ```
 
-This will produce one CSV file per sensor id in the directory `data/reports/`:
+This script will produce one CSV file per sensor ID in the directory `data/reports/`:
 
 ```csv
 from_datetime,to_datetime,location_id,interferograms,datalogger,ggg2014_profiles,ggg2014_proffast_10_outputs,ggg2014_proffast_22_outputs,ggg2014_proffast_23_outputs,ggg2020_profiles,ggg2020_proffast_22_outputs,ggg2020_proffast_23_outputs
