@@ -2,6 +2,9 @@
 hidden/
 *.out
 config.json
+locations.json
+sensors.json
+campaigns.json
 manual-queue.json
 .vscode
 *.parquet
