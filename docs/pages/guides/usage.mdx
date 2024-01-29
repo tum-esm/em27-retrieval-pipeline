@@ -1,27 +1,39 @@
 
-# Using the pipeline
+import { Callout } from "nextra/components";
+
+# Using the Pipeline
 
 ## Setting up the Pipeline
 
 **Get the code**
 
-1. Clone the repository or download the source code of a specific release.
+1. Clone the [repository](https://github.com/tum-esm/automated-retrieval-pipeline) or download the source code of a [specific release](https://github.com/tum-esm/em27-retrieval-pipeline/releases).
 2. Create a virtual environment using `python3.11 -m venv .venv`
 3. Always activate the virtual environment using `source .venv/bin/activate`
 4. Install the dependencies using `pip install ".[dev]"` or `pdm sync --group dev`
 
+<Callout type="info" emoji="💡">
+
+We highly recommend using [PDM](https://pdm-project.org/) - a Python package manager - over pip. PDM uses a `pdm.lock` file - next to the `pyproject.toml` file - to pin the dependencies to specific versions. `pdm sync` installs the exact same dependencies on every system, hence errors are less likely not to be reproducible.
+
+In our chair, we moved many projects from [Poetry](https://python-poetry.org/) to [PDM](https://pdm-project.org/) because Poetry uses its own `pyproject.toml` schema in contrast to PDM, which uses PEP standards ([PEP 508](https://peps.python.org/pep-0508/), [PEP 517](https://www.python.org/dev/peps/pep-0517), [PEP 621](https://www.python.org/dev/peps/pep-0621)). Pip or any other tool can work with these PEP standards, but if Poetry has an issue, you cannot just use another tool - this happened to us a few times.
+
+</Callout>
+
 **Configure it on your system**
 
-5. Use the `config/config.template.json` to create a `config.json` file.
-6. Set up the metadata locally or remotely (see [metadata guide](/guides/metadata))
+5. Install System Dependencies: e.g. `sudo apt install unzip gfortran`
+6. Use the `config/config.template.json` to create a `config.json` file.
+7. Set up the metadata locally or remotely (see [metadata guide](/guides/metadata))
 
 **Run the tests to ensure everything is working**
 
-7. Run the tests using `pytest -m "integration or quick or ci or complete" --verbose --exitfirst tests/`
+8. Test the pipeline using `pytest -m "integration or quick or ci" --verbose --exitfirst tests/`
+9. Test the actual retrieval using `pytest -m "complete" --verbose --exitfirst tests/`
 
 **Celebrate if the tests pass**
 
-8. Run `curl parrot.live`
+10. Run `curl parrot.live`
 
 ## Downloading Atmospheric Profiles
 
@@ -62,6 +74,14 @@ Using the following commands, you can check whether the retrievals are still run
 python cli.py retrieval is-running
 python cli.py retrieval watch
 ```
+
+<img
+    src='/images/cli-retrieval-watch.png'
+    alt='Retrieval CLI Watch'
+    width={2488}
+    height={378}
+    className='mb-4 w-full mx-auto block dark:hidden rounded-xl'
+/>
 
 Terminate the ongoing retrievals using the following command:
 
