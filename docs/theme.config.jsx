@@ -1,17 +1,17 @@
 export default {
   logo: (
-    <div className="flex flex-row items-center justify-center -ml-6 gap-x-4">
+    <div className="flex flex-row items-center justify-center w-[calc(100%+1.5rem)] -ml-6 gap-x-3 sm:gap-x-4">
       <svg
         xmlns="http://www.w3.org/2000/svg"
         viewBox="0 0 5334 2792"
-        className="h-[var(--nextra-navbar-height)] p-[1.375rem] bg-slate-900 text-slate-50 border-r border-slate-300 dark:border-slate-700 dark:bg-transparent"
+        className="h-[var(--nextra-navbar-height)] px-4 py-[1.375rem] sm:px-[1.375rem] bg-slate-900 text-slate-50 border-r border-slate-300 dark:border-slate-700 dark:bg-transparent flex-shrink-0"
       >
         <path
           d="M4266.67,2791.67l-0,-2258.33l533.333,0l0,2258.33l533.333,-0l0,-2791.67l-2666.67,0l-0,2258.33l-533.334,0l0,-2258.33l-2133.33,0l0,533.333l533.333,0l0,2258.33l533.334,-0l-0,-2258.33l533.333,0l0,2258.33l1600,-0l0,-2258.33l533.333,0l0,2258.33l533.334,-0Z"
           className="fill-current"
         />
       </svg>
-      <div className="flex-shrink-0 text-xl whitespace-nowrap font-regular">
+      <div className="flex-shrink-0 text-base md:text-xl whitespace-nowrap font-regular">
         <span className="font-semibold">EM27 Retrieval Pipeline</span>
         <span className="hidden lg:inline">
           {" "}
