@@ -43,12 +43,6 @@ def _check_config_validity() -> None:
     "Start the retrieval as a background process. Prevents spawning multiple processes. The logs and the current processing queue from this process can be found at `logs/retrieval`.",
 )
 def start() -> None:
-    # I don't know why the compilation if the target fails
-    # during the retrieval process, but here, it works.
-    tum_esm_utils.interferograms.detect_corrupt_ifgs(
-        tum_esm_utils.files.rel_to_abs_path(".")
-    )
-
     _check_config_validity()
     pid = tum_esm_utils.processes.start_background_process(
         sys.executable, _RETRIEVAL_ENTRYPOINT
