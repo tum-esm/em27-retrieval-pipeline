@@ -4,11 +4,13 @@ export default {
       <svg
         xmlns="http://www.w3.org/2000/svg"
         viewBox="0 0 5334 2792"
-        className="h-[var(--nextra-navbar-height)] px-4 py-[1.375rem] sm:px-[1.375rem] bg-slate-900 text-slate-50 border-r border-slate-300 dark:border-slate-700 dark:bg-transparent flex-shrink-0"
+        width={5334}
+        height={2792}
+        className="h-[var(--nextra-navbar-height)] w-[calc((var(--nextra-navbar-height)-2.5rem)*(5334/2792)+2.5rem)] p-5 bg-slate-900 text-slate-50 border-r border-slate-300 dark:border-slate-700 dark:bg-transparent flex-shrink-0 flex-grow-0"
       >
         <path
           d="M4266.67,2791.67l-0,-2258.33l533.333,0l0,2258.33l533.333,-0l0,-2791.67l-2666.67,0l-0,2258.33l-533.334,0l0,-2258.33l-2133.33,0l0,533.333l533.333,0l0,2258.33l533.334,-0l-0,-2258.33l533.333,0l0,2258.33l1600,-0l0,-2258.33l533.333,0l0,2258.33l533.334,-0Z"
-          className="fill-current"
+          className="flex-grow-0 fill-current"
         />
       </svg>
       <div className="flex-shrink-0 text-base md:text-xl whitespace-nowrap font-regular">
