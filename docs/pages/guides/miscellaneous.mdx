@@ -1,4 +1,3 @@
-
 # Miscellaneous
 
 ## How does the Pipeline determine which days to process?
@@ -27,24 +26,58 @@ The numeric values are the same for `errflag_CO`, but some of the steps/checks a
 
 ## What are the Units in the output files
 
-| Variable | Unit |
-| --- | --- |
-| gndP |  hPa |
-| gndT |  K |
-| latdeg  | degrees |
-| londeg  | degrees |
-| altim  | meters |
-| appSZA | degrees |
-| azimuth | degrees |
-| XH2O | ppm |
-| XAIR | no unit (ratio) |
-| XCO2 | ppm |
-| XCH4 | ppm |
-| XCO | ppm |
-| XCH4_S5P | ppm |
-| H2O | no unit (number of molecules) |
-| O2 | no unit (number of molecules) |
-| CO2 | no unit (number of molecules) |
-| CH4 | no unit (number of molecules) |
-| CO | no unit (number of molecules) |
-| CH4_S5P | no unit (number of molecules) |
+| Variable | Unit                          |
+| -------- | ----------------------------- |
+| gndP     | hPa                           |
+| gndT     | K                             |
+| latdeg   | degrees                       |
+| londeg   | degrees                       |
+| altim    | meters                        |
+| appSZA   | degrees                       |
+| azimuth  | degrees                       |
+| XH2O     | ppm                           |
+| XAIR     | no unit (ratio)               |
+| XCO2     | ppm                           |
+| XCH4     | ppm                           |
+| XCO      | ppm                           |
+| XCH4_S5P | ppm                           |
+| H2O      | no unit (number of molecules) |
+| O2       | no unit (number of molecules) |
+| CO2      | no unit (number of molecules) |
+| CH4      | no unit (number of molecules) |
+| CO       | no unit (number of molecules) |
+| CH4_S5P  | no unit (number of molecules) |
+
+## Preprocess 5 in Proffast 2.3 fails with "Warning: inconsistent dualifg!"
+
+We observed that Preprocess 5 (when using Proffast 2.3) cannot handle our old interferograms. The preprocess stops with the error message "Warning: inconsistent dualifg!". However, we can still process the interferograms with Preprocess 4 (using Proffast 2.2).
+
+The log of the preprocess for these days looks like this:
+
+```txt
+================= Task 0 ================
+/home/moritz-makowski/Documents/pipelines/erp-new-pressure/data/containers/retrieval-container-angry-benz/prf/preprocess/preprocess5 preprocess5ma_161102.inp
+Return code: 1
+
+Output:
+ Reading input file...
+ Done!
+ Number of raw measurements to be processed:        3131
+ Reading file names
+ /home/moritz-makowski/Documents/pipelines/erp-on-demand/data/containers/retrieval-container-angry-benz-inputs/ifg/161102/161102SN.2853
+ /home/moritz-makowski/Documents/pipelines/erp-on-demand/data/containers/retrieval-container-angry-benz-inputs/ifg/161102/161102SN.891
+ ...
+ /home/moritz-makowski/Documents/pipelines/erp-on-demand/data/containers/retrieval-container-angry-benz-inputs/ifg/161102/161102SN.3016
+ Done!
+ Read OPUS parms:           1
+ /home/moritz-makowski/Documents/pipelines/erp-on-demand/data/containers/retrieval-container-angry-benz-inputs/ifg/161102/161102SN.2853
+ Warning:
+ inconsistent dualifg!
+ This is a critical error. Quiet run option selected: End Programm
+
+
+Errors:
+ inconsistent dualifg!
+============================================
+============================================
+```
