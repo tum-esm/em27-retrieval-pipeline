@@ -35,6 +35,18 @@ In our chair, we moved many projects from [Poetry](https://python-poetry.org/) t
 
 10. Run `curl parrot.live`
 
+**Use the CLI to run the pipeline**
+
+The following sections describe how to trigger the different pipeline processes using the CLI. Whenever calling the CLI, it will validate the integrity of your local `config.json` file and output a message if your system is not correctly configured.
+
+<img
+    src='/images/cli-config-validation.png'
+    alt='CLI Config Validation'
+    width={1867}
+    height={281}
+    className='mt-2 w-full mx-auto block dark:hidden rounded-xl'
+/>
+
 ## Downloading Atmospheric Profiles
 
 This pipeline automated the way of obtaining atmospheric profiles described in https://tccon-wiki.caltech.edu/Main/ObtainingGinputData. Add the email address to access the FTP server to `config.profiles.server.email` and configure the scope you want to download in `config.profiles.scope`.
