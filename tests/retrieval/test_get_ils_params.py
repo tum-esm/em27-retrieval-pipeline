@@ -7,7 +7,6 @@ import src
 @pytest.mark.quick
 def test_get_ils_params() -> None:
     for month in [1, 5, 11]:
-        print(month)
         src.retrieval.utils.ils.get_ils_params(
             61, datetime.date(2020, month, 1)
         )

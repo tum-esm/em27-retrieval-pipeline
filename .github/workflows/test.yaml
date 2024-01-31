@@ -34,4 +34,4 @@ jobs:
       # run test suite
       - name: Run pytests
         run: |
-          pytest -m "quick or ci" --verbose --exitfirst --cov=src tests/
+          pytest -m "quick or ci" --capture=no --verbose --exitfirst --cov=src tests/

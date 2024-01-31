@@ -218,6 +218,7 @@ def _run(
         while ((len(active_processes) < process_count) and
                (len(pending_processes) > 0)):
             p = pending_processes.pop(0)
+            print(f"Starting process {p.name}")
             p.start()
             active_processes.append(p)
             print(f"Started process {p.name}")
@@ -230,6 +231,7 @@ def _run(
                 newly_finished_processes.append(p)
 
         for p in newly_finished_processes:
+            print(f"Joining process {p.name}")
             p.join()
             active_processes.remove(p)
             container_factory.remove_container(p.name.split(":")[0])
@@ -239,8 +241,12 @@ def _run(
         if len(active_processes) == 0 and len(pending_processes) == 0:
             break
 
-        if len(newly_finished_processes) == 0:
-            time.sleep(2)
+        time.sleep(1)
+        print("Waiting ...")
+        print(
+            f"Pending | Active | Finished: {len(pending_processes)} |" +
+            f" {len(active_processes)} | {len(finished_processes)}"
+        )
 
 
 def _point_config_to_test_data(config: src.types.Config) -> None:
