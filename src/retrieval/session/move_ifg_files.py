@@ -66,24 +66,29 @@ def run(
             os.path.join(dst_date_path, f"{date_string[2:]}SN.{ifg_index + 1}"),
         )
 
-    # EXCLUDE CORRUPT INTERFEROGRAM FILES
+    # OPTIONALLY EXCLUDE CORRUPT INTERFEROGRAM FILES
 
-    try:
-        corrupt_filenames = list(
-            tum_esm_utils.interferograms.detect_corrupt_ifgs(
-                ifg_directory=dst_date_path
-            ).keys()
-        )
-    except subprocess.CalledProcessError:
-        raise AssertionError(
-            "corrupt-files-detection has failed during execution"
-        )
+    if session.job_settings.use_ifg_corruption_filter:
+        logger.info("Using ifg corruption filter")
+        try:
+            corrupt_filenames = list(
+                tum_esm_utils.interferograms.detect_corrupt_ifgs(
+                    ifg_directory=dst_date_path
+                ).keys()
+            )
+        except subprocess.CalledProcessError:
+            raise AssertionError(
+                "corrupt-files-detection has failed during execution"
+            )
 
-    logger.debug(
-        f"Excluding {len(corrupt_filenames)} corrupt file(s) from retrieval" + (
-            f" ({', '.join(corrupt_filenames)})" if len(corrupt_filenames) >
-            0 else ""
+        logger.debug(
+            f"Excluding {len(corrupt_filenames)} corrupt file(s) from retrieval"
+            + (
+                f" ({', '.join(corrupt_filenames)})" if len(corrupt_filenames) >
+                0 else ""
+            )
         )
-    )
-    for f in corrupt_filenames:
-        os.remove(os.path.join(dst_date_path, f))
+        for f in corrupt_filenames:
+            os.remove(os.path.join(dst_date_path, f))
+    else:
+        logger.info("Not using ifg corruption filter")

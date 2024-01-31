@@ -320,6 +320,12 @@ const CONFIG_SCHEMA: any = {
                                                 "description": "Whether to use the local pressure in the pcxs files. If not used, it will tell PCXS to use the pressure from the atmospheric profiles (set the input value in the `.inp` file to `9999.9`). If used, the pipeline computes the solar noon time using `skyfield` and averages the local pressure over the time period noon-2h to noon+2h.",
                                                 "title": "Use Local Pressure In Pcxs",
                                                 "type": "boolean"
+                                            },
+                                            "use_ifg_corruption_filter": {
+                                                "default": true,
+                                                "description": "Whether to use the ifg corruption filter. This filter is a program based on `preprocess4` and is part of the `tum-esm-utils` library: https://tum-esm-utils.netlify.app/api-reference#tum_esm_utilsinterferograms. If activated, we will only pass the interferograms to the retrieval algorithm that pass the filter - i.e. that won't cause it to crash.",
+                                                "title": "Use Ifg Corruption Filter",
+                                                "type": "boolean"
                                             }
                                         },
                                         "title": "RetrievalJobSettingsConfig",
@@ -328,7 +334,8 @@ const CONFIG_SCHEMA: any = {
                                             "store_binary_spectra": false,
                                             "dc_min_threshold": 0.05,
                                             "dc_var_threshold": 0.1,
-                                            "use_local_pressure_in_pcxs": false
+                                            "use_local_pressure_in_pcxs": false,
+                                            "use_ifg_corruption_filter": true
                                         },
                                         "description": "Advanced settings that only apply to this retrieval job"
                                     }

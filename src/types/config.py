@@ -164,6 +164,11 @@ class RetrievalJobSettingsConfig(pydantic.BaseModel):
         description=
         "Whether to use the local pressure in the pcxs files. If not used, it will tell PCXS to use the pressure from the atmospheric profiles (set the input value in the `.inp` file to `9999.9`). If used, the pipeline computes the solar noon time using `skyfield` and averages the local pressure over the time period noon-2h to noon+2h.",
     )
+    use_ifg_corruption_filter: bool = pydantic.Field(
+        True,
+        description=
+        "Whether to use the ifg corruption filter. This filter is a program based on `preprocess4` and is part of the `tum-esm-utils` library: https://tum-esm-utils.netlify.app/api-reference#tum_esm_utilsinterferograms. If activated, we will only pass the interferograms to the retrieval algorithm that pass the filter - i.e. that won't cause it to crash.",
+    )
 
 
 class RetrievalJobConfig(pydantic.BaseModel):
