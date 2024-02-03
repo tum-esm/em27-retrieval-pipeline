@@ -4,7 +4,7 @@
 
 We retrieve a lot of EM27/SUN data, produced mainly by [MUCCnet (Dietrich et al., 2021)](https://doi.org/10.5194/amt-14-1111-2021), and have used this pipeline since end of 2021.
 
-This codebase provides an automated data pipeline for Proffast 1 and 2.X (https://www.imk-asf.kit.edu/english/3225.php). Under the hood, it uses the Proffast Pylot (https://gitlab.eudat.eu/coccon-kit/proffastpylot.git) to interact with Proffast 2 and an in-house connector to interact with Proffast 1. Whenever using this pipeline for Proffast retrievals, please make sure to also cite [Proffast](https://www.imk-asf.kit.edu/english/3225.php) and the [Proffast Pylot](https://gitlab.eudat.eu/coccon-kit/proffastpylot) (for Proffast 2.X retrievals).
+This codebase provides an automated data pipeline for [Proffast 1 and 2.X](https://www.imk-asf.kit.edu/english/3225.php). Under the hood, it uses the [Proffast Pylot](https://gitlab.eudat.eu/coccon-kit/proffastpylot.git) to interact with Proffast 2 and an in-house connector to interact with Proffast 1. Whenever using this pipeline for Proffast retrievals, please make sure to also cite [Proffast](https://www.imk-asf.kit.edu/english/3225.php) and the [Proffast Pylot](https://gitlab.eudat.eu/coccon-kit/proffastpylot) (for Proffast 2.X retrievals).
 
 📚 Read the documentation at [em27-retrieval-pipeline.netlify.app](https://em27-retrieval-pipeline.netlify.app).<br/>
 💾 Get the source code at [github.com/tum-esm/em27-retrieval-pipeline](https://github.com/tum-esm/em27-retrieval-pipeline).<br/>
@@ -12,8 +12,8 @@ This codebase provides an automated data pipeline for Proffast 1 and 2.X (https:
 
 **Related Projects:**
 
-⚙️ Many of our projects use much functionality from the `tum-esm-utils` package: [github.com/tum-esm/utils](https://github.com/tum-esm/utils).<br/>
-🤖 Our EM27/SUN systems are running autonomously with the help of Pyra: [github.com/tum-esm/pyra](https://github.com/tum-esm/pyra).
+⚙️ Many of our projects use much functionality from the [`tum-esm-utils` package](https://github.com/tum-esm/utils).<br/>
+🤖 Our EM27/SUN systems are running autonomously with the help of [Pyra](https://github.com/tum-esm/pyra).
 
 ## EM27 Retrieval Pipeline vs. Proffast Pylot
 
@@ -56,13 +56,13 @@ The data flow from input to merged outputs:
 The pipeline offers:
 
 -   **Easy configuration of using a validated `config.json` (and metadata files):** By "validated", we mean that before the processing starts, the config files content will be parsed and validated against a JSON schema. This way, you can be sure that the pipeline will not fail due to a misconfiguration, and you will immediately get precise error messages.
--   **Opinionated management of station metadata:** We manage our EM27 metadata using JSON files instead of database tables, which has several benefits mentioned in the metadata repository https://github.com/tum-esm/em27-metadata
--   **Filtering of interferogram files that Proffast cannot process:** When some interferograms are corrupted, Proffast will fail during preprocessing for whole days of data even when only a few out of thousands of interferograms are bad. The pipeline filters out these interferograms and only passes the valid ones to Proffast. A standalone version of this filtering functionality is included in our utility library: https://tum-esm-utils.netlify.app/api-reference#tum_esm_utilsinterferograms
+-   **Opinionated management of station metadata:** We manage our EM27 metadata using JSON files instead of database tables, which has several benefits mentioned in the [metadata repository](https://github.com/tum-esm/em27-metadata)
+-   **Filtering of interferogram files that Proffast cannot process:** When some interferograms are corrupted, Proffast will fail during preprocessing for whole days of data even when only a few out of thousands of interferograms are bad. The pipeline filters out these interferograms and only passes the valid ones to Proffast. A standalone version of this filtering functionality is included in our [utility library](https://tum-esm-utils.netlify.app/api-reference#tum_esm_utilsinterferograms)
 -   **Parallelization of the Proffast Pylot execution:** The Pylot already provides parallelization. However, we decided to isolate the approach of the Pylot more and run the retrieval execution for each station and date individually inside a containerized environment. This way, errors during the retrieval don't affect separate days/stations, and we have separated outputs and logs.
--   **Fully automated interface to obtain Ginput Data:** The atmospheric profiles downloader of this pipeline automates the request for GGG2014 and GGG2020 data (supporting standard sites) from `ftp://ccycle.gps.caltech.edu`. The manual instructions can be found here: https://tccon-wiki.caltech.edu/Main/ObtainingGinputData.
+-   **Fully automated interface to obtain Ginput Data:** The atmospheric profiles downloader of this pipeline automates the request for GGG2014 and GGG2020 data (supporting standard sites) from `ftp://ccycle.gps.caltech.edu`. The manual instructions can be found [here](https://tccon-wiki.caltech.edu/Main/ObtainingGinputData).
 -   **Comprehensive logs and output data management:** It will store failed and succeeded containers. The output is the same as with the Pylot but also contains all config files the pipeline used to run this container and logs generated by the container.
 -   **Postprocessing of raw time series:** Data of correlated stations can be smoothed and merged into daily output files. The output files contain header sections with everything needed to reproduce the output file based on the raw interferograms ([read about the format here](/guides/directories#exports)).
--   **Documentation and complete API reference:** hosted at https://em27-retrieval-pipeline.netlify.app/
+-   **Documentation and complete API reference:** hosted at [em27-retrieval-pipeline.netlify.app](https://em27-retrieval-pipeline.netlify.app/)
 
 ## Getting Started
 
