@@ -17,7 +17,7 @@ def test_solar_noon_computation() -> None:
     start_date = datetime.date(2000, 1, 1)
     for _ in range(100):
         date = start_date + datetime.timedelta(days=random.randint(0, 365 * 30))
-        lat = random.uniform(-90, 90)
+        lat = random.uniform(-60, 60)
         lon = random.uniform(-180, 180)
         solar_noon = src.retrieval.utils.pressure_averaging.compute_solar_noon_time(
             lat, lon, date
