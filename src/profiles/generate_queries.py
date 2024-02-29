@@ -258,13 +258,15 @@ def generate_download_queries(
         requested_data=requested_data,
         downloaded_data=downloaded_data,
     )
-    data_to_request = remove_std_site_data(
-        config=config,
-        missing_data=remove_already_requested_data(
-            missing_data=missing_data,
-            atmospheric_profile_model=atmospheric_profile_model,
+    data_to_request = missing_data
+    if atmospheric_profile_model == "GGG2020":
+        data_to_request = remove_std_site_data(
+            config=config,
+            missing_data=remove_already_requested_data(
+                missing_data=missing_data,
+                atmospheric_profile_model=atmospheric_profile_model,
+            )
         )
-    )
     download_queries: list[types.DownloadQuery] = []
     for l, dates in data_to_request.items():
         download_queries.extend([

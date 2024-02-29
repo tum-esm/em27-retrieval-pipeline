@@ -22,6 +22,7 @@ def download_data(
         tarballs_on_server = ftp.nlst("upload/modfiles/tar/maps"
                                      ) + ftp.nlst("upload/modfiles/tar/mods")
 
+    # GGG2014: /upload/modfiles/tar/mods/mods_48N011E_20231211_20231217.tar
     # GGG2020: /ginput-jobs/job_000034641_tu_48.00N_12.00E_20221001-20221008.tgz
 
     fulfilled_queries: list[types.DownloadQuery] = []
@@ -30,12 +31,15 @@ def download_data(
         for query in progress.track(queries, description=f"Downloading ..."):
             progress.print(f"Downloading {query}")
 
-            cs = utils.text.get_coordinates_slug(
+            cs_verbose = utils.text.get_coordinates_slug(
                 query.lat, query.lon, verbose=True
+            )
+            cs_nonverbose = utils.text.get_coordinates_slug(
+                query.lat, query.lon, verbose=False
             )
             ds = query.from_date.strftime("%Y%m%d")
             tarballs_to_download = [
-                t for t in tarballs_on_server if f"{cs}_{ds}" in t
+                t for t in tarballs_on_server if ((f"{cs_verbose}_{ds}" in t) or (f"{cs_nonverbose}_{ds}" in t))
             ]
             if atmospheric_profile_model == "GGG2020":
                 if len(tarballs_to_download) >= 1:
