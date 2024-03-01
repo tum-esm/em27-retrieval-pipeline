@@ -6,7 +6,13 @@ import tum_esm_utils
 _PROJECT_DIR = tum_esm_utils.files.get_parent_dir_path(
     __file__, current_depth=5
 )
-assert os.path.basename(_PROJECT_DIR) == "em27-retrieval-pipeline"
+pyproj_file = os.path.join(_PROJECT_DIR, "pyproject.toml")
+assert os.path.isfile(
+    pyproj_file
+), f"{_PROJECT_DIR} does not seem to be the root of the project"
+with open(pyproj_file, "r") as f:
+    assert 'name = "em27-retrieval-pipeline"' in f.read(
+    ), f"{_PROJECT_DIR} does not seem to be the root of the project"
 sys.path.append(_PROJECT_DIR)
 
 import create_input_files, execute_proffast, move_data
