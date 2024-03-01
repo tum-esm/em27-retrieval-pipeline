@@ -119,8 +119,12 @@ def _create_mock_outputs(session: types.RetrievalSession) -> None:
     for filepath in filepaths:
         with open(os.path.join(output_dir, filepath), "w") as f:
             f.write("...")
-    for analaysis_subdir in ["pT", "cal"]:
-        p = os.path.join(analysis_dir, analaysis_subdir)
+
+    for p in [
+        os.path.join(analysis_dir, "pT"),
+        os.path.join(analysis_dir, "cal"),
+        os.path.join(session.ctn.container_path, "prf", "wrk_fast")
+    ]:
         os.makedirs(p, exist_ok=True)
         with open(os.path.join(p, "dummyfile"), "w") as f:
             f.write("...")

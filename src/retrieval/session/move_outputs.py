@@ -108,10 +108,16 @@ def run(
         )
 
     os.makedirs(os.path.join(output_dst, "analysis"), exist_ok=True)
-    shutil.copytree(
-        os.path.join(analysis_dir, "pT"),
-        os.path.join(output_dst, "analysis", "pT"),
-    )
+    if session.retrieval_algorithm == "proffast-1.0":
+        shutil.copytree(
+            os.path.join(analysis_dir, "pT"),
+            os.path.join(output_dst, "analysis", "pT"),
+        )
+    else:
+        shutil.copytree(
+            os.path.join(session.ctn.container_path, "prf", "wrk_fast"),
+            os.path.join(output_dst, "analysis", "pT"),
+        )
 
     # (OPTIONAL) STORE BINARY SPECTRA
 
