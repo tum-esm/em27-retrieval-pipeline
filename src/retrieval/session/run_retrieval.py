@@ -63,12 +63,10 @@ def _create_mock_outputs(session: types.RetrievalSession) -> None:
 
     # create output directory
     output_dir: str
-    if isinstance(session.ctn, types.Proffast10Container):
+    analysis_dir = os.path.join(session.ctn.data_output_path, "analysis", session.ctx.sensor_id, session.ctx.from_datetime.strftime("%y%m%d"), "pT")
+    if session.retrieval_algorithm == "proffast-1.0":
         output_dir = os.path.join(session.ctn.container_path, "prf", "out_fast")
-    if isinstance(
-        session.ctn,
-        (types.Proffast22Container, types.Proffast23Container),
-    ):
+    else:
         output_dir = os.path.join(
             session.ctn.data_output_path, f"{session.ctx.sensor_id}_" +
             f"SN{str(session.ctx.serial_number).zfill(3)}_{date_string[2:]}-{date_string[2:]}"
@@ -76,8 +74,8 @@ def _create_mock_outputs(session: types.RetrievalSession) -> None:
     os.makedirs(os.path.join(output_dir, "logfiles"), exist_ok=True)
 
     # list dummy files to be created
-    filepaths: list[str] = []
-    if isinstance(session.ctn, types.Proffast10Container):
+    filepaths: list[str]
+    if session.retrieval_algorithm == "proffast-1.0":
         filepaths = [
             (f"{session.ctx.sensor_id}{date_string[2:]}-combined-invparms.csv"),
             (
@@ -88,10 +86,7 @@ def _create_mock_outputs(session: types.RetrievalSession) -> None:
             "logfiles/pcxs10.log",
             "logfiles/invers10.log",
         ]
-    if isinstance(
-        session.ctn,
-        (types.Proffast22Container, types.Proffast23Container),
-    ):
+    else:
         filepaths = [
             (
                 f"comb_invparms_{session.ctx.sensor_id}_SN{str(session.ctx.serial_number).zfill(3)}"
@@ -107,4 +102,9 @@ def _create_mock_outputs(session: types.RetrievalSession) -> None:
     # create dummy files
     for filepath in filepaths:
         with open(os.path.join(output_dir, filepath), "w") as f:
+            f.write("...")
+    for analaysis_subdir in ["pT", "cal"]:
+        p = os.path.join(analysis_dir, analaysis_subdir)
+        os.makedirs(p, exist_ok=True)
+        with open(os.path.join(p, "dummyfile"), "w") as f:
             f.write("...")
