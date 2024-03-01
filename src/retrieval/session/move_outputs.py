@@ -90,17 +90,16 @@ def run(
     shutil.copytree(output_src_dir, output_dst)
 
     # (OPTIONAL) STORE BINARY SPECTRA
-
+    
     if session.job_settings.store_binary_spectra:
-        if isinstance(session, types.Proffast2RetrievalSession):
-            shutil.copytree(
-                os.path.join(
-                    session.ctn.data_output_path, "analysis",
-                    f"{session.ctx.sensor_id}_SN{session.ctx.serial_number:03d}",
-                    session.ctx.from_datetime.strftime("%y%m%d"), "cal"
-                ),
-                os.path.join(output_dst, "binary_spectra"),
-            )
+        shutil.copytree(
+            os.path.join(
+                session.ctn.data_output_path, "analysis",
+                f"{session.ctx.sensor_id}_SN{session.ctx.serial_number:03d}",
+                session.ctx.from_datetime.strftime("%y%m%d"), "cal"
+            ),
+            os.path.join(output_dst, "analysis", "cal"),
+        )
 
     # STORE AUTOMATION LOGS
 
