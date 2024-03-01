@@ -75,8 +75,13 @@ def run() -> None:
     main_logger.info("Established graceful teardown hook")
 
     # load metadata interface
-    em27_metadata_interface = utils.metadata.load_local_em27_metadata_interface(
-    )
+    try:
+        em27_metadata_interface = utils.metadata.load_local_em27_metadata_interface(
+        )
+    except Exception as e:
+        main_logger.exception(e, "Error while loading local metadata")
+        raise e
+
     if em27_metadata_interface is not None:
         print("Found local metadata")
     else:
