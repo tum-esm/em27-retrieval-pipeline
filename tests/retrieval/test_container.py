@@ -330,3 +330,6 @@ def _assert_output_correctness(
         assert os.path.isfile(
             filepath
         ), f"output file does not exist ({filepath})"
+
+    pT_dir_path = os.path.join(out_path, "analysis", "pT")
+    assert os.path.isdir(pT_dir_path), f"pT path does not exist: {pT_dir_path}"
