@@ -89,27 +89,35 @@ def run(
     os.makedirs(os.path.dirname(output_dst), exist_ok=True)
     shutil.copytree(output_src_dir, output_dst)
 
-    # Store pT output directory
+    # STORE PT OUTPUT DIRECTORY
+
+    analysis_dir: str
+    if session.retrieval_algorithm == "proffast-1.0":
+        analysis_dir = os.path.join(
+            session.ctn.data_output_path,
+            "analysis",
+            session.ctx.sensor_id,
+            session.ctx.from_datetime.strftime("%y%m%d"),
+        )
+    else:
+        analysis_dir = os.path.join(
+            session.ctn.data_output_path,
+            "analysis",
+            f"{session.ctx.sensor_id}_SN{session.ctx.serial_number:03d}",
+            session.ctx.from_datetime.strftime("%y%m%d"),
+        )
 
     os.makedirs(os.path.join(output_dst, "analysis"), exist_ok=True)
     shutil.copytree(
-        os.path.join(
-            session.ctn.data_output_path, "analysis",
-            f"{session.ctx.sensor_id}_SN{session.ctx.serial_number:03d}",
-            session.ctx.from_datetime.strftime("%y%m%d"), "pT"
-        ),
+        os.path.join(analysis_dir, "pT"),
         os.path.join(output_dst, "analysis", "pT"),
     )
 
     # (OPTIONAL) STORE BINARY SPECTRA
-    
+
     if session.job_settings.store_binary_spectra:
         shutil.copytree(
-            os.path.join(
-                session.ctn.data_output_path, "analysis",
-                f"{session.ctx.sensor_id}_SN{session.ctx.serial_number:03d}",
-                session.ctx.from_datetime.strftime("%y%m%d"), "cal"
-            ),
+            os.path.join(analysis_dir, "cal"),
             os.path.join(output_dst, "analysis", "cal"),
         )
 

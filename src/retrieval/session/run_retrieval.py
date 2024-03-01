@@ -61,9 +61,25 @@ def run(session: types.RetrievalSession, test_mode: bool = False) -> None:
 def _create_mock_outputs(session: types.RetrievalSession) -> None:
     date_string = session.ctx.from_datetime.strftime("%Y%m%d")
 
+    # determine analysis path
+    analysis_dir: str
+    if session.retrieval_algorithm == "proffast-1.0":
+        analysis_dir = os.path.join(
+            session.ctn.data_output_path,
+            "analysis",
+            session.ctx.sensor_id,
+            session.ctx.from_datetime.strftime("%y%m%d"),
+        )
+    else:
+        analysis_dir = os.path.join(
+            session.ctn.data_output_path,
+            "analysis",
+            f"{session.ctx.sensor_id}_SN{session.ctx.serial_number:03d}",
+            session.ctx.from_datetime.strftime("%y%m%d"),
+        )
+
     # create output directory
     output_dir: str
-    analysis_dir = os.path.join(session.ctn.data_output_path, "analysis", session.ctx.sensor_id, session.ctx.from_datetime.strftime("%y%m%d"), "pT")
     if session.retrieval_algorithm == "proffast-1.0":
         output_dir = os.path.join(session.ctn.container_path, "prf", "out_fast")
     else:
