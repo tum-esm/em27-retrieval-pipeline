@@ -89,6 +89,18 @@ def run(
     os.makedirs(os.path.dirname(output_dst), exist_ok=True)
     shutil.copytree(output_src_dir, output_dst)
 
+    # Store pT output directory
+
+    os.makedirs(os.path.join(output_dst, "analysis"), exist_ok=True)
+    shutil.copytree(
+        os.path.join(
+            session.ctn.data_output_path, "analysis",
+            f"{session.ctx.sensor_id}_SN{session.ctx.serial_number:03d}",
+            session.ctx.from_datetime.strftime("%y%m%d"), "pT"
+        ),
+        os.path.join(output_dst, "analysis", "pT"),
+    )
+
     # (OPTIONAL) STORE BINARY SPECTRA
     
     if session.job_settings.store_binary_spectra:
