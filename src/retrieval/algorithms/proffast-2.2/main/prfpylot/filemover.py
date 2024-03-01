@@ -160,6 +160,7 @@ class FileMover(Preparation):
 
     def delete_pT_VMR_files(self):
         """Delete the pT and VMR files created by pcxs."""
+        return  # added by Moritz Makowski
         wrk_fast_folder = os.path.join(self.proffast_path, "wrk_fast")
         for date in self.dates:
             pTFile =\
