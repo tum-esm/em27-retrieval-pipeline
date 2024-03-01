@@ -120,6 +120,13 @@ def run(
             os.path.join(analysis_dir, "cal"),
             os.path.join(output_dst, "analysis", "cal"),
         )
+    else:
+        if session.retrieval_algorithm in ["proffast-2.2", "proffast-2.3"]:
+            os.makedirs(os.path.join(output_dst, "analysis", "cal"))
+            shutil.copyfile(
+                os.path.join(analysis_dir, "cal", "logfile.dat"),
+                os.path.join(output_dst, "analysis", "cal", "logfile.dat"),
+            )
 
     # STORE AUTOMATION LOGS
 
