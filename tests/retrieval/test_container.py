@@ -124,6 +124,7 @@ def test_container_lifecycle_ci(
                 use_local_pressure_in_pcxs=(
                     j[2].from_datetime.date() == datetime.date(2017, 6, 9)
                 ),
+                store_binary_spectra=True,
             )
         )
         print(f"#{i}: Running session")
@@ -176,6 +177,7 @@ def test_container_lifecycle_complete(
                     use_local_pressure_in_pcxs=(
                         j[2].from_datetime.date() == datetime.date(2017, 6, 9)
                     ),
+                    store_binary_spectra=True,
                 )
             )
             print(f"Creating new process")
@@ -333,3 +335,6 @@ def _assert_output_correctness(
 
     pT_dir_path = os.path.join(out_path, "analysis", "pT")
     assert os.path.isdir(pT_dir_path), f"pT path does not exist: {pT_dir_path}"
+    
+    cal_dir_path = os.path.join(out_path, "analysis", "cal")
+    assert os.path.isdir(cal_dir_path), f"cal path does not exist: {cal_dir_path}"
