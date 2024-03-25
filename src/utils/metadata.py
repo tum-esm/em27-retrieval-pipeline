@@ -20,7 +20,7 @@ def load_local_em27_metadata_interface(
     if any(file_existence):
         if not all(file_existence):
             raise FileNotFoundError(
-                "Found some local metadata files but not all (loca)" +
+                "Found some local metadata files but not all (loca" +
                 "tions.json, sensors.json, campaigns.json). Please " +
                 "add or remove all local metadata files."
             )

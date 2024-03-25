@@ -78,20 +78,22 @@ def run() -> None:
     try:
         em27_metadata_interface = utils.metadata.load_local_em27_metadata_interface(
         )
+        if em27_metadata_interface is not None:
+            print("Found local metadata")
+        else:
+            print(
+                "Did not find local metadata -> fetching metadata from GitHub"
+            )
+            assert config.general.metadata is not None, "Remote metadata not configured"
+            em27_metadata_interface = em27_metadata.load_from_github(
+                github_repository=config.general.metadata.github_repository,
+                access_token=config.general.metadata.access_token,
+            )
+            print("Successfully fetched metadata from GitHub")
     except Exception as e:
         main_logger.exception(e, "Error while loading local metadata")
+        main_logger.archive()
         raise e
-
-    if em27_metadata_interface is not None:
-        print("Found local metadata")
-    else:
-        print("Did not find local metadata -> fetching metadata from GitHub")
-        assert config.general.metadata is not None, "Remote metadata not configured"
-        em27_metadata_interface = em27_metadata.load_from_github(
-            github_repository=config.general.metadata.github_repository,
-            access_token=config.general.metadata.access_token,
-        )
-        print("Successfully fetched metadata from GitHub")
 
     # generate retrieval queue
     retrieval.utils.retrieval_status.RetrievalStatusList.reset()
