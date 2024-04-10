@@ -39,7 +39,9 @@ def download_data(
             )
             ds = query.from_date.strftime("%Y%m%d")
             tarballs_to_download = [
-                t for t in tarballs_on_server if ((f"{cs_verbose}_{ds}" in t) or (f"{cs_nonverbose}_{ds}" in t))
+                t
+                for t in tarballs_on_server if ((f"{cs_verbose}_{ds}" in t) or
+                                                (f"{cs_nonverbose}_{ds}" in t))
             ]
             if atmospheric_profile_model == "GGG2020":
                 if len(tarballs_to_download) >= 1:
@@ -92,13 +94,21 @@ def extract_archive(
             cs = utils.text.get_coordinates_slug(lat, lon)
 
             if atmospheric_profile_model == "GGG2020":
-                if name.endswith(".map"):
-                    date, hour, type_ = name[47 : 55], name[55 : 57], "map"
-                elif name.endswith(".mod"):
-                    date, hour, type_ = name[35 : 43], name[43 : 45], "mod"
-                elif name.endswith(".vmr"):
-                    date, hour, type_ = name[39 : 47], name[47 : 49], "vmr"
-                member.name = f"{date}{hour}_{cs}.{type_}"
+                basename = name.split("/")[-1]
+                extension = basename.split(".")[-1]
+                assert extension in [
+                    "map", "mod", "vmr"
+                ], f"Unexpected extension: {extension}"
+                if extension == "map":
+                    date = basename.split("_")[-1][: 8]
+                    hour = basename.split("_")[-1][8 : 10]
+                elif extension == "mod":
+                    date = basename.split("_")[1][: 8]
+                    hour = basename.split("_")[1][8 : 10]
+                elif extension == "vmr":
+                    date = basename.split("_")[1][: 8]
+                    hour = basename.split("_")[1][8 : 10]
+                member.name = f"{date}{hour}_{cs}.{extension}"
                 # 2022010100_48N011E.map
                 # 2022010103_48N011E.map
                 # 20220101??_48N011E.map
