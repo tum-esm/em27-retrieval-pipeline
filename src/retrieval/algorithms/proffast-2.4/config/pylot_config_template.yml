@@ -18,13 +18,10 @@ utc_offset: %UTC_OFFSET%
 min_interferogram_size: 0.2
 start_with_spectra: False
 delete_abscosbin_files: True
+delete_pT_VMR_files: False
 delete_input_files: False
 note:
 proffast_path: %CONTAINER_PATH%/prf
-
-# TCCON
-tccon_mode: False
-tccon_setting:
 
 # INPUT PATHS
 interferogram_path: %DATA_INPUT_PATH%/ifg

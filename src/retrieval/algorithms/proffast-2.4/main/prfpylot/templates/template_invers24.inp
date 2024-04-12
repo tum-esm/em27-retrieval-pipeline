@@ -1,9 +1,9 @@
 Input file invers20
 
-complete analysis folder
+complete analysis folder (YYMMDD in measurement time)
 site name
-date
-absco file
+local date
+abscos file
 pT detail dec (T/F)
 Quiet execution (no user requests) (T/F)
 handle
@@ -25,7 +25,7 @@ number of jobs
 number of species
 retrieval parameter persistence
 $
-5
+6
 8
 0.1
 
@@ -47,7 +47,10 @@ for each job:
       number of windows
       spectral bounds and steepness
 
-jobs listed here (for SN processing): H2O / O2 / CO2 / CH4 / CO + CH4_S5P
+jobs listed here (for SN processing): H2O / O2 / CO2 / CH4 / CO2_STR / CO + CH4_S5P
+
+
+
 $
 (8353.4,8463.1)
 2
@@ -70,7 +73,7 @@ $
 0
 0
 2
-0.991,-0.0075,-0.0072,0.0,0.0,"XAIR    "
+0.9907,-0.0075,-0.0072,0.0,0.0,"XAIR    "
 0
 20
 0
@@ -79,7 +82,7 @@ $
 1.0,0.0,0.0,0.0,0.0,"XDUM2   "
 0
 2
-0.9975,0.0004,0.002,0.0,-1.15,"XCO2    "
+0.9970,0.0004,0.002,0.0,-1.15,"XCO2    "
 1
 0
 0
@@ -94,24 +97,38 @@ $
 2
 1.0,0.0,0.0,0.0,0.0,"XDUM4   "
 2
-0.9884,0.00275,0.01,0.0,-0.72,"XCH4    "
+0.9884,0.00275,0.011,0.0,-0.72,"XCH4    "
 0
 0
 0
 0
 20
 0
-(4208.7,4318.8)
+(4820.0,4884.0)
 2
 1.0,0.0,0.0,0.0,0.0,"XDUM5   "
 2
 1.0,0.0,0.0,0.0,0.0,"XDUM6   "
+2
+1.0024,-0.001,-0.029,0.0,-1.15,"XCO2_STR"
+0
+0
+0
+0
+0
+10
+0
+(4208.7,4318.8)
+2
+1.0,0.0,0.0,0.0,0.0,"XDUM7   "
+2
+1.0,0.0,0.0,0.0,0.0,"XDUM8   "
 0
 2
-0.995,-0.0008,0.0025,0.0,-0.72,"XCH4_S5P"
+0.9948,-0.0008,0.002,0.0,-0.72,"XCH4_S5P"
 1
 2
-1.0,0.0715,0.006,0.0,-0.3,"XCO     "
+0.9997,0.0715,0.0068,0.0,-0.3,"XCO     "
 0
 1
 20
