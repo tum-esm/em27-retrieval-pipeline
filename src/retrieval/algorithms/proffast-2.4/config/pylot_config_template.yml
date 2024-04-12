@@ -1,0 +1,37 @@
+# Variables to be set:
+# SERIAL_NUMBER, SENSOR, PROJECT_DIR, DATE
+
+# SITE AND INSTRUMENT
+instrument_number: SN%SERIAL_NUMBER%
+site_name: %SENSOR_ID%
+site_abbrev: %SENSOR_ID%
+start_date:
+end_date:
+coords:
+  lat: %COORDINATES_LAT%
+  lon: %COORDINATES_LON%
+  alt: %COORDINATES_ALT%
+coord_file:
+utc_offset: %UTC_OFFSET%
+
+# BEHAVIOUR
+min_interferogram_size: 0.2
+start_with_spectra: False
+delete_abscosbin_files: True
+delete_input_files: False
+note:
+proffast_path: %CONTAINER_PATH%/prf
+
+# TCCON
+tccon_mode: False
+tccon_setting:
+
+# INPUT PATHS
+interferogram_path: %DATA_INPUT_PATH%/ifg
+map_path: %DATA_INPUT_PATH%/map
+pressure_path: %DATA_INPUT_PATH%/log
+pressure_type_file: %PYLOT_LOG_FORMAT_PATH%
+
+# OUTPUT PATHS
+analysis_path: %DATA_OUTPUT_PATH%/analysis
+result_path: %DATA_OUTPUT_PATH%

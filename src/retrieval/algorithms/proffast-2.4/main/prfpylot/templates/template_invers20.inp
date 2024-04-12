@@ -1,0 +1,126 @@
+Input file invers20
+
+complete analysis folder
+site name
+date
+absco file
+pT detail dec (T/F)
+Quiet execution (no user requests) (T/F)
+handle
+$
+%DATAPATH%\%MEASUREMENT_DATE%
+%SITE%
+%LOCAL_DATE%
+%SITE%%LOCAL_DATE%-abscos.bin
+.true.
+.true.
+%SUFFIX%
+
+Unrefracted (false / COCCON standard) or refracted (true) solar elevation in *.bin file?
+$
+.false.
+
+
+number of jobs
+number of species
+retrieval parameter persistence
+$
+5
+8
+0.1
+
+
+for each job:
+  microwindow bounds
+  treatment of species (0: neglected, 1: forward calculated, 2: retrieved)
+      H2O (major isotopes)
+      HDO
+      CO2
+      CH4
+      N2O
+      CO      
+      O2
+      HF
+
+  number of baseline points
+  deweighting:
+      number of windows
+      spectral bounds and steepness
+
+jobs listed here (for SN processing): H2O / O2 / CO2 / CH4 / CO + CH4_S5P
+$
+(8353.4,8463.1)
+2
+1,0.0,0.0,0.0,0.0,"XH2O    "
+0
+0
+0
+0
+0
+0
+0
+8
+0
+(7765.0,8005.0)
+2
+1.0,0.0,0.0,0.0,0.0,"XDUM1   "
+0
+1
+0
+0
+0
+2
+0.991,-0.0075,-0.0072,0.0,0.0,"XAIR    "
+0
+20
+0
+(6173.00,6390.00)
+2
+1.0,0.0,0.0,0.0,0.0,"XDUM2   "
+0
+2
+0.9975,0.0004,0.002,0.0,-1.15,"XCO2    "
+1
+0
+0
+0
+0
+20
+0
+(5897.00,6145.00)
+2
+1.0,0.0,0.0,0.0,0.0,"XDUM3   "
+0
+2
+1.0,0.0,0.0,0.0,0.0,"XDUM4   "
+2
+0.9884,0.00275,0.01,0.0,-0.72,"XCH4    "
+0
+0
+0
+0
+20
+0
+(4208.7,4318.8)
+2
+1.0,0.0,0.0,0.0,0.0,"XDUM5   "
+2
+1.0,0.0,0.0,0.0,0.0,"XDUM6   "
+0
+2
+0.995,-0.0008,0.0025,0.0,-0.72,"XCH4_S5P"
+1
+2
+1.0,0.0715,0.006,0.0,-0.3,"XCO     "
+0
+1
+20
+0
+
+
+
+names of spectra
+(only list SN spectra here, the code will check whether a corresponding SM is available)
+$
+%SPECTRA_PT_INPUT%
+***
