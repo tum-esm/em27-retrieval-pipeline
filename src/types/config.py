@@ -177,7 +177,7 @@ class RetrievalJobConfig(pydantic.BaseModel):
     retrieval_algorithm: RetrievalAlgorithm = pydantic.Field(
         ...,
         description=
-        "Which retrieval algorithms to use. Proffast 2.2 and 2.3 use the Proffast Pylot under the hood to dispatch it. Proffast 1.0 uses a custom implementation by us similar to the Proffast Pylot."
+        "Which retrieval algorithms to use. Proffast 2.X uses the Proffast Pylot under the hood to dispatch it. Proffast 1.0 uses a custom implementation by us similar to the Proffast Pylot."
     )
     atmospheric_profile_model: AtmosphericProfileModel = pydantic.Field(
         ..., description="Which vertical profiles to use for the retrieval."

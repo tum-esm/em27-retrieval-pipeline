@@ -13,8 +13,6 @@ _RETRIEVAL_ALGORITHMS_DIR = os.path.join(
 
 
 def _generate_pylot2_config(session: types.Proffast2RetrievalSession) -> None:
-    assert session.retrieval_algorithm in ["proffast-2.2", "proffast-2.3"]
-
     file_content = tum_esm_utils.files.load_file(
         os.path.join(
             _RETRIEVAL_ALGORITHMS_DIR,
@@ -98,19 +96,17 @@ def run(
         new_session = types.Proffast1RetrievalSession(
             job_settings=job_settings,
             ctx=sensor_data_context,
-            ctn=container_factory.create_container(
-                retrieval_algorithm=retrieval_algorithm
-            ),
+            ctn=container_factory.create_container(retrieval_algorithm),
         )
-    elif retrieval_algorithm in ["proffast-2.2", "proffast-2.3"]:
+    elif retrieval_algorithm in [
+        "proffast-2.2", "proffast-2.3", "proffast-2.4"
+    ]:
         new_session = types.Proffast2RetrievalSession(
             retrieval_algorithm=retrieval_algorithm,
             atmospheric_profile_model=atmospheric_profile_model,
             job_settings=job_settings,
             ctx=sensor_data_context,
-            ctn=container_factory.create_container(
-                retrieval_algorithm=retrieval_algorithm
-            ),
+            ctn=container_factory.create_container(retrieval_algorithm),
         )
         _generate_pylot2_config(new_session)
         _generate_pylot2_log_format(new_session)

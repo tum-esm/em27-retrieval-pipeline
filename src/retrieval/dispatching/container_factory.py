@@ -40,23 +40,19 @@ class ContainerFactory:
         self.remove_all_containers(include_unknown=True)
         self.logger.info("All old containers have been removed")
 
-        if "proffast-1.0" in retrieval_algorithms or test_mode:
-            self.logger.info("Initializing for Proffast 1.0")
-            self._init_proffast10_code()
-        else:
-            self.logger.info("Not initializing Proffast 1.0 (unused)")
-
-        if "proffast-2.2" in retrieval_algorithms or test_mode:
-            self.logger.info("Initializing ContainerFactory for Proffast 2.2")
-            self._init_proffast22_code()
-        else:
-            self.logger.info("Not initializing Proffast 2.2 (unused)")
-
-        if "proffast-2.3" in retrieval_algorithms or test_mode:
-            self.logger.info("Initializing ContainerFactory for Proffast 2.3")
-            self._init_proffast23_code()
-        else:
-            self.logger.info("Not initializing Proffast 2.3 (unused)")
+        for algorithm, initializer in [
+            ("proffast-1.0", self._init_proffast10_code),
+            ("proffast-2.2", self._init_proffast22_code),
+            ("proffast-2.3", self._init_proffast23_code),
+            ("proffast-2.4", self._init_proffast24_code),
+        ]:
+            if algorithm in retrieval_algorithms or test_mode:
+                self.logger.info(f"Initializing {algorithm} ContainerFactory")
+                initializer()
+            else:
+                self.logger.info(
+                    f"Not initializing {algorithm} ContainerFactory (unused)"
+                )
 
         self.logger.info("ContainerFactory is set up")
 
@@ -76,12 +72,15 @@ class ContainerFactory:
         container: types.RetrievalContainer
 
         assert self.config.retrieval is not None
-        if retrieval_algorithm == "proffast-1.0":
-            container = types.Proffast10Container(container_id=new_container_id)
-        if retrieval_algorithm == "proffast-2.2":
-            container = types.Proffast22Container(container_id=new_container_id)
-        if retrieval_algorithm == "proffast-2.3":
-            container = types.Proffast23Container(container_id=new_container_id)
+        match retrieval_algorithm:
+            case "proffast-1.0":
+                container = types.Proffast10Container(new_container_id)
+            case "proffast-2.2":
+                container = types.Proffast22Container(new_container_id)
+            case "proffast-2.3":
+                container = types.Proffast23Container(new_container_id)
+            case "proffast-2.4":
+                container = types.Proffast24Container(new_container_id)
 
         # copy and install the retrieval code into the container
         retrieval_code_root_dir = os.path.join(
@@ -250,12 +249,39 @@ class ContainerFactory:
         ZIPFILE_NAME = "PROFFASTv2.3.zip"
         ROOT_DIR = os.path.join(_RETRIEVAL_CODE_DIR, "proffast-2.3", "main")
 
-        # DOWNLOAD PROFFAST 2.2 code if it doesn't exist yet
+        # DOWNLOAD PROFFAST 2.3 code if it doesn't exist yet
         if os.path.exists(os.path.join(ROOT_DIR, "prf")):
             self.logger.info(f"Proffast 2.3 has already been downloaded")
             return
 
         self.logger.info(f"Downloading Proffast 2.3 code")
+        tum_esm_utils.shell.run_shell_command(
+            command=f"wget --quiet {KIT_BASE_URL}/{ZIPFILE_NAME}",
+            working_directory=ROOT_DIR,
+        )
+        tum_esm_utils.shell.run_shell_command(
+            command=f"unzip -q {ZIPFILE_NAME}",
+            working_directory=ROOT_DIR,
+        )
+        os.remove(os.path.join(ROOT_DIR, ZIPFILE_NAME))
+
+    def _init_proffast24_code(self) -> None:
+        """Initialize the Proffast 2.4 and pylot 1.3 code.
+
+        It will download the Proffast 2.4 code from the KIT website
+        (https://www.imk-asf.kit.edu/downloads/Coccon-SW/PROFFASTv2.4.zip)
+        and copy it to the directory `src/prfpylot/main/prf`."""
+
+        KIT_BASE_URL = "https://www.imk-asf.kit.edu/downloads/Coccon-SW/"
+        ZIPFILE_NAME = "PROFFASTv2.4.zip"
+        ROOT_DIR = os.path.join(_RETRIEVAL_CODE_DIR, "proffast-2.4", "main")
+
+        # DOWNLOAD PROFFAST 2.4 code if it doesn't exist yet
+        if os.path.exists(os.path.join(ROOT_DIR, "prf")):
+            self.logger.info(f"Proffast 2.4 has already been downloaded")
+            return
+
+        self.logger.info(f"Downloading Proffast 2.4 code")
         tum_esm_utils.shell.run_shell_command(
             command=f"wget --quiet {KIT_BASE_URL}/{ZIPFILE_NAME}",
             working_directory=ROOT_DIR,

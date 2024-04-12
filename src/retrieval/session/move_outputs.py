@@ -127,7 +127,9 @@ def run(
             os.path.join(output_dst, "analysis", "cal"),
         )
     else:
-        if session.retrieval_algorithm in ["proffast-2.2", "proffast-2.3"]:
+        if session.retrieval_algorithm in [
+            "proffast-2.2", "proffast-2.3", "proffast-2.4"
+        ]:
             os.makedirs(os.path.join(output_dst, "analysis", "cal"))
             shutil.copyfile(
                 os.path.join(analysis_dir, "cal", "logfile.dat"),

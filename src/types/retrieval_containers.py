@@ -59,6 +59,10 @@ class Proffast23Container(Proffast22Container):
     """No difference to `Proffast22Container`."""
 
 
+class Proffast24Container(Proffast22Container):
+    """No difference to `Proffast22Container`."""
+
+
 RetrievalContainer = Proffast10Container | Proffast22Container | Proffast23Container
 
 
@@ -74,13 +78,13 @@ class Proffast1RetrievalSession(pydantic.BaseModel):
 
 class Proffast2RetrievalSession(pydantic.BaseModel):
     """This combines a `SensorDataContext` with a `Proffast22Container`/
-    `Proffast23Container`."""
+    `Proffast23Container`/`Proffast24Container`"""
 
-    retrieval_algorithm: Literal["proffast-2.2", "proffast-2.3"]
+    retrieval_algorithm: Literal["proffast-2.2", "proffast-2.3", "proffast-2.4"]
     atmospheric_profile_model: Literal["GGG2014", "GGG2020"]
     job_settings: RetrievalJobSettingsConfig
     ctx: em27_metadata.types.SensorDataContext
-    ctn: Proffast22Container | Proffast23Container
+    ctn: Proffast22Container | Proffast23Container | Proffast24Container
 
 
 RetrievalSession = Proffast1RetrievalSession | Proffast2RetrievalSession
