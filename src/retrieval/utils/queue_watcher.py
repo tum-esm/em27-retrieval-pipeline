@@ -9,20 +9,6 @@ _RETRIEVAL_ENTRYPOINT = tum_esm_utils.files.rel_to_abs_path("../main.py")
 
 def _render() -> Any:
     processes = RetrievalStatusList.load()
-    if len(processes) == 0:
-        pipeline_pids = tum_esm_utils.processes.get_process_pids(
-            _RETRIEVAL_ENTRYPOINT
-        )
-        if len(pipeline_pids) == 0:
-            return rich.panel.Panel(
-                "[white]Pipeline is not running[/white]", height=3
-            )
-        else:
-            return rich.panel.Panel(
-                f"[white]Pipeline is spinning up or shutting down - wait a bit[/white]",
-                height=3
-            )
-
     pending_process_count = len([
         x for x in processes if x.process_start_time is None
     ])
@@ -32,6 +18,26 @@ def _render() -> Any:
     in_progress_process_count = len(
         processes
     ) - pending_process_count - done_process_count
+
+    if len(processes) == done_process_count:
+        pipeline_pids = tum_esm_utils.processes.get_process_pids(
+            _RETRIEVAL_ENTRYPOINT
+        )
+        if len(pipeline_pids) == 0:
+            return rich.panel.Panel(
+                "[white]Pipeline is not running[/white]", height=3
+            )
+        else:
+            if len(processes) == 0:
+                return rich.panel.Panel(
+                    f"[white]Pipeline is spinning up - wait a bit[/white]",
+                    height=3
+                )
+            else:
+                return rich.panel.Panel(
+                    f"[white]Pipeline is shutting down - wait a bit[/white]",
+                    height=3
+                )
 
     table = rich.table.Table(expand=True, box=rich.box.ROUNDED)
     table.add_column("Container ID")
@@ -88,4 +94,5 @@ def start_retrieval_watcher() -> None:
                 with tum_esm_utils.timing.ensure_section_duration(1):
                     live.update(_render())
         except KeyboardInterrupt:
+            console.clear()
             live.update("[white]Stopped watching.[/white]")
