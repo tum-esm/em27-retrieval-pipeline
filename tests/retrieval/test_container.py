@@ -236,18 +236,22 @@ def run_session(
     )
 
 
-def _generate_job_list(
-) -> list[tuple[src.types.RetrievalAlgorithm, src.types.AtmosphericProfileModel,
-                em27_metadata.types.SensorDataContext]]:
+def _generate_job_list() -> list[tuple[
+    src.types.RetrievalAlgorithm,
+    src.types.AtmosphericProfileModel,
+    em27_metadata.types.SensorDataContext,
+]]:
 
     src.retrieval.utils.retrieval_status.RetrievalStatusList.reset()
 
-    pending_jobs: list[tuple[src.types.RetrievalAlgorithm,
-                             src.types.AtmosphericProfileModel,
-                             em27_metadata.types.SensorDataContext]] = []
+    pending_jobs: list[tuple[
+        src.types.RetrievalAlgorithm,
+        src.types.AtmosphericProfileModel,
+        em27_metadata.types.SensorDataContext,
+    ]] = []
 
     # start proffast 1.0 first because it takes the longest
-    for alg in ["proffast-1.0", "proffast-2.2", "proffast-2.3"]:
+    for alg in ["proffast-1.0", "proffast-2.2", "proffast-2.3", "proffast-2.4"]:
         for atm in ["GGG2014", "GGG2020"]:
             if alg == "proffast-1.0" and atm == "GGG2020":
                 continue
@@ -298,7 +302,7 @@ def _assert_output_correctness(
         "about.json",
         "logfiles/container.log",
     ]
-    if retrieval_algorithm in ["proffast-2.2", "proffast-2.3"]:
+    if retrieval_algorithm in ["proffast-2.2", "proffast-2.3", "proffast-2.4"]:
         expected_files.extend([
             (
                 f"comb_invparms_{sensor_data_context.sensor_id}_" +
@@ -335,6 +339,8 @@ def _assert_output_correctness(
 
     pT_dir_path = os.path.join(out_path, "analysis", "pT")
     assert os.path.isdir(pT_dir_path), f"pT path does not exist: {pT_dir_path}"
-    
+
     cal_dir_path = os.path.join(out_path, "analysis", "cal")
-    assert os.path.isdir(cal_dir_path), f"cal path does not exist: {cal_dir_path}"
+    assert os.path.isdir(
+        cal_dir_path
+    ), f"cal path does not exist: {cal_dir_path}"
