@@ -8,7 +8,7 @@ pT detail dec (T/F)
 Quiet execution (no user requests) (T/F)
 handle
 $
-%DATAPATH%\%MEASUREMENT_DATE%
+%DATAPATH%/%MEASUREMENT_DATE%
 %SITE%
 %LOCAL_DATE%
 %SITE%%LOCAL_DATE%-abscos.bin
