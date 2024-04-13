@@ -204,6 +204,7 @@ def test_container_lifecycle_complete(
         for p in newly_finished_processes:
             print(f"Joining process {p.name}")
             p.join()
+            assert p.exitcode == 0, f"Process {p.name} failed"
             active_processes.remove(p)
             container_factory.remove_container(p.name.split(":")[0])
             finished_processes.append(p)
