@@ -1,10 +1,10 @@
 {
   "index": "🌋 Introduction",
-  "---2": {
+  "---1": {
     "type": "separator"
   },
   "guides": "📚 Guides",
-  "---3": {
+  "---2": {
     "type": "separator"
   },
   "api-reference": "⚙️ API Reference"

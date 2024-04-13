@@ -5,7 +5,11 @@ const CONFIG_SCHEMA: any = {
         "version": {
             "const": "1.0",
             "description": "Version of the retrieval pipeline which is compatible with this config file. Retrievals done with any version `1.x` will produce the same output files as retrievals done with version `1.0`. But higher version numbers might use a different config file structure and produce more output files.",
-            "title": "Version"
+            "enum": [
+                "1.0"
+            ],
+            "title": "Version",
+            "type": "string"
         },
         "general": {
             "properties": {
@@ -252,11 +256,12 @@ const CONFIG_SCHEMA: any = {
                                 "description": "Settings for filtering the storage data. Only used if `config.data_sources.storage` is `true`.",
                                 "properties": {
                                     "retrieval_algorithm": {
-                                        "description": "Which retrieval algorithms to use. Proffast 2.2 and 2.3 use the Proffast Pylot under the hood to dispatch it. Proffast 1.0 uses a custom implementation by us similar to the Proffast Pylot.",
+                                        "description": "Which retrieval algorithms to use. Proffast 2.X uses the Proffast Pylot under the hood to dispatch it. Proffast 1.0 uses a custom implementation by us similar to the Proffast Pylot.",
                                         "enum": [
                                             "proffast-1.0",
                                             "proffast-2.2",
-                                            "proffast-2.3"
+                                            "proffast-2.3",
+                                            "proffast-2.4"
                                         ],
                                         "title": "Retrieval Algorithm",
                                         "type": "string"
@@ -382,7 +387,8 @@ const CONFIG_SCHEMA: any = {
                                 "enum": [
                                     "proffast-1.0",
                                     "proffast-2.2",
-                                    "proffast-2.3"
+                                    "proffast-2.3",
+                                    "proffast-2.4"
                                 ],
                                 "title": "Retrieval Algorithm",
                                 "type": "string"
