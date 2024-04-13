@@ -33,15 +33,15 @@ done
 # Compile the source code
 echo "compiling preprocess ..."
 cd "$INSTALL_FOLDER/source/preprocess/"
-gfortran -nocpp -O3 -o ../../preprocess/preprocess5 glob_prepro5.F90 glob_OPUSparms.F90 preprocess5.F90
+gfortran -nocpp -O3 -o ../../preprocess/preprocess6 glob_prepro6.F90 glob_OPUSparms6.F90 preprocess6.F90
 
 echo 'compiling pcxs ...'
 cd "$INSTALL_FOLDER/source/pcxs"
-gfortran -nocpp -O3 -o ../../pcxs20 globvar20.f90 globlin20.f90 globlev20.f90 pcxs20.f90
+gfortran -nocpp -O3 -o ../../pcxs24 globvar24.f90 globlin24.f90 globlev24.f90 pcxs24.f90
 
 echo 'compiling invers ...'
 cd "$INSTALL_FOLDER/source/invers"
-gfortran -nocpp -O3 -o ../../invers20 globinv20.f90 invers20.f90
+gfortran -nocpp -O3 -o ../../invers24 globinv24.f90 invers24.f90
 
 cd ..
 

@@ -74,13 +74,21 @@ class ContainerFactory:
         assert self.config.retrieval is not None
         match retrieval_algorithm:
             case "proffast-1.0":
-                container = types.Proffast10Container(new_container_id)
+                container = types.Proffast10Container(
+                    container_id=new_container_id
+                )
             case "proffast-2.2":
-                container = types.Proffast22Container(new_container_id)
+                container = types.Proffast22Container(
+                    container_id=new_container_id
+                )
             case "proffast-2.3":
-                container = types.Proffast23Container(new_container_id)
+                container = types.Proffast23Container(
+                    container_id=new_container_id
+                )
             case "proffast-2.4":
-                container = types.Proffast24Container(new_container_id)
+                container = types.Proffast24Container(
+                    container_id=new_container_id
+                )
 
         # copy and install the retrieval code into the container
         retrieval_code_root_dir = os.path.join(
