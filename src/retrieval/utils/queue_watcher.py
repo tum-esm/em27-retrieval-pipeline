@@ -1,15 +1,27 @@
 from typing import Any
 import datetime
-import rich.live, rich.table, rich.panel, rich.console, rich.align, rich.spinner, rich.columns, rich.box
+import rich.live, rich.table, rich.panel, rich.console, rich.align, rich.columns, rich.box
 import tum_esm_utils
 from .retrieval_status import RetrievalStatusList
+
+_RETRIEVAL_ENTRYPOINT = tum_esm_utils.files.rel_to_abs_path("../main.py")
 
 
 def _render() -> Any:
     processes = RetrievalStatusList.load()
-
     if len(processes) == 0:
-        return rich.panel.Panel("[white]No processes found.[/white]", height=3)
+        pipeline_pids = tum_esm_utils.processes.get_process_pids(
+            _RETRIEVAL_ENTRYPOINT
+        )
+        if len(pipeline_pids) == 0:
+            return rich.panel.Panel(
+                "[white]Pipeline is not running[/white]", height=3
+            )
+        else:
+            return rich.panel.Panel(
+                f"[white]Pipeline is spinning up or shutting down - wait a bit[/white]",
+                height=3
+            )
 
     pending_process_count = len([
         x for x in processes if x.process_start_time is None
@@ -71,12 +83,9 @@ def start_retrieval_watcher() -> None:
     console = rich.console.Console()
     console.clear()
     with rich.live.Live(refresh_per_second=1) as live:
-        live
         try:
             while True:
-                with tum_esm_utils.context.ensure_section_duration(1):
+                with tum_esm_utils.timing.ensure_section_duration(1):
                     live.update(_render())
         except KeyboardInterrupt:
-            live.update(
-                "[white]Stopped watching, automation is still running.[/white]"
-            )
+            live.update("[white]Stopped watching.[/white]")
