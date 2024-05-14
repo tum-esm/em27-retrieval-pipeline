@@ -31,13 +31,13 @@ def _generate_pylot2_config(session: types.Proffast2RetrievalSession) -> None:
                 "SENSOR_ID":
                     session.ctx.sensor_id,
                 "COORDINATES_LAT":
-                    str(round(session.ctx.location.lat, 3)),
+                    str(round(session.ctx.location.lat, 6)),
                 "COORDINATES_LON":
-                    str(round(session.ctx.location.lon, 3)),
+                    str(round(session.ctx.location.lon, 6)),
                 "COORDINATES_ALT":
-                    str(round(session.ctx.location.alt / 1000.0, 3)),
+                    str(round(session.ctx.location.alt / 1000.0, 6)),
                 "UTC_OFFSET":
-                    str(round(session.ctx.utc_offset, 2)),
+                    str(round(session.ctx.utc_offset, 9)),
                 "CONTAINER_ID":
                     session.ctn.container_id,
                 "CONTAINER_PATH":
@@ -72,7 +72,7 @@ def _generate_pylot2_log_format(
                 "SENSOR_ID":
                     session.ctx.sensor_id,
                 "UTC_OFFSET":
-                    str(round(session.ctx.utc_offset, 2)),
+                    str(round(session.ctx.utc_offset, 9)),
                 "PRESSURE_CALIBRATION_FACTOR":
                     str(round(session.ctx.calibration_factors.pressure, 9)),
                 "PRESSURE_DATA_SOURCE":
