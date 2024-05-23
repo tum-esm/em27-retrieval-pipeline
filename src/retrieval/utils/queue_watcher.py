@@ -1,10 +1,30 @@
-from typing import Any
+from typing import Any, Optional
 import datetime
 import rich.live, rich.table, rich.panel, rich.console, rich.align, rich.columns, rich.box
 import tum_esm_utils
 from .retrieval_status import RetrievalStatusList
 
 _RETRIEVAL_ENTRYPOINT = tum_esm_utils.files.rel_to_abs_path("../main.py")
+
+
+def _prettify_timedelta(dt: datetime.timedelta) -> str:
+    out: str = ""
+    total_seconds = dt.total_seconds()
+
+    days = int(total_seconds // (3600 * 24))
+    total_seconds = total_seconds % (3600 * 24)
+    hours = int(total_seconds // 3600)
+    total_seconds = total_seconds % 3600
+    minutes = int(total_seconds // 60)
+
+    if days > 0:
+        out += f"{days}d "
+    if days > 0 or hours > 0:
+        out += f"{hours}h "
+    if minutes > 0 or hours > 0 or days > 0:
+        out += f"{minutes}m "
+
+    return out.strip()
 
 
 def _render() -> Any:
@@ -48,21 +68,37 @@ def _render() -> Any:
     table.add_column("IFG Count")
     table.add_column("Run Time")
 
+    first_start_time: Optional[datetime.datetime] = None
+    last_end_time: Optional[datetime.datetime] = None
+
     for p in processes:
-        if (p.process_start_time is None) or (p.process_end_time is not None):
+        # process not started
+        if p.process_start_time is None:
             continue
-        dt = datetime.datetime.utcnow().replace(
-            tzinfo=datetime.timezone.utc
-        ) - p.process_start_time.replace(tzinfo=datetime.timezone.utc)
-        table.add_row(
-            p.container_id,
-            "-" if p.output_suffix is None else p.output_suffix,
-            p.sensor_id,
-            f"{p.from_datetime} - {p.to_datetime}",
-            p.location_id,
-            "N/A" if p.ifg_count is None else str(p.ifg_count),
-            f"{dt.seconds // 60}m {str(dt.seconds % 60).zfill(2)}s",
-        )
+
+        if (first_start_time
+            is None) or (p.process_start_time < first_start_time):
+            first_start_time = p.process_start_time
+
+        # process is running
+        if p.process_end_time is None:
+            dt = datetime.datetime.now(
+                tz=datetime.UTC
+            ) - p.process_start_time.replace(tzinfo=datetime.UTC)
+            table.add_row(
+                p.container_id,
+                "-" if p.output_suffix is None else p.output_suffix,
+                p.sensor_id,
+                f"{p.from_datetime} - {p.to_datetime}",
+                p.location_id,
+                "N/A" if p.ifg_count is None else str(p.ifg_count),
+                f"{dt.seconds // 60}m {str(dt.seconds % 60).zfill(2)}s",
+            )
+            continue
+
+        # process is done
+        if (last_end_time is None) or (p.process_end_time > last_end_time):
+            last_end_time = p.process_end_time
 
     grid = rich.table.Table.grid(expand=True)
     grid.add_row(
@@ -77,6 +113,28 @@ def _render() -> Any:
         )
     )
     grid.add_row(table)
+    if (first_start_time
+        is not None) and (last_end_time
+                          is not None) and (done_process_count > 0):
+        avg_time_per_job = (
+            last_end_time.replace(tzinfo=datetime.UTC) -
+            first_start_time.replace(tzinfo=datetime.UTC)
+        ) / done_process_count
+        estimated_end_time = (
+            avg_time_per_job * len(processes)
+        ) + first_start_time
+        estimated_remaining_time = estimated_end_time - datetime.datetime.now(
+            datetime.UTC
+        )
+        grid.add_row(
+            rich.align.Align.center(
+                rich.columns.Columns([
+                    f"[yellow]Pipeline is estimated to finish in " +
+                    f"{_prettify_timedelta(estimated_remaining_time)} " +
+                    f"({estimated_end_time.strftime('%Y-%m-%d %H:%M UTC')})[/yellow]\n",
+                ]),
+            )
+        )
     grid.add_row(
         rich.align.Align.center(
             "[white]Press Ctrl+C or close the terminal to stop watching. This "

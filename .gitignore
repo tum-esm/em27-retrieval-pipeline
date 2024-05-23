@@ -12,6 +12,7 @@ manual-queue.json
 *.lock
 !pdm.lock
 de421.bsp
+de421.bsp.download
 
 data/**/*.map
 data/**/*.mod
