@@ -331,6 +331,60 @@ const CONFIG_SCHEMA: any = {
                                                 "description": "Whether to use the ifg corruption filter. This filter is a program based on `preprocess4` and is part of the `tum-esm-utils` library: https://tum-esm-utils.netlify.app/api-reference#tum_esm_utilsinterferograms. If activated, we will only pass the interferograms to the retrieval algorithm that pass the filter - i.e. that won't cause it to crash.",
                                                 "title": "Use Ifg Corruption Filter",
                                                 "type": "boolean"
+                                            },
+                                            "custom_ils": {
+                                                "anyOf": [
+                                                    {
+                                                        "additionalProperties": {
+                                                            "properties": {
+                                                                "channel1_me": {
+                                                                    "title": "Channel1 Me",
+                                                                    "type": "number"
+                                                                },
+                                                                "channel1_pe": {
+                                                                    "title": "Channel1 Pe",
+                                                                    "type": "number"
+                                                                },
+                                                                "channel2_me": {
+                                                                    "title": "Channel2 Me",
+                                                                    "type": "number"
+                                                                },
+                                                                "channel2_pe": {
+                                                                    "title": "Channel2 Pe",
+                                                                    "type": "number"
+                                                                }
+                                                            },
+                                                            "required": [
+                                                                "channel1_me",
+                                                                "channel1_pe",
+                                                                "channel2_me",
+                                                                "channel2_pe"
+                                                            ],
+                                                            "title": "RetrievalJobSettingsILSConfig",
+                                                            "type": "object"
+                                                        },
+                                                        "type": "object"
+                                                    },
+                                                    {
+                                                        "type": "null"
+                                                    }
+                                                ],
+                                                "default": null,
+                                                "description": "Maps sensor IDS to ILS correction values. If not set, the pipeline will use the values published inside the Proffast Pylot codebase (https://gitlab.eudat.eu/coccon-kit/proffastpylot/-/blob/master/prfpylot/ILSList.csv?ref_type=heads).",
+                                                "title": "Custom Ils"
+                                            },
+                                            "output_suffix": {
+                                                "anyOf": [
+                                                    {
+                                                        "type": "string"
+                                                    },
+                                                    {
+                                                        "type": "null"
+                                                    }
+                                                ],
+                                                "default": null,
+                                                "description": "Suffix to append to the output folders. If not set, the pipeline output folders are named `sensorid/YYYYMMDD/`. If set, the folders are named `sensorid/YYYYMMDD_suffix/`. This is useful when having multiple retrieval jobs processing the same sensor dates with different settings.",
+                                                "title": "Output Suffix"
                                             }
                                         },
                                         "title": "RetrievalJobSettingsConfig",
@@ -340,7 +394,9 @@ const CONFIG_SCHEMA: any = {
                                             "dc_min_threshold": 0.05,
                                             "dc_var_threshold": 0.1,
                                             "use_local_pressure_in_pcxs": false,
-                                            "use_ifg_corruption_filter": true
+                                            "use_ifg_corruption_filter": true,
+                                            "custom_ils": null,
+                                            "output_suffix": null
                                         },
                                         "description": "Advanced settings that only apply to this retrieval job"
                                     }
