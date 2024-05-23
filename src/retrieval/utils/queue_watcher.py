@@ -41,6 +41,7 @@ def _render() -> Any:
 
     table = rich.table.Table(expand=True, box=rich.box.ROUNDED)
     table.add_column("Container ID")
+    table.add_column("Job Suffix")
     table.add_column("Sensor ID")
     table.add_column("Datetime")
     table.add_column("Location ID")
@@ -55,6 +56,7 @@ def _render() -> Any:
         ) - p.process_start_time.replace(tzinfo=datetime.timezone.utc)
         table.add_row(
             p.container_id,
+            "-" if p.output_suffix is None else p.output_suffix,
             p.sensor_id,
             f"{p.from_datetime} - {p.to_datetime}",
             p.location_id,
