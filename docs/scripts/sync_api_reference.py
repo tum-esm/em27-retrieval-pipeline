@@ -48,6 +48,7 @@ def recursive_help(
     return output
 
 
+print("Exporting CLI reference to docs/pages/api-reference/cli.mdx")
 with open(
     os.path.join(PROJECT_DIR, "docs", "pages", "api-reference", "cli.mdx"), "w"
 ) as f:
@@ -135,6 +136,9 @@ export_schema(
 # ---------------------------------------------------------
 # Replace metadata example files
 
+print(
+    "Exporting metadata example files to docs/pages/api-reference/metadata.mdx"
+)
 example_metadata = em27_metadata.load_from_example_data()
 
 with open(
@@ -197,6 +201,10 @@ config_string = src.types.Config.load(
 
 ### reference
 
+print(
+    "Exporting config example file to docs/pages/api-reference/configuration.mdx"
+)
+
 with open(
     os.path.join(
         PROJECT_DIR, "docs", "pages", "api-reference", "configuration.mdx"
@@ -225,6 +233,8 @@ with open(
 
 ### guide
 
+print("Exporting config example file to docs/pages/guides/configuration.mdx")
+
 with open(
     os.path.join(PROJECT_DIR, "docs", "pages", "guides", "configuration.mdx"),
     "r"
@@ -250,6 +260,8 @@ with open(
 
 # ---------------------------------------------------------
 # Sync README
+
+print("Syncing README with docs landing page")
 
 with open(os.path.join(PROJECT_DIR, "docs", "pages", "index.mdx")) as _f:
     current_docs_landing_page = _f.read()
