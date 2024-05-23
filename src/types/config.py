@@ -139,6 +139,13 @@ class RetrievalGeneralConfig(pydantic.BaseModel):
     )
 
 
+class RetrievalJobSettingsILSConfig(pydantic.BaseModel):
+    channel_1_modulation_error: float = pydantic.Field(...)
+    channel_1_phase_error: float = pydantic.Field(...)
+    channel_2_modulation_error: float = pydantic.Field(...)
+    channel_2_phase_error: float = pydantic.Field(...)
+
+
 class RetrievalJobSettingsConfig(pydantic.BaseModel):
     store_binary_spectra: bool = pydantic.Field(
         False,
@@ -168,6 +175,13 @@ class RetrievalJobSettingsConfig(pydantic.BaseModel):
         True,
         description=
         "Whether to use the ifg corruption filter. This filter is a program based on `preprocess4` and is part of the `tum-esm-utils` library: https://tum-esm-utils.netlify.app/api-reference#tum_esm_utilsinterferograms. If activated, we will only pass the interferograms to the retrieval algorithm that pass the filter - i.e. that won't cause it to crash.",
+    )
+    custom_ils: Optional[
+        dict[str, RetrievalJobSettingsILSConfig]
+    ] = pydantic.Field(
+        None,
+        description=
+        "Maps sensor IDS to ILS correction values. If not set, the pipeline will use the values published inside the Proffast Pylot codebase (https://gitlab.eudat.eu/coccon-kit/proffastpylot/-/blob/master/prfpylot/ILSList.csv?ref_type=heads).",
     )
 
 
