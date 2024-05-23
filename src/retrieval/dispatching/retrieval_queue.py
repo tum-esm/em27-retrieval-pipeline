@@ -109,6 +109,8 @@ def generate_retrieval_queue(
             if not utils.functions.sdc_covers_the_full_day(sdc):
                 output_folder += sdc.from_datetime.strftime("_%H%M%S")
                 output_folder += sdc.to_datetime.strftime("_%H%M%S")
+            if retrieval_job_config.settings.output_suffix is not None:
+                output_folder += f"_{retrieval_job_config.settings.output_suffix}"
             success_dir = os.path.join(results_dir, "successful", output_folder)
             failure_dir = os.path.join(results_dir, "failed", output_folder)
             if (

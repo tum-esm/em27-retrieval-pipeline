@@ -63,6 +63,8 @@ def run(
     if not utils.functions.sdc_covers_the_full_day(session.ctx):
         output_slug += session.ctx.from_datetime.strftime("_%H%M%S")
         output_slug += session.ctx.to_datetime.strftime("_%H%M%S")
+    if session.job_settings.output_suffix is not None:
+        output_slug += f"_{session.job_settings.output_suffix}"
 
     output_dst = os.path.join(
         config.general.data.results.root, session.retrieval_algorithm,
