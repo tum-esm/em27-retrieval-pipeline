@@ -37,8 +37,8 @@ def run(
         (session.ctx.sensor_id in session.job_settings.custom_ils)):
         logger.info("Using custom ILS values")
         ils = session.job_settings.custom_ils[session.ctx.sensor_id]
-        replacements["%ILS_Channel1%"] = f"{ils.channel1_me} {ils.channel1_pe}"
-        replacements["%ILS_Channel2%"] = f"{ils.channel2_me} {ils.channel2_pe}"
+        replacements["ILS_Channel1"] = f"{ils.channel1_me} {ils.channel1_pe}"
+        replacements["ILS_Channel2"] = f"{ils.channel2_me} {ils.channel2_pe}"
 
     logger.info(f"Writing values to templates: {replacements}")
     templates_path = os.path.join(
