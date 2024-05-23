@@ -97,6 +97,18 @@ def stop() -> None:
             f"background processe(s) with PID(s) {pids}"
         )
 
+@retrieval_command_group.command(
+    name="download-algorithms",
+    help=
+    "Downloads all retrieval algorithms into the local container factories",
+)
+def download_algorithms() -> None:
+    import src
+    src.retrieval.dispatching.container_factory.ContainerFactory.init_proffast10_code(click.echo)
+    src.retrieval.dispatching.container_factory.ContainerFactory.init_proffast22_code(click.echo)
+    src.retrieval.dispatching.container_factory.ContainerFactory.init_proffast23_code(click.echo)
+    src.retrieval.dispatching.container_factory.ContainerFactory.init_proffast24_code(click.echo)
+
 
 @profiles_command_group.command(
     name="run",

@@ -1,5 +1,6 @@
 import os
 import shutil
+from typing import Callable
 import tum_esm_utils
 from src import types, utils, retrieval
 
@@ -39,16 +40,16 @@ class ContainerFactory:
         self.logger.info("Removing all old containers")
         self.remove_all_containers(include_unknown=True)
         self.logger.info("All old containers have been removed")
-
+        
         for algorithm, initializer in [
-            ("proffast-1.0", self._init_proffast10_code),
-            ("proffast-2.2", self._init_proffast22_code),
-            ("proffast-2.3", self._init_proffast23_code),
-            ("proffast-2.4", self._init_proffast24_code),
+            ("proffast-1.0", ContainerFactory.init_proffast10_code),
+            ("proffast-2.2", ContainerFactory.init_proffast22_code),
+            ("proffast-2.3", ContainerFactory.init_proffast23_code),
+            ("proffast-2.4", ContainerFactory.init_proffast24_code),
         ]:
             if algorithm in retrieval_algorithms or test_mode:
                 self.logger.info(f"Initializing {algorithm} ContainerFactory")
-                initializer()
+                initializer(self.logger.info)
             else:
                 self.logger.info(
                     f"Not initializing {algorithm} ContainerFactory (unused)"
@@ -151,7 +152,8 @@ class ContainerFactory:
                 shutil.rmtree(container.container_path)
         self.containers = []
 
-    def _init_proffast10_code(self) -> None:
+    @staticmethod
+    def init_proffast10_code(_print: Callable[[str], None]) -> None:
         """Initialize the Proffast 1.0 code"""
 
         KIT_BASE_URL = "https://www.imk-asf.kit.edu/downloads/Coccon-SW/"
@@ -160,10 +162,10 @@ class ContainerFactory:
 
         # DOWNLOAD PROFFAST 1.0 code if it doesn't exist yet
         if os.path.exists(os.path.join(ROOT_DIR, "prf")):
-            self.logger.info(f"Proffast 1.0 has already been downloaded")
+            _print(f"Proffast 1.0 has already been downloaded")
             return
 
-        self.logger.info(f"Downloading Proffast 1.0 code")
+        _print(f"Downloading Proffast 1.0 code")
         tum_esm_utils.shell.run_shell_command(
             command=f"wget --quiet {KIT_BASE_URL}/{ZIPFILE_NAME}",
             working_directory=ROOT_DIR,
@@ -219,7 +221,8 @@ class ContainerFactory:
         os.system("rm " + os.path.join(ROOT_DIR, "prf", "invers10*"))
         os.system("rm " + os.path.join(ROOT_DIR, "prf", "pcxs10*"))
 
-    def _init_proffast22_code(self) -> None:
+    @staticmethod
+    def init_proffast22_code(_print: Callable[[str], None]) -> None:
         """Initialize the Proffast 2.2 and pylot 1.1 code.
 
         It will download the Proffast 2.2 code from the KIT website
@@ -232,10 +235,10 @@ class ContainerFactory:
 
         # DOWNLOAD PROFFAST 2.2 code if it doesn't exist yet
         if os.path.exists(os.path.join(ROOT_DIR, "prf")):
-            self.logger.info(f"Proffast 2.2 has already been downloaded")
+            _print(f"Proffast 2.2 has already been downloaded")
             return
 
-        self.logger.info(f"Downloading Proffast 2.2 code")
+        _print(f"Downloading Proffast 2.2 code")
         tum_esm_utils.shell.run_shell_command(
             command=f"wget --quiet {KIT_BASE_URL}/{ZIPFILE_NAME}",
             working_directory=ROOT_DIR,
@@ -246,7 +249,8 @@ class ContainerFactory:
         )
         os.remove(os.path.join(ROOT_DIR, ZIPFILE_NAME))
 
-    def _init_proffast23_code(self) -> None:
+    @staticmethod
+    def init_proffast23_code(_print: Callable[[str], None]) -> None:
         """Initialize the Proffast 2.3 and pylot 1.2 code.
 
         It will download the Proffast 2.3 code from the KIT website
@@ -259,10 +263,10 @@ class ContainerFactory:
 
         # DOWNLOAD PROFFAST 2.3 code if it doesn't exist yet
         if os.path.exists(os.path.join(ROOT_DIR, "prf")):
-            self.logger.info(f"Proffast 2.3 has already been downloaded")
+            _print(f"Proffast 2.3 has already been downloaded")
             return
 
-        self.logger.info(f"Downloading Proffast 2.3 code")
+        _print(f"Downloading Proffast 2.3 code")
         tum_esm_utils.shell.run_shell_command(
             command=f"wget --quiet {KIT_BASE_URL}/{ZIPFILE_NAME}",
             working_directory=ROOT_DIR,
@@ -273,7 +277,8 @@ class ContainerFactory:
         )
         os.remove(os.path.join(ROOT_DIR, ZIPFILE_NAME))
 
-    def _init_proffast24_code(self) -> None:
+    @staticmethod
+    def init_proffast24_code(_print: Callable[[str], None]) -> None:
         """Initialize the Proffast 2.4 and pylot 1.3 code.
 
         It will download the Proffast 2.4 code from the KIT website
@@ -286,10 +291,10 @@ class ContainerFactory:
 
         # DOWNLOAD PROFFAST 2.4 code if it doesn't exist yet
         if os.path.exists(os.path.join(ROOT_DIR, "prf")):
-            self.logger.info(f"Proffast 2.4 has already been downloaded")
+            _print(f"Proffast 2.4 has already been downloaded")
             return
 
-        self.logger.info(f"Downloading Proffast 2.4 code")
+        _print(f"Downloading Proffast 2.4 code")
         tum_esm_utils.shell.run_shell_command(
             command=f"wget --quiet {KIT_BASE_URL}/{ZIPFILE_NAME}",
             working_directory=ROOT_DIR,
