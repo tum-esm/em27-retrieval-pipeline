@@ -57,7 +57,8 @@
               "channel2_me": 0.989200,
               "channel2_pe": -0.001082
             }
-          }
+          },
+          "output_suffix": "template_config"
         }
       },
       {

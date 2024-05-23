@@ -183,6 +183,11 @@ class RetrievalJobSettingsConfig(pydantic.BaseModel):
         description=
         "Maps sensor IDS to ILS correction values. If not set, the pipeline will use the values published inside the Proffast Pylot codebase (https://gitlab.eudat.eu/coccon-kit/proffastpylot/-/blob/master/prfpylot/ILSList.csv?ref_type=heads).",
     )
+    output_suffix: Optional[str] = pydantic.Field(
+        None,
+        description=
+        "Suffix to append to the output folders. If not set, the pipeline output folders are named `sensorid/YYYYMMDD/`. If set, the folders are named `sensorid/YYYYMMDD_suffix/`. This is useful when having multiple retrieval jobs processing the same sensor dates with different settings.",
+    )
 
 
 class RetrievalJobConfig(pydantic.BaseModel):
