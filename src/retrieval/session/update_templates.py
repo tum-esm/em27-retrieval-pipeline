@@ -28,16 +28,21 @@ def run(
             logger,
         )
 
-    logger.info(
-        "Writing the following values to the templates: " +
-        f"DC_MIN_THRESHOLD={session.job_settings.dc_min_threshold}, " +
-        f"DC_VAR_THRESHOLD={session.job_settings.dc_var_threshold}, " +
-        f"MEAN_PRESSURE_AT_NOON={pcxs_pressure_value}"
-    )
+    replacements = {
+        "DC_MIN_THRESHOLD": str(session.job_settings.dc_min_threshold),
+        "DC_VAR_THRESHOLD": str(session.job_settings.dc_var_threshold),
+        "MEAN_PRESSURE_AT_NOON": str(pcxs_pressure_value),
+    }
+    if ((session.job_settings.custom_ils is not None) and
+        (session.ctx.sensor_id in session.job_settings.custom_ils)):
+        logger.info("Using custom ILS values")
+        ils = session.job_settings.custom_ils[session.ctx.sensor_id]
+        replacements["%ILS_Channel1%"] = f"{ils.channel1_me} {ils.channel1_pe}"
+        replacements["%ILS_Channel2%"] = f"{ils.channel2_me} {ils.channel2_pe}"
+
+    logger.info(f"Writing values to templates: {replacements}")
     templates_path = os.path.join(
-        session.ctn.container_path,
-        "prfpylot",
-        "templates",
+        session.ctn.container_path, "prfpylot", "templates"
     )
     for filename in os.listdir(templates_path):
         filepath = os.path.join(templates_path, filename)
@@ -45,15 +50,7 @@ def run(
             with open(filepath, "r") as f:
                 template_content = f.read()
             new_template_content = tum_esm_utils.text.insert_replacements(
-                template_content,
-                {
-                    "DC_MIN_THRESHOLD":
-                        str(session.job_settings.dc_min_threshold),
-                    "DC_VAR_THRESHOLD":
-                        str(session.job_settings.dc_var_threshold),
-                    "MEAN_PRESSURE_AT_NOON":
-                        str(pcxs_pressure_value),
-                },
+                template_content, replacements
             )
             with open(filepath, "w") as f:
                 f.write(new_template_content)

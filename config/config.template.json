@@ -52,10 +52,10 @@
           "use_ifg_corruption_filter": false,
           "custom_ils": {
             "ma": {
-              "channel_1_modulation_error": 0.989200,
-              "channel_1_phase_error": -0.001082,
-              "channel_2_modulation_error": 0.989200,
-              "channel_2_phase_error": -0.001082
+              "channel1_me": 0.989200,
+              "channel1_pe": -0.001082,
+              "channel2_me": 0.989200,
+              "channel2_pe": -0.001082
             }
           }
         }

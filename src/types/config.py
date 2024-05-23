@@ -140,10 +140,10 @@ class RetrievalGeneralConfig(pydantic.BaseModel):
 
 
 class RetrievalJobSettingsILSConfig(pydantic.BaseModel):
-    channel_1_modulation_error: float = pydantic.Field(...)
-    channel_1_phase_error: float = pydantic.Field(...)
-    channel_2_modulation_error: float = pydantic.Field(...)
-    channel_2_phase_error: float = pydantic.Field(...)
+    channel1_me: float = pydantic.Field(...)
+    channel1_pe: float = pydantic.Field(...)
+    channel2_me: float = pydantic.Field(...)
+    channel2_pe: float = pydantic.Field(...)
 
 
 class RetrievalJobSettingsConfig(pydantic.BaseModel):
