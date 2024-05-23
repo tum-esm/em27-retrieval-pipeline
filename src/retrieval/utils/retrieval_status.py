@@ -22,6 +22,7 @@ class RetrievalStatus(pydantic.BaseModel):
     sensor_id: str
     from_datetime: datetime.datetime
     to_datetime: datetime.datetime
+    output_suffix: Optional[str] = None
     location_id: str
     container_id: Optional[str] = None
     ifg_count: Optional[int] = None
@@ -68,6 +69,7 @@ class RetrievalStatusList(pydantic.RootModel[list[RetrievalStatus]]):
         items: list[em27_metadata.types.SensorDataContext],
         retrieval_algorithm: types.RetrievalAlgorithm,
         atmospheric_profile_model: types.AtmosphericProfileModel,
+        output_suffix: Optional[str] = None
     ) -> None:
         """Add items to the active process list.
         
@@ -90,6 +92,7 @@ class RetrievalStatusList(pydantic.RootModel[list[RetrievalStatus]]):
                         from_datetime=sdc.from_datetime,
                         to_datetime=sdc.to_datetime,
                         location_id=sdc.location.location_id,
+                        output_suffix=output_suffix
                     )
                 )
             with open(_ACTIVE_PROCESS_LIST, "w") as f:
@@ -101,6 +104,7 @@ class RetrievalStatusList(pydantic.RootModel[list[RetrievalStatus]]):
         atmospheric_profile_model: types.AtmosphericProfileModel,
         sensor_id: str,
         from_datetime: datetime.datetime,
+        output_suffix: Optional[str],
         container_id: Optional[str] = None,
         ifg_count: Optional[int] = None,
         process_start_time: Optional[datetime.datetime] = None,
@@ -115,10 +119,13 @@ class RetrievalStatusList(pydantic.RootModel[list[RetrievalStatus]]):
             except pydantic.ValidationError:
                 return
             for p in process_list.root:
-                if ((p.retrieval_algorithm == retrieval_algorithm) and
-                    (p.atmospheric_profile_model == atmospheric_profile_model)
-                    and (p.sensor_id == sensor_id) and
-                    (p.from_datetime == from_datetime)):
+                if all([
+                    p.retrieval_algorithm == retrieval_algorithm,
+                    p.atmospheric_profile_model == atmospheric_profile_model,
+                    p.sensor_id == sensor_id,
+                    p.from_datetime == from_datetime,
+                    p.output_suffix == output_suffix,
+                ]):
                     if container_id is not None:
                         p.container_id = container_id
                     if ifg_count is not None:

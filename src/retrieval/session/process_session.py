@@ -35,6 +35,7 @@ def run(
             session.atmospheric_profile_model,
             session.ctx.sensor_id,
             session.ctx.from_datetime,
+            session.job_settings.output_suffix,
             process_end_time=datetime.datetime.utcnow(),
         )
         logger.archive()

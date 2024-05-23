@@ -49,6 +49,7 @@ def run(
         session.atmospheric_profile_model,
         session.ctx.sensor_id,
         session.ctx.from_datetime,
+        session.job_settings.output_suffix,
         ifg_count=len(ifg_filenames),
     )
 

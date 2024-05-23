@@ -120,6 +120,7 @@ def run(
         atmospheric_profile_model=atmospheric_profile_model,
         sensor_id=sensor_data_context.sensor_id,
         from_datetime=sensor_data_context.from_datetime,
+        output_suffix=job_settings.output_suffix,
         container_id=new_session.ctn.container_id,
         process_start_time=datetime.datetime.now(datetime.UTC),
     )

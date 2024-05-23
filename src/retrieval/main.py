@@ -119,7 +119,8 @@ def run() -> None:
         retrieval.utils.retrieval_status.RetrievalStatusList.add_items(
             retrieval_sdcs,
             retrieval_algorithm=job.retrieval_algorithm,
-            atmospheric_profile_model=job.atmospheric_profile_model
+            atmospheric_profile_model=job.atmospheric_profile_model,
+            output_suffix=job.settings.output_suffix,
         )
     main_logger.info(f"Generated retrieval queue with {len(job_queue)} items")
     main_logger.horizontal_line(variant="=")
