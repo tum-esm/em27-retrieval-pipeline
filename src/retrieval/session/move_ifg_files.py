@@ -1,3 +1,4 @@
+import json
 import os
 import re
 import subprocess
@@ -72,24 +73,22 @@ def run(
     if session.job_settings.use_ifg_corruption_filter:
         logger.info("Using ifg corruption filter")
         try:
-            corrupt_filenames = list(
-                tum_esm_utils.interferograms.detect_corrupt_ifgs(
-                    ifg_directory=dst_date_path
-                ).keys()
+            corruption_result = tum_esm_utils.em27.detect_corrupt_opus_files(
+                ifg_directory=dst_date_path
             )
         except subprocess.CalledProcessError:
             raise AssertionError(
                 "corrupt-files-detection has failed during execution"
             )
 
-        logger.debug(
-            f"Excluding {len(corrupt_filenames)} corrupt file(s) from retrieval"
-            + (
-                f" ({', '.join(corrupt_filenames)})" if len(corrupt_filenames) >
-                0 else ""
+        if len(corruption_result) == 0:
+            logger.info("No corrupt files found")
+        else:
+            logger.debug(
+                f"Excluding {len(corruption_result)} corrupt file(s) from retrieval: "
+                + json.dumps(corruption_result, indent=4)
             )
-        )
-        for f in corrupt_filenames:
-            os.remove(os.path.join(dst_date_path, f))
+            for f in corruption_result.keys():
+                os.remove(os.path.join(dst_date_path, f))
     else:
         logger.info("Not using ifg corruption filter")
