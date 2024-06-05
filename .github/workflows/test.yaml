@@ -29,6 +29,7 @@ jobs:
             src/retrieval/algorithms/proffast-1.0/main/prf
             src/retrieval/algorithms/proffast-2.2/main/prf
             src/retrieval/algorithms/proffast-2.3/main/prf
+            src/retrieval/algorithms/proffast-2.4/main/prf
           key: v1.0.0-ci-cache
 
       # run test suite
