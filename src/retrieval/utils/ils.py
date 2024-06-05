@@ -34,7 +34,7 @@ def get_ils_params(serial_number: int, date: datetime.date) -> ILSParams:
             "CHANNEL2_PE",
             "VALID_SINCE",
         ],
-        dtypes={
+        schema_overrides={
             "SERIAL_NUMBER": pl.Utf8,
             "CHANNEL1_ME": pl.Float64,
             "CHANNEL1_PE": pl.Float64,

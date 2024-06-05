@@ -46,7 +46,7 @@ def read_and_merge_invparms_files(paths: list[str]) -> Optional[pl.DataFrame]:
                         "XCH4_S5P",
                         "XCO",
                     ],
-                    dtypes={
+                    schema_overrides={
                         "JulianDate": pl.Float64,
                         "HHMMSS_ID": str,  # type: ignore
                         "SX": str,  # type: ignore

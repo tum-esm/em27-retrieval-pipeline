@@ -114,7 +114,7 @@ def get_sensor_dataframe(
             "utc",
             *[column_names[t] for t in all_data_types],
         ],
-        dtypes={
+        schema_overrides={
             "utc": pl.Datetime,
             **{column_names[t]: pl.Float32
                for t in all_data_types},

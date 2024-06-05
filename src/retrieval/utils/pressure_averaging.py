@@ -48,7 +48,7 @@ def compute_mean_pressure_around_noon(
 ) -> float:
     df = pl.read_csv(
         filepath,
-        dtypes={
+        schema_overrides={
             "UTCtime___": pl.Utf8,
             "BaroYoung": pl.Float64,
         },
