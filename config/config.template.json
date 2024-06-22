@@ -75,18 +75,7 @@
       "campaign_id": "muccnet",
       "retrieval_algorithm": "proffast-2.3",
       "atmospheric_profile_model": "GGG2020",
-      "data_types": [
-        "gnd_p",
-        "gnd_t",
-        "app_sza",
-        "azimuth",
-        "xh2o",
-        "xair",
-        "xco2",
-        "xch4",
-        "xco",
-        "xch4_s5p"
-      ],
+      "data_types": ["gnd_p", "gnd_t", "app_sza", "azimuth", "xh2o", "xair", "xco2", "xch4", "xco", "xch4_s5p"],
       "sampling_rate": "1m",
       "max_interpolation_gap_seconds": 180,
       "dst_dir": "path-to-merged-output"
