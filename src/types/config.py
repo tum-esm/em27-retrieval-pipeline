@@ -243,13 +243,17 @@ class ProfilesConfig(pydantic.BaseModel):
     """Settings for vertical profiles retrieval. If `null`, the vertical profiles script will stop and log a warning"""
 
     server: ProfilesServerConfig
-    scope: ProfilesScopeConfig
+    scope: Optional[ProfilesScopeConfig] = pydantic.Field(
+        None,
+        description=
+        "Scope of the vertical profiles to request from the ccycle ftp server. If set to `null`, the script will not request any vertical profiles besides the configured standard sites.",
+    )
     GGG2020_standard_sites: list[
         ProfilesGGG2020StandardSitesItemConfig
     ] = pydantic.Field(
         ...,
         description=
-        "List of standard sites to request from the ccycle ftp server. The requests for these standard sites are done before any other requests so that data available for these is not rerequested for other sensors.",
+        "List of standard sites to request from the ccycle ftp server. The requests for these standard sites are done before any other requests so that data available for these is not rerequested for other sensors. See https://tccon-wiki.caltech.edu/Main/ObtainingGinputData#Requesting_to_be_added_as_a_standard_site for more information.",
     )
 
 

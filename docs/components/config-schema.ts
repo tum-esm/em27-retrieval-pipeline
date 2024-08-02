@@ -122,42 +122,51 @@ const CONFIG_SCHEMA: any = {
                             "type": "object"
                         },
                         "scope": {
-                            "properties": {
-                                "from_date": {
-                                    "default": "1900-01-01",
-                                    "description": "date in format `YYYY-MM-DD` from which to request vertical profile data.",
-                                    "format": "date",
-                                    "title": "From Date",
-                                    "type": "string"
-                                },
-                                "to_date": {
-                                    "default": "2100-01-01",
-                                    "description": "date in format `YYYY-MM-DD` until which to request vertical profile data.",
-                                    "format": "date",
-                                    "title": "To Date",
-                                    "type": "string"
-                                },
-                                "models": {
-                                    "description": "list of data types to request from the ccycle ftp server.",
-                                    "items": {
-                                        "enum": [
-                                            "GGG2014",
-                                            "GGG2020"
-                                        ],
-                                        "type": "string"
+                            "anyOf": [
+                                {
+                                    "properties": {
+                                        "from_date": {
+                                            "default": "1900-01-01",
+                                            "description": "date in format `YYYY-MM-DD` from which to request vertical profile data.",
+                                            "format": "date",
+                                            "title": "From Date",
+                                            "type": "string"
+                                        },
+                                        "to_date": {
+                                            "default": "2100-01-01",
+                                            "description": "date in format `YYYY-MM-DD` until which to request vertical profile data.",
+                                            "format": "date",
+                                            "title": "To Date",
+                                            "type": "string"
+                                        },
+                                        "models": {
+                                            "description": "list of data types to request from the ccycle ftp server.",
+                                            "items": {
+                                                "enum": [
+                                                    "GGG2014",
+                                                    "GGG2020"
+                                                ],
+                                                "type": "string"
+                                            },
+                                            "title": "Models",
+                                            "type": "array"
+                                        }
                                     },
-                                    "title": "Models",
-                                    "type": "array"
+                                    "required": [
+                                        "models"
+                                    ],
+                                    "title": "ProfilesScopeConfig",
+                                    "type": "object"
+                                },
+                                {
+                                    "type": "null"
                                 }
-                            },
-                            "required": [
-                                "models"
                             ],
-                            "title": "ProfilesScopeConfig",
-                            "type": "object"
+                            "default": null,
+                            "description": "Scope of the vertical profiles to request from the ccycle ftp server. If set to `null`, the script will not request any vertical profiles besides the configured standard sites."
                         },
                         "GGG2020_standard_sites": {
-                            "description": "List of standard sites to request from the ccycle ftp server. The requests for these standard sites are done before any other requests so that data available for these is not rerequested for other sensors.",
+                            "description": "List of standard sites to request from the ccycle ftp server. The requests for these standard sites are done before any other requests so that data available for these is not rerequested for other sensors. See https://tccon-wiki.caltech.edu/Main/ObtainingGinputData#Requesting_to_be_added_as_a_standard_site for more information.",
                             "items": {
                                 "properties": {
                                     "identifier": {
@@ -206,7 +215,6 @@ const CONFIG_SCHEMA: any = {
                     },
                     "required": [
                         "server",
-                        "scope",
                         "GGG2020_standard_sites"
                     ],
                     "title": "ProfilesConfig",
