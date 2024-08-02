@@ -11,8 +11,21 @@ def run() -> None:
     assert config.profiles is not None, "No profiles config found"
 
     try:
+        if len(config.profiles.GGG2020_standard_sites) > 0:
+            print("Downloading standard site data")
+            with ftplib.FTP(
+                host="ccycle.gps.caltech.edu",
+                passwd=config.profiles.server.email,
+                user="anonymous",
+                timeout=60,
+            ) as ftp:
+                print("Connected to FTP server")
+                profiles.std_site_logic.download_data(config, ftp)
+        else:
+            print("No standard site data to download")
+        
         for version in config.profiles.scope.models:
-            print(f"Downloading {version} data")
+            print(f"Downloading on-demand {version} data")
 
             with ftplib.FTP(
                 host="ccycle.gps.caltech.edu",
@@ -21,9 +34,6 @@ def run() -> None:
                 timeout=60,
             ) as ftp:
                 print("Connected to FTP server")
-
-                profiles.std_site_logic.download_data(config, ftp)
-
                 cache = profiles.cache.DownloadQueryCache.load()
                 running_queries = cache.get_active_queries(version)
                 print(f"Found {len(running_queries)} already requested queries")
