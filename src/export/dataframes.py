@@ -209,7 +209,7 @@ def post_process_dataframe(
     # apply savgol_filter on the data columns
     df = df.select(
         pl.col("utc"),
-        pl.exclude("utc").map(
+        pl.exclude("utc").map_batches(
             lambda x: scipy.signal.savgol_filter(x.to_numpy(), 31, 3).tolist()
         ).list.explode(),
     )
@@ -231,7 +231,7 @@ def post_process_dataframe(
                 pl.exclude(["small_gap"]).interpolate()
             ).otherwise(pl.exclude(["small_gap"]))
         ).select(pl.exclude("small_gap")
-                ).sort("utc").groupby_dynamic("utc", every=sampling_rate).agg(
+                ).sort("utc").group_by_dynamic("utc", every=sampling_rate).agg(
                     pl.exclude("utc").mean()
                 )
     )
@@ -243,7 +243,7 @@ def merge_dataframes(dfs: list[pl.DataFrame], ) -> pl.DataFrame:
     """Merges the dataframes into a single dataframe by
     joining them on the "utc" column."""
 
-    merged_df = pl.concat(dfs, how="diagonal").groupby("utc").mean()
+    merged_df = pl.concat(dfs, how="diagonal").group_by("utc").mean()
     data_column_names = merged_df.columns
     data_column_names.remove("utc")
     df_without_null_rows = merged_df.filter(
