@@ -31,6 +31,7 @@ def list_downloaded_data(
 ) -> dict[ProfilesQueryLocation, set[datetime.date]]:
 
     assert config.profiles is not None
+    assert config.profiles.scope is not None
     downloaded_data: dict[ProfilesQueryLocation, set[datetime.date]] = {}
 
     r = re.compile(r"^\d{8,10}_\d{2}(N|S)\d{3}(E|W)\.(map|mod|vmr)$")
@@ -91,6 +92,7 @@ def list_requested_data(
 ) -> dict[ProfilesQueryLocation, set[datetime.date]]:
 
     assert config.profiles is not None
+    assert config.profiles.scope is not None
     requested_data: dict[ProfilesQueryLocation, set[datetime.date]] = {}
 
     for sensor in em27_metadata_interface.sensors.root:

@@ -21,6 +21,7 @@ def test_list_downloaded_data(
     }
     config = provide_config_template.model_copy(deep=True)
     assert config.profiles is not None
+    assert config.profiles.scope is not None
     config.profiles.scope.from_date = min(random_dates)
     config.profiles.scope.to_date = max(random_dates)
     for _ in range(5):

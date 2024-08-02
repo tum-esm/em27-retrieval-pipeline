@@ -24,6 +24,10 @@ def run() -> None:
         else:
             print("No standard site data to download")
         
+        if config.profiles.scope is None:
+            print("No scope defined, skipping on-demand data download")
+            return
+        
         for version in config.profiles.scope.models:
             print(f"Downloading on-demand {version} data")
 
