@@ -9,7 +9,6 @@ import src
 def test_profiles_connection() -> None:
     config = src.types.Config.load()
     if config.profiles is None:
-        warnings.warn(pytest.PytestWarning("Profiles configured"))
         return
     with ftplib.FTP(
         host="ccycle.gps.caltech.edu",
