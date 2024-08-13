@@ -1,0 +1,62 @@
+# This is the example pressure file for the MIRA Datalogger file
+
+# the filename used to search for the pressure file looks like:
+# filename = basename + "%Y-%m-%d" + "*.dat"
+filename_parameters:
+  basename: "datalogger-%PRESSURE_DATA_SOURCE%-"
+  time_format: "%Y%m%d"
+  ending: ".csv"
+
+# the pressure file itself has the structure:
+# """
+# UTCdate_____ UTCtime___ UTCsec____ BaroYoung
+# "27.11.2019" "00:00:16" 1574812816 +9.4088e+02
+# """
+dataframe_parameters:
+  pressure_key: "BaroYoung"
+  time_key: "UTCtime___"
+  time_fmt: "%H:%M:%S"
+  date_key: "UTCdate_____"
+  date_fmt: "%d.%m.%Y"
+  datetime_key: ""
+  datetime_fmt: ""
+  csv_kwargs:
+    sep: ","
+
+# Check the pressure data for the following parameters:
+#  - Check if pressure is between min_pressure and max_pressure.
+#    Else use default-value
+#  - default_value can be either "skip", to skip the line or a number to use
+#    instead
+data_parameters:
+  max_pressure: "1500"
+  min_pressure: "500"
+  default_value: "skip"
+
+# If the pressure needs to be interpolated for a timestep larger than X hours,
+# the spectrum is skipped. Give value in decimal hours
+# (i.e. 30 min are equal to 0.5). The default value is 2 hours.
+max_interpolation_time:
+
+# UTC Offset of data:
+# Have to be given even if data is processed in localtime!
+utc_offset: 0.0
+
+# pressure factor:
+# The pressure column will be multiplied by this factor.
+# Can be used e.g. for unit conversion or to correct for hight differences.
+# The pressure column is assumed to be in hPa.
+pressure_factor: %PRESSURE_CALIBRATION_FACTOR%
+
+# pressure offset:
+# The pressure offset is added to the read in pressure values.
+# This can be used to correct for a constant offset.
+pressure_offset: 0.0
+
+# Frequency of pressure files. Options are
+# - subdaily: Several files per day
+# - daily: One single file per day
+# - weekly: One single file per Week
+# - monthly: One single file per month
+# - yearly: One single file per year
+frequency: "daily"
