@@ -40,12 +40,13 @@ class ContainerFactory:
         self.logger.info("Removing all old containers")
         self.remove_all_containers(include_unknown=True)
         self.logger.info("All old containers have been removed")
-        
+
         for algorithm, initializer in [
             ("proffast-1.0", ContainerFactory.init_proffast10_code),
             ("proffast-2.2", ContainerFactory.init_proffast22_code),
             ("proffast-2.3", ContainerFactory.init_proffast23_code),
             ("proffast-2.4", ContainerFactory.init_proffast24_code),
+            ("proffast-2.4.1", ContainerFactory.init_proffast24_code),
         ]:
             if algorithm in retrieval_algorithms or test_mode:
                 self.logger.info(f"Initializing {algorithm} ContainerFactory")
@@ -88,6 +89,10 @@ class ContainerFactory:
                 )
             case "proffast-2.4":
                 container = types.Proffast24Container(
+                    container_id=new_container_id
+                )
+            case "proffast-2.4.1":
+                container = types.Proffast241Container(
                     container_id=new_container_id
                 )
 
@@ -304,3 +309,15 @@ class ContainerFactory:
             working_directory=ROOT_DIR,
         )
         os.remove(os.path.join(ROOT_DIR, ZIPFILE_NAME))
+
+    @staticmethod
+    def init_proffast241_code(_print: Callable[[str], None]) -> None:
+        ROOT_DIR = os.path.join(_RETRIEVAL_CODE_DIR, "proffast-2.4.1", "main")
+
+        if os.path.exists(os.path.join(ROOT_DIR, "prf")):
+            _print(f"Proffast 2.41 has already been downloaded")
+            return
+
+        raise NotImplementedError(
+            "Proffast 2.4.1 is not yet available to the public"
+        )

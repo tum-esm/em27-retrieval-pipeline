@@ -130,7 +130,7 @@ def run(
         )
     else:
         if session.retrieval_algorithm in [
-            "proffast-2.2", "proffast-2.3", "proffast-2.4"
+            "proffast-2.2", "proffast-2.3", "proffast-2.4", "proffast-2.4.1"
         ]:
             os.makedirs(os.path.join(output_dst, "analysis", "cal"))
             shutil.copyfile(

@@ -1,0 +1,7 @@
+Optional input file for processing TCCON double sided 0.5 cm-1 interferograms
+with the preprocess code
+
+kind: 1 OPUS file containing one interferogram covering extended InGaAs spectral range (standard TCCON setup)
+kind: 2 OPUS file containing two interferograms (CO band in separate filter band, KA setup)
+$
+%tccon_setting%

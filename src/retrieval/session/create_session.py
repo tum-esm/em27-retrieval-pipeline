@@ -99,7 +99,7 @@ def run(
             ctn=container_factory.create_container(retrieval_algorithm),
         )
     elif retrieval_algorithm in [
-        "proffast-2.2", "proffast-2.3", "proffast-2.4"
+        "proffast-2.2", "proffast-2.3", "proffast-2.4", "proffast-2.4.1"
     ]:
         new_session = types.Proffast2RetrievalSession(
             retrieval_algorithm=retrieval_algorithm,

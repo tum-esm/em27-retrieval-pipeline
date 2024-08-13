@@ -1,0 +1,66 @@
+Input file for COCCON PROCEEDS prf96-EM27-fast\preprocessor                        
+
+Generate ASCII output for testing
+mpowFFT (17 for EM27/SUN and IR Cube: 1.8 cm MPD, 181/182: 2.5 cm /3.0 cm MPD, 19 for VERTEX / INVENIO: 4.5 cm MPD, 20 for 125HR: 16.2 cm MPD)
+DCmin
+DCvar
+$
+.false.
+%mpow_fft%
+%DC_MIN_THRESHOLD%
+%DC_VAR_THRESHOLD%
+
+
+
+ILS parameter: apo + phase error
+primary channel
+secondary channel
+semiFOV [rad]
+$
+%ILS_Channel1%
+%ILS_Channel2%
+%semi_fov%
+
+
+
+T/F: fixed or variable observer coordinates
+specify site name
+specify time offset of OPUS time versus UT (hours+decimals)
+if fixed observer coordinates: specify fixed observer coords (lat_deg,long_deg (East pos),alt_km)
+
+$
+T
+%site_name%
+%utc_offset%
+%lat%  %lon%  %alt%
+
+
+
+Quiet execution (no user requests)
+Output path diagnosis
+Output path bin spectra
+Dual IFG recording (T/F)
+Swap channels (applies for dual IFG recording: 1st channel SN, second channel SM - otherwise choose swap = true)
+use analytical phase (T/F)
+band selection (0: only generate SN from first channel, 1: generate SN from first and SM from second channel, 2: generate SN + SM from first chann)
+$
+T
+%path_preprocess_log%
+%path_spectra%
+%dual_ifg_recording%
+%swap_channels%
+%use_analytical_phase%
+%band_selection%
+
+
+
+input for comments added to file header (up to 150 characters)
+$
+%comment%
+
+
+
+list of raw measurements (path and filename, end marker ***)
+$
+%igrams%
+***
