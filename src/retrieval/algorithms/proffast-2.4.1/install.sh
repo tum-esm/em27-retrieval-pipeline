@@ -33,7 +33,7 @@ done
 # Compile the source code
 echo "compiling preprocess ..."
 cd "$INSTALL_FOLDER/source/preprocess/"
-gfortran -nocpp -O3 -o ../../preprocess/preprocess61 glob_prepro61.F90 glob_OPUSparms61.F90 preprocess61.F90
+gfortran -nocpp -O3 -o ../../preprocess/preprocess6 glob_prepro6.F90 glob_OPUSparms6.F90 preprocess6.F90
 
 echo 'compiling pcxs ...'
 cd "$INSTALL_FOLDER/source/pcxs"
