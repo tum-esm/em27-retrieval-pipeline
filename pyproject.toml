@@ -25,8 +25,9 @@ dependencies = [
     "timezonefinder>=6.5.0", # used by Proffast Pylot only
     "pyyaml>=6.0.1",         # used by Proffast Pylot only
     "fortranformat>=2.0.0",  # used by Proffast Pylot only
+    "tomli>=2.0.1",
 ]
-requires-python = "==3.11.*"
+requires-python = ">=3.10,<=3.12"
 readme = "README.md"
 license = { text = "GPL-3.0" }
 
