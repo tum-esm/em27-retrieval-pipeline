@@ -1,3 +1,4 @@
+import os
 import sys
 import tum_esm_utils
 import ftplib
@@ -9,6 +10,12 @@ from src import types, profiles
 def run() -> None:
     config = types.Config.load()
     assert config.profiles is not None, "No profiles config found"
+
+    for variant in ["GGG2014", "GGG2020"]:
+        os.makedirs(
+            os.path.join(config.general.data.atmospheric_profiles, variant),
+            exist_ok=True
+        )
 
     try:
         if len(config.profiles.GGG2020_standard_sites) > 0:
@@ -23,11 +30,11 @@ def run() -> None:
                 profiles.std_site_logic.download_data(config, ftp)
         else:
             print("No standard site data to download")
-        
+
         if config.profiles.scope is None:
             print("No scope defined, skipping on-demand data download")
             return
-        
+
         for version in config.profiles.scope.models:
             print(f"Downloading on-demand {version} data")
 
