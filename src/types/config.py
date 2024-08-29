@@ -306,7 +306,7 @@ class ExportTargetConfig(pydantic.BaseModel):
 class Config(pydantic.BaseModel):
     """A pydantic model describing the config file schema."""
 
-    version: Literal["1.2"] = pydantic.Field(
+    version: Literal["1.3"] = pydantic.Field(
         ...,
         description=
         "Version of the retrieval pipeline which is compatible with this config file. Retrievals done with any version `1.x` will produce the same output files as retrievals done with version `1.0`. But higher version numbers might use a different config file structure and produce more output files."

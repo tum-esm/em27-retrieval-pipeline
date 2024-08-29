@@ -13,7 +13,9 @@ def run() -> None:
 
     for variant in ["GGG2014", "GGG2020"]:
         os.makedirs(
-            os.path.join(config.general.data.atmospheric_profiles, variant),
+            os.path.join(
+                config.general.data.atmospheric_profiles.root, variant
+            ),
             exist_ok=True
         )
 

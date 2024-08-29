@@ -3,10 +3,10 @@ const CONFIG_SCHEMA: any = {
     "description": "A pydantic model describing the config file schema.",
     "properties": {
         "version": {
-            "const": "1.2",
+            "const": "1.3",
             "description": "Version of the retrieval pipeline which is compatible with this config file. Retrievals done with any version `1.x` will produce the same output files as retrievals done with version `1.0`. But higher version numbers might use a different config file structure and produce more output files.",
             "enum": [
-                "1.2"
+                "1.3"
             ],
             "title": "Version",
             "type": "string"
