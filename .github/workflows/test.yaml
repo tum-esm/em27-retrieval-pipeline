@@ -10,13 +10,19 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python_version: ["3.10", "3.11", "3.12"]
+    defaults:
+      run:
+        shell: bash
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
-      - name: Set up Python 3.11
+      - name: Set up Python ${{ matrix.python_version }}
         uses: actions/setup-python@v5
         with:
-          python-version: "3.11"
+          python-version: ${{ matrix.python_version }}
           cache: "pip"
       - name: Install dependencies
         run: pip install ".[dev]"
@@ -32,7 +38,14 @@ jobs:
             src/retrieval/algorithms/proffast-2.4/main/prf
           key: v1.0.0-ci-cache
 
-      # run test suite
-      - name: Run pytests
+      # Run quick tests for all python versions except 3.10
+      - name: Run quick tests
+         if: matrix.python-version != '3.10'
+        run: |
+          pytest -m "quick" --capture=no --verbose --exitfirst --cov=src tests/
+
+      # Run all tests for python 3.10
+      - name: Run quick and ci tests
+        if: matrix.python-version == '3.10'
         run: |
           pytest -m "quick or ci" --capture=no --verbose --exitfirst --cov=src tests/
