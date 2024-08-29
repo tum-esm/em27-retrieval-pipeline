@@ -5,7 +5,7 @@ import tum_esm_utils
 try:
     import tomllib # type: ignore
 except ImportError:
-    import tomli as tomllib
+    import tomli as tomllib # type: ignore
 
 
 def sdc_covers_the_full_day(

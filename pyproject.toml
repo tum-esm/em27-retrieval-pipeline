@@ -65,6 +65,7 @@ markers = [
 [tool.mypy]
 strict = true
 implicit_reexport = true
+warn_unused_ignores = false
 plugins = ["pydantic.mypy"]
 
 [tool.yapf]
