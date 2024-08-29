@@ -92,13 +92,13 @@ def _check_retrieval_output(
         output_folder_slug += max(
             sdc.from_datetime,
             datetime.datetime.combine(
-                date, datetime.time.min, tzinfo=datetime.UTC
+                date, datetime.time.min, tzinfo=datetime.timezone.utc
             ),
         ).strftime("_%H%M%S")
         output_folder_slug += min(
             sdc.to_datetime,
             datetime.datetime.combine(
-                date, datetime.time.max, tzinfo=datetime.UTC
+                date, datetime.time.max, tzinfo=datetime.timezone.utc
             ),
         ).strftime("_%H%M%S")
 
@@ -168,14 +168,14 @@ def export_data_report(
                     from_datetimes.append(
                         max(
                             datetime.datetime.combine(
-                                date, datetime.time.min, tzinfo=datetime.UTC
+                                date, datetime.time.min, tzinfo=datetime.timezone.utc
                             ), sdc.from_datetime
                         )
                     )
                     to_datetimes.append(
                         min(
                             datetime.datetime.combine(
-                                date, datetime.time.max, tzinfo=datetime.UTC
+                                date, datetime.time.max, tzinfo=datetime.timezone.utc
                             ), sdc.to_datetime
                         )
                     )

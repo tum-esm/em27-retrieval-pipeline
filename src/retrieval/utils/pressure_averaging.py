@@ -15,7 +15,7 @@ def compute_solar_noon_time(
     date: datetime.date,
 ) -> datetime.datetime:
     start_time = datetime.datetime.combine(
-        date, datetime.time.min, tzinfo=datetime.UTC
+        date, datetime.time.min, tzinfo=datetime.timezone.utc
     )
     end_time = start_time + datetime.timedelta(days=1)
     timescale = skyfield.api.load.timescale()
@@ -36,7 +36,7 @@ def compute_solar_noon_time(
     )
 
     # Select transits instead of antitransits.
-    t = times[events == 1][0].astimezone(datetime.UTC)
+    t = times[events == 1][0].astimezone(datetime.timezone.utc)
     assert isinstance(t, datetime.datetime)
     return t
 

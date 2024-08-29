@@ -1,7 +1,11 @@
 import datetime
-import tomllib
 import em27_metadata
 import tum_esm_utils
+
+try:
+    import tomllib # type: ignore
+except ImportError:
+    import tomli as tomllib
 
 
 def sdc_covers_the_full_day(

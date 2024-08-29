@@ -15,7 +15,7 @@ _LOGS_DIR = os.path.join(_PROJECT_DIR, "data", "logs", "retrieval")
 # interfere is not worth it
 
 # the logfile name will have the time when the script has been started
-logfile_time = datetime.datetime.now(datetime.UTC).strftime("%Y%m%d-%H-%M")
+logfile_time = datetime.datetime.now(datetime.timezone.utc).strftime("%Y%m%d-%H-%M")
 
 
 class Logger:
@@ -36,7 +36,7 @@ class Logger:
         m: str,
         level: Literal["DEBUG", "INFO", "WARNING", "ERROR", "EXCEPTION"],
     ) -> None:
-        t = datetime.datetime.now(datetime.UTC).strftime("%Y%m%d %H:%M:%S")
+        t = datetime.datetime.now(datetime.timezone.utc).strftime("%Y%m%d %H:%M:%S")
         log_line = f"{t} - {level} - {m}\n"
         if self.write_to_file:
             with open(self.logfile_path, "a") as f:

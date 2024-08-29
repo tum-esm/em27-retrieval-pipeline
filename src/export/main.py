@@ -45,7 +45,7 @@ def run() -> None:
         dates: list[datetime.date] = tum_esm_utils.timing.date_range(
             from_date=campaign.from_datetime.date(),
             to_date=min((
-                datetime.datetime.now(tz=datetime.UTC) -
+                datetime.datetime.now(tz=datetime.timezone.utc) -
                 datetime.timedelta(days=1)
             ).date(), campaign.to_datetime.date())
         )

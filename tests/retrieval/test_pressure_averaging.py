@@ -35,7 +35,7 @@ def test_pressure_averaging(download_sample_data: None) -> None:
     ]:
         # the date is irrelevant, only the time is used
         pressure = src.retrieval.utils.pressure_averaging.compute_mean_pressure_around_noon(
-            datetime.datetime(2022, 6, 1, 13, 0, 0, tzinfo=datetime.UTC),
+            datetime.datetime(2022, 6, 1, 13, 0, 0, tzinfo=datetime.timezone.utc),
             filepath
         )
         assert isinstance(pressure, float)

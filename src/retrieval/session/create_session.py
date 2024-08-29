@@ -122,6 +122,6 @@ def run(
         from_datetime=sensor_data_context.from_datetime,
         output_suffix=job_settings.output_suffix,
         container_id=new_session.ctn.container_id,
-        process_start_time=datetime.datetime.now(datetime.UTC),
+        process_start_time=datetime.datetime.now(datetime.timezone.utc),
     )
     return new_session

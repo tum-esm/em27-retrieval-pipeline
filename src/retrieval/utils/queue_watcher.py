@@ -83,8 +83,8 @@ def _render() -> Any:
         # process is running
         if p.process_end_time is None:
             dt = datetime.datetime.now(
-                tz=datetime.UTC
-            ) - p.process_start_time.replace(tzinfo=datetime.UTC)
+                tz=datetime.timezone.utc
+            ) - p.process_start_time.replace(tzinfo=datetime.timezone.utc)
             table.add_row(
                 p.container_id,
                 "-" if p.output_suffix is None else p.output_suffix,
@@ -117,14 +117,14 @@ def _render() -> Any:
         is not None) and (last_end_time
                           is not None) and (done_process_count > 0):
         avg_time_per_job = (
-            last_end_time.replace(tzinfo=datetime.UTC) -
-            first_start_time.replace(tzinfo=datetime.UTC)
+            last_end_time.replace(tzinfo=datetime.timezone.utc) -
+            first_start_time.replace(tzinfo=datetime.timezone.utc)
         ) / done_process_count
         estimated_end_time = (
             avg_time_per_job * len(processes)
         ) + first_start_time
         estimated_remaining_time = estimated_end_time - datetime.datetime.now(
-            datetime.UTC
+            datetime.timezone.utc
         )
         grid.add_row(
             rich.align.Align.center(

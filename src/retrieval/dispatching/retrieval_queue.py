@@ -74,7 +74,7 @@ def generate_retrieval_queue(
         sensor_data_contexts: list[em27_metadata.types.SensorDataContext] = []
         for date in dates_with_unlocked_interferograms:
             from_datetime = datetime.datetime(
-                date.year, date.month, date.day, 0, 0, 0, tzinfo=datetime.UTC
+                date.year, date.month, date.day, 0, 0, 0, tzinfo=datetime.timezone.utc
             )
             to_datetime = datetime.datetime(
                 date.year,
@@ -83,7 +83,7 @@ def generate_retrieval_queue(
                 23,
                 59,
                 59,
-                tzinfo=datetime.UTC
+                tzinfo=datetime.timezone.utc
             )
             sensor_data_contexts.extend(
                 em27_metadata_interface.get(

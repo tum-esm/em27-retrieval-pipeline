@@ -154,7 +154,7 @@ def run(
     # STORE AUTOMATION INFO
 
     with open(os.path.join(output_dst, "about.json"), "w") as f:
-        now = datetime.datetime.now(datetime.UTC)
+        now = datetime.datetime.now(datetime.timezone.utc)
         dumped_config = config.model_copy(deep=True)
         if dumped_config.general.metadata is not None:
             if dumped_config.general.metadata.access_token is not None:

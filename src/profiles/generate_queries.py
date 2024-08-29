@@ -121,7 +121,7 @@ def list_requested_data(
                 config.profiles.scope.to_date,
                 sensor_setup.to_datetime.date(),
                 (
-                    datetime.datetime.now(datetime.UTC) -
+                    datetime.datetime.now(datetime.timezone.utc) -
                     datetime.timedelta(hours=36)
                 ).date(),
             )
