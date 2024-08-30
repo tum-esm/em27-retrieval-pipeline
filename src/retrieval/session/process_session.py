@@ -36,7 +36,7 @@ def run(
             session.ctx.sensor_id,
             session.ctx.from_datetime,
             session.job_settings.output_suffix,
-            process_end_time=datetime.datetime.utcnow(),
+            process_end_time=datetime.datetime.now(tz=datetime.timezone.utc),
         )
         logger.archive()
 

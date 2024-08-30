@@ -11,7 +11,8 @@ def execute_preprocess(
 ) -> None:
     prf_dir = os.path.join(session.ctn.container_path, "prf")
     logs_dir = os.path.join(prf_dir, "out_fast", "logfiles")
-    start_timestamp = datetime.datetime.utcnow().timestamp()
+    start_timestamp = datetime.datetime.now(tz=datetime.timezone.utc
+                                           ).timestamp()
 
     # running preprocess
     tum_esm_utils.shell.run_shell_command(
@@ -19,7 +20,7 @@ def execute_preprocess(
         working_directory=os.path.join(prf_dir, "preprocess"),
     )
 
-    end_timestamp = datetime.datetime.utcnow().timestamp()
+    end_timestamp = datetime.datetime.now(tz=datetime.timezone.utc).timestamp()
     time_taken = round(end_timestamp - start_timestamp, 6)
     log(f"finished preprocess (took {time_taken} seconds)")
 
@@ -30,7 +31,8 @@ def execute_pcxs(
 ) -> None:
     prf_dir = os.path.join(session.ctn.container_path, "prf")
     logs_dir = os.path.join(prf_dir, "out_fast", "logfiles")
-    start_timestamp = datetime.datetime.utcnow().timestamp()
+    start_timestamp = datetime.datetime.now(tz=datetime.timezone.utc
+                                           ).timestamp()
 
     # running pcxs10
     tum_esm_utils.shell.run_shell_command(
@@ -55,7 +57,7 @@ def execute_pcxs(
             f"{prf_dir}/out_fast/{session.ctx.sensor_id}{date_string}-colsens.dat",
         )
 
-    end_timestamp = datetime.datetime.utcnow().timestamp()
+    end_timestamp = datetime.datetime.now(tz=datetime.timezone.utc).timestamp()
     time_taken = round(end_timestamp - start_timestamp, 6)
     log(f"finished pcxs10 (took {time_taken} seconds)")
 
@@ -66,7 +68,8 @@ def execute_invers(
 ) -> None:
     prf_dir = os.path.join(session.ctn.container_path, "prf")
     logs_dir = os.path.join(prf_dir, "out_fast", "logfiles")
-    start_timestamp = datetime.datetime.utcnow().timestamp()
+    start_timestamp = datetime.datetime.now(tz=datetime.timezone.utc
+                                           ).timestamp()
 
     # running invers10
     tum_esm_utils.shell.run_shell_command(
@@ -84,6 +87,6 @@ def execute_invers(
                 f"{prf_dir}/out_fast/{f.replace(date_string[:6], date_string)}",
             )
 
-    end_timestamp = datetime.datetime.utcnow().timestamp()
+    end_timestamp = datetime.datetime.now(tz=datetime.timezone.utc).timestamp()
     time_taken = round(end_timestamp - start_timestamp, 6)
     log(f"finished invers10 (took {time_taken} seconds)")

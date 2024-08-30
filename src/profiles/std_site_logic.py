@@ -16,7 +16,10 @@ def list_requested_data(
     from_date = std_site_config.from_date
     to_date = min(
         std_site_config.to_date,
-        (datetime.datetime.utcnow() - datetime.timedelta(hours=36)).date(),
+        (
+            datetime.datetime.now(tz=datetime.timezone.utc) -
+            datetime.timedelta(hours=25)
+        ).date(),
     )
     if from_date > to_date:
         return set()
