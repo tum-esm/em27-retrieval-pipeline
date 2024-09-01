@@ -42,12 +42,22 @@ def _check_config_validity() -> None:
     help=
     "Start the retrieval as a background process. Prevents spawning multiple processes. The logs and the current processing queue from this process can be found at `logs/retrieval`.",
 )
-def start() -> None:
+@click.option(
+    "--watch",
+    is_flag=True,
+    default=False,
+    help="Start the watcher after starting the process."
+)
+def start(watch: bool) -> None:
     _check_config_validity()
     pid = tum_esm_utils.processes.start_background_process(
         sys.executable, _RETRIEVAL_ENTRYPOINT
     )
     click.echo(f"Started automated retrieval background process with PID {pid}")
+
+    if watch:
+        import src
+        src.retrieval.utils.queue_watcher.start_retrieval_watcher()
 
 
 @retrieval_command_group.command(
@@ -97,17 +107,25 @@ def stop() -> None:
             f"background processe(s) with PID(s) {pids}"
         )
 
+
 @retrieval_command_group.command(
     name="download-algorithms",
-    help=
-    "Downloads all retrieval algorithms into the local container factories",
+    help="Downloads all retrieval algorithms into the local container factories",
 )
 def download_algorithms() -> None:
     import src
-    src.retrieval.dispatching.container_factory.ContainerFactory.init_proffast10_code(click.echo)
-    src.retrieval.dispatching.container_factory.ContainerFactory.init_proffast22_code(click.echo)
-    src.retrieval.dispatching.container_factory.ContainerFactory.init_proffast23_code(click.echo)
-    src.retrieval.dispatching.container_factory.ContainerFactory.init_proffast24_code(click.echo)
+    src.retrieval.dispatching.container_factory.ContainerFactory.init_proffast10_code(
+        click.echo
+    )
+    src.retrieval.dispatching.container_factory.ContainerFactory.init_proffast22_code(
+        click.echo
+    )
+    src.retrieval.dispatching.container_factory.ContainerFactory.init_proffast23_code(
+        click.echo
+    )
+    src.retrieval.dispatching.container_factory.ContainerFactory.init_proffast24_code(
+        click.echo
+    )
 
 
 @profiles_command_group.command(
