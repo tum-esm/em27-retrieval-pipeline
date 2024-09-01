@@ -10,12 +10,14 @@ def run(
     config: types.Config,
     logger: retrieval.utils.logger.Logger,
     session: types.RetrievalSession,
-) -> None:
+) -> int:
     """Move interferogram files from the source directory to the input directory.
 
     Accepted file name pattern: `regex(^$(SENSORID)$(DATE).*\\.\\d+$)`
 
-    Examples: `ma20201123.ifg.0001`, `ma20220316s0e00a.0001`"""
+    Examples: `ma20201123.ifg.0001`, `ma20220316s0e00a.0001`
+    
+    Returns the number of interferograms that passed the parser."""
 
     assert config.retrieval is not None
 
@@ -90,5 +92,12 @@ def run(
             )
             for f in corruption_result.keys():
                 os.remove(os.path.join(dst_date_path, f))
+
+        if len(ifg_filenames) == len(corruption_result):
+            raise AssertionError(
+                "All interferograms are corrupt, no interferograms left for retrieval"
+            )
+        return len(ifg_filenames) - len(corruption_result)
     else:
         logger.info("Not using ifg corruption filter")
+        return len(ifg_filenames)

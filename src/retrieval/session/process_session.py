@@ -57,26 +57,31 @@ def run(
         move_log_files.run(config, logger, session)
 
         logger.debug("Moving interferograms")
-        move_ifg_files.run(config, logger, session)
+        valid_ifg_count = move_ifg_files.run(config, logger, session)
     except Exception as e:
         logger.warning(f"Inputs incomplete: {e}")
         _last_will()
         return
 
-    logger.info(f"Updating retrieval templates")
-    try:
-        update_templates.run(logger, session)
-    except Exception as e:
-        logger.exception(e, label="Failed to update templates")
-        _last_will()
-        return
+    if valid_ifg_count > 0:
+        logger.info(f"Updating retrieval templates")
+        try:
+            update_templates.run(logger, session)
+        except Exception as e:
+            logger.exception(e, label="Failed to update templates")
+            _last_will()
+            return
 
-    logger.info(f"Running proffast")
-    try:
-        run_retrieval.run(session, test_mode=test_mode)
-        logger.debug("Pylot execution was successful")
-    except Exception as e:
-        logger.exception(e, label="Proffast execution failed")
+        logger.info(f"Running proffast")
+        try:
+            run_retrieval.run(session, test_mode=test_mode)
+            logger.debug("Pylot execution was successful")
+        except Exception as e:
+            logger.exception(e, label="Proffast execution failed")
+    else:
+        logger.info(
+            f"Skipping proffast execution because there are no valid interferograms"
+        )
 
     # uncomment the following return if you want to observe the final
     # proffast outputs of one day in this working directory
