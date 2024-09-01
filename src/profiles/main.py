@@ -61,6 +61,18 @@ def run() -> None:
                     )
                     cache.remove_queries(profile_model, fulfilled_queries)
 
+                    timed_out_queries = cache.get_timed_out_queries(
+                        profile_model
+                    )
+                    if len(timed_out_queries) > 0:
+                        print(
+                            "The following queries have been issued more than 7 days ago but have not been"
+                            + "fulfilled yet. They will be re-requested:"
+                        )
+                        for query in timed_out_queries:
+                            print(f"  * {query}")
+                        cache.remove_queries(profile_model, timed_out_queries)
+
                     cache.dump()
                     print("Updated cache")
 
