@@ -41,10 +41,7 @@ def run(
             f"Retrieval session type {type(session)} not implemented"
         )
 
-    assert os.path.isdir(output_src_dir), "retrieval output directory missing"
-
     # DETERMINE WHETHER RETRIEVAL HAS BEEN SUCCESSFUL OR NOT
-
     day_was_successful = os.path.isfile(output_csv_path)
     if day_was_successful:
         with open(output_csv_path, "r") as f:
@@ -58,7 +55,6 @@ def run(
         logger.debug(f"Retrieval output csv is missing")
 
     # DETERMINE OUTPUT DIRECTORY PATHS
-
     output_slug = session.ctx.from_datetime.strftime("%Y%m%d")
     if not utils.functions.sdc_covers_the_full_day(session.ctx):
         output_slug += session.ctx.from_datetime.strftime("_%H%M%S")
@@ -89,54 +85,56 @@ def run(
     # MOVE NEW OUTPUTS
 
     os.makedirs(os.path.dirname(output_dst), exist_ok=True)
-    shutil.copytree(output_src_dir, output_dst)
 
-    # STORE PT OUTPUT DIRECTORY
+    if os.path.isdir(output_src_dir):
+        shutil.copytree(output_src_dir, output_dst)
 
-    analysis_dir: str
-    if session.retrieval_algorithm == "proffast-1.0":
-        analysis_dir = os.path.join(
-            session.ctn.data_output_path,
-            "analysis",
-            session.ctx.sensor_id,
-            session.ctx.from_datetime.strftime("%y%m%d"),
-        )
-    else:
-        analysis_dir = os.path.join(
-            session.ctn.data_output_path,
-            "analysis",
-            f"{session.ctx.sensor_id}_SN{session.ctx.serial_number:03d}",
-            session.ctx.from_datetime.strftime("%y%m%d"),
-        )
+        # STORE PT OUTPUT DIRECTORY
 
-    os.makedirs(os.path.join(output_dst, "analysis"), exist_ok=True)
-    if session.retrieval_algorithm == "proffast-1.0":
-        shutil.copytree(
-            os.path.join(analysis_dir, "pT"),
-            os.path.join(output_dst, "analysis", "pT"),
-        )
-    else:
-        shutil.copytree(
-            os.path.join(session.ctn.container_path, "prf", "wrk_fast"),
-            os.path.join(output_dst, "analysis", "pT"),
-        )
-
-    # (OPTIONAL) STORE BINARY SPECTRA
-
-    if session.job_settings.store_binary_spectra:
-        shutil.copytree(
-            os.path.join(analysis_dir, "cal"),
-            os.path.join(output_dst, "analysis", "cal"),
-        )
-    else:
-        if session.retrieval_algorithm in [
-            "proffast-2.2", "proffast-2.3", "proffast-2.4", "proffast-2.4.1"
-        ]:
-            os.makedirs(os.path.join(output_dst, "analysis", "cal"))
-            shutil.copyfile(
-                os.path.join(analysis_dir, "cal", "logfile.dat"),
-                os.path.join(output_dst, "analysis", "cal", "logfile.dat"),
+        analysis_dir: str
+        if session.retrieval_algorithm == "proffast-1.0":
+            analysis_dir = os.path.join(
+                session.ctn.data_output_path,
+                "analysis",
+                session.ctx.sensor_id,
+                session.ctx.from_datetime.strftime("%y%m%d"),
             )
+        else:
+            analysis_dir = os.path.join(
+                session.ctn.data_output_path,
+                "analysis",
+                f"{session.ctx.sensor_id}_SN{session.ctx.serial_number:03d}",
+                session.ctx.from_datetime.strftime("%y%m%d"),
+            )
+
+        os.makedirs(os.path.join(output_dst, "analysis"), exist_ok=True)
+        if session.retrieval_algorithm == "proffast-1.0":
+            shutil.copytree(
+                os.path.join(analysis_dir, "pT"),
+                os.path.join(output_dst, "analysis", "pT"),
+            )
+        else:
+            shutil.copytree(
+                os.path.join(session.ctn.container_path, "prf", "wrk_fast"),
+                os.path.join(output_dst, "analysis", "pT"),
+            )
+
+        # (OPTIONAL) STORE BINARY SPECTRA
+
+        if session.job_settings.store_binary_spectra:
+            shutil.copytree(
+                os.path.join(analysis_dir, "cal"),
+                os.path.join(output_dst, "analysis", "cal"),
+            )
+        else:
+            if session.retrieval_algorithm in [
+                "proffast-2.2", "proffast-2.3", "proffast-2.4", "proffast-2.4.1"
+            ]:
+                os.makedirs(os.path.join(output_dst, "analysis", "cal"))
+                shutil.copyfile(
+                    os.path.join(analysis_dir, "cal", "logfile.dat"),
+                    os.path.join(output_dst, "analysis", "cal", "logfile.dat"),
+                )
 
     # STORE AUTOMATION LOGS
 
