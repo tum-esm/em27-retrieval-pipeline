@@ -95,7 +95,7 @@ def test_list_requested_data(provide_config_template: src.types.Config) -> None:
     config.profiles.scope.from_date = datetime.date(2000, 1, 1)
     config.profiles.scope.to_date = datetime.date(2000, 5, 8)
 
-    actual_data = src.profiles.generate_queries.list_requested_data(
+    actual_data = src.profiles.generate_queries.list_desired_data(
         config, metadata
     )
     assert actual_data.keys() == expected_data.keys()

@@ -86,7 +86,7 @@ def list_downloaded_data(
     return downloaded_data
 
 
-def list_requested_data(
+def list_desired_data(
     config: types.Config,
     em27_metadata_interface: em27_metadata.interfaces.EM27MetadataInterface
 ) -> dict[ProfilesQueryLocation, set[datetime.date]]:
@@ -136,17 +136,17 @@ def list_requested_data(
 
 
 def compute_missing_data(
-    requested_data: dict[ProfilesQueryLocation, set[datetime.date]],
+    desired_data: dict[ProfilesQueryLocation, set[datetime.date]],
     downloaded_data: dict[ProfilesQueryLocation, set[datetime.date]],
 ) -> dict[ProfilesQueryLocation, set[datetime.date]]:
 
     missing_data: dict[ProfilesQueryLocation, set[datetime.date]] = {}
 
-    for l in requested_data.keys():
+    for l in desired_data.keys():
         if l not in downloaded_data.keys():
-            missing_data[l] = requested_data[l]
+            missing_data[l] = desired_data[l]
         else:
-            missing_data[l] = set(requested_data[l]).difference(
+            missing_data[l] = set(desired_data[l]).difference(
                 downloaded_data[l]
             )
 
@@ -248,17 +248,15 @@ def generate_download_queries(
             )
             print("Successfully fetched metadata from GitHub")
 
-    downloaded_data = list_downloaded_data(
-        config=config,
-        atmospheric_profile_model=atmospheric_profile_model,
-    )
-    requested_data = list_requested_data(
-        config=config,
-        em27_metadata_interface=em27_metadata_interface,
-    )
     missing_data = compute_missing_data(
-        requested_data=requested_data,
-        downloaded_data=downloaded_data,
+        desired_data=list_desired_data(
+            config=config,
+            em27_metadata_interface=em27_metadata_interface,
+        ),
+        downloaded_data=list_downloaded_data(
+            config=config,
+            atmospheric_profile_model=atmospheric_profile_model,
+        ),
     )
     data_to_request = missing_data
     if atmospheric_profile_model == "GGG2020":
