@@ -10,6 +10,7 @@ import tum_esm_utils
 
 sys.path.append(tum_esm_utils.files.rel_to_abs_path("../.."))
 from src import types, utils
+from src.utils.envutils import get_config_path, config_dir_key
 from .load_results import load_results_directory
 
 
@@ -19,7 +20,8 @@ def run(
 ) -> None:
     if config is None:
         print("Loading configuration")
-        config = types.Config.load()
+        config_path = get_config_path(config_dir_key())
+        config = types.Config.load(config_path)
 
     assert config.bundles is not None, "no bundle targets found"
     assert len(config.bundles) > 0, "no bundle targets found"

@@ -1,10 +1,12 @@
-from typing import Optional
 import os
+from typing import Optional
+
 import em27_metadata
-import tum_esm_utils
 
-CONFIG_DIR = tum_esm_utils.files.rel_to_abs_path("../../config")
+from src.utils.envutils import get_config_dir, config_dir_key
 
+
+CONFIG_DIR = get_config_dir(config_dir_key())
 
 def load_local_em27_metadata_interface() -> Optional[em27_metadata.EM27MetadataInterface]:
     assert os.path.isdir(CONFIG_DIR)

@@ -1,14 +1,17 @@
+import ftplib
 import os
 import sys
+
 import tum_esm_utils
-import ftplib
 
 sys.path.append(tum_esm_utils.files.rel_to_abs_path("../.."))
 from src import types, profiles
+from src.utils.envutils import get_config_path, config_dir_key
 
 
 def run() -> None:
-    config = types.Config.load()
+    config_path = get_config_path(config_dir_key())
+    config = types.Config.load(config_path)
     assert config.profiles is not None, "No profiles config found"
 
     for variant in ["GGG2014", "GGG2020"]:

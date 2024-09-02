@@ -1,10 +1,12 @@
 from typing import Generator
 import os
 import pytest
-import tum_esm_utils
-import src
 
-CONFIG_DIR = tum_esm_utils.files.rel_to_abs_path("../../config")
+import src
+from src.utils.envutils import get_config_dir, config_dir_key
+
+
+CONFIG_DIR = get_config_dir(config_dir_key())
 LOCATIONS_PATH = os.path.join(CONFIG_DIR, "locations.json")
 SENSORS_PATH = os.path.join(CONFIG_DIR, "sensors.json")
 CAMPAIGNS_PATH = os.path.join(CONFIG_DIR, "campaigns.json")

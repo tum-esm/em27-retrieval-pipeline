@@ -1,10 +1,11 @@
 import ftplib
 import io
 import sys
-import pydantic
-import tum_esm_utils
+
 import click
+import pydantic
 import em27_metadata
+import tum_esm_utils
 
 _RETRIEVAL_ENTRYPOINT = tum_esm_utils.files.rel_to_abs_path("src", "retrieval", "main.py")
 
@@ -16,8 +17,10 @@ bundle_command_group = click.Group(name="bundle")
 
 def _check_config_validity() -> None:
     import src
+    from src.utils.envutils import get_config_path, config_dir_key
     try:
-        src.types.Config.load()
+        config_path = get_config_path(config_dir_key())
+        src.types.Config.load(config_path)
         click.echo(click.style("Config is valid", fg="green", bold=True))
     except pydantic.ValidationError as e:
         click.echo(
@@ -123,7 +126,9 @@ def request_ginput_status() -> None:
     _check_config_validity()
 
     import src  # import here so that the CLI is more reactive
-    config = src.types.Config.load()
+    from src.utils.envutils import get_config_path, config_dir_key
+    config_path = get_config_path(config_dir_key())
+    config = src.types.Config.load(config_path)
     assert config.profiles is not None, "No profiles config found"
     with ftplib.FTP(
         host="ccycle.gps.caltech.edu",
@@ -151,12 +156,14 @@ def run_bundle() -> None:
 def print_data_report() -> None:
     _check_config_validity()
 
-    import src  # import here so that the CLI is more reactive
     import rich.console
+    import src  # import here so that the CLI is more reactive
+    from src.utils.envutils import get_config_path, config_dir_key
 
     console = rich.console.Console()
     console.print("Loading config")
-    config = src.types.Config.load()
+    config_path = get_config_path(config_dir_key())
+    config = src.types.Config.load(config_path)
 
     # load metadata interface
     console.print("Loading metadata")
