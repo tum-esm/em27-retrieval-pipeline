@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import Literal, Optional
+from typing import Literal, Optional, Union
 import datetime
 import tum_esm_utils
 import pydantic
@@ -322,14 +322,16 @@ class Config(pydantic.BaseModel):
 
     @staticmethod
     def load(
-        path: str = tum_esm_utils.files.
-        rel_to_abs_path("../../config/config.json"),
+        path: Union[str, None] = None,
         ignore_path_existence: bool = False,
     ) -> Config:
         """Load the config file from `config/config.json` (or any given path).
 
         If `check_path_existence` is set, it will check whether the paths
         specified in the config file exist."""
+
+        if path is None:
+            path = tum_esm_utils.files.rel_to_abs_path("../../config/config.json")
 
         with open(path, 'r') as f:
             return Config.model_validate_json(

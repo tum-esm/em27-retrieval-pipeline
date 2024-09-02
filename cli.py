@@ -5,6 +5,7 @@ import pydantic
 import tum_esm_utils
 import click
 import em27_metadata
+from typing import Union
 
 _RETRIEVAL_ENTRYPOINT = tum_esm_utils.files.rel_to_abs_path(
     "src", "retrieval", "main.py"
@@ -16,10 +17,10 @@ profiles_command_group = click.Group(name="profiles")
 export_command_group = click.Group(name="export")
 
 
-def _check_config_validity() -> None:
+def _check_config_validity(config_path: Union[str, None] = None) -> None:
     import src
     try:
-        src.types.Config.load()
+        src.types.Config.load(config_path)
         click.echo(click.style("Config is valid", fg="green", bold=True))
     except pydantic.ValidationError as e:
         click.echo(

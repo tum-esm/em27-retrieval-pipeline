@@ -2,13 +2,14 @@ import os
 import sys
 import tum_esm_utils
 import ftplib
+from typing import Union
 
 sys.path.append(tum_esm_utils.files.rel_to_abs_path("../.."))
 from src import types, profiles
 
 
-def run() -> None:
-    config = types.Config.load()
+def run(config_path: Union[str, None] = None) -> None:
+    config = types.Config.load(config_path)
     assert config.profiles is not None, "No profiles config found"
 
     for variant in ["GGG2014", "GGG2020"]:
