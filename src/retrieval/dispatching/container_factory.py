@@ -310,6 +310,18 @@ class ContainerFactory:
         )
         os.remove(os.path.join(ROOT_DIR, ZIPFILE_NAME))
 
+        # copy adapted Preprocess 6 source code
+        ORIGINAL_SOURCE_FILE = os.path.join(
+            _RETRIEVAL_CODE_DIR, "proffast-2.4", "main", "prf", "source",
+            "preprocess", "preprocess6.f90"
+        )
+        ADAPTED_SOURCE_FILE = os.path.join(
+            _RETRIEVAL_CODE_DIR, "proffast-2.4", "source", "preprocess",
+            "preprocess6.f90"
+        )
+        os.remove(ORIGINAL_SOURCE_FILE)
+        shutil.copyfile(ADAPTED_SOURCE_FILE, ORIGINAL_SOURCE_FILE)
+
     @staticmethod
     def init_proffast241_code(_print: Callable[[str], None]) -> None:
         ROOT_DIR = os.path.join(_RETRIEVAL_CODE_DIR, "proffast-2.4.1", "main")
