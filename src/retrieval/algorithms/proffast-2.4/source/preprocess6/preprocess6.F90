@@ -113,6 +113,7 @@ allocate (errflag(nmeas),errflag_CO(nmeas))
 allocate (measfile(nmeas),nptrfirstdir(nmeas),nofblock(nmeas),nifg(nmeas))
 allocate (icbfwd(nmeas),icbbwd(nmeas),icbfwd2(nmeas),icbbwd2(nmeas))
 allocate (cbfwd(nmeas),cbbwd(nmeas),cbfwd2(nmeas),cbbwd2(nmeas))
+
 allocate (obslatdeg(maxmeas),obslondeg(maxmeas),obsaltkm(maxmeas))
 allocate (blocktype(maxblock,nmeas),blocklength(maxblock,nmeas),blockptr(maxblock,nmeas))
 allocate (YYMMDDlocal(nmeas),HHMMSSlocal(nmeas),YYMMDDUT(nmeas))
@@ -120,6 +121,11 @@ allocate (JDdate(nmeas),UTh(nmeas),durationsec(nmeas),astrelev(nmeas),azimuth(nm
 nsinc = nzf * nconv
 allocate (sinc(-nsinc:nsinc))
 allocate (refspec(maxspc),refspec2(maxspc),refphas(maxspc),reftrm(maxspc))
+
+! added by Moritz Makowski to perform the DC min / DC var filtering in retrospective
+allocate (dcmeanfwd(nmeas),dcmeanbwd(nmeas),dcmeanfwd2(nmeas),dcmeanbwd2(nmeas))
+allocate (dcminfwd(nmeas),dcminbwd(nmeas),dcminfwd2(nmeas),dcminbwd2(nmeas))
+allocate (dcmaxfwd(nmeas),dcmaxbwd(nmeas),dcmaxfwd2(nmeas),dcmaxbwd2(nmeas))
 
 call prepare_sinc(sinc)
 
@@ -258,8 +264,10 @@ do imeas = 1,nmeas
     print *,'DC correction ...',imeas
     
     ! perform DC correction
-    call DCtoACifg(DCmin,DCvar,min(maxifg,nifg(imeas)),errflag(imeas),icbfwd(imeas),cbfwd(imeas),ifgfwd)
-    call DCtoACifg(DCmin,DCvar,min(maxifg,nifg(imeas)),errflag(imeas),icbbwd(imeas),cbbwd(imeas),ifgbwd)
+    call DCtoACifg(DCmin,DCvar,min(maxifg,nifg(imeas)),errflag(imeas),icbfwd(imeas),cbfwd(imeas),ifgfwd, & 
+      ,dcmeanfwd(imeas),dcmindfwd(imeas),dcmaxfwd(imeas))
+    call DCtoACifg(DCmin,DCvar,min(maxifg,nifg(imeas)),errflag(imeas),icbbwd(imeas),cbbwd(imeas),ifgbwd &
+      ,dcmeanbwd(imeas),dcminbwd(imeas),dcmaxbwd(imeas))
     if (errflag(imeas) .eq. 0) then
         if ((cbfwd(imeas) - cbbwd(imeas)) / (cbfwd(imeas) + cbbwd(imeas)) .gt. 0.1) &
           errflag(imeas) = errflag(imeas) + 1000
@@ -268,8 +276,10 @@ do imeas = 1,nmeas
         if (abs(icbfwd(imeas) - icbbwd(imeas)) .gt. 10) errflag(imeas) = errflag(imeas) + 3000
     end if
     if (errflag(imeas) .eq. 0 .and. bandselect .eq. 1) then
-        call DCtoACifg(DCmin,DCvar,min(maxifg,nifg(imeas)),errflag_CO(imeas),icbfwd2(imeas),cbfwd2(imeas),ifgfwd2)
-        call DCtoACifg(DCmin,DCvar,min(maxifg,nifg(imeas)),errflag_CO(imeas),icbbwd2(imeas),cbbwd2(imeas),ifgbwd2)
+        call DCtoACifg(DCmin,DCvar,min(maxifg,nifg(imeas)),errflag_CO(imeas),icbfwd2(imeas),cbfwd2(imeas),ifgfwd2 & 
+          ,dcmeanfwd2(imeas),dcmindfwd2(imeas),dcmaxfwd2(imeas))
+        call DCtoACifg(DCmin,DCvar,min(maxifg,nifg(imeas)),errflag_CO(imeas),icbbwd2(imeas),cbbwd2(imeas),ifgbwd2 &
+          ,dcmeanbwd2(imeas),dcminbwd2(imeas),dcmaxbwd2(imeas))
         if (errflag_CO(imeas) .eq. 0) then
             if ((cbfwd2(imeas) - cbbwd2(imeas)) / (cbfwd2(imeas) + cbbwd2(imeas)) .gt. 0.1) &
               errflag_CO(imeas) = errflag_CO(imeas) + 1000
@@ -467,9 +477,18 @@ do imeas = 1,nmeas
 
     iunit = next_free_unit()
     open (iunit,file = logdatei,status = 'old',position = 'append')
-    write (iunit,'(I7,2X,I12,2X,I12,2X,F9.5,2X,F9.4,2X,F9.4,2X,A6,2X,A6,2X,A6,2X,A)') imeas,errflag(imeas) &
+    write (iunit,'(I7,2X,I12,2X,I12,2X,F9.5,2X,F9.4,2X,F9.4,2X,A6,2X,A6,2X,A6,2X,A,&
+      &2X,F9.6,2X,F9.6,2X,F9.6,2X,F9.6,&
+      &2X,F9.6,2X,F9.6,2X,F9.6,2X,F9.6,&
+      &2X,F9.6,2X,F9.6,2X,F9.6,2X,F9.6,&
+      &2X,F9.6,2X,F9.6,2X,F9.6,2X,F9.6)'&
+    ) imeas,errflag(imeas) &
       ,errflag_CO(imeas),astrelev(imeas),azimuth(imeas),UTh(imeas),YYMMDDUT(imeas),YYMMDDlocal(imeas) &
-      ,HHMMSSlocal(imeas),trim(measfile(imeas))
+      ,HHMMSSlocal(imeas),trim(measfile(imeas)), &
+      dcmeanfwd(imeas),dcminfwd(imeas),dcmaxfwd(imeas),((dcmaxfwd(imeas)/dcminfwd(imeas))-1.0), & 
+      dcmeanbwd(imeas),dcminbwd(imeas),dcmaxbwd(imeas),((dcmaxbwd(imeas)/dcminbwd(imeas))-1.0), &
+      dcmeanfwd2(imeas),dcminfwd2(imeas),dcmaxfwd2(imeas),((dcmaxfwd2(imeas)/dcminfwd2(imeas))-1.0), &
+      dcmeanbwd2(imeas),dcminbwd2(imeas),dcmaxbwd2(imeas),((dcmaxbwd2(imeas)/dcminbwd2(imeas))-1.0)
     close (iunit)
 
 end do
@@ -496,10 +515,16 @@ deallocate (JDdate,UTh,durationsec,astrelev,azimuth)
 deallocate (YYMMDDlocal,HHMMSSlocal,YYMMDDUT)
 deallocate (obslatdeg,obslondeg,obsaltkm)
 deallocate (cbfwd,cbbwd,cbfwd2,cbbwd2)
+
 deallocate (blocktype,blocklength,blockptr)
 deallocate (measfile,nptrfirstdir,nofblock,nifg)
 deallocate (icbfwd,icbbwd,icbfwd2,icbbwd2)
 deallocate (errflag,errflag_CO)
+
+! added by Moritz Makowski to perform the DC min / DC var filtering in retrospective
+deallocate (dcmeanfwd,dcmeanbwd,dcmeanfwd2,dcmeanbwd2)
+deallocate (dcminfwd,dcminbwd,dcminfwd2,dcminbwd2)
+deallocate (dcmaxfwd,dcmaxbwd,dcmaxfwd2,dcmaxbwd2)
 
 end program preprocess6
 
@@ -1118,7 +1143,7 @@ end subroutine checkoutofband
 !====================================================================
 !  DCtoACifg
 !====================================================================
-subroutine DCtoACifg(DCmin,DCvar,nifg,errflag,icb,cbamp,ifg)
+subroutine DCtoACifg(DCmin,DCvar,nifg,errflag,icb,cbamp,ifg,dcmean,dcmin,dcmax)
 
 use glob_prepro6,only : maxifg,nsmooth
 
@@ -1186,6 +1211,10 @@ minwert = minval(ifg(1:nifg))
 maxwert = maxval(ifg(1:nifg))
 
 cbamp = abs(maxwert - minwert)
+
+dcmean = mean
+dcmin = minwert
+dcmax = maxwert
 
 deallocate(wrkifg)
 
@@ -2947,7 +2976,7 @@ write (iunit) 'Comments',eol
 write (iunit) '$',eol
 write (iunit) trim(infotext),eol,eol
 
-! Sechster Block: binäres Spektrum: firstwvnr(real*8),dwvnr(real*8)
+! Sechster Block: binï¿½res Spektrum: firstwvnr(real*8),dwvnr(real*8)
 ! ,nofpts,ordinatenwerte(real*4)
 write (iunit) '$',eol
 write (iunit) firstnue_out
@@ -3043,7 +3072,7 @@ end subroutine tofile_ifg
 
 
 !====================================================================
-!  Warnung rausschreiben und Programm evtl. beenden
+!ï¿½ Warnung rausschreiben und Programm evtl. beenden
 !====================================================================
 subroutine warnout(text,predec)
 
