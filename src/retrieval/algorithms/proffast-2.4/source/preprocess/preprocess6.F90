@@ -1192,6 +1192,11 @@ end do
 mean = mean / real(nifg)
 var = maxwert / minwert - 1.0
 
+dcmean_record = mean
+dcmin_record = minwert
+dcmax_record = maxwert
+
+
 if (abs(mean) .lt. DCmin) then
     errflag = errflag + 10
     deallocate(wrkifg)
@@ -1217,11 +1222,6 @@ minwert = minval(ifg(1:nifg))
 maxwert = maxval(ifg(1:nifg))
 
 cbamp = abs(maxwert - minwert)
-
-dcmean_record = mean
-dcmin_record = minwert
-dcmax_record = maxwert
-
 deallocate(wrkifg)
 
 end subroutine DCtoACifg

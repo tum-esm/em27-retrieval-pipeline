@@ -252,7 +252,9 @@ def _generate_job_list() -> list[tuple[
     ]] = []
 
     # start proffast 1.0 first because it takes the longest
-    for alg in ["proffast-1.0", "proffast-2.2", "proffast-2.3", "proffast-2.4"]:
+    for alg in [
+        "proffast-2.4"
+    ]:  #"proffast-1.0", "proffast-2.2", "proffast-2.3", "proffast-2.4"]:
         for atm in ["GGG2014", "GGG2020"]:
             if alg == "proffast-1.0" and atm == "GGG2020":
                 continue
