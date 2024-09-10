@@ -37,6 +37,18 @@ class ContainerFactory:
             job.retrieval_algorithm for job in self.config.retrieval.jobs
         ]
 
+        if test_mode:
+            self.logger.info(
+                "Running in test mode (setting up all retrieval algorithms from scratch)"
+            )
+            for algorithm in [
+                "proffast-1.0", "proffast-2.2", "proffast-2.3", "proffast-2.4"
+            ]:
+                shutil.rmtree(
+                    os.path.join(_RETRIEVAL_CODE_DIR, algorithm, "main", "prf"),
+                    ignore_errors=True
+                )
+
         self.logger.info("Removing all old containers")
         self.remove_all_containers(include_unknown=True)
         self.logger.info("All old containers have been removed")
@@ -48,7 +60,7 @@ class ContainerFactory:
             ("proffast-2.4", ContainerFactory.init_proffast24_code),
             ("proffast-2.4.1", ContainerFactory.init_proffast24_code),
         ]:
-            if algorithm in retrieval_algorithms or test_mode:
+            if (algorithm in retrieval_algorithms) or test_mode:
                 self.logger.info(f"Initializing {algorithm} ContainerFactory")
                 initializer(self.logger.info)
             else:
