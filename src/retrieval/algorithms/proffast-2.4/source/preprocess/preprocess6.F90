@@ -54,6 +54,10 @@ real,dimension(:),allocatable :: refspec,refspec2,refphas,reftrm,sinc
 real,dimension(:),allocatable :: cbfwd,cbbwd,cbfwd2,cbbwd2
 real,dimension(:),allocatable :: obslatdeg,obslondeg,obsaltkm
 
+real,dimension(:),allocatable :: dcmeanfwd,dcmeanbwd,dcmeanfwd2,dcmeanbwd2
+real,dimension(:),allocatable :: dcminfwd,dcminbwd,dcminfwd2,dcminbwd2
+real,dimension(:),allocatable :: dcmaxfwd,dcmaxbwd,dcmaxfwd2,dcmaxbwd2
+
 ! arrays for processing loop
 real(8),dimension(:),allocatable :: anaphasfwd,anaphasbwd,anaphasfwd2,anaphasbwd2
 complex,dimension(:),allocatable :: phasfwd,phasbwd,phasfwd2,phasbwd2
@@ -264,8 +268,8 @@ do imeas = 1,nmeas
     print *,'DC correction ...',imeas
     
     ! perform DC correction
-    call DCtoACifg(DCmin,DCvar,min(maxifg,nifg(imeas)),errflag(imeas),icbfwd(imeas),cbfwd(imeas),ifgfwd, & 
-      ,dcmeanfwd(imeas),dcmindfwd(imeas),dcmaxfwd(imeas))
+    call DCtoACifg(DCmin,DCvar,min(maxifg,nifg(imeas)),errflag(imeas),icbfwd(imeas),cbfwd(imeas),ifgfwd & 
+      ,dcmeanfwd(imeas),dcminfwd(imeas),dcmaxfwd(imeas))
     call DCtoACifg(DCmin,DCvar,min(maxifg,nifg(imeas)),errflag(imeas),icbbwd(imeas),cbbwd(imeas),ifgbwd &
       ,dcmeanbwd(imeas),dcminbwd(imeas),dcmaxbwd(imeas))
     if (errflag(imeas) .eq. 0) then
@@ -277,7 +281,7 @@ do imeas = 1,nmeas
     end if
     if (errflag(imeas) .eq. 0 .and. bandselect .eq. 1) then
         call DCtoACifg(DCmin,DCvar,min(maxifg,nifg(imeas)),errflag_CO(imeas),icbfwd2(imeas),cbfwd2(imeas),ifgfwd2 & 
-          ,dcmeanfwd2(imeas),dcmindfwd2(imeas),dcmaxfwd2(imeas))
+          ,dcmeanfwd2(imeas),dcminfwd2(imeas),dcmaxfwd2(imeas))
         call DCtoACifg(DCmin,DCvar,min(maxifg,nifg(imeas)),errflag_CO(imeas),icbbwd2(imeas),cbbwd2(imeas),ifgbwd2 &
           ,dcmeanbwd2(imeas),dcminbwd2(imeas),dcmaxbwd2(imeas))
         if (errflag_CO(imeas) .eq. 0) then
@@ -1143,7 +1147,7 @@ end subroutine checkoutofband
 !====================================================================
 !  DCtoACifg
 !====================================================================
-subroutine DCtoACifg(DCmin,DCvar,nifg,errflag,icb,cbamp,ifg,dcmean,dcmin,dcmax)
+subroutine DCtoACifg(DCmin,DCvar,nifg,errflag,icb,cbamp,ifg,dcmean_record,dcmin_record,dcmax_record)
 
 use glob_prepro6,only : maxifg,nsmooth
 
@@ -1155,6 +1159,8 @@ integer(8),intent(inout) :: errflag
 integer,intent(out) :: icb
 real,intent(out) :: cbamp
 real,dimension(maxifg),intent(inout) :: ifg
+
+real,intent(out) :: dcmean_record,dcmin_record,dcmax_record
 
 integer :: i,ismooth
 real :: werta,wertb,abswert,minwert,maxwert,mean,var
@@ -1212,9 +1218,9 @@ maxwert = maxval(ifg(1:nifg))
 
 cbamp = abs(maxwert - minwert)
 
-dcmean = mean
-dcmin = minwert
-dcmax = maxwert
+dcmean_record = mean
+dcmin_record = minwert
+dcmax_record = maxwert
 
 deallocate(wrkifg)
 

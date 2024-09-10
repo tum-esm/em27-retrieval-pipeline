@@ -313,11 +313,11 @@ class ContainerFactory:
         # copy adapted Preprocess 6 source code
         ORIGINAL_SOURCE_FILE = os.path.join(
             _RETRIEVAL_CODE_DIR, "proffast-2.4", "main", "prf", "source",
-            "preprocess", "preprocess6.f90"
+            "preprocess", "preprocess6.F90"
         )
         ADAPTED_SOURCE_FILE = os.path.join(
             _RETRIEVAL_CODE_DIR, "proffast-2.4", "source", "preprocess",
-            "preprocess6.f90"
+            "preprocess6.F90"
         )
         os.remove(ORIGINAL_SOURCE_FILE)
         shutil.copyfile(ADAPTED_SOURCE_FILE, ORIGINAL_SOURCE_FILE)
