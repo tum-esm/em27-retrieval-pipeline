@@ -1,5 +1,6 @@
 import json
 import os
+import sys
 import tum_esm_utils
 from src import types
 
@@ -11,11 +12,10 @@ def run(session: types.RetrievalSession, test_mode: bool = False) -> None:
         _create_mock_outputs(session)
         return
 
-    # TODO: use sys.executable instead of hardcoded path
     if isinstance(session, types.Proffast1RetrievalSession):
         tum_esm_utils.shell.run_shell_command(
             " ".join([
-                os.path.join(_PROJECT_DIR, ".venv", "bin", "python"),
+                sys.executable,
                 os.path.join(session.ctn.container_path, "prfpylot", "main.py"),
                 '"' + json.dumps(session.model_dump()).replace('"', '\\"') + '"',
             ])
@@ -23,7 +23,7 @@ def run(session: types.RetrievalSession, test_mode: bool = False) -> None:
     elif isinstance(session, types.Proffast2RetrievalSession):
         tum_esm_utils.shell.run_shell_command(
             " ".join([
-                os.path.join(_PROJECT_DIR, ".venv", "bin", "python"),
+                sys.executable,
                 os.path.join(
                     _PROJECT_DIR, "src", "retrieval", "algorithms", session.retrieval_algorithm,
                     "run_pylot_container.py"
