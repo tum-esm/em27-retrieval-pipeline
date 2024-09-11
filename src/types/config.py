@@ -14,6 +14,8 @@ from .basic_types import (
 class MetadataConfig(pydantic.BaseModel):
     """GitHub repository where the location data is stored."""
 
+    model_config = pydantic.ConfigDict(extra="forbid")
+
     github_repository: str = pydantic.Field(
         ...,
         pattern=r"^[a-z0-9-_]+/[a-z0-9-_]+$",
@@ -36,6 +38,8 @@ class GroundPressureConfig(pydantic.BaseModel):
     * Two columns, one with the date and one with the time -> configure `date_column`, `date_column_format`, `time_column`, and `time_column_format`
     * One column with a unix timestamp -> configure `unix_timestamp_column` and `unix_timestamp_column_format`"""
 
+    model_config = pydantic.ConfigDict(extra="forbid")
+
     # where to find the files
     path: tum_esm_utils.validators.StrictDirectoryPath = pydantic.Field(
         ...,
@@ -56,7 +60,7 @@ class GroundPressureConfig(pydantic.BaseModel):
         ],
     )
     separator: str = pydantic.Field(
-        None,
+        ...,
         description=
         "Separator used in the ground pressure files. Only needed and used if the file format is `text`.",
         min_length=1,
@@ -147,9 +151,13 @@ class GroundPressureConfig(pydantic.BaseModel):
                     if getattr(self, other_col) is not None:
                         raise ValueError(f'You cannot set `{other_col}` if you set `{col}`')
 
+        return self
+
 
 class DataConfig(pydantic.BaseModel):
     """Location where the input data sourced from."""
+
+    model_config = pydantic.ConfigDict(extra="forbid")
 
     ground_pressure: GroundPressureConfig = pydantic.Field(
         ...,
@@ -170,6 +178,8 @@ class ProfilesServerConfig(pydantic.BaseModel):
     """Settings for accessing the ccycle ftp server. Besides the
     `email` field, these can be left as default in most cases."""
 
+    model_config = pydantic.ConfigDict(extra="forbid")
+
     email: str = pydantic.Field(
         ...,
         min_length=3,
@@ -185,6 +195,9 @@ class ProfilesServerConfig(pydantic.BaseModel):
 
 
 class ProfilesScopeConfig(pydantic.BaseModel):
+
+    model_config = pydantic.ConfigDict(extra="forbid")
+
     from_date: datetime.date = pydantic.Field(
         datetime.date(1900, 1, 1),
         description="Date in format `YYYY-MM-DD` from which to request vertical profile data.",
@@ -206,6 +219,9 @@ class ProfilesScopeConfig(pydantic.BaseModel):
 
 
 class ProfilesGGG2020StandardSitesItemConfig(pydantic.BaseModel):
+
+    model_config = pydantic.ConfigDict(extra="forbid")
+
     identifier: str = pydantic.Field(
         ...,
         description="The identifier on the caltech server",
@@ -237,6 +253,8 @@ class ProfilesGGG2020StandardSitesItemConfig(pydantic.BaseModel):
 
 
 class RetrievalGeneralConfig(pydantic.BaseModel):
+    model_config = pydantic.ConfigDict(extra="forbid")
+
     max_process_count: int = pydantic.Field(
         1,
         ge=1,
@@ -258,6 +276,8 @@ class RetrievalGeneralConfig(pydantic.BaseModel):
 
 
 class RetrievalJobSettingsILSConfig(pydantic.BaseModel):
+    model_config = pydantic.ConfigDict(extra="forbid")
+
     channel1_me: float = pydantic.Field(...)
     channel1_pe: float = pydantic.Field(...)
     channel2_me: float = pydantic.Field(...)
@@ -265,6 +285,8 @@ class RetrievalJobSettingsILSConfig(pydantic.BaseModel):
 
 
 class RetrievalJobSettingsConfig(pydantic.BaseModel):
+    model_config = pydantic.ConfigDict(extra="forbid")
+
     store_binary_spectra: bool = pydantic.Field(
         False,
         description=
@@ -308,6 +330,7 @@ class RetrievalJobSettingsConfig(pydantic.BaseModel):
 
 class RetrievalJobConfig(pydantic.BaseModel):
     """Settings for filtering the storage data. Only used if `config.data_sources.storage` is `true`."""
+    model_config = pydantic.ConfigDict(extra="forbid")
 
     retrieval_algorithm: RetrievalAlgorithm = pydantic.Field(
         ...,
@@ -345,6 +368,7 @@ class RetrievalJobConfig(pydantic.BaseModel):
 
 
 class GeneralConfig(pydantic.BaseModel):
+    model_config = pydantic.ConfigDict(extra="forbid")
     metadata: Optional[MetadataConfig] = pydantic.Field(
         None,
         description=
@@ -355,6 +379,8 @@ class GeneralConfig(pydantic.BaseModel):
 
 class ProfilesConfig(pydantic.BaseModel):
     """Settings for vertical profiles retrieval. If `null`, the vertical profiles script will stop and log a warning"""
+
+    model_config = pydantic.ConfigDict(extra="forbid")
 
     server: ProfilesServerConfig
     scope: Optional[ProfilesScopeConfig] = pydantic.Field(
@@ -372,6 +398,8 @@ class ProfilesConfig(pydantic.BaseModel):
 class RetrievalConfig(pydantic.BaseModel):
     """Settings for automated proffast processing. If `null`, the automated proffast script will stop and log a warning"""
 
+    model_config = pydantic.ConfigDict(extra="forbid")
+
     general: RetrievalGeneralConfig
     jobs: list[RetrievalJobConfig] = pydantic.Field(
         ...,
@@ -380,6 +408,8 @@ class RetrievalConfig(pydantic.BaseModel):
 
 
 class ExportTargetConfig(pydantic.BaseModel):
+    model_config = pydantic.ConfigDict(extra="forbid")
+
     campaign_id: str = pydantic.Field(
         ...,
         description="Campaign specified in location metadata.",
@@ -416,6 +446,8 @@ class ExportTargetConfig(pydantic.BaseModel):
 
 class Config(pydantic.BaseModel):
     """A pydantic model describing the config file schema."""
+
+    model_config = pydantic.ConfigDict(extra="forbid")
 
     version: Literal["1.4"] = pydantic.Field(
         ...,
