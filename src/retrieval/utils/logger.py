@@ -5,9 +5,7 @@ import shutil
 import traceback
 import tum_esm_utils
 
-_PROJECT_DIR = tum_esm_utils.files.get_parent_dir_path(
-    __file__, current_depth=4
-)
+_PROJECT_DIR = tum_esm_utils.files.get_parent_dir_path(__file__, current_depth=4)
 _LOGS_DIR = os.path.join(_PROJECT_DIR, "data", "logs", "retrieval")
 
 # I am not using the logging-library because the proffast-pylot
@@ -63,17 +61,13 @@ class Logger:
         ```
         """
         exception_name = traceback.format_exception_only(type(e), e)[0].strip()
-        exception_traceback = "\n".join(
-            traceback.format_exception(type(e), e, e.__traceback__)
-        ).strip()
+        exception_traceback = "\n".join(traceback.format_exception(type(e), e,
+                                                                   e.__traceback__)).strip()
         exception_details = "None"
-        if isinstance(e, tum_esm_utils.shell.CommandLineException
-                     ) and (e.details is not None):
+        if isinstance(e, tum_esm_utils.shell.CommandLineException) and (e.details is not None):
             exception_details = e.details.strip()
 
-        subject_string = (
-            exception_name if label is None else f"{label}, {exception_name}"
-        )
+        subject_string = (exception_name if label is None else f"{label}, {exception_name}")
         details_string = (
             f"--- details: -----------------\n" + f"{exception_details}\n" +
             f"--- traceback: ---------------\n" + f"{exception_traceback}\n" +

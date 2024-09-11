@@ -13,10 +13,7 @@ def run() -> None:
 
     for variant in ["GGG2014", "GGG2020"]:
         os.makedirs(
-            os.path.join(
-                config.general.data.atmospheric_profiles.root, variant
-            ),
-            exist_ok=True
+            os.path.join(config.general.data.atmospheric_profiles.root, variant), exist_ok=True
         )
 
     try:
@@ -56,14 +53,10 @@ def run() -> None:
                     fulfilled_queries = profiles.download_logic.download_data(
                         config, running_queries, ftp, profile_model
                     )
-                    print(
-                        f"Successfully downloaded {len(fulfilled_queries)} queries"
-                    )
+                    print(f"Successfully downloaded {len(fulfilled_queries)} queries")
                     cache.remove_queries(profile_model, fulfilled_queries)
 
-                    timed_out_queries = cache.get_timed_out_queries(
-                        profile_model
-                    )
+                    timed_out_queries = cache.get_timed_out_queries(profile_model)
                     if len(timed_out_queries) > 0:
                         print(
                             "The following queries have been issued more than 7 days ago but have not been"
@@ -76,9 +69,7 @@ def run() -> None:
                     cache.dump()
                     print("Updated cache")
 
-                    still_running_query_count = len(
-                        cache.get_timed_out_queries(profile_model)
-                    )
+                    still_running_query_count = len(cache.get_timed_out_queries(profile_model))
 
                 open_query_count = config.profiles.server.max_parallel_requests - still_running_query_count
 
@@ -104,26 +95,19 @@ def run() -> None:
 
                 # queries might not be in cache anymore but still
                 # downloadable from the server
-                print(
-                    f"Trying to download {len(outstanding_download_queries)} queries"
-                )
+                print(f"Trying to download {len(outstanding_download_queries)} queries")
                 fulfilled_queries = profiles.download_logic.download_data(
                     config, outstanding_download_queries, ftp, profile_model
                 )
                 outstanding_download_queries = sorted(
-                    set(outstanding_download_queries).difference(
-                        set(fulfilled_queries)
-                    ),
+                    set(outstanding_download_queries).difference(set(fulfilled_queries)),
                     key=lambda q: q.from_date,
                     reverse=True,
                 )
-                print(
-                    f"Successfully downloaded {len(fulfilled_queries)} queries"
-                )
+                print(f"Successfully downloaded {len(fulfilled_queries)} queries")
                 new_download_queries = sorted(
                     list(
-                        set(outstanding_download_queries) -
-                        set(fulfilled_queries) -
+                        set(outstanding_download_queries) - set(fulfilled_queries) -
                         set(cache.get_active_queries(profile_model))
                     ),
                     key=lambda q: q.from_date,
@@ -131,12 +115,9 @@ def run() -> None:
                 )
 
                 query_count = min(open_query_count, len(new_download_queries))
-                print(
-                    f"Requesting {query_count} out of {len(new_download_queries)} queries"
-                )
+                print(f"Requesting {query_count} out of {len(new_download_queries)} queries")
                 profiles.upload_logic.upload_requests(
-                    config, new_download_queries[: query_count], ftp,
-                    profile_model
+                    config, new_download_queries[: query_count], ftp, profile_model
                 )
                 print(
                     "Done. Run this script again (after waiting " +

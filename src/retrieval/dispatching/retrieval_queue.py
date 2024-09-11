@@ -22,27 +22,16 @@ def generate_retrieval_queue(
 
         dates_with_location: set[datetime.date] = set()
         for sensor_setup in sensor.setups:
-            if ((
-                sensor_setup.to_datetime.date() < retrieval_job_config.from_date
-            ) or (
-                sensor_setup.from_datetime.date() > retrieval_job_config.to_date
-            )):
+            if ((sensor_setup.to_datetime.date() < retrieval_job_config.from_date) or
+                (sensor_setup.from_datetime.date() > retrieval_job_config.to_date)):
                 continue
             dates_with_location.update(
                 tum_esm_utils.timing.date_range(
-                    max(
-                        sensor_setup.from_datetime.date(),
-                        retrieval_job_config.from_date
-                    ),
-                    min(
-                        sensor_setup.to_datetime.date(),
-                        retrieval_job_config.to_date
-                    )
+                    max(sensor_setup.from_datetime.date(), retrieval_job_config.from_date),
+                    min(sensor_setup.to_datetime.date(), retrieval_job_config.to_date)
                 )
             )
-        logger.info(
-            f"  Found {len(dates_with_location)} dates with location data"
-        )
+        logger.info(f"  Found {len(dates_with_location)} dates with location data")
 
         # Only keep dates with interferograms
 
@@ -50,20 +39,14 @@ def generate_retrieval_queue(
         dates_with_unlocked_interferograms: set[datetime.date] = set()
         for date in dates_with_location:
             ifg_path = os.path.join(
-                config.general.data.interferograms.root, sensor.sensor_id,
-                date.strftime("%Y%m%d")
+                config.general.data.interferograms.root, sensor.sensor_id, date.strftime("%Y%m%d")
             )
             if os.path.isdir(ifg_path):
                 dates_with_interferograms.add(date)
-                do_not_touch_indicator_file = os.path.join(
-                    ifg_path, ".do-not-touch"
-                )
+                do_not_touch_indicator_file = os.path.join(ifg_path, ".do-not-touch")
                 if not os.path.isfile(do_not_touch_indicator_file):
                     dates_with_unlocked_interferograms.add(date)
-        logger.info(
-            f"  {len(dates_with_interferograms)} of these " +
-            "dates have interferograms"
-        )
+        logger.info(f"  {len(dates_with_interferograms)} of these " + "dates have interferograms")
         logger.info(
             f"  {len(dates_with_unlocked_interferograms)} of these " +
             "dates have interferograms with no process lock"
@@ -77,31 +60,19 @@ def generate_retrieval_queue(
                 date.year, date.month, date.day, 0, 0, 0, tzinfo=datetime.timezone.utc
             )
             to_datetime = datetime.datetime(
-                date.year,
-                date.month,
-                date.day,
-                23,
-                59,
-                59,
-                tzinfo=datetime.timezone.utc
+                date.year, date.month, date.day, 23, 59, 59, tzinfo=datetime.timezone.utc
             )
             sensor_data_contexts.extend(
-                em27_metadata_interface.get(
-                    sensor.sensor_id, from_datetime, to_datetime
-                )
+                em27_metadata_interface.get(sensor.sensor_id, from_datetime, to_datetime)
             )
-        logger.info(
-            f"  Generated {len(sensor_data_contexts)} sensor data contexts for these dates"
-        )
+        logger.info(f"  Generated {len(sensor_data_contexts)} sensor data contexts for these dates")
 
         # Filter out the sensor data contexts which have already been processed
         # i.e. there is a results directory for them
 
-        unprocessed_sensor_data_contexts: list[
-            em27_metadata.types.SensorDataContext] = []
+        unprocessed_sensor_data_contexts: list[em27_metadata.types.SensorDataContext] = []
         results_dir = os.path.join(
-            config.general.data.results.root,
-            retrieval_job_config.retrieval_algorithm,
+            config.general.data.results.root, retrieval_job_config.retrieval_algorithm,
             retrieval_job_config.atmospheric_profile_model, sensor.sensor_id
         )
         for sdc in sensor_data_contexts:
@@ -113,10 +84,7 @@ def generate_retrieval_queue(
                 output_folder += f"_{retrieval_job_config.settings.output_suffix}"
             success_dir = os.path.join(results_dir, "successful", output_folder)
             failure_dir = os.path.join(results_dir, "failed", output_folder)
-            if (
-                not os.path.isdir(success_dir) and
-                not os.path.isdir(failure_dir)
-            ):
+            if (not os.path.isdir(success_dir) and not os.path.isdir(failure_dir)):
                 unprocessed_sensor_data_contexts.append(sdc)
         logger.info(
             f"  {len(unprocessed_sensor_data_contexts)} of these sensor data contexts "
@@ -137,9 +105,7 @@ def generate_retrieval_queue(
                 ),
             )
             if os.path.isfile(datalogger_file_path):
-                unprocessed_sensor_data_contexts_with_datalogger_files.append(
-                    sdc
-                )
+                unprocessed_sensor_data_contexts_with_datalogger_files.append(sdc)
         logger.info(
             f"  {len(unprocessed_sensor_data_contexts_with_datalogger_files)} of these "
             "sensor data contexts have datalogger files"
@@ -155,31 +121,24 @@ def generate_retrieval_queue(
                 retrieval_job_config.atmospheric_profile_model
             )
             cd = utils.text.get_coordinates_slug(
-                sdc.atmospheric_profile_location.lat,
-                sdc.atmospheric_profile_location.lon
+                sdc.atmospheric_profile_location.lat, sdc.atmospheric_profile_location.lon
             )
             date_slugs = sdc.from_datetime.strftime("%Y%m%d")
             datetime_slugs: list[str]
             if retrieval_job_config.atmospheric_profile_model == "GGG2014":
                 datetime_slugs = [date_slugs]
             else:
-                datetime_slugs = [
-                    f"{date_slugs}{d:02}" for d in [0, 3, 6, 9, 12, 15, 18, 21]
-                ]
+                datetime_slugs = [f"{date_slugs}{d:02}" for d in [0, 3, 6, 9, 12, 15, 18, 21]]
 
             # Using this logic instead of something like `all([... for ...])`
             # so that it stops looking on the first encountered missing file
             profiles_complete: bool = True
             for datetime_slug in datetime_slugs:
-                if not os.path.isfile(
-                    os.path.join(profiles_dir, f"{datetime_slug}_{cd}.map")
-                ):
+                if not os.path.isfile(os.path.join(profiles_dir, f"{datetime_slug}_{cd}.map")):
                     profiles_complete = False
                     break
             if profiles_complete:
-                unprocessed_sensor_data_contexts_with_atmospheric_profiles.append(
-                    sdc
-                )
+                unprocessed_sensor_data_contexts_with_atmospheric_profiles.append(sdc)
         logger.info(
             f"  {len(unprocessed_sensor_data_contexts_with_atmospheric_profiles)} of these "
             "sensor data contexts have atmospheric profiles"
@@ -187,9 +146,7 @@ def generate_retrieval_queue(
 
         # Append the files
 
-        retrieval_queue.extend(
-            unprocessed_sensor_data_contexts_with_atmospheric_profiles
-        )
+        retrieval_queue.extend(unprocessed_sensor_data_contexts_with_atmospheric_profiles)
 
     return sorted(
         sorted(

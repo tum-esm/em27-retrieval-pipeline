@@ -37,10 +37,7 @@ def list_downloaded_data(
     r = re.compile(r"^\d{8,10}_\d{2}(N|S)\d{3}(E|W)\.(map|mod|vmr)$")
     filenames: set[str] = set([
         f for f in os.listdir(
-            os.path.join(
-                config.general.data.atmospheric_profiles.root,
-                atmospheric_profile_model
-            )
+            os.path.join(config.general.data.atmospheric_profiles.root, atmospheric_profile_model)
         ) if r.match(f)
     ])
     dates: set[datetime.date] = set([
@@ -50,15 +47,12 @@ def list_downloaded_data(
                 month=int(f[4 : 6]),
                 day=int(f[6 : 8]),
             ) for f in filenames
-        ] if ((config.profiles.scope.from_date <= d) and
-              (d <= config.profiles.scope.to_date))
+        ] if ((config.profiles.scope.from_date <= d) and (d <= config.profiles.scope.to_date))
     ])
     locations: set[ProfilesQueryLocation] = set([
         ProfilesQueryLocation(
-            lat=int(f.split("_")[1][0 : 2]) *
-            (-1 if f.split("_")[1][2] == "S" else 1),
-            lon=int(f.split("_")[1][3 : 6]) *
-            (-1 if f.split("_")[1][6] == "W" else 1),
+            lat=int(f.split("_")[1][0 : 2]) * (-1 if f.split("_")[1][2] == "S" else 1),
+            lon=int(f.split("_")[1][3 : 6]) * (-1 if f.split("_")[1][6] == "W" else 1),
         ) for f in filenames
     ])
 
@@ -75,8 +69,7 @@ def list_downloaded_data(
         cs = utils.text.get_coordinates_slug(lat=l.lat, lon=l.lon)
         for d in dates:
             expected_filenames = set([
-                f"{d.strftime(p)}_{cs}.{e}" for e in required_extensions
-                for p in required_prefixes
+                f"{d.strftime(p)}_{cs}.{e}" for e in required_extensions for p in required_prefixes
             ])
             if expected_filenames.issubset(filenames):
                 if l not in downloaded_data.keys():
@@ -87,8 +80,7 @@ def list_downloaded_data(
 
 
 def list_desired_data(
-    config: types.Config,
-    em27_metadata_interface: em27_metadata.interfaces.EM27MetadataInterface
+    config: types.Config, em27_metadata_interface: em27_metadata.interfaces.EM27MetadataInterface
 ) -> dict[ProfilesQueryLocation, set[datetime.date]]:
 
     assert config.profiles is not None
@@ -107,9 +99,7 @@ def list_desired_data(
                 )
             )
 
-            l = ProfilesQueryLocation(
-                lat=round(location.lat), lon=round(location.lon)
-            )
+            l = ProfilesQueryLocation(lat=round(location.lat), lon=round(location.lon))
             if l not in requested_data.keys():
                 requested_data[l] = set()
 
@@ -120,16 +110,12 @@ def list_desired_data(
             to_date = min(
                 config.profiles.scope.to_date,
                 sensor_setup.to_datetime.date(),
-                (
-                    datetime.datetime.now(datetime.timezone.utc) -
-                    datetime.timedelta(hours=36)
-                ).date(),
+                (datetime.datetime.now(datetime.timezone.utc) -
+                 datetime.timedelta(hours=36)).date(),
             )
             if from_date <= to_date:
                 requested_data[l].update(
-                    tum_esm_utils.timing.date_range(
-                        from_date=from_date, to_date=to_date
-                    )
+                    tum_esm_utils.timing.date_range(from_date=from_date, to_date=to_date)
                 )
 
     return requested_data
@@ -146,9 +132,7 @@ def compute_missing_data(
         if l not in downloaded_data.keys():
             missing_data[l] = desired_data[l]
         else:
-            missing_data[l] = set(desired_data[l]).difference(
-                downloaded_data[l]
-            )
+            missing_data[l] = set(desired_data[l]).difference(downloaded_data[l])
 
     return missing_data
 
@@ -164,9 +148,7 @@ def remove_already_requested_data(
         for q in active_queries:
             if q.lat == l.lat and q.lon == l.lon:
                 already_requested_dates.update(
-                    tum_esm_utils.timing.date_range(
-                        from_date=q.from_date, to_date=q.to_date
-                    )
+                    tum_esm_utils.timing.date_range(from_date=q.from_date, to_date=q.to_date)
                 )
         missing_data[l].difference_update(already_requested_dates)
         if len(missing_data[l]) == 0:
@@ -179,8 +161,7 @@ def remove_std_site_data(
     missing_data: dict[ProfilesQueryLocation, set[datetime.date]],
 ) -> dict[ProfilesQueryLocation, set[datetime.date]]:
     assert config.profiles is not None
-    filtered_data: dict[ProfilesQueryLocation,
-                        set[datetime.date]] = copy.deepcopy(missing_data)
+    filtered_data: dict[ProfilesQueryLocation, set[datetime.date]] = copy.deepcopy(missing_data)
     for std_site_config in config.profiles.GGG2020_standard_sites:
         location = ProfilesQueryLocation(
             lat=round(std_site_config.lat),
@@ -198,27 +179,20 @@ def remove_std_site_data(
     return filtered_data
 
 
-def compute_time_periods(
-    missing_data: set[datetime.date]
-) -> list[ProfilesQueryTimePeriod]:
-    mondays = set([
-        d - datetime.timedelta(days=d.weekday()) for d in missing_data
-    ])
+def compute_time_periods(missing_data: set[datetime.date]) -> list[ProfilesQueryTimePeriod]:
+    mondays = set([d - datetime.timedelta(days=d.weekday()) for d in missing_data])
     time_periods: list[ProfilesQueryTimePeriod] = []
     for d in mondays:
         dates = set([d + datetime.timedelta(days=i)
                      for i in range(0, 7)]).intersection(missing_data)
-        time_periods.append(
-            ProfilesQueryTimePeriod(from_date=min(dates), to_date=max(dates))
-        )
+        time_periods.append(ProfilesQueryTimePeriod(from_date=min(dates), to_date=max(dates)))
     return time_periods
 
 
 def generate_download_queries(
     config: types.Config,
     atmospheric_profile_model: types.AtmosphericProfileModel,
-    em27_metadata_interface: Optional[
-        em27_metadata.interfaces.EM27MetadataInterface] = None,
+    em27_metadata_interface: Optional[em27_metadata.interfaces.EM27MetadataInterface] = None,
 ) -> list[types.DownloadQuery]:
     """Returns a list of `DownloadQuery` objects for which the
     data has not been downloaded yet. Example:
@@ -233,14 +207,11 @@ def generate_download_queries(
     assert config.profiles is not None
 
     if em27_metadata_interface is None:
-        em27_metadata_interface = utils.metadata.load_local_em27_metadata_interface(
-        )
+        em27_metadata_interface = utils.metadata.load_local_em27_metadata_interface()
         if em27_metadata_interface is not None:
             print("Found local metadata")
         else:
-            print(
-                "Did not find local metadata -> fetching metadata from GitHub"
-            )
+            print("Did not find local metadata -> fetching metadata from GitHub")
             assert config.general.metadata is not None, "Remote metadata not configured"
             em27_metadata_interface = em27_metadata.load_from_github(
                 github_repository=config.general.metadata.github_repository,

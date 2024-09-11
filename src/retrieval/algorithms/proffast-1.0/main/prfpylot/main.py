@@ -3,13 +3,9 @@ import sys
 import click
 import tum_esm_utils
 
-_PROJECT_DIR = tum_esm_utils.files.get_parent_dir_path(
-    __file__, current_depth=5
-)
+_PROJECT_DIR = tum_esm_utils.files.get_parent_dir_path(__file__, current_depth=5)
 pyproj_file = os.path.join(_PROJECT_DIR, "pyproject.toml")
-assert os.path.isfile(
-    pyproj_file
-), f"{_PROJECT_DIR} does not seem to be the root of the project"
+assert os.path.isfile(pyproj_file), f"{_PROJECT_DIR} does not seem to be the root of the project"
 with open(pyproj_file, "r") as f:
     assert 'name = "em27-retrieval-pipeline"' in f.read(
     ), f"{_PROJECT_DIR} does not seem to be the root of the project"
@@ -18,9 +14,7 @@ sys.path.append(_PROJECT_DIR)
 import create_input_files, execute_proffast, move_data
 from src import types
 
-_CONTAINER_DIR = tum_esm_utils.files.get_parent_dir_path(
-    __file__, current_depth=2
-)
+_CONTAINER_DIR = tum_esm_utils.files.get_parent_dir_path(__file__, current_depth=2)
 _LOGS_DIR = os.path.join(_CONTAINER_DIR, "prf", "out_fast", "logfiles")
 
 
@@ -36,9 +30,7 @@ def main(session_string: str) -> None:
 
     _log("Parsing session string")
     try:
-        session = types.Proffast1RetrievalSession.model_validate_json(
-            session_string
-        )
+        session = types.Proffast1RetrievalSession.model_validate_json(session_string)
     except Exception as e:
         _log("Invalid session string")
         raise e

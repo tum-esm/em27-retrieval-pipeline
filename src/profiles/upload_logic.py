@@ -30,8 +30,7 @@ def upload_requests(
             to_date: str
             if atmospheric_profile_model == "GGG2020":
                 # Exclusive to date
-                to_date = (query.to_date +
-                           datetime.timedelta(days=1)).strftime("%Y%m%d")
+                to_date = (query.to_date + datetime.timedelta(days=1)).strftime("%Y%m%d")
                 filename = "input_file_2020.txt"
             else:
                 # Inclusive to date

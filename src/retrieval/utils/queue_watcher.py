@@ -29,34 +29,22 @@ def _prettify_timedelta(dt: datetime.timedelta) -> str:
 
 def _render() -> Any:
     processes = RetrievalStatusList.load()
-    pending_process_count = len([
-        x for x in processes if x.process_start_time is None
-    ])
-    done_process_count = len([
-        x for x in processes if x.process_end_time is not None
-    ])
-    in_progress_process_count = len(
-        processes
-    ) - pending_process_count - done_process_count
+    pending_process_count = len([x for x in processes if x.process_start_time is None])
+    done_process_count = len([x for x in processes if x.process_end_time is not None])
+    in_progress_process_count = len(processes) - pending_process_count - done_process_count
 
     if len(processes) == done_process_count:
-        pipeline_pids = tum_esm_utils.processes.get_process_pids(
-            _RETRIEVAL_ENTRYPOINT
-        )
+        pipeline_pids = tum_esm_utils.processes.get_process_pids(_RETRIEVAL_ENTRYPOINT)
         if len(pipeline_pids) == 0:
-            return rich.panel.Panel(
-                "[white]Pipeline is not running[/white]", height=3
-            )
+            return rich.panel.Panel("[white]Pipeline is not running[/white]", height=3)
         else:
             if len(processes) == 0:
                 return rich.panel.Panel(
-                    f"[white]Pipeline is spinning up - wait a bit[/white]",
-                    height=3
+                    f"[white]Pipeline is spinning up - wait a bit[/white]", height=3
                 )
             else:
                 return rich.panel.Panel(
-                    f"[white]Pipeline is shutting down - wait a bit[/white]",
-                    height=3
+                    f"[white]Pipeline is shutting down - wait a bit[/white]", height=3
                 )
 
     table = rich.table.Table(expand=True, box=rich.box.ROUNDED)
@@ -76,15 +64,14 @@ def _render() -> Any:
         if p.process_start_time is None:
             continue
 
-        if (first_start_time
-            is None) or (p.process_start_time < first_start_time):
+        if (first_start_time is None) or (p.process_start_time < first_start_time):
             first_start_time = p.process_start_time
 
         # process is running
         if p.process_end_time is None:
-            dt = datetime.datetime.now(
-                tz=datetime.timezone.utc
-            ) - p.process_start_time.replace(tzinfo=datetime.timezone.utc)
+            dt = datetime.datetime.now(tz=datetime.timezone.utc) - p.process_start_time.replace(
+                tzinfo=datetime.timezone.utc
+            )
             table.add_row(
                 p.container_id,
                 "-" if p.output_suffix is None else p.output_suffix,
@@ -113,19 +100,13 @@ def _render() -> Any:
         )
     )
     grid.add_row(table)
-    if (first_start_time
-        is not None) and (last_end_time
-                          is not None) and (done_process_count > 0):
+    if (first_start_time is not None) and (last_end_time is not None) and (done_process_count > 0):
         avg_time_per_job = (
             last_end_time.replace(tzinfo=datetime.timezone.utc) -
             first_start_time.replace(tzinfo=datetime.timezone.utc)
         ) / done_process_count
-        estimated_end_time = (
-            avg_time_per_job * len(processes)
-        ) + first_start_time
-        estimated_remaining_time = estimated_end_time - datetime.datetime.now(
-            datetime.timezone.utc
-        )
+        estimated_end_time = (avg_time_per_job * len(processes)) + first_start_time
+        estimated_remaining_time = estimated_end_time - datetime.datetime.now(datetime.timezone.utc)
         grid.add_row(
             rich.align.Align.center(
                 rich.columns.Columns([
@@ -137,8 +118,8 @@ def _render() -> Any:
         )
     grid.add_row(
         rich.align.Align.center(
-            "[white]Press Ctrl+C or close the terminal to stop watching. This "
-            + "will [underline]not[/underline] stop the automation[/white]"
+            "[white]Press Ctrl+C or close the terminal to stop watching. This " +
+            "will [underline]not[/underline] stop the automation[/white]"
         )
     )
 

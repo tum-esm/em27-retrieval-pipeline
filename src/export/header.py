@@ -39,15 +39,9 @@ def get_header(
 
     header_lines.append("SENSOR SERIAL NUMBERS:")
     for sid in campaign.sensor_ids:
-        s = next(
-            filter(
-                lambda s: s.sensor_id == sid,
-                em27_metadata_interface.sensors.root
-            )
-        )
+        s = next(filter(lambda s: s.sensor_id == sid, em27_metadata_interface.sensors.root))
         header_lines.append(
-            "    " + tum_esm_utils.text.
-            pad_string(f"{sid}: ", pad_position="right", min_width=10) +
+            "    " + tum_esm_utils.text.pad_string(f"{sid}: ", pad_position="right", min_width=10) +
             f"{s.serial_number}"
         )
 
@@ -55,15 +49,9 @@ def get_header(
 
     header_lines.append("LOCATION COORDINATES [lat, lon, alt]:")
     for lid in campaign.location_ids:
-        l = next(
-            filter(
-                lambda l: l.location_id == lid,
-                em27_metadata_interface.locations.root
-            )
-        )
+        l = next(filter(lambda l: l.location_id == lid, em27_metadata_interface.locations.root))
         header_lines.append(
-            "    " + tum_esm_utils.text.
-            pad_string(f"{lid}: ", pad_position="right", min_width=10) +
+            "    " + tum_esm_utils.text.pad_string(f"{lid}: ", pad_position="right", min_width=10) +
             f"{l.lat}, {l.lon}, {l.alt} "
         )
 
@@ -71,9 +59,7 @@ def get_header(
 
     header_lines.append("SENSOR LOCATIONS:")
     for sid in campaign.sensor_ids:
-        ctxs = list(
-            filter(lambda sdc: sdc.sensor_id == sid, sensor_data_contexts)
-        )
+        ctxs = list(filter(lambda sdc: sdc.sensor_id == sid, sensor_data_contexts))
         if len(ctxs) == 0:
             header_lines.append(f"    {sid}: no data")
         else:

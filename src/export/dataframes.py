@@ -24,10 +24,8 @@ def get_empty_sensor_dataframe(
     return pl.DataFrame(
         schema={
             "utc": pl.Datetime,
-            **{
-                f"{sensor_id}_{t}": pl.Float32
-                for t in export_target.data_types
-            },
+            **{f"{sensor_id}_{t}": pl.Float32
+               for t in export_target.data_types},
         }
     )
 
@@ -57,12 +55,8 @@ def get_sensor_dataframe(
     date_string = sensor_data_context.from_datetime.strftime("%Y%m%d")
     output_folder_slug = date_string
     if not utils.functions.sdc_covers_the_full_day(sensor_data_context):
-        output_folder_slug += sensor_data_context.from_datetime.strftime(
-            "_%H%M%S"
-        )
-        output_folder_slug += sensor_data_context.to_datetime.strftime(
-            "_%H%M%S"
-        )
+        output_folder_slug += sensor_data_context.from_datetime.strftime("_%H%M%S")
+        output_folder_slug += sensor_data_context.to_datetime.strftime("_%H%M%S")
     raw_csv_path = os.path.join(
         config.general.data.results.root,
         export_target.retrieval_algorithm,
@@ -90,8 +84,7 @@ def get_sensor_dataframe(
     ]
 
     column_names = {
-        t:
-            f"{sensor_data_context.sensor_id}__{sensor_data_context.location.location_id}__{t}"
+        t: f"{sensor_data_context.sensor_id}__{sensor_data_context.location.location_id}__{t}"
         for t in all_data_types
     }
 
@@ -119,9 +112,7 @@ def get_sensor_dataframe(
             **{column_names[t]: pl.Float32
                for t in all_data_types},
         },
-    ).with_columns(
-        pl.col('utc').cast(pl.Datetime).dt.replace_time_zone("UTC"),
-    )
+    ).with_columns(pl.col('utc').cast(pl.Datetime).dt.replace_time_zone("UTC"), )
 
     # remove data outside of the sdcs datetime range
     if not utils.functions.sdc_covers_the_full_day(sensor_data_context):
@@ -171,19 +162,16 @@ def post_process_dataframe(
     # even if that point is the next point.
 
     lower_utc_bound: pl.Datetime = (
-        df.select(pl.min("utc") -
-                  pl.duration(seconds=1)).to_series().to_list()[0]
+        df.select(pl.min("utc") - pl.duration(seconds=1)).to_series().to_list()[0]
     )
     upper_utc_bound: pl.Datetime = (
-        df.select(pl.max("utc") +
-                  pl.duration(seconds=1)).to_series().to_list()[0]
+        df.select(pl.max("utc") + pl.duration(seconds=1)).to_series().to_list()[0]
     )
     utcs_in_gaps: list[pl.Datetime] = (
         df.select(pl.col("utc")).with_columns(
             pl.col("utc").diff().alias("dutc")
-        ).filter(
-            pl.col("dutc") > pl.duration(seconds=max_interpolation_gap_seconds)
-        ).select(pl.col("utc") - pl.duration(seconds=1)).to_series().to_list()
+        ).filter(pl.col("dutc") > pl.duration(seconds=max_interpolation_gap_seconds)
+                ).select(pl.col("utc") - pl.duration(seconds=1)).to_series().to_list()
     )
     new_utc_rows = [lower_utc_bound] + utcs_in_gaps + [upper_utc_bound]
 
@@ -197,10 +185,8 @@ def post_process_dataframe(
         },
         schema={
             "utc": pl.Datetime,
-            **{
-                column_name: pl.Float32
-                for column_name in df.columns if column_name != "utc"
-            },
+            **{column_name: pl.Float32
+               for column_name in df.columns if column_name != "utc"},
         },
     )
 
@@ -219,21 +205,19 @@ def post_process_dataframe(
     # downsample to the required sampling rate with a mean
     # aggregation on the data columns.
     df = (
-        df.with_columns(
-            (
-                pl.col("utc") - pl.col("utc").shift()
-                < pl.duration(seconds=max_interpolation_gap_seconds)
-            ).alias("small_gap")
-        ).upsample(time_column="utc", every="1s").with_columns(
+        df.with_columns((
+            pl.col("utc") - pl.col("utc").shift()
+            < pl.duration(seconds=max_interpolation_gap_seconds)
+        ).alias("small_gap")).upsample(time_column="utc", every="1s").with_columns(
             pl.col("small_gap").backward_fill()
         ).with_columns(
-            pl.when(pl.col("small_gap")).then(
-                pl.exclude(["small_gap"]).interpolate()
-            ).otherwise(pl.exclude(["small_gap"]))
-        ).select(pl.exclude("small_gap")
-                ).sort("utc").group_by_dynamic("utc", every=sampling_rate).agg(
-                    pl.exclude("utc").mean()
-                )
+            pl.when(pl.col("small_gap")).then(pl.exclude(["small_gap"]).interpolate()).otherwise(
+                pl.exclude(["small_gap"])
+            )
+        ).select(pl.exclude("small_gap")).sort("utc").group_by_dynamic("utc",
+                                                                       every=sampling_rate).agg(
+                                                                           pl.exclude("utc").mean()
+                                                                       )
     )
 
     return df
@@ -247,9 +231,7 @@ def merge_dataframes(dfs: list[pl.DataFrame], ) -> pl.DataFrame:
     data_column_names = merged_df.columns
     data_column_names.remove("utc")
     df_without_null_rows = merged_df.filter(
-        ~pl.all_horizontal(
-            pl.col(data_column_names).is_nan() |
-            pl.col(data_column_names).is_null()
-        )
+        ~pl.
+        all_horizontal(pl.col(data_column_names).is_nan() | pl.col(data_column_names).is_null())
     )
     return df_without_null_rows.sort("utc")

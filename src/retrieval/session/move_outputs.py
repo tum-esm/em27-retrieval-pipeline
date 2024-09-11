@@ -19,9 +19,7 @@ def run(
     day_was_successful: bool
 
     if isinstance(session, types.Proffast1RetrievalSession):
-        output_src_dir = os.path.join(
-            session.ctn.container_path, "prf", "out_fast"
-        )
+        output_src_dir = os.path.join(session.ctn.container_path, "prf", "out_fast")
         output_csv_path = os.path.join(
             output_src_dir,
             f"{session.ctx.sensor_id}{date_string[2:]}-combined-invparms.csv",
@@ -37,9 +35,7 @@ def run(
             f"{date_string[2:]}-{date_string[2:]}.csv"
         )
     else:
-        raise NotImplementedError(
-            f"Retrieval session type {type(session)} not implemented"
-        )
+        raise NotImplementedError(f"Retrieval session type {type(session)} not implemented")
 
     # DETERMINE WHETHER RETRIEVAL HAS BEEN SUCCESSFUL OR NOT
     day_was_successful = os.path.isfile(output_csv_path)

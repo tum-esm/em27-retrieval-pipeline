@@ -33,20 +33,15 @@ class ContainerFactory:
         self.containers: list[types.RetrievalContainer] = []
 
         assert self.config.retrieval is not None
-        retrieval_algorithms = [
-            job.retrieval_algorithm for job in self.config.retrieval.jobs
-        ]
+        retrieval_algorithms = [job.retrieval_algorithm for job in self.config.retrieval.jobs]
 
         if test_mode:
             self.logger.info(
                 "Running in test mode (setting up all retrieval algorithms from scratch)"
             )
-            for algorithm in [
-                "proffast-1.0", "proffast-2.2", "proffast-2.3", "proffast-2.4"
-            ]:
+            for algorithm in ["proffast-1.0", "proffast-2.2", "proffast-2.3", "proffast-2.4"]:
                 shutil.rmtree(
-                    os.path.join(_RETRIEVAL_CODE_DIR, algorithm, "main", "prf"),
-                    ignore_errors=True
+                    os.path.join(_RETRIEVAL_CODE_DIR, algorithm, "main", "prf"), ignore_errors=True
                 )
 
         self.logger.info("Removing all old containers")
@@ -64,9 +59,7 @@ class ContainerFactory:
                 self.logger.info(f"Initializing {algorithm} ContainerFactory")
                 initializer(self.logger.info)
             else:
-                self.logger.info(
-                    f"Not initializing {algorithm} ContainerFactory (unused)"
-                )
+                self.logger.info(f"Not initializing {algorithm} ContainerFactory (unused)")
 
         self.logger.info("ContainerFactory is set up")
 
@@ -88,37 +81,23 @@ class ContainerFactory:
         assert self.config.retrieval is not None
         match retrieval_algorithm:
             case "proffast-1.0":
-                container = types.Proffast10Container(
-                    container_id=new_container_id
-                )
+                container = types.Proffast10Container(container_id=new_container_id)
             case "proffast-2.2":
-                container = types.Proffast22Container(
-                    container_id=new_container_id
-                )
+                container = types.Proffast22Container(container_id=new_container_id)
             case "proffast-2.3":
-                container = types.Proffast23Container(
-                    container_id=new_container_id
-                )
+                container = types.Proffast23Container(container_id=new_container_id)
             case "proffast-2.4":
-                container = types.Proffast24Container(
-                    container_id=new_container_id
-                )
+                container = types.Proffast24Container(container_id=new_container_id)
             case "proffast-2.4.1":
-                container = types.Proffast241Container(
-                    container_id=new_container_id
-                )
+                container = types.Proffast241Container(container_id=new_container_id)
 
         # copy and install the retrieval code into the container
-        retrieval_code_root_dir = os.path.join(
-            _RETRIEVAL_CODE_DIR, retrieval_algorithm
-        )
+        retrieval_code_root_dir = os.path.join(_RETRIEVAL_CODE_DIR, retrieval_algorithm)
         shutil.copytree(
             os.path.join(retrieval_code_root_dir, "main"),
             container.container_path,
         )
-        installer_script_path = os.path.join(
-            retrieval_code_root_dir, "install.sh"
-        )
+        installer_script_path = os.path.join(retrieval_code_root_dir, "install.sh")
         if os.path.isfile(installer_script_path):
             tum_esm_utils.shell.run_shell_command(
                 command=installer_script_path,
@@ -147,9 +126,7 @@ class ContainerFactory:
         the given id exists.
         """
         try:
-            container = [
-                c for c in self.containers if c.container_id == container_id
-            ][0]
+            container = [c for c in self.containers if c.container_id == container_id][0]
             shutil.rmtree(container.container_path)
             shutil.rmtree(container.data_input_path)
             shutil.rmtree(container.data_output_path)
@@ -202,9 +179,7 @@ class ContainerFactory:
             os.path.join(ROOT_DIR, "prf", "preprocess", "125HR-karlsruhe"),
             os.path.join(ROOT_DIR, "prf", "preprocess", "sod2017_em27sn039"),
             os.path.join(ROOT_DIR, "prf", "out_fast", "sod2017_em27sn039"),
-            os.path.join(
-                ROOT_DIR, "prf", "out_fast", "sod2017_em27sn039_Linux"
-            ),
+            os.path.join(ROOT_DIR, "prf", "out_fast", "sod2017_em27sn039_Linux"),
             os.path.join(ROOT_DIR, "prf", "analysis"),
             os.path.join(ROOT_DIR, "prf", "source"),
         ]:
@@ -214,22 +189,10 @@ class ContainerFactory:
         for f in [
             os.path.join(ROOT_DIR, ZIPFILE_NAME),
             os.path.join(ROOT_DIR, "prf", "continue.txt"),
-            os.path.join(
-                ROOT_DIR, "prf", "inp_fast",
-                "invers10_sod2017_em27sn039_170608.inp"
-            ),
-            os.path.join(
-                ROOT_DIR, "prf", "inp_fast",
-                "invers10_sod2017_em27sn039_170609.inp"
-            ),
-            os.path.join(
-                ROOT_DIR, "prf", "inp_fast",
-                "pcxs10_sod2017_em27sn039_170608.inp"
-            ),
-            os.path.join(
-                ROOT_DIR, "prf", "inp_fast",
-                "pcxs10_sod2017_em27sn039_170609.inp"
-            ),
+            os.path.join(ROOT_DIR, "prf", "inp_fast", "invers10_sod2017_em27sn039_170608.inp"),
+            os.path.join(ROOT_DIR, "prf", "inp_fast", "invers10_sod2017_em27sn039_170609.inp"),
+            os.path.join(ROOT_DIR, "prf", "inp_fast", "pcxs10_sod2017_em27sn039_170608.inp"),
+            os.path.join(ROOT_DIR, "prf", "inp_fast", "pcxs10_sod2017_em27sn039_170609.inp"),
         ]:
             os.remove(f)
 
@@ -324,12 +287,11 @@ class ContainerFactory:
 
         # copy adapted Preprocess 6 source code
         ORIGINAL_SOURCE_FILE = os.path.join(
-            _RETRIEVAL_CODE_DIR, "proffast-2.4", "main", "prf", "source",
-            "preprocess", "preprocess6.F90"
+            _RETRIEVAL_CODE_DIR, "proffast-2.4", "main", "prf", "source", "preprocess",
+            "preprocess6.F90"
         )
         ADAPTED_SOURCE_FILE = os.path.join(
-            _RETRIEVAL_CODE_DIR, "proffast-2.4", "source", "preprocess",
-            "preprocess6.F90"
+            _RETRIEVAL_CODE_DIR, "proffast-2.4", "source", "preprocess", "preprocess6.F90"
         )
         os.remove(ORIGINAL_SOURCE_FILE)
         shutil.copyfile(ADAPTED_SOURCE_FILE, ORIGINAL_SOURCE_FILE)
@@ -342,6 +304,4 @@ class ContainerFactory:
             _print(f"Proffast 2.41 has already been downloaded")
             return
 
-        raise NotImplementedError(
-            "Proffast 2.4.1 is not yet available to the public"
-        )
+        raise NotImplementedError("Proffast 2.4.1 is not yet available to the public")

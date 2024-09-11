@@ -3,9 +3,7 @@ import os
 import tum_esm_utils
 from src import types
 
-_PROJECT_DIR = tum_esm_utils.files.get_parent_dir_path(
-    __file__, current_depth=4
-)
+_PROJECT_DIR = tum_esm_utils.files.get_parent_dir_path(__file__, current_depth=4)
 
 
 def run(session: types.RetrievalSession, test_mode: bool = False) -> None:
@@ -16,46 +14,25 @@ def run(session: types.RetrievalSession, test_mode: bool = False) -> None:
     if isinstance(session, types.Proffast1RetrievalSession):
         tum_esm_utils.shell.run_shell_command(
             " ".join([
-                os.path.join(
-                    _PROJECT_DIR,
-                    ".venv",
-                    "bin",
-                    "python",
-                ),
-                os.path.join(
-                    session.ctn.container_path,
-                    "prfpylot",
-                    "main.py",
-                ),
-                '"' + json.dumps(session.model_dump()).replace('"', '\\"') +
-                '"',
+                os.path.join(_PROJECT_DIR, ".venv", "bin", "python"),
+                os.path.join(session.ctn.container_path, "prfpylot", "main.py"),
+                '"' + json.dumps(session.model_dump()).replace('"', '\\"') + '"',
             ])
         )
     elif isinstance(session, types.Proffast2RetrievalSession):
         tum_esm_utils.shell.run_shell_command(
             " ".join([
+                os.path.join(_PROJECT_DIR, ".venv", "bin", "python"),
                 os.path.join(
-                    _PROJECT_DIR,
-                    ".venv",
-                    "bin",
-                    "python",
-                ),
-                os.path.join(
-                    _PROJECT_DIR,
-                    "src",
-                    "retrieval",
-                    "algorithms",
-                    session.retrieval_algorithm,
-                    "run_pylot_container.py",
+                    _PROJECT_DIR, "src", "retrieval", "algorithms", session.retrieval_algorithm,
+                    "run_pylot_container.py"
                 ),
                 session.ctn.container_id,
                 session.ctn.pylot_config_path,
             ])
         )
     else:
-        raise NotImplementedError(
-            f"Retrieval session type {type(session)} not implemented"
-        )
+        raise NotImplementedError(f"Retrieval session type {type(session)} not implemented")
 
 
 def _create_mock_outputs(session: types.RetrievalSession) -> None:
@@ -94,9 +71,7 @@ def _create_mock_outputs(session: types.RetrievalSession) -> None:
     if session.retrieval_algorithm == "proffast-1.0":
         filepaths = [
             (f"{session.ctx.sensor_id}{date_string[2:]}-combined-invparms.csv"),
-            (
-                f"{session.ctx.sensor_id}{date_string[2:]}-combined-invparms.parquet"
-            ),
+            (f"{session.ctx.sensor_id}{date_string[2:]}-combined-invparms.parquet"),
             "logfiles/wrapper.log",
             "logfiles/preprocess4.log",
             "logfiles/pcxs10.log",

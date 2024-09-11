@@ -84,8 +84,7 @@ class Proffast2RetrievalSession(pydantic.BaseModel):
     """This combines a `SensorDataContext` with a `Proffast22Container`/
     `Proffast23Container`/`Proffast24Container`/`Proffast24Container`"""
 
-    retrieval_algorithm: Literal["proffast-2.2", "proffast-2.3", "proffast-2.4",
-                                 "proffast-2.4.1"]
+    retrieval_algorithm: Literal["proffast-2.2", "proffast-2.3", "proffast-2.4", "proffast-2.4.1"]
     atmospheric_profile_model: Literal["GGG2014", "GGG2020"]
     job_settings: RetrievalJobSettingsConfig
     ctx: em27_metadata.types.SensorDataContext

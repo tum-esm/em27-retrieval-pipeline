@@ -11,8 +11,7 @@ def execute_preprocess(
 ) -> None:
     prf_dir = os.path.join(session.ctn.container_path, "prf")
     logs_dir = os.path.join(prf_dir, "out_fast", "logfiles")
-    start_timestamp = datetime.datetime.now(tz=datetime.timezone.utc
-                                           ).timestamp()
+    start_timestamp = datetime.datetime.now(tz=datetime.timezone.utc).timestamp()
 
     # running preprocess
     tum_esm_utils.shell.run_shell_command(
@@ -31,8 +30,7 @@ def execute_pcxs(
 ) -> None:
     prf_dir = os.path.join(session.ctn.container_path, "prf")
     logs_dir = os.path.join(prf_dir, "out_fast", "logfiles")
-    start_timestamp = datetime.datetime.now(tz=datetime.timezone.utc
-                                           ).timestamp()
+    start_timestamp = datetime.datetime.now(tz=datetime.timezone.utc).timestamp()
 
     # running pcxs10
     tum_esm_utils.shell.run_shell_command(
@@ -42,16 +40,12 @@ def execute_pcxs(
 
     # renaming output files
     date_string = session.ctx.from_datetime.strftime("%Y%m%d")
-    if os.path.isfile(
-        f"{prf_dir}/wrk_fast/{session.ctx.sensor_id}{date_string[:6]}-abscos.bin"
-    ):
+    if os.path.isfile(f"{prf_dir}/wrk_fast/{session.ctx.sensor_id}{date_string[:6]}-abscos.bin"):
         os.rename(
             f"{prf_dir}/wrk_fast/{session.ctx.sensor_id}{date_string[:6]}-abscos.bin",
             f"{prf_dir}/wrk_fast/{session.ctx.sensor_id}{date_string}-abscos.bin",
         )
-    if os.path.isfile(
-        f"{prf_dir}/out_fast/{session.ctx.sensor_id}{date_string[:6]}-colsens.dat"
-    ):
+    if os.path.isfile(f"{prf_dir}/out_fast/{session.ctx.sensor_id}{date_string[:6]}-colsens.dat"):
         os.rename(
             f"{prf_dir}/out_fast/{session.ctx.sensor_id}{date_string[:6]}-colsens.dat",
             f"{prf_dir}/out_fast/{session.ctx.sensor_id}{date_string}-colsens.dat",
@@ -68,13 +62,11 @@ def execute_invers(
 ) -> None:
     prf_dir = os.path.join(session.ctn.container_path, "prf")
     logs_dir = os.path.join(prf_dir, "out_fast", "logfiles")
-    start_timestamp = datetime.datetime.now(tz=datetime.timezone.utc
-                                           ).timestamp()
+    start_timestamp = datetime.datetime.now(tz=datetime.timezone.utc).timestamp()
 
     # running invers10
     tum_esm_utils.shell.run_shell_command(
-        'printf "Y\n%.0s" {1..100} | ./invers10 invers10.inp' +
-        f" > {logs_dir}/invers10.log",
+        'printf "Y\n%.0s" {1..100} | ./invers10 invers10.inp' + f" > {logs_dir}/invers10.log",
         working_directory=prf_dir,
     )
 

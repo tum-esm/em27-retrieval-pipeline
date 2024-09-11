@@ -58,9 +58,7 @@ def run() -> None:
 
                 time.sleep(0.2)
 
-            container_factory.remove_container(
-                "-".join(process.name.split("-")[-2 :])
-            )
+            container_factory.remove_container("-".join(process.name.split("-")[-2 :]))
             main_logger.info(f'Process "{process.name}": removed container')
 
         main_logger.info(f"Killed all containers")
@@ -76,14 +74,11 @@ def run() -> None:
 
     # load metadata interface
     try:
-        em27_metadata_interface = utils.metadata.load_local_em27_metadata_interface(
-        )
+        em27_metadata_interface = utils.metadata.load_local_em27_metadata_interface()
         if em27_metadata_interface is not None:
             print("Found local metadata")
         else:
-            print(
-                "Did not find local metadata -> fetching metadata from GitHub"
-            )
+            print("Did not find local metadata -> fetching metadata from GitHub")
             assert config.general.metadata is not None, "Remote metadata not configured"
             em27_metadata_interface = em27_metadata.load_from_github(
                 github_repository=config.general.metadata.github_repository,
@@ -106,9 +101,7 @@ def run() -> None:
         retrieval_sdcs = retrieval.dispatching.retrieval_queue.generate_retrieval_queue(
             config, main_logger, em27_metadata_interface, job
         )
-        main_logger.info(
-            f"Found {len(retrieval_sdcs)} items for job {job_index+1}"
-        )
+        main_logger.info(f"Found {len(retrieval_sdcs)} items for job {job_index+1}")
         for sdc in retrieval_sdcs:
             job_queue.push(
                 job.retrieval_algorithm,
@@ -150,8 +143,8 @@ def run() -> None:
                     args=(config, new_session),
                     name=(
                         f"retrieval-session-{new_session.ctx.sensor_id}-" +
-                        f"{new_session.ctx.from_datetime.strftime('%Y-%m-%dT%H:%M:%S')}-"
-                        + f"{new_session.ctn.container_id}"
+                        f"{new_session.ctx.from_datetime.strftime('%Y-%m-%dT%H:%M:%S')}-" +
+                        f"{new_session.ctn.container_id}"
                     ),
                     daemon=True,
                 )
@@ -163,15 +156,9 @@ def run() -> None:
             for finished_process in [p for p in processes if not p.is_alive()]:
                 finished_process.join()
                 processes.remove(finished_process)
-                main_logger.info(
-                    f'process "{finished_process.name}": finished processing'
-                )
-                container_factory.remove_container(
-                    "-".join(finished_process.name.split("-")[-2 :])
-                )
-                main_logger.info(
-                    f'process "{finished_process.name}": removed container'
-                )
+                main_logger.info(f'process "{finished_process.name}": finished processing')
+                container_factory.remove_container("-".join(finished_process.name.split("-")[-2 :]))
+                main_logger.info(f'process "{finished_process.name}": removed container')
 
             if job_queue.is_empty() and (len(processes) == 0):
                 main_logger.info(f"No more things to process")

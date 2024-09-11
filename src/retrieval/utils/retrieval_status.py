@@ -8,12 +8,8 @@ import pydantic
 import tum_esm_utils
 from src import types
 
-_PROJECT_DIR = tum_esm_utils.files.get_parent_dir_path(
-    __file__, current_depth=4
-)
-_ACTIVE_PROCESS_LIST = os.path.join(
-    _PROJECT_DIR, "data", "logs", "active-processes.json"
-)
+_PROJECT_DIR = tum_esm_utils.files.get_parent_dir_path(__file__, current_depth=4)
+_ACTIVE_PROCESS_LIST = os.path.join(_PROJECT_DIR, "data", "logs", "active-processes.json")
 
 
 class RetrievalStatus(pydantic.BaseModel):
@@ -38,9 +34,7 @@ class RetrievalStatusList(pydantic.RootModel[list[RetrievalStatus]]):
     def with_filelock() -> Generator[None, None, None]:
         try:
             with filelock.FileLock(
-                os.path.join(
-                    _PROJECT_DIR, "data", "logs", "active-processes.json.lock"
-                ),
+                os.path.join(_PROJECT_DIR, "data", "logs", "active-processes.json.lock"),
                 timeout=15,
             ):
                 yield
@@ -52,9 +46,7 @@ class RetrievalStatusList(pydantic.RootModel[list[RetrievalStatus]]):
         with RetrievalStatusList.with_filelock():
             try:
                 with open(_ACTIVE_PROCESS_LIST, "r") as f:
-                    return RetrievalStatusList.model_validate_json(
-                        f.read()
-                    ).root
+                    return RetrievalStatusList.model_validate_json(f.read()).root
             except pydantic.ValidationError:
                 return []
 
@@ -78,9 +70,7 @@ class RetrievalStatusList(pydantic.RootModel[list[RetrievalStatus]]):
         with RetrievalStatusList.with_filelock():
             try:
                 with open(_ACTIVE_PROCESS_LIST, "r") as f:
-                    process_list = RetrievalStatusList.model_validate_json(
-                        f.read()
-                    )
+                    process_list = RetrievalStatusList.model_validate_json(f.read())
             except pydantic.ValidationError:
                 return
             for sdc in items:
@@ -113,9 +103,7 @@ class RetrievalStatusList(pydantic.RootModel[list[RetrievalStatus]]):
         with RetrievalStatusList.with_filelock():
             try:
                 with open(_ACTIVE_PROCESS_LIST, "r") as f:
-                    process_list = RetrievalStatusList.model_validate_json(
-                        f.read()
-                    )
+                    process_list = RetrievalStatusList.model_validate_json(f.read())
             except pydantic.ValidationError:
                 return
             for p in process_list.root:

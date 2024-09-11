@@ -19,7 +19,6 @@ class MetadataConfig(pydantic.BaseModel):
         pattern=r"^[a-z0-9-_]+/[a-z0-9-_]+$",
         description="GitHub repository name, e.g. `my-org/my-repo`.",
     )
-
     access_token: Optional[str] = pydantic.Field(
         None,
         min_length=1,
@@ -188,13 +187,11 @@ class ProfilesServerConfig(pydantic.BaseModel):
 class ProfilesScopeConfig(pydantic.BaseModel):
     from_date: datetime.date = pydantic.Field(
         datetime.date(1900, 1, 1),
-        description=
-        "date in format `YYYY-MM-DD` from which to request vertical profile data.",
+        description="Date in format `YYYY-MM-DD` from which to request vertical profile data.",
     )
     to_date: datetime.date = pydantic.Field(
         datetime.date(2100, 1, 1),
-        description=
-        "date in format `YYYY-MM-DD` until which to request vertical profile data.",
+        description="Date in format `YYYY-MM-DD` until which to request vertical profile data.",
     )
     models: list[AtmosphericProfileModel] = pydantic.Field(
         ...,
@@ -225,13 +222,11 @@ class ProfilesGGG2020StandardSitesItemConfig(pydantic.BaseModel):
     )
     from_date: datetime.date = pydantic.Field(
         ...,
-        description=
-        "Date in format `YYYY-MM-DD` from which this standard site is active.",
+        description="Date in format `YYYY-MM-DD` from which this standard site is active.",
     )
     to_date: datetime.date = pydantic.Field(
         ...,
-        description=
-        "Date in format `YYYY-MM-DD` until which this standard site is active.",
+        description="Date in format `YYYY-MM-DD` until which this standard site is active.",
     )
 
     @pydantic.model_validator(mode='after')
@@ -298,9 +293,7 @@ class RetrievalJobSettingsConfig(pydantic.BaseModel):
         description=
         "Whether to use the ifg corruption filter. This filter is a program based on `preprocess4` and is part of the `tum-esm-utils` library: https://tum-esm-utils.netlify.app/api-reference#tum_esm_utilsinterferograms. If activated, we will only pass the interferograms to the retrieval algorithm that pass the filter - i.e. that won't cause it to crash.",
     )
-    custom_ils: Optional[
-        dict[str, RetrievalJobSettingsILSConfig]
-    ] = pydantic.Field(
+    custom_ils: Optional[dict[str, RetrievalJobSettingsILSConfig]] = pydantic.Field(
         None,
         description=
         "Maps sensor IDS to ILS correction values. If not set, the pipeline will use the values published inside the Proffast Pylot codebase (https://gitlab.eudat.eu/coccon-kit/proffastpylot/-/blob/master/prfpylot/ILSList.csv?ref_type=heads).",
@@ -324,9 +317,7 @@ class RetrievalJobConfig(pydantic.BaseModel):
         ..., description="Which vertical profiles to use for the retrieval."
     )
     sensor_ids: list[str] = pydantic.Field(
-        ...,
-        min_length=1,
-        description="Sensor ids to consider in the retrieval."
+        ..., min_length=1, description="Sensor ids to consider in the retrieval."
     )
     from_date: datetime.date = pydantic.Field(
         ...,
@@ -370,9 +361,7 @@ class ProfilesConfig(pydantic.BaseModel):
         description=
         "Scope of the vertical profiles to request from the ccycle ftp server. If set to `null`, the script will not request any vertical profiles besides the configured standard sites.",
     )
-    GGG2020_standard_sites: list[
-        ProfilesGGG2020StandardSitesItemConfig
-    ] = pydantic.Field(
+    GGG2020_standard_sites: list[ProfilesGGG2020StandardSitesItemConfig] = pydantic.Field(
         ...,
         description=
         "List of standard sites to request from the ccycle ftp server. The requests for these standard sites are done before any other requests so that data available for these is not rerequested for other sensors. See https://tccon-wiki.caltech.edu/Main/ObtainingGinputData#Requesting_to_be_added_as_a_standard_site for more information.",
@@ -385,8 +374,7 @@ class RetrievalConfig(pydantic.BaseModel):
     general: RetrievalGeneralConfig
     jobs: list[RetrievalJobConfig] = pydantic.Field(
         ...,
-        description=
-        "List of retrievals to run. The list will be processed sequentially.",
+        description="List of retrievals to run. The list will be processed sequentially.",
     )
 
 
@@ -428,7 +416,7 @@ class ExportTargetConfig(pydantic.BaseModel):
 class Config(pydantic.BaseModel):
     """A pydantic model describing the config file schema."""
 
-    version: Literal["1.3"] = pydantic.Field(
+    version: Literal["1.4"] = pydantic.Field(
         ...,
         description=
         "Version of the retrieval pipeline which is compatible with this config file. Retrievals done with any version `1.x` will produce the same output files as retrievals done with version `1.0`. But higher version numbers might use a different config file structure and produce more output files."
@@ -444,8 +432,7 @@ class Config(pydantic.BaseModel):
 
     @staticmethod
     def load(
-        path: str = tum_esm_utils.files.
-        rel_to_abs_path("../../config/config.json"),
+        path: str = tum_esm_utils.files.rel_to_abs_path("../../config/config.json"),
         ignore_path_existence: bool = False,
     ) -> Config:
         """Load the config file from `config/config.json` (or any given path).

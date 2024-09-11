@@ -16,8 +16,7 @@ def run() -> None:
     assert config.export_targets is not None, "no export config found"
     assert len(config.export_targets) > 0, "no export targets found"
 
-    em27_metadata_interface = utils.metadata.load_local_em27_metadata_interface(
-    )
+    em27_metadata_interface = utils.metadata.load_local_em27_metadata_interface()
     if em27_metadata_interface is not None:
         print("Found local metadata")
     else:
@@ -33,8 +32,7 @@ def run() -> None:
         print(f"\nprocessing output merging target #{i+1}")
         print(json.dumps(output_merging_target.model_dump(), indent=4))
         assert (
-            output_merging_target.campaign_id
-            in em27_metadata_interface.campaigns.campaign_ids
+            output_merging_target.campaign_id in em27_metadata_interface.campaigns.campaign_ids
         ), f"unknown campaign_id {output_merging_target.campaign_id}"
 
         campaign = next(
@@ -44,15 +42,12 @@ def run() -> None:
 
         dates: list[datetime.date] = tum_esm_utils.timing.date_range(
             from_date=campaign.from_datetime.date(),
-            to_date=min((
-                datetime.datetime.now(tz=datetime.timezone.utc) -
-                datetime.timedelta(days=1)
-            ).date(), campaign.to_datetime.date())
+            to_date=min(
+                (datetime.datetime.now(tz=datetime.timezone.utc) -
+                 datetime.timedelta(days=1)).date(), campaign.to_datetime.date()
+            )
         )
-        print(
-            f"Exporting data from {dates[0]} to {dates[-1]} " +
-            f"({len(dates)} dates)"
-        )
+        print(f"Exporting data from {dates[0]} to {dates[-1]} " + f"({len(dates)} dates)")
 
         dst_dir = os.path.join(
             output_merging_target.dst_dir.root,
@@ -74,22 +69,17 @@ def run() -> None:
             task = progress.add_task("processing dataframes", total=len(dates))
 
             for date in dates[::-1]:
-                sensor_data_contexts: list[em27_metadata.types.SensorDataContext
-                                          ] = []
+                sensor_data_contexts: list[em27_metadata.types.SensorDataContext] = []
 
                 # get all sensor data contexts for this campaign's sensors
                 for sid in campaign.sensor_ids:
                     sensor_data_contexts += em27_metadata_interface.get(
                         sid,
                         from_datetime=datetime.datetime.combine(
-                            date,
-                            datetime.time.min,
-                            tzinfo=datetime.timezone.utc
+                            date, datetime.time.min, tzinfo=datetime.timezone.utc
                         ),
                         to_datetime=datetime.datetime.combine(
-                            date,
-                            datetime.time.max,
-                            tzinfo=datetime.timezone.utc
+                            date, datetime.time.max, tzinfo=datetime.timezone.utc
                         ),
                     )
 
@@ -97,8 +87,7 @@ def run() -> None:
                 # sdc = sensor data context
                 sdcs = list(
                     filter(
-                        lambda ctx: ctx.location.location_id in campaign.
-                        location_ids,
+                        lambda ctx: ctx.location.location_id in campaign.location_ids,
                         sensor_data_contexts,
                     )
                 )
@@ -127,9 +116,7 @@ def run() -> None:
                         dataframes.append(postprocessed_df)
 
                 if found_data_count > 0:
-                    progress.console.print(
-                        f"{date}: {found_data_count} sensor(s) with data"
-                    )
+                    progress.console.print(f"{date}: {found_data_count} sensor(s) with data")
 
                     merged_df = export.dataframes.merge_dataframes(dataframes)
 

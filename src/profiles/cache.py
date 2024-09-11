@@ -4,9 +4,7 @@ import pydantic
 import tum_esm_utils
 from src import types
 
-_CACHE_FILE = tum_esm_utils.files.rel_to_abs_path(
-    "../../data/profiles_query_cache.json"
-)
+_CACHE_FILE = tum_esm_utils.files.rel_to_abs_path("../../data/profiles_query_cache.json")
 
 
 class DownloadQueryCacheEntry(pydantic.BaseModel):
@@ -43,8 +41,8 @@ class DownloadQueryCache(pydantic.RootModel[list[DownloadQueryCacheEntry]]):
 
         return sorted(
             [
-                e.download_query for e in self.root
-                if e.atmospheric_profile_model == atmospheric_profile_model
+                e.download_query
+                for e in self.root if e.atmospheric_profile_model == atmospheric_profile_model
             ],
             key=lambda q: q.from_date,
         )
@@ -89,7 +87,6 @@ class DownloadQueryCache(pydantic.RootModel[list[DownloadQueryCacheEntry]]):
         """Remove queries from the cache."""
 
         self.root = [
-            e for e in self.root
-            if not ((e.download_query in download_queries) and
-                    (e.atmospheric_profile_model == atmospheric_profile_model))
+            e for e in self.root if not ((e.download_query in download_queries) and
+                                         (e.atmospheric_profile_model == atmospheric_profile_model))
         ]

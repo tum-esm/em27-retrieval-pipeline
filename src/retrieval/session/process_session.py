@@ -12,11 +12,7 @@ from . import (
 )
 
 
-def run(
-    config: types.Config,
-    session: types.RetrievalSession,
-    test_mode: bool = False
-) -> None:
+def run(config: types.Config, session: types.RetrievalSession, test_mode: bool = False) -> None:
     signal.signal(signal.SIGINT, signal.SIG_IGN)
     logger = retrieval.utils.logger.Logger(
         container_id=session.ctn.container_id,
@@ -79,9 +75,7 @@ def run(
         except Exception as e:
             logger.exception(e, label="Proffast execution failed")
     else:
-        logger.info(
-            f"Skipping proffast execution because there are no valid interferograms"
-        )
+        logger.info(f"Skipping proffast execution because there are no valid interferograms")
 
     # uncomment the following return if you want to observe the final
     # proffast outputs of one day in this working directory

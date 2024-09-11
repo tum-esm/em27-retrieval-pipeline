@@ -16,10 +16,7 @@ def list_requested_data(
     from_date = std_site_config.from_date
     to_date = min(
         std_site_config.to_date,
-        (
-            datetime.datetime.now(tz=datetime.timezone.utc) -
-            datetime.timedelta(hours=25)
-        ).date(),
+        (datetime.datetime.now(tz=datetime.timezone.utc) - datetime.timedelta(hours=25)).date(),
     )
     if from_date > to_date:
         return set()
@@ -34,15 +31,12 @@ def list_downloaded_data(
     assert config.profiles is not None
     downloaded_data: set[datetime.date] = set()
 
-    cs = utils.text.get_coordinates_slug(
-        lat=std_site_config.lat, lon=std_site_config.lon
-    )
+    cs = utils.text.get_coordinates_slug(lat=std_site_config.lat, lon=std_site_config.lon)
     r = re.compile(r"^\d{8,10}_" + cs + r"\.(map|mod|vmr)$")
     filenames: set[str] = set([
-        f for f in os.listdir(
-            os.path.
-            join(config.general.data.atmospheric_profiles.root, "GGG2020")
-        ) if r.match(f)
+        f
+        for f in os.listdir(os.path.join(config.general.data.atmospheric_profiles.root, "GGG2020"))
+        if r.match(f)
     ])
     dates: set[datetime.date] = set([
         d for d in [
@@ -51,8 +45,7 @@ def list_downloaded_data(
                 month=int(f[4 : 6]),
                 day=int(f[6 : 8]),
             ) for f in filenames
-        ]
-        if ((std_site_config.from_date <= d) and (d <= std_site_config.to_date))
+        ] if ((std_site_config.from_date <= d) and (d <= std_site_config.to_date))
     ])
 
     required_prefixes = [f"%Y%m%d{h:02d}" for h in range(0, 24, 3)]
@@ -60,8 +53,7 @@ def list_downloaded_data(
 
     for d in dates:
         expected_filenames = set([
-            f"{d.strftime(p)}_{cs}.{e}" for e in required_extensions
-            for p in required_prefixes
+            f"{d.strftime(p)}_{cs}.{e}" for e in required_extensions for p in required_prefixes
         ])
         if expected_filenames.issubset(filenames):
             downloaded_data.add(d)
@@ -87,9 +79,7 @@ def download_data(
             total=len(config.profiles.GGG2020_standard_sites),
         )
         for std_site_config in config.profiles.GGG2020_standard_sites:
-            progress.print(
-                f"Processing {std_site_config.model_dump_json(indent=4)}"
-            )
+            progress.print(f"Processing {std_site_config.model_dump_json(indent=4)}")
             requested_data = list_requested_data(config, std_site_config)
             downloaded_data = list_downloaded_data(config, std_site_config)
             missing_data = compute_missing_data(
@@ -114,8 +104,7 @@ def download_data(
                     try:
                         filename = next(
                             filter(
-                                lambda f: f.
-                                endswith(date.strftime("%Y%m%d.tgz")),
+                                lambda f: f.endswith(date.strftime("%Y%m%d.tgz")),
                                 tarballs_on_server,
                             )
                         )

@@ -14,14 +14,11 @@ def compute_solar_noon_time(
     lon: float,
     date: datetime.date,
 ) -> datetime.datetime:
-    start_time = datetime.datetime.combine(
-        date, datetime.time.min, tzinfo=datetime.timezone.utc
-    )
+    start_time = datetime.datetime.combine(date, datetime.time.min, tzinfo=datetime.timezone.utc)
     end_time = start_time + datetime.timedelta(days=1)
     timescale = skyfield.api.load.timescale()
-    ephemeris: Any = skyfield.iokit.Loader(
-        tum_esm_utils.files.rel_to_abs_path("../../../data")
-    )('de421.bsp')
+    ephemeris: Any = skyfield.iokit.Loader(tum_esm_utils.files.rel_to_abs_path("../../../data")
+                                          )('de421.bsp')
 
     times, events = skyfield.almanac.find_discrete(
         timescale.from_datetime(start_time),
@@ -53,24 +50,15 @@ def compute_mean_pressure_around_noon(
             "BaroYoung": pl.Float64,
         },
     ).with_columns(
-        pl.col("UTCtime___").str.strptime(dtype=pl.Time, format="%H:%M:%S"
-                                         ).alias("UTCtime___")
+        pl.col("UTCtime___").str.strptime(dtype=pl.Time, format="%H:%M:%S").alias("UTCtime___")
     )
     if logger is not None:
         logger.debug(f"Found {len(df)} pressure data points")
-    df_around_noon = df.filter((
-        pl.col("UTCtime___") >=
-        (solar_noon_datetime - datetime.timedelta(minutes=120)).time()
-    ) & (
-        pl.col("UTCtime___") <=
-        (solar_noon_datetime + datetime.timedelta(minutes=120)).time()
-    ))
-    if logger is not None:
-        logger.debug(
-            f"Found {len(df_around_noon)} pressure data points around noon (+- 2h)"
-        )
-    assert len(df_around_noon
-              ) > 10, ("Did not find enough pressure data around solar noon")
-    return round(
-        float(df_around_noon.select("BaroYoung").to_numpy().flatten().mean()), 3
+    df_around_noon = df.filter(
+        (pl.col("UTCtime___") >= (solar_noon_datetime - datetime.timedelta(minutes=120)).time()) &
+        (pl.col("UTCtime___") <= (solar_noon_datetime + datetime.timedelta(minutes=120)).time())
     )
+    if logger is not None:
+        logger.debug(f"Found {len(df_around_noon)} pressure data points around noon (+- 2h)")
+    assert len(df_around_noon) > 10, ("Did not find enough pressure data around solar noon")
+    return round(float(df_around_noon.select("BaroYoung").to_numpy().flatten().mean()), 3)

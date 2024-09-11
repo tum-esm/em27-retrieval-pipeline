@@ -11,8 +11,7 @@ def run(
     if session.job_settings.use_local_pressure_in_pcxs:
         logger.info("Computing mean pressure around solarnoon")
         solar_noon_datetime = retrieval.utils.pressure_averaging.compute_solar_noon_time(
-            session.ctx.location.lat, session.ctx.location.lon,
-            session.ctx.from_datetime.date()
+            session.ctx.location.lat, session.ctx.location.lon, session.ctx.from_datetime.date()
         )
         logger.debug(f"Solar noon time: {solar_noon_datetime.time()} (UTC)")
         pcxs_pressure_value = retrieval.utils.pressure_averaging.compute_mean_pressure_around_noon(
@@ -41,9 +40,7 @@ def run(
         replacements["ILS_Channel2"] = f"{ils.channel2_me} {ils.channel2_pe}"
 
     logger.info(f"Writing values to templates: {replacements}")
-    templates_path = os.path.join(
-        session.ctn.container_path, "prfpylot", "templates"
-    )
+    templates_path = os.path.join(session.ctn.container_path, "prfpylot", "templates")
     for filename in os.listdir(templates_path):
         filepath = os.path.join(templates_path, filename)
         if os.path.isfile(filepath) and filename.endswith(".inp"):

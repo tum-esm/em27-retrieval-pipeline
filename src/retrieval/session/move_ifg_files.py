@@ -38,13 +38,11 @@ def run(
 
     ifg_filenames = list(
         sorted([
-            f for f in os.listdir(ifg_src_directory)
-            if expected_ifg_pattern.match(f) is not None
+            f for f in os.listdir(ifg_src_directory) if expected_ifg_pattern.match(f) is not None
         ])
     )
     logger.debug(
-        f"{len(ifg_filenames)} ifg files found in " +
-        f"src directory ({ifg_src_directory})"
+        f"{len(ifg_filenames)} ifg files found in " + f"src directory ({ifg_src_directory})"
     )
     assert len(ifg_filenames) > 0, "no ifg input files"
     retrieval.utils.retrieval_status.RetrievalStatusList.update_item(
@@ -60,9 +58,7 @@ def run(
     # RENAME THEM TO THE FORMAT EXPECTED BY THE
     # PYLOT
 
-    dst_date_path = os.path.join(
-        session.ctn.data_input_path, "ifg", date_string[2 :]
-    )
+    dst_date_path = os.path.join(session.ctn.data_input_path, "ifg", date_string[2 :])
     os.mkdir(dst_date_path)
     for ifg_index, filename in enumerate(ifg_filenames):
         os.symlink(
@@ -79,16 +75,14 @@ def run(
                 ifg_directory=dst_date_path
             )
         except subprocess.CalledProcessError:
-            raise AssertionError(
-                "corrupt-files-detection has failed during execution"
-            )
+            raise AssertionError("corrupt-files-detection has failed during execution")
 
         if len(corruption_result) == 0:
             logger.info("No corrupt files found")
         else:
             logger.debug(
-                f"Excluding {len(corruption_result)} corrupt file(s) from retrieval: "
-                + json.dumps(corruption_result, indent=4)
+                f"Excluding {len(corruption_result)} corrupt file(s) from retrieval: " +
+                json.dumps(corruption_result, indent=4)
             )
             for f in corruption_result.keys():
                 os.remove(os.path.join(dst_date_path, f))

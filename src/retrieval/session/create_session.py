@@ -4,12 +4,8 @@ import em27_metadata
 import tum_esm_utils
 from src import types, retrieval
 
-_PROJECT_DIR = tum_esm_utils.files.get_parent_dir_path(
-    __file__, current_depth=4
-)
-_RETRIEVAL_ALGORITHMS_DIR = os.path.join(
-    _PROJECT_DIR, "src", "retrieval", "algorithms"
-)
+_PROJECT_DIR = tum_esm_utils.files.get_parent_dir_path(__file__, current_depth=4)
+_RETRIEVAL_ALGORITHMS_DIR = os.path.join(_PROJECT_DIR, "src", "retrieval", "algorithms")
 
 
 def _generate_pylot2_config(session: types.Proffast2RetrievalSession) -> None:
@@ -26,36 +22,23 @@ def _generate_pylot2_config(session: types.Proffast2RetrievalSession) -> None:
         tum_esm_utils.text.insert_replacements(
             file_content,
             {
-                "SERIAL_NUMBER":
-                    str(session.ctx.serial_number).zfill(3),
-                "SENSOR_ID":
-                    session.ctx.sensor_id,
-                "COORDINATES_LAT":
-                    str(round(session.ctx.location.lat, 6)),
-                "COORDINATES_LON":
-                    str(round(session.ctx.location.lon, 6)),
-                "COORDINATES_ALT":
-                    str(round(session.ctx.location.alt / 1000.0, 6)),
-                "UTC_OFFSET":
-                    str(round(session.ctx.utc_offset, 9)),
-                "CONTAINER_ID":
-                    session.ctn.container_id,
-                "CONTAINER_PATH":
-                    session.ctn.container_path,
-                "DATA_INPUT_PATH":
-                    session.ctn.data_input_path,
-                "DATA_OUTPUT_PATH":
-                    session.ctn.data_output_path,
-                "PYLOT_LOG_FORMAT_PATH":
-                    session.ctn.pylot_log_format_path,
+                "SERIAL_NUMBER": str(session.ctx.serial_number).zfill(3),
+                "SENSOR_ID": session.ctx.sensor_id,
+                "COORDINATES_LAT": str(round(session.ctx.location.lat, 6)),
+                "COORDINATES_LON": str(round(session.ctx.location.lon, 6)),
+                "COORDINATES_ALT": str(round(session.ctx.location.alt / 1000.0, 6)),
+                "UTC_OFFSET": str(round(session.ctx.utc_offset, 9)),
+                "CONTAINER_ID": session.ctn.container_id,
+                "CONTAINER_PATH": session.ctn.container_path,
+                "DATA_INPUT_PATH": session.ctn.data_input_path,
+                "DATA_OUTPUT_PATH": session.ctn.data_output_path,
+                "PYLOT_LOG_FORMAT_PATH": session.ctn.pylot_log_format_path,
             },
         ),
     )
 
 
-def _generate_pylot2_log_format(
-    session: types.Proffast2RetrievalSession
-) -> None:
+def _generate_pylot2_log_format(session: types.Proffast2RetrievalSession) -> None:
     file_content = tum_esm_utils.files.load_file(
         os.path.join(
             _RETRIEVAL_ALGORITHMS_DIR,
@@ -98,9 +81,7 @@ def run(
             ctx=sensor_data_context,
             ctn=container_factory.create_container(retrieval_algorithm),
         )
-    elif retrieval_algorithm in [
-        "proffast-2.2", "proffast-2.3", "proffast-2.4", "proffast-2.4.1"
-    ]:
+    elif retrieval_algorithm in ["proffast-2.2", "proffast-2.3", "proffast-2.4", "proffast-2.4.1"]:
         new_session = types.Proffast2RetrievalSession(
             retrieval_algorithm=retrieval_algorithm,
             atmospheric_profile_model=atmospheric_profile_model,
@@ -111,9 +92,7 @@ def run(
         _generate_pylot2_config(new_session)
         _generate_pylot2_log_format(new_session)
     else:
-        raise NotImplementedError(
-            f"Retrieval algorithm {retrieval_algorithm} not implemented"
-        )
+        raise NotImplementedError(f"Retrieval algorithm {retrieval_algorithm} not implemented")
 
     retrieval.utils.retrieval_status.RetrievalStatusList.update_item(
         retrieval_algorithm=retrieval_algorithm,

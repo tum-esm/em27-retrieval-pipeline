@@ -33,10 +33,8 @@ def _ggg2020_profiles_exists(
     date_string = date.strftime("%Y%m%d")
     coords_string = get_coordinates_slug(lat, lon)
     return "✅" if all([
-        os.path.isfile(
-            os.path.
-            join(path, "GGG2020", f"{date_string}{h:02d}_{coords_string}.map")
-        ) for h in range(0, 22, 3)
+        os.path.isfile(os.path.join(path, "GGG2020", f"{date_string}{h:02d}_{coords_string}.map"))
+        for h in range(0, 22, 3)
     ]) else "-"
 
 
@@ -63,10 +61,8 @@ def _count_datalogger_datapoints(
 ) -> int:
     try:
         with open(
-            os.path.join(
-                path, sensor_id,
-                f"datalogger-{sensor_id}-{date.strftime('%Y%m%d')}.csv"
-            ), "r"
+            os.path.join(path, sensor_id, f"datalogger-{sensor_id}-{date.strftime('%Y%m%d')}.csv"),
+            "r"
         ) as f:
             return len(f.readlines()) - 1
     except FileNotFoundError:
@@ -91,15 +87,11 @@ def _check_retrieval_output(
     if not sdc_covers_the_full_day(sdc):
         output_folder_slug += max(
             sdc.from_datetime,
-            datetime.datetime.combine(
-                date, datetime.time.min, tzinfo=datetime.timezone.utc
-            ),
+            datetime.datetime.combine(date, datetime.time.min, tzinfo=datetime.timezone.utc),
         ).strftime("_%H%M%S")
         output_folder_slug += min(
             sdc.to_datetime,
-            datetime.datetime.combine(
-                date, datetime.time.max, tzinfo=datetime.timezone.utc
-            ),
+            datetime.datetime.combine(date, datetime.time.max, tzinfo=datetime.timezone.utc),
         ).strftime("_%H%M%S")
 
     success_path = os.path.join(
@@ -144,18 +136,14 @@ def export_data_report(
         ggg2014_proffast_23_outputs: list[str] = []
         ggg2020_proffast_22_outputs: list[str] = []
         ggg2020_proffast_23_outputs: list[str] = []
-        console.print(
-            f"determining sensor data contexts for sensor {sensor.sensor_id}"
-        )
+        console.print(f"determining sensor data contexts for sensor {sensor.sensor_id}")
         sdcs = em27_metadata_interface.get(
             sensor_id=sensor.sensor_id,
             from_datetime=sensor.setups[0].from_datetime,
             to_datetime=sensor.setups[-1].to_datetime
         )
         with rich.progress.Progress() as progress:
-            task = progress.add_task(
-                "parsing all sensor data contexts", total=len(sdcs)
-            )
+            task = progress.add_task("parsing all sensor data contexts", total=len(sdcs))
             for sdc in sdcs:
                 dates = tum_esm_utils.timing.date_range(
                     sdc.from_datetime.date(), sdc.to_datetime.date()
@@ -211,29 +199,19 @@ def export_data_report(
                         )
                     )
                     ggg2014_proffast_10_outputs.append(
-                        _check_retrieval_output(
-                            config, date, sdc, "proffast-1.0", "GGG2014"
-                        )
+                        _check_retrieval_output(config, date, sdc, "proffast-1.0", "GGG2014")
                     )
                     ggg2014_proffast_22_outputs.append(
-                        _check_retrieval_output(
-                            config, date, sdc, "proffast-2.2", "GGG2014"
-                        )
+                        _check_retrieval_output(config, date, sdc, "proffast-2.2", "GGG2014")
                     )
                     ggg2014_proffast_23_outputs.append(
-                        _check_retrieval_output(
-                            config, date, sdc, "proffast-2.3", "GGG2014"
-                        )
+                        _check_retrieval_output(config, date, sdc, "proffast-2.3", "GGG2014")
                     )
                     ggg2020_proffast_22_outputs.append(
-                        _check_retrieval_output(
-                            config, date, sdc, "proffast-2.2", "GGG2020"
-                        )
+                        _check_retrieval_output(config, date, sdc, "proffast-2.2", "GGG2020")
                     )
                     ggg2020_proffast_23_outputs.append(
-                        _check_retrieval_output(
-                            config, date, sdc, "proffast-2.3", "GGG2020"
-                        )
+                        _check_retrieval_output(config, date, sdc, "proffast-2.3", "GGG2020")
                     )
                     progress.advance(subtask)
                 progress.remove_task(subtask)
@@ -258,8 +236,7 @@ def export_data_report(
             pl.col("datalogger").cast(str).str.pad_start(5),
         ])
         df.write_csv(
-            tum_esm_utils.files.
-            rel_to_abs_path(f"../../data/reports/{sensor.sensor_id}.csv"),
+            tum_esm_utils.files.rel_to_abs_path(f"../../data/reports/{sensor.sensor_id}.csv"),
             datetime_format="%Y-%m-%dT%H:%M:%S%z",
         )
         console.print(

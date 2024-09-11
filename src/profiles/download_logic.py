@@ -31,17 +31,12 @@ def download_data(
         for query in progress.track(queries, description=f"Downloading ..."):
             progress.print(f"Downloading {query}")
 
-            cs_verbose = utils.text.get_coordinates_slug(
-                query.lat, query.lon, verbose=True
-            )
-            cs_nonverbose = utils.text.get_coordinates_slug(
-                query.lat, query.lon, verbose=False
-            )
+            cs_verbose = utils.text.get_coordinates_slug(query.lat, query.lon, verbose=True)
+            cs_nonverbose = utils.text.get_coordinates_slug(query.lat, query.lon, verbose=False)
             ds = query.from_date.strftime("%Y%m%d")
             tarballs_to_download = [
-                t
-                for t in tarballs_on_server if ((f"{cs_verbose}_{ds}" in t) or
-                                                (f"{cs_nonverbose}_{ds}" in t))
+                t for t in tarballs_on_server
+                if ((f"{cs_verbose}_{ds}" in t) or (f"{cs_nonverbose}_{ds}" in t))
             ]
             if atmospheric_profile_model == "GGG2020":
                 if len(tarballs_to_download) >= 1:
@@ -96,9 +91,7 @@ def extract_archive(
             if atmospheric_profile_model == "GGG2020":
                 basename = name.split("/")[-1]
                 extension = basename.split(".")[-1]
-                assert extension in [
-                    "map", "mod", "vmr"
-                ], f"Unexpected extension: {extension}"
+                assert extension in ["map", "mod", "vmr"], f"Unexpected extension: {extension}"
                 if extension == "map":
                     date = basename.split("_")[-1][: 8]
                     hour = basename.split("_")[-1][8 : 10]
