@@ -11,6 +11,7 @@ def run(session: types.RetrievalSession, test_mode: bool = False) -> None:
         _create_mock_outputs(session)
         return
 
+    # TODO: use sys.executable instead of hardcoded path
     if isinstance(session, types.Proffast1RetrievalSession):
         tum_esm_utils.shell.run_shell_command(
             " ".join([

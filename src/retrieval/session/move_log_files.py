@@ -2,6 +2,8 @@ import os
 import shutil
 from src import types, retrieval
 
+# TODO: heavily refactor this to comply with the new structure
+
 
 def run(
     config: types.Config,

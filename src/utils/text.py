@@ -74,6 +74,8 @@ names = [
     "wing", "wozniak", "wright", "wu", "yalow", "yonath", "zhukovsky"
 ]
 
+# TODO: move this to `tum_esm_utils`
+
 
 def get_random_container_name(currently_used_names: list[str] = []) -> str:
     forbidden_adjectives = [x.split("-")[0] for x in currently_used_names]
