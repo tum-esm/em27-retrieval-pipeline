@@ -4,6 +4,8 @@ import em27_metadata
 import tum_esm_utils
 from src import types, utils, retrieval
 
+# # TODO: refactor this to comply with the new ground pressure structure
+
 
 def generate_retrieval_queue(
     config: types.Config, logger: retrieval.utils.logger.Logger,

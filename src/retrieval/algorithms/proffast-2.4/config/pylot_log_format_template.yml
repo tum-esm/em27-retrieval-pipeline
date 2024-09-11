@@ -3,7 +3,7 @@
 # the filename used to search for the pressure file looks like:
 # filename = basename + "%Y-%m-%d" + "*.dat"
 filename_parameters:
-  basename: "datalogger-%PRESSURE_DATA_SOURCE%-"
+  basename: "ground-pressure-%PRESSURE_DATA_SOURCE%-"
   time_format: "%Y%m%d"
   ending: ".csv"
 
@@ -13,11 +13,11 @@ filename_parameters:
 # "27.11.2019" "00:00:16" 1574812816 +9.4088e+02
 # """
 dataframe_parameters:
-  pressure_key: "BaroYoung"
-  time_key: "UTCtime___"
+  pressure_key: "pressure"
+  time_key: "utc-time"
   time_fmt: "%H:%M:%S"
-  date_key: "UTCdate_____"
-  date_fmt: "%d.%m.%Y"
+  date_key: "utc-date"
+  date_fmt: "%Y-%m-%d"
   datetime_key: ""
   datetime_fmt: ""
   csv_kwargs:
