@@ -1,10 +1,9 @@
 import datetime
 import os
+import re
 import em27_metadata
 import tum_esm_utils
 from src import types, utils, retrieval
-
-# # TODO: refactor this to comply with the new ground pressure structure
 
 
 def generate_retrieval_queue(
@@ -93,24 +92,35 @@ def generate_retrieval_queue(
             "have not been processed yet"
         )
 
-        # Only keep the sensor data contexts with datalogger files
+        # Only keep the sensor data contexts with ground pressure files
 
         unprocessed_sensor_data_contexts_with_datalogger_files: list[
             em27_metadata.types.SensorDataContext] = []
         for sdc in unprocessed_sensor_data_contexts:
-            datalogger_file_path = os.path.join(
-                config.general.data.datalogger.root,
+            ground_pressure_dir = os.path.join(
+                config.general.data.ground_pressure.path.root,
                 sdc.pressure_data_source,
-                (
-                    f"datalogger-{sdc.pressure_data_source}-" +
-                    sdc.from_datetime.strftime("%Y%m%d") + ".csv"
-                ),
             )
-            if os.path.isfile(datalogger_file_path):
-                unprocessed_sensor_data_contexts_with_datalogger_files.append(sdc)
+
+            file_regex = config.general.data.ground_pressure.file_regex
+            date_string = sdc.from_datetime.strftime("%Y%m%d")
+            for placeholder, replacement in [
+                ("$(SENSOR_ID)", sdc.sensor_id),
+                ("$(DATE)", date_string),
+                ("$(YYYY)", date_string[: 4]),
+                ("$(YY)", date_string[2 : 4]),
+                ("$(MM)", date_string[4 : 6]),
+                ("$(DD)", date_string[6 :]),
+            ]:
+                file_regex = file_regex.replace(placeholder, replacement)
+
+            for f in os.listdir(ground_pressure_dir):
+                if re.match(file_regex, f) is not None:
+                    unprocessed_sensor_data_contexts_with_datalogger_files.append(sdc)
+                    break
         logger.info(
             f"  {len(unprocessed_sensor_data_contexts_with_datalogger_files)} of these "
-            "sensor data contexts have datalogger files"
+            "sensor data contexts have ground pressure files"
         )
 
         # Only keep the sensor data contexts with atmospheric profiles
