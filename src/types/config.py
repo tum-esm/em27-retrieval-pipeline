@@ -248,13 +248,13 @@ class RetrievalGeneralConfig(pydantic.BaseModel):
         ...,
         min_length=1,
         description=
-        "A regex string to match the ifg file names. In this string, `$(SENSOR_ID)`, `$(YYYY)`, `$(YY)`, `$(MM)`, and `$(DD)` are placeholders to target a certain station and date. The placeholder `$(DATE)` is a shortcut for `$(YYYY)$(MM)$(DD)`.",
+        "A regex string to match the ifg file names. In this string, `$(SENSOR_ID)`, `$(YYYY)`, `$(YY)`, `$(MM)`, and `$(DD)` are placeholders to target a certain station and date. The placeholder `$(DATE)` is a shortcut for `$(YYYY)$(MM)$(DD)`. They don't have to be used - you can also run the retrieval on any file it finds in the directory using `.*`",
         examples=[
+            r"^*\.\d+$"
             r"^$(SENSOR_ID)$(DATE).*\.\d+$",
             r"^$(SENSOR_ID)-$(YYYY)-$(MM)-$(DD).*\.nc$",
         ],
     )
-    # TODO: support new placeholders YYYY, YY, MM, and DD
 
 
 class RetrievalJobSettingsILSConfig(pydantic.BaseModel):

@@ -30,9 +30,16 @@ def run(
         session.ctx.sensor_id,
         date_string,
     )
-    expected_ifg_regex = config.retrieval.general.ifg_file_regex.replace(
-        "$(SENSOR_ID)", session.ctx.sensor_id
-    ).replace("$(DATE)", date_string)
+    for placeholder, replacement in [
+        ("$(SENSOR_ID)", session.ctx.sensor_id),
+        ("$(DATE)", date_string),
+        ("$(YYYY)", date_string[: 4]),
+        ("$(YY)", date_string[2 : 4]),
+        ("$(MM)", date_string[4 : 6]),
+        ("$(DD)", date_string[6 :]),
+    ]:
+        expected_ifg_regex = expected_ifg_regex.replace(placeholder, replacement)
+
     expected_ifg_pattern = re.compile(expected_ifg_regex)
     logger.debug(f"used regex for ifg files: {expected_ifg_regex}")
 
