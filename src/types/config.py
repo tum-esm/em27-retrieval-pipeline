@@ -28,11 +28,133 @@ class MetadataConfig(pydantic.BaseModel):
     )
 
 
+class GroundPressureConfig(pydantic.BaseModel):
+    """Format of the ground pressure files. We support any text file that stores one data point per row and separates the columns with a comma, space, or tab, i.e. CSV, TSV, or space-separated files. Using the `file_regex` field, you specify which files to consider for a given sensor id and date.
+    
+    You have to specify the columns that contain the date and time of the data. There is three options to specify this - the CLI will complain if you configure none or more than one of these options:
+    
+    * One column with a datetime string -> configure `datetime_column` and `datetime_column_format`
+    * Two columns, one with the date and one with the time -> configure `date_column`, `date_column_format`, `time_column`, and `time_column_format`
+    * One column with a unix timestamp -> configure `unix_timestamp_column` and `unix_timestamp_column_format`"""
+
+    # where to find the files
+    path: tum_esm_utils.validators.StrictDirectoryPath = pydantic.Field(
+        ...,
+        description="Directory path to ground pressure files.",
+    )
+
+    # how to find and parse the files
+    file_regex: str = pydantic.Field(
+        ...,
+        min_length=1,
+        description=(
+            "A regex string to match the ground pressure file names. In this string, you can use the placeholders `$(SENSOR_ID)`, `$(YYYY)`, `$(YY)`, `$(MM)`, and `$(DD)` to make this regex target a certain station and date. The placeholder `$(DATE)` is a shortcut for `$(YYYY)$(MM)$(DD)`."
+        ),
+        examples=[
+            "^$(DATE).tsv$",
+            "^$(SENSOR_ID)_$(DATE).dat$",
+            "^ground-pressure-$(SENSOR_ID)-$(YYYY)-$(MM)-$(DD).csv$",
+        ],
+    )
+    separator: str = pydantic.Field(
+        None,
+        description=
+        "Separator used in the ground pressure files. Only needed and used if the file format is `text`.",
+        min_length=1,
+        max_length=1,
+        examples=[",", "\t", " ", ";"],
+    )
+
+    # one datetime column
+    datetime_column: Optional[str] = pydantic.Field(
+        None,
+        description="Column name in the ground pressure files that contains the datetime.",
+    )
+    datetime_column_format: Optional[str] = pydantic.Field(
+        None,
+        description="Format of the datetime column in the ground pressure files.",
+        examples=["%Y-%m-%dT%H:%M:%S"],
+    )
+
+    # two columns for date and time
+    date_column: Optional[str] = pydantic.Field(
+        None,
+        description="Column name in the ground pressure files that contains the date.",
+    )
+    date_column_format: Optional[str] = pydantic.Field(
+        None,
+        description="Format of the date column in the ground pressure files.",
+        examples=["%Y-%m-%d", "%Y%m%d", "%d.%m.%Y"],
+    )
+    time_column: Optional[str] = pydantic.Field(
+        None,
+        description="Column name in the ground pressure files that contains the time.",
+    )
+    time_column_format: Optional[str] = pydantic.Field(
+        None,
+        description="Format of the time column in the ground pressure files.",
+        examples=["%H:%M:%S", "%H:%M", "%H%M%S"],
+    )
+
+    # one unix timestamp column
+    unix_timestamp_column: Optional[str] = pydantic.Field(
+        None,
+        description="Column name in the ground pressure files that contains the unix timestamp.",
+    )
+    unix_timestamp_column_format: Optional[Literal["s", "ms", "us", "ns"]] = pydantic.Field(
+        None,
+        description=
+        "Format of the unix timestamp column in the ground pressure files. I.e. is the Unix timestamp in seconds, milliseconds, etc.?",
+    )
+
+    # pressure column
+    pressure_column: str = pydantic.Field(
+        ...,
+        description="Column name in the ground pressure files that contains the pressure.",
+    )
+    pressure_column_format: Literal["hPa", "Pa"] = pydantic.Field(
+        ...,
+        description="Format of the pressure column in the ground pressure files.",
+    )
+
+    # validate -> you can only set either date AND time OR unix_timestamp
+    @pydantic.model_validator(mode='after')
+    def _check_datetime_columns(self) -> GroundPressureConfig:
+        required = {
+            "datetime_column": [],
+            "date_column": ["time_column"],
+            "time_column": ["date_column"],
+            "unix_timestamp_column": [],
+        }
+        forbidden = {
+            "datetime_column": ["date_column", "time_column", "unix_timestamp_column"],
+            "date_column": ["datetime_column", "unix_timestamp_column"],
+            "time_column": ["datetime_column", "unix_timestamp_column"],
+            "unix_timestamp_column": ["datetime_column", "date_column", "time_column"],
+        }
+
+        for col in ["datetime_column", "date_column", "time_column", "unix_timestamp_column"]:
+            fmt = col + "_format"
+            if (getattr(self, col) is not None) and (getattr(self, fmt) is None):
+                raise ValueError(f'You have to set `{fmt}` if you set `{col}`')
+            if (getattr(self, fmt) is not None) and (getattr(self, col) is None):
+                raise ValueError(f'You have to set `{col}` if you set `{fmt}`')
+
+            if getattr(self, col) is not None:
+                for other_col in required[col]:
+                    if getattr(self, other_col) is None:
+                        raise ValueError(f'You have to set `{other_col}` if you set `{col}`')
+                for other_col in forbidden[col]:
+                    if getattr(self, other_col) is not None:
+                        raise ValueError(f'You cannot set `{other_col}` if you set `{col}`')
+
+
 class DataConfig(pydantic.BaseModel):
     """Location where the input data sourced from."""
 
-    datalogger: tum_esm_utils.validators.StrictDirectoryPath = pydantic.Field(
-        ..., description="directory path to datalogger files"
+    ground_pressure: GroundPressureConfig = pydantic.Field(
+        ...,
+        description="directory path and format configuration of the ground pressure files",
     )
     atmospheric_profiles: tum_esm_utils.validators.StrictDirectoryPath = pydantic.Field(
         ..., description="directory path to atmospheric profile files"
