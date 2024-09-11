@@ -1,5 +1,6 @@
 from typing import Literal
 import datetime
+import re
 import os
 import em27_metadata
 import polars as pl
@@ -7,7 +8,7 @@ import tum_esm_utils
 import rich.console
 import rich.progress
 from src import types
-from .text import get_coordinates_slug
+from .text import get_coordinates_slug, replace_regex_placeholders
 from .functions import sdc_covers_the_full_day
 
 
@@ -54,19 +55,23 @@ def _count_ifg_datapoints(
         return 0
 
 
-def _count_datalogger_datapoints(
-    path: str,
+def _count_ground_pressure_datapoints(
+    config: types.Config,
     sensor_id: str,
     date: datetime.date,
 ) -> int:
-    try:
-        with open(
-            os.path.join(path, sensor_id, f"datalogger-{sensor_id}-{date.strftime('%Y%m%d')}.csv"),
-            "r"
-        ) as f:
-            return len(f.readlines()) - 1
-    except FileNotFoundError:
-        return 0
+    file_regex = replace_regex_placeholders(
+        config.general.data.ground_pressure.file_regex, sensor_id, date
+    )
+    file_pattern = re.compile(file_regex)
+    d = os.path.join(config.general.data.ground_pressure.path.root, sensor_id)
+    all_files = os.listdir(d)
+    matching_files = [f for f in all_files if file_pattern.match(f) is not None]
+    line_count = 0
+    for file in matching_files:
+        with open(os.path.join(d, file), "r") as f:
+            line_count += len(f.readlines())
+    return line_count
 
 
 def _check_retrieval_output(
@@ -77,6 +82,7 @@ def _check_retrieval_output(
         "proffast-1.0",
         "proffast-2.2",
         "proffast-2.3",
+        "proffast-2.4",
     ],
     atmospheric_model: Literal[
         "GGG2014",
@@ -128,14 +134,16 @@ def export_data_report(
         to_datetimes: list[datetime.datetime] = []
         location_ids: list[str] = []
         interferograms: list[int] = []
-        datalogger: list[int] = []
+        ground_pressure: list[int] = []
         ggg2014_profiles: list[str] = []
         ggg2020_profiles: list[str] = []
         ggg2014_proffast_10_outputs: list[str] = []
         ggg2014_proffast_22_outputs: list[str] = []
         ggg2014_proffast_23_outputs: list[str] = []
+        ggg2014_proffast_24_outputs: list[str] = []
         ggg2020_proffast_22_outputs: list[str] = []
         ggg2020_proffast_23_outputs: list[str] = []
+        ggg2020_proffast_24_outputs: list[str] = []
         console.print(f"determining sensor data contexts for sensor {sensor.sensor_id}")
         sdcs = em27_metadata_interface.get(
             sensor_id=sensor.sensor_id,
@@ -175,9 +183,9 @@ def export_data_report(
                             date,
                         )
                     )
-                    datalogger.append(
-                        _count_datalogger_datapoints(
-                            config.general.data.datalogger.root,
+                    ground_pressure.append(
+                        _count_ground_pressure_datapoints(
+                            config,
                             sensor.sensor_id,
                             date,
                         )
@@ -207,11 +215,17 @@ def export_data_report(
                     ggg2014_proffast_23_outputs.append(
                         _check_retrieval_output(config, date, sdc, "proffast-2.3", "GGG2014")
                     )
+                    ggg2014_proffast_24_outputs.append(
+                        _check_retrieval_output(config, date, sdc, "proffast-2.4", "GGG2014")
+                    )
                     ggg2020_proffast_22_outputs.append(
                         _check_retrieval_output(config, date, sdc, "proffast-2.2", "GGG2020")
                     )
                     ggg2020_proffast_23_outputs.append(
                         _check_retrieval_output(config, date, sdc, "proffast-2.3", "GGG2020")
+                    )
+                    ggg2020_proffast_24_outputs.append(
+                        _check_retrieval_output(config, date, sdc, "proffast-2.4", "GGG2020")
                     )
                     progress.advance(subtask)
                 progress.remove_task(subtask)
@@ -222,14 +236,16 @@ def export_data_report(
             "to_datetime": to_datetimes,
             "location_id": location_ids,
             "interferograms": interferograms,
-            "datalogger": datalogger,
+            "ground_pressure": ground_pressure,
             "ggg2014_profiles": ggg2014_profiles,
             "ggg2014_proffast_10_outputs": ggg2014_proffast_10_outputs,
             "ggg2014_proffast_22_outputs": ggg2014_proffast_22_outputs,
             "ggg2014_proffast_23_outputs": ggg2014_proffast_23_outputs,
+            "ggg2014_proffast_24_outputs": ggg2014_proffast_24_outputs,
             "ggg2020_profiles": ggg2020_profiles,
             "ggg2020_proffast_22_outputs": ggg2020_proffast_22_outputs,
             "ggg2020_proffast_23_outputs": ggg2020_proffast_23_outputs,
+            "ggg2020_proffast_24_outputs": ggg2020_proffast_24_outputs,
         }).with_columns([
             pl.col("location_id").str.pad_start(8),
             pl.col("interferograms").cast(str).str.pad_start(5),
