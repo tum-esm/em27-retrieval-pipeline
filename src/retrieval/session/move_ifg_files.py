@@ -3,7 +3,7 @@ import os
 import re
 import subprocess
 import tum_esm_utils
-from src import types, retrieval
+from src import types, utils, retrieval
 
 
 def run(
@@ -23,23 +23,15 @@ def run(
 
     # FIND ALL FILENAMES OF INTERFEROGRAMS
 
-    date_string = session.ctx.from_datetime.strftime("%Y%m%d")
-
     ifg_src_directory = os.path.join(
         config.general.data.interferograms.root,
         session.ctx.sensor_id,
-        date_string,
+        session.ctx.from_datetime.strftime("%Y%m%d"),
     )
-    for placeholder, replacement in [
-        ("$(SENSOR_ID)", session.ctx.sensor_id),
-        ("$(DATE)", date_string),
-        ("$(YYYY)", date_string[: 4]),
-        ("$(YY)", date_string[2 : 4]),
-        ("$(MM)", date_string[4 : 6]),
-        ("$(DD)", date_string[6 :]),
-    ]:
-        expected_ifg_regex = expected_ifg_regex.replace(placeholder, replacement)
-
+    expected_ifg_regex = utils.text.replace_regex_placeholders(
+        config.retrieval.general.ifg_file_regex, session.ctx.sensor_id,
+        session.ctx.from_datetime.date()
+    )
     expected_ifg_pattern = re.compile(expected_ifg_regex)
     logger.debug(f"used regex for ifg files: {expected_ifg_regex}")
 

@@ -2,7 +2,7 @@ import datetime
 import os
 import re
 import polars as pl
-from src import types, retrieval
+from src import types, utils, retrieval
 
 
 def run(
@@ -15,18 +15,11 @@ def run(
     d = os.path.join(c.path.root, session.ctx.pressure_data_source)
 
     all_files = os.listdir(d)
-    src_file_regex = c.file_regex
-    for placeholder, replacement in [
-        ("$(SENSOR_ID)", session.ctx.sensor_id),
-        ("$(DATE)", date_string),
-        ("$(YYYY)", date_string[: 4]),
-        ("$(YY)", date_string[2 : 4]),
-        ("$(MM)", date_string[4 : 6]),
-        ("$(DD)", date_string[6 :]),
-    ]:
-        src_file_regex = src_file_regex.replace(placeholder, replacement)
 
-    src_file_pattern = re.compile(src_file_regex)
+    expected_file_regex = utils.text.replace_regex_placeholders(
+        c.file_regex, session.ctx.sensor_id, session.ctx.from_datetime.date()
+    )
+    src_file_pattern = re.compile(expected_file_regex)
     matching_files = [f for f in all_files if src_file_pattern.match(f) is not None]
     assert len(matching_files) > 0, "no matching files found"
 

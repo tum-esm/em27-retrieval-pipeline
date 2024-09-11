@@ -101,21 +101,14 @@ def generate_retrieval_queue(
                 config.general.data.ground_pressure.path.root,
                 sdc.pressure_data_source,
             )
-
-            file_regex = config.general.data.ground_pressure.file_regex
-            date_string = sdc.from_datetime.strftime("%Y%m%d")
-            for placeholder, replacement in [
-                ("$(SENSOR_ID)", sdc.sensor_id),
-                ("$(DATE)", date_string),
-                ("$(YYYY)", date_string[: 4]),
-                ("$(YY)", date_string[2 : 4]),
-                ("$(MM)", date_string[4 : 6]),
-                ("$(DD)", date_string[6 :]),
-            ]:
-                file_regex = file_regex.replace(placeholder, replacement)
+            expected_file_regex = utils.text.replace_regex_placeholders(
+                config.general.data.ground_pressure.file_regex, sdc.sensor_id,
+                sdc.from_datetime.date()
+            )
+            expected_file_pattern = re.compile(expected_file_regex)
 
             for f in os.listdir(ground_pressure_dir):
-                if re.match(file_regex, f) is not None:
+                if expected_file_pattern.match(f) is not None:
                     unprocessed_sensor_data_contexts_with_datalogger_files.append(sdc)
                     break
         logger.info(

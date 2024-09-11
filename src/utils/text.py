@@ -1,3 +1,4 @@
+import datetime
 import random
 
 
@@ -82,3 +83,20 @@ def get_random_container_name(currently_used_names: list[str] = []) -> str:
     allowed_adjectives = set(adjectives) - set(forbidden_adjectives)
     assert len(allowed_adjectives) > 0, "Not enough adjectives to generate unique names"
     return random.choice(list(allowed_adjectives)) + "-" + random.choice(names)
+
+
+def replace_regex_placeholders(regex_pattern: str, sensor_id: str, date: datetime.date) -> str:
+    """Replace placeholders in a regex pattern"""
+
+    date_string = date.strftime("%Y%m%d")
+    for placeholder, replacement in [
+        ("$(SENSOR_ID)", sensor_id),
+        ("$(DATE)", date_string),
+        ("$(YYYY)", date_string[: 4]),
+        ("$(YY)", date_string[2 : 4]),
+        ("$(MM)", date_string[4 : 6]),
+        ("$(DD)", date_string[6 :]),
+    ]:
+        regex_pattern = regex_pattern.replace(placeholder, replacement)
+
+    return regex_pattern
