@@ -36,7 +36,7 @@ def main(session_string: str) -> None:
         raise e
 
     _log("preparing data")
-    create_input_files.move_profiles_and_datalogger_files(session)
+    create_input_files.move_profiles_and_ground_pressure_files(session)
 
     _log("creating preprocess input file")
     create_input_files.create_preprocess_input_file(session)

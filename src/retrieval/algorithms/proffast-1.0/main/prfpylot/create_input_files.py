@@ -87,7 +87,7 @@ def create_invers_input_file(session: types.RetrievalSession) -> None:
     )
 
 
-def move_profiles_and_datalogger_files(session: types.RetrievalSession) -> None:
+def move_profiles_and_ground_pressure_files(session: types.RetrievalSession) -> None:
     analysis_path = os.path.join(session.ctn.data_output_path, "analysis")
 
     date_string = session.ctx.from_datetime.strftime("%Y%m%d")
@@ -109,16 +109,16 @@ def move_profiles_and_datalogger_files(session: types.RetrievalSession) -> None:
             session.ctn.data_input_path,
             "log",
             (
-                f"datalogger-{session.ctx.pressure_data_source}-" +
+                f"ground-pressure-{session.ctx.pressure_data_source}-" +
                 f"{session.ctx.from_datetime.strftime('%Y%m%d')}.csv"
             ),
         ),
-        columns=["UTCtime___", "BaroYoung"],
+        columns=["utc-time", "pressure"],
     )
 
     def row_to_str(row: dict[str, Any]) -> str:
-        time = str(row["UTCtime___"]).replace(":", "")
-        pressure = float(row["BaroYoung"])
+        time = str(row["utc-time"]).replace(":", "")
+        pressure = float(row["pressure"])
         return f"{time}\t{pressure:.1f}\t0.0"
 
     lines = [row_to_str(row) for row in df.iter_rows(named=True)]
