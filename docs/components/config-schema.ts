@@ -1,21 +1,24 @@
 /* prettier-ignore */
 const CONFIG_SCHEMA: any = {
+    "additionalProperties": false,
     "description": "A pydantic model describing the config file schema.",
     "properties": {
         "version": {
-            "const": "1.3",
+            "const": "1.4",
             "description": "Version of the retrieval pipeline which is compatible with this config file. Retrievals done with any version `1.x` will produce the same output files as retrievals done with version `1.0`. But higher version numbers might use a different config file structure and produce more output files.",
             "enum": [
-                "1.3"
+                "1.4"
             ],
             "title": "Version",
             "type": "string"
         },
         "general": {
+            "additionalProperties": false,
             "properties": {
                 "metadata": {
                     "anyOf": [
                         {
+                            "additionalProperties": false,
                             "description": "GitHub repository where the location data is stored.",
                             "properties": {
                                 "github_repository": {
@@ -53,12 +56,194 @@ const CONFIG_SCHEMA: any = {
                     "description": "If not set, the pipeline will use local metadata files or abort if the local files are not found. If local files are found, they will always be preferred over the remote data even if the remote source is configured."
                 },
                 "data": {
+                    "additionalProperties": false,
                     "description": "Location where the input data sourced from.",
                     "properties": {
-                        "datalogger": {
-                            "description": "directory path to datalogger files",
-                            "title": "StrictDirectoryPath",
-                            "type": "string"
+                        "ground_pressure": {
+                            "additionalProperties": false,
+                            "description": "directory path and format configuration of the ground pressure files",
+                            "properties": {
+                                "path": {
+                                    "allOf": [
+                                        {
+                                            "description": "A pydantic model that validates a directory path.\n\nExample usage:\n\n```python\nclass MyModel(pyndatic.BaseModel):\n    path: StrictDirectoryPath\n\nm = MyModel(path='/path/to/directory') # validates that the directory exists\n```\n\nThe validation can be ignored by setting the context variable:\n\n```python\nm = MyModel.model_validate(\n    {\"path\": \"somenonexistingpath\"},\n    context={\"ignore-path-existence\": True},\n) # does not raise an error\n```",
+                                            "title": "StrictDirectoryPath",
+                                            "type": "string"
+                                        }
+                                    ],
+                                    "description": "Directory path to ground pressure files."
+                                },
+                                "file_regex": {
+                                    "description": "A regex string to match the ground pressure file names. In this string, you can use the placeholders `$(SENSOR_ID)`, `$(YYYY)`, `$(YY)`, `$(MM)`, and `$(DD)` to make this regex target a certain station and date. The placeholder `$(DATE)` is a shortcut for `$(YYYY)$(MM)$(DD)`.",
+                                    "examples": [
+                                        "^$(DATE).tsv$",
+                                        "^$(SENSOR_ID)_$(DATE).dat$",
+                                        "^ground-pressure-$(SENSOR_ID)-$(YYYY)-$(MM)-$(DD).csv$"
+                                    ],
+                                    "minLength": 1,
+                                    "title": "File Regex",
+                                    "type": "string"
+                                },
+                                "separator": {
+                                    "description": "Separator used in the ground pressure files. Only needed and used if the file format is `text`.",
+                                    "examples": [
+                                        ",",
+                                        "\t",
+                                        " ",
+                                        ";"
+                                    ],
+                                    "maxLength": 1,
+                                    "minLength": 1,
+                                    "title": "Separator",
+                                    "type": "string"
+                                },
+                                "datetime_column": {
+                                    "anyOf": [
+                                        {
+                                            "type": "string"
+                                        },
+                                        {
+                                            "type": "null"
+                                        }
+                                    ],
+                                    "default": null,
+                                    "description": "Column name in the ground pressure files that contains the datetime.",
+                                    "title": "Datetime Column"
+                                },
+                                "datetime_column_format": {
+                                    "anyOf": [
+                                        {
+                                            "type": "string"
+                                        },
+                                        {
+                                            "type": "null"
+                                        }
+                                    ],
+                                    "default": null,
+                                    "description": "Format of the datetime column in the ground pressure files.",
+                                    "examples": [
+                                        "%Y-%m-%dT%H:%M:%S"
+                                    ],
+                                    "title": "Datetime Column Format"
+                                },
+                                "date_column": {
+                                    "anyOf": [
+                                        {
+                                            "type": "string"
+                                        },
+                                        {
+                                            "type": "null"
+                                        }
+                                    ],
+                                    "default": null,
+                                    "description": "Column name in the ground pressure files that contains the date.",
+                                    "title": "Date Column"
+                                },
+                                "date_column_format": {
+                                    "anyOf": [
+                                        {
+                                            "type": "string"
+                                        },
+                                        {
+                                            "type": "null"
+                                        }
+                                    ],
+                                    "default": null,
+                                    "description": "Format of the date column in the ground pressure files.",
+                                    "examples": [
+                                        "%Y-%m-%d",
+                                        "%Y%m%d",
+                                        "%d.%m.%Y"
+                                    ],
+                                    "title": "Date Column Format"
+                                },
+                                "time_column": {
+                                    "anyOf": [
+                                        {
+                                            "type": "string"
+                                        },
+                                        {
+                                            "type": "null"
+                                        }
+                                    ],
+                                    "default": null,
+                                    "description": "Column name in the ground pressure files that contains the time.",
+                                    "title": "Time Column"
+                                },
+                                "time_column_format": {
+                                    "anyOf": [
+                                        {
+                                            "type": "string"
+                                        },
+                                        {
+                                            "type": "null"
+                                        }
+                                    ],
+                                    "default": null,
+                                    "description": "Format of the time column in the ground pressure files.",
+                                    "examples": [
+                                        "%H:%M:%S",
+                                        "%H:%M",
+                                        "%H%M%S"
+                                    ],
+                                    "title": "Time Column Format"
+                                },
+                                "unix_timestamp_column": {
+                                    "anyOf": [
+                                        {
+                                            "type": "string"
+                                        },
+                                        {
+                                            "type": "null"
+                                        }
+                                    ],
+                                    "default": null,
+                                    "description": "Column name in the ground pressure files that contains the unix timestamp.",
+                                    "title": "Unix Timestamp Column"
+                                },
+                                "unix_timestamp_column_format": {
+                                    "anyOf": [
+                                        {
+                                            "enum": [
+                                                "s",
+                                                "ms",
+                                                "us",
+                                                "ns"
+                                            ],
+                                            "type": "string"
+                                        },
+                                        {
+                                            "type": "null"
+                                        }
+                                    ],
+                                    "default": null,
+                                    "description": "Format of the unix timestamp column in the ground pressure files. I.e. is the Unix timestamp in seconds, milliseconds, etc.?",
+                                    "title": "Unix Timestamp Column Format"
+                                },
+                                "pressure_column": {
+                                    "description": "Column name in the ground pressure files that contains the pressure.",
+                                    "title": "Pressure Column",
+                                    "type": "string"
+                                },
+                                "pressure_column_format": {
+                                    "description": "Format of the pressure column in the ground pressure files.",
+                                    "enum": [
+                                        "hPa",
+                                        "Pa"
+                                    ],
+                                    "title": "Pressure Column Format",
+                                    "type": "string"
+                                }
+                            },
+                            "required": [
+                                "path",
+                                "file_regex",
+                                "separator",
+                                "pressure_column",
+                                "pressure_column_format"
+                            ],
+                            "title": "GroundPressureConfig",
+                            "type": "object"
                         },
                         "atmospheric_profiles": {
                             "description": "directory path to atmospheric profile files",
@@ -77,7 +262,7 @@ const CONFIG_SCHEMA: any = {
                         }
                     },
                     "required": [
-                        "datalogger",
+                        "ground_pressure",
                         "atmospheric_profiles",
                         "interferograms",
                         "results"
@@ -95,9 +280,11 @@ const CONFIG_SCHEMA: any = {
         "profiles": {
             "anyOf": [
                 {
+                    "additionalProperties": false,
                     "description": "Settings for vertical profiles retrieval. If `null`, the vertical profiles script will stop and log a warning",
                     "properties": {
                         "server": {
+                            "additionalProperties": false,
                             "description": "Settings for accessing the ccycle ftp server. Besides the\n`email` field, these can be left as default in most cases.",
                             "properties": {
                                 "email": {
@@ -124,17 +311,18 @@ const CONFIG_SCHEMA: any = {
                         "scope": {
                             "anyOf": [
                                 {
+                                    "additionalProperties": false,
                                     "properties": {
                                         "from_date": {
                                             "default": "1900-01-01",
-                                            "description": "date in format `YYYY-MM-DD` from which to request vertical profile data.",
+                                            "description": "Date in format `YYYY-MM-DD` from which to request vertical profile data.",
                                             "format": "date",
                                             "title": "From Date",
                                             "type": "string"
                                         },
                                         "to_date": {
                                             "default": "2100-01-01",
-                                            "description": "date in format `YYYY-MM-DD` until which to request vertical profile data.",
+                                            "description": "Date in format `YYYY-MM-DD` until which to request vertical profile data.",
                                             "format": "date",
                                             "title": "To Date",
                                             "type": "string"
@@ -168,6 +356,7 @@ const CONFIG_SCHEMA: any = {
                         "GGG2020_standard_sites": {
                             "description": "List of standard sites to request from the ccycle ftp server. The requests for these standard sites are done before any other requests so that data available for these is not rerequested for other sensors. See https://tccon-wiki.caltech.edu/Main/ObtainingGinputData#Requesting_to_be_added_as_a_standard_site for more information.",
                             "items": {
+                                "additionalProperties": false,
                                 "properties": {
                                     "identifier": {
                                         "description": "The identifier on the caltech server",
@@ -229,9 +418,11 @@ const CONFIG_SCHEMA: any = {
         "retrieval": {
             "anyOf": [
                 {
+                    "additionalProperties": false,
                     "description": "Settings for automated proffast processing. If `null`, the automated proffast script will stop and log a warning",
                     "properties": {
                         "general": {
+                            "additionalProperties": false,
                             "properties": {
                                 "max_process_count": {
                                     "default": 1,
@@ -242,10 +433,10 @@ const CONFIG_SCHEMA: any = {
                                     "type": "integer"
                                 },
                                 "ifg_file_regex": {
-                                    "description": "A regex string to match the ifg file names. In this string, `$(SENSOR_ID)` and `$(DATE)` are placeholders for the sensor id and the date of the ifg file.",
+                                    "description": "A regex string to match the ifg file names. In this string, `$(SENSOR_ID)`, `$(YYYY)`, `$(YY)`, `$(MM)`, and `$(DD)` are placeholders to target a certain station and date. The placeholder `$(DATE)` is a shortcut for `$(YYYY)$(MM)$(DD)`. They don't have to be used - you can also run the retrieval on any file it finds in the directory using `.*`",
                                     "examples": [
-                                        "^$(SENSOR_ID)$(DATE).*\\.\\d+$",
-                                        "^$(SENSOR_ID)$(DATE).*\\.nc$"
+                                        "^*\\.\\d+$^$(SENSOR_ID)$(DATE).*\\.\\d+$",
+                                        "^$(SENSOR_ID)-$(YYYY)-$(MM)-$(DD).*\\.nc$"
                                     ],
                                     "minLength": 1,
                                     "title": "Ifg File Regex",
@@ -261,6 +452,7 @@ const CONFIG_SCHEMA: any = {
                         "jobs": {
                             "description": "List of retrievals to run. The list will be processed sequentially.",
                             "items": {
+                                "additionalProperties": false,
                                 "description": "Settings for filtering the storage data. Only used if `config.data_sources.storage` is `true`.",
                                 "properties": {
                                     "retrieval_algorithm": {
@@ -306,6 +498,7 @@ const CONFIG_SCHEMA: any = {
                                         "type": "string"
                                     },
                                     "settings": {
+                                        "additionalProperties": false,
                                         "properties": {
                                             "store_binary_spectra": {
                                                 "default": false,
@@ -345,6 +538,7 @@ const CONFIG_SCHEMA: any = {
                                                 "anyOf": [
                                                     {
                                                         "additionalProperties": {
+                                                            "additionalProperties": false,
                                                             "properties": {
                                                                 "channel1_me": {
                                                                     "title": "Channel1 Me",
@@ -441,6 +635,7 @@ const CONFIG_SCHEMA: any = {
             "anyOf": [
                 {
                     "items": {
+                        "additionalProperties": false,
                         "properties": {
                             "campaign_id": {
                                 "description": "Campaign specified in location metadata.",

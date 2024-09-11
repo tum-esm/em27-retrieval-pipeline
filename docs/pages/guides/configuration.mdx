@@ -16,14 +16,28 @@ Template:
 
 ```json
 {
-    "version": "1.3",
+    "version": "1.4",
     "general": {
         "metadata": {
             "github_repository": "tum-esm/em27-metadata-storage",
             "access_token": null
         },
         "data": {
-            "datalogger": "path-to-datalogger-upload-directory",
+            "ground_pressure": {
+                "path": "path-to-ground-pressure-data",
+                "file_regex": "^$(SENSOR_ID)$(DATE).*\\.csv$",
+                "separator": ",",
+                "datetime_column": null,
+                "datetime_column_format": null,
+                "date_column": "UTCdate_____",
+                "date_column_format": "%d.%m.%Y",
+                "time_column": "UTCtime_____",
+                "time_column_format": "%H:%M:%S",
+                "unix_timestamp_column": null,
+                "unix_timestamp_column_format": null,
+                "pressure_column": "pressure",
+                "pressure_column_format": "hPa"
+            },
             "atmospheric_profiles": "path-to-atmospheric-profiles",
             "interferograms": "path-to-ifg-upload-directory",
             "results": "path-to-results-storage"
