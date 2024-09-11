@@ -1,5 +1,6 @@
 import json
 import os
+import sys
 import tum_esm_utils
 from src import types
 
@@ -16,30 +17,15 @@ def run(session: types.RetrievalSession, test_mode: bool = False) -> None:
     if isinstance(session, types.Proffast1RetrievalSession):
         tum_esm_utils.shell.run_shell_command(
             " ".join([
-                os.path.join(
-                    _PROJECT_DIR,
-                    ".venv",
-                    "bin",
-                    "python",
-                ),
-                os.path.join(
-                    session.ctn.container_path,
-                    "prfpylot",
-                    "main.py",
-                ),
-                '"' + json.dumps(session.model_dump()).replace('"', '\\"') +
-                '"',
+                sys.executable,
+                os.path.join(session.ctn.container_path, "prfpylot", "main.py"),
+                '"' + json.dumps(session.model_dump()).replace('"', '\\"') + '"',
             ])
         )
     elif isinstance(session, types.Proffast2RetrievalSession):
         tum_esm_utils.shell.run_shell_command(
             " ".join([
-                os.path.join(
-                    _PROJECT_DIR,
-                    ".venv",
-                    "bin",
-                    "python",
-                ),
+                sys.executable,
                 os.path.join(
                     _PROJECT_DIR,
                     "src",
