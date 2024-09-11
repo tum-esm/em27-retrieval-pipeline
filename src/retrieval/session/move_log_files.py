@@ -21,10 +21,11 @@ def run(
     )
     src_file_pattern = re.compile(src_file_regex)
     matching_files = [f for f in all_files if src_file_pattern.match(f) is not None]
-    assert len(matching_files) > 0, "no matching files found"
 
     logger.debug(f"Looking for files in {d} with regex {src_file_regex}")
     logger.debug(f"Found {len(all_files)} files in total and {len(matching_files)} matching files")
+
+    assert len(matching_files) > 0, "No matching files found"
 
     datetimes: list[datetime.datetime] = []
     pressures: list[float] = []

@@ -249,7 +249,7 @@ def export_data_report(
         }).with_columns([
             pl.col("location_id").str.pad_start(8),
             pl.col("interferograms").cast(str).str.pad_start(5),
-            pl.col("datalogger").cast(str).str.pad_start(5),
+            pl.col("ground_pressure").cast(str).str.pad_start(5),
         ])
         df.write_csv(
             tum_esm_utils.files.rel_to_abs_path(f"../../data/reports/{sensor.sensor_id}.csv"),

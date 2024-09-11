@@ -49,7 +49,7 @@ def run(config: types.Config, session: types.RetrievalSession, test_mode: bool =
         logger.debug("Moving atmospheric profiles")
         move_profiles.run(config, session)
 
-        logger.debug("Moving atmospheric datalogger files")
+        logger.debug("Moving ground pressure files")
         move_log_files.run(config, logger, session)
 
         logger.debug("Moving interferograms")

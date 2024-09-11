@@ -46,19 +46,19 @@ def compute_mean_pressure_around_noon(
     df = pl.read_csv(
         filepath,
         schema_overrides={
-            "UTCtime___": pl.Utf8,
-            "BaroYoung": pl.Float64,
+            "utc-time": pl.Utf8,
+            "pressure": pl.Float64,
         },
     ).with_columns(
-        pl.col("UTCtime___").str.strptime(dtype=pl.Time, format="%H:%M:%S").alias("UTCtime___")
+        pl.col("utc-time").str.strptime(dtype=pl.Time, format="%H:%M:%S").alias("utc-time")
     )
     if logger is not None:
         logger.debug(f"Found {len(df)} pressure data points")
     df_around_noon = df.filter(
-        (pl.col("UTCtime___") >= (solar_noon_datetime - datetime.timedelta(minutes=120)).time()) &
-        (pl.col("UTCtime___") <= (solar_noon_datetime + datetime.timedelta(minutes=120)).time())
+        (pl.col("utc-time") >= (solar_noon_datetime - datetime.timedelta(minutes=120)).time()) &
+        (pl.col("utc-time") <= (solar_noon_datetime + datetime.timedelta(minutes=120)).time())
     )
     if logger is not None:
         logger.debug(f"Found {len(df_around_noon)} pressure data points around noon (+- 2h)")
     assert len(df_around_noon) > 10, ("Did not find enough pressure data around solar noon")
-    return round(float(df_around_noon.select("BaroYoung").to_numpy().flatten().mean()), 3)
+    return round(float(df_around_noon.select("pressure").to_numpy().flatten().mean()), 3)

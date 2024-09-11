@@ -94,7 +94,7 @@ def generate_retrieval_queue(
 
         # Only keep the sensor data contexts with ground pressure files
 
-        unprocessed_sensor_data_contexts_with_datalogger_files: list[
+        unprocessed_sensor_data_contexts_with_ground_pressure_files: list[
             em27_metadata.types.SensorDataContext] = []
         for sdc in unprocessed_sensor_data_contexts:
             ground_pressure_dir = os.path.join(
@@ -109,10 +109,10 @@ def generate_retrieval_queue(
 
             for f in os.listdir(ground_pressure_dir):
                 if expected_file_pattern.match(f) is not None:
-                    unprocessed_sensor_data_contexts_with_datalogger_files.append(sdc)
+                    unprocessed_sensor_data_contexts_with_ground_pressure_files.append(sdc)
                     break
         logger.info(
-            f"  {len(unprocessed_sensor_data_contexts_with_datalogger_files)} of these "
+            f"  {len(unprocessed_sensor_data_contexts_with_ground_pressure_files)} of these "
             "sensor data contexts have ground pressure files"
         )
 
@@ -120,7 +120,7 @@ def generate_retrieval_queue(
 
         unprocessed_sensor_data_contexts_with_atmospheric_profiles: list[
             em27_metadata.types.SensorDataContext] = []
-        for sdc in unprocessed_sensor_data_contexts_with_datalogger_files:
+        for sdc in unprocessed_sensor_data_contexts_with_ground_pressure_files:
             profiles_dir = os.path.join(
                 config.general.data.atmospheric_profiles.root,
                 retrieval_job_config.atmospheric_profile_model
