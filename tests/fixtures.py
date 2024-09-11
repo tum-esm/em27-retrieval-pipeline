@@ -23,9 +23,7 @@ def download_sample_data() -> Generator[None, None, None]:
 
     The tar file has about 96MB."""
 
-    testing_data_path = os.path.join(
-        _PROJECT_DIR, "data", "testing", "container"
-    )
+    testing_data_path = os.path.join(_PROJECT_DIR, "data", "testing", "container")
     tarball_filename = "em27-retrieval-pipeline-test-inputs-1.0.0.tar.gz"
 
     # download testing data tarball if it does not exist
@@ -37,10 +35,7 @@ def download_sample_data() -> Generator[None, None, None]:
         )
 
     # remove existing input data
-    for input_dir in [
-        os.path.join(testing_data_path, "inputs", t)
-        for t in ["log", "map", "ifg"]
-    ]:
+    for input_dir in [os.path.join(testing_data_path, "inputs", t) for t in ["log", "map", "ifg"]]:
         if os.path.isdir(input_dir):
             shutil.rmtree(input_dir)
 
@@ -61,7 +56,7 @@ def provide_config_template() -> Generator[src.types.Config, None, None]:
         os.path.join(_PROJECT_DIR, "config", "config.template.json"),
         ignore_path_existence=True,
     )
-    config.general.data.datalogger.root = "/tmp"
+    config.general.data.ground_pressure.path.root = "/tmp"
     config.general.data.atmospheric_profiles.root = "/tmp"
     config.general.data.interferograms.root = "/tmp"
     config.general.data.results.root = "/tmp"
@@ -73,9 +68,7 @@ def provide_config_template() -> Generator[src.types.Config, None, None]:
 @pytest.fixture(scope="function")
 def remove_temporary_retrieval_data() -> Generator[None, None, None]:
     # remove all output data before test
-    output_path = tum_esm_utils.files.rel_to_abs_path(
-        "../data/testing/container/outputs"
-    )
+    output_path = tum_esm_utils.files.rel_to_abs_path("../data/testing/container/outputs")
     for f in os.listdir(output_path):
         p = os.path.join(output_path, f)
         if os.path.isdir(p):

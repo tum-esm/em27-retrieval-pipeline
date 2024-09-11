@@ -57,6 +57,7 @@ def run(
     # RENAME THEM TO THE FORMAT EXPECTED BY THE
     # PYLOT
 
+    date_string = session.ctx.from_datetime.strftime("%Y%m%d")
     dst_date_path = os.path.join(session.ctn.data_input_path, "ifg", date_string[2 :])
     os.mkdir(dst_date_path)
     for ifg_index, filename in enumerate(ifg_filenames):

@@ -62,15 +62,15 @@ def test_retrieval_queue(
     provide_config_template: types.Config,
 ) -> None:
     config = provide_config_template
-    logger = retrieval.utils.logger.Logger(
-        "pytest", write_to_file=False, print_to_console=True
-    )
+    logger = retrieval.utils.logger.Logger("pytest", write_to_file=False, print_to_console=True)
     assert config.retrieval is not None
 
     # target config at test data
-    config.general.data.datalogger.root = os.path.join(
+    config.general.data.ground_pressure.path.root = os.path.join(
         PROJECT_DIR, "data", "testing", "container", "inputs", "log"
     )
+    config.general.data.ground_pressure.pressure_column = "BaroYoung"
+    config.general.data.ground_pressure.file_regex = "^datalogger-$(SENSOR_ID)-$(YYYY)$(MM)$(DD).csv$"
     config.general.data.interferograms.root = os.path.join(
         PROJECT_DIR, "data", "testing", "container", "inputs", "ifg"
     )

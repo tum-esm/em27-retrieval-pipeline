@@ -73,8 +73,7 @@ SENSOR_DATA_CONTEXTS = [
 @pytest.fixture(scope="session")
 def provide_container_factory(
     provide_config_template: src.types.Config,
-) -> Generator[src.retrieval.dispatching.container_factory.ContainerFactory,
-               None, None]:
+) -> Generator[src.retrieval.dispatching.container_factory.ContainerFactory, None, None]:
     logger = src.retrieval.utils.logger.Logger(
         "pytest",
         write_to_file=False,
@@ -100,8 +99,7 @@ def test_container_lifecycle_ci(
     download_sample_data: None,
     remove_temporary_retrieval_data: None,
     provide_config_template: src.types.Config,
-    provide_container_factory: src.retrieval.dispatching.container_factory.
-    ContainerFactory,
+    provide_container_factory: src.retrieval.dispatching.container_factory.ContainerFactory,
 ) -> None:
     config = provide_config_template
     container_factory = provide_container_factory
@@ -121,9 +119,7 @@ def test_container_lifecycle_ci(
             job_settings=src.types.config.RetrievalJobSettingsConfig(
                 # test this for all alg/atm combinations
                 # for one of the sensor data contexts
-                use_local_pressure_in_pcxs=(
-                    j[2].from_datetime.date() == datetime.date(2017, 6, 9)
-                ),
+                use_local_pressure_in_pcxs=(j[2].from_datetime.date() == datetime.date(2017, 6, 9)),
                 store_binary_spectra=True,
             )
         )
@@ -141,8 +137,7 @@ def test_container_lifecycle_complete(
     download_sample_data: None,
     remove_temporary_retrieval_data: None,
     provide_config_template: src.types.Config,
-    provide_container_factory: src.retrieval.dispatching.container_factory.
-    ContainerFactory,
+    provide_container_factory: src.retrieval.dispatching.container_factory.ContainerFactory,
 ) -> None:
     config = provide_config_template
     container_factory = provide_container_factory
@@ -161,8 +156,7 @@ def test_container_lifecycle_complete(
 
     # wait for all processes to finish
     while True:
-        while ((len(active_processes) < process_count) and
-               (len(pending_jobs) > 0)):
+        while ((len(active_processes) < process_count) and (len(pending_jobs) > 0)):
 
             j = pending_jobs.pop(0)
             print(f"Spinning up new session")
@@ -222,8 +216,7 @@ def test_container_lifecycle_complete(
 
 
 def run_session(
-    session: src.types.RetrievalSession, config: src.types.Config,
-    only_run_mock_retrieval: bool
+    session: src.types.RetrievalSession, config: src.types.Config, only_run_mock_retrieval: bool
 ) -> None:
     src.retrieval.session.process_session.run(
         config,
@@ -252,9 +245,7 @@ def _generate_job_list() -> list[tuple[
     ]] = []
 
     # start proffast 1.0 first because it takes the longest
-    for alg in [
-        "proffast-2.4"
-    ]:  #"proffast-1.0", "proffast-2.2", "proffast-2.3", "proffast-2.4"]:
+    for alg in ["proffast-1.0", "proffast-2.2", "proffast-2.3", "proffast-2.4"]:
         for atm in ["GGG2014", "GGG2020"]:
             if alg == "proffast-1.0" and atm == "GGG2020":
                 continue
@@ -268,15 +259,13 @@ def _generate_job_list() -> list[tuple[
 
     print(f"Jobs ({len(pending_jobs)}):")
     for i, j in enumerate(pending_jobs):
-        print(
-            f"  #{i}: {j[0]} | {j[1]} | {j[2].sensor_id} | {j[2].from_datetime.date()}"
-        )
+        print(f"  #{i}: {j[0]} | {j[1]} | {j[2].sensor_id} | {j[2].from_datetime.date()}")
 
     return pending_jobs
 
 
 def _point_config_to_test_data(config: src.types.Config) -> None:
-    config.general.data.datalogger.root = os.path.join(
+    config.general.data.ground_pressure.path.root = os.path.join(
         PROJECT_DIR, "data", "testing", "container", "inputs", "log"
     )
     config.general.data.interferograms.root = os.path.join(
@@ -298,8 +287,7 @@ def _assert_output_correctness(
     date_string = sensor_data_context.from_datetime.strftime("%Y%m%d")
     out_path = os.path.join(
         PROJECT_DIR, "data/testing/container/outputs", retrieval_algorithm,
-        atmospheric_profile_model, sensor_data_context.sensor_id, "successful",
-        date_string
+        atmospheric_profile_model, sensor_data_context.sensor_id, "successful", date_string
     )
     expected_files = [
         "about.json",
@@ -320,14 +308,8 @@ def _assert_output_correctness(
         ])
     if retrieval_algorithm == "proffast-1.0":
         expected_files.extend([
-            (
-                f"{sensor_data_context.sensor_id}{date_string[2:]}-" +
-                f"combined-invparms.csv"
-            ),
-            (
-                f"{sensor_data_context.sensor_id}{date_string[2:]}-" +
-                f"combined-invparms.parquet"
-            ),
+            (f"{sensor_data_context.sensor_id}{date_string[2:]}-" + f"combined-invparms.csv"),
+            (f"{sensor_data_context.sensor_id}{date_string[2:]}-" + f"combined-invparms.parquet"),
             "logfiles/wrapper.log",
             "logfiles/preprocess4.log",
             "logfiles/pcxs10.log",
@@ -336,14 +318,10 @@ def _assert_output_correctness(
 
     for filename in expected_files:
         filepath = os.path.join(out_path, filename)
-        assert os.path.isfile(
-            filepath
-        ), f"output file does not exist ({filepath})"
+        assert os.path.isfile(filepath), f"output file does not exist ({filepath})"
 
     pT_dir_path = os.path.join(out_path, "analysis", "pT")
     assert os.path.isdir(pT_dir_path), f"pT path does not exist: {pT_dir_path}"
 
     cal_dir_path = os.path.join(out_path, "analysis", "cal")
-    assert os.path.isdir(
-        cal_dir_path
-    ), f"cal path does not exist: {cal_dir_path}"
+    assert os.path.isdir(cal_dir_path), f"cal path does not exist: {cal_dir_path}"
