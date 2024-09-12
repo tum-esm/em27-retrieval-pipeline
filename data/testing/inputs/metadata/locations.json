@@ -1,0 +1,16 @@
+[
+    {
+        "location_id": "SOD",
+        "details": "Sodankyla",
+        "lon": 26.630,
+        "lat": 67.366,
+        "alt": 181.0
+    },
+    {
+        "location_id": "ZEN",
+        "details": "Zentralfriedhof",
+        "lon": 16.438481,
+        "lat": 48.147699,
+        "alt": 180.0
+    }
+]

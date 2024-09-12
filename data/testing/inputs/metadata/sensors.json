@@ -1,0 +1,30 @@
+[
+    {
+        "sensor_id": "so",
+        "serial_number": 39,
+        "setups": [
+            {
+                "from_datetime": "2017-06-8T00:00:00+00:00",
+                "to_datetime": "2017-06-9T23:59:59+00:00",
+                "value": {
+                    "location_id": "SOD",
+                    "utc_offset": 0
+                }
+            }
+        ]
+    },
+    {
+        "sensor_id": "mc",
+        "serial_number": 115,
+        "setups": [
+            {
+                "from_datetime": "2022-06-2T00:00:00+00:00",
+                "to_datetime": "2022-06-2T23:59:59+00:00",
+                "value": {
+                    "location_id": "ZEN",
+                    "utc_offset": 0
+                }
+            }
+        ]
+    }
+]

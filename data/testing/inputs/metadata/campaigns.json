@@ -1,0 +1,52 @@
+[
+    {
+        "from_datetime": "2001-01-01T00:00:00+00:00",
+        "to_datetime": "2024-12-31T23:59:59+00:00",
+        "campaign_id": "both",
+        "sensor_ids": [
+            "so",
+            "mc"
+        ],
+        "location_ids": [
+            "SOD",
+            "ZEN"
+        ]
+    },
+    {
+        "from_datetime": "2001-01-01T00:00:00+00:00",
+        "to_datetime": "2024-12-31T23:59:59+00:00",
+        "campaign_id": "only-so",
+        "sensor_ids": [
+            "so"
+        ],
+        "location_ids": [
+            "SOD",
+            "ZEN"
+        ]
+    },
+    {
+        "from_datetime": "2001-01-01T00:00:00+00:00",
+        "to_datetime": "2024-12-31T23:59:59+00:00",
+        "campaign_id": "only-mc",
+        "sensor_ids": [
+            "so",
+            "mc"
+        ],
+        "location_ids": [
+            "ZEN"
+        ]
+    },
+    {
+        "from_datetime": "2024-01-01T00:00:00+00:00",
+        "to_datetime": "2024-12-31T23:59:59+00:00",
+        "campaign_id": "none",
+        "sensor_ids": [
+            "so",
+            "mc"
+        ],
+        "location_ids": [
+            "SOD",
+            "ZEN"
+        ]
+    }
+]
