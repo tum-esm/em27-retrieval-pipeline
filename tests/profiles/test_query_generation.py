@@ -46,8 +46,7 @@ def test_time_period_generation() -> None:
         to_date = from_date + datetime.timedelta(days=random.randint(100, 365))
         required_dates = set(
             random.sample(
-                tum_esm_utils.timing.date_range(from_date, to_date),
-                random.randint(10, 100)
+                tum_esm_utils.timing.date_range(from_date, to_date), random.randint(10, 100)
             )
         )
         time_periods = sorted(
@@ -59,7 +58,5 @@ def test_time_period_generation() -> None:
         requested_dates: set[datetime.date] = set()
         for tp in time_periods:
             assert 0 <= (tp.to_date - tp.from_date).days <= 6
-            requested_dates.update(
-                tum_esm_utils.timing.date_range(tp.from_date, tp.to_date)
-            )
+            requested_dates.update(tum_esm_utils.timing.date_range(tp.from_date, tp.to_date))
         assert requested_dates.issuperset(required_dates)

@@ -12,15 +12,12 @@ def test_list_requested_data(provide_config_template: src.types.Config) -> None:
     metadata = em27_metadata.EM27MetadataInterface(
         locations=em27_metadata.types.LocationMetadataList(
             root=[
-                em27_metadata.types.LocationMetadata(
-                    location_id="l1", details="l1 details", lat=1, lon=2, alt=0
-                ),
-                em27_metadata.types.LocationMetadata(
-                    location_id="l2", details="l2 details", lat=1, lon=3, alt=0
-                ),
-                em27_metadata.types.LocationMetadata(
-                    location_id="l3", details="l3 details", lat=2, lon=3, alt=0
-                ),
+                em27_metadata.types.
+                LocationMetadata(location_id="l1", details="l1 details", lat=1, lon=2, alt=0),
+                em27_metadata.types.
+                LocationMetadata(location_id="l2", details="l2 details", lat=1, lon=3, alt=0),
+                em27_metadata.types.
+                LocationMetadata(location_id="l3", details="l3 details", lat=2, lon=3, alt=0),
             ]
         ),
         sensors=em27_metadata.types.SensorMetadataList(
@@ -95,9 +92,7 @@ def test_list_requested_data(provide_config_template: src.types.Config) -> None:
     config.profiles.scope.from_date = datetime.date(2000, 1, 1)
     config.profiles.scope.to_date = datetime.date(2000, 5, 8)
 
-    actual_data = src.profiles.generate_queries.list_desired_data(
-        config, metadata
-    )
+    actual_data = src.profiles.generate_queries.list_desired_data(config, metadata)
     assert actual_data.keys() == expected_data.keys()
     for k in actual_data.keys():
         assert actual_data[k] == expected_data[k]

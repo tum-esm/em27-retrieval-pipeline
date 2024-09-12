@@ -13,9 +13,7 @@ TEST_DATES = tum_esm_utils.timing.date_range(
 )
 
 
-def generate_random_locations(
-    n: int
-) -> list[src.profiles.generate_queries.ProfilesQueryLocation]:
+def generate_random_locations(n: int) -> list[src.profiles.generate_queries.ProfilesQueryLocation]:
     assert n <= len(TEST_LOCATIONS)
     return random.sample(TEST_LOCATIONS, n)
 

@@ -14,9 +14,8 @@ CAMPAIGNS_PATH = os.path.join(CONFIG_DIR, "campaigns.json")
 def store_local_metadata_during_test() -> Generator[None, None, None]:
     paths = [LOCATIONS_PATH, SENSORS_PATH, CAMPAIGNS_PATH]
     for path in paths:
-        assert not os.path.isfile(path + ".tmp"), (
-            "Temporary file already exists at: '" + path + ".tmp'"
-        )
+        assert not os.path.isfile(path +
+                                  ".tmp"), ("Temporary file already exists at: '" + path + ".tmp'")
 
     for path in paths:
         if os.path.isfile(path):
