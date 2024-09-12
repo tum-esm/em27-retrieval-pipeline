@@ -6,9 +6,7 @@ import tum_esm_utils
 import src
 from ..fixtures import download_sample_data
 
-_GROUND_PRESSURE_DIR = tum_esm_utils.files.rel_to_abs_path(
-    "../../data/testing/container/inputs/log/"
-)
+_GROUND_PRESSURE_DIR = tum_esm_utils.files.rel_to_abs_path("../../data/testing/inputs/data/log")
 
 
 @pytest.mark.order(3)

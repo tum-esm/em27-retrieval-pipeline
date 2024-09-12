@@ -67,15 +67,21 @@ def test_retrieval_queue(
 
     # target config at test data
     config.general.data.ground_pressure.path.root = os.path.join(
-        PROJECT_DIR, "data", "testing", "container", "inputs", "log"
+        PROJECT_DIR, "data", "testing", "inputs", "data", "log"
     )
     config.general.data.ground_pressure.pressure_column = "BaroYoung"
-    config.general.data.ground_pressure.file_regex = "^datalogger-$(SENSOR_ID)-$(YYYY)$(MM)$(DD).csv$"
+    config.general.data.ground_pressure.pressure_column_format = "hPa"
+    config.general.data.ground_pressure.file_regex = "^ground-pressure-$(SENSOR_ID)-$(YYYY)-$(MM)-$(DD).csv$"
+    config.general.data.ground_pressure.date_column = "utc-date"
+    config.general.data.ground_pressure.date_column_format = "%Y-%m-%d"
+    config.general.data.ground_pressure.time_column = "utc-time"
+    config.general.data.ground_pressure.time_column_format = "%H:%M:%S"
+
     config.general.data.interferograms.root = os.path.join(
-        PROJECT_DIR, "data", "testing", "container", "inputs", "ifg"
+        PROJECT_DIR, "data", "testing", "inputs", "data", "ifg"
     )
     config.general.data.atmospheric_profiles.root = os.path.join(
-        PROJECT_DIR, "data", "testing", "container", "inputs", "map"
+        PROJECT_DIR, "data", "testing", "inputs", "data", "map"
     )
     config.general.data.results.root = os.path.join(
         PROJECT_DIR, "data", "testing", "container", "outputs"
