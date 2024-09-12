@@ -1,0 +1,4 @@
+ifg/*
+!ifg/.gitkeep
+!*.csv
+!*.map
