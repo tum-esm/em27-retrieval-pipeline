@@ -407,40 +407,52 @@ class RetrievalConfig(pydantic.BaseModel):
     )
 
 
-class ExportTargetConfig(pydantic.BaseModel):
+class BundleTargetConfig(pydantic.BaseModel):
+    """There will be one file per sensor id and atmospheric profile and retrieval algorithm combination.
+    
+    The final name looks like `em27-retrieval-bundle-$SENSOR_ID-$RETRIEVAL_ALGORITHM-$ATMOSPHERIC_PROFILE-$FROM_DATE-$TO_DATE$BUNDLE_SUFFIX.$OUTPUT_FORMAT`, e.g.`em27-retrieval-bundle-ma-GGG2020-proffast-2.4-20150801-20240523-v2.1.csv`. The bundle suffix is optional and can be used to distinguish between different
+    internal datasets."""
+
     model_config = pydantic.ConfigDict(extra="forbid")
 
-    campaign_id: str = pydantic.Field(
+    output_formats: list[Literal["csv", "parquet"]] = pydantic.Field(
         ...,
-        description="Campaign specified in location metadata.",
+        description="List of output formats to write the merged output files in.",
     )
-    retrieval_algorithm: RetrievalAlgorithm = pydantic.Field(
-        ...,
-        description="Which retrieval algorithm used for the retrieval.",
+    from_datetime: datetime.datetime = pydantic.Field(
+        ..., description="Date in format `YYYY-MM-DDTHH:MM:SS` from which to bundle data"
     )
-    atmospheric_profile_model: AtmosphericProfileModel = pydantic.Field(
-        ...,
-        description="Which atmospheric profiles used for the retrieval.",
+    to_datetime: datetime.datetime = pydantic.Field(
+        ..., description="Date in format `YYYY-MM-DDTHH:MM:SS` to which to bundle data"
     )
-    data_types: list[OutputTypes] = pydantic.Field(
-        ...,
-        min_length=1,
-        description=
-        "Data columns to keep in the merged output files. The columns will be prefixed with the sensor id, i.e. `$(SENSOR_ID)_$(COLUMN_NAME)`.",
+    retrieval_algorithms: list[RetrievalAlgorithm] = pydantic.Field(
+        ..., description="The retrieval algorithms for which to bundle the outputs"
     )
-    sampling_rate: SamplingRate = pydantic.Field(
-        ...,
-        description="Interval of resampled data.",
+    atmospheric_profile_models: list[AtmosphericProfileModel] = pydantic.Field(
+        ..., description="The atmospheric profile models for which to bundle the outputs"
     )
-    max_interpolation_gap_seconds: int = pydantic.Field(
-        180,
-        ge=6,
-        le=43200,
-        description="Maximum gap in seconds to interpolate over.",
+    sensor_ids: list[str] = pydantic.Field(
+        ..., description="The sensor ids for which to bundle the outputs"
     )
     dst_dir: tum_esm_utils.validators.StrictDirectoryPath = pydantic.Field(
         ...,
-        description="Directory to write the output to.",
+        description="Directory to write the bundeled outputs to.",
+    )
+    bundle_suffix: Optional[str] = pydantic.Field(
+        None,
+        description="Suffix to append to the output bundles.",
+        min_length=1,
+        examples=["v2.1", "v2.2", "oco2-gradient-paper-2021"],
+    )
+    retrieval_job_output_suffix: Optional[str] = pydantic.Field(
+        None,
+        description=
+        "When you ran the retrieval with a custom suffix, you can specify it here to only bundle the outputs of this suffix. Use the same value here as in the field `config.retrieval.jobs[i].settings.output_suffix`.",
+    )
+    parse_dc_timeseries: bool = pydantic.Field(
+        False,
+        description=
+        "Whether to parse the DC timeseries from the results directories. This is an output only available in this Pipeline for Proffast2.4. We adapted the preprocessor to output the DC min/mean/max/variation values for each record of data. If you having issues with a low signal intensity on one or both channels, you can run the retrieval with a very low DC_min threshold and filter the data afterwards instead of having to rerun the retrieval.",
     )
 
 
@@ -457,7 +469,7 @@ class Config(pydantic.BaseModel):
     general: GeneralConfig
     profiles: Optional[ProfilesConfig] = None
     retrieval: Optional[RetrievalConfig] = None
-    export_targets: Optional[list[ExportTargetConfig]] = pydantic.Field(
+    bundles: Optional[list[BundleTargetConfig]] = pydantic.Field(
         None,
         description=
         'List of output merging targets. Relies on specifying "campaigns" in the EM27 metadata.'
