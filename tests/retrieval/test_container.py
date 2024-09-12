@@ -7,6 +7,7 @@ import em27_metadata
 import tum_esm_utils
 import multiprocessing
 import src
+import polars as pl
 from tests.fixtures import (
     wrap_test_with_mainlock, download_sample_data, provide_config_template,
     remove_temporary_retrieval_data
@@ -270,7 +271,7 @@ def _point_config_to_test_data(config: src.types.Config) -> None:
     )
     config.general.data.ground_pressure.file_regex = "^ground-pressure-$(SENSOR_ID)-$(YYYY)-$(MM)-$(DD).csv$"
     config.general.data.ground_pressure.date_column = "utc-date"
-    config.general.data.ground_pressure.date_column_format = "%d.%m.%Y"
+    config.general.data.ground_pressure.date_column_format = "%Y-%m-%d"
     config.general.data.ground_pressure.time_column = "utc-time"
     config.general.data.ground_pressure.time_column_format = "%H:%M:%S"
     config.general.data.ground_pressure.pressure_column = "pressure"
@@ -301,13 +302,15 @@ def _assert_output_correctness(
         "about.json",
         "logfiles/container.log",
     ]
+    output_csv_name: str
     if retrieval_algorithm in ["proffast-2.2", "proffast-2.3", "proffast-2.4"]:
+        output_csv_name = (
+            f"comb_invparms_{sensor_data_context.sensor_id}_" +
+            f"SN{str(sensor_data_context.serial_number).zfill(3)}" +
+            f"_{date_string[2:]}-{date_string[2:]}.csv"
+        )
         expected_files.extend([
-            (
-                f"comb_invparms_{sensor_data_context.sensor_id}_" +
-                f"SN{str(sensor_data_context.serial_number).zfill(3)}" +
-                f"_{date_string[2:]}-{date_string[2:]}.csv"
-            ),
+            output_csv_name,
             "pylot_config.yml",
             "pylot_log_format.yml",
             "logfiles/preprocess_output.log",
@@ -315,9 +318,10 @@ def _assert_output_correctness(
             "logfiles/inv_output.log",
         ])
     if retrieval_algorithm == "proffast-1.0":
+        output_csv_name = f"{sensor_data_context.sensor_id}{date_string[2:]}-combined-invparms.csv"
         expected_files.extend([
-            (f"{sensor_data_context.sensor_id}{date_string[2:]}-" + f"combined-invparms.csv"),
-            (f"{sensor_data_context.sensor_id}{date_string[2:]}-" + f"combined-invparms.parquet"),
+            output_csv_name,
+            (f"{sensor_data_context.sensor_id}{date_string[2:]}-combined-invparms.parquet"),
             "logfiles/wrapper.log",
             "logfiles/preprocess4.log",
             "logfiles/pcxs10.log",
@@ -333,3 +337,12 @@ def _assert_output_correctness(
 
     cal_dir_path = os.path.join(out_path, "analysis", "cal")
     assert os.path.isdir(cal_dir_path), f"cal path does not exist: {cal_dir_path}"
+
+    df = pl.read_csv(os.path.join(out_path, output_csv_name))
+    df = df.rename({col: col.strip() for col in df.columns})
+    good_data_only = df.filter(
+        pl.col("XAIR").cast(pl.Utf8).str.strip_chars(" ").cast(
+            pl.Float64
+        ).is_between(0.99 * 0.9983, 1.01 * 0.9983)
+    )
+    assert len(good_data_only) == len(df), "XAIR values indicate an input data issue"

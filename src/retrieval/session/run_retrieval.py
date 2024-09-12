@@ -92,9 +92,13 @@ def _create_mock_outputs(session: types.RetrievalSession) -> None:
         ]
 
     # create dummy files
-    for filepath in filepaths:
+
+    for i, filepath in enumerate(filepaths):
         with open(os.path.join(output_dir, filepath), "w") as f:
-            f.write("...")
+            if i == 0:
+                f.write("UTC, XAIR\nsome,0.9983")
+            else:
+                f.write("...")
 
     for p in [
         os.path.join(analysis_dir, "pT"),
