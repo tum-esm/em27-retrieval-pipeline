@@ -266,21 +266,21 @@ def _generate_job_list() -> list[tuple[
 
 def _point_config_to_test_data(config: src.types.Config) -> None:
     config.general.data.ground_pressure.path.root = os.path.join(
-        PROJECT_DIR, "data", "testing", "container", "inputs", "log"
+        PROJECT_DIR, "data", "testing", "inputs", "data", "log"
     )
-    config.general.data.ground_pressure.pressure_column = "BaroYoung"
-    config.general.data.ground_pressure.file_regex = "^datalogger-$(SENSOR_ID)-$(YYYY)$(MM)$(DD).csv$"
-    config.general.data.ground_pressure.date_column = "UTCdate_____"
+    config.general.data.ground_pressure.file_regex = "^ground-pressure-$(SENSOR_ID)-$(YYYY)-$(MM)-$(DD).csv$"
+    config.general.data.ground_pressure.date_column = "utc-date"
     config.general.data.ground_pressure.date_column_format = "%d.%m.%Y"
-    config.general.data.ground_pressure.time_column = "UTCtime___"
+    config.general.data.ground_pressure.time_column = "utc-time"
     config.general.data.ground_pressure.time_column_format = "%H:%M:%S"
-    config.general.data.ground_pressure.pressure_column = "BaroYoung"
+    config.general.data.ground_pressure.pressure_column = "pressure"
+    config.general.data.ground_pressure.pressure_column_format = "hPa"
 
     config.general.data.interferograms.root = os.path.join(
-        PROJECT_DIR, "data", "testing", "container", "inputs", "ifg"
+        PROJECT_DIR, "data", "testing", "inputs", "data", "ifg"
     )
     config.general.data.atmospheric_profiles.root = os.path.join(
-        PROJECT_DIR, "data", "testing", "container", "inputs", "map"
+        PROJECT_DIR, "data", "testing", "inputs", "data", "map"
     )
     config.general.data.results.root = os.path.join(
         PROJECT_DIR, "data", "testing", "container", "outputs"

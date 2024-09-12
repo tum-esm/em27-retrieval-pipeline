@@ -23,21 +23,20 @@ def download_sample_data() -> Generator[None, None, None]:
 
     The tar file has about 96MB."""
 
-    testing_data_path = os.path.join(_PROJECT_DIR, "data", "testing", "container")
-    tarball_filename = "em27-retrieval-pipeline-test-inputs-1.0.0.tar.gz"
+    testing_data_path = os.path.join(_PROJECT_DIR, "data", "testing", "inputs", "data")
+    tarball_filename = "em27-retrieval-pipeline-test-interferograms-2024-09-12.tar.gz"
 
     # download testing data tarball if it does not exist
     if not os.path.isfile(os.path.join(testing_data_path, tarball_filename)):
         tum_esm_utils.shell.run_shell_command(
-            f"wget --quiet https://syncandshare.lrz.de/dl/" +
-            f"fiUY18aZDWf3CYNisatQB9/{tarball_filename}",
+            f"wget --quiet https://syncandshare.lrz.de/getlink/" +
+            f"fiDWAwmdQubVDviAoN1uoc/{tarball_filename}",
             working_directory=testing_data_path,
         )
 
     # remove existing input data
-    for input_dir in [os.path.join(testing_data_path, "inputs", t) for t in ["log", "map", "ifg"]]:
-        if os.path.isdir(input_dir):
-            shutil.rmtree(input_dir)
+    if os.path.isdir(os.path.join(testing_data_path, "ifg")):
+        shutil.rmtree(os.path.join(testing_data_path, "ifg"))
 
     # extract tarball
     tum_esm_utils.shell.run_shell_command(
