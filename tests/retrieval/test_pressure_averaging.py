@@ -27,9 +27,9 @@ def test_solar_noon_computation() -> None:
 @pytest.mark.quick
 def test_pressure_averaging(download_sample_data: None) -> None:
     for filepath in [
-        os.path.join(_GROUND_PRESSURE_DIR, "mc/datalogger-mc-20220602.csv"),
-        os.path.join(_GROUND_PRESSURE_DIR, "so/datalogger-so-20170608.csv"),
-        os.path.join(_GROUND_PRESSURE_DIR, "so/datalogger-so-20170609.csv"),
+        os.path.join(_GROUND_PRESSURE_DIR, "mc/ground-pressure-mc-2022-06-02.csv"),
+        os.path.join(_GROUND_PRESSURE_DIR, "so/ground-pressure-so-2017-06-08.csv"),
+        os.path.join(_GROUND_PRESSURE_DIR, "so/ground-pressure-so-2017-06-09.csv"),
     ]:
         # the date is irrelevant, only the time is used
         pressure = src.retrieval.utils.pressure_averaging.compute_mean_pressure_around_noon(

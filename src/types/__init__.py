@@ -6,7 +6,7 @@ from .basic_types import (
 )
 from .config import (
     Config,
-    ExportTargetConfig,
+    BundleTargetConfig,
     RetrievalJobConfig,
 )
 from .download_query import DownloadQuery

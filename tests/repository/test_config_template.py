@@ -12,5 +12,5 @@ def test_config_template() -> None:
     )
     assert config.retrieval is not None
     assert config.profiles is not None
-    assert config.export_targets is not None
-    assert len(config.export_targets) > 0
+    assert config.bundles is not None
+    assert len(config.bundles) > 0

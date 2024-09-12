@@ -59,7 +59,7 @@ def provide_config_template() -> Generator[src.types.Config, None, None]:
     config.general.data.atmospheric_profiles.root = "/tmp"
     config.general.data.interferograms.root = "/tmp"
     config.general.data.results.root = "/tmp"
-    config.export_targets = []
+    config.bundles = []
 
     yield config
 

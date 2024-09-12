@@ -6,14 +6,12 @@ import tum_esm_utils
 import click
 import em27_metadata
 
-_RETRIEVAL_ENTRYPOINT = tum_esm_utils.files.rel_to_abs_path(
-    "src", "retrieval", "main.py"
-)
+_RETRIEVAL_ENTRYPOINT = tum_esm_utils.files.rel_to_abs_path("src", "retrieval", "main.py")
 
 cli = click.Group(name="cli")
 retrieval_command_group = click.Group(name="retrieval")
 profiles_command_group = click.Group(name="profiles")
-export_command_group = click.Group(name="export")
+bundle_command_group = click.Group(name="bundle")
 
 
 def _check_config_validity() -> None:
@@ -23,16 +21,10 @@ def _check_config_validity() -> None:
         click.echo(click.style("Config is valid", fg="green", bold=True))
     except pydantic.ValidationError as e:
         click.echo(
-            click.style(
-                f"Detected {e.error_count()} error(s) in the config:",
-                bold=True,
-                fg="red"
-            )
+            click.style(f"Detected {e.error_count()} error(s) in the config:", bold=True, fg="red")
         )
         for error in e.errors():
-            loc = click.style(
-                '.'.join([str(l) for l in error['loc']]) + ":", bold=True
-            )
+            loc = click.style('.'.join([str(l) for l in error['loc']]) + ":", bold=True)
             click.echo(f"  - {loc} {error['msg']}")
         exit(1)
 
@@ -43,16 +35,11 @@ def _check_config_validity() -> None:
     "Start the retrieval as a background process. Prevents spawning multiple processes. The logs and the current processing queue from this process can be found at `logs/retrieval`.",
 )
 @click.option(
-    "--watch",
-    is_flag=True,
-    default=False,
-    help="Start the watcher after starting the process."
+    "--watch", is_flag=True, default=False, help="Start the watcher after starting the process."
 )
 def start(watch: bool) -> None:
     _check_config_validity()
-    pid = tum_esm_utils.processes.start_background_process(
-        sys.executable, _RETRIEVAL_ENTRYPOINT
-    )
+    pid = tum_esm_utils.processes.start_background_process(sys.executable, _RETRIEVAL_ENTRYPOINT)
     click.echo(f"Started automated retrieval background process with PID {pid}")
 
     if watch:
@@ -114,18 +101,10 @@ def stop() -> None:
 )
 def download_algorithms() -> None:
     import src
-    src.retrieval.dispatching.container_factory.ContainerFactory.init_proffast10_code(
-        click.echo
-    )
-    src.retrieval.dispatching.container_factory.ContainerFactory.init_proffast22_code(
-        click.echo
-    )
-    src.retrieval.dispatching.container_factory.ContainerFactory.init_proffast23_code(
-        click.echo
-    )
-    src.retrieval.dispatching.container_factory.ContainerFactory.init_proffast24_code(
-        click.echo
-    )
+    src.retrieval.dispatching.container_factory.ContainerFactory.init_proffast10_code(click.echo)
+    src.retrieval.dispatching.container_factory.ContainerFactory.init_proffast22_code(click.echo)
+    src.retrieval.dispatching.container_factory.ContainerFactory.init_proffast23_code(click.echo)
+    src.retrieval.dispatching.container_factory.ContainerFactory.init_proffast24_code(click.echo)
 
 
 @profiles_command_group.command(
@@ -159,21 +138,18 @@ def request_ginput_status() -> None:
     ) as ftp:
         with io.BytesIO(config.profiles.server.email.encode("utf-8")) as f:
             ftp.storbinary(f"STOR upload/ginput_status.txt", f)
-    click.echo(
-        f"Requested ginput status for email address {config.profiles.server.email}"
-    )
+    click.echo(f"Requested ginput status for email address {config.profiles.server.email}")
 
 
-@export_command_group.command(
+@bundle_command_group.command(
     name="run",
-    help=
-    "Run the export script. The logs from this process can be found at `logs/export`.",
+    help="Run the bundle script.",
 )
-def run_export() -> None:
+def run_bundle() -> None:
     _check_config_validity()
 
     import src  # import here so that the CLI is more reactive
-    src.export.main.run()
+    src.bundle.main.run()
 
 
 @cli.command(
@@ -192,8 +168,7 @@ def print_data_report() -> None:
 
     # load metadata interface
     console.print("Loading metadata")
-    em27_metadata_interface = src.utils.metadata.load_local_em27_metadata_interface(
-    )
+    em27_metadata_interface = src.utils.metadata.load_local_em27_metadata_interface()
     if em27_metadata_interface is not None:
         print("Found local metadata")
     else:
@@ -206,8 +181,7 @@ def print_data_report() -> None:
         print("Successfully fetched metadata from GitHub")
 
     console.print(
-        f"Printing report for the data paths: " +
-        config.general.data.model_dump_json(indent=4)
+        f"Printing report for the data paths: " + config.general.data.model_dump_json(indent=4)
     )
     try:
         src.utils.report.export_data_report(
@@ -221,7 +195,7 @@ def print_data_report() -> None:
 
 cli.add_command(retrieval_command_group)
 cli.add_command(profiles_command_group)
-cli.add_command(export_command_group)
+cli.add_command(bundle_command_group)
 
 if __name__ == "__main__":
     cli()

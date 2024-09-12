@@ -13,8 +13,8 @@ from .load_results import load_results_directory
 
 def run() -> None:
     config = types.Config.load()
-    assert config.export_targets is not None, "no export config found"
-    assert len(config.export_targets) > 0, "no export targets found"
+    assert config.bundles is not None, "no bundle targets found"
+    assert len(config.bundles) > 0, "no bundle targets found"
 
     em27_metadata_interface = utils.metadata.load_local_em27_metadata_interface()
     if em27_metadata_interface is not None:
@@ -34,7 +34,7 @@ def run() -> None:
             if ((sensor_id in c.sensor_ids) and (location_id in c.location_ids) and
                 (c.from_datetime <= utc <= c.to_datetime)):
                 matching_campaign_id.append(c.campaign_id)
-        return matching_campaign_id
+        return "+".join(matching_campaign_id)
 
     for i, bundle_target in enumerate(config.bundles):
         print(f"Processing bundle target #{i+1}")
@@ -85,10 +85,10 @@ def run() -> None:
 
                     # Attach a column "campaign_ids" to the data to make it
                     # easy to filter it by individual campaigns
-                    combined_df = combined_df.with_column(
+                    combined_df = combined_df.with_columns(
                         pl.struct("utc", "location_id").map_elements(
-                            lambda utc, location_id:
-                            get_matching_campaign_ids(utc, sensor_id, location_id),
+                            lambda s:
+                            get_matching_campaign_ids(s["utc"], sensor_id, s["location_id"]),
                             return_dtype=pl.Utf8
                         ).alias("campaign_ids")
                     )
@@ -98,11 +98,11 @@ def run() -> None:
                         name += f"-{bundle_target.bundle_suffix}"
 
                     if "csv" in bundle_target.output_formats:
-                        path = os.path.join(bundle_target.dst_dir, name + ".csv")
+                        path = os.path.join(bundle_target.dst_dir.root, name + ".csv")
                         combined_df.write_csv(path)
                         print(f"  Wrote CSV file to {path}")
 
                     if "parquet" in bundle_target.output_formats:
-                        path = os.path.join(bundle_target.dst_dir, name + ".parquet")
+                        path = os.path.join(bundle_target.dst_dir.root, name + ".parquet")
                         combined_df.write_parquet(path)
                         print(f"  Wrote Parquet file to {path}")
