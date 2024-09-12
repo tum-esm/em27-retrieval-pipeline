@@ -1,0 +1,6 @@
+*.BIN
+!*.csv
+!*.dat
+!*.spc
+!*.parquet
+!*.json

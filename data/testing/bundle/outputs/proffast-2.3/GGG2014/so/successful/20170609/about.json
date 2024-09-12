@@ -1,0 +1,154 @@
+{
+    "automationVersion": "1.3.2",
+    "automationCommitSha": "af9284f",
+    "generationTime": "2024-09-11T22:49:32+0000",
+    "config": {
+        "general": {
+            "metadata": {
+                "github_repository": "tum-esm/em27-metadata-storage",
+                "access_token": null
+            },
+            "data": {
+                "ground_pressure": {
+                    "path": "/home/moritz-makowski/documents/em27-retrieval-pipeline/data/testing/container/inputs/log",
+                    "file_regex": "^datalogger-$(SENSOR_ID)-$(YYYY)$(MM)$(DD).csv$",
+                    "separator": ",",
+                    "datetime_column": null,
+                    "datetime_column_format": null,
+                    "date_column": "UTCdate_____",
+                    "date_column_format": "%d.%m.%Y",
+                    "time_column": "UTCtime___",
+                    "time_column_format": "%H:%M:%S",
+                    "unix_timestamp_column": null,
+                    "unix_timestamp_column_format": null,
+                    "pressure_column": "BaroYoung",
+                    "pressure_column_format": "hPa"
+                },
+                "atmospheric_profiles": "/home/moritz-makowski/documents/em27-retrieval-pipeline/data/testing/container/inputs/map",
+                "interferograms": "/home/moritz-makowski/documents/em27-retrieval-pipeline/data/testing/container/inputs/ifg",
+                "results": "/home/moritz-makowski/documents/em27-retrieval-pipeline/data/testing/container/outputs"
+            }
+        },
+        "retrieval": {
+            "general": {
+                "max_process_count": 9,
+                "ifg_file_regex": "^$(SENSOR_ID)$(DATE).*\\.\\d+$"
+            },
+            "jobs": [
+                {
+                    "retrieval_algorithm": "proffast-1.0",
+                    "atmospheric_profile_model": "GGG2014",
+                    "sensor_ids": [
+                        "ma",
+                        "mb",
+                        "mc",
+                        "md",
+                        "me"
+                    ],
+                    "from_date": "2019-01-01",
+                    "to_date": "2022-12-31",
+                    "settings": {
+                        "store_binary_spectra": true,
+                        "dc_min_threshold": 0.05,
+                        "dc_var_threshold": 0.1,
+                        "use_local_pressure_in_pcxs": true,
+                        "use_ifg_corruption_filter": false,
+                        "custom_ils": {
+                            "ma": {
+                                "channel1_me": 0.9892,
+                                "channel1_pe": -0.001082,
+                                "channel2_me": 0.9892,
+                                "channel2_pe": -0.001082
+                            }
+                        },
+                        "output_suffix": "template_config"
+                    }
+                },
+                {
+                    "retrieval_algorithm": "proffast-2.3",
+                    "atmospheric_profile_model": "GGG2020",
+                    "sensor_ids": [
+                        "ma",
+                        "mb",
+                        "mc",
+                        "md",
+                        "me"
+                    ],
+                    "from_date": "2019-01-01",
+                    "to_date": "2099-12-31",
+                    "settings": {
+                        "store_binary_spectra": false,
+                        "dc_min_threshold": 0.05,
+                        "dc_var_threshold": 0.1,
+                        "use_local_pressure_in_pcxs": false,
+                        "use_ifg_corruption_filter": true,
+                        "custom_ils": null,
+                        "output_suffix": null
+                    }
+                }
+            ]
+        }
+    },
+    "session": {
+        "retrieval_algorithm": "proffast-2.3",
+        "atmospheric_profile_model": "GGG2014",
+        "job_settings": {
+            "store_binary_spectra": true,
+            "dc_min_threshold": 0.05,
+            "dc_var_threshold": 0.1,
+            "use_local_pressure_in_pcxs": true,
+            "use_ifg_corruption_filter": true,
+            "custom_ils": null,
+            "output_suffix": null
+        },
+        "ctx": {
+            "sensor_id": "so",
+            "serial_number": 39,
+            "from_datetime": "2017-06-09T00:00:00",
+            "to_datetime": "2017-06-09T23:59:59",
+            "location": {
+                "location_id": "SOD",
+                "details": "Sodankyla",
+                "lon": 26.63,
+                "lat": 67.366,
+                "alt": 181.0
+            },
+            "utc_offset": 0.0,
+            "pressure_data_source": "so",
+            "calibration_factors": {
+                "pressure": 1.0,
+                "xco2": {
+                    "factors": [
+                        1.0
+                    ],
+                    "scheme": null,
+                    "note": null
+                },
+                "xch4": {
+                    "factors": [
+                        1.0
+                    ],
+                    "scheme": null,
+                    "note": null
+                },
+                "xco": {
+                    "factors": [
+                        1.0
+                    ],
+                    "scheme": null,
+                    "note": null
+                }
+            },
+            "atmospheric_profile_location": {
+                "location_id": "SOD",
+                "details": "Sodankyla",
+                "lon": 26.63,
+                "lat": 67.366,
+                "alt": 181.0
+            }
+        },
+        "ctn": {
+            "container_id": "berserk-euler"
+        }
+    }
+}
