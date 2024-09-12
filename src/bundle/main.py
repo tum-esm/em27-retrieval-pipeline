@@ -28,6 +28,14 @@ def run() -> None:
         )
         print("Successfully fetched metadata from GitHub")
 
+    def get_matching_campaign_ids(utc: datetime.datetime, sensor_id: str, location_id: str) -> str:
+        matching_campaign_id: list[str] = []
+        for c in em27_metadata_interface.campaigns.root:
+            if ((sensor_id in c.sensor_ids) and (location_id in c.location_ids) and
+                (c.from_datetime <= utc <= c.to_datetime)):
+                matching_campaign_id.append(c.campaign_id)
+        return matching_campaign_id
+
     for i, bundle_target in enumerate(config.bundles):
         print(f"Processing bundle target #{i+1}")
         print(f"Bundle target: {bundle_target.model_dump_json(indent=4)}")
@@ -74,6 +82,16 @@ def run() -> None:
                             dfs.append(df)
 
                     combined_df = pl.concat(dfs).sort("utc")
+
+                    # Attach a column "campaign_ids" to the data to make it
+                    # easy to filter it by individual campaigns
+                    combined_df = combined_df.with_column(
+                        pl.struct("utc", "location_id").map_elements(
+                            lambda utc, location_id:
+                            get_matching_campaign_ids(utc, sensor_id, location_id),
+                            return_dtype=pl.Utf8
+                        ).alias("campaign_ids")
+                    )
 
                     name = f"em27-retrieval-bundle-{sensor_id}-{retrieval_algorithm}-{atmospheric_profile_model}-{bundle_target.from_datetime.strftime('%Y%m%d')}-{bundle_target.to_datetime.strftime('%Y%m%d')}"
                     if bundle_target.bundle_suffix is not None:
