@@ -31,8 +31,8 @@ def load_results_directory(
         raise Exception(f"Neither 'from_datetime' nor 'date' found in context: {context}")
 
     if "from_datetime" in context:
-        from_datetime = utils.text.parse_datetime(context["from_datetime"])
-        to_datetime = utils.text.parse_datetime(context["to_datetime"])
+        from_datetime = tum_esm_utils.timing.parse_iso_8601_datetime(context["from_datetime"])
+        to_datetime = tum_esm_utils.timing.parse_iso_8601_datetime(context["to_datetime"])
     else:
         date = datetime.datetime.strptime(context["date"], "%Y%m%d")
         from_datetime = datetime.datetime.combine(date, datetime.time.min)
@@ -44,7 +44,7 @@ def load_results_directory(
             about["generationDate"] + "T" + about["generationTime"], "%Y%m%dT%H:%M:%S"
         )
     else:
-        retrieval_time = utils.text.parse_datetime(about["generationTime"])
+        retrieval_time = tum_esm_utils.timing.parse_iso_8601_datetime(about["generationTime"])
 
     assert sensor_id == context["sensor_id"]
 

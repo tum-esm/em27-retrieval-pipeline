@@ -31,6 +31,7 @@ class ContainerFactory:
         self.config = config
         self.logger = logger
         self.containers: list[types.RetrievalContainer] = []
+        self.label_generator = tum_esm_utils.text.RandomLabelGenerator()
 
         assert self.config.retrieval is not None
         retrieval_algorithms = [job.retrieval_algorithm for job in self.config.retrieval.jobs]
@@ -73,9 +74,7 @@ class ContainerFactory:
         directory and compiling the fortran code. The container is then
         initialized with empty input and output directories."""
 
-        new_container_id = utils.text.get_random_container_name(
-            currently_used_names=[c.container_id for c in self.containers]
-        )
+        new_container_id = self.label_generator.generate()
         container: types.RetrievalContainer
 
         assert self.config.retrieval is not None
@@ -131,6 +130,7 @@ class ContainerFactory:
             shutil.rmtree(container.data_input_path)
             shutil.rmtree(container.data_output_path)
             self.containers.remove(container)
+            self.label_generator.free(container_id)
         except IndexError:
             raise ValueError(f'no container with id "{container_id}"')
 
@@ -145,6 +145,7 @@ class ContainerFactory:
             for container in self.containers:
                 shutil.rmtree(container.container_path)
         self.containers = []
+        self.label_generator = tum_esm_utils.text.RandomLabelGenerator()
 
     @staticmethod
     def init_proffast10_code(_print: Callable[[str], None]) -> None:
