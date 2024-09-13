@@ -631,99 +631,126 @@ const CONFIG_SCHEMA: any = {
             ],
             "default": null
         },
-        "export_targets": {
+        "bundles": {
             "anyOf": [
                 {
                     "items": {
                         "additionalProperties": false,
+                        "description": "There will be one file per sensor id and atmospheric profile and retrieval algorithm combination.\n\nThe final name looks like `em27-retrieval-bundle-$SENSOR_ID-$RETRIEVAL_ALGORITHM-$ATMOSPHERIC_PROFILE-$FROM_DATE-$TO_DATE$BUNDLE_SUFFIX.$OUTPUT_FORMAT`, e.g.`em27-retrieval-bundle-ma-GGG2020-proffast-2.4-20150801-20240523-v2.1.csv`. The bundle suffix is optional and can be used to distinguish between different\ninternal datasets.",
                         "properties": {
-                            "campaign_id": {
-                                "description": "Campaign specified in location metadata.",
-                                "title": "Campaign Id",
+                            "dst_dir": {
+                                "description": "Directory to write the bundeled outputs to.",
+                                "title": "StrictDirectoryPath",
                                 "type": "string"
                             },
-                            "retrieval_algorithm": {
-                                "description": "Which retrieval algorithm used for the retrieval.",
-                                "enum": [
-                                    "proffast-1.0",
-                                    "proffast-2.2",
-                                    "proffast-2.3",
-                                    "proffast-2.4",
-                                    "proffast-2.4.1"
-                                ],
-                                "title": "Retrieval Algorithm",
-                                "type": "string"
-                            },
-                            "atmospheric_profile_model": {
-                                "description": "Which atmospheric profiles used for the retrieval.",
-                                "enum": [
-                                    "GGG2014",
-                                    "GGG2020"
-                                ],
-                                "title": "Atmospheric Profile Model",
-                                "type": "string"
-                            },
-                            "data_types": {
-                                "description": "Data columns to keep in the merged output files. The columns will be prefixed with the sensor id, i.e. `$(SENSOR_ID)_$(COLUMN_NAME)`.",
+                            "output_formats": {
+                                "description": "List of output formats to write the merged output files in.",
                                 "items": {
                                     "enum": [
-                                        "gnd_p",
-                                        "gnd_t",
-                                        "app_sza",
-                                        "azimuth",
-                                        "xh2o",
-                                        "xair",
-                                        "xco2",
-                                        "xch4",
-                                        "xco",
-                                        "xch4_s5p"
+                                        "csv",
+                                        "parquet"
                                     ],
                                     "type": "string"
                                 },
-                                "minItems": 1,
-                                "title": "Data Types",
+                                "title": "Output Formats",
                                 "type": "array"
                             },
-                            "sampling_rate": {
-                                "description": "Interval of resampled data.",
-                                "enum": [
-                                    "10m",
-                                    "5m",
-                                    "2m",
-                                    "1m",
-                                    "30s",
-                                    "15s",
-                                    "10s",
-                                    "5s",
-                                    "2s",
-                                    "1s"
+                            "from_datetime": {
+                                "description": "Date in format `YYYY-MM-DDTHH:MM:SS` from which to bundle data",
+                                "format": "date-time",
+                                "title": "From Datetime",
+                                "type": "string"
+                            },
+                            "to_datetime": {
+                                "description": "Date in format `YYYY-MM-DDTHH:MM:SS` to which to bundle data",
+                                "format": "date-time",
+                                "title": "To Datetime",
+                                "type": "string"
+                            },
+                            "retrieval_algorithms": {
+                                "description": "The retrieval algorithms for which to bundle the outputs",
+                                "items": {
+                                    "enum": [
+                                        "proffast-1.0",
+                                        "proffast-2.2",
+                                        "proffast-2.3",
+                                        "proffast-2.4",
+                                        "proffast-2.4.1"
+                                    ],
+                                    "type": "string"
+                                },
+                                "title": "Retrieval Algorithms",
+                                "type": "array"
+                            },
+                            "atmospheric_profile_models": {
+                                "description": "The atmospheric profile models for which to bundle the outputs",
+                                "items": {
+                                    "enum": [
+                                        "GGG2014",
+                                        "GGG2020"
+                                    ],
+                                    "type": "string"
+                                },
+                                "title": "Atmospheric Profile Models",
+                                "type": "array"
+                            },
+                            "sensor_ids": {
+                                "description": "The sensor ids for which to bundle the outputs",
+                                "items": {
+                                    "type": "string"
+                                },
+                                "title": "Sensor Ids",
+                                "type": "array"
+                            },
+                            "bundle_suffix": {
+                                "anyOf": [
+                                    {
+                                        "minLength": 1,
+                                        "type": "string"
+                                    },
+                                    {
+                                        "type": "null"
+                                    }
                                 ],
-                                "title": "Sampling Rate",
-                                "type": "string"
+                                "default": null,
+                                "description": "Suffix to append to the output bundles.",
+                                "examples": [
+                                    "v2.1",
+                                    "v2.2",
+                                    "oco2-gradient-paper-2021"
+                                ],
+                                "title": "Bundle Suffix"
                             },
-                            "max_interpolation_gap_seconds": {
-                                "default": 180,
-                                "description": "Maximum gap in seconds to interpolate over.",
-                                "maximum": 43200,
-                                "minimum": 6,
-                                "title": "Max Interpolation Gap Seconds",
-                                "type": "integer"
+                            "retrieval_job_output_suffix": {
+                                "anyOf": [
+                                    {
+                                        "type": "string"
+                                    },
+                                    {
+                                        "type": "null"
+                                    }
+                                ],
+                                "default": null,
+                                "description": "When you ran the retrieval with a custom suffix, you can specify it here to only bundle the outputs of this suffix. Use the same value here as in the field `config.retrieval.jobs[i].settings.output_suffix`.",
+                                "title": "Retrieval Job Output Suffix"
                             },
-                            "dst_dir": {
-                                "description": "Directory to write the output to.",
-                                "title": "StrictDirectoryPath",
-                                "type": "string"
+                            "parse_dc_timeseries": {
+                                "default": false,
+                                "description": "Whether to parse the DC timeseries from the results directories. This is an output only available in this Pipeline for Proffast2.4. We adapted the preprocessor to output the DC min/mean/max/variation values for each record of data. If you having issues with a low signal intensity on one or both channels, you can run the retrieval with a very low DC_min threshold and filter the data afterwards instead of having to rerun the retrieval.",
+                                "title": "Parse Dc Timeseries",
+                                "type": "boolean"
                             }
                         },
                         "required": [
-                            "campaign_id",
-                            "retrieval_algorithm",
-                            "atmospheric_profile_model",
-                            "data_types",
-                            "sampling_rate",
-                            "dst_dir"
+                            "dst_dir",
+                            "output_formats",
+                            "from_datetime",
+                            "to_datetime",
+                            "retrieval_algorithms",
+                            "atmospheric_profile_models",
+                            "sensor_ids"
                         ],
-                        "title": "ExportTargetConfig",
+                        "title": "BundleTargetConfig",
                         "type": "object"
                     },
                     "type": "array"
@@ -733,8 +760,8 @@ const CONFIG_SCHEMA: any = {
                 }
             ],
             "default": null,
-            "description": "List of output merging targets. Relies on specifying \"campaigns\" in the EM27 metadata.",
-            "title": "Export Targets"
+            "description": "List of output bundling targets.",
+            "title": "Bundles"
         }
     },
     "required": [

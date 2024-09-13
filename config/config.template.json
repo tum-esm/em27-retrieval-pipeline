@@ -13,7 +13,7 @@
         "pressure_column": "pressure",
         "pressure_column_format": "hPa",
         "date_column": "UTCdate_____",
-        "date_column_format": "%d.%m.%Y",
+        "date_column_format": "%Y-%m-%d",
         "time_column": "UTCtime_____",
         "time_column_format": "%H:%M:%S"
       },
@@ -80,15 +80,16 @@
       }
     ]
   },
-  "export_targets": [
+  "bundles": [
     {
-      "campaign_id": "muccnet",
-      "retrieval_algorithm": "proffast-2.3",
-      "atmospheric_profile_model": "GGG2020",
-      "data_types": ["gnd_p", "gnd_t", "app_sza", "azimuth", "xh2o", "xair", "xco2", "xch4", "xco", "xch4_s5p"],
-      "sampling_rate": "1m",
-      "max_interpolation_gap_seconds": 180,
-      "dst_dir": "path-to-merged-output"
+      "dst_dir": "directory-to-write-the-bundles-to",
+      "output_formats": ["csv", "parquet"],
+      "from_datetime": "2022-01-01T00:00:00Z",
+      "to_datetime": "2022-12-31T23:59:59Z",
+      "retrieval_algorithms": ["proffast-1.0", "proffast-2.4"],
+      "atmospheric_profile_models": ["GGG2014", "GGG2020"],
+      "sensor_ids": ["ma", "mb", "mc", "md", "me"],
+      "parse_dc_timeseries": true
     }
   ]
 }

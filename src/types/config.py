@@ -415,6 +415,10 @@ class BundleTargetConfig(pydantic.BaseModel):
 
     model_config = pydantic.ConfigDict(extra="forbid")
 
+    dst_dir: tum_esm_utils.validators.StrictDirectoryPath = pydantic.Field(
+        ...,
+        description="Directory to write the bundeled outputs to.",
+    )
     output_formats: list[Literal["csv", "parquet"]] = pydantic.Field(
         ...,
         description="List of output formats to write the merged output files in.",
@@ -433,10 +437,6 @@ class BundleTargetConfig(pydantic.BaseModel):
     )
     sensor_ids: list[str] = pydantic.Field(
         ..., description="The sensor ids for which to bundle the outputs"
-    )
-    dst_dir: tum_esm_utils.validators.StrictDirectoryPath = pydantic.Field(
-        ...,
-        description="Directory to write the bundeled outputs to.",
     )
     bundle_suffix: Optional[str] = pydantic.Field(
         None,
@@ -469,11 +469,8 @@ class Config(pydantic.BaseModel):
     general: GeneralConfig
     profiles: Optional[ProfilesConfig] = None
     retrieval: Optional[RetrievalConfig] = None
-    bundles: Optional[list[BundleTargetConfig]] = pydantic.Field(
-        None,
-        description=
-        'List of output merging targets. Relies on specifying "campaigns" in the EM27 metadata.'
-    )
+    bundles: Optional[list[BundleTargetConfig]
+                     ] = pydantic.Field(None, description='List of output bundling targets.')
 
     @staticmethod
     def load(

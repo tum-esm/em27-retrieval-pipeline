@@ -141,10 +141,7 @@ def request_ginput_status() -> None:
     click.echo(f"Requested ginput status for email address {config.profiles.server.email}")
 
 
-@bundle_command_group.command(
-    name="run",
-    help="Run the bundle script.",
-)
+@bundle_command_group.command(name="run", help="Create a bundle of your entire retrieval dataset")
 def run_bundle() -> None:
     _check_config_validity()
 
