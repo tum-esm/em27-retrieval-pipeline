@@ -1,3 +1,4 @@
+from typing import Optional
 import datetime
 import os
 import re
@@ -11,22 +12,29 @@ from src import types, utils
 from .load_results import load_results_directory
 
 
-def run() -> None:
-    config = types.Config.load()
+def run(
+    config: Optional[types.Config] = None,
+    em27_metadata_interface: Optional[em27_metadata.interfaces.EM27MetadataInterface] = None,
+) -> None:
+    if config is None:
+        print("Loading configuration")
+        config = types.Config.load()
+
     assert config.bundles is not None, "no bundle targets found"
     assert len(config.bundles) > 0, "no bundle targets found"
 
-    em27_metadata_interface = utils.metadata.load_local_em27_metadata_interface()
-    if em27_metadata_interface is not None:
-        print("Found local metadata")
-    else:
-        print("Did not find local metadata -> fetching metadata from GitHub")
-        assert config.general.metadata is not None, "Remote metadata not configured"
-        em27_metadata_interface = em27_metadata.load_from_github(
-            github_repository=config.general.metadata.github_repository,
-            access_token=config.general.metadata.access_token,
-        )
-        print("Successfully fetched metadata from GitHub")
+    if em27_metadata_interface is None:
+        em27_metadata_interface = utils.metadata.load_local_em27_metadata_interface()
+        if em27_metadata_interface is not None:
+            print("Found local metadata")
+        else:
+            print("Did not find local metadata -> fetching metadata from GitHub")
+            assert config.general.metadata is not None, "Remote metadata not configured"
+            em27_metadata_interface = em27_metadata.load_from_github(
+                github_repository=config.general.metadata.github_repository,
+                access_token=config.general.metadata.access_token,
+            )
+            print("Successfully fetched metadata from GitHub")
 
     def get_matching_campaign_ids(utc: datetime.datetime, sensor_id: str, location_id: str) -> str:
         matching_campaign_id: list[str] = []
@@ -42,6 +50,11 @@ def run() -> None:
 
         for retrieval_algorithm in bundle_target.retrieval_algorithms:
             for atmospheric_profile_model in bundle_target.atmospheric_profile_models:
+                if ((retrieval_algorithm == "proffast-1.0") and
+                    (atmospheric_profile_model == "GGG2020")):
+                    print(f"Skipping proffast-1.0/GGG2020 as it is not supported")
+                    continue
+                print(f"Processing {retrieval_algorithm}/{atmospheric_profile_model}")
                 for sensor_id in bundle_target.sensor_ids:
                     dfs: list[pl.DataFrame] = []
 
@@ -49,14 +62,14 @@ def run() -> None:
                         config.general.data.results.root, retrieval_algorithm,
                         atmospheric_profile_model, sensor_id, "successful"
                     )
-                    print(f"Sensor {sensor_id}: looking for files in {d}")
+                    print(f"  Sensor {sensor_id}: looking for files in {d}")
 
                     results_pattern = re.compile(r"^\d{8}(_\d{8}_\d{8})?(_.*)?$")
                     all_results = [
                         r for r in os.listdir(d)
                         if os.path.isdir(os.path.join(d, r)) and results_pattern.match(r)
                     ]
-                    print(f"  Found {len(all_results)} results directories")
+                    print(f"    Found {len(all_results)} results directories")
                     if bundle_target.retrieval_job_output_suffix is None:
                         matching_results = all_results
                     else:
@@ -65,7 +78,7 @@ def run() -> None:
                             if r.endswith(bundle_target.retrieval_job_output_suffix)
                         ]
                         print(
-                            f"  Found {len(matching_results)} results directories matching the output suffix"
+                            f"    Found {len(matching_results)} results directories matching the output suffix"
                         )
 
                     for result in matching_results:
@@ -100,9 +113,9 @@ def run() -> None:
                     if "csv" in bundle_target.output_formats:
                         path = os.path.join(bundle_target.dst_dir.root, name + ".csv")
                         combined_df.write_csv(path)
-                        print(f"  Wrote CSV file to {path}")
+                        print(f"    Wrote CSV file to {path}")
 
                     if "parquet" in bundle_target.output_formats:
                         path = os.path.join(bundle_target.dst_dir.root, name + ".parquet")
                         combined_df.write_parquet(path)
-                        print(f"  Wrote Parquet file to {path}")
+                        print(f"    Wrote Parquet file to {path}")

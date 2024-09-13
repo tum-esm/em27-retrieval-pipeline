@@ -41,7 +41,9 @@ def load_results_directory(
             about["generationDate"] + "T" + about["generationTime"], "%Y%m%dT%H:%M:%S"
         )
     else:
-        retrieval_time = datetime.datetime.fromisoformat(about["generationTime"])
+        retrieval_time = datetime.datetime.fromisoformat(
+            about["generationTime"][:-2] + ":" + about["generationTime"][-2 :]
+        )
 
     assert sensor_id == context["sensor_id"]
 
@@ -57,7 +59,7 @@ def load_results_directory(
     # 2. SEARCH FOR RESULTS FILE
 
     results_files = os.listdir(d)
-    results_files = [f for f in results_files if f.startswith("comb_") and f.endswith(".csv")]
+    results_files = [f for f in results_files if ("comb" in f) and f.endswith(".csv")]
     if len(results_files) == 0:
         raise Exception(f"No results files found in {d}")
     if len(results_files) > 1:
@@ -76,22 +78,41 @@ def load_results_directory(
             " spectrum": pl.Utf8,
         }
     )
+    df = df.rename({col: col.strip() for col in df.columns if col.strip() != col})
+
     df = df \
-        .rename({col: col.strip() for col in df.columns}) \
-        .drop("LocalTime", "JulianDate", "UTtimeh", "gndT") \
-        .rename({
-            "UTC": "utc",
-            "gndP": "ground_pressure",
-            "latdeg": "lat",
-            "londeg": "lon",
-            "altim": "alt",
-            "appSZA": "sza",
-            "azimuth": "azi",
-        })
+        .drop(list(
+            set(["LocalTime", "JulianDate", "UTtimeh", "gndT", "SX"]).intersection(set(df.columns))
+        ))
+
+    if "UTC" not in df.columns:
+        if "HHMMSS_ID" not in df.columns:
+            raise Exception("Found neither 'UTC' nor 'HHMMSS_ID' in columns of file " + output_path)
+        df = df.with_columns(
+            pl.col("HHMMSS_ID").cast(pl.Utf8).map_elements(
+                lambda hhmmss: datetime.datetime.
+                combine(from_datetime.date(),
+                        datetime.datetime.strptime(hhmmss, "%H%M%S").time()),
+                return_dtype=pl.Datetime
+            ).alias("UTC")
+        )
+
+    df = df.rename({
+        "UTC": "utc",
+        "gndP": "ground_pressure",
+        "latdeg": "lat",
+        "londeg": "lon",
+        "altim": "alt",
+        "appSZA": "sza",
+        "azimuth": "azi",
+    })
 
     df = df.with_columns(
         pl.col("utc").dt.replace_time_zone("UTC"),
-        *[pl.col(col).cast(pl.Float64) for col in df.columns if col not in ["utc", "spectrum"]],
+        *[
+            pl.col(col).cast(pl.Utf8).str.strip_chars(" ").cast(pl.Float64)
+            for col in df.columns if col not in ["utc", "spectrum"]
+        ],
     ).with_columns(
         pl.lit(retrieval_time).alias("retrieval_time").dt.replace_time_zone("UTC"),
         pl.lit(location_id).alias("location_id"),
@@ -127,22 +148,22 @@ def load_results_directory(
 
         preprocessing_df = pl.DataFrame({
             "spectrum": spectrums,
-            "dcmean_fwd1": [data[0]],
-            "dc_min_fwd1": [data[1]],
-            "dc_max_fwd1": [data[2]],
-            "dcvar_fwd1": [data[3]],
-            "dcmean_bwd1": [data[4]],
-            "dc_min_bwd1": [data[5]],
-            "dc_max_bwd1": [data[6]],
-            "dcvar_bwd1": [data[7]],
-            "dcmean_fwd2": [data[8]],
-            "dc_min_fwd2": [data[9]],
-            "dc_max_fwd2": [data[10]],
-            "dcvar_fwd2": [data[11]],
-            "dcmean_bwd2": [data[12]],
-            "dc_min_bwd2": [data[13]],
-            "dc_max_bwd2": [data[14]],
-            "dcvar_bwd2": [data[15]],
+            "dcmean_fwd1": data[0],
+            "dc_min_fwd1": data[1],
+            "dc_max_fwd1": data[2],
+            "dcvar_fwd1": data[3],
+            "dcmean_bwd1": data[4],
+            "dc_min_bwd1": data[5],
+            "dc_max_bwd1": data[6],
+            "dcvar_bwd1": data[7],
+            "dcmean_fwd2": data[8],
+            "dc_min_fwd2": data[9],
+            "dc_max_fwd2": data[10],
+            "dcvar_fwd2": data[11],
+            "dcmean_bwd2": data[12],
+            "dc_min_bwd2": data[13],
+            "dc_max_bwd2": data[14],
+            "dcvar_bwd2": data[15],
         })
 
         merged_df = df.join(preprocessing_df, on="spectrum", how="left")
