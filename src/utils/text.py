@@ -1,5 +1,6 @@
 import datetime
 import random
+import re
 
 
 def get_coordinates_slug(lat: float, lon: float, verbose: bool = False) -> str:
@@ -100,3 +101,22 @@ def replace_regex_placeholders(regex_pattern: str, sensor_id: str, date: datetim
         regex_pattern = regex_pattern.replace(placeholder, replacement)
 
     return regex_pattern
+
+
+datetime_pattern_1 = re.compile(r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z")
+datetime_pattern_2 = re.compile(r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z")
+datetime_pattern_3 = re.compile(r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\+|-)\d{2}:\d{2}")
+datetime_pattern_4 = re.compile(r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\+|-)\d{4}")
+
+
+def parse_datetime(s: str) -> datetime.datetime:
+    if datetime_pattern_1.match(s) is not None:
+        return datetime.datetime.fromisoformat(s + "+00:00")
+    elif datetime_pattern_2.match(s) is not None:
+        return datetime.datetime.fromisoformat(s[:-1] + "+00:00")
+    elif datetime_pattern_3.match(s) is not None:
+        return datetime.datetime.fromisoformat(s)
+    elif datetime_pattern_4.match(s) is not None:
+        return datetime.datetime.fromisoformat(s[:-2] + ":" + s[-2 :])
+    else:
+        raise ValueError(f"Invalid datetime string: {s}")

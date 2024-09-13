@@ -5,6 +5,7 @@ import re
 import sys
 import polars as pl
 import em27_metadata
+import tqdm
 import tum_esm_utils
 
 sys.path.append(tum_esm_utils.files.rel_to_abs_path("../.."))
@@ -64,24 +65,49 @@ def run(
                     )
                     print(f"  Sensor {sensor_id}: looking for files in {d}")
 
-                    results_pattern = re.compile(r"^\d{8}(_\d{8}_\d{8})?(_.*)?$")
+                    results_pattern = re.compile(r"^\d{8}(_\d{8}_\d{8})?(_.+)?$")
+
                     all_results = [
                         r for r in os.listdir(d)
                         if os.path.isdir(os.path.join(d, r)) and results_pattern.match(r)
                     ]
                     print(f"    Found {len(all_results)} results directories")
+
                     if bundle_target.retrieval_job_output_suffix is None:
-                        matching_results = all_results
-                    else:
+                        results_pattern_without_suffix = re.compile(r"^\d{8}(_\d{8}_\d{8})?$")
                         matching_results = [
-                            r for r in all_results
-                            if r.endswith(bundle_target.retrieval_job_output_suffix)
+                            r for r in all_results if results_pattern_without_suffix.match(r)
+                        ]
+                        print(
+                            f"    Found {len(matching_results)} results directories with output suffix `None`"
+                        )
+                    else:
+                        results_pattern_with_suffix = re.compile(r"^\d{8}(_\d{8}_\d{8})?(_.+)$")
+                        matching_results = [
+                            r for r in all_results if results_pattern_with_suffix.match(r) and
+                            r.endswith(bundle_target.retrieval_job_output_suffix)
                         ]
                         print(
                             f"    Found {len(matching_results)} results directories matching the output suffix"
                         )
 
-                    for result in matching_results:
+                    timed_results: list[str] = [
+                        r for r in matching_results if ((
+                            bundle_target.from_datetime.date() <=
+                            datetime.datetime.strptime(r[: 8], "%Y%m%d").date()
+                        ) and (
+                            datetime.datetime.strptime(r[: 8], "%Y%m%d").date() <=
+                            bundle_target.to_datetime.date()
+                        ))
+                    ]
+                    print(
+                        f"    Found {len(timed_results)} results directories matching the time range"
+                    )
+
+                    progress = tqdm.tqdm(sorted(timed_results), dynamic_ncols=True, desc="    ...")
+                    for result in progress:
+                        progress.desc = f"    {result}"
+                        progress.refresh()
                         df = load_results_directory(
                             os.path.join(d, result),
                             sensor_id,
@@ -109,6 +135,8 @@ def run(
                     name = f"em27-retrieval-bundle-{sensor_id}-{retrieval_algorithm}-{atmospheric_profile_model}-{bundle_target.from_datetime.strftime('%Y%m%d')}-{bundle_target.to_datetime.strftime('%Y%m%d')}"
                     if bundle_target.bundle_suffix is not None:
                         name += f"-{bundle_target.bundle_suffix}"
+
+                    print(f"    Combined dataset has {len(combined_df)} rows")
 
                     if "csv" in bundle_target.output_formats:
                         path = os.path.join(bundle_target.dst_dir.root, name + ".csv")

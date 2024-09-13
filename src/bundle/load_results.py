@@ -1,8 +1,10 @@
+import re
 from typing import Any, Optional
 import datetime
 import os
 import polars as pl
 import tum_esm_utils
+from src import utils
 
 
 def load_results_directory(
@@ -11,6 +13,7 @@ def load_results_directory(
     parse_dc_timeseries: bool = False,
     retrieval_job_output_suffix: Optional[str] = None,
 ) -> Optional[pl.DataFrame]:
+
     # 1. PARSE ABOUT.JSON
 
     about_path = os.path.join(d, "about.json")
@@ -28,8 +31,8 @@ def load_results_directory(
         raise Exception(f"Neither 'from_datetime' nor 'date' found in context: {context}")
 
     if "from_datetime" in context:
-        from_datetime = datetime.datetime.fromisoformat(context["from_datetime"])
-        to_datetime = datetime.datetime.fromisoformat(context["to_datetime"])
+        from_datetime = utils.text.parse_datetime(context["from_datetime"])
+        to_datetime = utils.text.parse_datetime(context["to_datetime"])
     else:
         date = datetime.datetime.strptime(context["date"], "%Y%m%d")
         from_datetime = datetime.datetime.combine(date, datetime.time.min)
@@ -41,9 +44,7 @@ def load_results_directory(
             about["generationDate"] + "T" + about["generationTime"], "%Y%m%dT%H:%M:%S"
         )
     else:
-        retrieval_time = datetime.datetime.fromisoformat(
-            about["generationTime"][:-2] + ":" + about["generationTime"][-2 :]
-        )
+        retrieval_time = utils.text.parse_datetime(about["generationTime"])
 
     assert sensor_id == context["sensor_id"]
 
