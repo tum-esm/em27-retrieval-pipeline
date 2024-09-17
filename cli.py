@@ -39,7 +39,9 @@ def _check_config_validity() -> None:
 )
 def start(watch: bool) -> None:
     _check_config_validity()
-    pid = tum_esm_utils.processes.start_background_process(sys.executable, _RETRIEVAL_ENTRYPOINT)
+    pid = tum_esm_utils.processes.start_background_process(
+        sys.executable, _RETRIEVAL_ENTRYPOINT, waiting_period=0.125
+    )
     click.echo(f"Started automated retrieval background process with PID {pid}")
 
     if watch:

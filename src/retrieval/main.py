@@ -16,6 +16,7 @@ def run() -> None:
     main_logger = retrieval.utils.logger.Logger("main")
     main_logger.horizontal_line(variant="=")
     main_logger.info(f"Starting the automation with PID {os.getpid()}")
+    time.sleep(0.25)
 
     # load config
     try:
