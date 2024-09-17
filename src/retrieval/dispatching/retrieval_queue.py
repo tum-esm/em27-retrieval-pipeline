@@ -1,16 +1,80 @@
 import datetime
 import os
 import re
+from typing import Any, Optional
 import em27_metadata
 import tum_esm_utils
+import pprint
 from src import types, utils, retrieval
 
 
+def _list_to_pretty_string(l: list[Any]) -> str:
+    if len(l) == 0:
+        return "[]"
+    string_items = [str(item) for item in l]
+    out = "[\n    "
+    current_indent = 4
+    for item in string_items:
+        if (current_indent + len(item)) > 80:
+            out += "\n    "
+            current_indent = 4
+        out += item + ", "
+        current_indent += len(item) + 2
+    out += "\n]"
+    return out
+
+
 def generate_retrieval_queue(
-    config: types.Config, logger: retrieval.utils.logger.Logger,
+    config: types.Config,
+    logger: retrieval.utils.logger.Logger,
     em27_metadata_interface: em27_metadata.EM27MetadataInterface,
-    retrieval_job_config: types.RetrievalJobConfig
+    retrieval_job_config: types.RetrievalJobConfig,
 ) -> list[em27_metadata.types.SensorDataContext]:
+    assert config.retrieval is not None, "Config must have a retrieval section"
+
+    def _log_filtering_step_message(
+        positive_message: str,
+        positive_items: set[datetime.date] | list[em27_metadata.types.SensorDataContext],
+        negative_message: Optional[str] = None,
+        negative_items: Optional[set[datetime.date] |
+                                 list[em27_metadata.types.SensorDataContext]] = None,
+    ) -> None:
+        assert config.retrieval is not None
+        pretty_items: list[str]
+        message = f"    {len(positive_items)} {positive_message}"
+        if config.retrieval.general.queue_verbosity == "verbose":
+            pretty_items = []
+            for item in positive_items:
+                if isinstance(item, datetime.date):
+                    pretty_items.append(item.strftime("%Y-%m-%d"))
+                elif isinstance(item, em27_metadata.types.SensorDataContext):
+                    pretty_items.append(
+                        f"{item.from_datetime.strftime('%Y-%m-%dT%H:%M:%S')}-{item.to_datetime.strftime('%Y-%m-%dT%H:%M:%S')}-{item.location.location_id}"
+                    )
+                else:
+                    pretty_items.append(item)
+            message += ": " + _list_to_pretty_string(sorted(pretty_items))
+            #pprint.pformat(pretty_items, compact=True, width=100, indent=4)[1 :]
+        logger.info(message)
+
+        if negative_message is None or negative_items is None:
+            return
+
+        message = f"    {len(negative_items)} {negative_message} (NOT PROCESSED)"
+        if config.retrieval.general.queue_verbosity == "verbose":
+            pretty_items = []
+            for item in negative_items:
+                if isinstance(item, datetime.date):
+                    pretty_items.append(item.strftime("%Y-%m-%d"))
+                elif isinstance(item, em27_metadata.types.SensorDataContext):
+                    pretty_items.append(
+                        f"{item.from_datetime.strftime('%Y-%m-%dT%H:%M:%S')}-{item.to_datetime.strftime('%Y-%m-%dT%H:%M:%S')}-{item.location.location_id}"
+                    )
+                else:
+                    pretty_items.append(item)
+            message += ": " + _list_to_pretty_string(sorted(pretty_items))
+        logger.info(message)
+
     retrieval_queue: list[em27_metadata.types.SensorDataContext] = []
     for sensor in em27_metadata_interface.sensors.root:
         if sensor.sensor_id not in retrieval_job_config.sensor_ids:
@@ -21,36 +85,73 @@ def generate_retrieval_queue(
 
         # Find dates with location data
 
+        logger.info("  Parsing metadata for location data")
         dates_with_location: set[datetime.date] = set()
         for sensor_setup in sensor.setups:
-            if ((sensor_setup.to_datetime.date() < retrieval_job_config.from_date) or
-                (sensor_setup.from_datetime.date() > retrieval_job_config.to_date)):
-                continue
-            dates_with_location.update(
-                tum_esm_utils.timing.date_range(
-                    max(sensor_setup.from_datetime.date(), retrieval_job_config.from_date),
-                    min(sensor_setup.to_datetime.date(), retrieval_job_config.to_date)
-                )
+            overlap = tum_esm_utils.timing.datetime_span_intersection(
+                (
+                    sensor_setup.from_datetime,
+                    sensor_setup.to_datetime,
+                ),
+                (
+                    datetime.datetime.combine(
+                        retrieval_job_config.from_date,
+                        datetime.time.min,
+                        tzinfo=datetime.timezone.utc,
+                    ),
+                    datetime.datetime.combine(
+                        retrieval_job_config.to_date,
+                        datetime.time.max,
+                        tzinfo=datetime.timezone.utc,
+                    )
+                ),
             )
-        logger.info(f"  Found {len(dates_with_location)} dates with location data")
+            if overlap is not None:
+                dates_with_location.update(
+                    tum_esm_utils.timing.date_range(overlap[0].date(), overlap[1].date())
+                )
+
+        _log_filtering_step_message(
+            positive_message="dates with location data",
+            positive_items=dates_with_location,
+        )
 
         # Only keep dates with interferograms
 
         dates_with_interferograms: set[datetime.date] = set()
-        dates_with_unlocked_interferograms: set[datetime.date] = set()
+        dates_without_interferograms: set[datetime.date] = set()
         for date in dates_with_location:
             ifg_path = os.path.join(
                 config.general.data.interferograms.root, sensor.sensor_id, date.strftime("%Y%m%d")
             )
             if os.path.isdir(ifg_path):
                 dates_with_interferograms.add(date)
-                do_not_touch_indicator_file = os.path.join(ifg_path, ".do-not-touch")
-                if not os.path.isfile(do_not_touch_indicator_file):
-                    dates_with_unlocked_interferograms.add(date)
-        logger.info(f"  {len(dates_with_interferograms)} of these " + "dates have interferograms")
-        logger.info(
-            f"  {len(dates_with_unlocked_interferograms)} of these " +
-            "dates have interferograms with no process lock"
+            else:
+                dates_without_interferograms.add(date)
+        _log_filtering_step_message(
+            positive_message="of these dates have interferograms",
+            positive_items=dates_with_interferograms,
+            negative_message="of these dates have no interferograms",
+            negative_items=dates_without_interferograms,
+        )
+
+        dates_with_unlocked_interferograms: set[datetime.date] = set()
+        dates_with_locked_interferograms: set[datetime.date] = set()
+        for date in dates_with_interferograms:
+            ifg_path = os.path.join(
+                config.general.data.interferograms.root, sensor.sensor_id, date.strftime("%Y%m%d")
+            )
+            assert os.path.isdir(ifg_path)
+            do_not_touch_indicator_file = os.path.join(ifg_path, ".do-not-touch")
+            if os.path.isfile(do_not_touch_indicator_file):
+                dates_with_locked_interferograms.add(date)
+            else:
+                dates_with_unlocked_interferograms.add(date)
+        _log_filtering_step_message(
+            positive_message="of these dates have unlocked interferograms",
+            positive_items=dates_with_unlocked_interferograms,
+            negative_message="of these dates have locked interferograms",
+            negative_items=dates_with_locked_interferograms,
         )
 
         # Get sensor data contexts for all dates with interferograms
@@ -66,7 +167,10 @@ def generate_retrieval_queue(
             sensor_data_contexts.extend(
                 em27_metadata_interface.get(sensor.sensor_id, from_datetime, to_datetime)
             )
-        logger.info(f"  Generated {len(sensor_data_contexts)} sensor data contexts for these dates")
+        _log_filtering_step_message(
+            positive_message="sensor data contexts generated",
+            positive_items=sensor_data_contexts,
+        )
 
         # Filter out the sensor data contexts which have already been processed
         # i.e. there is a results directory for them
@@ -87,14 +191,16 @@ def generate_retrieval_queue(
             failure_dir = os.path.join(results_dir, "failed", output_folder)
             if (not os.path.isdir(success_dir) and not os.path.isdir(failure_dir)):
                 unprocessed_sensor_data_contexts.append(sdc)
-        logger.info(
-            f"  {len(unprocessed_sensor_data_contexts)} of these sensor data contexts "
-            "have not been processed yet"
+        _log_filtering_step_message(
+            positive_message="of these sensor data contexts have not been processed yet",
+            positive_items=unprocessed_sensor_data_contexts,
         )
 
         # Only keep the sensor data contexts with ground pressure files
 
         unprocessed_sensor_data_contexts_with_ground_pressure_files: list[
+            em27_metadata.types.SensorDataContext] = []
+        unprocessed_sensor_data_contexts_without_ground_pressure_files: list[
             em27_metadata.types.SensorDataContext] = []
         for sdc in unprocessed_sensor_data_contexts:
             ground_pressure_dir = os.path.join(
@@ -107,18 +213,29 @@ def generate_retrieval_queue(
             )
             expected_file_pattern = re.compile(expected_file_regex)
 
+            found_pressure_file: bool = False
             for f in os.listdir(ground_pressure_dir):
                 if expected_file_pattern.match(f) is not None:
-                    unprocessed_sensor_data_contexts_with_ground_pressure_files.append(sdc)
+                    found_pressure_file = True
                     break
-        logger.info(
-            f"  {len(unprocessed_sensor_data_contexts_with_ground_pressure_files)} of these "
-            "sensor data contexts have ground pressure files"
+
+            if found_pressure_file:
+                unprocessed_sensor_data_contexts_with_ground_pressure_files.append(sdc)
+            else:
+                unprocessed_sensor_data_contexts_without_ground_pressure_files.append(sdc)
+
+        _log_filtering_step_message(
+            positive_message="of these sensor data contexts have ground pressure files",
+            positive_items=unprocessed_sensor_data_contexts_with_ground_pressure_files,
+            negative_message="of these sensor data contexts have no ground pressure files",
+            negative_items=unprocessed_sensor_data_contexts_without_ground_pressure_files,
         )
 
         # Only keep the sensor data contexts with atmospheric profiles
 
         unprocessed_sensor_data_contexts_with_atmospheric_profiles: list[
+            em27_metadata.types.SensorDataContext] = []
+        unprocessed_sensor_data_contexts_without_atmospheric_profiles: list[
             em27_metadata.types.SensorDataContext] = []
         for sdc in unprocessed_sensor_data_contexts_with_ground_pressure_files:
             profiles_dir = os.path.join(
@@ -144,9 +261,11 @@ def generate_retrieval_queue(
                     break
             if profiles_complete:
                 unprocessed_sensor_data_contexts_with_atmospheric_profiles.append(sdc)
-        logger.info(
-            f"  {len(unprocessed_sensor_data_contexts_with_atmospheric_profiles)} of these "
-            "sensor data contexts have atmospheric profiles"
+        _log_filtering_step_message(
+            positive_message="of these sensor data contexts have atmospheric profiles",
+            positive_items=unprocessed_sensor_data_contexts_with_atmospheric_profiles,
+            negative_message="of these sensor data contexts have no atmospheric profiles",
+            negative_items=unprocessed_sensor_data_contexts_without_atmospheric_profiles,
         )
 
         # Append the files

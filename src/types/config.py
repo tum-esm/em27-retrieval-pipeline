@@ -273,6 +273,11 @@ class RetrievalGeneralConfig(pydantic.BaseModel):
             r"^$(SENSOR_ID)-$(YYYY)-$(MM)-$(DD).*\.nc$",
         ],
     )
+    queue_verbosity: Literal["compact", "verbose"] = pydantic.Field(
+        "compact",
+        description=
+        "How much information the retrieval queue should print out. In `verbose` mode it will print out the full list of sensor-days for each step of the filtering process. This can help when figuring out why a certain sensor-day is not processed.",
+    )
 
 
 class RetrievalJobSettingsILSConfig(pydantic.BaseModel):

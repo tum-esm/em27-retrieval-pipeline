@@ -64,6 +64,7 @@ def test_retrieval_queue(
     config = provide_config_template
     logger = retrieval.utils.logger.Logger("pytest", write_to_file=False, print_to_console=True)
     assert config.retrieval is not None
+    config.retrieval.general.queue_verbosity = "verbose"
 
     # target config at test data
     config.general.data.ground_pressure.path.root = os.path.join(
