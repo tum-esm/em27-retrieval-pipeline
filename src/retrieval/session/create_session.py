@@ -52,14 +52,10 @@ def _generate_pylot2_log_format(session: types.Proffast2RetrievalSession) -> Non
         tum_esm_utils.text.insert_replacements(
             file_content,
             {
-                "SENSOR_ID":
-                    session.ctx.sensor_id,
-                "UTC_OFFSET":
-                    str(round(session.ctx.utc_offset, 9)),
-                "PRESSURE_CALIBRATION_FACTOR":
-                    str(round(session.ctx.calibration_factors.pressure, 9)),
-                "PRESSURE_DATA_SOURCE":
-                    session.ctx.pressure_data_source,
+                "SENSOR_ID": session.ctx.sensor_id,
+                "UTC_OFFSET": str(round(session.ctx.utc_offset, 9)),
+                "PRESSURE_CALIBRATION_FACTOR": "1.0",
+                "PRESSURE_DATA_SOURCE": session.ctx.pressure_data_source,
             },
         ),
     )

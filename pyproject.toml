@@ -11,8 +11,9 @@ authors = [
 dependencies = [
     "filelock>=3.13.4",
     "pydantic>=2.7.0",
-    "em27-metadata>=1.0.1",
+    "em27-metadata>=1.1.4",
     "tum-esm-utils>=2.3.1",
+    "tomli>=2.0.1",
     "skyfield>=1.48",        # used by the retrieval
     "rich>=13.7.1",          # used by export and profiles download
     "click>=8.1.7",          # used by CLI
@@ -25,7 +26,6 @@ dependencies = [
     "timezonefinder>=6.5.0", # used by Proffast Pylot only
     "pyyaml>=6.0.1",         # used by Proffast Pylot only
     "fortranformat>=2.0.0",  # used by Proffast Pylot only
-    "tomli>=2.0.1",
 ]
 classifiers = [
     "License :: OSI Approved :: GNU General Public License (GPL)",
