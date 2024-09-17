@@ -59,6 +59,8 @@ def test_bundling() -> None:
         os.remove(os.path.join(BUNDLE_OUTPUT_DIR, f))
 
     config = src.types.Config.model_validate(CONFIG)
+    assert config.bundles is not None
+
     src.bundle.main.run(
         config=config,
         em27_metadata_interface=em27_metadata.loader.load_from_local_files(

@@ -1,9 +1,9 @@
-import contextlib
 import json
 import re
-from typing import Any, Generator, Optional
+from typing import Any, Optional
 import os
 import em27_metadata
+import pydantic
 import tum_esm_utils
 import sys
 import jsonref
@@ -24,9 +24,7 @@ def recursive_help(
     parent_context: Optional[click.core.Context] = None,
 ) -> str:
     output: str = ""
-    context = click.core.Context(
-        command, info_name=command.name, parent=parent_context
-    )
+    context = click.core.Context(command, info_name=command.name, parent=parent_context)
     if isinstance(command, click.Group):
         for sub_command in command.commands.values():
             output += recursive_help(sub_command, parent_context=context)
@@ -49,9 +47,7 @@ def recursive_help(
 
 
 print("Exporting CLI reference to docs/pages/api-reference/cli.mdx")
-with open(
-    os.path.join(PROJECT_DIR, "docs", "pages", "api-reference", "cli.mdx"), "w"
-) as f:
+with open(os.path.join(PROJECT_DIR, "docs", "pages", "api-reference", "cli.mdx"), "w") as f:
     f.write("# CLI Reference\n\n")
     f.write(recursive_help(cli.cli))
 
@@ -66,10 +62,8 @@ def _remove_allof_wrapping(o: Any) -> Any:
         if "properties" in o.keys():
             return {
                 **o,
-                "properties": {
-                    k: _remove_allof_wrapping(v)
-                    for k, v in o["properties"].items()
-                },
+                "properties": {k: _remove_allof_wrapping(v)
+                               for k, v in o["properties"].items()},
             }
         elif "allOf" in o.keys():
             assert len(o["allOf"]) == 1
@@ -84,18 +78,21 @@ def _remove_allof_wrapping(o: Any) -> Any:
         return o
 
 
-def export_schema(src_object: Any, dst_filepath: str, label: str) -> None:
+def export_schema(src_object: pydantic.BaseModel, dst_filepath: str, label: str) -> None:
     print(f"Exporting schema object to {dst_filepath}")
 
+    schema_with_refs = src_object.model_json_schema(mode="validation")
+    assert "$defs" in schema_with_refs.keys()
+    if "StrictDirectoryPath" in schema_with_refs["$defs"]:
+        del schema_with_refs["$defs"]["StrictDirectoryPath"]["description"]
+    if "StrictFilePath" in schema_with_refs["$defs"]:
+        del schema_with_refs["$defs"]["StrictFilePath"]["description"]
+
     # remove $ref usages
-    schema_without_refs = jsonref.loads(
-        json.dumps(src_object.model_json_schema(by_alias=False))
-    )
+    schema_without_refs = jsonref.loads(json.dumps(schema_with_refs), merge_props=True)
 
     # remove $defs section
-    schema_without_defs = json.loads(
-        jsonref.dumps(schema_without_refs, indent=4)
-    )
+    schema_without_defs = json.loads(jsonref.dumps(schema_without_refs, indent=4))
     if "$defs" in schema_without_defs.keys():
         del schema_without_defs["$defs"]
 
@@ -106,8 +103,7 @@ def export_schema(src_object: Any, dst_filepath: str, label: str) -> None:
     with open(dst_filepath, "w") as f:
         f.write(
             f"/* prettier-ignore */\nconst {label}: any = " +
-            json.dumps(schema_without_allofs, indent=4) +
-            f";\n\nexport default {label};"
+            json.dumps(schema_without_allofs, indent=4) + f";\n\nexport default {label};"
         )
 
 
@@ -136,15 +132,10 @@ export_schema(
 # ---------------------------------------------------------
 # Replace metadata example files
 
-print(
-    "Exporting metadata example files to docs/pages/api-reference/metadata.mdx"
-)
+print("Exporting metadata example files to docs/pages/api-reference/metadata.mdx")
 example_metadata = em27_metadata.load_from_example_data()
 
-with open(
-    os.path.join(PROJECT_DIR, "docs", "pages", "api-reference", "metadata.mdx"),
-    "r"
-) as _f:
+with open(os.path.join(PROJECT_DIR, "docs", "pages", "api-reference", "metadata.mdx"), "r") as _f:
     current_metadata_reference = _f.read()
 
 match1 = re.search(
@@ -183,10 +174,7 @@ current_metadata_reference = current_metadata_reference.replace(
     example_metadata.campaigns.model_dump_json(indent=4) + "\n```",
 )
 
-with open(
-    os.path.join(PROJECT_DIR, "docs", "pages", "api-reference", "metadata.mdx"),
-    "w"
-) as _f:
+with open(os.path.join(PROJECT_DIR, "docs", "pages", "api-reference", "metadata.mdx"), "w") as _f:
     _f.write(current_metadata_reference)
 
 # ---------------------------------------------------------
@@ -201,14 +189,10 @@ config_string = src.types.Config.load(
 
 ### reference
 
-print(
-    "Exporting config example file to docs/pages/api-reference/configuration.mdx"
-)
+print("Exporting config example file to docs/pages/api-reference/configuration.mdx")
 
 with open(
-    os.path.join(
-        PROJECT_DIR, "docs", "pages", "api-reference", "configuration.mdx"
-    ), "r"
+    os.path.join(PROJECT_DIR, "docs", "pages", "api-reference", "configuration.mdx"), "r"
 ) as _f:
     current_config_reference = _f.read()
 
@@ -220,14 +204,11 @@ match4 = re.search(
 assert match4 is not None
 current_config_reference = current_config_reference.replace(
     match4.group(0),
-    "## `config.json`\n\n### Example File\n\n```json\n" + config_string +
-    "\n```",
+    "## `config.json`\n\n### Example File\n\n```json\n" + config_string + "\n```",
 )
 
 with open(
-    os.path.join(
-        PROJECT_DIR, "docs", "pages", "api-reference", "configuration.mdx"
-    ), "w"
+    os.path.join(PROJECT_DIR, "docs", "pages", "api-reference", "configuration.mdx"), "w"
 ) as _f:
     _f.write(current_config_reference)
 
@@ -235,10 +216,7 @@ with open(
 
 print("Exporting config example file to docs/pages/guides/configuration.mdx")
 
-with open(
-    os.path.join(PROJECT_DIR, "docs", "pages", "guides", "configuration.mdx"),
-    "r"
-) as _f:
+with open(os.path.join(PROJECT_DIR, "docs", "pages", "guides", "configuration.mdx"), "r") as _f:
     current_config_guide = _f.read()
 
 match5 = re.search(
@@ -252,10 +230,7 @@ current_config_guide = current_config_guide.replace(
     "\nTemplate:\n\n```json\n" + config_string + "\n```",
 )
 
-with open(
-    os.path.join(PROJECT_DIR, "docs", "pages", "guides", "configuration.mdx"),
-    "w"
-) as _f:
+with open(os.path.join(PROJECT_DIR, "docs", "pages", "guides", "configuration.mdx"), "w") as _f:
     _f.write(current_config_guide)
 
 # ---------------------------------------------------------

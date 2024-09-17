@@ -436,6 +436,16 @@ const CONFIG_SCHEMA: any = {
                                     "minLength": 1,
                                     "title": "Ifg File Regex",
                                     "type": "string"
+                                },
+                                "queue_verbosity": {
+                                    "default": "compact",
+                                    "description": "How much information the retrieval queue should print out. In `verbose` mode it will print out the full list of sensor-days for each step of the filtering process. This can help when figuring out why a certain sensor-day is not processed.",
+                                    "enum": [
+                                        "compact",
+                                        "verbose"
+                                    ],
+                                    "title": "Queue Verbosity",
+                                    "type": "string"
                                 }
                             },
                             "required": [
