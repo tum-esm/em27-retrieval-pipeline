@@ -233,6 +233,9 @@ function renderConfigProperty(
   if (!required && propertyObject.default === undefined) {
     propertyObject.default = null;
   }
+  if (propertyObject.deprecated === true) {
+    return null;
+  }
 
   if ("const" in propertyObject) {
     return (

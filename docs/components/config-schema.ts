@@ -64,13 +64,8 @@ const CONFIG_SCHEMA: any = {
                             "description": "directory path and format configuration of the ground pressure files",
                             "properties": {
                                 "path": {
-                                    "allOf": [
-                                        {
-                                            "description": "A pydantic model that validates a directory path.\n\nExample usage:\n\n```python\nclass MyModel(pyndatic.BaseModel):\n    path: StrictDirectoryPath\n\nm = MyModel(path='/path/to/directory') # validates that the directory exists\n```\n\nThe validation can be ignored by setting the context variable:\n\n```python\nm = MyModel.model_validate(\n    {\"path\": \"somenonexistingpath\"},\n    context={\"ignore-path-existence\": True},\n) # does not raise an error\n```",
-                                            "title": "StrictDirectoryPath",
-                                            "type": "string"
-                                        }
-                                    ],
+                                    "title": "StrictDirectoryPath",
+                                    "type": "string",
                                     "description": "Directory path to ground pressure files."
                                 },
                                 "file_regex": {
@@ -246,19 +241,19 @@ const CONFIG_SCHEMA: any = {
                             "type": "object"
                         },
                         "atmospheric_profiles": {
-                            "description": "directory path to atmospheric profile files",
                             "title": "StrictDirectoryPath",
-                            "type": "string"
+                            "type": "string",
+                            "description": "directory path to atmospheric profile files"
                         },
                         "interferograms": {
-                            "description": "directory path to ifg files",
                             "title": "StrictDirectoryPath",
-                            "type": "string"
+                            "type": "string",
+                            "description": "directory path to ifg files"
                         },
                         "results": {
-                            "description": "directory path to results",
                             "title": "StrictDirectoryPath",
-                            "type": "string"
+                            "type": "string",
+                            "description": "directory path to results"
                         }
                     },
                     "required": [
@@ -639,9 +634,9 @@ const CONFIG_SCHEMA: any = {
                         "description": "There will be one file per sensor id and atmospheric profile and retrieval algorithm combination.\n\nThe final name looks like `em27-retrieval-bundle-$SENSOR_ID-$RETRIEVAL_ALGORITHM-$ATMOSPHERIC_PROFILE-$FROM_DATE-$TO_DATE$BUNDLE_SUFFIX.$OUTPUT_FORMAT`, e.g.`em27-retrieval-bundle-ma-GGG2020-proffast-2.4-20150801-20240523-v2.1.csv`. The bundle suffix is optional and can be used to distinguish between different\ninternal datasets.",
                         "properties": {
                             "dst_dir": {
-                                "description": "Directory to write the bundeled outputs to.",
                                 "title": "StrictDirectoryPath",
-                                "type": "string"
+                                "type": "string",
+                                "description": "Directory to write the bundeled outputs to."
                             },
                             "output_formats": {
                                 "description": "List of output formats to write the merged output files in.",
