@@ -4,6 +4,7 @@ import src
 import tum_esm_utils
 import em27_metadata
 import polars as pl
+from ..fixtures import download_sample_data
 
 PROJECT_DIR = tum_esm_utils.files.rel_to_abs_path("../..")
 INPUT_DATA_DIR = os.path.join(PROJECT_DIR, "data", "testing", "inputs")
@@ -51,7 +52,7 @@ CONFIG = {
 
 @pytest.mark.order(3)
 @pytest.mark.quick
-def test_bundling() -> None:
+def test_bundling(download_sample_data: None) -> None:
     # Remove all files in the output
     for f in tum_esm_utils.files.list_directory(
         BUNDLE_OUTPUT_DIR, include_directories=False, ignore=[".gitkeep"]
