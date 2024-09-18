@@ -8,14 +8,18 @@
     "data": {
       "ground_pressure": {
         "path": "path-to-ground-pressure-data",
-        "file_regex": "^$(SENSOR_ID)$(DATE).*\\.csv$",
+        "file_regex": "^ground-pressure-$(SENSOR_ID)-$(YYYY)-$(MM)-$(DD).csv$",
         "separator": ",",
         "pressure_column": "pressure",
         "pressure_column_format": "hPa",
         "date_column": "UTCdate_____",
         "date_column_format": "%Y-%m-%d",
         "time_column": "UTCtime_____",
-        "time_column_format": "%H:%M:%S"
+        "time_column_format": "%H:%M:%S",
+        "datetime_column": null,
+        "datetime_column_format": null,
+        "unix_timestamp_column": null,
+        "unix_timestamp_column_format": null
       },
       "atmospheric_profiles": "path-to-atmospheric-profiles",
       "interferograms": "path-to-ifg-upload-directory",

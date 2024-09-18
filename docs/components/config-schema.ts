@@ -103,6 +103,11 @@ const CONFIG_SCHEMA: any = {
                                     ],
                                     "default": null,
                                     "description": "Column name in the ground pressure files that contains the datetime.",
+                                    "examples": [
+                                        "datetime",
+                                        "dt",
+                                        "utc-datetime"
+                                    ],
                                     "title": "Datetime Column"
                                 },
                                 "datetime_column_format": {
@@ -132,6 +137,11 @@ const CONFIG_SCHEMA: any = {
                                     ],
                                     "default": null,
                                     "description": "Column name in the ground pressure files that contains the date.",
+                                    "examples": [
+                                        "date",
+                                        "d",
+                                        "utc-date"
+                                    ],
                                     "title": "Date Column"
                                 },
                                 "date_column_format": {
@@ -163,6 +173,11 @@ const CONFIG_SCHEMA: any = {
                                     ],
                                     "default": null,
                                     "description": "Column name in the ground pressure files that contains the time.",
+                                    "examples": [
+                                        "time",
+                                        "t",
+                                        "utc-time"
+                                    ],
                                     "title": "Time Column"
                                 },
                                 "time_column_format": {
@@ -194,6 +209,11 @@ const CONFIG_SCHEMA: any = {
                                     ],
                                     "default": null,
                                     "description": "Column name in the ground pressure files that contains the unix timestamp.",
+                                    "examples": [
+                                        "unix-timestamp",
+                                        "timestamp",
+                                        "ts"
+                                    ],
                                     "title": "Unix Timestamp Column"
                                 },
                                 "unix_timestamp_column_format": {
@@ -217,6 +237,11 @@ const CONFIG_SCHEMA: any = {
                                 },
                                 "pressure_column": {
                                     "description": "Column name in the ground pressure files that contains the pressure.",
+                                    "examples": [
+                                        "pressure",
+                                        "p",
+                                        "ground_pressure"
+                                    ],
                                     "title": "Pressure Column",
                                     "type": "string"
                                 },

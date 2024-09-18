@@ -67,14 +67,16 @@ function ObjectAttribute(props: { name: string; value: any }) {
     const: "allowed value",
     enum: "allowed values",
   };
-  if (
-    props.name in knownAttributes &&
-    props.value !== undefined &&
-    props.value !== null
-  ) {
+  if (props.name in knownAttributes) {
+    let prettyValue: string;
+    if (props.value === null || props.value === undefined) {
+      prettyValue = "null";
+    } else {
+      prettyValue = JSON.stringify(props.value, null, 4);
+    }
     return (
       <div className={`text-slate-800 dark:text-slate-300`}>
-        {knownAttributes[props.name]}: {JSON.stringify(props.value, null, 4)}
+        {knownAttributes[props.name]}: {prettyValue}
       </div>
     );
   } else {
@@ -89,7 +91,7 @@ function ObjectAttributeList(props: {
   const attributes: { name: string; value: any }[] = [];
 
   props.consideredAttributes.forEach((name) => {
-    if (name in props.object && props.object[name] !== null) {
+    if (name in props.object) {
       attributes.push({ name, value: props.object[name] });
     }
   });
@@ -230,9 +232,9 @@ function renderConfigProperty(
   propertyObject: any,
   required: boolean
 ) {
-  if (!required && propertyObject.default === undefined) {
+  /*if (!required && propertyObject.default === undefined) {
     propertyObject.default = null;
-  }
+  }*/
   if (propertyObject.deprecated === true) {
     return null;
   }
@@ -320,6 +322,10 @@ function renderConfigProperty(
           type="union"
         />
         <ObjectDescription text={propertyObject.description} />
+        <ObjectAttributeList
+          consideredAttributes={["default", "examples"]}
+          object={propertyObject}
+        />
         <div className={`flex flex-col rounded-lg mt-2`}>
           <div className={`flex flex-col gap-y-1`}>
             {propertyObject.anyOf.map((option: any, i: number) =>

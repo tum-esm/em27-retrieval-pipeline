@@ -67,6 +67,7 @@ class GroundPressureConfig(pydantic.BaseModel):
     datetime_column: Optional[str] = pydantic.Field(
         None,
         description="Column name in the ground pressure files that contains the datetime.",
+        examples=["datetime", "dt", "utc-datetime"],
     )
     datetime_column_format: Optional[str] = pydantic.Field(
         None,
@@ -78,6 +79,7 @@ class GroundPressureConfig(pydantic.BaseModel):
     date_column: Optional[str] = pydantic.Field(
         None,
         description="Column name in the ground pressure files that contains the date.",
+        examples=["date", "d", "utc-date"],
     )
     date_column_format: Optional[str] = pydantic.Field(
         None,
@@ -87,6 +89,7 @@ class GroundPressureConfig(pydantic.BaseModel):
     time_column: Optional[str] = pydantic.Field(
         None,
         description="Column name in the ground pressure files that contains the time.",
+        examples=["time", "t", "utc-time"],
     )
     time_column_format: Optional[str] = pydantic.Field(
         None,
@@ -98,6 +101,7 @@ class GroundPressureConfig(pydantic.BaseModel):
     unix_timestamp_column: Optional[str] = pydantic.Field(
         None,
         description="Column name in the ground pressure files that contains the unix timestamp.",
+        examples=["unix-timestamp", "timestamp", "ts"],
     )
     unix_timestamp_column_format: Optional[Literal["s", "ms", "us", "ns"]] = pydantic.Field(
         None,
@@ -109,6 +113,7 @@ class GroundPressureConfig(pydantic.BaseModel):
     pressure_column: str = pydantic.Field(
         ...,
         description="Column name in the ground pressure files that contains the pressure.",
+        examples=["pressure", "p", "ground_pressure"],
     )
     pressure_column_format: Literal["hPa", "Pa"] = pydantic.Field(
         ...,
