@@ -2,13 +2,13 @@ import { Callout } from "nextra/components";
 
 # Directory Structure
 
-The pipeline and none of the retrieval algorithms manipulate any data in the directories `config.general.data.datalogger`, `config.general.data.atmospheric_profiles`, and `config.general.data.interferograms`. The retrieval only writes to `config.general.data.results`.
+The pipeline and none of the retrieval algorithms manipulate any data in the directories `config.general.data.ground_pressure.path`, `config.general.data.atmospheric_profiles`, and `config.general.data.interferograms`. The retrieval only writes to `config.general.data.results`.
 
 <Callout type="info" emoji="💡">
 
 We can ensure this pipeline doesn't modify any data from the input directories. We cannot guarantee this for the retrieval algorithms, but we are very confident about this and have never observed it on our systems.
 
-However, if you want to ensure the retrieval cannot manipulate any of your interferograms or datalogger files, you can create a read-only mount of the directories. Only point the pipeline to those read-only directories.
+However, if you want to ensure the retrieval cannot manipulate any of your interferograms or ground pressure files, you can create a read-only mount of the directories. Only point the pipeline to those read-only directories.
 
 See https://askubuntu.com/a/243390.
 
@@ -42,42 +42,114 @@ In this example, `ma`, `mb`, and so on are the "sensor ids" used by us (see the 
 
 You must set the `config.retrieval.general.ifg_file_regex` value to a regex matching your files. In the example above, we can use `^$(SENSOR_ID)$(DATE).*ifg.\\d+$`.
 
-### Datalogger Files
+### Ground Pressure Files
 
-Point the `config.general.data.datalogger` variable to the directory where you store your local meteorological files = your ground pressure logs.
+Point the `config.general.data.ground_pressure.path` variable to the directory where you store your local meteorological files, i.e. your ground pressure logs.
 
 ```
-📂 <config.general.data.datalogger>
+📂 <config.general.data.ground_pressure.path>
 +--- 📂 ma
-|    +--- 📄 datalogger-ma-20210101.csv
-|    +--- 📄 datalogger-ma-20210102.csv
+|    +--- 📄 ground-pressure-ma-2021-01-01.csv
+|    +--- 📄 ground-pressure-ma-2021-01-02.csv
 |    +--- 📄 ...
 +--- 📂 mb
-|    +--- 📄 datalogger-mb-20210101.csv
+|    +--- 📄 ground-pressure-mb-2021-01-01.csv
 |    +--- 📄 ...
 +--- 📂 ...
 ```
 
-Each file looks like the following. It can have as many columns as you want, as long as you include the `UTCtime___` and `BaroYoung` columns.
-
-```csv
-UTCtime___,BaroYoung
-00:00:20,942.350
-00:01:20,942.35
-00:02:20,942.33
-00:03:20,942.3
-00:04:20,942.29
-```
+You can fully specify the naming schema of these pressure files. For example, the example above matches the following naming schema: `^ground-pressure-$(SENSOR_ID)-$(YYYY)-$(MM)-$(DD).csv$`. When looking for ground pressure files for a certain sensor id and date, the pipeline will replace the placeholders with the actual values. Available placeholders are `$(SENSOR_ID)`, `$(YYYY)`, `$(YY)`, `$(MM)`, and `$(DD)`.
 
 <Callout type="info" emoji="💡">
 
-Since the format of the local meteorological is less standardized than the interferograms, we decided to support this format - for now.
+**Subdaily files:** If multiple files match the regex, the pipeline will merge all of them into a single file which is then used for the retrieval.
 
-If your data is in a different format than this, write a small parsing script that runs on a cronjob and creates a new directory in this format. One year of data in this format is about 9MB, so the data duplication is acceptable.
-
-We are also happy to accept contributions to our codebase to add support for different formats! Please open an issue to discuss first.
+**Multi-day files:** If each file contains the data of multiple days, the pipeline will filter the data for the specific day. Hence, you could also have monthly files using the schema `^ground-pressure-$(SENSOR_ID)-$(YYYY)-$(MM).csv$`.
 
 </Callout>
+
+The second thing you need to specify is in which column to find the pressure and datetime data:
+
+- Pressure column: Pass the name of the column with `config.general.data.ground_pressure.pressure_column` and specify the unit (either `hPa` or `Pa`) with `config.general.data.ground_pressure.pressure_column_format`.
+- Datetime column: Pass exactly, one of the following
+  - A datetime column containing both date and time information: `datetime_column` and `datetime_column_format`
+  - One date column and one time column: `date_column`, `date_column_format`, `time_column`, and `time_column_format`
+  - A column containing a Unix timestamp: `unix_timestamp_column` and `unix_timestamp_column_format` (format `s`, `ms`, `us`, or `ns`)
+
+**All Ground Pressure is assumed to be in UTC!**
+
+### Examples
+
+The following examples all use the pressure column config:
+
+```json
+{
+  "pressure_column": "pressure",
+  "pressure_column_format": "hPa"
+}
+```
+
+#### 1
+
+Datetime column config:
+
+```json
+{
+  "date_column": "utc-date",
+  "date_column_format": "%Y-%m-%d",
+  "time_column": "utc-time",
+  "time_column_format": "%H:%M:%S"
+}
+```
+
+Corresponding pressure files:
+
+```csv
+pressure,utc-date,utc-time
+997.05,2022-06-02,00:00:49
+997.06,2022-06-02,00:01:49
+997.06,2022-06-02,00:02:49
+```
+
+#### 2
+
+Datetime column config:
+
+```json
+{
+  "datetime_column": "utc-datetime",
+  "datetime_column_format": "%Y-%m-%dT%H:%M:%S"
+}
+```
+
+Corresponding pressure files:
+
+```csv
+pressure,utc-datetime
+997.05,2022-06-02T00:00:49
+997.06,2022-06-02T00:01:49
+997.06,2022-06-02T00:02:49
+```
+
+#### 3
+
+Datetime column config:
+
+```json
+{
+  "unix_timestamp_column": "utc-datetime",
+  "unix_timestamp_column_format": "s"
+}
+```
+
+Corresponding pressure files:
+
+```csv
+pressure,unix-timestamp
+997.05,1654128049
+997.06,1654128109
+997.06,1654128169
+```
 
 ### Atmospheric Profiles
 
