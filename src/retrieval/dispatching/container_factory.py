@@ -2,7 +2,7 @@ import os
 import shutil
 from typing import Callable
 import tum_esm_utils
-from src import types, utils, retrieval
+from src import types, retrieval
 
 _RETRIEVAL_CODE_DIR = tum_esm_utils.files.rel_to_abs_path("../algorithms")
 _CONTAINER_DIR = tum_esm_utils.files.rel_to_abs_path("../../../data/containers")

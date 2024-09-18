@@ -4,10 +4,10 @@ import re
 from typing import Any, Optional
 import em27_metadata
 import tum_esm_utils
-import pprint
 from src import types, utils, retrieval
 
 
+# pprint outputs didn't look so great
 def _list_to_pretty_string(l: list[Any]) -> str:
     if len(l) == 0:
         return "[]"

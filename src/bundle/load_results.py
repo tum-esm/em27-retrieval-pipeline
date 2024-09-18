@@ -1,10 +1,8 @@
-import re
 from typing import Any, Optional
 import datetime
 import os
 import polars as pl
 import tum_esm_utils
-from src import utils
 
 
 def load_results_directory(
@@ -174,7 +172,7 @@ def load_results_directory(
         merged_df = df.join(preprocessing_df, on="spectrum", how="left")
         assert len(merged_df) == len(df)
         df = merged_df
-    
+
     df = df.select("utc", pl.exclude("utc"))
 
     return df

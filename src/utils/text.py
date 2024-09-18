@@ -1,6 +1,4 @@
 import datetime
-import random
-import re
 
 
 def get_coordinates_slug(lat: float, lon: float, verbose: bool = False) -> str:

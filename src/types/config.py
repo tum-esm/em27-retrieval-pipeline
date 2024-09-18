@@ -3,12 +3,7 @@ from typing import Literal, Optional
 import datetime
 import tum_esm_utils
 import pydantic
-from .basic_types import (
-    RetrievalAlgorithm,
-    AtmosphericProfileModel,
-    SamplingRate,
-    OutputTypes,
-)
+from .basic_types import RetrievalAlgorithm, AtmosphericProfileModel
 
 
 class MetadataConfig(pydantic.BaseModel):
