@@ -12,5 +12,5 @@ This codebase provides an automated data pipeline for [Proffast 1 and 2.X](https
 
 **Related Projects:**
 
-⚙️ Many of our projects use much functionality from the [`tum-esm-utils` package](https://github.com/tum-esm/utils).<br/>
+⚙️ Many of our projects (including this pipeline) use functionality from the [`tum-esm-utils` package](https://github.com/tum-esm/utils).<br/>
 🤖 Our EM27/SUN systems are running autonomously with the help of [Pyra](https://github.com/tum-esm/pyra).

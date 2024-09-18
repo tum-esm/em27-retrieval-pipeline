@@ -122,6 +122,10 @@ def load_results_directory(
         pl.col("utc").le(to_datetime.astimezone(tz=datetime.timezone.utc))
     )
 
+    if "spectrum" in df.columns:
+        # remove leading and trailing whitespaces
+        df = df.with_columns(pl.col("spectrum").cast(pl.Utf8).str.strip_chars(" "))
+
     if len(df) == 0:
         return None
 
@@ -170,5 +174,7 @@ def load_results_directory(
         merged_df = df.join(preprocessing_df, on="spectrum", how="left")
         assert len(merged_df) == len(df)
         df = merged_df
+    
+    df = df.select("utc", pl.exclude("utc"))
 
     return df
