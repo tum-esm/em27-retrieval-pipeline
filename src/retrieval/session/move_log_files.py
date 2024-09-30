@@ -17,7 +17,7 @@ def run(
     all_files = os.listdir(d)
 
     src_file_regex = utils.text.replace_regex_placeholders(
-        c.file_regex, session.ctx.sensor_id, session.ctx.from_datetime.date()
+        c.file_regex, session.ctx.pressure_data_source, session.ctx.from_datetime.date()
     )
     src_file_pattern = re.compile(src_file_regex)
     matching_files = [f for f in all_files if src_file_pattern.match(f) is not None]
