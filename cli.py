@@ -34,19 +34,12 @@ def _check_config_validity() -> None:
     help=
     "Start the retrieval as a background process. Prevents spawning multiple processes. The logs and the current processing queue from this process can be found at `logs/retrieval`.",
 )
-@click.option(
-    "--watch", is_flag=True, default=False, help="Start the watcher after starting the process."
-)
-def start(watch: bool) -> None:
+def start() -> None:
     _check_config_validity()
     pid = tum_esm_utils.processes.start_background_process(
         sys.executable, _RETRIEVAL_ENTRYPOINT, waiting_period=0.125
     )
     click.echo(f"Started automated retrieval background process with PID {pid}")
-
-    if watch:
-        import src
-        src.retrieval.utils.queue_watcher.start_retrieval_watcher()
 
 
 @retrieval_command_group.command(
