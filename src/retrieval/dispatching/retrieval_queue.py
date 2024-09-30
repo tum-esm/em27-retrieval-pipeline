@@ -208,7 +208,7 @@ def generate_retrieval_queue(
                 sdc.pressure_data_source,
             )
             expected_file_regex = utils.text.replace_regex_placeholders(
-                config.general.data.ground_pressure.file_regex, sdc.sensor_id,
+                config.general.data.ground_pressure.file_regex, sdc.pressure_data_source,
                 sdc.from_datetime.date()
             )
             expected_file_pattern = re.compile(expected_file_regex)
