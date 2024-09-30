@@ -1,11 +1,8 @@
 # custom
 hidden/
 *.out
-config.json
-locations.json
-sensors.json
-campaigns.json
-manual-queue.json
+config/*.json
+!config/config.template.json
 .vscode
 *.parquet
 .pdm-python
