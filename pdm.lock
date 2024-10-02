@@ -5,7 +5,7 @@
 groups = ["default", "dev"]
 strategy = ["inherit_metadata"]
 lock_version = "4.5.0"
-content_hash = "sha256:4a2ddb3a74fbff45dbfa0172dba78d60b78cbce58d0953813b7336efc9b5acb1"
+content_hash = "sha256:ef7e83abc20e33bdffc89c756e34699c9a5941e3b57c6872d96e31ac31f498a7"
 
 [[metadata.targets]]
 requires_python = ">=3.10.0,<4.0.0"
@@ -306,7 +306,7 @@ files = [
 
 [[package]]
 name = "em27-metadata"
-version = "1.1.4"
+version = "1.2.1"
 requires_python = "<4.0,>=3.10"
 summary = "Single source of truth for ESM's EM27 measurement logistics"
 groups = ["default"]
@@ -316,8 +316,8 @@ dependencies = [
     "tum-esm-utils>=2.3.2",
 ]
 files = [
-    {file = "em27_metadata-1.1.4-py3-none-any.whl", hash = "sha256:7f5d64156e75054f9a895c48f4ffb358ada5ce3ede5d66806e09d48b3c74848c"},
-    {file = "em27_metadata-1.1.4.tar.gz", hash = "sha256:6904deacd14781c076e8738594e55daf6be1c03ef495a954ea2511f45404ebb1"},
+    {file = "em27_metadata-1.2.1-py3-none-any.whl", hash = "sha256:60031936570e89fe5ff6587250d11c296bdee0afa8cbbeafbcf2b4da6b27568c"},
+    {file = "em27_metadata-1.2.1.tar.gz", hash = "sha256:ecbbbcd47f01436bbf89af28128a21bc64bebfc645f7633c496d8a16bed6d831"},
 ]
 
 [[package]]
