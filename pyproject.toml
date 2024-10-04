@@ -54,6 +54,7 @@ dev = [
     "tailwind-colors>=1.2.1",
     "pytest-order>=1.2.1",
     "yapf>=0.40.2",
+    "types-PyYAML>=6.0.12",
 ]
 
 [tool.pdm]

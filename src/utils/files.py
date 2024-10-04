@@ -1,6 +1,8 @@
-from typing import Optional
+from pathlib import PosixPath
+from typing import Optional, Union
 import os
 import re
+import yaml
 
 
 def list_directory(
@@ -25,3 +27,10 @@ def list_directory(
         ]
 
     return files
+
+
+def read_yaml(
+        file_path: Union[str, PosixPath]
+) -> dict[str, str]:
+    with open(file_path, 'r') as f:
+        return dict(yaml.load(f, Loader=yaml.FullLoader))

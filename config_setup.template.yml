@@ -1,0 +1,4 @@
+# alternate_config_dir value is the full path to your local folder containing the following metadata files:
+# config.json, sensors.json, locations.json, campaigns.json
+# leave blank for using default config folder location inside this repository or separate metadata repository 
+alternate_config_dir: 

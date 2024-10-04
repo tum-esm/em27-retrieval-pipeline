@@ -10,6 +10,7 @@ import tum_esm_utils
 
 sys.path.append(tum_esm_utils.files.rel_to_abs_path("../.."))
 from src import types, utils, retrieval
+from src.utils.files import read_yaml
 
 
 def run() -> None:
@@ -18,8 +19,14 @@ def run() -> None:
     main_logger.info(f"Starting the automation with PID {os.getpid()}")
 
     # load config
+    config_setup = read_yaml(tum_esm_utils.files.rel_to_abs_path("../../config_setup.yml"))
+    if config_setup['alternate_config_dir'] is None:
+        config_path = None # default config path
+    else:
+        config_path = os.path.join(config_setup["alternate_config_dir"], "config.json")
+    print("CONFIG PATH: ", config_path)
     try:
-        config = types.Config.load()
+        config = types.Config.load(config_path)
         main_logger.info("Config is valid")
     except Exception as e:
         main_logger.exception(e, "Config file invalid")

@@ -1,11 +1,11 @@
 import ftplib
 import io
+import os
 import sys
 import pydantic
 import tum_esm_utils
 import click
 import em27_metadata
-from typing import Union
 
 _RETRIEVAL_ENTRYPOINT = tum_esm_utils.files.rel_to_abs_path(
     "src", "retrieval", "main.py"
@@ -17,8 +17,15 @@ profiles_command_group = click.Group(name="profiles")
 export_command_group = click.Group(name="export")
 
 
-def _check_config_validity(config_path: Union[str, None] = None) -> None:
+def _check_config_validity() -> None:
     import src
+    from src.utils.files import read_yaml
+    config_setup = read_yaml(tum_esm_utils.files.rel_to_abs_path("./config_setup.yml"))
+    if config_setup['alternate_config_dir'] is None:
+        config_path = None # default config path
+    else:
+        config_path = os.path.join(config_setup["alternate_config_dir"], "config.json")
+    print("CONFIG PATH: ", config_path)
     try:
         src.types.Config.load(config_path)
         click.echo(click.style("Config is valid", fg="green", bold=True))

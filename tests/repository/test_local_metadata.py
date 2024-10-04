@@ -3,8 +3,16 @@ import os
 import pytest
 import tum_esm_utils
 import src
+from src.utils.files import read_yaml
 
-CONFIG_DIR = tum_esm_utils.files.rel_to_abs_path("../../config")
+
+config_setup = read_yaml(tum_esm_utils.files.rel_to_abs_path("../../config_setup.yml"))
+if config_setup['alternate_config_dir'] is None:
+    CONFIG_DIR = tum_esm_utils.files.rel_to_abs_path("../../config")
+else:
+    CONFIG_DIR = config_setup['alternate_config_dir']
+print("CONFIG DIR: ", CONFIG_DIR)
+
 LOCATIONS_PATH = os.path.join(CONFIG_DIR, "locations.json")
 SENSORS_PATH = os.path.join(CONFIG_DIR, "sensors.json")
 CAMPAIGNS_PATH = os.path.join(CONFIG_DIR, "campaigns.json")

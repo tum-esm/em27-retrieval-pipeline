@@ -5,7 +5,7 @@
 groups = ["default", "dev"]
 strategy = ["inherit_metadata"]
 lock_version = "4.5.0"
-content_hash = "sha256:d915556097b820cf6313278dd95830d82af702704dd2d3bd355faf1ed2250976"
+content_hash = "sha256:5c9804fd5edefebb25d637165bd5b1d96b6c47cdd7b01032bd50237f5953db5e"
 
 [[metadata.targets]]
 requires_python = ">=3.10.0,<4.0.0"
@@ -1128,6 +1128,17 @@ dependencies = [
 files = [
     {file = "tum_esm_utils-2.2.1-py3-none-any.whl", hash = "sha256:a72b7c39c3f0f4115fa33eb5affd23ccaf020dbb40d6a488622b1194fd60aaac"},
     {file = "tum_esm_utils-2.2.1.tar.gz", hash = "sha256:a0f9981ee9d2821307fc4e146d542ee43a14bcfc45b5436ea6c754874bb9cf7c"},
+]
+
+[[package]]
+name = "types-pyyaml"
+version = "6.0.12.20240917"
+requires_python = ">=3.8"
+summary = "Typing stubs for PyYAML"
+groups = ["dev"]
+files = [
+    {file = "types-PyYAML-6.0.12.20240917.tar.gz", hash = "sha256:d1405a86f9576682234ef83bcb4e6fff7c9305c8b1fbad5e0bcd4f7dbdc9c587"},
+    {file = "types_PyYAML-6.0.12.20240917-py3-none-any.whl", hash = "sha256:392b267f1c0fe6022952462bf5d6523f31e37f6cea49b14cee7ad634b6301570"},
 ]
 
 [[package]]

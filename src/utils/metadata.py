@@ -1,9 +1,24 @@
-from typing import Optional
+from pathlib import PosixPath
+from typing import Optional, Union
 import os
+import yaml
 import em27_metadata
 import tum_esm_utils
 
-CONFIG_DIR = tum_esm_utils.files.rel_to_abs_path("../../config")
+
+def read_yaml(
+        file_path: Union[str, PosixPath]
+) -> dict[str, str]:
+    with open(file_path, 'r') as f:
+        return dict(yaml.load(f, Loader=yaml.FullLoader))
+
+
+config_setup = read_yaml(tum_esm_utils.files.rel_to_abs_path("../../config_setup.yml"))
+if config_setup['alternate_config_dir'] is None:
+    CONFIG_DIR = tum_esm_utils.files.rel_to_abs_path("../../config")
+else:
+    CONFIG_DIR = config_setup['alternate_config_dir']
+print("CONFIG DIR: ", CONFIG_DIR)
 
 
 def load_local_em27_metadata_interface(

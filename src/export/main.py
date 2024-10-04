@@ -9,10 +9,17 @@ import tum_esm_utils
 
 sys.path.append(tum_esm_utils.files.rel_to_abs_path("../.."))
 from src import types, utils, export
+from src.utils.files import read_yaml
 
 
 def run() -> None:
-    config = types.Config.load()
+    config_setup = read_yaml(tum_esm_utils.files.rel_to_abs_path("../../config_setup.yml"))
+    if config_setup['alternate_config_dir'] is None:
+        config_path = None # default config path
+    else:
+        config_path = os.path.join(config_setup["alternate_config_dir"], "config.json")
+    print("CONFIG PATH: ", config_path)
+    config = types.Config.load(config_path)
     assert config.export_targets is not None, "no export config found"
     assert len(config.export_targets) > 0, "no export targets found"
 

@@ -333,6 +333,7 @@ class Config(pydantic.BaseModel):
         if path is None:
             path = tum_esm_utils.files.rel_to_abs_path("../../config/config.json")
 
+        print("config", path)
         with open(path, 'r') as f:
             return Config.model_validate_json(
                 f.read(),
