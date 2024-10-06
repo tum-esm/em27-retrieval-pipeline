@@ -1,8 +1,7 @@
 import datetime
 import os
-import re
 import polars as pl
-from src import types, utils, retrieval
+from src import types, retrieval
 
 
 def run(
@@ -13,17 +12,16 @@ def run(
     date_string = session.ctx.from_datetime.strftime("%Y%m%d")
     c = config.general.data.ground_pressure
     d = os.path.join(c.path.root, session.ctx.pressure_data_source)
+    assert os.path.exists(d), f"directory {d} does not exist"
 
-    all_files = os.listdir(d)
-
-    src_file_regex = utils.text.replace_regex_placeholders(
-        c.file_regex, session.ctx.pressure_data_source, session.ctx.from_datetime.date()
+    all_files, compatible_files, matching_files = retrieval.utils.pressure_loading.find_pressure_files(
+        c.path.root, session.ctx.pressure_data_source, c.file_regex,
+        session.ctx.from_datetime.date()
     )
-    src_file_pattern = re.compile(src_file_regex)
-    matching_files = [f for f in all_files if src_file_pattern.match(f) is not None]
-
-    logger.debug(f"Looking for files in {d} with regex {src_file_regex}")
-    logger.debug(f"Found {len(all_files)} files in total and {len(matching_files)} matching files")
+    logger.debug(f"Looking for files in {d} with regex {c.file_regex}")
+    logger.debug(f"Found {len(all_files)} files in total")
+    logger.debug(f"Found {len(compatible_files)} files that match the regex")
+    logger.debug(f"Found {len(matching_files)} files that match the regex on that date")
 
     assert len(matching_files) > 0, "No matching files found"
 
