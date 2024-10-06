@@ -246,10 +246,16 @@ const CONFIG_SCHEMA: any = {
                                     "type": "string"
                                 },
                                 "pressure_column_format": {
-                                    "description": "Format of the pressure column in the ground pressure files.",
+                                    "description": "Unit of the pressure column in the ground pressure files.",
                                     "enum": [
                                         "hPa",
-                                        "Pa"
+                                        "Pa",
+                                        "bar",
+                                        "mbar",
+                                        "atm",
+                                        "psi",
+                                        "inHg",
+                                        "mmHg"
                                     ],
                                     "title": "Pressure Column Format",
                                     "type": "string"

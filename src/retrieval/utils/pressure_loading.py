@@ -24,8 +24,6 @@ def find_pressure_files(
         file_regex, sensor_id, date
     )
 
-    print(general_file_pattern, specific_file_pattern)
-
     general_matching_files = [f for f in all_files if general_file_pattern.match(f) is not None]
     specific_matching_files = [f for f in all_files if specific_file_pattern.match(f) is not None]
 
