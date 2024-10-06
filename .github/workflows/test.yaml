@@ -41,7 +41,7 @@ jobs:
       # Run quick tests for all python versions except 3.10
       - name: Run quick tests
         if: ${{ matrix.python_version != '3.10' }}
-        run: pytest -m "quick" --capture=no --verbose --exitfirst --cov=src tests/
+        run: pytest -m "quick" --verbose --exitfirst --cov=src tests/
 
       # Run all tests for python 3.10
       - name: Run quick and ci tests

@@ -42,7 +42,7 @@ def test_pressure_file_locating() -> None:
         }
         _popuplate_directory_structure(tmpdir, files)
 
-        print(os.listdir(tmpdir))
+        # print(os.listdir(tmpdir))
 
         # QUERY 1
 
@@ -235,12 +235,12 @@ def test_pressure_file_loading() -> None:
                         "\n".join(f"{ts},{p}" for ts, p in zip(timestamp_column, pressure_column))
                     )
 
-                print("TEST FILE 1")
-                os.system(f"cat {os.path.join(tmpdir, 'test1.csv')}")
-                print("TEST FILE 2")
-                os.system(f"cat {os.path.join(tmpdir, 'test1.csv')}")
-                print("TEST FILE 3")
-                os.system(f"cat {os.path.join(tmpdir, 'test1.csv')}")
+                # print("TEST FILE 1")
+                # os.system(f"cat {os.path.join(tmpdir, 'test1.csv')}")
+                # print("TEST FILE 2")
+                # os.system(f"cat {os.path.join(tmpdir, 'test1.csv')}")
+                # print("TEST FILE 3")
+                # os.system(f"cat {os.path.join(tmpdir, 'test1.csv')}")
 
                 df1 = load_pressure_file(c1, os.path.join(tmpdir, "test1.csv"))
                 df2 = load_pressure_file(c2, os.path.join(tmpdir, "test2.csv"))
@@ -271,13 +271,13 @@ def test_pressure_file_loading() -> None:
                     for c, d in zip(parsed_pressures, expected_pressures):
                         assert round(c, 6) == round(d, 6)  # type: ignore
 
-                print("\n\nEXPECTED:")
-                for i in range(non_null_count):
-                    print(f"{expected_datetimes[i]}: {expected_pressures[i]}")
+                # print("\n\nEXPECTED:")
+                # for i in range(non_null_count):
+                #     print(f"{expected_datetimes[i]}: {expected_pressures[i]}")
 
-                print(f"\n\nPARSED 1: {df1}")
-                print(f"\n\nPARSED 2: {df2}")
-                print(f"\n\nPARSED 3: {df3}")
+                # print(f"\n\nPARSED 1: {df1}")
+                # print(f"\n\nPARSED 2: {df2}")
+                # print(f"\n\nPARSED 3: {df3}")
 
                 _test_equality(df1)
                 _test_equality(df2)
