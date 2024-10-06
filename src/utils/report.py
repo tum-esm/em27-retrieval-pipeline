@@ -60,10 +60,9 @@ def _count_ground_pressure_datapoints(
     sensor_id: str,
     date: datetime.date,
 ) -> int:
-    file_regex = replace_regex_placeholders(
+    _, file_pattern = replace_regex_placeholders(
         config.general.data.ground_pressure.file_regex, sensor_id, date
     )
-    file_pattern = re.compile(file_regex)
     d = os.path.join(config.general.data.ground_pressure.path.root, sensor_id)
     all_files = os.listdir(d)
     matching_files = [f for f in all_files if file_pattern.match(f) is not None]

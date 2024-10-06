@@ -28,17 +28,14 @@ def run(
         session.ctx.sensor_id,
         session.ctx.from_datetime.strftime("%Y%m%d"),
     )
-    expected_ifg_regex = utils.text.replace_regex_placeholders(
+    _, ifg_file_pattern = utils.text.replace_regex_placeholders(
         config.retrieval.general.ifg_file_regex, session.ctx.sensor_id,
         session.ctx.from_datetime.date()
     )
-    expected_ifg_pattern = re.compile(expected_ifg_regex)
-    logger.debug(f"used regex for ifg files: {expected_ifg_regex}")
+    logger.debug(f"used regex for ifg files: {ifg_file_pattern.pattern}")
 
     ifg_filenames = list(
-        sorted([
-            f for f in os.listdir(ifg_src_directory) if expected_ifg_pattern.match(f) is not None
-        ])
+        sorted([f for f in os.listdir(ifg_src_directory) if ifg_file_pattern.match(f) is not None])
     )
     logger.debug(
         f"{len(ifg_filenames)} ifg files found in " + f"src directory ({ifg_src_directory})"

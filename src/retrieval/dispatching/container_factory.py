@@ -1,6 +1,6 @@
+from typing import Callable
 import os
 import shutil
-from typing import Callable
 import tum_esm_utils
 from src import types, retrieval
 

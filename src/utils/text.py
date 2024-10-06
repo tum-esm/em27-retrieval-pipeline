@@ -1,4 +1,5 @@
 import datetime
+import re
 
 
 def get_coordinates_slug(lat: float, lon: float, verbose: bool = False) -> str:
@@ -18,18 +19,28 @@ def get_coordinates_slug(lat: float, lon: float, verbose: bool = False) -> str:
         return f"{latv.zfill(2)}{latd}{lonv.zfill(3)}{lond}"
 
 
-def replace_regex_placeholders(regex_pattern: str, sensor_id: str, date: datetime.date) -> str:
-    """Replace placeholders in a regex pattern"""
+def replace_regex_placeholders(
+    regex_pattern: str,
+    sensor_id: str,
+    date: datetime.date,
+) -> tuple[re.Pattern[str], re.Pattern[str]]:
+    """Replace placeholders in a regex pattern.
+    
+    Returns: tuple[pattern of any matching file, pattern of the file of the given date]"""
+
+    general_regex = regex_pattern
+    specific_regex = regex_pattern
 
     date_string = date.strftime("%Y%m%d")
-    for placeholder, replacement in [
-        ("$(SENSOR_ID)", sensor_id),
-        ("$(DATE)", date_string),
-        ("$(YYYY)", date_string[: 4]),
-        ("$(YY)", date_string[2 : 4]),
-        ("$(MM)", date_string[4 : 6]),
-        ("$(DD)", date_string[6 :]),
+    for placeholder, specific_replacement, general_replacement in [
+        ("$(SENSOR_ID)", sensor_id, sensor_id),
+        ("$(DATE)", date_string, f"\\d{8}"),
+        ("$(YYYY)", date_string[: 4], f"\\d{4}"),
+        ("$(YY)", date_string[2 : 4], f"\\d{2}"),
+        ("$(MM)", date_string[4 : 6], f"\\d{2}"),
+        ("$(DD)", date_string[6 :], f"\\d{2}"),
     ]:
-        regex_pattern = regex_pattern.replace(placeholder, replacement)
+        general_regex = general_regex.replace(placeholder, general_replacement)
+        specific_regex = specific_regex.replace(placeholder, specific_replacement)
 
-    return regex_pattern
+    return re.compile(general_regex), re.compile(specific_regex)
