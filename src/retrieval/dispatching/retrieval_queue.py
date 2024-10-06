@@ -1,7 +1,6 @@
+from typing import Any, Optional
 import datetime
 import os
-import re
-from typing import Any, Optional
 import em27_metadata
 import tum_esm_utils
 from src import types, utils, retrieval
@@ -203,23 +202,11 @@ def generate_retrieval_queue(
         unprocessed_sensor_data_contexts_without_ground_pressure_files: list[
             em27_metadata.types.SensorDataContext] = []
         for sdc in unprocessed_sensor_data_contexts:
-            ground_pressure_dir = os.path.join(
-                config.general.data.ground_pressure.path.root,
-                sdc.pressure_data_source,
+            pressure_file_exists = retrieval.utils.pressure_loading.pressure_files_exist(
+                config.general.data.ground_pressure.path.root, sdc.pressure_data_source,
+                config.general.data.ground_pressure.file_regex, sdc.from_datetime.date()
             )
-            expected_file_regex = utils.text.replace_regex_placeholders(
-                config.general.data.ground_pressure.file_regex, sdc.pressure_data_source,
-                sdc.from_datetime.date()
-            )
-            expected_file_pattern = re.compile(expected_file_regex)
-
-            found_pressure_file: bool = False
-            for f in os.listdir(ground_pressure_dir):
-                if expected_file_pattern.match(f) is not None:
-                    found_pressure_file = True
-                    break
-
-            if found_pressure_file:
+            if pressure_file_exists:
                 unprocessed_sensor_data_contexts_with_ground_pressure_files.append(sdc)
             else:
                 unprocessed_sensor_data_contexts_without_ground_pressure_files.append(sdc)
