@@ -6,7 +6,7 @@ import polars as pl
 
 def find_pressure_files(
     root_dir: str,
-    sensor_id: float,
+    sensor_id: str,
     file_regex: str,
     date: datetime.date,
 ) -> tuple[list[str], list[str], list[str]]:
@@ -16,13 +16,15 @@ def find_pressure_files(
 
     d = os.path.join(root_dir, sensor_id)
     if not os.path.exists(d):
-        return [], []
+        return [], [], []
 
     all_files = sorted(os.listdir(d))
 
     general_file_pattern, specific_file_pattern = utils.text.replace_regex_placeholders(
         file_regex, sensor_id, date
     )
+
+    print(general_file_pattern, specific_file_pattern)
 
     general_matching_files = [f for f in all_files if general_file_pattern.match(f) is not None]
     specific_matching_files = [f for f in all_files if specific_file_pattern.match(f) is not None]
@@ -32,7 +34,7 @@ def find_pressure_files(
 
 def pressure_files_exist(
     root_dir: str,
-    sensor_id: float,
+    sensor_id: str,
     file_regex: str,
     date: datetime.date,
 ) -> bool:
@@ -53,19 +55,22 @@ def pressure_files_exist(
 def load_pressure_file(
     ground_pressure_config: types.config.GroundPressureConfig,
     filepath: str,
-) -> pl.DateFrame:
+) -> pl.DataFrame:
     c = ground_pressure_config
     df = pl.read_csv(
         filepath,
         has_header=True,
         separator=c.separator,
         schema_overrides={
-            c.datetime_column: pl.Utf8,
-            c.date_column: pl.Utf8,
-            c.time_column: pl.Utf8,
-            c.unix_timestamp_column: pl.Float64,
-            c.pressure_column: pl.Float64,
-        }
+            k: v
+            for k, v in {
+                c.datetime_column: pl.Utf8,
+                c.date_column: pl.Utf8,
+                c.time_column: pl.Utf8,
+                c.unix_timestamp_column: pl.Float64,
+                c.pressure_column: pl.Float64,
+            }.items() if k is not None
+        },
     )
 
     # remove all rows with missing pressure/datetime information
@@ -84,11 +89,11 @@ def load_pressure_file(
 
     # LOAD PRESSURE
 
-    custom_unit_to_hpa = 1
-    if c.pressure_column_format == "Pa":
+    custom_unit_to_hpa: float
+    if c.pressure_column_format == "hPa":
+        custom_unit_to_hpa = 1
+    elif c.pressure_column_format == "Pa":
         custom_unit_to_hpa = 0.01
-    elif c.pressure_column_format == "kPa":
-        custom_unit_to_hpa = 10
     elif c.pressure_column_format == "bar":
         custom_unit_to_hpa = 1000
     elif c.pressure_column_format == "mbar":
@@ -111,7 +116,7 @@ def load_pressure_file(
     # PARSE DATETIME COLUMN
     if c.datetime_column is not None:
         assert c.datetime_column_format is not None, "this is a bug in the pipeline"
-        datetimes: list[datetime.datetime] = []
+        datetimes = []
         for d in df[c.datetime_column]:
             try:
                 datetimes.append(
@@ -153,15 +158,17 @@ def load_pressure_file(
         assert c.unix_timestamp_column is not None, "this is a bug in the pipeline"
         assert c.unix_timestamp_column_format is not None, "this is a bug in the pipeline"
 
-        custom_unit_to_seconds = 1
-        if c.unix_timestamp_column_format == "ms":
+        custom_unit_to_seconds: float
+        if c.unix_timestamp_column_format == "s":
+            custom_unit_to_seconds = 1
+        elif c.unix_timestamp_column_format == "ms":
             custom_unit_to_seconds = 1e-3
         elif c.unix_timestamp_column_format == "us":
             custom_unit_to_seconds = 1e-6
         elif c.unix_timestamp_column_format == "ns":
             custom_unit_to_seconds = 1e-9
 
-        datetimes: list[datetime.datetime] = []
+        datetimes = []
         for t in df[c.unix_timestamp_column]:
             try:
                 datetimes.append(
@@ -172,4 +179,4 @@ def load_pressure_file(
             except ValueError:
                 raise ValueError(f"unix timestamp `{t}` could not be converted to a datetime")
 
-    df = pl.DataFrame({"utc": datetimes, "pressure": pressures})
+    return pl.DataFrame({"utc": datetimes, "pressure": pressures}).sort("utc")

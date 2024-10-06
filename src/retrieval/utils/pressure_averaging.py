@@ -1,5 +1,5 @@
-import datetime
 from typing import Any, Optional
+import datetime
 import skyfield.iokit
 import skyfield.api
 import skyfield.timelib
@@ -61,4 +61,6 @@ def compute_mean_pressure_around_noon(
     if logger is not None:
         logger.debug(f"Found {len(df_around_noon)} pressure data points around noon (+- 2h)")
     assert len(df_around_noon) > 10, ("Did not find enough pressure data around solar noon")
-    return round(float(df_around_noon.select("pressure").to_numpy().flatten().mean()), 3)
+    return round(
+        float(df_around_noon.select("pressure").drop_nulls().to_numpy().flatten().mean()), 3
+    )

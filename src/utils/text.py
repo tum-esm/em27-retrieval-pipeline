@@ -34,11 +34,11 @@ def replace_regex_placeholders(
     date_string = date.strftime("%Y%m%d")
     for placeholder, specific_replacement, general_replacement in [
         ("$(SENSOR_ID)", sensor_id, sensor_id),
-        ("$(DATE)", date_string, f"\\d{8}"),
-        ("$(YYYY)", date_string[: 4], f"\\d{4}"),
-        ("$(YY)", date_string[2 : 4], f"\\d{2}"),
-        ("$(MM)", date_string[4 : 6], f"\\d{2}"),
-        ("$(DD)", date_string[6 :], f"\\d{2}"),
+        ("$(DATE)", date_string, "\\d{8}"),
+        ("$(YYYY)", date_string[: 4], "\\d{4}"),
+        ("$(YY)", date_string[2 : 4], "\\d{2}"),
+        ("$(MM)", date_string[4 : 6], "\\d{2}"),
+        ("$(DD)", date_string[6 :], "\\d{2}"),
     ]:
         general_regex = general_regex.replace(placeholder, general_replacement)
         specific_regex = specific_regex.replace(placeholder, specific_replacement)
