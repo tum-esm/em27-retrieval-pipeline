@@ -115,10 +115,11 @@ class GroundPressureConfig(pydantic.BaseModel):
         description="Column name in the ground pressure files that contains the pressure.",
         examples=["pressure", "p", "ground_pressure"],
     )
-    pressure_column_format: Literal["hPa", "Pa"] = pydantic.Field(
-        ...,
-        description="Format of the pressure column in the ground pressure files.",
-    )
+    pressure_column_format: Literal[
+        "hPa", "Pa", "bar", "mbar", "atm", "psi", "inHg", "mmHg"] = pydantic.Field(
+            ...,
+            description="Unit of the pressure column in the ground pressure files.",
+        )
 
     # validate -> you can only set either date AND time OR unix_timestamp
     @pydantic.model_validator(mode='after')
