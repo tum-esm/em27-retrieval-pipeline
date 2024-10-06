@@ -273,20 +273,19 @@ class ContainerFactory:
         # DOWNLOAD PROFFAST 2.4 code if it doesn't exist yet
         if os.path.exists(os.path.join(ROOT_DIR, "prf")):
             _print(f"Proffast 2.4 has already been downloaded")
-            return
+        else:
+            _print(f"Downloading Proffast 2.4 code")
+            tum_esm_utils.shell.run_shell_command(
+                command=f"wget --quiet {KIT_BASE_URL}/{ZIPFILE_NAME}",
+                working_directory=ROOT_DIR,
+            )
+            tum_esm_utils.shell.run_shell_command(
+                command=f"unzip -q {ZIPFILE_NAME}",
+                working_directory=ROOT_DIR,
+            )
+            os.remove(os.path.join(ROOT_DIR, ZIPFILE_NAME))
 
-        _print(f"Downloading Proffast 2.4 code")
-        tum_esm_utils.shell.run_shell_command(
-            command=f"wget --quiet {KIT_BASE_URL}/{ZIPFILE_NAME}",
-            working_directory=ROOT_DIR,
-        )
-        tum_esm_utils.shell.run_shell_command(
-            command=f"unzip -q {ZIPFILE_NAME}",
-            working_directory=ROOT_DIR,
-        )
-        os.remove(os.path.join(ROOT_DIR, ZIPFILE_NAME))
-
-        # copy adapted Preprocess 6 source code
+        _print("Copying the adapted preprocess6.F90 source code")
         ORIGINAL_SOURCE_FILE = os.path.join(
             _RETRIEVAL_CODE_DIR, "proffast-2.4", "main", "prf", "source", "preprocess",
             "preprocess6.F90"
