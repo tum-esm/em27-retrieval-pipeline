@@ -1,4 +1,3 @@
-import datetime
 import os
 import polars as pl
 from src import types, retrieval
@@ -25,75 +24,14 @@ def run(
 
     assert len(matching_files) > 0, "No matching files found"
 
-    datetimes: list[datetime.datetime] = []
-    pressures: list[float] = []
+    dataframes: list[pl.DataFrame] = []
     for file in matching_files:
         logger.debug(f"Parsing file {file}")
-        df = pl.read_csv(os.path.join(d, file), has_header=True, separator=c.separator)
+        dataframes.append(
+            retrieval.utils.pressure_loading.load_pressure_file(c, os.path.join(d, file))
+        )
 
-        multiplier = {
-            "hPa": 1,
-            "Pa": 0.01,
-        }[c.pressure_column_format]
-        assert c.pressure_column in df.columns, \
-            "pressure column not found, found columns: " + (", ".join(df.columns))
-        new_pressures = [float(p) * multiplier for p in df[c.pressure_column]]
-
-        if c.datetime_column is not None:
-            assert c.datetime_column_format is not None, "this is a bug in the pipeline"
-            assert c.datetime_column in df.columns, \
-                f"datetime column `{c.datetime_column}`not found, found columns: " + (", ".join(df.columns))
-
-            new_datetimes = [
-                datetime.datetime.strptime(d, c.datetime_column_format).astimezone(
-                    datetime.timezone.utc
-                ) for d in df[c.datetime_column]
-            ]
-            datetimes += new_datetimes
-            pressures += new_pressures
-        elif c.date_column:
-            assert c.date_column_format is not None, "this is a bug in the pipeline"
-            assert c.time_column is not None, "this is a bug in the pipeline"
-            assert c.time_column_format is not None, "this is a bug in the pipeline"
-
-            assert c.date_column in df.columns, \
-                f"date column `{c.date_column}` not found, found columns: " + (", ".join(df.columns))
-            assert c.time_column in df.columns, \
-                f"time column `{c.time_column}` not found, found columns: " + (", ".join(df.columns))
-
-            new_dates = [
-                datetime.datetime.strptime(d, c.date_column_format) for d in df[c.date_column]
-            ]
-            new_times = [
-                datetime.datetime.strptime(t, c.time_column_format) for t in df[c.time_column]
-            ]
-            new_datetimes = [
-                datetime.datetime.combine(d.date(), t.time(), tzinfo=datetime.timezone.utc)
-                for d, t in zip(new_dates, new_times)
-            ]
-            datetimes += new_datetimes
-            pressures += new_pressures
-        else:
-            assert c.unix_timestamp_column is not None, "this is a bug in the pipeline"
-            assert c.unix_timestamp_column_format is not None, "this is a bug in the pipeline"
-
-            assert c.unix_timestamp_column in df.columns, \
-                f"unix timestamp column `{c.unix_timestamp_column}` not found, found columns: " + (", ".join(df.columns))
-
-            multiplier = {
-                "s": 1,
-                "ms": 1e-3,
-                "us": 1e-6,
-                "ns": 1e-9,
-            }[c.unix_timestamp_column_format]
-            new_datetimes = [
-                datetime.datetime.fromtimestamp(t * multiplier, tz=datetime.timezone.utc)
-                for t in df[c.unix_timestamp_column]
-            ]
-            datetimes += new_datetimes
-            pressures += new_pressures
-
-    df = pl.DataFrame({"utc": datetimes, "pressure": pressures})
+    df = pl.concat(dataframes)
     logger.debug(f"Found {len(df)} ground pressure records in total")
 
     # filter to the current day
