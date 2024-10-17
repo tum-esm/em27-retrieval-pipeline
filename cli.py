@@ -17,9 +17,9 @@ bundle_command_group = click.Group(name="bundle")
 
 def _check_config_validity() -> None:
     import src
-    from src.utils.envutils import get_config_path, config_dir_key
+    from src import utils
     try:
-        config_path = get_config_path(config_dir_key())
+        config_path = utils.environment.get_config_path()
         src.types.Config.load(config_path)
         click.echo(click.style("Config is valid", fg="green", bold=True))
     except pydantic.ValidationError as e:
@@ -126,8 +126,8 @@ def request_ginput_status() -> None:
     _check_config_validity()
 
     import src  # import here so that the CLI is more reactive
-    from src.utils.envutils import get_config_path, config_dir_key
-    config_path = get_config_path(config_dir_key())
+    from src import utils
+    config_path = utils.environment.get_config_path()
     config = src.types.Config.load(config_path)
     assert config.profiles is not None, "No profiles config found"
     with ftplib.FTP(
@@ -158,11 +158,11 @@ def print_data_report() -> None:
 
     import rich.console
     import src  # import here so that the CLI is more reactive
-    from src.utils.envutils import get_config_path, config_dir_key
+    from src import utils
 
     console = rich.console.Console()
     console.print("Loading config")
-    config_path = get_config_path(config_dir_key())
+    config_path = utils.environment.get_config_path()
     config = src.types.Config.load(config_path)
 
     # load metadata interface

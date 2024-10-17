@@ -2,13 +2,12 @@ import pytest
 import em27_metadata
 
 import src
-from src.utils.envutils import get_config_path, config_dir_key
-
+from src import utils
 
 @pytest.mark.order(3)
 @pytest.mark.integration
 def test_metadata_connection() -> None:
-    config_path = get_config_path(config_dir_key())
+    config_path = utils.environment.get_config_path()
     config = src.types.Config.load(config_path)
     if config.general.metadata is None:
         pytest.skip("Remote metadata not configured")

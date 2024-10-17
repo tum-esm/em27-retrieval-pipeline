@@ -18,7 +18,7 @@ To configure the pipeline with the metadata, you have two options: Save them loc
 
 For this option, you can save the three files `locations.json`, `sensors.json`, and `campaigns.json` to the `config/` directory of the pipeline directory. Be sure to include all the files - even if you don't have any campaigns, save an empty list to `campaigns.json`.
 
-Alternatively, you can store these files locally in a location outside of this repository. This is achieved by setting the environment variable `ERP_CONFIG_DIR` to the full path of the alternate location (ERP <- EM27 Retrieval Pipeline). Note that this should be the same directory that contains the `config.json` file. If this environment variable is not set, the default location the pipeline will look for these files is `./config/`. When setting an alternate config directory, leave `./config/config.template.json` for tests (this file is version-controlled).
+Alternatively, you can store these files locally in a location outside of this repository. This is achieved by setting the environment variable `ERP_CONFIG_DIR` to the full path of the alternate location (ERP is short for EM27 Retrieval Pipeline). Note that this should be the same directory that contains the `config.json` file. If this environment variable is not set, the default location the pipeline will look for these files is `config/`. When setting an alternate config directory, it is not necessary to touch the file `config/config.template.json` (this file is version-controlled).
 
 For example, directly setting the environment variable:
 ```

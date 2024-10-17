@@ -10,7 +10,6 @@ import tum_esm_utils
 
 sys.path.append(tum_esm_utils.files.rel_to_abs_path("../.."))
 from src import types, utils, retrieval
-from src.utils.envutils import get_config_path, config_dir_key
 
 
 def run() -> None:
@@ -21,7 +20,7 @@ def run() -> None:
 
     # load config
     try:
-        config_path = get_config_path(config_dir_key())
+        config_path = utils.environment.get_config_path()
         config = types.Config.load(config_path)
         main_logger.info("Config is valid")
     except Exception as e:

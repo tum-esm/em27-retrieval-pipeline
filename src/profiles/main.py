@@ -5,12 +5,11 @@ import sys
 import tum_esm_utils
 
 sys.path.append(tum_esm_utils.files.rel_to_abs_path("../.."))
-from src import types, profiles
-from src.utils.envutils import get_config_path, config_dir_key
+from src import types, profiles, utils
 
 
 def run() -> None:
-    config_path = get_config_path(config_dir_key())
+    config_path = utils.environment.get_config_path()
     config = types.Config.load(config_path)
     assert config.profiles is not None, "No profiles config found"
 

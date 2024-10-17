@@ -3,10 +3,10 @@ from typing import Optional
 
 import em27_metadata
 
-from src.utils.envutils import get_config_dir, config_dir_key
+from src import utils
 
 
-CONFIG_DIR = get_config_dir(config_dir_key())
+CONFIG_DIR = utils.environment.get_config_dir()
 
 def load_local_em27_metadata_interface() -> Optional[em27_metadata.EM27MetadataInterface]:
     assert os.path.isdir(CONFIG_DIR)
