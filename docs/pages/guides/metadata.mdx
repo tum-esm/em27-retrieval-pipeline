@@ -27,7 +27,7 @@ export ERP_CONFIG_DIR=<path-to-local-config-dir>
 
 For example, sourcing a `.env` file:
 ```
-set -a && . <path-to-.env-file> && set +a
+export $(grep -v '^#' <path-to-.env-file> | xargs)
 ```
 
 Check the set environment variables with `export -p`.
