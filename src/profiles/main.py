@@ -5,12 +5,11 @@ import sys
 import tum_esm_utils
 
 sys.path.append(tum_esm_utils.files.rel_to_abs_path("../.."))
-from src import types, profiles, utils
+from src import types, profiles
 
 
 def run() -> None:
-    config_path = utils.environment.get_config_path()
-    config = types.Config.load(config_path)
+    config = types.Config.load()
     assert config.profiles is not None, "No profiles config found"
 
     for variant in ["GGG2014", "GGG2020"]:

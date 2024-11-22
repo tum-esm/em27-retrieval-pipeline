@@ -1,8 +1,11 @@
 from __future__ import annotations
 from typing import Literal, Optional
 import datetime
+import os
+
 import tum_esm_utils
 import pydantic
+
 from .basic_types import RetrievalAlgorithm, AtmosphericProfileModel
 
 
@@ -479,8 +482,33 @@ class Config(pydantic.BaseModel):
                      ] = pydantic.Field(None, description='List of output bundling targets.')
 
     @staticmethod
+    def get_config_dir() -> str:
+        """Get config/metadata directory path from environment variable if set.
+
+        If not set, returns default config directory path inside the repository.
+        """
+        return os.getenv(
+            "ERP_CONFIG_DIR",
+            tum_esm_utils.files.rel_to_abs_path("../../config")
+        )
+
+    @staticmethod
+    def get_config_path() -> str:
+        """Get config file path from environment variable if set.
+
+        If not set, returns default config file path inside the repository.
+        """
+        return os.path.join(
+            os.getenv(
+                "ERP_CONFIG_DIR",
+                tum_esm_utils.files.rel_to_abs_path("../../config")
+            ),
+            "config.json"
+        )
+
+    @staticmethod
     def load(
-        path: str = tum_esm_utils.files.rel_to_abs_path("../../config/config.json"),
+        path: str = get_config_path(),
         ignore_path_existence: bool = False,
     ) -> Config:
         """Load the config file from `config/config.json` (or any given path).

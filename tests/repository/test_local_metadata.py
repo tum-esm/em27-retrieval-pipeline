@@ -3,10 +3,9 @@ import os
 import pytest
 
 import src
-from src import utils
 
 
-CONFIG_DIR = utils.environment.get_config_dir()
+CONFIG_DIR = src.types.Config.get_config_dir()
 LOCATIONS_PATH = os.path.join(CONFIG_DIR, "locations.json")
 SENSORS_PATH = os.path.join(CONFIG_DIR, "sensors.json")
 CAMPAIGNS_PATH = os.path.join(CONFIG_DIR, "campaigns.json")

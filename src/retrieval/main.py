@@ -20,8 +20,7 @@ def run() -> None:
 
     # load config
     try:
-        config_path = utils.environment.get_config_path()
-        config = types.Config.load(config_path)
+        config = types.Config.load()
         main_logger.info("Config is valid")
     except Exception as e:
         main_logger.exception(e, "Config file invalid")

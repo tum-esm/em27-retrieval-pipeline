@@ -2,13 +2,11 @@ import pytest
 import ftplib
 
 import src
-from src import utils
 
 @pytest.mark.order(3)
 @pytest.mark.integration
 def test_profiles_connection() -> None:
-    config_path = utils.environment.get_config_path()
-    config = src.types.Config.load(config_path)
+    config = src.types.Config.load()
     if config.profiles is None:
         return
     with ftplib.FTP(

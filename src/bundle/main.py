@@ -19,8 +19,7 @@ def run(
 ) -> None:
     if config is None:
         print("Loading configuration")
-        config_path = utils.environment.get_config_path()
-        config = types.Config.load(config_path)
+        config = types.Config.load()
 
     assert config.bundles is not None, "no bundle targets found"
     assert len(config.bundles) > 0, "no bundle targets found"
