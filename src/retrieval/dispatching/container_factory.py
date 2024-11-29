@@ -99,12 +99,6 @@ class ContainerFactory:
             os.path.join(retrieval_code_root_dir, "main"),
             container.container_path,
         )
-        installer_script_path = os.path.join(retrieval_code_root_dir, "install.sh")
-        if os.path.isfile(installer_script_path):
-            tum_esm_utils.shell.run_shell_command(
-                command=installer_script_path,
-                working_directory=container.container_path,
-            )
 
         # generate empty input directory
         os.mkdir(container.data_input_path)
@@ -161,49 +155,54 @@ class ContainerFactory:
         # DOWNLOAD PROFFAST 1.0 code if it doesn't exist yet
         if os.path.exists(os.path.join(ROOT_DIR, "prf")):
             _print("Proffast 1.0 has already been downloaded")
-            return
+        else:
+            _print("Downloading Proffast 1.0 code")
+            tum_esm_utils.shell.run_shell_command(
+                command=f"wget --quiet {KIT_BASE_URL}/{ZIPFILE_NAME}",
+                working_directory=ROOT_DIR,
+            )
+            tum_esm_utils.shell.run_shell_command(
+                command=f"unzip -q {ZIPFILE_NAME}",
+                working_directory=ROOT_DIR,
+            )
+            os.rename(
+                os.path.join(ROOT_DIR, "2021-03-08_prf96-EM27-fast"),
+                os.path.join(ROOT_DIR, "prf"),
+            )
 
-        _print("Downloading Proffast 1.0 code")
+            # clean up unused directories
+            for d in [
+                os.path.join(ROOT_DIR, "prf", "preprocess", "125HR-garmisch"),
+                os.path.join(ROOT_DIR, "prf", "preprocess", "125HR-karlsruhe"),
+                os.path.join(ROOT_DIR, "prf", "preprocess", "sod2017_em27sn039"),
+                os.path.join(ROOT_DIR, "prf", "out_fast", "sod2017_em27sn039"),
+                os.path.join(ROOT_DIR, "prf", "out_fast", "sod2017_em27sn039_Linux"),
+                os.path.join(ROOT_DIR, "prf", "analysis"),
+                os.path.join(ROOT_DIR, "prf", "source"),
+            ]:
+                shutil.rmtree(d)
+
+            # clean up unused files
+            for f in [
+                os.path.join(ROOT_DIR, ZIPFILE_NAME),
+                os.path.join(ROOT_DIR, "prf", "continue.txt"),
+                os.path.join(ROOT_DIR, "prf", "inp_fast", "invers10_sod2017_em27sn039_170608.inp"),
+                os.path.join(ROOT_DIR, "prf", "inp_fast", "invers10_sod2017_em27sn039_170609.inp"),
+                os.path.join(ROOT_DIR, "prf", "inp_fast", "pcxs10_sod2017_em27sn039_170608.inp"),
+                os.path.join(ROOT_DIR, "prf", "inp_fast", "pcxs10_sod2017_em27sn039_170609.inp"),
+            ]:
+                os.remove(f)
+
+            # remove other unused files
+            os.system("rm " + os.path.join(ROOT_DIR, "prf", "*.py"))
+            os.system("rm " + os.path.join(ROOT_DIR, "prf", "invers10*"))
+            os.system("rm " + os.path.join(ROOT_DIR, "prf", "pcxs10*"))
+
+        _print("Compiling Proffast 1.0")
         tum_esm_utils.shell.run_shell_command(
-            command=f"wget --quiet {KIT_BASE_URL}/{ZIPFILE_NAME}",
+            command="./install.sh",
             working_directory=ROOT_DIR,
         )
-        tum_esm_utils.shell.run_shell_command(
-            command=f"unzip -q {ZIPFILE_NAME}",
-            working_directory=ROOT_DIR,
-        )
-        os.rename(
-            os.path.join(ROOT_DIR, "2021-03-08_prf96-EM27-fast"),
-            os.path.join(ROOT_DIR, "prf"),
-        )
-
-        # clean up unused directories
-        for d in [
-            os.path.join(ROOT_DIR, "prf", "preprocess", "125HR-garmisch"),
-            os.path.join(ROOT_DIR, "prf", "preprocess", "125HR-karlsruhe"),
-            os.path.join(ROOT_DIR, "prf", "preprocess", "sod2017_em27sn039"),
-            os.path.join(ROOT_DIR, "prf", "out_fast", "sod2017_em27sn039"),
-            os.path.join(ROOT_DIR, "prf", "out_fast", "sod2017_em27sn039_Linux"),
-            os.path.join(ROOT_DIR, "prf", "analysis"),
-            os.path.join(ROOT_DIR, "prf", "source"),
-        ]:
-            shutil.rmtree(d)
-
-        # clean up unused files
-        for f in [
-            os.path.join(ROOT_DIR, ZIPFILE_NAME),
-            os.path.join(ROOT_DIR, "prf", "continue.txt"),
-            os.path.join(ROOT_DIR, "prf", "inp_fast", "invers10_sod2017_em27sn039_170608.inp"),
-            os.path.join(ROOT_DIR, "prf", "inp_fast", "invers10_sod2017_em27sn039_170609.inp"),
-            os.path.join(ROOT_DIR, "prf", "inp_fast", "pcxs10_sod2017_em27sn039_170608.inp"),
-            os.path.join(ROOT_DIR, "prf", "inp_fast", "pcxs10_sod2017_em27sn039_170609.inp"),
-        ]:
-            os.remove(f)
-
-        # remove other unused files
-        os.system("rm " + os.path.join(ROOT_DIR, "prf", "*.py"))
-        os.system("rm " + os.path.join(ROOT_DIR, "prf", "invers10*"))
-        os.system("rm " + os.path.join(ROOT_DIR, "prf", "pcxs10*"))
 
     @staticmethod
     def init_proffast22_code(_print: Callable[[str], None]) -> None:
@@ -220,18 +219,23 @@ class ContainerFactory:
         # DOWNLOAD PROFFAST 2.2 code if it doesn't exist yet
         if os.path.exists(os.path.join(ROOT_DIR, "prf")):
             _print("Proffast 2.2 has already been downloaded")
-            return
+        else:
+            _print("Downloading Proffast 2.2 code")
+            tum_esm_utils.shell.run_shell_command(
+                command=f"wget --quiet {KIT_BASE_URL}/{ZIPFILE_NAME}",
+                working_directory=ROOT_DIR,
+            )
+            tum_esm_utils.shell.run_shell_command(
+                command=f"unzip -q {ZIPFILE_NAME}",
+                working_directory=ROOT_DIR,
+            )
+            os.remove(os.path.join(ROOT_DIR, ZIPFILE_NAME))
 
-        _print("Downloading Proffast 2.2 code")
+        _print("Compiling Proffast 2.2")
         tum_esm_utils.shell.run_shell_command(
-            command=f"wget --quiet {KIT_BASE_URL}/{ZIPFILE_NAME}",
+            command="./install.sh",
             working_directory=ROOT_DIR,
         )
-        tum_esm_utils.shell.run_shell_command(
-            command=f"unzip -q {ZIPFILE_NAME}",
-            working_directory=ROOT_DIR,
-        )
-        os.remove(os.path.join(ROOT_DIR, ZIPFILE_NAME))
 
     @staticmethod
     def init_proffast23_code(_print: Callable[[str], None]) -> None:
@@ -248,18 +252,23 @@ class ContainerFactory:
         # DOWNLOAD PROFFAST 2.3 code if it doesn't exist yet
         if os.path.exists(os.path.join(ROOT_DIR, "prf")):
             _print("Proffast 2.3 has already been downloaded")
-            return
+        else:
+            _print("Downloading Proffast 2.3 code")
+            tum_esm_utils.shell.run_shell_command(
+                command=f"wget --quiet {KIT_BASE_URL}/{ZIPFILE_NAME}",
+                working_directory=ROOT_DIR,
+            )
+            tum_esm_utils.shell.run_shell_command(
+                command=f"unzip -q {ZIPFILE_NAME}",
+                working_directory=ROOT_DIR,
+            )
+            os.remove(os.path.join(ROOT_DIR, ZIPFILE_NAME))
 
-        _print("Downloading Proffast 2.3 code")
+        _print("Compiling Proffast 2.3")
         tum_esm_utils.shell.run_shell_command(
-            command=f"wget --quiet {KIT_BASE_URL}/{ZIPFILE_NAME}",
+            command="./install.sh",
             working_directory=ROOT_DIR,
         )
-        tum_esm_utils.shell.run_shell_command(
-            command=f"unzip -q {ZIPFILE_NAME}",
-            working_directory=ROOT_DIR,
-        )
-        os.remove(os.path.join(ROOT_DIR, ZIPFILE_NAME))
 
     @staticmethod
     def init_proffast24_code(_print: Callable[[str], None]) -> None:
@@ -303,6 +312,12 @@ class ContainerFactory:
         )
         os.remove(ORIGINAL_SOURCE_FILE)
         shutil.copyfile(ADAPTED_SOURCE_FILE, ORIGINAL_SOURCE_FILE)
+
+        _print("Compiling Proffast 2.4")
+        tum_esm_utils.shell.run_shell_command(
+            command="./install.sh",
+            working_directory=ROOT_DIR,
+        )
 
     @staticmethod
     def init_proffast241_code(_print: Callable[[str], None]) -> None:
