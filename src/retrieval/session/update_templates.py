@@ -6,7 +6,7 @@ from src import retrieval, types
 
 
 def run(
-    logger: retrieval.utils.logger.Logger,
+    logger: "retrieval.utils.logger.Logger",
     session: types.RetrievalSession,
 ) -> None:
     pcxs_pressure_value: float = 9999.9

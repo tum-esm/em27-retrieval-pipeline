@@ -10,7 +10,7 @@ from src import retrieval, types, utils
 
 def run(
     config: types.Config,
-    logger: retrieval.utils.logger.Logger,
+    logger: "retrieval.utils.logger.Logger",
     session: types.RetrievalSession,
     test_mode: bool = False,
 ) -> None:

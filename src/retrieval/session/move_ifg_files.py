@@ -9,7 +9,7 @@ from src import retrieval, types, utils
 
 def run(
     config: types.Config,
-    logger: retrieval.utils.logger.Logger,
+    logger: "retrieval.utils.logger.Logger",
     session: types.RetrievalSession,
 ) -> int:
     """Move interferogram files from the source directory to the input directory.

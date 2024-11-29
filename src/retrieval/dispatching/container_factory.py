@@ -23,7 +23,7 @@ class ContainerFactory:
     def __init__(
         self,
         config: types.Config,
-        logger: retrieval.utils.logger.Logger,
+        logger: "retrieval.utils.logger.Logger",
         test_mode: bool = False,
     ):
         """Initialize the factory.

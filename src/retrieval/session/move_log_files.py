@@ -7,7 +7,7 @@ from src import retrieval, types
 
 def run(
     config: types.Config,
-    logger: retrieval.utils.logger.Logger,
+    logger: "retrieval.utils.logger.Logger",
     session: types.RetrievalSession,
 ) -> None:
     date_string = session.ctx.from_datetime.strftime("%Y%m%d")

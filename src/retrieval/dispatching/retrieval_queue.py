@@ -27,7 +27,7 @@ def _list_to_pretty_string(xs: list[Any]) -> str:
 
 def generate_retrieval_queue(
     config: types.Config,
-    logger: retrieval.utils.logger.Logger,
+    logger: "retrieval.utils.logger.Logger",
     em27_metadata_interface: em27_metadata.EM27MetadataInterface,
     retrieval_job_config: types.RetrievalJobConfig,
 ) -> list[em27_metadata.types.SensorDataContext]:
