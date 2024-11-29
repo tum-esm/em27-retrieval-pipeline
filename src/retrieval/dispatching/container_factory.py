@@ -1,6 +1,6 @@
 import os
 import shutil
-from typing import Callable
+from typing import Callable, Literal
 
 import tum_esm_utils
 
@@ -24,7 +24,7 @@ class ContainerFactory:
         self,
         config: types.Config,
         logger: "retrieval.utils.logger.Logger",
-        test_mode: bool = False,
+        mode: Literal["normal", "ci-tests", "complete-tests"] = "normal",
     ):
         """Initialize the factory.
 
@@ -39,7 +39,7 @@ class ContainerFactory:
         assert self.config.retrieval is not None
         retrieval_algorithms = [job.retrieval_algorithm for job in self.config.retrieval.jobs]
 
-        if test_mode:
+        if mode != "normal":
             self.logger.info(
                 "Running in test mode (setting up all retrieval algorithms from scratch)"
             )
@@ -59,9 +59,9 @@ class ContainerFactory:
             ("proffast-2.4", ContainerFactory.init_proffast24_code),
             ("proffast-2.4.1", ContainerFactory.init_proffast24_code),
         ]:
-            if (algorithm in retrieval_algorithms) or test_mode:
+            if (algorithm in retrieval_algorithms) or (mode != "normal"):
                 self.logger.info(f"Initializing {algorithm} ContainerFactory")
-                initializer(self.logger.info)
+                initializer(self.logger.info, fast_compilation=(mode == "ci-tests"))
             else:
                 self.logger.info(f"Not initializing {algorithm} ContainerFactory (unused)")
 
@@ -145,7 +145,7 @@ class ContainerFactory:
         self.label_generator = tum_esm_utils.text.RandomLabelGenerator()
 
     @staticmethod
-    def init_proffast10_code(_print: Callable[[str], None]) -> None:
+    def init_proffast10_code(_print: Callable[[str], None], fast_compilation: bool = False) -> None:
         """Initialize the Proffast 1.0 code"""
 
         KIT_BASE_URL = "https://www.imk-asf.kit.edu/downloads/Coccon-SW/"
@@ -200,12 +200,12 @@ class ContainerFactory:
 
         _print("Compiling Proffast 1.0")
         tum_esm_utils.shell.run_shell_command(
-            command="./install.sh",
+            command="./install.sh -O0" if fast_compilation else "./install.sh",
             working_directory=ROOT_DIR,
         )
 
     @staticmethod
-    def init_proffast22_code(_print: Callable[[str], None]) -> None:
+    def init_proffast22_code(_print: Callable[[str], None], fast_compilation: bool = False) -> None:
         """Initialize the Proffast 2.2 and pylot 1.1 code.
 
         It will download the Proffast 2.2 code from the KIT website
@@ -233,12 +233,12 @@ class ContainerFactory:
 
         _print("Compiling Proffast 2.2")
         tum_esm_utils.shell.run_shell_command(
-            command="./install.sh",
+            command="./install.sh -O0" if fast_compilation else "./install.sh",
             working_directory=ROOT_DIR,
         )
 
     @staticmethod
-    def init_proffast23_code(_print: Callable[[str], None]) -> None:
+    def init_proffast23_code(_print: Callable[[str], None], fast_compilation: bool = False) -> None:
         """Initialize the Proffast 2.3 and pylot 1.2 code.
 
         It will download the Proffast 2.3 code from the KIT website
@@ -266,12 +266,12 @@ class ContainerFactory:
 
         _print("Compiling Proffast 2.3")
         tum_esm_utils.shell.run_shell_command(
-            command="./install.sh",
+            command="./install.sh -O0" if fast_compilation else "./install.sh",
             working_directory=ROOT_DIR,
         )
 
     @staticmethod
-    def init_proffast24_code(_print: Callable[[str], None]) -> None:
+    def init_proffast24_code(_print: Callable[[str], None], fast_compilation: bool = False) -> None:
         """Initialize the Proffast 2.4 and pylot 1.3 code.
 
         It will download the Proffast 2.4 code from the KIT website
@@ -308,14 +308,14 @@ class ContainerFactory:
             "preprocess6.F90",
         )
         ADAPTED_SOURCE_FILE = os.path.join(
-            _RETRIEVAL_CODE_DIR, "proffast-2.4", "source", "preprocess", "preprocess6.F90"
+            _RETRIEVAL_CODE_DIR, "proffast-2.4", "main", "source", "preprocess", "preprocess6.F90"
         )
         os.remove(ORIGINAL_SOURCE_FILE)
         shutil.copyfile(ADAPTED_SOURCE_FILE, ORIGINAL_SOURCE_FILE)
 
         _print("Compiling Proffast 2.4")
         tum_esm_utils.shell.run_shell_command(
-            command="./install.sh",
+            command="./install.sh -O0" if fast_compilation else "./install.sh",
             working_directory=ROOT_DIR,
         )
 

@@ -1,4 +1,4 @@
-from typing import Generator
+from typing import Generator, Literal
 import datetime
 import os
 import time
@@ -9,8 +9,10 @@ import multiprocessing
 import src
 import polars as pl
 from tests.fixtures import (
-    wrap_test_with_mainlock, download_sample_data, provide_config_template,
-    remove_temporary_retrieval_data
+    wrap_test_with_mainlock,
+    download_sample_data,
+    provide_config_template,
+    remove_temporary_retrieval_data,
 )
 
 PROJECT_DIR = tum_esm_utils.files.get_parent_dir_path(__file__, current_depth=3)
@@ -37,7 +39,8 @@ SENSOR_DATA_CONTEXTS = [
             lat=67.366,
             alt=181.0,
         ),
-    ) for date in [
+    )
+    for date in [
         datetime.date(2017, 6, 8),
         datetime.date(2017, 6, 9),
     ]
@@ -63,14 +66,15 @@ SENSOR_DATA_CONTEXTS = [
             lat=48.147699,
             alt=180.0,
         ),
-    ) for date in [
+    )
+    for date in [
         datetime.date(2022, 6, 2),
     ]
 ]
 
 
 @pytest.fixture(scope="session")
-def provide_container_factory(
+def provide_container_factory_for_ci_tests(
     provide_config_template: src.types.Config,
 ) -> Generator[src.retrieval.dispatching.container_factory.ContainerFactory, None, None]:
     logger = src.retrieval.utils.logger.Logger(
@@ -79,7 +83,21 @@ def provide_container_factory(
         print_to_console=True,
     )
     yield src.retrieval.dispatching.container_factory.ContainerFactory(
-        provide_config_template, logger, test_mode=True
+        provide_config_template, logger, mode="ci-tests"
+    )
+
+
+@pytest.fixture(scope="session")
+def provide_container_factory_for_complete_tests(
+    provide_config_template: src.types.Config,
+) -> Generator[src.retrieval.dispatching.container_factory.ContainerFactory, None, None]:
+    logger = src.retrieval.utils.logger.Logger(
+        "pytest",
+        write_to_file=False,
+        print_to_console=True,
+    )
+    yield src.retrieval.dispatching.container_factory.ContainerFactory(
+        provide_config_template, logger, mode="complete-tests"
     )
 
 
@@ -98,10 +116,10 @@ def test_container_lifecycle_ci(
     download_sample_data: None,
     remove_temporary_retrieval_data: None,
     provide_config_template: src.types.Config,
-    provide_container_factory: src.retrieval.dispatching.container_factory.ContainerFactory,
+    provide_container_factory_for_ci_tests: src.retrieval.dispatching.container_factory.ContainerFactory,
 ) -> None:
     config = provide_config_template
-    container_factory = provide_container_factory
+    container_factory = provide_container_factory_for_ci_tests
 
     _point_config_to_test_data(config)
     assert config.retrieval is not None
@@ -120,7 +138,7 @@ def test_container_lifecycle_ci(
                 # for one of the sensor data contexts
                 use_local_pressure_in_pcxs=(j[2].from_datetime.date() == datetime.date(2017, 6, 9)),
                 store_binary_spectra=True,
-            )
+            ),
         )
         print(f"#{i}: Running session")
         run_session(session, config, True)
@@ -136,10 +154,10 @@ def test_container_lifecycle_complete(
     download_sample_data: None,
     remove_temporary_retrieval_data: None,
     provide_config_template: src.types.Config,
-    provide_container_factory: src.retrieval.dispatching.container_factory.ContainerFactory,
+    provide_container_factory_for_complete_tests: src.retrieval.dispatching.container_factory.ContainerFactory,
 ) -> None:
     config = provide_config_template
-    container_factory = provide_container_factory
+    container_factory = provide_container_factory_for_complete_tests
 
     _point_config_to_test_data(config)
     assert config.retrieval is not None
@@ -155,8 +173,7 @@ def test_container_lifecycle_complete(
 
     # wait for all processes to finish
     while True:
-        while ((len(active_processes) < process_count) and (len(pending_jobs) > 0)):
-
+        while (len(active_processes) < process_count) and (len(pending_jobs) > 0):
             j = pending_jobs.pop(0)
             print(f"Spinning up new session")
             session = src.retrieval.session.create_session.run(
@@ -171,15 +188,15 @@ def test_container_lifecycle_complete(
                         j[2].from_datetime.date() == datetime.date(2017, 6, 9)
                     ),
                     store_binary_spectra=True,
-                )
+                ),
             )
             print(f"Creating new process")
             p = multiprocessing.Process(
                 target=run_session,
                 args=(session, config, False),
                 name=(
-                    f"{session.ctn.container_id}:{j[0]}-{j[1]}-" +
-                    f"{j[2].sensor_id}-{j[2].from_datetime.date()}"
+                    f"{session.ctn.container_id}:{j[0]}-{j[1]}-"
+                    + f"{j[2].sensor_id}-{j[2].from_datetime.date()}"
                 ),
             )
             print(f"Starting process {p.name}")
@@ -209,8 +226,8 @@ def test_container_lifecycle_complete(
 
         time.sleep(2)
         print(
-            f"Pending | Active | Finished: {len(pending_jobs)} |" +
-            f" {len(active_processes)} | {len(finished_processes)}"
+            f"Pending | Active | Finished: {len(pending_jobs)} |"
+            + f" {len(active_processes)} | {len(finished_processes)}"
         )
 
 
@@ -229,19 +246,24 @@ def run_session(
     )
 
 
-def _generate_job_list() -> list[tuple[
-    src.types.RetrievalAlgorithm,
-    src.types.AtmosphericProfileModel,
-    em27_metadata.types.SensorDataContext,
-]]:
-
+def _generate_job_list() -> (
+    list[
+        tuple[
+            src.types.RetrievalAlgorithm,
+            src.types.AtmosphericProfileModel,
+            em27_metadata.types.SensorDataContext,
+        ]
+    ]
+):
     src.retrieval.utils.retrieval_status.RetrievalStatusList.reset()
 
-    pending_jobs: list[tuple[
-        src.types.RetrievalAlgorithm,
-        src.types.AtmosphericProfileModel,
-        em27_metadata.types.SensorDataContext,
-    ]] = []
+    pending_jobs: list[
+        tuple[
+            src.types.RetrievalAlgorithm,
+            src.types.AtmosphericProfileModel,
+            em27_metadata.types.SensorDataContext,
+        ]
+    ] = []
 
     # start proffast 1.0 first because it takes the longest
     for alg in ["proffast-1.0", "proffast-2.2", "proffast-2.3", "proffast-2.4"]:
@@ -267,7 +289,9 @@ def _point_config_to_test_data(config: src.types.Config) -> None:
     config.general.data.ground_pressure.path.root = os.path.join(
         PROJECT_DIR, "data", "testing", "inputs", "data", "log"
     )
-    config.general.data.ground_pressure.file_regex = "^ground-pressure-$(SENSOR_ID)-$(YYYY)-$(MM)-$(DD).csv$"
+    config.general.data.ground_pressure.file_regex = (
+        "^ground-pressure-$(SENSOR_ID)-$(YYYY)-$(MM)-$(DD).csv$"
+    )
     config.general.data.ground_pressure.date_column = "utc-date"
     config.general.data.ground_pressure.date_column_format = "%Y-%m-%d"
     config.general.data.ground_pressure.time_column = "utc-time"
@@ -293,8 +317,13 @@ def _assert_output_correctness(
 ) -> None:
     date_string = sensor_data_context.from_datetime.strftime("%Y%m%d")
     out_path = os.path.join(
-        PROJECT_DIR, "data/testing/container/outputs", retrieval_algorithm,
-        atmospheric_profile_model, sensor_data_context.sensor_id, "successful", date_string
+        PROJECT_DIR,
+        "data/testing/container/outputs",
+        retrieval_algorithm,
+        atmospheric_profile_model,
+        sensor_data_context.sensor_id,
+        "successful",
+        date_string,
     )
     expected_files = [
         "about.json",
@@ -303,28 +332,32 @@ def _assert_output_correctness(
     output_csv_name: str
     if retrieval_algorithm in ["proffast-2.2", "proffast-2.3", "proffast-2.4"]:
         output_csv_name = (
-            f"comb_invparms_{sensor_data_context.sensor_id}_" +
-            f"SN{str(sensor_data_context.serial_number).zfill(3)}" +
-            f"_{date_string[2:]}-{date_string[2:]}.csv"
+            f"comb_invparms_{sensor_data_context.sensor_id}_"
+            + f"SN{str(sensor_data_context.serial_number).zfill(3)}"
+            + f"_{date_string[2:]}-{date_string[2:]}.csv"
         )
-        expected_files.extend([
-            output_csv_name,
-            "pylot_config.yml",
-            "pylot_log_format.yml",
-            "logfiles/preprocess_output.log",
-            "logfiles/pcxs_output.log",
-            "logfiles/inv_output.log",
-        ])
+        expected_files.extend(
+            [
+                output_csv_name,
+                "pylot_config.yml",
+                "pylot_log_format.yml",
+                "logfiles/preprocess_output.log",
+                "logfiles/pcxs_output.log",
+                "logfiles/inv_output.log",
+            ]
+        )
     if retrieval_algorithm == "proffast-1.0":
         output_csv_name = f"{sensor_data_context.sensor_id}{date_string[2:]}-combined-invparms.csv"
-        expected_files.extend([
-            output_csv_name,
-            (f"{sensor_data_context.sensor_id}{date_string[2:]}-combined-invparms.parquet"),
-            "logfiles/wrapper.log",
-            "logfiles/preprocess4.log",
-            "logfiles/pcxs10.log",
-            "logfiles/invers10.log",
-        ])
+        expected_files.extend(
+            [
+                output_csv_name,
+                (f"{sensor_data_context.sensor_id}{date_string[2:]}-combined-invparms.parquet"),
+                "logfiles/wrapper.log",
+                "logfiles/preprocess4.log",
+                "logfiles/pcxs10.log",
+                "logfiles/invers10.log",
+            ]
+        )
 
     for filename in expected_files:
         filepath = os.path.join(out_path, filename)
@@ -339,8 +372,10 @@ def _assert_output_correctness(
     df = pl.read_csv(os.path.join(out_path, output_csv_name))
     df = df.rename({col: col.strip() for col in df.columns})
     good_data_only = df.filter(
-        pl.col("XAIR").cast(pl.Utf8).str.strip_chars(" ").cast(
-            pl.Float64
-        ).is_between(0.99 * 0.9983, 1.01 * 0.9983)
+        pl.col("XAIR")
+        .cast(pl.Utf8)
+        .str.strip_chars(" ")
+        .cast(pl.Float64)
+        .is_between(0.99 * 0.9983, 1.01 * 0.9983)
     )
     assert len(good_data_only) == len(df), "XAIR values indicate an input data issue"
