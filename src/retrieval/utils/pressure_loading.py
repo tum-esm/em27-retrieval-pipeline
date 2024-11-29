@@ -11,7 +11,7 @@ def find_pressure_files(
     date: datetime.date,
 ) -> tuple[list[str], list[str], list[str]]:
     """Find pressure files for a given sensor and date.
-    
+
     Returns: tuple[list of all files for that sensor, list of all files following the given pattern, list of all matching files for that date]"""
 
     d = os.path.join(root_dir, sensor_id)
@@ -37,8 +37,8 @@ def pressure_files_exist(
     date: datetime.date,
 ) -> bool:
     """Check if pressure files for a given sensor and date exist. Like `find_pressure_files`, but more efficient. Use in the retrieval queue.
-    
-    Returns: bool indicating if any matching files exist. """
+
+    Returns: bool indicating if any matching files exist."""
 
     d = os.path.join(root_dir, sensor_id)
     try:
@@ -67,7 +67,8 @@ def load_pressure_file(
                 c.time_column: pl.Utf8,
                 c.unix_timestamp_column: pl.Float64,
                 c.pressure_column: pl.Float64,
-            }.items() if k is not None
+            }.items()
+            if k is not None
         },
     )
 
@@ -81,8 +82,9 @@ def load_pressure_file(
         (c.unix_timestamp_column, "unix timestamp"),
     ]:
         if column_name is not None:
-            assert column_name in df.columns, \
-                f"{label} column not found, found columns: {df.columns} "
+            assert (
+                column_name in df.columns
+            ), f"{label} column not found, found columns: {df.columns} "
             df = df.drop_nulls(column_name)
 
     # LOAD PRESSURE

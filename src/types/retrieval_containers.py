@@ -67,7 +67,13 @@ class Proffast241Container(Proffast22Container):
     """No difference to `Proffast22Container`."""
 
 
-RetrievalContainer = Proffast10Container | Proffast22Container | Proffast23Container | Proffast24Container | Proffast241Container
+RetrievalContainer = (
+    Proffast10Container
+    | Proffast22Container
+    | Proffast23Container
+    | Proffast24Container
+    | Proffast241Container
+)
 
 
 class Proffast1RetrievalSession(pydantic.BaseModel):

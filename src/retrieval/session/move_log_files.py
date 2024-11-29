@@ -13,9 +13,13 @@ def run(
     d = os.path.join(c.path.root, session.ctx.pressure_data_source)
     assert os.path.exists(d), f"directory {d} does not exist"
 
-    all_files, compatible_files, matching_files = retrieval.utils.pressure_loading.find_pressure_files(
-        c.path.root, session.ctx.pressure_data_source, c.file_regex,
-        session.ctx.from_datetime.date()
+    all_files, compatible_files, matching_files = (
+        retrieval.utils.pressure_loading.find_pressure_files(
+            c.path.root,
+            session.ctx.pressure_data_source,
+            c.file_regex,
+            session.ctx.from_datetime.date(),
+        )
     )
     logger.debug(f"Looking for files in {d} with regex {c.file_regex}")
     logger.debug(f"Found {len(all_files)} files in total")
@@ -39,8 +43,10 @@ def run(
     logger.debug(f"Reduced to {len(df)} records for the current day")
 
     # bin to 1s intervals
-    df = df.sort("utc").group_by_dynamic("utc", every="1s").agg(
-        pl.col("pressure").mean().alias("pressure")
+    df = (
+        df.sort("utc")
+        .group_by_dynamic("utc", every="1s")
+        .agg(pl.col("pressure").mean().alias("pressure"))
     )
     logger.debug(f"Reduced to {len(df)} records after binning in 1s intervals")
     assert len(df) > 0, "no ground pressure records found for the current day"
@@ -52,7 +58,8 @@ def run(
         pl.col("pressure"),
     ).write_csv(
         os.path.join(
-            session.ctn.data_input_path, "log",
-            f"ground-pressure-{session.ctx.pressure_data_source}-{date_string}.csv"
+            session.ctn.data_input_path,
+            "log",
+            f"ground-pressure-{session.ctx.pressure_data_source}-{date_string}.csv",
         )
     )

@@ -33,28 +33,37 @@ def list_downloaded_data(
 
     cs = utils.text.get_coordinates_slug(lat=std_site_config.lat, lon=std_site_config.lon)
     r = re.compile(r"^\d{8,10}_" + cs + r"\.(map|mod|vmr)$")
-    filenames: set[str] = set([
-        f
-        for f in os.listdir(os.path.join(config.general.data.atmospheric_profiles.root, "GGG2020"))
-        if r.match(f)
-    ])
-    dates: set[datetime.date] = set([
-        d for d in [
-            datetime.date(
-                year=int(f[0 : 4]),
-                month=int(f[4 : 6]),
-                day=int(f[6 : 8]),
-            ) for f in filenames
-        ] if ((std_site_config.from_date <= d) and (d <= std_site_config.to_date))
-    ])
+    filenames: set[str] = set(
+        [
+            f
+            for f in os.listdir(
+                os.path.join(config.general.data.atmospheric_profiles.root, "GGG2020")
+            )
+            if r.match(f)
+        ]
+    )
+    dates: set[datetime.date] = set(
+        [
+            d
+            for d in [
+                datetime.date(
+                    year=int(f[0:4]),
+                    month=int(f[4:6]),
+                    day=int(f[6:8]),
+                )
+                for f in filenames
+            ]
+            if ((std_site_config.from_date <= d) and (d <= std_site_config.to_date))
+        ]
+    )
 
     required_prefixes = [f"%Y%m%d{h:02d}" for h in range(0, 24, 3)]
     required_extensions = ["map", "mod", "vmr"]
 
     for d in dates:
-        expected_filenames = set([
-            f"{d.strftime(p)}_{cs}.{e}" for e in required_extensions for p in required_prefixes
-        ])
+        expected_filenames = set(
+            [f"{d.strftime(p)}_{cs}.{e}" for e in required_extensions for p in required_prefixes]
+        )
         if expected_filenames.issubset(filenames):
             downloaded_data.add(d)
 

@@ -19,9 +19,11 @@ def _ggg2014_profiles_exists(
 ) -> str:
     date_string = date.strftime("%Y%m%d")
     coords_string = get_coordinates_slug(lat, lon)
-    return "✅" if os.path.isfile(
-        os.path.join(path, "GGG2014", f"{date_string}_{coords_string}.map")
-    ) else "-"
+    return (
+        "✅"
+        if os.path.isfile(os.path.join(path, "GGG2014", f"{date_string}_{coords_string}.map"))
+        else "-"
+    )
 
 
 def _ggg2020_profiles_exists(
@@ -32,10 +34,18 @@ def _ggg2020_profiles_exists(
 ) -> str:
     date_string = date.strftime("%Y%m%d")
     coords_string = get_coordinates_slug(lat, lon)
-    return "✅" if all([
-        os.path.isfile(os.path.join(path, "GGG2020", f"{date_string}{h:02d}_{coords_string}.map"))
-        for h in range(0, 22, 3)
-    ]) else "-"
+    return (
+        "✅"
+        if all(
+            [
+                os.path.isfile(
+                    os.path.join(path, "GGG2020", f"{date_string}{h:02d}_{coords_string}.map")
+                )
+                for h in range(0, 22, 3)
+            ]
+        )
+        else "-"
+    )
 
 
 def _count_ifg_datapoints(
@@ -43,7 +53,6 @@ def _count_ifg_datapoints(
     sensor_id: str,
     date: datetime.date,
 ) -> int:
-
     try:
         return int(
             tum_esm_utils.shell.run_shell_command(
@@ -146,7 +155,7 @@ def export_data_report(
         sdcs = em27_metadata_interface.get(
             sensor_id=sensor.sensor_id,
             from_datetime=sensor.setups[0].from_datetime,
-            to_datetime=sensor.setups[-1].to_datetime
+            to_datetime=sensor.setups[-1].to_datetime,
         )
         with rich.progress.Progress() as progress:
             task = progress.add_task("parsing all sensor data contexts", total=len(sdcs))
@@ -156,21 +165,23 @@ def export_data_report(
                 )
                 subtask = progress.add_task(
                     f"{sdc.from_datetime.date()} - {sdc.to_datetime.date()} ({sdc.location.location_id})",
-                    total=len(dates)
+                    total=len(dates),
                 )
                 for date in dates:
                     from_datetimes.append(
                         max(
                             datetime.datetime.combine(
                                 date, datetime.time.min, tzinfo=datetime.timezone.utc
-                            ), sdc.from_datetime
+                            ),
+                            sdc.from_datetime,
                         )
                     )
                     to_datetimes.append(
                         min(
                             datetime.datetime.combine(
                                 date, datetime.time.max, tzinfo=datetime.timezone.utc
-                            ), sdc.to_datetime
+                            ),
+                            sdc.to_datetime,
                         )
                     )
                     location_ids.append(sdc.location.location_id)
@@ -229,31 +240,35 @@ def export_data_report(
                 progress.remove_task(subtask)
                 progress.advance(task)
 
-        df = pl.DataFrame({
-            "from_datetime": from_datetimes,
-            "to_datetime": to_datetimes,
-            "location_id": location_ids,
-            "interferograms": interferograms,
-            "ground_pressure": ground_pressure,
-            "ggg2014_profiles": ggg2014_profiles,
-            "ggg2014_proffast_10_outputs": ggg2014_proffast_10_outputs,
-            "ggg2014_proffast_22_outputs": ggg2014_proffast_22_outputs,
-            "ggg2014_proffast_23_outputs": ggg2014_proffast_23_outputs,
-            "ggg2014_proffast_24_outputs": ggg2014_proffast_24_outputs,
-            "ggg2020_profiles": ggg2020_profiles,
-            "ggg2020_proffast_22_outputs": ggg2020_proffast_22_outputs,
-            "ggg2020_proffast_23_outputs": ggg2020_proffast_23_outputs,
-            "ggg2020_proffast_24_outputs": ggg2020_proffast_24_outputs,
-        }).with_columns([
-            pl.col("location_id").str.pad_start(8),
-            pl.col("interferograms").cast(str).str.pad_start(5),
-            pl.col("ground_pressure").cast(str).str.pad_start(5),
-        ])
+        df = pl.DataFrame(
+            {
+                "from_datetime": from_datetimes,
+                "to_datetime": to_datetimes,
+                "location_id": location_ids,
+                "interferograms": interferograms,
+                "ground_pressure": ground_pressure,
+                "ggg2014_profiles": ggg2014_profiles,
+                "ggg2014_proffast_10_outputs": ggg2014_proffast_10_outputs,
+                "ggg2014_proffast_22_outputs": ggg2014_proffast_22_outputs,
+                "ggg2014_proffast_23_outputs": ggg2014_proffast_23_outputs,
+                "ggg2014_proffast_24_outputs": ggg2014_proffast_24_outputs,
+                "ggg2020_profiles": ggg2020_profiles,
+                "ggg2020_proffast_22_outputs": ggg2020_proffast_22_outputs,
+                "ggg2020_proffast_23_outputs": ggg2020_proffast_23_outputs,
+                "ggg2020_proffast_24_outputs": ggg2020_proffast_24_outputs,
+            }
+        ).with_columns(
+            [
+                pl.col("location_id").str.pad_start(8),
+                pl.col("interferograms").cast(str).str.pad_start(5),
+                pl.col("ground_pressure").cast(str).str.pad_start(5),
+            ]
+        )
         df.write_csv(
             tum_esm_utils.files.rel_to_abs_path(f"../../data/reports/{sensor.sensor_id}.csv"),
             datetime_format="%Y-%m-%dT%H:%M:%S%z",
         )
         console.print(
-            f"exported report for sensor {sensor.sensor_id} " +
-            f"to data/reports/{sensor.sensor_id}.csv"
+            f"exported report for sensor {sensor.sensor_id} "
+            + f"to data/reports/{sensor.sensor_id}.csv"
         )

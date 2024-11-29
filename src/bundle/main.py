@@ -40,8 +40,11 @@ def run(
     def get_matching_campaign_ids(utc: datetime.datetime, sensor_id: str, location_id: str) -> str:
         matching_campaign_id: list[str] = []
         for c in em27_metadata_interface.campaigns.root:
-            if ((sensor_id in c.sensor_ids) and (location_id in c.location_ids) and
-                (c.from_datetime <= utc <= c.to_datetime)):
+            if (
+                (sensor_id in c.sensor_ids)
+                and (location_id in c.location_ids)
+                and (c.from_datetime <= utc <= c.to_datetime)
+            ):
                 matching_campaign_id.append(c.campaign_id)
         return "+".join(matching_campaign_id)
 
@@ -51,8 +54,9 @@ def run(
 
         for retrieval_algorithm in bundle_target.retrieval_algorithms:
             for atmospheric_profile_model in bundle_target.atmospheric_profile_models:
-                if ((retrieval_algorithm == "proffast-1.0") and
-                    (atmospheric_profile_model == "GGG2020")):
+                if (retrieval_algorithm == "proffast-1.0") and (
+                    atmospheric_profile_model == "GGG2020"
+                ):
                     print("Skipping proffast-1.0/GGG2020 as it is not supported")
                     continue
                 print(f"Processing {retrieval_algorithm}/{atmospheric_profile_model}")
@@ -60,15 +64,19 @@ def run(
                     dfs: list[pl.DataFrame] = []
 
                     d = os.path.join(
-                        config.general.data.results.root, retrieval_algorithm,
-                        atmospheric_profile_model, sensor_id, "successful"
+                        config.general.data.results.root,
+                        retrieval_algorithm,
+                        atmospheric_profile_model,
+                        sensor_id,
+                        "successful",
                     )
                     print(f"  Sensor {sensor_id}: looking for files in {d}")
 
                     results_pattern = re.compile(r"^\d{8}(_\d{8}_\d{8})?(_.+)?$")
 
                     all_results = [
-                        r for r in os.listdir(d)
+                        r
+                        for r in os.listdir(d)
                         if os.path.isdir(os.path.join(d, r)) and results_pattern.match(r)
                     ]
                     print(f"    Found {len(all_results)} results directories")
@@ -84,21 +92,28 @@ def run(
                     else:
                         results_pattern_with_suffix = re.compile(r"^\d{8}(_\d{8}_\d{8})?(_.+)$")
                         matching_results = [
-                            r for r in all_results if results_pattern_with_suffix.match(r) and
-                            r.endswith(bundle_target.retrieval_job_output_suffix)
+                            r
+                            for r in all_results
+                            if results_pattern_with_suffix.match(r)
+                            and r.endswith(bundle_target.retrieval_job_output_suffix)
                         ]
                         print(
                             f"    Found {len(matching_results)} results directories matching the output suffix"
                         )
 
                     timed_results: list[str] = [
-                        r for r in matching_results if ((
-                            bundle_target.from_datetime.date() <=
-                            datetime.datetime.strptime(r[: 8], "%Y%m%d").date()
-                        ) and (
-                            datetime.datetime.strptime(r[: 8], "%Y%m%d").date() <=
-                            bundle_target.to_datetime.date()
-                        ))
+                        r
+                        for r in matching_results
+                        if (
+                            (
+                                bundle_target.from_datetime.date()
+                                <= datetime.datetime.strptime(r[:8], "%Y%m%d").date()
+                            )
+                            and (
+                                datetime.datetime.strptime(r[:8], "%Y%m%d").date()
+                                <= bundle_target.to_datetime.date()
+                            )
+                        )
                     ]
                     print(
                         f"    Found {len(timed_results)} results directories matching the time range"
@@ -112,8 +127,8 @@ def run(
                             os.path.join(d, result),
                             sensor_id,
                             parse_dc_timeseries=(
-                                bundle_target.parse_dc_timeseries and
-                                (retrieval_algorithm == "proffast-2.4")
+                                bundle_target.parse_dc_timeseries
+                                and (retrieval_algorithm == "proffast-2.4")
                             ),
                             retrieval_job_output_suffix=bundle_target.retrieval_job_output_suffix,
                         )
@@ -125,11 +140,14 @@ def run(
                     # Attach a column "campaign_ids" to the data to make it
                     # easy to filter it by individual campaigns
                     combined_df = combined_df.with_columns(
-                        pl.struct("utc", "location_id").map_elements(
-                            lambda s:
-                            get_matching_campaign_ids(s["utc"], sensor_id, s["location_id"]),
-                            return_dtype=pl.Utf8
-                        ).alias("campaign_ids")
+                        pl.struct("utc", "location_id")
+                        .map_elements(
+                            lambda s: get_matching_campaign_ids(
+                                s["utc"], sensor_id, s["location_id"]
+                            ),
+                            return_dtype=pl.Utf8,
+                        )
+                        .alias("campaign_ids")
                     )
 
                     name = f"em27-retrieval-bundle-{sensor_id}-{retrieval_algorithm}-{atmospheric_profile_model}-{bundle_target.from_datetime.strftime('%Y%m%d')}-{bundle_target.to_datetime.strftime('%Y%m%d')}"

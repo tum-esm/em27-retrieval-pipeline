@@ -17,6 +17,7 @@ class ContainerFactory:
     directories.
 
     The factory keeps track of all containers and can remove them."""
+
     def __init__(
         self,
         config: types.Config,
@@ -287,8 +288,13 @@ class ContainerFactory:
 
         _print("Copying the adapted preprocess6.F90 source code")
         ORIGINAL_SOURCE_FILE = os.path.join(
-            _RETRIEVAL_CODE_DIR, "proffast-2.4", "main", "prf", "source", "preprocess",
-            "preprocess6.F90"
+            _RETRIEVAL_CODE_DIR,
+            "proffast-2.4",
+            "main",
+            "prf",
+            "source",
+            "preprocess",
+            "preprocess6.F90",
         )
         ADAPTED_SOURCE_FILE = os.path.join(
             _RETRIEVAL_CODE_DIR, "proffast-2.4", "source", "preprocess", "preprocess6.F90"

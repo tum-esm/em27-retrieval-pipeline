@@ -96,36 +96,40 @@ def _render() -> Any:
     grid = rich.table.Table.grid(expand=True)
     grid.add_row(
         rich.align.Align.center(
-            rich.columns.Columns([
-                f"[white]{pending_process_count} processes pending[/white]",
-                rich.spinner.Spinner('simpleDots', style="white"),
-                f"[yellow]{in_progress_process_count} processes in progress[/yellow]",
-                rich.spinner.Spinner('simpleDots', style="yellow"),
-                f"[green]{done_process_count} processes done[/green]",
-            ], )
+            rich.columns.Columns(
+                [
+                    f"[white]{pending_process_count} processes pending[/white]",
+                    rich.spinner.Spinner("simpleDots", style="white"),
+                    f"[yellow]{in_progress_process_count} processes in progress[/yellow]",
+                    rich.spinner.Spinner("simpleDots", style="yellow"),
+                    f"[green]{done_process_count} processes done[/green]",
+                ],
+            )
         )
     )
     grid.add_row(table)
     if (first_start_time is not None) and (last_end_time is not None) and (done_process_count > 0):
         avg_time_per_job = (
-            last_end_time.replace(tzinfo=datetime.timezone.utc) -
-            first_start_time.replace(tzinfo=datetime.timezone.utc)
+            last_end_time.replace(tzinfo=datetime.timezone.utc)
+            - first_start_time.replace(tzinfo=datetime.timezone.utc)
         ) / done_process_count
         estimated_end_time = (avg_time_per_job * len(processes)) + first_start_time
         estimated_remaining_time = estimated_end_time - datetime.datetime.now(datetime.timezone.utc)
         grid.add_row(
             rich.align.Align.center(
-                rich.columns.Columns([
-                    "[yellow]Pipeline is estimated to finish in " +
-                    f"{_prettify_timedelta(estimated_remaining_time)} " +
-                    f"({estimated_end_time.strftime('%Y-%m-%d %H:%M UTC')})[/yellow]\n",
-                ]),
+                rich.columns.Columns(
+                    [
+                        "[yellow]Pipeline is estimated to finish in "
+                        + f"{_prettify_timedelta(estimated_remaining_time)} "
+                        + f"({estimated_end_time.strftime('%Y-%m-%d %H:%M UTC')})[/yellow]\n",
+                    ]
+                ),
             )
         )
     grid.add_row(
         rich.align.Align.center(
-            "[white]Press Ctrl+C or close the terminal to stop watching. This " +
-            "will [underline]not[/underline] stop the automation[/white]"
+            "[white]Press Ctrl+C or close the terminal to stop watching. This "
+            + "will [underline]not[/underline] stop the automation[/white]"
         )
     )
 

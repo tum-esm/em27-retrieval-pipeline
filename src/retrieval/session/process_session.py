@@ -20,8 +20,8 @@ def run(config: types.Config, session: types.RetrievalSession, test_mode: bool =
     )
     logger.info(f"Starting session in container id {session.ctn.container_id}")
     logger.info(
-        f"Sensor {session.ctx.sensor_id}: " +
-        f"from {session.ctx.from_datetime} to {session.ctx.to_datetime}"
+        f"Sensor {session.ctx.sensor_id}: "
+        + f"from {session.ctx.from_datetime} to {session.ctx.to_datetime}"
     )
     logger.debug(f"Session object: {session.model_dump_json(indent=4)}")
 

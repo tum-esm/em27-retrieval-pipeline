@@ -59,7 +59,7 @@ def run() -> None:
 
                 time.sleep(0.2)
 
-            container_factory.remove_container("-".join(process.name.split("-")[-2 :]))
+            container_factory.remove_container("-".join(process.name.split("-")[-2:]))
             main_logger.info(f'Process "{process.name}": removed container')
 
         main_logger.info("Killed all containers")
@@ -143,9 +143,9 @@ def run() -> None:
                     target=retrieval.session.process_session.run,
                     args=(config, new_session),
                     name=(
-                        f"retrieval-session-{new_session.ctx.sensor_id}-" +
-                        f"{new_session.ctx.from_datetime.strftime('%Y-%m-%dT%H:%M:%S')}-" +
-                        f"{new_session.ctn.container_id}"
+                        f"retrieval-session-{new_session.ctx.sensor_id}-"
+                        + f"{new_session.ctx.from_datetime.strftime('%Y-%m-%dT%H:%M:%S')}-"
+                        + f"{new_session.ctn.container_id}"
                     ),
                     daemon=True,
                 )
@@ -158,7 +158,7 @@ def run() -> None:
                 finished_process.join()
                 processes.remove(finished_process)
                 main_logger.info(f'process "{finished_process.name}": finished processing')
-                container_factory.remove_container("-".join(finished_process.name.split("-")[-2 :]))
+                container_factory.remove_container("-".join(finished_process.name.split("-")[-2:]))
                 main_logger.info(f'process "{finished_process.name}": removed container')
 
             if job_queue.is_empty() and (len(processes) == 0):

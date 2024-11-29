@@ -8,6 +8,7 @@ from src import types
 
 CONFIG_DIR = types.Config.get_config_dir()
 
+
 def load_local_em27_metadata_interface() -> Optional[em27_metadata.EM27MetadataInterface]:
     assert os.path.isdir(CONFIG_DIR)
     locations_path = os.path.join(CONFIG_DIR, "locations.json")
@@ -21,9 +22,9 @@ def load_local_em27_metadata_interface() -> Optional[em27_metadata.EM27MetadataI
     if any(file_existence):
         if not all(file_existence):
             raise FileNotFoundError(
-                "Found some local metadata files but not all (loca" +
-                "tions.json, sensors.json, campaigns.json). Please " +
-                "add or remove all local metadata files."
+                "Found some local metadata files but not all (loca"
+                + "tions.json, sensors.json, campaigns.json). Please "
+                + "add or remove all local metadata files."
             )
         return em27_metadata.loader.load_from_local_files(
             locations_path, sensors_path, campaigns_path

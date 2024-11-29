@@ -5,12 +5,12 @@ from src import types, retrieval
 
 def move_bin_files(session: types.RetrievalSession) -> None:
     date_string = session.ctx.from_datetime.strftime("%Y%m%d")
-    src_dir = os.path.join(session.ctn.data_input_path, "ifg", date_string[2 :], "cal")
+    src_dir = os.path.join(session.ctn.data_input_path, "ifg", date_string[2:], "cal")
     dst_dir = os.path.join(
         session.ctn.data_output_path,
         "analysis",
         session.ctx.sensor_id,
-        date_string[2 :],
+        date_string[2:],
         "cal",
     )
     assert not os.path.exists(dst_dir)
@@ -34,4 +34,6 @@ def merge_output_files(session: types.RetrievalSession) -> None:
         separator=",",
         include_header=True,
     )
-    merged_df.write_parquet(os.path.join(out_dir, f"{output_table_name}.parquet"), )
+    merged_df.write_parquet(
+        os.path.join(out_dir, f"{output_table_name}.parquet"),
+    )

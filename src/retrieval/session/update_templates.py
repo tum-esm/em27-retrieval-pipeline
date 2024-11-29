@@ -14,12 +14,13 @@ def run(
             session.ctx.location.lat, session.ctx.location.lon, session.ctx.from_datetime.date()
         )
         logger.debug(f"Solar noon time: {solar_noon_datetime.time()} (UTC)")
-        date_string = session.ctx.from_datetime.date().strftime('%Y%m%d')
+        date_string = session.ctx.from_datetime.date().strftime("%Y%m%d")
         pcxs_pressure_value = retrieval.utils.pressure_averaging.compute_mean_pressure_around_noon(
             solar_noon_datetime,
             os.path.join(
-                session.ctn.data_input_path, "log",
-                f"ground-pressure-{session.ctx.pressure_data_source}-{date_string}.csv"
+                session.ctn.data_input_path,
+                "log",
+                f"ground-pressure-{session.ctx.pressure_data_source}-{date_string}.csv",
             ),
             logger,
         )
@@ -29,8 +30,9 @@ def run(
         "DC_VAR_THRESHOLD": str(session.job_settings.dc_var_threshold),
         "MEAN_PRESSURE_AT_NOON": str(pcxs_pressure_value),
     }
-    if ((session.job_settings.custom_ils is not None) and
-        (session.ctx.sensor_id in session.job_settings.custom_ils)):
+    if (session.job_settings.custom_ils is not None) and (
+        session.ctx.sensor_id in session.job_settings.custom_ils
+    ):
         logger.info("Using custom ILS values")
         ils = session.job_settings.custom_ils[session.ctx.sensor_id]
         replacements["ILS_Channel1"] = f"{ils.channel1_me} {ils.channel1_pe}"

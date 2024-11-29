@@ -17,18 +17,20 @@ def compute_solar_noon_time(
     start_time = datetime.datetime.combine(date, datetime.time.min, tzinfo=datetime.timezone.utc)
     end_time = start_time + datetime.timedelta(days=1)
     timescale = skyfield.api.load.timescale()
-    ephemeris: Any = skyfield.iokit.Loader(tum_esm_utils.files.rel_to_abs_path("../../../data")
-                                          )('de421.bsp')
+    ephemeris: Any = skyfield.iokit.Loader(tum_esm_utils.files.rel_to_abs_path("../../../data"))(
+        "de421.bsp"
+    )
 
     times, events = skyfield.almanac.find_discrete(
         timescale.from_datetime(start_time),
         timescale.from_datetime(end_time),
         skyfield.almanac.meridian_transits(
-            ephemeris, ephemeris['Sun'],
+            ephemeris,
+            ephemeris["Sun"],
             skyfield.api.wgs84.latlon(
                 latitude_degrees=lat,
                 longitude_degrees=lon,
-            )
+            ),
         ),
     )
 
@@ -55,12 +57,12 @@ def compute_mean_pressure_around_noon(
     if logger is not None:
         logger.debug(f"Found {len(df)} pressure data points")
     df_around_noon = df.filter(
-        (pl.col("utc-time") >= (solar_noon_datetime - datetime.timedelta(minutes=120)).time()) &
-        (pl.col("utc-time") <= (solar_noon_datetime + datetime.timedelta(minutes=120)).time())
+        (pl.col("utc-time") >= (solar_noon_datetime - datetime.timedelta(minutes=120)).time())
+        & (pl.col("utc-time") <= (solar_noon_datetime + datetime.timedelta(minutes=120)).time())
     )
     if logger is not None:
         logger.debug(f"Found {len(df_around_noon)} pressure data points around noon (+- 2h)")
-    assert len(df_around_noon) > 10, ("Did not find enough pressure data around solar noon")
+    assert len(df_around_noon) > 10, "Did not find enough pressure data around solar noon"
     return round(
         float(df_around_noon.select("pressure").drop_nulls().to_numpy().flatten().mean()), 3
     )

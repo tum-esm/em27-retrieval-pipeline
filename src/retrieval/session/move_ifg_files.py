@@ -15,7 +15,7 @@ def run(
     Accepted file name pattern: `regex(^$(SENSORID)$(DATE).*\\.\\d+$)`
 
     Examples: `ma20201123.ifg.0001`, `ma20220316s0e00a.0001`
-    
+
     Returns the number of interferograms that passed the parser."""
 
     assert config.retrieval is not None
@@ -28,8 +28,9 @@ def run(
         session.ctx.from_datetime.strftime("%Y%m%d"),
     )
     _, ifg_file_pattern = utils.text.replace_regex_placeholders(
-        config.retrieval.general.ifg_file_regex, session.ctx.sensor_id,
-        session.ctx.from_datetime.date()
+        config.retrieval.general.ifg_file_regex,
+        session.ctx.sensor_id,
+        session.ctx.from_datetime.date(),
     )
     logger.debug(f"used regex for ifg files: {ifg_file_pattern.pattern}")
 
@@ -54,7 +55,7 @@ def run(
     # PYLOT
 
     date_string = session.ctx.from_datetime.strftime("%Y%m%d")
-    dst_date_path = os.path.join(session.ctn.data_input_path, "ifg", date_string[2 :])
+    dst_date_path = os.path.join(session.ctn.data_input_path, "ifg", date_string[2:])
     os.mkdir(dst_date_path)
     for ifg_index, filename in enumerate(ifg_filenames):
         os.symlink(
@@ -77,8 +78,8 @@ def run(
             logger.info("No corrupt files found")
         else:
             logger.debug(
-                f"Excluding {len(corruption_result)} corrupt file(s) from retrieval: " +
-                json.dumps(corruption_result, indent=4)
+                f"Excluding {len(corruption_result)} corrupt file(s) from retrieval: "
+                + json.dumps(corruption_result, indent=4)
             )
             for f in corruption_result.keys():
                 os.remove(os.path.join(dst_date_path, f))

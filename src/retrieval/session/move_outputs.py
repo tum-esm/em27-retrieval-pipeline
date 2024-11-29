@@ -26,13 +26,13 @@ def run(
         )
     elif isinstance(session, types.Proffast2RetrievalSession):
         output_src_dir = (
-            f"{session.ctn.data_output_path}/{session.ctx.sensor_id}_" +
-            f"SN{str(session.ctx.serial_number).zfill(3)}_{date_string[2:]}-{date_string[2:]}"
+            f"{session.ctn.data_output_path}/{session.ctx.sensor_id}_"
+            + f"SN{str(session.ctx.serial_number).zfill(3)}_{date_string[2:]}-{date_string[2:]}"
         )
         output_csv_path = (
-            f"{output_src_dir}/comb_invparms_{session.ctx.sensor_id}_" +
-            f"SN{str(session.ctx.serial_number).zfill(3)}_" +
-            f"{date_string[2:]}-{date_string[2:]}.csv"
+            f"{output_src_dir}/comb_invparms_{session.ctx.sensor_id}_"
+            + f"SN{str(session.ctx.serial_number).zfill(3)}_"
+            + f"{date_string[2:]}-{date_string[2:]}.csv"
         )
     else:
         raise NotImplementedError(f"Retrieval session type {type(session)} not implemented")
@@ -59,8 +59,10 @@ def run(
         output_slug += f"_{session.job_settings.output_suffix}"
 
     output_dst = os.path.join(
-        config.general.data.results.root, session.retrieval_algorithm,
-        session.atmospheric_profile_model, session.ctx.sensor_id
+        config.general.data.results.root,
+        session.retrieval_algorithm,
+        session.atmospheric_profile_model,
+        session.ctx.sensor_id,
     )
     output_dst_successful = os.path.join(output_dst, "successful", output_slug)
     output_dst_failed = os.path.join(output_dst, "failed", output_slug)
@@ -124,7 +126,10 @@ def run(
             )
         else:
             if session.retrieval_algorithm in [
-                "proffast-2.2", "proffast-2.3", "proffast-2.4", "proffast-2.4.1"
+                "proffast-2.2",
+                "proffast-2.3",
+                "proffast-2.4",
+                "proffast-2.4.1",
             ]:
                 os.makedirs(os.path.join(output_dst, "analysis", "cal"))
                 shutil.copyfile(

@@ -14,23 +14,31 @@ def run(session: types.RetrievalSession, test_mode: bool = False) -> None:
 
     if isinstance(session, types.Proffast1RetrievalSession):
         tum_esm_utils.shell.run_shell_command(
-            " ".join([
-                sys.executable,
-                os.path.join(session.ctn.container_path, "prfpylot", "main.py"),
-                '"' + json.dumps(session.model_dump()).replace('"', '\\"') + '"',
-            ])
+            " ".join(
+                [
+                    sys.executable,
+                    os.path.join(session.ctn.container_path, "prfpylot", "main.py"),
+                    '"' + json.dumps(session.model_dump()).replace('"', '\\"') + '"',
+                ]
+            )
         )
     elif isinstance(session, types.Proffast2RetrievalSession):
         tum_esm_utils.shell.run_shell_command(
-            " ".join([
-                sys.executable,
-                os.path.join(
-                    _PROJECT_DIR, "src", "retrieval", "algorithms", session.retrieval_algorithm,
-                    "run_pylot_container.py"
-                ),
-                session.ctn.container_id,
-                session.ctn.pylot_config_path,
-            ])
+            " ".join(
+                [
+                    sys.executable,
+                    os.path.join(
+                        _PROJECT_DIR,
+                        "src",
+                        "retrieval",
+                        "algorithms",
+                        session.retrieval_algorithm,
+                        "run_pylot_container.py",
+                    ),
+                    session.ctn.container_id,
+                    session.ctn.pylot_config_path,
+                ]
+            )
         )
     else:
         raise NotImplementedError(f"Retrieval session type {type(session)} not implemented")
@@ -62,8 +70,9 @@ def _create_mock_outputs(session: types.RetrievalSession) -> None:
         output_dir = os.path.join(session.ctn.container_path, "prf", "out_fast")
     else:
         output_dir = os.path.join(
-            session.ctn.data_output_path, f"{session.ctx.sensor_id}_" +
-            f"SN{str(session.ctx.serial_number).zfill(3)}_{date_string[2:]}-{date_string[2:]}"
+            session.ctn.data_output_path,
+            f"{session.ctx.sensor_id}_"
+            + f"SN{str(session.ctx.serial_number).zfill(3)}_{date_string[2:]}-{date_string[2:]}",
         )
     os.makedirs(os.path.join(output_dir, "logfiles"), exist_ok=True)
 
@@ -103,7 +112,7 @@ def _create_mock_outputs(session: types.RetrievalSession) -> None:
     for p in [
         os.path.join(analysis_dir, "pT"),
         os.path.join(analysis_dir, "cal"),
-        os.path.join(session.ctn.container_path, "prf", "wrk_fast")
+        os.path.join(session.ctn.container_path, "prf", "wrk_fast"),
     ]:
         os.makedirs(p, exist_ok=True)
         with open(os.path.join(p, "dummyfile"), "w") as f:

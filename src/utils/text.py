@@ -25,7 +25,7 @@ def replace_regex_placeholders(
     date: datetime.date,
 ) -> tuple[re.Pattern[str], re.Pattern[str]]:
     """Replace placeholders in a regex pattern.
-    
+
     Returns: tuple[pattern of any matching file, pattern of the file of the given date]"""
 
     general_regex = regex_pattern
@@ -35,10 +35,10 @@ def replace_regex_placeholders(
     for placeholder, specific_replacement, general_replacement in [
         ("$(SENSOR_ID)", sensor_id, sensor_id),
         ("$(DATE)", date_string, "\\d{8}"),
-        ("$(YYYY)", date_string[: 4], "\\d{4}"),
-        ("$(YY)", date_string[2 : 4], "\\d{2}"),
-        ("$(MM)", date_string[4 : 6], "\\d{2}"),
-        ("$(DD)", date_string[6 :], "\\d{2}"),
+        ("$(YYYY)", date_string[:4], "\\d{4}"),
+        ("$(YY)", date_string[2:4], "\\d{2}"),
+        ("$(MM)", date_string[4:6], "\\d{2}"),
+        ("$(DD)", date_string[6:], "\\d{2}"),
     ]:
         general_regex = general_regex.replace(placeholder, general_replacement)
         specific_regex = specific_regex.replace(placeholder, specific_replacement)

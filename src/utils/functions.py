@@ -8,9 +8,14 @@ except ImportError:
     import tomli as tomllib  # type: ignore
 
 
-def sdc_covers_the_full_day(sdc: em27_metadata.types.SensorDataContext, ) -> bool:
-    return (sdc.from_datetime.time().replace(microsecond=0) == datetime.time.min.replace(microsecond=0)) and \
-           (sdc.to_datetime.time().replace(microsecond=0)   == datetime.time.max.replace(microsecond=0))
+def sdc_covers_the_full_day(
+    sdc: em27_metadata.types.SensorDataContext,
+) -> bool:
+    return (
+        sdc.from_datetime.time().replace(microsecond=0) == datetime.time.min.replace(microsecond=0)
+    ) and (
+        sdc.to_datetime.time().replace(microsecond=0) == datetime.time.max.replace(microsecond=0)
+    )
 
 
 def get_pipeline_version() -> str:

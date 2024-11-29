@@ -21,7 +21,7 @@ def _write_template_file(
 
     replacements = {
         "DATE8": session.ctx.from_datetime.strftime("%Y%m%d"),
-        "DATE6": session.ctx.from_datetime.strftime("%Y%m%d")[2 :],
+        "DATE6": session.ctx.from_datetime.strftime("%Y%m%d")[2:],
         "LOCATION_ID": session.ctx.location.location_id,
         "UTC_OFFSET": str(session.ctx.utc_offset),
         "SENSOR_ID": session.ctx.sensor_id,
@@ -47,12 +47,13 @@ def create_preprocess_input_file(session: types.RetrievalSession) -> None:
     src_filepath = os.path.join(_TEMPLATE_DIR, "template_preprocess4.inp")
     dst_filepath = os.path.join(session.ctn.container_path, "prf", "preprocess", "preprocess4.inp")
     date_string = session.ctx.from_datetime.strftime("%Y%m%d")
-    ifg_dir = os.path.join(session.ctn.data_input_path, "ifg", date_string[2 :])
+    ifg_dir = os.path.join(session.ctn.data_input_path, "ifg", date_string[2:])
     ifg_filepaths = [
         os.path.join(ifg_dir, f)
-        for f in os.listdir(ifg_dir) if f.startswith(f"{date_string[2:]}SN.")
+        for f in os.listdir(ifg_dir)
+        if f.startswith(f"{date_string[2:]}SN.")
     ]
-    os.mkdir(os.path.join(session.ctn.data_input_path, "ifg", date_string[2 :], "cal"))
+    os.mkdir(os.path.join(session.ctn.data_input_path, "ifg", date_string[2:], "cal"))
     _write_template_file(
         session,
         src_filepath,
@@ -75,7 +76,7 @@ def create_invers_input_file(session: types.RetrievalSession) -> None:
         session.ctn.data_output_path,
         "analysis",
         session.ctx.sensor_id,
-        date_string[2 :],
+        date_string[2:],
         "cal",
     )
     spectra_filenames = [f for f in os.listdir(spectra_dir) if f.endswith("SN.BIN")]
@@ -91,7 +92,7 @@ def move_profiles_and_ground_pressure_files(session: types.RetrievalSession) -> 
     analysis_path = os.path.join(session.ctn.data_output_path, "analysis")
 
     date_string = session.ctx.from_datetime.strftime("%Y%m%d")
-    pt_path = os.path.join(analysis_path, f"{session.ctx.sensor_id}", date_string[2 :], "pT")
+    pt_path = os.path.join(analysis_path, f"{session.ctx.sensor_id}", date_string[2:], "pT")
     os.makedirs(pt_path, exist_ok=True)
 
     # copy atmospheric profile
@@ -109,8 +110,8 @@ def move_profiles_and_ground_pressure_files(session: types.RetrievalSession) -> 
             session.ctn.data_input_path,
             "log",
             (
-                f"ground-pressure-{session.ctx.pressure_data_source}-" +
-                f"{session.ctx.from_datetime.strftime('%Y%m%d')}.csv"
+                f"ground-pressure-{session.ctx.pressure_data_source}-"
+                + f"{session.ctx.from_datetime.strftime('%Y%m%d')}.csv"
             ),
         ),
         columns=["utc-time", "pressure"],

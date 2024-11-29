@@ -66,7 +66,7 @@ def run(
     sensor_data_context: em27_metadata.types.SensorDataContext,
     retrieval_algorithm: types.RetrievalAlgorithm,
     atmospheric_profile_model: types.AtmosphericProfileModel,
-    job_settings: types.config.RetrievalJobSettingsConfig
+    job_settings: types.config.RetrievalJobSettingsConfig,
 ) -> types.RetrievalSession:
     """Create a new container and the pylot config files"""
     new_session: types.RetrievalSession

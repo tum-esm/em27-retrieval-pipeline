@@ -11,7 +11,7 @@ class RetrievalJob(pydantic.BaseModel):
     job_settings: types.config.RetrievalJobSettingsConfig
 
 
-class RetrievalJobQueue():
+class RetrievalJobQueue:
     def __init__(self) -> None:
         self.queue: list[RetrievalJob] = []
         self.current_job_index: int = 0

@@ -19,8 +19,9 @@ def download_data(
     if atmospheric_profile_model == "GGG2020":
         tarballs_on_server = ftp.nlst("ginput-jobs")
     else:
-        tarballs_on_server = ftp.nlst("upload/modfiles/tar/maps"
-                                     ) + ftp.nlst("upload/modfiles/tar/mods")
+        tarballs_on_server = ftp.nlst("upload/modfiles/tar/maps") + ftp.nlst(
+            "upload/modfiles/tar/mods"
+        )
 
     # GGG2014: /upload/modfiles/tar/mods/mods_48N011E_20231211_20231217.tar
     # GGG2020: /ginput-jobs/job_000034641_tu_48.00N_12.00E_20221001-20221008.tgz
@@ -35,7 +36,8 @@ def download_data(
             cs_nonverbose = utils.text.get_coordinates_slug(query.lat, query.lon, verbose=False)
             ds = query.from_date.strftime("%Y%m%d")
             tarballs_to_download = [
-                t for t in tarballs_on_server
+                t
+                for t in tarballs_on_server
                 if ((f"{cs_verbose}_{ds}" in t) or (f"{cs_nonverbose}_{ds}" in t))
             ]
             if atmospheric_profile_model == "GGG2020":
@@ -93,14 +95,14 @@ def extract_archive(
                 extension = basename.split(".")[-1]
                 assert extension in ["map", "mod", "vmr"], f"Unexpected extension: {extension}"
                 if extension == "map":
-                    date = basename.split("_")[-1][: 8]
-                    hour = basename.split("_")[-1][8 : 10]
+                    date = basename.split("_")[-1][:8]
+                    hour = basename.split("_")[-1][8:10]
                 elif extension == "mod":
-                    date = basename.split("_")[1][: 8]
-                    hour = basename.split("_")[1][8 : 10]
+                    date = basename.split("_")[1][:8]
+                    hour = basename.split("_")[1][8:10]
                 elif extension == "vmr":
-                    date = basename.split("_")[1][: 8]
-                    hour = basename.split("_")[1][8 : 10]
+                    date = basename.split("_")[1][:8]
+                    hour = basename.split("_")[1][8:10]
                 member.name = f"{date}{hour}_{cs}.{extension}"
                 # 2022010100_48N011E.map
                 # 2022010103_48N011E.map
@@ -108,9 +110,9 @@ def extract_archive(
 
             else:
                 if name.endswith(".map"):
-                    date, type_ = name[2 : 10], "map"
+                    date, type_ = name[2:10], "map"
                 elif name.endswith(".mod"):
-                    date, type_ = name[5 : 13], "mod"
+                    date, type_ = name[5:13], "mod"
                 member.name = f"{date}_{cs}.{type_}"
                 # 20220101_48N011E.map
 

@@ -72,14 +72,16 @@ def run() -> None:
 
                     still_running_query_count = len(cache.get_timed_out_queries(profile_model))
 
-                open_query_count = config.profiles.server.max_parallel_requests - still_running_query_count
+                open_query_count = (
+                    config.profiles.server.max_parallel_requests - still_running_query_count
+                )
 
                 print(f"{still_running_query_count} queries are still running")
                 if open_query_count <= 0:
                     print(
-                        "No open slots for new queries " +
-                        "(config.profiles.server.max_parallel_requests = " +
-                        f"{config.profiles.server.max_parallel_requests})"
+                        "No open slots for new queries "
+                        + "(config.profiles.server.max_parallel_requests = "
+                        + f"{config.profiles.server.max_parallel_requests})"
                     )
                     continue
                 else:
@@ -108,8 +110,9 @@ def run() -> None:
                 print(f"Successfully downloaded {len(fulfilled_queries)} queries")
                 new_download_queries = sorted(
                     list(
-                        set(outstanding_download_queries) - set(fulfilled_queries) -
-                        set(cache.get_active_queries(profile_model))
+                        set(outstanding_download_queries)
+                        - set(fulfilled_queries)
+                        - set(cache.get_active_queries(profile_model))
                     ),
                     key=lambda q: q.from_date,
                     reverse=True,
@@ -118,11 +121,11 @@ def run() -> None:
                 query_count = min(open_query_count, len(new_download_queries))
                 print(f"Requesting {query_count} out of {len(new_download_queries)} queries")
                 profiles.upload_logic.upload_requests(
-                    config, new_download_queries[: query_count], ftp, profile_model
+                    config, new_download_queries[:query_count], ftp, profile_model
                 )
                 print(
-                    "Done. Run this script again (after waiting " +
-                    "a bit to download the reqested data)."
+                    "Done. Run this script again (after waiting "
+                    + "a bit to download the reqested data)."
                 )
     except KeyboardInterrupt:
         print("Interrupted by user.")

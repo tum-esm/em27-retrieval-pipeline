@@ -22,16 +22,15 @@ class MetadataConfig(pydantic.BaseModel):
     access_token: Optional[str] = pydantic.Field(
         None,
         min_length=1,
-        description=
-        "GitHub access token with read access to the repository, only required if the repository is private.",
+        description="GitHub access token with read access to the repository, only required if the repository is private.",
     )
 
 
 class GroundPressureConfig(pydantic.BaseModel):
     """Format of the ground pressure files. We support any text file that stores one data point per row and separates the columns with a comma, space, or tab, i.e. CSV, TSV, or space-separated files. Using the `file_regex` field, you specify which files to consider for a given sensor id and date.
-    
+
     You have to specify the columns that contain the date and time of the data. There is three options to specify this - the CLI will complain if you configure none or more than one of these options:
-    
+
     * One column with a datetime string -> configure `datetime_column` and `datetime_column_format`
     * Two columns, one with the date and one with the time -> configure `date_column`, `date_column_format`, `time_column`, and `time_column_format`
     * One column with a unix timestamp -> configure `unix_timestamp_column` and `unix_timestamp_column_format`"""
@@ -59,8 +58,7 @@ class GroundPressureConfig(pydantic.BaseModel):
     )
     separator: str = pydantic.Field(
         ...,
-        description=
-        "Separator used in the ground pressure files. Only needed and used if the file format is `text`.",
+        description="Separator used in the ground pressure files. Only needed and used if the file format is `text`.",
         min_length=1,
         max_length=1,
         examples=[",", "\t", " ", ";"],
@@ -108,8 +106,7 @@ class GroundPressureConfig(pydantic.BaseModel):
     )
     unix_timestamp_column_format: Optional[Literal["s", "ms", "us", "ns"]] = pydantic.Field(
         None,
-        description=
-        "Format of the unix timestamp column in the ground pressure files. I.e. is the Unix timestamp in seconds, milliseconds, etc.?",
+        description="Format of the unix timestamp column in the ground pressure files. I.e. is the Unix timestamp in seconds, milliseconds, etc.?",
     )
 
     # pressure column
@@ -118,14 +115,15 @@ class GroundPressureConfig(pydantic.BaseModel):
         description="Column name in the ground pressure files that contains the pressure.",
         examples=["pressure", "p", "ground_pressure"],
     )
-    pressure_column_format: Literal[
-        "hPa", "Pa", "bar", "mbar", "atm", "psi", "inHg", "mmHg"] = pydantic.Field(
+    pressure_column_format: Literal["hPa", "Pa", "bar", "mbar", "atm", "psi", "inHg", "mmHg"] = (
+        pydantic.Field(
             ...,
             description="Unit of the pressure column in the ground pressure files.",
         )
+    )
 
     # validate -> you can only set either date AND time OR unix_timestamp
-    @pydantic.model_validator(mode='after')
+    @pydantic.model_validator(mode="after")
     def _check_datetime_columns(self) -> GroundPressureConfig:
         required = {
             "datetime_column": [],
@@ -143,17 +141,17 @@ class GroundPressureConfig(pydantic.BaseModel):
         for col in ["datetime_column", "date_column", "time_column", "unix_timestamp_column"]:
             fmt = col + "_format"
             if (getattr(self, col) is not None) and (getattr(self, fmt) is None):
-                raise ValueError(f'You have to set `{fmt}` if you set `{col}`')
+                raise ValueError(f"You have to set `{fmt}` if you set `{col}`")
             if (getattr(self, fmt) is not None) and (getattr(self, col) is None):
-                raise ValueError(f'You have to set `{col}` if you set `{fmt}`')
+                raise ValueError(f"You have to set `{col}` if you set `{fmt}`")
 
             if getattr(self, col) is not None:
                 for other_col in required[col]:
                     if getattr(self, other_col) is None:
-                        raise ValueError(f'You have to set `{other_col}` if you set `{col}`')
+                        raise ValueError(f"You have to set `{other_col}` if you set `{col}`")
                 for other_col in forbidden[col]:
                     if getattr(self, other_col) is not None:
-                        raise ValueError(f'You cannot set `{other_col}` if you set `{col}`')
+                        raise ValueError(f"You cannot set `{other_col}` if you set `{col}`")
 
         return self
 
@@ -193,13 +191,11 @@ class ProfilesServerConfig(pydantic.BaseModel):
         ...,
         ge=1,
         le=200,
-        description=
-        "Maximum number of requests to put in the queue on the ccycle server at the same time. Only when a request is finished, a new one can enter the queue.",
+        description="Maximum number of requests to put in the queue on the ccycle server at the same time. Only when a request is finished, a new one can enter the queue.",
     )
 
 
 class ProfilesScopeConfig(pydantic.BaseModel):
-
     model_config = pydantic.ConfigDict(extra="forbid")
 
     from_date: datetime.date = pydantic.Field(
@@ -215,15 +211,14 @@ class ProfilesScopeConfig(pydantic.BaseModel):
         description="list of data types to request from the ccycle ftp server.",
     )
 
-    @pydantic.model_validator(mode='after')
+    @pydantic.model_validator(mode="after")
     def check_date_order(self) -> ProfilesScopeConfig:
         if self.from_date > self.to_date:
-            raise ValueError('from_date must be before to_date')
+            raise ValueError("from_date must be before to_date")
         return self
 
 
 class ProfilesGGG2020StandardSitesItemConfig(pydantic.BaseModel):
-
     model_config = pydantic.ConfigDict(extra="forbid")
 
     identifier: str = pydantic.Field(
@@ -249,10 +244,10 @@ class ProfilesGGG2020StandardSitesItemConfig(pydantic.BaseModel):
         description="Date in format `YYYY-MM-DD` until which this standard site is active.",
     )
 
-    @pydantic.model_validator(mode='after')
+    @pydantic.model_validator(mode="after")
     def check_date_order(self) -> ProfilesGGG2020StandardSitesItemConfig:
         if self.from_date > self.to_date:
-            raise ValueError('from_date must be before to_date')
+            raise ValueError("from_date must be before to_date")
         return self
 
 
@@ -263,24 +258,20 @@ class RetrievalGeneralConfig(pydantic.BaseModel):
         1,
         ge=1,
         le=128,
-        description=
-        "How many parallel processes to dispatch. There will be one process per sensor-day. With hyper-threaded CPUs, this can be higher than the number of physical cores.",
+        description="How many parallel processes to dispatch. There will be one process per sensor-day. With hyper-threaded CPUs, this can be higher than the number of physical cores.",
     )
     ifg_file_regex: str = pydantic.Field(
         ...,
         min_length=1,
-        description=
-        "A regex string to match the ifg file names. In this string, `$(SENSOR_ID)`, `$(YYYY)`, `$(YY)`, `$(MM)`, and `$(DD)` are placeholders to target a certain station and date. The placeholder `$(DATE)` is a shortcut for `$(YYYY)$(MM)$(DD)`. They don't have to be used - you can also run the retrieval on any file it finds in the directory using `.*`",
+        description="A regex string to match the ifg file names. In this string, `$(SENSOR_ID)`, `$(YYYY)`, `$(YY)`, `$(MM)`, and `$(DD)` are placeholders to target a certain station and date. The placeholder `$(DATE)` is a shortcut for `$(YYYY)$(MM)$(DD)`. They don't have to be used - you can also run the retrieval on any file it finds in the directory using `.*`",
         examples=[
-            r"^*\.\d+$"
-            r"^$(SENSOR_ID)$(DATE).*\.\d+$",
+            r"^*\.\d+$" r"^$(SENSOR_ID)$(DATE).*\.\d+$",
             r"^$(SENSOR_ID)-$(YYYY)-$(MM)-$(DD).*\.nc$",
         ],
     )
     queue_verbosity: Literal["compact", "verbose"] = pydantic.Field(
         "compact",
-        description=
-        "How much information the retrieval queue should print out. In `verbose` mode it will print out the full list of sensor-days for each step of the filtering process. This can help when figuring out why a certain sensor-day is not processed.",
+        description="How much information the retrieval queue should print out. In `verbose` mode it will print out the full list of sensor-days for each step of the filtering process. This can help when figuring out why a certain sensor-day is not processed.",
     )
 
 
@@ -298,53 +289,46 @@ class RetrievalJobSettingsConfig(pydantic.BaseModel):
 
     store_binary_spectra: bool = pydantic.Field(
         False,
-        description=
-        "Whether to store the binary spectra files. These are the files that are used by the retrieval algorithm. They are not needed for the output files, but can be useful for debugging.",
+        description="Whether to store the binary spectra files. These are the files that are used by the retrieval algorithm. They are not needed for the output files, but can be useful for debugging.",
     )
     dc_min_threshold: float = pydantic.Field(
         0.05,
         ge=0.001,
         le=0.999,
-        description=
-        "Value used for the `DC_min` threshold in Proffast. If not set, defaults to the Proffast default.",
+        description="Value used for the `DC_min` threshold in Proffast. If not set, defaults to the Proffast default.",
     )
     dc_var_threshold: float = pydantic.Field(
         0.10,
         ge=0.001,
         le=0.999,
-        description=
-        "Value used for the `DC_var` threshold in Proffast. If not set, defaults to the Proffast default.",
+        description="Value used for the `DC_var` threshold in Proffast. If not set, defaults to the Proffast default.",
     )
     use_local_pressure_in_pcxs: bool = pydantic.Field(
         False,
-        description=
-        "Whether to use the local pressure in the pcxs files. If not used, it will tell PCXS to use the pressure from the atmospheric profiles (set the input value in the `.inp` file to `9999.9`). If used, the pipeline computes the solar noon time using `skyfield` and averages the local pressure over the time period noon-2h to noon+2h.",
+        description="Whether to use the local pressure in the pcxs files. If not used, it will tell PCXS to use the pressure from the atmospheric profiles (set the input value in the `.inp` file to `9999.9`). If used, the pipeline computes the solar noon time using `skyfield` and averages the local pressure over the time period noon-2h to noon+2h.",
     )
     use_ifg_corruption_filter: bool = pydantic.Field(
         True,
-        description=
-        "Whether to use the ifg corruption filter. This filter is a program based on `preprocess4` and is part of the `tum-esm-utils` library: https://tum-esm-utils.netlify.app/api-reference#tum_esm_utilsinterferograms. If activated, we will only pass the interferograms to the retrieval algorithm that pass the filter - i.e. that won't cause it to crash.",
+        description="Whether to use the ifg corruption filter. This filter is a program based on `preprocess4` and is part of the `tum-esm-utils` library: https://tum-esm-utils.netlify.app/api-reference#tum_esm_utilsinterferograms. If activated, we will only pass the interferograms to the retrieval algorithm that pass the filter - i.e. that won't cause it to crash.",
     )
     custom_ils: Optional[dict[str, RetrievalJobSettingsILSConfig]] = pydantic.Field(
         None,
-        description=
-        "Maps sensor IDS to ILS correction values. If not set, the pipeline will use the values published inside the Proffast Pylot codebase (https://gitlab.eudat.eu/coccon-kit/proffastpylot/-/blob/master/prfpylot/ILSList.csv?ref_type=heads).",
+        description="Maps sensor IDS to ILS correction values. If not set, the pipeline will use the values published inside the Proffast Pylot codebase (https://gitlab.eudat.eu/coccon-kit/proffastpylot/-/blob/master/prfpylot/ILSList.csv?ref_type=heads).",
     )
     output_suffix: Optional[str] = pydantic.Field(
         None,
-        description=
-        "Suffix to append to the output folders. If not set, the pipeline output folders are named `sensorid/YYYYMMDD/`. If set, the folders are named `sensorid/YYYYMMDD_suffix/`. This is useful when having multiple retrieval jobs processing the same sensor dates with different settings.",
+        description="Suffix to append to the output folders. If not set, the pipeline output folders are named `sensorid/YYYYMMDD/`. If set, the folders are named `sensorid/YYYYMMDD_suffix/`. This is useful when having multiple retrieval jobs processing the same sensor dates with different settings.",
     )
 
 
 class RetrievalJobConfig(pydantic.BaseModel):
     """Settings for filtering the storage data. Only used if `config.data_sources.storage` is `true`."""
+
     model_config = pydantic.ConfigDict(extra="forbid")
 
     retrieval_algorithm: RetrievalAlgorithm = pydantic.Field(
         ...,
-        description=
-        "Which retrieval algorithms to use. Proffast 2.X uses the Proffast Pylot under the hood to dispatch it. Proffast 1.0 uses a custom implementation by us similar to the Proffast Pylot."
+        description="Which retrieval algorithms to use. Proffast 2.X uses the Proffast Pylot under the hood to dispatch it. Proffast 1.0 uses a custom implementation by us similar to the Proffast Pylot.",
     )
     atmospheric_profile_model: AtmosphericProfileModel = pydantic.Field(
         ..., description="Which vertical profiles to use for the retrieval."
@@ -354,24 +338,25 @@ class RetrievalJobConfig(pydantic.BaseModel):
     )
     from_date: datetime.date = pydantic.Field(
         ...,
-        description=
-        "Date string in format `YYYY-MM-DD` from which to consider data in the storage directory."
+        description="Date string in format `YYYY-MM-DD` from which to consider data in the storage directory.",
     )
     to_date: datetime.date = pydantic.Field(
         ...,
-        description=
-        "Date string in format `YYYY-MM-DD` until which to consider data in the storage directory."
+        description="Date string in format `YYYY-MM-DD` until which to consider data in the storage directory.",
     )
     settings: RetrievalJobSettingsConfig = pydantic.Field(
         RetrievalJobSettingsConfig(),
-        description="Advanced settings that only apply to this retrieval job"
+        description="Advanced settings that only apply to this retrieval job",
     )
 
-    @pydantic.model_validator(mode='after')
+    @pydantic.model_validator(mode="after")
     def check_model_integrity(self) -> RetrievalJobConfig:
         if self.from_date > self.to_date:
-            raise ValueError('from_date must be before to_date')
-        if self.retrieval_algorithm == "proffast-1.0" and self.atmospheric_profile_model == "GGG2020":
+            raise ValueError("from_date must be before to_date")
+        if (
+            self.retrieval_algorithm == "proffast-1.0"
+            and self.atmospheric_profile_model == "GGG2020"
+        ):
             raise ValueError("proffast-1.0 does not support GGG2020 profiles")
         return self
 
@@ -380,8 +365,7 @@ class GeneralConfig(pydantic.BaseModel):
     model_config = pydantic.ConfigDict(extra="forbid")
     metadata: Optional[MetadataConfig] = pydantic.Field(
         None,
-        description=
-        "If not set, the pipeline will use local metadata files or abort if the local files are not found. If local files are found, they will always be preferred over the remote data even if the remote source is configured.",
+        description="If not set, the pipeline will use local metadata files or abort if the local files are not found. If local files are found, they will always be preferred over the remote data even if the remote source is configured.",
     )
     data: DataConfig
 
@@ -394,13 +378,11 @@ class ProfilesConfig(pydantic.BaseModel):
     server: ProfilesServerConfig
     scope: Optional[ProfilesScopeConfig] = pydantic.Field(
         None,
-        description=
-        "Scope of the vertical profiles to request from the ccycle ftp server. If set to `null`, the script will not request any vertical profiles besides the configured standard sites.",
+        description="Scope of the vertical profiles to request from the ccycle ftp server. If set to `null`, the script will not request any vertical profiles besides the configured standard sites.",
     )
     GGG2020_standard_sites: list[ProfilesGGG2020StandardSitesItemConfig] = pydantic.Field(
         ...,
-        description=
-        "List of standard sites to request from the ccycle ftp server. The requests for these standard sites are done before any other requests so that data available for these is not rerequested for other sensors. See https://tccon-wiki.caltech.edu/Main/ObtainingGinputData#Requesting_to_be_added_as_a_standard_site for more information.",
+        description="List of standard sites to request from the ccycle ftp server. The requests for these standard sites are done before any other requests so that data available for these is not rerequested for other sensors. See https://tccon-wiki.caltech.edu/Main/ObtainingGinputData#Requesting_to_be_added_as_a_standard_site for more information.",
     )
 
 
@@ -418,7 +400,7 @@ class RetrievalConfig(pydantic.BaseModel):
 
 class BundleTargetConfig(pydantic.BaseModel):
     """There will be one file per sensor id and atmospheric profile and retrieval algorithm combination.
-    
+
     The final name looks like `em27-retrieval-bundle-$SENSOR_ID-$RETRIEVAL_ALGORITHM-$ATMOSPHERIC_PROFILE-$FROM_DATE-$TO_DATE$BUNDLE_SUFFIX.$OUTPUT_FORMAT`, e.g.`em27-retrieval-bundle-ma-GGG2020-proffast-2.4-20150801-20240523-v2.1.csv`. The bundle suffix is optional and can be used to distinguish between different
     internal datasets."""
 
@@ -455,13 +437,11 @@ class BundleTargetConfig(pydantic.BaseModel):
     )
     retrieval_job_output_suffix: Optional[str] = pydantic.Field(
         None,
-        description=
-        "When you ran the retrieval with a custom suffix, you can specify it here to only bundle the outputs of this suffix. Use the same value here as in the field `config.retrieval.jobs[i].settings.output_suffix`.",
+        description="When you ran the retrieval with a custom suffix, you can specify it here to only bundle the outputs of this suffix. Use the same value here as in the field `config.retrieval.jobs[i].settings.output_suffix`.",
     )
     parse_dc_timeseries: bool = pydantic.Field(
         False,
-        description=
-        "Whether to parse the DC timeseries from the results directories. This is an output only available in this Pipeline for Proffast2.4. We adapted the preprocessor to output the DC min/mean/max/variation values for each record of data. If you having issues with a low signal intensity on one or both channels, you can run the retrieval with a very low DC_min threshold and filter the data afterwards instead of having to rerun the retrieval.",
+        description="Whether to parse the DC timeseries from the results directories. This is an output only available in this Pipeline for Proffast2.4. We adapted the preprocessor to output the DC min/mean/max/variation values for each record of data. If you having issues with a low signal intensity on one or both channels, you can run the retrieval with a very low DC_min threshold and filter the data afterwards instead of having to rerun the retrieval.",
     )
 
 
@@ -472,14 +452,14 @@ class Config(pydantic.BaseModel):
 
     version: Literal["1.4"] = pydantic.Field(
         ...,
-        description=
-        "Version of the retrieval pipeline which is compatible with this config file. Retrievals done with any version `1.x` will produce the same output files as retrievals done with version `1.0`. But higher version numbers might use a different config file structure and produce more output files."
+        description="Version of the retrieval pipeline which is compatible with this config file. Retrievals done with any version `1.x` will produce the same output files as retrievals done with version `1.0`. But higher version numbers might use a different config file structure and produce more output files.",
     )
     general: GeneralConfig
     profiles: Optional[ProfilesConfig] = None
     retrieval: Optional[RetrievalConfig] = None
-    bundles: Optional[list[BundleTargetConfig]
-                     ] = pydantic.Field(None, description='List of output bundling targets.')
+    bundles: Optional[list[BundleTargetConfig]] = pydantic.Field(
+        None, description="List of output bundling targets."
+    )
 
     @staticmethod
     def get_config_dir() -> str:
@@ -487,10 +467,7 @@ class Config(pydantic.BaseModel):
 
         If not set, returns default config directory path inside the repository.
         """
-        return os.getenv(
-            "ERP_CONFIG_DIR",
-            tum_esm_utils.files.rel_to_abs_path("../../config")
-        )
+        return os.getenv("ERP_CONFIG_DIR", tum_esm_utils.files.rel_to_abs_path("../../config"))
 
     @staticmethod
     def get_config_path() -> str:
@@ -499,11 +476,8 @@ class Config(pydantic.BaseModel):
         If not set, returns default config file path inside the repository.
         """
         return os.path.join(
-            os.getenv(
-                "ERP_CONFIG_DIR",
-                tum_esm_utils.files.rel_to_abs_path("../../config")
-            ),
-            "config.json"
+            os.getenv("ERP_CONFIG_DIR", tum_esm_utils.files.rel_to_abs_path("../../config")),
+            "config.json",
         )
 
     @staticmethod
@@ -516,7 +490,7 @@ class Config(pydantic.BaseModel):
         If `check_path_existence` is set, it will check whether the paths
         specified in the config file exist."""
 
-        with open(path, 'r') as f:
+        with open(path, "r") as f:
             return Config.model_validate_json(
                 f.read(),
                 context={"ignore-path-existence": ignore_path_existence},

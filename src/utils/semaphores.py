@@ -8,9 +8,9 @@ import tum_esm_utils
 def with_automation_lock() -> Generator[None, None, None]:
     """This function will lock the automation with a file lock so that
     only one instance can run at a time.
-    
+
     Usage:
-    
+
     ```python
     with with_automation_lock():
         run_automation()

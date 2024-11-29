@@ -39,14 +39,16 @@ def upload_requests(
 
             # Build request in-memory
             with io.BytesIO(
-                "\n".join((
-                    "mu",
-                    query.from_date_str,
-                    to_date,
-                    str(query.lat),
-                    str(query.lon),
-                    config.profiles.server.email,
-                )).encode("utf-8")
+                "\n".join(
+                    (
+                        "mu",
+                        query.from_date_str,
+                        to_date,
+                        str(query.lat),
+                        str(query.lon),
+                        config.profiles.server.email,
+                    )
+                ).encode("utf-8")
             ) as file_:
                 upload_start_time = time.time()
 
@@ -74,7 +76,7 @@ def upload_requests(
                 # sleeping 65 seconds because these files are parsed by a cron
                 # job every minute, so we need to wait for the cron job to
                 # finish before we can upload the next request
-                request_time = (t2 - t1)
+                request_time = t2 - t1
                 sleep_time = max(round(65 - request_time, 3), 0)
                 if sleep_time > 0:
                     progress.print(f"Sleeping for {sleep_time} seconds")

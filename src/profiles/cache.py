@@ -42,7 +42,8 @@ class DownloadQueryCache(pydantic.RootModel[list[DownloadQueryCacheEntry]]):
         return sorted(
             [
                 e.download_query
-                for e in self.root if e.atmospheric_profile_model == atmospheric_profile_model
+                for e in self.root
+                if e.atmospheric_profile_model == atmospheric_profile_model
             ],
             key=lambda q: q.from_date,
         )
@@ -55,10 +56,11 @@ class DownloadQueryCache(pydantic.RootModel[list[DownloadQueryCacheEntry]]):
 
         return sorted(
             [
-                e.download_query for e in self.root
+                e.download_query
+                for e in self.root
                 if (
-                    (e.atmospheric_profile_model == atmospheric_profile_model) and \
-                    (e.request_time < (datetime.datetime.now() - datetime.timedelta(days=7)))
+                    (e.atmospheric_profile_model == atmospheric_profile_model)
+                    and (e.request_time < (datetime.datetime.now() - datetime.timedelta(days=7)))
                 )
             ],
             key=lambda q: q.from_date,
@@ -75,7 +77,7 @@ class DownloadQueryCache(pydantic.RootModel[list[DownloadQueryCacheEntry]]):
             DownloadQueryCacheEntry(
                 atmospheric_profile_model=atmospheric_profile_model,
                 download_query=download_query,
-                request_time=datetime.datetime.now()
+                request_time=datetime.datetime.now(),
             )
         )
 
@@ -87,6 +89,10 @@ class DownloadQueryCache(pydantic.RootModel[list[DownloadQueryCacheEntry]]):
         """Remove queries from the cache."""
 
         self.root = [
-            e for e in self.root if not ((e.download_query in download_queries) and
-                                         (e.atmospheric_profile_model == atmospheric_profile_model))
+            e
+            for e in self.root
+            if not (
+                (e.download_query in download_queries)
+                and (e.atmospheric_profile_model == atmospheric_profile_model)
+            )
         ]
