@@ -56,7 +56,6 @@ def _generate_pylot2_log_format(session: types.Proffast2RetrievalSession) -> Non
             {
                 "SENSOR_ID": session.ctx.sensor_id,
                 "UTC_OFFSET": "0.0",
-                "PRESSURE_CALIBRATION_FACTOR": "1.0",
                 "PRESSURE_DATA_SOURCE": session.ctx.pressure_data_source,
             },
         ),

@@ -53,11 +53,22 @@ def run(
     logger.debug(f"Reduced to {len(df)} records after binning in 1s intervals")
     assert len(df) > 0, "no ground pressure records found for the current day"
 
+    # determine calibration factors
+    pressure_calibration_factor = session.job_settings.pressure_calibration_factors.get(
+        session.ctx.sensor_id, 1.0
+    )
+    pressure_calibration_offset = session.job_settings.pressure_calibration_offsets.get(
+        session.ctx.sensor_id, 0.0
+    )
+
     # write out file used for retrieval
     df.select(
         pl.col("utc").dt.strftime("%Y-%m-%d").alias("utc-date"),
         pl.col("utc").dt.strftime("%H:%M:%S").alias("utc-time"),
-        pl.col("pressure"),
+        pl.col("pressure")
+        .mul(pressure_calibration_factor)
+        .add(pressure_calibration_offset)
+        .alias("pressure"),
     ).write_csv(
         os.path.join(
             session.ctn.data_input_path,
