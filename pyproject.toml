@@ -93,7 +93,21 @@ exclude = [
     "src/retrieval/algorithms/proffast-2.4.1/main/prfpylot",
     "tests/*",
 ]
-ignore = ["E402"]
+select = [
+    # Pyflakes
+    "F",
+    # Pycodestyle
+    "E",
+    "W",
+    # isort
+    "I001",
+]
+ignore = [
+    # line too long
+    "E501",
+    # import not at the top
+    "E402",
+]
 
 [[tool.mypy.overrides]]
 module = ["src.prfpylot.prfpylot.pylot", "scipy", "scipy.signal", "polars", "matplotlib.*", "skyfield.*"]
