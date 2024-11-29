@@ -41,11 +41,15 @@ utc_offset: 0.0
 # The pressure column will be multiplied by this factor.
 # Can be used e.g. for unit conversion or to correct for hight differences.
 # The pressure column is assumed to be in hPa.
-pressure_factor: %PRESSURE_CALIBRATION_FACTOR%
+# IMPORTANT: the em27-retrieval pipeline does support this option, but
+#            computes the corrected pressure when copying the log files
+pressure_factor: 1.0
 
 # pressure offset:
 # The pressure offset is added to the read in pressure values.
 # This can be used to correct for a constant offset.
+# IMPORTANT: the em27-retrieval pipeline does support this option, but
+#            computes the corrected pressure when copying the log files
 pressure_offset: 0.0
 
 # Frequency of pressure files. Options are
