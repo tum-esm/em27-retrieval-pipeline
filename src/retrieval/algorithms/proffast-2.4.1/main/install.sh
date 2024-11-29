@@ -10,6 +10,7 @@ set -o errexit
 cd prf
 
 INSTALL_FOLDER=$(pwd)
+COMPILATION_FLAG=${1:-"-O3"}
 
 echo "replacing windows specific line in source code ..."
 for file in source/*/*90;
@@ -31,17 +32,17 @@ do
 done
 
 # Compile the source code
-echo "compiling preprocess ..."
+echo "compiling preprocess with flag $COMPILATION_FLAG ..."
 cd "$INSTALL_FOLDER/source/preprocess/"
-gfortran -nocpp -O3 -o ../../preprocess/preprocess6 glob_prepro6.F90 glob_OPUSparms6.F90 preprocess6.F90
+gfortran -nocpp $COMPILATION_FLAG -o ../../preprocess/preprocess6 glob_prepro6.F90 glob_OPUSparms6.F90 preprocess6.F90
 
-echo 'compiling pcxs ...'
+echo "compiling pcxs with flag $COMPILATION_FLAG ..."
 cd "$INSTALL_FOLDER/source/pcxs"
-gfortran -nocpp -O3 -o ../../pcxs24 globvar24.f90 globlin24.f90 globlev24.f90 pcxs24.f90
+gfortran -nocpp $COMPILATION_FLAG -o ../../pcxs24 globvar24.f90 globlin24.f90 globlev24.f90 pcxs24.f90
 
-echo 'compiling invers ...'
+echo "compiling invers with flag $COMPILATION_FLAG ..."
 cd "$INSTALL_FOLDER/source/invers"
-gfortran -nocpp -O3 -o ../../invers25 globinv25.f90 invers25.f90
+gfortran -nocpp $COMPILATION_FLAG -o ../../invers25 globinv25.f90 invers25.f90
 
 cd ..
 

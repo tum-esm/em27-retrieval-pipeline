@@ -25,19 +25,20 @@ done
 cd prf
 
 INSTALL_FOLDER=$(pwd)
+COMPILATION_FLAG=${1:-"-O3"}
 
 # Compile the source code
-echo "compiling preprocess ..."
+echo "compiling preprocess with flag $COMPILATION_FLAG ..."
 cd "$INSTALL_FOLDER/../source/preprocess4"
-gfortran -nocpp -O3 -o $INSTALL_FOLDER/preprocess/preprocess4 glob_prepro4.F90 glob_OPUSparms.F90 preprocess4.F90
+gfortran -nocpp $COMPILATION_FLAG -o $INSTALL_FOLDER/preprocess/preprocess4 glob_prepro4.F90 glob_OPUSparms.F90 preprocess4.F90
 
-echo 'compiling pcxs ...'
+echo "compiling pcxs with flag $COMPILATION_FLAG ..."
 cd "$INSTALL_FOLDER/../source/pcxs10"
-gfortran -nocpp -O3 -o $INSTALL_FOLDER/pcxs10 globvar10.f90 globlin10.f90 globlev10.f90 pcxs10.f90
+gfortran -nocpp $COMPILATION_FLAG -o $INSTALL_FOLDER/pcxs10 globvar10.f90 globlin10.f90 globlev10.f90 pcxs10.f90
 
-echo 'compiling invers ...'
+echo "compiling invers with flag $COMPILATION_FLAG ..."
 cd "$INSTALL_FOLDER/../source/invers10"
-gfortran -nocpp -O3 -o $INSTALL_FOLDER/invers10 globinv10.f90 invers10.f90
+gfortran -nocpp $COMPILATION_FLAG -o $INSTALL_FOLDER/invers10 globinv10.f90 invers10.f90
 
 cd ..
 
