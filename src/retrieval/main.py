@@ -1,15 +1,16 @@
-from typing import Any
-import signal
-import sys
-import os
-import time
-import em27_metadata
 import multiprocessing
 import multiprocessing.context
+import os
+import signal
+import sys
+import time
+from typing import Any
+
+import em27_metadata
 import tum_esm_utils
 
 sys.path.append(tum_esm_utils.files.rel_to_abs_path("../.."))
-from src import types, utils, retrieval
+from src import retrieval, types, utils
 
 
 def run() -> None:

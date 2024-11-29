@@ -1,7 +1,8 @@
-from typing import Optional
-import tempfile
-import polars as pl
 import os
+import tempfile
+from typing import Optional
+
+import polars as pl
 
 
 def read_and_merge_invparms_files(paths: list[str]) -> Optional[pl.DataFrame]:

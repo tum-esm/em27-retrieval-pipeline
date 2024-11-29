@@ -1,7 +1,8 @@
+import datetime
 import os
+
 import polars as pl
 import pydantic
-import datetime
 
 _ILS_PARAMS_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "ils-parameters.csv")
 

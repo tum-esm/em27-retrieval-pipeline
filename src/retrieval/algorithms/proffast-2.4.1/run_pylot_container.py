@@ -7,9 +7,10 @@ example:
 ./run.py container_id config_path
 """
 
-import sys
-import os
 import importlib
+import os
+import sys
+
 import tum_esm_utils
 
 _PROJECT_DIR = tum_esm_utils.files.get_parent_dir_path(__file__, current_depth=5)

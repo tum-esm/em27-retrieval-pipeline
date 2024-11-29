@@ -3,8 +3,8 @@ import io
 import sys
 
 import click
-import pydantic
 import em27_metadata
+import pydantic
 import tum_esm_utils
 
 _RETRIEVAL_ENTRYPOINT = tum_esm_utils.files.rel_to_abs_path("src", "retrieval", "main.py")
@@ -154,6 +154,7 @@ def print_data_report() -> None:
     _check_config_validity()
 
     import rich.console
+
     import src  # import here so that the CLI is more reactive
 
     console = rich.console.Console()

@@ -1,14 +1,16 @@
-from typing import Any
 import datetime
 import signal
-from src import types, retrieval
+from typing import Any
+
+from src import retrieval, types
+
 from . import (
-    move_log_files,
-    move_profiles,
     move_ifg_files,
+    move_log_files,
     move_outputs,
-    update_templates,
+    move_profiles,
     run_retrieval,
+    update_templates,
 )
 
 

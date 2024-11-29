@@ -1,5 +1,6 @@
-from typing import Generator
 import contextlib
+from typing import Generator
+
 import filelock
 import tum_esm_utils
 

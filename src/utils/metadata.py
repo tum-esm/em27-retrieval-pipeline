@@ -5,7 +5,6 @@ import em27_metadata
 
 from src import types
 
-
 CONFIG_DIR = types.Config.get_config_dir()
 
 

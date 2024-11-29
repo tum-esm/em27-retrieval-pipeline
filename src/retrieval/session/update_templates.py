@@ -1,6 +1,8 @@
 import os
+
 import tum_esm_utils
-from src import types, retrieval
+
+from src import retrieval, types
 
 
 def run(

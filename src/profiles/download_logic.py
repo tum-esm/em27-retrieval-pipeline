@@ -1,8 +1,10 @@
-from typing import BinaryIO
-import tarfile
-import io
 import ftplib
+import io
+import tarfile
+from typing import BinaryIO
+
 import rich.progress
+
 from src import types, utils
 
 

@@ -1,8 +1,9 @@
-from typing import Literal, Optional
 import datetime
 import os
 import shutil
 import traceback
+from typing import Literal, Optional
+
 import tum_esm_utils
 
 _PROJECT_DIR = tum_esm_utils.files.get_parent_dir_path(__file__, current_depth=4)

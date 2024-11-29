@@ -1,11 +1,13 @@
-from typing import Optional, Generator
 import contextlib
 import datetime
 import os
+from typing import Generator, Optional
+
 import em27_metadata
 import filelock
 import pydantic
 import tum_esm_utils
+
 from src import types
 
 _PROJECT_DIR = tum_esm_utils.files.get_parent_dir_path(__file__, current_depth=4)

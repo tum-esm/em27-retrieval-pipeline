@@ -1,8 +1,10 @@
-from typing import Literal
 import os
-import pydantic
+from typing import Literal
+
 import em27_metadata
+import pydantic
 import tum_esm_utils
+
 from .config import RetrievalJobSettingsConfig
 
 _CONTAINERS_DIR = tum_esm_utils.files.rel_to_abs_path("../../data/containers")

@@ -1,6 +1,7 @@
-from typing import Any, Optional
 import datetime
 import os
+from typing import Any, Optional
+
 import polars as pl
 import tum_esm_utils
 

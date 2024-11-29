@@ -1,6 +1,8 @@
 import os
+
 import polars as pl
-from src import types, retrieval
+
+from src import retrieval, types
 
 
 def run(

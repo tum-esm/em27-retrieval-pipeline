@@ -1,6 +1,8 @@
 from typing import Optional
+
 import em27_metadata
 import pydantic
+
 from src import types
 
 

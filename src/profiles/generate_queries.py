@@ -1,14 +1,17 @@
 from __future__ import annotations
-from typing import Optional
+
 import copy
+import datetime
 import os
 import re
+from typing import Optional
+
 import em27_metadata
 import pydantic
-import datetime
-
 import tum_esm_utils
+
 from src import types, utils
+
 from .cache import DownloadQueryCache
 
 

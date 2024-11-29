@@ -1,9 +1,11 @@
-import time
-import io
-import ftplib
 import datetime
+import ftplib
+import io
+import time
+
 import rich.progress
-from src import types, profiles
+
+from src import profiles, types
 
 
 def upload_requests(

@@ -1,7 +1,9 @@
-from typing import Callable
 import datetime
 import os
+from typing import Callable
+
 import tum_esm_utils
+
 from src import types
 
 

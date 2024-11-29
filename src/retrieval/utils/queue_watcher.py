@@ -1,13 +1,15 @@
-from typing import Any, Optional
 import datetime
-import rich.live
-import rich.table
-import rich.panel
-import rich.console
+from typing import Any, Optional
+
 import rich.align
-import rich.columns
 import rich.box
+import rich.columns
+import rich.console
+import rich.live
+import rich.panel
+import rich.table
 import tum_esm_utils
+
 from .retrieval_status import RetrievalStatusList
 
 _RETRIEVAL_ENTRYPOINT = tum_esm_utils.files.rel_to_abs_path("../main.py")

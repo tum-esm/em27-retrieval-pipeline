@@ -1,9 +1,11 @@
-from typing import Any
 import os
 import shutil
-import tum_esm_utils
+from typing import Any
+
 import polars as pl
-from src import types, retrieval
+import tum_esm_utils
+
+from src import retrieval, types
 
 _PYLOT_DIR = tum_esm_utils.files.get_parent_dir_path(__file__)
 _TEMPLATE_DIR = os.path.join(_PYLOT_DIR, "templates")

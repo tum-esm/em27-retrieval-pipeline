@@ -1,18 +1,19 @@
 import json
-import re
-from typing import Any, Optional
 import os
+import re
+import sys
+from typing import Any, Optional
+
+import click.core
 import em27_metadata
+import jsonref
 import pydantic
 import tum_esm_utils
-import sys
-import jsonref
-import click.core
 
 PROJECT_DIR = tum_esm_utils.files.get_parent_dir_path(__file__, current_depth=3)
 sys.path.append(PROJECT_DIR)
-import src
 import cli
+import src
 
 # ---------------------------------------------------------
 # EXPORT CLI REFERENCE
