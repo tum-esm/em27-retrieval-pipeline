@@ -123,7 +123,7 @@ def download_data(
                                 atmospheric_profile_model="GGG2020",
                             )
                     except StopIteration:
-                        progress.print(f"No tarball")
+                        progress.print("No tarball")
                     progress.advance(subtask)
             else:
                 progress.print("No data to download")

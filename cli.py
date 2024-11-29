@@ -17,6 +17,7 @@ bundle_command_group = click.Group(name="bundle")
 
 def _check_config_validity() -> None:
     import src
+
     try:
         src.types.Config.load()
         click.echo(click.style("Config is valid", fg="green", bold=True))
@@ -25,15 +26,14 @@ def _check_config_validity() -> None:
             click.style(f"Detected {e.error_count()} error(s) in the config:", bold=True, fg="red")
         )
         for error in e.errors():
-            loc = click.style('.'.join([str(l) for l in error['loc']]) + ":", bold=True)
+            loc = click.style(".".join([str(_l) for _l in error["loc"]]) + ":", bold=True)
             click.echo(f"  - {loc} {error['msg']}")
         exit(1)
 
 
 @retrieval_command_group.command(
     name="start",
-    help=
-    "Start the retrieval as a background process. Prevents spawning multiple processes. The logs and the current processing queue from this process can be found at `logs/retrieval`.",
+    help="Start the retrieval as a background process. Prevents spawning multiple processes. The logs and the current processing queue from this process can be found at `logs/retrieval`.",
 )
 def start() -> None:
     _check_config_validity()
@@ -45,8 +45,7 @@ def start() -> None:
 
 @retrieval_command_group.command(
     name="is-running",
-    help=
-    "Checks whether the retrieval background process is running. The logs and the current processing queue from this process can be found at `logs/retrieval`.",
+    help="Checks whether the retrieval background process is running. The logs and the current processing queue from this process can be found at `logs/retrieval`.",
 )
 def is_running() -> None:
     # no config check because this does not require a config
@@ -70,13 +69,13 @@ def watch() -> None:
         click.echo("automated retrieval is not running")
     else:
         import src
+
         src.retrieval.utils.queue_watcher.start_retrieval_watcher()
 
 
 @retrieval_command_group.command(
     name="stop",
-    help=
-    "Stop the retrieval background process. The logs and the current processing queue from this process can be found at `logs/retrieval`.",
+    help="Stop the retrieval background process. The logs and the current processing queue from this process can be found at `logs/retrieval`.",
 )
 def stop() -> None:
     # no config check so that the process can always be terminated
@@ -86,8 +85,8 @@ def stop() -> None:
         click.echo("No active process to be terminated")
     else:
         click.echo(
-            f"Terminated {len(pids)} automated retrieval " +
-            f"background processe(s) with PID(s) {pids}"
+            f"Terminated {len(pids)} automated retrieval "
+            + f"background processe(s) with PID(s) {pids}"
         )
 
 
@@ -97,6 +96,7 @@ def stop() -> None:
 )
 def download_algorithms() -> None:
     import src
+
     src.retrieval.dispatching.container_factory.ContainerFactory.init_proffast10_code(click.echo)
     src.retrieval.dispatching.container_factory.ContainerFactory.init_proffast22_code(click.echo)
     src.retrieval.dispatching.container_factory.ContainerFactory.init_proffast23_code(click.echo)
@@ -105,25 +105,25 @@ def download_algorithms() -> None:
 
 @profiles_command_group.command(
     name="run",
-    help=
-    "Run the profiles download script. This will check, which profiles are not yet present locally, request and download them from the `ccycle.gps.caltech.edu` FTP server. The logs from this process can be found at `logs/profiles`.",
+    help="Run the profiles download script. This will check, which profiles are not yet present locally, request and download them from the `ccycle.gps.caltech.edu` FTP server. The logs from this process can be found at `logs/profiles`.",
 )
 def run_profiles_download() -> None:
     _check_config_validity()
 
     import src  # import here so that the CLI is more reactive
+
     src.profiles.main.run()
 
 
 @profiles_command_group.command(
     name="request-ginput-status",
-    help=
-    "Request ginput status. This will upload a file `upload/ginput_status.txt` to the `ccycle.gps.caltech.edu` FTP server containing the configured email address. You will receive an email with the ginput status which normally takes less than two minutes.",
+    help="Request ginput status. This will upload a file `upload/ginput_status.txt` to the `ccycle.gps.caltech.edu` FTP server containing the configured email address. You will receive an email with the ginput status which normally takes less than two minutes.",
 )
 def request_ginput_status() -> None:
     _check_config_validity()
 
     import src  # import here so that the CLI is more reactive
+
     config = src.types.Config.load()
     assert config.profiles is not None, "No profiles config found"
     with ftplib.FTP(
@@ -133,7 +133,7 @@ def request_ginput_status() -> None:
         timeout=60,
     ) as ftp:
         with io.BytesIO(config.profiles.server.email.encode("utf-8")) as f:
-            ftp.storbinary(f"STOR upload/ginput_status.txt", f)
+            ftp.storbinary("STOR upload/ginput_status.txt", f)
     click.echo(f"Requested ginput status for email address {config.profiles.server.email}")
 
 
@@ -142,6 +142,7 @@ def run_bundle() -> None:
     _check_config_validity()
 
     import src  # import here so that the CLI is more reactive
+
     src.bundle.main.run()
 
 
@@ -174,7 +175,7 @@ def print_data_report() -> None:
         print("Successfully fetched metadata from GitHub")
 
     console.print(
-        f"Printing report for the data paths: " + config.general.data.model_dump_json(indent=4)
+        "Printing report for the data paths: " + config.general.data.model_dump_json(indent=4)
     )
     try:
         src.utils.report.export_data_report(

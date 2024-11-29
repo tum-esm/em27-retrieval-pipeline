@@ -157,10 +157,10 @@ class ContainerFactory:
 
         # DOWNLOAD PROFFAST 1.0 code if it doesn't exist yet
         if os.path.exists(os.path.join(ROOT_DIR, "prf")):
-            _print(f"Proffast 1.0 has already been downloaded")
+            _print("Proffast 1.0 has already been downloaded")
             return
 
-        _print(f"Downloading Proffast 1.0 code")
+        _print("Downloading Proffast 1.0 code")
         tum_esm_utils.shell.run_shell_command(
             command=f"wget --quiet {KIT_BASE_URL}/{ZIPFILE_NAME}",
             working_directory=ROOT_DIR,
@@ -216,10 +216,10 @@ class ContainerFactory:
 
         # DOWNLOAD PROFFAST 2.2 code if it doesn't exist yet
         if os.path.exists(os.path.join(ROOT_DIR, "prf")):
-            _print(f"Proffast 2.2 has already been downloaded")
+            _print("Proffast 2.2 has already been downloaded")
             return
 
-        _print(f"Downloading Proffast 2.2 code")
+        _print("Downloading Proffast 2.2 code")
         tum_esm_utils.shell.run_shell_command(
             command=f"wget --quiet {KIT_BASE_URL}/{ZIPFILE_NAME}",
             working_directory=ROOT_DIR,
@@ -244,10 +244,10 @@ class ContainerFactory:
 
         # DOWNLOAD PROFFAST 2.3 code if it doesn't exist yet
         if os.path.exists(os.path.join(ROOT_DIR, "prf")):
-            _print(f"Proffast 2.3 has already been downloaded")
+            _print("Proffast 2.3 has already been downloaded")
             return
 
-        _print(f"Downloading Proffast 2.3 code")
+        _print("Downloading Proffast 2.3 code")
         tum_esm_utils.shell.run_shell_command(
             command=f"wget --quiet {KIT_BASE_URL}/{ZIPFILE_NAME}",
             working_directory=ROOT_DIR,
@@ -272,9 +272,9 @@ class ContainerFactory:
 
         # DOWNLOAD PROFFAST 2.4 code if it doesn't exist yet
         if os.path.exists(os.path.join(ROOT_DIR, "prf")):
-            _print(f"Proffast 2.4 has already been downloaded")
+            _print("Proffast 2.4 has already been downloaded")
         else:
-            _print(f"Downloading Proffast 2.4 code")
+            _print("Downloading Proffast 2.4 code")
             tum_esm_utils.shell.run_shell_command(
                 command=f"wget --quiet {KIT_BASE_URL}/{ZIPFILE_NAME}",
                 working_directory=ROOT_DIR,
@@ -301,7 +301,7 @@ class ContainerFactory:
         ROOT_DIR = os.path.join(_RETRIEVAL_CODE_DIR, "proffast-2.4.1", "main")
 
         if os.path.exists(os.path.join(ROOT_DIR, "prf")):
-            _print(f"Proffast 2.41 has already been downloaded")
+            _print("Proffast 2.41 has already been downloaded")
             return
 
         raise NotImplementedError("Proffast 2.4.1 is not yet available to the public")

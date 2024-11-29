@@ -1,6 +1,12 @@
 from typing import Any, Optional
 import datetime
-import rich.live, rich.table, rich.panel, rich.console, rich.align, rich.columns, rich.box
+import rich.live
+import rich.table
+import rich.panel
+import rich.console
+import rich.align
+import rich.columns
+import rich.box
 import tum_esm_utils
 from .retrieval_status import RetrievalStatusList
 
@@ -40,11 +46,11 @@ def _render() -> Any:
         else:
             if len(processes) == 0:
                 return rich.panel.Panel(
-                    f"[white]Pipeline is spinning up - wait a bit[/white]", height=3
+                    "[white]Pipeline is spinning up - wait a bit[/white]", height=3
                 )
             else:
                 return rich.panel.Panel(
-                    f"[white]Pipeline is shutting down - wait a bit[/white]", height=3
+                    "[white]Pipeline is shutting down - wait a bit[/white]", height=3
                 )
 
     table = rich.table.Table(expand=True, box=rich.box.ROUNDED)
@@ -110,7 +116,7 @@ def _render() -> Any:
         grid.add_row(
             rich.align.Align.center(
                 rich.columns.Columns([
-                    f"[yellow]Pipeline is estimated to finish in " +
+                    "[yellow]Pipeline is estimated to finish in " +
                     f"{_prettify_timedelta(estimated_remaining_time)} " +
                     f"({estimated_end_time.strftime('%Y-%m-%d %H:%M UTC')})[/yellow]\n",
                 ]),

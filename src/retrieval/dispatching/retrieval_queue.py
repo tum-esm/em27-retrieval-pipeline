@@ -7,18 +7,18 @@ from src import types, utils, retrieval
 
 
 # pprint outputs didn't look so great
-def _list_to_pretty_string(l: list[Any]) -> str:
-    if len(l) == 0:
+def _list_to_pretty_string(xs: list[Any]) -> str:
+    if len(xs) == 0:
         return "[]"
-    string_items = [str(item) for item in l]
+    string_xs = [str(x) for x in xs]
     out = "[\n    "
     current_indent = 4
-    for item in string_items:
-        if (current_indent + len(item)) > 80:
+    for string_x in string_xs:
+        if (current_indent + len(string_x)) > 80:
             out += "\n    "
             current_indent = 4
-        out += item + ", "
-        current_indent += len(item) + 2
+        out += string_x + ", "
+        current_indent += len(string_x) + 2
     out += "\n]"
     return out
 
@@ -35,8 +35,9 @@ def generate_retrieval_queue(
         positive_message: str,
         positive_items: set[datetime.date] | list[em27_metadata.types.SensorDataContext],
         negative_message: Optional[str] = None,
-        negative_items: Optional[set[datetime.date] |
-                                 list[em27_metadata.types.SensorDataContext]] = None,
+        negative_items: Optional[
+            set[datetime.date] | list[em27_metadata.types.SensorDataContext]
+        ] = None,
     ) -> None:
         assert config.retrieval is not None
         pretty_items: list[str]
@@ -53,7 +54,7 @@ def generate_retrieval_queue(
                 else:
                     pretty_items.append(item)
             message += ": " + _list_to_pretty_string(sorted(pretty_items))
-            #pprint.pformat(pretty_items, compact=True, width=100, indent=4)[1 :]
+            # pprint.pformat(pretty_items, compact=True, width=100, indent=4)[1 :]
         logger.info(message)
 
         if negative_message is None or negative_items is None:
@@ -102,7 +103,7 @@ def generate_retrieval_queue(
                         retrieval_job_config.to_date,
                         datetime.time.max,
                         tzinfo=datetime.timezone.utc,
-                    )
+                    ),
                 ),
             )
             if overlap is not None:
@@ -176,8 +177,10 @@ def generate_retrieval_queue(
 
         unprocessed_sensor_data_contexts: list[em27_metadata.types.SensorDataContext] = []
         results_dir = os.path.join(
-            config.general.data.results.root, retrieval_job_config.retrieval_algorithm,
-            retrieval_job_config.atmospheric_profile_model, sensor.sensor_id
+            config.general.data.results.root,
+            retrieval_job_config.retrieval_algorithm,
+            retrieval_job_config.atmospheric_profile_model,
+            sensor.sensor_id,
         )
         for sdc in sensor_data_contexts:
             output_folder = sdc.from_datetime.strftime("%Y%m%d")
@@ -188,7 +191,7 @@ def generate_retrieval_queue(
                 output_folder += f"_{retrieval_job_config.settings.output_suffix}"
             success_dir = os.path.join(results_dir, "successful", output_folder)
             failure_dir = os.path.join(results_dir, "failed", output_folder)
-            if (not os.path.isdir(success_dir) and not os.path.isdir(failure_dir)):
+            if not os.path.isdir(success_dir) and not os.path.isdir(failure_dir):
                 unprocessed_sensor_data_contexts.append(sdc)
         _log_filtering_step_message(
             positive_message="of these sensor data contexts have not been processed yet",
@@ -198,13 +201,17 @@ def generate_retrieval_queue(
         # Only keep the sensor data contexts with ground pressure files
 
         unprocessed_sensor_data_contexts_with_ground_pressure_files: list[
-            em27_metadata.types.SensorDataContext] = []
+            em27_metadata.types.SensorDataContext
+        ] = []
         unprocessed_sensor_data_contexts_without_ground_pressure_files: list[
-            em27_metadata.types.SensorDataContext] = []
+            em27_metadata.types.SensorDataContext
+        ] = []
         for sdc in unprocessed_sensor_data_contexts:
             pressure_file_exists = retrieval.utils.pressure_loading.pressure_files_exist(
-                config.general.data.ground_pressure.path.root, sdc.pressure_data_source,
-                config.general.data.ground_pressure.file_regex, sdc.from_datetime.date()
+                config.general.data.ground_pressure.path.root,
+                sdc.pressure_data_source,
+                config.general.data.ground_pressure.file_regex,
+                sdc.from_datetime.date(),
             )
             if pressure_file_exists:
                 unprocessed_sensor_data_contexts_with_ground_pressure_files.append(sdc)
@@ -221,13 +228,15 @@ def generate_retrieval_queue(
         # Only keep the sensor data contexts with atmospheric profiles
 
         unprocessed_sensor_data_contexts_with_atmospheric_profiles: list[
-            em27_metadata.types.SensorDataContext] = []
+            em27_metadata.types.SensorDataContext
+        ] = []
         unprocessed_sensor_data_contexts_without_atmospheric_profiles: list[
-            em27_metadata.types.SensorDataContext] = []
+            em27_metadata.types.SensorDataContext
+        ] = []
         for sdc in unprocessed_sensor_data_contexts_with_ground_pressure_files:
             profiles_dir = os.path.join(
                 config.general.data.atmospheric_profiles.root,
-                retrieval_job_config.atmospheric_profile_model
+                retrieval_job_config.atmospheric_profile_model,
             )
             cd = utils.text.get_coordinates_slug(
                 sdc.atmospheric_profile_location.lat, sdc.atmospheric_profile_location.lon
@@ -266,5 +275,5 @@ def generate_retrieval_queue(
             reverse=False,
         ),
         key=lambda sdc: sdc.from_datetime,
-        reverse=True
+        reverse=True,
     )

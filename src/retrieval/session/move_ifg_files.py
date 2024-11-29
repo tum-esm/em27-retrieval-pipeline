@@ -1,6 +1,5 @@
 import json
 import os
-import re
 import subprocess
 import tum_esm_utils
 from src import types, utils, retrieval

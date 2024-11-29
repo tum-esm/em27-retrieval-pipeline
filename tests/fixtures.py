@@ -29,7 +29,7 @@ def download_sample_data() -> Generator[None, None, None]:
     # download testing data tarball if it does not exist
     if not os.path.isfile(os.path.join(testing_data_path, tarball_filename)):
         tum_esm_utils.shell.run_shell_command(
-            f"wget --quiet https://syncandshare.lrz.de/dl/" +
+            "wget --quiet https://syncandshare.lrz.de/dl/" +
             f"fiEh5KjXeb8b715kU4cwWi/{tarball_filename}",
             working_directory=testing_data_path,
         )

@@ -1,6 +1,5 @@
 from typing import Literal
 import datetime
-import re
 import os
 import em27_metadata
 import polars as pl

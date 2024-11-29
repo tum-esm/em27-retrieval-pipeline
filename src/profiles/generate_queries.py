@@ -29,32 +29,45 @@ def list_downloaded_data(
     config: types.Config,
     atmospheric_profile_model: types.AtmosphericProfileModel,
 ) -> dict[ProfilesQueryLocation, set[datetime.date]]:
-
     assert config.profiles is not None
     assert config.profiles.scope is not None
     downloaded_data: dict[ProfilesQueryLocation, set[datetime.date]] = {}
 
     r = re.compile(r"^\d{8,10}_\d{2}(N|S)\d{3}(E|W)\.(map|mod|vmr)$")
-    filenames: set[str] = set([
-        f for f in os.listdir(
-            os.path.join(config.general.data.atmospheric_profiles.root, atmospheric_profile_model)
-        ) if r.match(f)
-    ])
-    dates: set[datetime.date] = set([
-        d for d in [
-            datetime.date(
-                year=int(f[0 : 4]),
-                month=int(f[4 : 6]),
-                day=int(f[6 : 8]),
-            ) for f in filenames
-        ] if ((config.profiles.scope.from_date <= d) and (d <= config.profiles.scope.to_date))
-    ])
-    locations: set[ProfilesQueryLocation] = set([
-        ProfilesQueryLocation(
-            lat=int(f.split("_")[1][0 : 2]) * (-1 if f.split("_")[1][2] == "S" else 1),
-            lon=int(f.split("_")[1][3 : 6]) * (-1 if f.split("_")[1][6] == "W" else 1),
-        ) for f in filenames
-    ])
+    filenames: set[str] = set(
+        [
+            f
+            for f in os.listdir(
+                os.path.join(
+                    config.general.data.atmospheric_profiles.root, atmospheric_profile_model
+                )
+            )
+            if r.match(f)
+        ]
+    )
+    dates: set[datetime.date] = set(
+        [
+            d
+            for d in [
+                datetime.date(
+                    year=int(f[0:4]),
+                    month=int(f[4:6]),
+                    day=int(f[6:8]),
+                )
+                for f in filenames
+            ]
+            if ((config.profiles.scope.from_date <= d) and (d <= config.profiles.scope.to_date))
+        ]
+    )
+    locations: set[ProfilesQueryLocation] = set(
+        [
+            ProfilesQueryLocation(
+                lat=int(f.split("_")[1][0:2]) * (-1 if f.split("_")[1][2] == "S" else 1),
+                lon=int(f.split("_")[1][3:6]) * (-1 if f.split("_")[1][6] == "W" else 1),
+            )
+            for f in filenames
+        ]
+    )
 
     required_prefixes: list[str]
     required_extensions: list[str]
@@ -65,16 +78,20 @@ def list_downloaded_data(
         required_prefixes = [f"%Y%m%d{h:02d}" for h in range(0, 24, 3)]
         required_extensions = ["map", "mod", "vmr"]
 
-    for l in locations:
-        cs = utils.text.get_coordinates_slug(lat=l.lat, lon=l.lon)
+    for location in locations:
+        cs = utils.text.get_coordinates_slug(lat=location.lat, lon=location.lon)
         for d in dates:
-            expected_filenames = set([
-                f"{d.strftime(p)}_{cs}.{e}" for e in required_extensions for p in required_prefixes
-            ])
+            expected_filenames = set(
+                [
+                    f"{d.strftime(p)}_{cs}.{e}"
+                    for e in required_extensions
+                    for p in required_prefixes
+                ]
+            )
             if expected_filenames.issubset(filenames):
-                if l not in downloaded_data.keys():
-                    downloaded_data[l] = set()
-                downloaded_data[l].add(d)
+                if location not in downloaded_data.keys():
+                    downloaded_data[location] = set()
+                downloaded_data[location].add(d)
 
     return downloaded_data
 
@@ -82,7 +99,6 @@ def list_downloaded_data(
 def list_desired_data(
     config: types.Config, em27_metadata_interface: em27_metadata.interfaces.EM27MetadataInterface
 ) -> dict[ProfilesQueryLocation, set[datetime.date]]:
-
     assert config.profiles is not None
     assert config.profiles.scope is not None
     requested_data: dict[ProfilesQueryLocation, set[datetime.date]] = {}
@@ -94,14 +110,14 @@ def list_desired_data(
                 atmospheric_profile_location_id = sensor_setup.value.atmospheric_profile_location_id
             location = next(
                 filter(
-                    lambda l: l.location_id == atmospheric_profile_location_id,
-                    em27_metadata_interface.locations.root
+                    lambda _l: _l.location_id == atmospheric_profile_location_id,
+                    em27_metadata_interface.locations.root,
                 )
             )
 
-            l = ProfilesQueryLocation(lat=round(location.lat), lon=round(location.lon))
-            if l not in requested_data.keys():
-                requested_data[l] = set()
+            query_location = ProfilesQueryLocation(lat=round(location.lat), lon=round(location.lon))
+            if query_location not in requested_data.keys():
+                requested_data[query_location] = set()
 
             from_date = max(
                 config.profiles.scope.from_date,
@@ -110,11 +126,12 @@ def list_desired_data(
             to_date = min(
                 config.profiles.scope.to_date,
                 sensor_setup.to_datetime.date(),
-                (datetime.datetime.now(datetime.timezone.utc) -
-                 datetime.timedelta(hours=36)).date(),
+                (
+                    datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(hours=36)
+                ).date(),
             )
             if from_date <= to_date:
-                requested_data[l].update(
+                requested_data[query_location].update(
                     tum_esm_utils.timing.date_range(from_date=from_date, to_date=to_date)
                 )
 
@@ -125,14 +142,15 @@ def compute_missing_data(
     desired_data: dict[ProfilesQueryLocation, set[datetime.date]],
     downloaded_data: dict[ProfilesQueryLocation, set[datetime.date]],
 ) -> dict[ProfilesQueryLocation, set[datetime.date]]:
-
     missing_data: dict[ProfilesQueryLocation, set[datetime.date]] = {}
 
-    for l in desired_data.keys():
-        if l not in downloaded_data.keys():
-            missing_data[l] = desired_data[l]
+    for location in desired_data.keys():
+        if location not in downloaded_data.keys():
+            missing_data[location] = desired_data[location]
         else:
-            missing_data[l] = set(desired_data[l]).difference(downloaded_data[l])
+            missing_data[location] = set(desired_data[location]).difference(
+                downloaded_data[location]
+            )
 
     return missing_data
 
@@ -143,16 +161,16 @@ def remove_already_requested_data(
 ) -> dict[ProfilesQueryLocation, set[datetime.date]]:
     cache = DownloadQueryCache.load()
     active_queries = cache.get_active_queries(atmospheric_profile_model)
-    for l in list(missing_data.keys()):
+    for location in list(missing_data.keys()):
         already_requested_dates: set[datetime.date] = set()
         for q in active_queries:
-            if q.lat == l.lat and q.lon == l.lon:
+            if q.lat == location.lat and q.lon == location.lon:
                 already_requested_dates.update(
                     tum_esm_utils.timing.date_range(from_date=q.from_date, to_date=q.to_date)
                 )
-        missing_data[l].difference_update(already_requested_dates)
-        if len(missing_data[l]) == 0:
-            missing_data.pop(l)
+        missing_data[location].difference_update(already_requested_dates)
+        if len(missing_data[location]) == 0:
+            missing_data.pop(location)
     return missing_data
 
 
@@ -183,8 +201,9 @@ def compute_time_periods(missing_data: set[datetime.date]) -> list[ProfilesQuery
     mondays = set([d - datetime.timedelta(days=d.weekday()) for d in missing_data])
     time_periods: list[ProfilesQueryTimePeriod] = []
     for d in mondays:
-        dates = set([d + datetime.timedelta(days=i)
-                     for i in range(0, 7)]).intersection(missing_data)
+        dates = set([d + datetime.timedelta(days=i) for i in range(0, 7)]).intersection(
+            missing_data
+        )
         time_periods.append(ProfilesQueryTimePeriod(from_date=min(dates), to_date=max(dates)))
     return time_periods
 
@@ -236,17 +255,20 @@ def generate_download_queries(
             missing_data=remove_already_requested_data(
                 missing_data=missing_data,
                 atmospheric_profile_model=atmospheric_profile_model,
-            )
+            ),
         )
     download_queries: list[types.DownloadQuery] = []
-    for l, dates in data_to_request.items():
-        download_queries.extend([
-            types.DownloadQuery(
-                lat=l.lat,
-                lon=l.lon,
-                from_date=tp.from_date,
-                to_date=tp.to_date,
-            ) for tp in compute_time_periods(dates)
-        ])
+    for location, dates in data_to_request.items():
+        download_queries.extend(
+            [
+                types.DownloadQuery(
+                    lat=location.lat,
+                    lon=location.lon,
+                    from_date=tp.from_date,
+                    to_date=tp.to_date,
+                )
+                for tp in compute_time_periods(dates)
+            ]
+        )
 
     return sorted(download_queries, key=lambda q: q.from_date, reverse=True)

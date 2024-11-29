@@ -37,7 +37,7 @@ def run() -> None:
     # tear down logger gracefully when process is killed
 
     def _graceful_teardown(*args: Any) -> None:
-        main_logger.info(f"Automation was stopped by user")
+        main_logger.info("Automation was stopped by user")
         main_logger.info(f"Killing {len(processes)} container(s)")
         for process in processes:
             process.terminate()
@@ -62,10 +62,10 @@ def run() -> None:
             container_factory.remove_container("-".join(process.name.split("-")[-2 :]))
             main_logger.info(f'Process "{process.name}": removed container')
 
-        main_logger.info(f"Killed all containers")
+        main_logger.info("Killed all containers")
         retrieval.utils.retrieval_status.RetrievalStatusList.reset()
-        main_logger.info(f"Reset retrieval status list")
-        main_logger.info(f"Teardown is done")
+        main_logger.info("Reset retrieval status list")
+        main_logger.info("Teardown is done")
         main_logger.archive()
         exit(0)
 
@@ -162,7 +162,7 @@ def run() -> None:
                 main_logger.info(f'process "{finished_process.name}": removed container')
 
             if job_queue.is_empty() and (len(processes) == 0):
-                main_logger.info(f"No more things to process")
+                main_logger.info("No more things to process")
                 break
 
             time.sleep(15)
@@ -173,7 +173,7 @@ def run() -> None:
         main_logger.exception(e, "Unexpected error")
 
     container_factory.remove_all_containers()
-    main_logger.info(f"Automation is finished")
+    main_logger.info("Automation is finished")
     main_logger.horizontal_line(variant="=")
     main_logger.archive()
 

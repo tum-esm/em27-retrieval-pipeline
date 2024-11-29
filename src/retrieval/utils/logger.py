@@ -21,7 +21,7 @@ class Logger:
         self,
         container_id: str,
         write_to_file: bool = True,
-        print_to_console: bool = False
+        print_to_console: bool = False,
     ) -> None:
         self.container_id = container_id
         self.logfile_name = f"{logfile_time}_{self.container_id}.log"
@@ -61,17 +61,18 @@ class Logger:
         ```
         """
         exception_name = traceback.format_exception_only(type(e), e)[0].strip()
-        exception_traceback = "\n".join(traceback.format_exception(type(e), e,
-                                                                   e.__traceback__)).strip()
+        exception_traceback = "\n".join(
+            traceback.format_exception(type(e), e, e.__traceback__)
+        ).strip()
         exception_details = "None"
         if isinstance(e, tum_esm_utils.shell.CommandLineException) and (e.details is not None):
             exception_details = e.details.strip()
 
-        subject_string = (exception_name if label is None else f"{label}, {exception_name}")
+        subject_string = exception_name if label is None else f"{label}, {exception_name}"
         details_string = (
-            f"--- details: -----------------\n" + f"{exception_details}\n" +
-            f"--- traceback: ---------------\n" + f"{exception_traceback}\n" +
-            f"------------------------------"
+            f"--- details: -----------------\n{exception_details}\n"
+            + f"--- traceback: ---------------\n{exception_traceback}\n"
+            + "------------------------------"
         )
 
         self._log(f"{subject_string}\n{details_string}", "EXCEPTION")

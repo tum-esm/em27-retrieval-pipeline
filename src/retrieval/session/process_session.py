@@ -37,7 +37,7 @@ def run(config: types.Config, session: types.RetrievalSession, test_mode: bool =
         logger.archive()
 
     def _graceful_teardown(*args: Any) -> None:
-        logger.info(f"Container was killed")
+        logger.info("Container was killed")
         _last_will()
         exit(0)
 
@@ -60,7 +60,7 @@ def run(config: types.Config, session: types.RetrievalSession, test_mode: bool =
         return
 
     if valid_ifg_count > 0:
-        logger.info(f"Updating retrieval templates")
+        logger.info("Updating retrieval templates")
         try:
             update_templates.run(logger, session)
         except Exception as e:
@@ -68,23 +68,23 @@ def run(config: types.Config, session: types.RetrievalSession, test_mode: bool =
             _last_will()
             return
 
-        logger.info(f"Running proffast")
+        logger.info("Running proffast")
         try:
             run_retrieval.run(session, test_mode=test_mode)
             logger.debug("Pylot execution was successful")
         except Exception as e:
             logger.exception(e, label="Proffast execution failed")
     else:
-        logger.info(f"Skipping proffast execution because there are no valid interferograms")
+        logger.info("Skipping proffast execution because there are no valid interferograms")
 
     # uncomment the following return if you want to observe the final
     # proffast outputs of one day in this working directory
     # return
 
-    logger.info(f"Moving the outputs")
+    logger.info("Moving the outputs")
     try:
         move_outputs.run(config, logger, session, test_mode=test_mode)
-        logger.info(f"Finished")
+        logger.info("Finished")
     except Exception as e:
         logger.exception(e, label="Moving outputs failed")
 

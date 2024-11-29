@@ -11,7 +11,9 @@ with open(pyproj_file, "r") as f:
     ), f"{_PROJECT_DIR} does not seem to be the root of the project"
 sys.path.append(_PROJECT_DIR)
 
-import create_input_files, execute_proffast, move_data
+import create_input_files
+import execute_proffast
+import move_data
 from src import types
 
 _CONTAINER_DIR = tum_esm_utils.files.get_parent_dir_path(__file__, current_depth=2)

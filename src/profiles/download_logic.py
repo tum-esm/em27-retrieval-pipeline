@@ -28,7 +28,7 @@ def download_data(
     fulfilled_queries: list[types.DownloadQuery] = []
 
     with rich.progress.Progress() as progress:
-        for query in progress.track(queries, description=f"Downloading ..."):
+        for query in progress.track(queries, description="Downloading ..."):
             progress.print(f"Downloading {query}")
 
             cs_verbose = utils.text.get_coordinates_slug(query.lat, query.lon, verbose=True)
@@ -41,15 +41,15 @@ def download_data(
             if atmospheric_profile_model == "GGG2020":
                 if len(tarballs_to_download) >= 1:
                     fulfilled_queries.append(query)
-                    progress.print(f"Found!")
+                    progress.print("Found!")
                 else:
-                    progress.print(f"Not found!")
+                    progress.print("Not found!")
             else:
                 if len(tarballs_to_download) >= 2:
                     fulfilled_queries.append(query)
-                    progress.print(f"Found!")
+                    progress.print("Found!")
                 else:
-                    progress.print(f"Not found!")
+                    progress.print("Not found!")
             for t in tarballs_to_download:
                 with io.BytesIO() as archive:
                     ftp.retrbinary(

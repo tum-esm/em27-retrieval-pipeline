@@ -22,7 +22,7 @@ def upload_requests(
     cache = profiles.cache.DownloadQueryCache.load()
 
     with rich.progress.Progress() as progress:
-        for query in progress.track(queries, description=f"Requesting ..."):
+        for query in progress.track(queries, description="Requesting ..."):
             progress.print(f"Requesting {query}")
 
             t1 = time.time()
@@ -53,7 +53,7 @@ def upload_requests(
                 while (time.time() - upload_start_time) < 15:
                     try:
                         ftp.storbinary(f"STOR upload/{filename}", file_)
-                        progress.print(f"Success")
+                        progress.print("Success")
                         break
                     except ftplib.error_perm as e:
                         if str(e) == "553 Could not create file.":

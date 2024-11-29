@@ -42,13 +42,13 @@ def run(
     if day_was_successful:
         with open(output_csv_path, "r") as f:
             if len(f.readlines()) > 1:
-                logger.debug(f"Retrieval output csv exists")
+                logger.debug("Retrieval output csv exists")
             else:
                 if not test_mode:
                     day_was_successful = False
-                logger.warning(f"Retrieval output csv exists but is empty")
+                logger.warning("Retrieval output csv exists but is empty")
     else:
-        logger.debug(f"Retrieval output csv is missing")
+        logger.debug("Retrieval output csv is missing")
 
     # DETERMINE OUTPUT DIRECTORY PATHS
     output_slug = session.ctx.from_datetime.strftime("%Y%m%d")
@@ -68,10 +68,10 @@ def run(
     # REMOVE OLD OUTPUTS
 
     if os.path.isdir(output_dst_successful):
-        logger.debug(f"Removing old successful output")
+        logger.debug("Removing old successful output")
         shutil.rmtree(output_dst_successful)
     if os.path.isdir(output_dst_failed):
-        logger.debug(f"Removing old failed output")
+        logger.debug("Removing old failed output")
         shutil.rmtree(output_dst_failed)
 
     # CREATE EMPTY OUTPUT DIRECTORY

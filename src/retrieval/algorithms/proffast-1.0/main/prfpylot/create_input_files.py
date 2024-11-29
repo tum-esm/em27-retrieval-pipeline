@@ -78,7 +78,7 @@ def create_invers_input_file(session: types.RetrievalSession) -> None:
         date_string[2 :],
         "cal",
     )
-    spectra_filenames = [f for f in os.listdir(spectra_dir) if f.endswith(f"SN.BIN")]
+    spectra_filenames = [f for f in os.listdir(spectra_dir) if f.endswith("SN.BIN")]
     _write_template_file(
         session,
         src_filepath,

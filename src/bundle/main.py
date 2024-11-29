@@ -53,7 +53,7 @@ def run(
             for atmospheric_profile_model in bundle_target.atmospheric_profile_models:
                 if ((retrieval_algorithm == "proffast-1.0") and
                     (atmospheric_profile_model == "GGG2020")):
-                    print(f"Skipping proffast-1.0/GGG2020 as it is not supported")
+                    print("Skipping proffast-1.0/GGG2020 as it is not supported")
                     continue
                 print(f"Processing {retrieval_algorithm}/{atmospheric_profile_model}")
                 for sensor_id in bundle_target.sensor_ids:

@@ -11,7 +11,8 @@ import click.core
 
 PROJECT_DIR = tum_esm_utils.files.get_parent_dir_path(__file__, current_depth=3)
 sys.path.append(PROJECT_DIR)
-import src, cli
+import src
+import cli
 
 # ---------------------------------------------------------
 # EXPORT CLI REFERENCE
