@@ -53,8 +53,8 @@ dev = [
     "mypy>=1.13.0",
     "tailwind-colors>=1.3.0",
     "pytest-order>=1.3.0",
-    "yapf>=0.43.0",
     "types-tqdm>=4.67.0.20241119",
+    "ruff>=0.8.1",
 ]
 
 [tool.pdm]
@@ -76,13 +76,24 @@ implicit_reexport = true
 warn_unused_ignores = false
 plugins = ["pydantic.mypy"]
 
-[tool.yapf]
-based_on_style = "facebook"
-coalesce_brackets = true
-split_before_dict_set_generator = true
-each_dict_entry_on_separate_line = false
-spaces_around_subscript_colon = true
-column_limit = 100
+[tool.ruff]
+line-length = 100
+exclude = [
+    "src/retrieval/algorithms/proffast-2.2/main/prfpylot",
+    "src/retrieval/algorithms/proffast-2.3/main/prfpylot",
+    "src/retrieval/algorithms/proffast-2.4/main/prfpylot",
+    "src/retrieval/algorithms/proffast-2.4.1/main/prfpylot",
+]
+
+[tool.ruff.lint]
+exclude = [
+    "src/retrieval/algorithms/proffast-2.2/main/prfpylot",
+    "src/retrieval/algorithms/proffast-2.3/main/prfpylot",
+    "src/retrieval/algorithms/proffast-2.4/main/prfpylot",
+    "src/retrieval/algorithms/proffast-2.4.1/main/prfpylot",
+    "tests/*",
+]
+ignore = ["E402"]
 
 [[tool.mypy.overrides]]
 module = ["src.prfpylot.prfpylot.pylot", "scipy", "scipy.signal", "polars", "matplotlib.*", "skyfield.*"]
