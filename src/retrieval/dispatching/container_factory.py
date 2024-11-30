@@ -157,6 +157,9 @@ class ContainerFactory:
             _print("Proffast 1.0 has already been downloaded")
         else:
             _print("Downloading Proffast 1.0 code")
+            if os.path.exists(os.path.join(ROOT_DIR, ZIPFILE_NAME)):
+                os.remove(os.path.join(ROOT_DIR, ZIPFILE_NAME))
+
             tum_esm_utils.shell.run_shell_command(
                 command=f"wget --quiet {KIT_BASE_URL}/{ZIPFILE_NAME}",
                 working_directory=ROOT_DIR,
@@ -165,6 +168,7 @@ class ContainerFactory:
                 command=f"unzip -q {ZIPFILE_NAME}",
                 working_directory=ROOT_DIR,
             )
+            os.remove(os.path.join(ROOT_DIR, ZIPFILE_NAME))
             os.rename(
                 os.path.join(ROOT_DIR, "2021-03-08_prf96-EM27-fast"),
                 os.path.join(ROOT_DIR, "prf"),
@@ -221,6 +225,9 @@ class ContainerFactory:
             _print("Proffast 2.2 has already been downloaded")
         else:
             _print("Downloading Proffast 2.2 code")
+            if os.path.exists(os.path.join(ROOT_DIR, ZIPFILE_NAME)):
+                os.remove(os.path.join(ROOT_DIR, ZIPFILE_NAME))
+
             tum_esm_utils.shell.run_shell_command(
                 command=f"wget --quiet {KIT_BASE_URL}/{ZIPFILE_NAME}",
                 working_directory=ROOT_DIR,
@@ -254,6 +261,9 @@ class ContainerFactory:
             _print("Proffast 2.3 has already been downloaded")
         else:
             _print("Downloading Proffast 2.3 code")
+            if os.path.exists(os.path.join(ROOT_DIR, ZIPFILE_NAME)):
+                os.remove(os.path.join(ROOT_DIR, ZIPFILE_NAME))
+
             tum_esm_utils.shell.run_shell_command(
                 command=f"wget --quiet {KIT_BASE_URL}/{ZIPFILE_NAME}",
                 working_directory=ROOT_DIR,
@@ -287,6 +297,9 @@ class ContainerFactory:
             _print("Proffast 2.4 has already been downloaded")
         else:
             _print("Downloading Proffast 2.4 code")
+            if os.path.exists(os.path.join(ROOT_DIR, ZIPFILE_NAME)):
+                os.remove(os.path.join(ROOT_DIR, ZIPFILE_NAME))
+
             tum_esm_utils.shell.run_shell_command(
                 command=f"wget --quiet {KIT_BASE_URL}/{ZIPFILE_NAME}",
                 working_directory=ROOT_DIR,
