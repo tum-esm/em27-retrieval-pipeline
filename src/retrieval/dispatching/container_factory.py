@@ -160,10 +160,13 @@ class ContainerFactory:
             if os.path.exists(os.path.join(ROOT_DIR, ZIPFILE_NAME)):
                 os.remove(os.path.join(ROOT_DIR, ZIPFILE_NAME))
 
+            _print("Downloading")
             tum_esm_utils.shell.run_shell_command(
                 command=f"wget --quiet {KIT_BASE_URL}/{ZIPFILE_NAME}",
                 working_directory=ROOT_DIR,
             )
+
+            _print("Unzipping")
             tum_esm_utils.shell.run_shell_command(
                 command=f"unzip -q {ZIPFILE_NAME}",
                 working_directory=ROOT_DIR,
@@ -175,6 +178,7 @@ class ContainerFactory:
             )
 
             # clean up unused directories
+            _print("Cleaning up unused directories and files")
             for d in [
                 os.path.join(ROOT_DIR, "prf", "preprocess", "125HR-garmisch"),
                 os.path.join(ROOT_DIR, "prf", "preprocess", "125HR-karlsruhe"),
@@ -202,11 +206,13 @@ class ContainerFactory:
             os.system("rm " + os.path.join(ROOT_DIR, "prf", "invers10*"))
             os.system("rm " + os.path.join(ROOT_DIR, "prf", "pcxs10*"))
 
-        _print("Compiling Proffast 1.0")
+        _print("Compiling")
         tum_esm_utils.shell.run_shell_command(
             command="./install.sh -O0" if fast_compilation else "./install.sh",
             working_directory=ROOT_DIR,
         )
+
+        _print("Proffast 1.0 is set up")
 
     @staticmethod
     def init_proffast22_code(_print: Callable[[str], None], fast_compilation: bool = False) -> None:
@@ -228,21 +234,26 @@ class ContainerFactory:
             if os.path.exists(os.path.join(ROOT_DIR, ZIPFILE_NAME)):
                 os.remove(os.path.join(ROOT_DIR, ZIPFILE_NAME))
 
+            _print("Downloading")
             tum_esm_utils.shell.run_shell_command(
                 command=f"wget --quiet {KIT_BASE_URL}/{ZIPFILE_NAME}",
                 working_directory=ROOT_DIR,
             )
+
+            _print("Unzipping")
             tum_esm_utils.shell.run_shell_command(
                 command=f"unzip -q {ZIPFILE_NAME}",
                 working_directory=ROOT_DIR,
             )
             os.remove(os.path.join(ROOT_DIR, ZIPFILE_NAME))
 
-        _print("Compiling Proffast 2.2")
+        _print("Compiling")
         tum_esm_utils.shell.run_shell_command(
             command="./install.sh -O0" if fast_compilation else "./install.sh",
             working_directory=ROOT_DIR,
         )
+
+        _print("Proffast 2.2 is set up")
 
     @staticmethod
     def init_proffast23_code(_print: Callable[[str], None], fast_compilation: bool = False) -> None:
@@ -264,21 +275,26 @@ class ContainerFactory:
             if os.path.exists(os.path.join(ROOT_DIR, ZIPFILE_NAME)):
                 os.remove(os.path.join(ROOT_DIR, ZIPFILE_NAME))
 
+            _print("Downloading")
             tum_esm_utils.shell.run_shell_command(
                 command=f"wget --quiet {KIT_BASE_URL}/{ZIPFILE_NAME}",
                 working_directory=ROOT_DIR,
             )
+
+            _print("Unzipping")
             tum_esm_utils.shell.run_shell_command(
                 command=f"unzip -q {ZIPFILE_NAME}",
                 working_directory=ROOT_DIR,
             )
             os.remove(os.path.join(ROOT_DIR, ZIPFILE_NAME))
 
-        _print("Compiling Proffast 2.3")
+        _print("Compiling")
         tum_esm_utils.shell.run_shell_command(
             command="./install.sh -O0" if fast_compilation else "./install.sh",
             working_directory=ROOT_DIR,
         )
+
+        _print("Proffast 2.3 is set up")
 
     @staticmethod
     def init_proffast24_code(_print: Callable[[str], None], fast_compilation: bool = False) -> None:
@@ -300,10 +316,13 @@ class ContainerFactory:
             if os.path.exists(os.path.join(ROOT_DIR, ZIPFILE_NAME)):
                 os.remove(os.path.join(ROOT_DIR, ZIPFILE_NAME))
 
+            _print("Downloading")
             tum_esm_utils.shell.run_shell_command(
                 command=f"wget --quiet {KIT_BASE_URL}/{ZIPFILE_NAME}",
                 working_directory=ROOT_DIR,
             )
+
+            _print("Unzipping")
             tum_esm_utils.shell.run_shell_command(
                 command=f"unzip -q {ZIPFILE_NAME}",
                 working_directory=ROOT_DIR,
@@ -326,11 +345,13 @@ class ContainerFactory:
         os.remove(ORIGINAL_SOURCE_FILE)
         shutil.copyfile(ADAPTED_SOURCE_FILE, ORIGINAL_SOURCE_FILE)
 
-        _print("Compiling Proffast 2.4")
+        _print("Compiling")
         tum_esm_utils.shell.run_shell_command(
             command="./install.sh -O0" if fast_compilation else "./install.sh",
             working_directory=ROOT_DIR,
         )
+
+        _print("Proffast 2.4 is set up")
 
     @staticmethod
     def init_proffast241_code(_print: Callable[[str], None]) -> None:
