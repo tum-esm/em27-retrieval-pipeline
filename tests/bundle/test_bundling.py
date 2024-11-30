@@ -12,8 +12,7 @@ METADATA_DIR = os.path.join(INPUT_DATA_DIR, "metadata")
 BUNDLE_OUTPUT_DIR = os.path.join(PROJECT_DIR, "data", "testing", "bundle", "outputs")
 
 CONFIG = {
-    "version":
-        "1.4",
+    "version": "1.5",
     "general": {
         "metadata": None,
         "data": {
@@ -33,20 +32,25 @@ CONFIG = {
             "results": os.path.join(INPUT_DATA_DIR, "results"),
         },
     },
-    "profiles":
-        None,
-    "retrieval":
-        None,
-    "bundles": [{
-        "dst_dir": BUNDLE_OUTPUT_DIR,
-        "output_formats": ["csv", "parquet"],
-        "sensor_ids": ["so", "mc"],
-        "retrieval_algorithms": ["proffast-1.0", "proffast-2.2", "proffast-2.3", "proffast-2.4"],
-        "atmospheric_profile_models": ["GGG2014", "GGG2020"],
-        "from_datetime": "2017-01-01T00:00:00+0000",
-        "to_datetime": "2024-12-31T23:59:59+0000",
-        "parse_dc_timeseries": True,
-    }],
+    "profiles": None,
+    "retrieval": None,
+    "bundles": [
+        {
+            "dst_dir": BUNDLE_OUTPUT_DIR,
+            "output_formats": ["csv", "parquet"],
+            "sensor_ids": ["so", "mc"],
+            "retrieval_algorithms": [
+                "proffast-1.0",
+                "proffast-2.2",
+                "proffast-2.3",
+                "proffast-2.4",
+            ],
+            "atmospheric_profile_models": ["GGG2014", "GGG2020"],
+            "from_datetime": "2017-01-01T00:00:00+0000",
+            "to_datetime": "2024-12-31T23:59:59+0000",
+            "parse_dc_timeseries": True,
+        }
+    ],
 }
 
 
@@ -68,7 +72,7 @@ def test_bundling(download_sample_data: None) -> None:
             locations_path=os.path.join(METADATA_DIR, "locations.json"),
             sensors_path=os.path.join(METADATA_DIR, "sensors.json"),
             campaigns_path=os.path.join(METADATA_DIR, "campaigns.json"),
-        )
+        ),
     )
 
     bundle = config.bundles[0]
@@ -80,14 +84,16 @@ def test_bundling(download_sample_data: None) -> None:
                 if retrieval_algorithm == "proffast-1.0" and atmospheric_profile_model == "GGG2020":
                     continue
 
-                filename = "-".join([
-                    "em27-retrieval-bundle",
-                    sensor_id,
-                    retrieval_algorithm,
-                    atmospheric_profile_model,
-                    bundle.from_datetime.strftime("%Y%m%d"),
-                    bundle.to_datetime.strftime("%Y%m%d"),
-                ])
+                filename = "-".join(
+                    [
+                        "em27-retrieval-bundle",
+                        sensor_id,
+                        retrieval_algorithm,
+                        atmospheric_profile_model,
+                        bundle.from_datetime.strftime("%Y%m%d"),
+                        bundle.to_datetime.strftime("%Y%m%d"),
+                    ]
+                )
                 # fmt: off
                 csv_path = os.path.join(BUNDLE_OUTPUT_DIR, f"{filename}.csv")
                 assert os.path.exists(csv_path), f"Expected file {csv_path} does not exist."
