@@ -159,6 +159,8 @@ class ContainerFactory:
             _print("Downloading Proffast 1.0 code")
             if os.path.exists(os.path.join(ROOT_DIR, ZIPFILE_NAME)):
                 os.remove(os.path.join(ROOT_DIR, ZIPFILE_NAME))
+            if os.path.exists(os.path.join(ROOT_DIR, "2021-03-08_prf96-EM27-fast")):
+                shutil.rmtree(os.path.join(ROOT_DIR, "2021-03-08_prf96-EM27-fast"))
 
             _print("Downloading")
             tum_esm_utils.shell.run_shell_command(
@@ -192,7 +194,6 @@ class ContainerFactory:
 
             # clean up unused files
             for f in [
-                os.path.join(ROOT_DIR, ZIPFILE_NAME),
                 os.path.join(ROOT_DIR, "prf", "continue.txt"),
                 os.path.join(ROOT_DIR, "prf", "inp_fast", "invers10_sod2017_em27sn039_170608.inp"),
                 os.path.join(ROOT_DIR, "prf", "inp_fast", "invers10_sod2017_em27sn039_170609.inp"),
