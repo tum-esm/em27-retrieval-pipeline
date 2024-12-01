@@ -323,12 +323,12 @@ class RetrievalJobSettingsConfig(pydantic.BaseModel):
     pressure_calibration_factors: dict[str, float] = pydantic.Field(
         {},
         description="Maps sensor IDS to pressure calibration factors. If not set, it is set to 1 for each sensor. `corrected_pressure = input_pressure * calibration_factor + calibration_offset`",
-        examples=[{"ma": 0.99981}],
+        examples=['{"ma": 0.99981}', '{"ma": 1.00019, "mb": 0.99981}'],
     )
     pressure_calibration_offsets: dict[str, float] = pydantic.Field(
         {},
         description="Maps sensor IDS to pressure calibration offsets. If not set, it is set to 0 for each sensor. `corrected_pressure = input_pressure * calibration_factor + calibration_offset`",
-        examples=[{"ma": -0.00007}],
+        examples=['{"ma": -0.00007}', '{"ma": -0.00007, "mb": 0.00019}'],
     )
 
 

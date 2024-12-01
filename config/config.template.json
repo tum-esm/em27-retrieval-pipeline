@@ -73,7 +73,13 @@
               "channel2_pe": -0.001082
             }
           },
-          "output_suffix": "template_config"
+          "output_suffix": "template_config",
+          "pressure_calibration_factors": {
+            "mb": 0.999819
+          },
+          "pressure_calibration_offsets": {
+            "mb": -0.000125
+          }
         }
       },
       {

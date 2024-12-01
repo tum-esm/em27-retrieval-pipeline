@@ -622,9 +622,8 @@ const CONFIG_SCHEMA: any = {
                                                 "default": {},
                                                 "description": "Maps sensor IDS to pressure calibration factors. If not set, it is set to 1 for each sensor. `corrected_pressure = input_pressure * calibration_factor + calibration_offset`",
                                                 "examples": [
-                                                    {
-                                                        "ma": 0.99981
-                                                    }
+                                                    "{\"ma\": 0.99981}",
+                                                    "{\"ma\": 1.00019, \"mb\": 0.99981}"
                                                 ],
                                                 "title": "Pressure Calibration Factors",
                                                 "type": "object"
@@ -636,9 +635,8 @@ const CONFIG_SCHEMA: any = {
                                                 "default": {},
                                                 "description": "Maps sensor IDS to pressure calibration offsets. If not set, it is set to 0 for each sensor. `corrected_pressure = input_pressure * calibration_factor + calibration_offset`",
                                                 "examples": [
-                                                    {
-                                                        "ma": -7e-05
-                                                    }
+                                                    "{\"ma\": -0.00007}",
+                                                    "{\"ma\": -0.00007, \"mb\": 0.00019}"
                                                 ],
                                                 "title": "Pressure Calibration Offsets",
                                                 "type": "object"
