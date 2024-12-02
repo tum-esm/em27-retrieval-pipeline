@@ -4,6 +4,7 @@ import datetime
 import os
 from typing import Literal, Optional
 
+import dotenv
 import pydantic
 import tum_esm_utils
 
@@ -476,30 +477,33 @@ class Config(pydantic.BaseModel):
     def get_config_dir() -> str:
         """Get config/metadata directory path from environment variable if set.
 
-        If not set, returns default config directory path inside the repository.
-        """
+        If not set, returns default config directory path inside the repository."""
+
+        env_path = os.path.join(tum_esm_utils.files.rel_to_abs_path("../../config"), ".env")
+        if os.path.isfile(env_path):
+            dotenv.load_dotenv(env_path)
         return os.getenv("ERP_CONFIG_DIR", tum_esm_utils.files.rel_to_abs_path("../../config"))
 
     @staticmethod
     def get_config_path() -> str:
         """Get config file path from environment variable if set.
 
-        If not set, returns default config file path inside the repository.
-        """
-        return os.path.join(
-            os.getenv("ERP_CONFIG_DIR", tum_esm_utils.files.rel_to_abs_path("../../config")),
-            "config.json",
-        )
+        If not set, returns default config file path inside the repository."""
+
+        return os.path.join(Config.get_config_dir(), "config.json")
 
     @staticmethod
     def load(
-        path: str = get_config_path(),
+        path: Optional[str] = None,
         ignore_path_existence: bool = False,
     ) -> Config:
         """Load the config file from `config/config.json` (or any given path).
 
         If `check_path_existence` is set, it will check whether the paths
         specified in the config file exist."""
+
+        if path is None:
+            path = Config.get_config_path()
 
         with open(path, "r") as f:
             return Config.model_validate_json(
