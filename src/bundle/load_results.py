@@ -142,7 +142,7 @@ def load_results_directory(
 
     if parse_dc_timeseries:
         spectrums: list[str] = []
-        data: list[list[float]] = [[] for _ in range(16)]
+        data: list[list[Optional[float]]] = [[] for _ in range(16)]
 
         preprocessing_log_path = os.path.join(d, "analysis", "cal", "logfile.dat")
         if os.path.isfile(preprocessing_log_path):
@@ -158,7 +158,12 @@ def load_results_directory(
 
                 spectrums.append(f"{parts[6]}_{parts[8]}SN.BIN")
                 for i in range(16):
-                    data[i].append(float(parts[i + 10]))
+                    value: Optional[float]
+                    try:
+                        value = float(parts[i + 10])
+                    except ValueError:
+                        value = None
+                    data[i].append(value)
 
         preprocessing_df = pl.DataFrame(
             {
@@ -182,8 +187,12 @@ def load_results_directory(
             }
         )
 
+        preprocessing_df = preprocessing_df.group_by("spectrum").agg(
+            *[pl.col(c).mean() for c in preprocessing_df.columns if c != "spectrum"]
+        )
+
         merged_df = df.join(preprocessing_df, on="spectrum", how="left")
-        assert len(merged_df) == len(df)
+        assert len(merged_df) == len(df), f"{len(merged_df)} != {len(df)}"
         df = merged_df
 
     df = df.select("utc", pl.exclude("utc"))
