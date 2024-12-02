@@ -14,6 +14,7 @@ dependencies = [
     "em27-metadata>=1.2.1",
     "tum-esm-utils>=2.4.0",
     "tomli>=2.2.1",
+    "python-dotenv>=1.0.1",
     "skyfield>=1.49",        # used by the retrieval
     "rich>=13.9.4",          # used by export and profiles download
     "click>=8.1.7",          # used by CLI
@@ -49,7 +50,6 @@ dev = [
     "pytest>=8.3.3",
     "types-requests>=2.32.0.20241016",
     "pytest-cov>=6.0.0",
-    "python-dotenv>=1.0.1",
     "mypy>=1.13.0",
     "tailwind-colors>=1.3.0",
     "pytest-order>=1.3.0",
@@ -110,5 +110,12 @@ ignore = [
 ]
 
 [[tool.mypy.overrides]]
-module = ["src.prfpylot.prfpylot.pylot", "scipy", "scipy.signal", "polars", "matplotlib.*", "skyfield.*"]
+module = [
+    "src.prfpylot.prfpylot.pylot",
+    "scipy",
+    "scipy.signal",
+    "polars",
+    "matplotlib.*",
+    "skyfield.*",
+]
 ignore_missing_imports = true
