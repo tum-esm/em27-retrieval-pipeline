@@ -325,6 +325,8 @@ The files are either from containers (`startingdate-startingtime_containername.l
 
 The containers in which the retrieval is running are working on `data/containers`. Each container with a container name like `eloquent-oppenheimer` has three active directories: `data/containers/retrieval-container-$containername`, `data/containers/retrieval-container-$containername-input`, and `data/containers/retrieval-container-$containername-output`.
 
+You can change `data/containers` to some other path (maybe a high-speed local storage device) using `config.retrieval.general.container_dir`.
+
 #### Profiles Query Cache
 
 The profiles downloader uses the file `data/profiles_query_cache.json` to save the information on which profiles have already been requested. Profiles will only be re-requested if they have not been produced within 24 hours.

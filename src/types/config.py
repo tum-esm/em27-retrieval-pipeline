@@ -275,6 +275,10 @@ class RetrievalGeneralConfig(pydantic.BaseModel):
         "compact",
         description="How much information the retrieval queue should print out. In `verbose` mode it will print out the full list of sensor-days for each step of the filtering process. This can help when figuring out why a certain sensor-day is not processed.",
     )
+    container_dir: Optional[str] = pydantic.Field(
+        None,
+        description="Directory to store the containers in. If not set, it will use `./data/containers` inside the pipeline directory.",
+    )
 
 
 class RetrievalJobSettingsILSConfig(pydantic.BaseModel):
