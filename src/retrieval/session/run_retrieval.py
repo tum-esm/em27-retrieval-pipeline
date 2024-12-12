@@ -37,6 +37,7 @@ def run(session: types.RetrievalSession, test_mode: bool = False) -> None:
                         session.retrieval_algorithm,
                         "run_pylot_container.py",
                     ),
+                    session.ctn.container_dir,
                     session.ctn.container_id,
                     session.ctn.pylot_config_path,
                 ]
