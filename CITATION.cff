@@ -14,12 +14,12 @@ authors:
     given-names: Andreas
     orcid: 0000-0001-6382-0899
   - affiliation: Karlsruhe Institute of Technology
+    family-names: Hase
+    given-names: Frank
+  - affiliation: Karlsruhe Institute of Technology
     family-names: Feld
     given-names: Lena
     orcid: 0009-0000-9955-7658
-  - affiliation: Karlsruhe Institute of Technology
-    family-names: Hase
-    given-names: Frank
   - affiliation: Technical University of Munich
     family-names: "M\xFCller"
     given-names: Marlon
@@ -39,5 +39,5 @@ doi: 10.5281/zenodo.14285078
 license:
   - gpl-3.0-or-later
 type: software
-version: 1.5.1
-date-released: "2024-12-02"
+version: 1.5.2
+date-released: "2024-12-12"

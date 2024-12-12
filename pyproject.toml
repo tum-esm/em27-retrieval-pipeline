@@ -1,12 +1,13 @@
 [project]
 name = "em27-retrieval-pipeline"
-version = "1.5.1"
+version = "1.5.2"
 description = "automated EM27 data processing"
 authors = [
     { name = "Moritz Makowski", email = "moritz.makowski@tum.de" },
-    { name = "Marlon Müller", email = "marlon.mueller@tum.de" },
-    { name = "Andreas Luther", email = "andreas.luther@tum.de" },
-    { name = "Vyas Giridhard", email = "vyas.giridharan@tum.de" },
+    { name = "Marlon Müller" },
+    { name = "Andreas Luther" },
+    { name = "Vyas Giridhard" },
+    { name = "Catehrine Fait" },
 ]
 dependencies = [
     "filelock>=3.16.1",
