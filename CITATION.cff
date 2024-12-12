@@ -35,7 +35,7 @@ authors:
     given-names: Jia
     orcid: 0000-0002-6350-6610
 cff-version: 1.2.0
-doi: 10.5281/zenodo.14285078
+doi: 10.5281/zenodo.14284968
 license:
   - gpl-3.0-or-later
 type: software
