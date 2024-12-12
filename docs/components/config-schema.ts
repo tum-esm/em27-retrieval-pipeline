@@ -474,6 +474,19 @@ const CONFIG_SCHEMA: any = {
                                     ],
                                     "title": "Queue Verbosity",
                                     "type": "string"
+                                },
+                                "container_dir": {
+                                    "anyOf": [
+                                        {
+                                            "type": "string"
+                                        },
+                                        {
+                                            "type": "null"
+                                        }
+                                    ],
+                                    "default": null,
+                                    "description": "Directory to store the containers in. If not set, it will use `./data/containers` inside the pipeline directory.",
+                                    "title": "Container Dir"
                                 }
                             },
                             "required": [

@@ -32,6 +32,7 @@ class ContainerFactory:
 
         self.config = config
         self.logger = logger
+        assert config.retrieval is not None
         self.container_dir = (
             config.retrieval.general.container_dir
             if config.retrieval.general.container_dir is not None
