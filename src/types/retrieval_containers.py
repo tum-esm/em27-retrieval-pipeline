@@ -7,30 +7,29 @@ import tum_esm_utils
 
 from .config import RetrievalJobSettingsConfig
 
-_CONTAINERS_DIR = tum_esm_utils.files.rel_to_abs_path("../../data/containers")
-
 
 class RetrievalContainerBase(pydantic.BaseModel):
+    container_dir: str
     container_id: str
 
     @property
     def container_path(self) -> str:
         return os.path.join(
-            _CONTAINERS_DIR,
+            self.container_dir,
             f"retrieval-container-{self.container_id}",
         )
 
     @property
     def data_input_path(self) -> str:
         return os.path.join(
-            _CONTAINERS_DIR,
+            self.container_dir,
             f"retrieval-container-{self.container_id}-inputs",
         )
 
     @property
     def data_output_path(self) -> str:
         return os.path.join(
-            _CONTAINERS_DIR,
+            self.container_dir,
             f"retrieval-container-{self.container_id}-outputs",
         )
 
@@ -43,7 +42,7 @@ class Proffast22Container(RetrievalContainerBase):
     @property
     def pylot_config_path(self) -> str:
         return os.path.join(
-            _CONTAINERS_DIR,
+            self.container_dir,
             f"retrieval-container-{self.container_id}-inputs",
             "pylot_config.yml",
         )
@@ -51,7 +50,7 @@ class Proffast22Container(RetrievalContainerBase):
     @property
     def pylot_log_format_path(self) -> str:
         return os.path.join(
-            _CONTAINERS_DIR,
+            self.container_dir,
             f"retrieval-container-{self.container_id}-inputs",
             "pylot_log_format.yml",
         )

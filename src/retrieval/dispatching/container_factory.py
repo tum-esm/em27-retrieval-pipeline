@@ -7,7 +7,6 @@ import tum_esm_utils
 from src import retrieval, types
 
 _RETRIEVAL_CODE_DIR = tum_esm_utils.files.rel_to_abs_path("../algorithms")
-_CONTAINER_DIR = tum_esm_utils.files.rel_to_abs_path("../../../data/containers")
 
 
 class ContainerFactory:
@@ -33,6 +32,11 @@ class ContainerFactory:
 
         self.config = config
         self.logger = logger
+        self.container_dir = (
+            config.retrieval.general.container_dir
+            if config.retrieval.general.container_dir is not None
+            else tum_esm_utils.files.rel_to_abs_path("../../../data/containers")
+        )
         self.containers: list[types.RetrievalContainer] = []
         self.label_generator = tum_esm_utils.text.RandomLabelGenerator()
 
@@ -83,15 +87,30 @@ class ContainerFactory:
         assert self.config.retrieval is not None
         match retrieval_algorithm:
             case "proffast-1.0":
-                container = types.Proffast10Container(container_id=new_container_id)
+                container = types.Proffast10Container(
+                    container_dir=self.container_dir,
+                    container_id=new_container_id,
+                )
             case "proffast-2.2":
-                container = types.Proffast22Container(container_id=new_container_id)
+                container = types.Proffast22Container(
+                    container_dir=self.container_dir,
+                    container_id=new_container_id,
+                )
             case "proffast-2.3":
-                container = types.Proffast23Container(container_id=new_container_id)
+                container = types.Proffast23Container(
+                    container_dir=self.container_dir,
+                    container_id=new_container_id,
+                )
             case "proffast-2.4":
-                container = types.Proffast24Container(container_id=new_container_id)
+                container = types.Proffast24Container(
+                    container_dir=self.container_dir,
+                    container_id=new_container_id,
+                )
             case "proffast-2.4.1":
-                container = types.Proffast241Container(container_id=new_container_id)
+                container = types.Proffast241Container(
+                    container_dir=self.container_dir,
+                    container_id=new_container_id,
+                )
 
         # copy and install the retrieval code into the container
         retrieval_code_root_dir = os.path.join(_RETRIEVAL_CODE_DIR, retrieval_algorithm)
@@ -134,8 +153,8 @@ class ContainerFactory:
     def remove_all_containers(self, include_unknown: bool = False) -> None:
         """Remove all containers."""
         if include_unknown:
-            for d in os.listdir(_CONTAINER_DIR):
-                subdir = os.path.join(_CONTAINER_DIR, d)
+            for d in os.listdir(self.container_dir):
+                subdir = os.path.join(self.container_dir, d)
                 if os.path.isdir(subdir):
                     shutil.rmtree(subdir)
         else:
