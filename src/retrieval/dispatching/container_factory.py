@@ -33,11 +33,13 @@ class ContainerFactory:
         self.config = config
         self.logger = logger
         assert config.retrieval is not None
-        self.container_dir = (
-            config.retrieval.general.container_dir
-            if config.retrieval.general.container_dir is not None
-            else tum_esm_utils.files.rel_to_abs_path("../../../data/containers")
-        )
+        
+        # set the container directory (where the data processing is happening)
+        self.container_dir = tum_esm_utils.files.rel_to_abs_path("../../../data/containers")
+        if config.retrieval.general.container_dir is not None:
+            self.container_dir = config.retrieval.general.container_dir
+            os.makedirs(self.container_dir, exist_ok=True)
+        
         self.containers: list[types.RetrievalContainer] = []
         self.label_generator = tum_esm_utils.text.RandomLabelGenerator()
 
