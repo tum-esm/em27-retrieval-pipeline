@@ -164,6 +164,8 @@ def load_results_directory(
                     except ValueError:
                         value = None
                     data[i].append(value)
+        else:
+            print(f"Could not find preprocessing log file at {preprocessing_log_path}")
 
         preprocessing_df = pl.DataFrame(
             {
@@ -184,7 +186,26 @@ def load_results_directory(
                 "ch2_bwd_dc_min": data[13],
                 "ch2_bwd_dc_max": data[14],
                 "ch2_bwd_dc_var": data[15],
-            }
+            },
+            schema_overrides={
+                "spectrum": pl.Utf8,
+                "ch1_fwd_dc_mean": pl.Float64,
+                "ch1_fwd_dc_min": pl.Float64,
+                "ch1_fwd_dc_max": pl.Float64,
+                "ch1_fwd_dc_var": pl.Float64,
+                "ch1_bwd_dc_mean": pl.Float64,
+                "ch1_bwd_dc_min": pl.Float64,
+                "ch1_bwd_dc_max": pl.Float64,
+                "ch1_bwd_dc_var": pl.Float64,
+                "ch2_fwd_dc_mean": pl.Float64,
+                "ch2_fwd_dc_min": pl.Float64,
+                "ch2_fwd_dc_max": pl.Float64,
+                "ch2_fwd_dc_var": pl.Float64,
+                "ch2_bwd_dc_mean": pl.Float64,
+                "ch2_bwd_dc_min": pl.Float64,
+                "ch2_bwd_dc_max": pl.Float64,
+                "ch2_bwd_dc_var": pl.Float64,
+            },
         )
 
         preprocessing_df = preprocessing_df.group_by("spectrum").agg(
