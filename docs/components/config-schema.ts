@@ -405,6 +405,7 @@ const CONFIG_SCHEMA: any = {
                                         "type": "string"
                                     },
                                     "to_date": {
+                                        "default": "yesterday",
                                         "description": "Date in format `YYYY-MM-DD` until which this standard site is active.",
                                         "format": "date",
                                         "title": "To Date",
@@ -415,8 +416,7 @@ const CONFIG_SCHEMA: any = {
                                     "identifier",
                                     "lat",
                                     "lon",
-                                    "from_date",
-                                    "to_date"
+                                    "from_date"
                                 ],
                                 "title": "ProfilesGGG2020StandardSitesItemConfig",
                                 "type": "object"
@@ -538,6 +538,7 @@ const CONFIG_SCHEMA: any = {
                                         "type": "string"
                                     },
                                     "to_date": {
+                                        "default": "yesterday",
                                         "description": "Date string in format `YYYY-MM-DD` until which to consider data in the storage directory.",
                                         "format": "date",
                                         "title": "To Date",
@@ -675,8 +676,7 @@ const CONFIG_SCHEMA: any = {
                                     "retrieval_algorithm",
                                     "atmospheric_profile_model",
                                     "sensor_ids",
-                                    "from_date",
-                                    "to_date"
+                                    "from_date"
                                 ],
                                 "title": "RetrievalJobConfig",
                                 "type": "object"
