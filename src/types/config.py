@@ -242,7 +242,7 @@ class ProfilesGGG2020StandardSitesItemConfig(pydantic.BaseModel):
         description="Date in format `YYYY-MM-DD` from which this standard site is active.",
     )
     to_date: datetime.date = pydantic.Field(
-        ...,
+        default_factory=lambda: datetime.date.today() - datetime.timedelta(days=1),
         description="Date in format `YYYY-MM-DD` until which this standard site is active.",
     )
 
@@ -357,7 +357,7 @@ class RetrievalJobConfig(pydantic.BaseModel):
         description="Date string in format `YYYY-MM-DD` from which to consider data in the storage directory.",
     )
     to_date: datetime.date = pydantic.Field(
-        ...,
+        default_factory=lambda: datetime.date.today() - datetime.timedelta(days=1),
         description="Date string in format `YYYY-MM-DD` until which to consider data in the storage directory.",
     )
     settings: RetrievalJobSettingsConfig = pydantic.Field(
