@@ -91,10 +91,6 @@ export default {
       }
     },
   },
-  banner: {
-    key: "v1.0.0",
-    text: "🌈 The EM27 Retrieval Pipeline 1.0.0 has been released",
-  },
   toc: {
     float: true,
   },
