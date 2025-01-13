@@ -405,8 +405,7 @@ const CONFIG_SCHEMA: any = {
                                         "type": "string"
                                     },
                                     "to_date": {
-                                        "default": "yesterday",
-                                        "description": "Date in format `YYYY-MM-DD` until which this standard site is active.",
+                                        "description": "Date in format `YYYY-MM-DD` until which this standard site is active. Default is yesterday.",
                                         "format": "date",
                                         "title": "To Date",
                                         "type": "string"
@@ -538,8 +537,7 @@ const CONFIG_SCHEMA: any = {
                                         "type": "string"
                                     },
                                     "to_date": {
-                                        "default": "yesterday",
-                                        "description": "Date string in format `YYYY-MM-DD` until which to consider data in the storage directory.",
+                                        "description": "Date string in format `YYYY-MM-DD` until which to consider data in the storage directory. Default is yesterday.",
                                         "format": "date",
                                         "title": "To Date",
                                         "type": "string"
