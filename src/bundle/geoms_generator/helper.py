@@ -30,8 +30,8 @@ import glob
 import datetime as dt
 import numpy as np
 import pandas as pd
-from prfpylot.prepare import Preparation
-from prfpylot.filemover import FileMover
+from prepare import Preparation
+from filemover import FileMover
 
 
 class GeomsGenHelper:
