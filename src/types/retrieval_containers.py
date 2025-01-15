@@ -5,7 +5,7 @@ import em27_metadata
 import pydantic
 import tum_esm_utils
 
-from .config import RetrievalJobSettingsConfig
+from .config import RetrievalJobSettingsConfig, RetrievalConfig, GeneralConfig
 
 
 class RetrievalContainerBase(pydantic.BaseModel):
@@ -99,3 +99,16 @@ class Proffast2RetrievalSession(pydantic.BaseModel):
 
 
 RetrievalSession = Proffast1RetrievalSession | Proffast2RetrievalSession
+
+
+class AboutRetrievalConfig(pydantic.BaseModel):
+    general: GeneralConfig
+    retrieval: RetrievalConfig
+
+
+class AboutRetrieval(pydantic.BaseModel):
+    automationVersion: str
+    automationCommitSha: str
+    generationTime: str
+    config: AboutRetrievalConfig
+    session: RetrievalSession
