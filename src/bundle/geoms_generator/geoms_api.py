@@ -1,5 +1,6 @@
 import math
-from typing import Any, Callable, Literal
+from typing import Any, Callable, Literal, Optional
+import h5py
 import polars as pl
 import pandas as pd
 import numpy as np
@@ -60,36 +61,56 @@ class GEOMSSRCAttributeMetadata(pydantic.BaseModel):
     VAR_DATA_TYPE: Literal["REAL", "DOUBLE", "STRING"]
     VAR_DEPEND: str
     VAR_DESCRIPTION: str
-    VAR_FILL_VALUE: str | float = ""
+    VAR_FILL_VALUE: str = ""
     VAR_NAME: str
     VAR_NOTES: str = ""
     VAR_SIZE: str
     VAR_SI_CONVERSION: str = ""
     VAR_UNITS: str = ""
-    VAR_VALID_MAX: str | float = ""
-    VAR_VALID_MIN: str | float = ""
-    _FillValue: str | float = ""
+    VAR_VALID_MAX: str = ""
+    VAR_VALID_MIN: str = ""
+    _FillValue: str = ""
 
 
 class GEOMSAPI:
-    def write_datetime(self, julian_dates: list[float]) -> None:
+    def _write_to_hdf5_file(
+        hdf5_file: h5py.File,
+        variable_name: np.array,
+        data: Any,
+        metadata: GEOMSAttributeMetadata | GEOMSSRCAttributeMetadata,
+        dtype: Optional[Any] = None,
+    ) -> None:
+        """
+        Helper method to write a dataset to the file.
+        Params:
+            data (np.array): The data to be stored
+            dataset_name (string): The name of the dataset
+            attributes (dict): The attributes to be stored
+        """
+        dataset = hdf5_file.create_dataset(variable_name, data=data, dtype=dtype)
+        for keys, values in metadata.model_dump().items():
+            if isinstance(values, str):
+                dataset.attrs[keys] = np.bytes_(values)
+            else:
+                dataset.attrs[keys] = np.float64(values)
+        return dataset
+
+    @staticmethod
+    def write_datetime(hdf5_file: h5py.File, julian_dates: list[float]) -> None:
         """Datetime information"""
 
-        dataset_name = self.hdf5_vars[GEOMSColumnNames.DATETIME]
-        self.variables.append(dataset_name)
-
+        variable_name = GEOMSColumnNames.DATETIME
         data = [
             d / 86400.0
             for d in datetimes_to_geoms_times(
                 geoms_times_to_datetime([(d - 2451544.5) * 86400.0 for d in julian_dates])
             )
         ]
-
         metadata = GEOMSAttributeMetadata(
             VAR_DATA_TYPE="DOUBLE",
             VAR_DEPEND="DATETIME",
-            VAR_DESCRIPTION="MJD2K is 0.0 on January 1, 2000 at 00:00:00 UTC",
-            VAR_NAME=dataset_name,
+            VAR_DESCRIPTION="MJD2K is 0.h0 on January 1, 2000 at 00:00:00 UTC",
+            VAR_NAME=variable_name,
             VAR_SIZE=str(np.size(data)),
             VAR_SI_CONVERSION="0.0;86400.0;s",
             VAR_UNITS="MJD2K",
@@ -98,15 +119,13 @@ class GEOMSAPI:
             units="MJD2K",
             valid_range=[np.amin(data), np.amax(data)],
         )
+        GEOMSAPI._write_to_hdf5_file(hdf5_file, variable_name, data, metadata)
 
-        self.SRC_dtst = self._write_dataset_dt(data, dataset_name, metadata)
-
-    def write_altitude(self, df: pd.DataFrame, ptf: pd.DataFrame) -> None:
+    @staticmethod
+    def write_altitude(hdf5_file: h5py.File, df: pd.DataFrame, ptf: pd.DataFrame) -> None:
         """Altitude information used in the a-priori profile matrix"""
 
-        dataset_name = self.hdf5_vars[GEOMSColumnNames.ALTITUDE]
-        self.variables.append(dataset_name)
-
+        variable_name = GEOMSColumnNames.ALTITUDE
         data = np.zeros(df["JulianDate"].shape + ptf["Altitude"].shape)
 
         for i in range(df["JulianDate"].shape[0]):
@@ -117,7 +136,7 @@ class GEOMSAPI:
             VAR_DATA_TYPE="REAL",
             VAR_DEPEND="DATETIME",
             VAR_DESCRIPTION="Altitude information used in the a-priori profile matrix",
-            VAR_NAME=dataset_name,
+            VAR_NAME=variable_name,
             VAR_NOTES="",
             VAR_SIZE=str(np.array(";".join(map(str, list(data.shape))))),
             VAR_SI_CONVERSION="0.0;1.0E3;m",
@@ -127,22 +146,19 @@ class GEOMSAPI:
             units="km",
             valid_range=[np.amin(data), np.amax(data)],
         )
+        GEOMSAPI._write_to_hdf5_file(hdf5_file, variable_name, data, metadata)
 
-        self.SRC_dtst = self._write_dataset(data, dataset_name, metadata)
-
-    def write_solar_angle_zenith(self, df: pd.DataFrame) -> None:
+    @staticmethod
+    def write_solar_angle_zenith(hdf5_file: h5py.File, df: pd.DataFrame) -> None:
         """Solar zenith angle"""
 
-        dataset_name = self.hdf5_vars[GEOMSColumnNames.SOLAR_ZENITH_ANGLE]
-        self.variables.append(dataset_name)
-
+        variable_name = GEOMSColumnNames.SOLAR_ZENITH_ANGLE
         data = df["appSZA"].to_numpy()
-
         metadata = GEOMSAttributeMetadata(
             VAR_DATA_TYPE="REAL",
             VAR_DEPEND="DATETIME",
             VAR_DESCRIPTION="The solar astronomical zenith angle at which the measurement was taken",
-            VAR_NAME=dataset_name,
+            VAR_NAME=variable_name,
             VAR_NOTES="",
             VAR_SIZE=str(np.size(data)),
             VAR_SI_CONVERSION="0.0;1.74533E-2;rad",
@@ -152,15 +168,13 @@ class GEOMSAPI:
             units="deg",
             valid_range=[np.amin(data), np.amax(data)],
         )
+        GEOMSAPI._write_to_hdf5_file(hdf5_file, variable_name, data, metadata)
 
-        self.SRC_dtst = self._write_dataset(data, dataset_name, metadata)
-
-    def write_solar_angle_azimuth(self, df: pd.DataFrame) -> None:
+    @staticmethod
+    def write_solar_angle_azimuth(hdf5_file: h5py.File, df: pd.DataFrame) -> None:
         """Solar azimuth angle"""
 
-        dataset_name = self.hdf5_vars[GEOMSColumnNames.SOLAR_AZIMUTH_ANGLE]
-        self.variables.append(dataset_name)
-
+        variable_name = GEOMSColumnNames.SOLAR_AZIMUTH_ANGLE
         data = df["azimuth"].to_numpy() + 180.0
 
         for i in range(len(data)):
@@ -171,7 +185,7 @@ class GEOMSAPI:
             VAR_DATA_TYPE="REAL",
             VAR_DEPEND="DATETIME",
             VAR_DESCRIPTION="The azimuth viewing direction of the sun using north as the reference plane and increasing clockwise (0 for north 90 for east and so on)",
-            VAR_NAME=dataset_name,
+            VAR_NAME=variable_name,
             VAR_SIZE=str(np.size(data)),
             VAR_SI_CONVERSION="0.0;1.74533E-2;rad",
             VAR_UNITS="deg",
@@ -180,22 +194,19 @@ class GEOMSAPI:
             units="deg",
             valid_range=[np.amin(data), np.amax(data)],
         )
+        GEOMSAPI._write_to_hdf5_file(hdf5_file, variable_name, data, metadata)
 
-        self.SRC_dtst = self._write_dataset(data, dataset_name, metadata)
-
-    def write_instr_latitude(self, df: pd.DataFrame) -> None:
+    @staticmethod
+    def write_instr_latitude(hdf5_file: h5py.File, df: pd.DataFrame) -> None:
         """Instrument latitude"""
 
-        dataset_name = self.hdf5_vars[GEOMSColumnNames.INSTRUMENT_LAT]
-        self.variables.append(dataset_name)
-
+        variable_name = GEOMSColumnNames.INSTRUMENT_LAT
         data = df["latdeg"].to_numpy()
-
         metadata = GEOMSAttributeMetadata(
             VAR_DATA_TYPE="REAL",
             VAR_DEPEND="DATETIME",
             VAR_DESCRIPTION="Instrument geolocation (+ for north; - for south)",
-            VAR_NAME=dataset_name,
+            VAR_NAME=variable_name,
             VAR_SIZE=str(np.size(data)),
             VAR_SI_CONVERSION="0.0;1.74533E-2;rad",
             VAR_UNITS="deg",
@@ -204,22 +215,20 @@ class GEOMSAPI:
             units="deg",
             valid_range=[np.amin(data), np.amax(data)],
         )
+        GEOMSAPI._write_to_hdf5_file(hdf5_file, variable_name, data, metadata)
 
-        self.SRC_dtst = self._write_dataset(data, dataset_name, metadata)
-
-    def write_instr_longitude(self, df: pd.DataFrame) -> None:
+    @staticmethod
+    def write_instr_longitude(hdf5_file: h5py.File, df: pd.DataFrame) -> None:
         """Instrument longitude"""
 
-        dataset_name = self.hdf5_vars[GEOMSColumnNames.INSTRUMENT_LON]
-        self.variables.append(dataset_name)
-
+        variable_name = GEOMSColumnNames.INSTRUMENT_LON
         data = df["londeg"].to_numpy()
 
         metadata = GEOMSAttributeMetadata(
             VAR_DATA_TYPE="REAL",
             VAR_DEPEND="DATETIME",
             VAR_DESCRIPTION="Instrument geolocation (+ for east; - for west)",
-            VAR_NAME=dataset_name,
+            VAR_NAME=variable_name,
             VAR_SIZE=str(np.size(data)),
             VAR_SI_CONVERSION="0.0;1.74533E-2;rad",
             VAR_UNITS="deg",
@@ -228,22 +237,20 @@ class GEOMSAPI:
             units="deg",
             valid_range=[np.amin(data), np.amax(data)],
         )
+        GEOMSAPI._write_to_hdf5_file(hdf5_file, variable_name, data, metadata)
 
-        self.SRC_dtst = self._write_dataset(data, dataset_name, metadata)
-
-    def write_instrument_altitude(self, df: pd.DataFrame) -> None:
+    @staticmethod
+    def write_instrument_altitude(hdf5_file: h5py.File, df: pd.DataFrame) -> None:
         """Instrument altitude"""
 
-        dataset_name = self.hdf5_vars[GEOMSColumnNames.INSTRUMENT_ALTITUDE]
-        self.variables.append(dataset_name)
-
+        variable_name = GEOMSColumnNames.INSTRUMENT_ALTITUDE
         data = df["altim"].to_numpy()
 
         metadata = GEOMSAttributeMetadata(
             VAR_DATA_TYPE="REAL",
             VAR_DEPEND="DATETIME",
             VAR_DESCRIPTION="Instrument geolocation",
-            VAR_NAME=dataset_name,
+            VAR_NAME=variable_name,
             VAR_SIZE=str(np.size(data)),
             VAR_SI_CONVERSION="0.0;1.0E3;m",
             VAR_UNITS="km",
@@ -252,22 +259,20 @@ class GEOMSAPI:
             units="km",
             valid_range=[np.amin(data), np.amax(data)],
         )
+        GEOMSAPI._write_to_hdf5_file(hdf5_file, variable_name, data, metadata)
 
-        self.SRC_dtst = self._write_dataset(data, dataset_name, metadata)
-
-    def write_surface_pressure(self, df: pd.DataFrame) -> None:
+    @staticmethod
+    def write_surface_pressure(hdf5_file: h5py.File, df: pd.DataFrame) -> None:
         """Surface pressure"""
 
-        dataset_name = self.hdf5_vars[GEOMSColumnNames.SURFACE_PRESSURE_INDEPENDENT]
-        self.variables.append(dataset_name)
-
+        variable_name = GEOMSColumnNames.SURFACE_PRESSURE_INDEPENDENT
         data = df["gndP"].to_numpy()
 
         metadata = GEOMSAttributeMetadata(
             VAR_DATA_TYPE="REAL",
             VAR_DEPEND="DATETIME",
             VAR_DESCRIPTION="Surface/ground pressure",
-            VAR_NAME=dataset_name,
+            VAR_NAME=variable_name,
             VAR_SIZE=str(np.size(data)),
             VAR_SI_CONVERSION="0.0;1.0E2;kg m-1 s-2",
             VAR_UNITS="hPa",
@@ -276,35 +281,32 @@ class GEOMSAPI:
             units="hPa",
             valid_range=[np.amin(data), np.amax(data)],
         )
+        GEOMSAPI._write_to_hdf5_file(hdf5_file, variable_name, data, metadata)
 
-        self.SRC_dtst = self._write_dataset(data, dataset_name, metadata)
-
-    def write_surface_pressure_src(self, df: pd.DataFrame) -> None:
+    @staticmethod
+    def write_surface_pressure_src(
+        hdf5_file: h5py.File, df: pd.DataFrame, pressure_source_name: str
+    ) -> None:
         """Source of the surface pressure"""
 
-        dataset_name = self.hdf5_vars[GEOMSColumnNames.SURFACE_PRESSURE_INDEPENDENT_SOURCE]
-        self.variables.append(dataset_name)
-
-        data = df["londeg"].to_numpy()
-        data_size = data.size
-        data_src = [f"{self.input_args['PRESSURE_SOURCE']}"] * data_size
+        variable_name = GEOMSColumnNames.SURFACE_PRESSURE_INDEPENDENT_SOURCE
+        data_size = df["londeg"].to_numpy().size
+        data = [pressure_source_name] * data_size
 
         metadata = GEOMSSRCAttributeMetadata(
             VAR_DATA_TYPE="STRING",
             VAR_DEPEND="DATETIME",
             VAR_DESCRIPTION="Surface pressure source (e.g. Mercury barometer etc.)",
-            VAR_NAME=dataset_name,
+            VAR_NAME=variable_name,
             VAR_SIZE=str(data_size),
         )
+        GEOMSAPI._write_to_hdf5_file(hdf5_file, variable_name, data, metadata)
 
-        self.SRC_dtst = self._write_dataset_src(data_src, dataset_name, metadata)
-
-    def write_pressure(self, df: pd.DataFrame, ptf: pd.DataFrame) -> None:
+    @staticmethod
+    def write_pressure(hdf5_file: h5py.File, df: pd.DataFrame, ptf: pd.DataFrame) -> None:
         """Effective air pressure at each altitude"""
 
-        dataset_name = self.hdf5_vars[GEOMSColumnNames.PRESSURE_INDEPENDENT.value]
-        self.variables.append(dataset_name)
-
+        variable_name = GEOMSColumnNames.PRESSURE_INDEPENDENT.value
         data = np.zeros(df["JulianDate"].shape + ptf["Altitude"].shape)
 
         for i in range(df["JulianDate"].shape[0]):
@@ -315,7 +317,7 @@ class GEOMSAPI:
             VAR_DATA_TYPE="REAL",
             VAR_DEPEND="DATETIME;ALTITUDE",
             VAR_DESCRIPTION="Effective air pressure at each altitude",
-            VAR_NAME=dataset_name,
+            VAR_NAME=variable_name,
             VAR_SIZE=str(np.array(";".join(map(str, list(data.shape))))),
             VAR_SI_CONVERSION="0.0;1.0E2;kg m-1 s-2",
             VAR_UNITS="hPa",
@@ -324,36 +326,32 @@ class GEOMSAPI:
             units="hPa",
             valid_range=[np.amin(data), np.amax(data)],
         )
+        GEOMSAPI._write_to_hdf5_file(hdf5_file, variable_name, data, metadata)
 
-        self.SRC_dtst = self._write_dataset(data, dataset_name, metadata)
-
-    def write_pressure_src(self, df: pd.DataFrame) -> None:
+    @staticmethod
+    def write_pressure_src(hdf5_file: h5py.File, df: pd.DataFrame) -> None:
         """Source of the effective air pressure"""
 
-        dataset_name = self.hdf5_vars[GEOMSColumnNames.PRESSURE_INDEPENDENT_SOURCE.value]
-        self.variables.append(dataset_name)
-
-        data_src = []
+        variable_name = GEOMSColumnNames.PRESSURE_INDEPENDENT_SOURCE
+        data = []
 
         for i in range(df["JulianDate"].shape[0]):
-            data_src.append("Pressure profile from NCEP at local noon")
+            data.append("Pressure profile from NCEP at local noon")
 
         metadata = GEOMSSRCAttributeMetadata(
             VAR_DATA_TYPE="STRING",
             VAR_DEPEND="DATETIME",
             VAR_DESCRIPTION="Pressure profile source (hydrostatic)",
-            VAR_NAME=dataset_name,
-            VAR_SIZE=str(np.size(data_src)),
+            VAR_NAME=variable_name,
+            VAR_SIZE=str(np.size(data)),
         )
+        GEOMSAPI._write_to_hdf5_file(hdf5_file, variable_name, data, metadata)
 
-        self.SRC_dtst = self._write_dataset_src(data_src, dataset_name, metadata)
-
-    def write_temperature(self, df: pd.DataFrame, ptf: pd.DataFrame) -> None:
+    @staticmethod
+    def write_temperature(hdf5_file: h5py.File, df: pd.DataFrame, ptf: pd.DataFrame) -> None:
         """Effective air temperature"""
 
-        dataset_name = self.hdf5_vars[GEOMSColumnNames.TEMPERATURE_INDEPENDENT.value]
-        self.variables.append(dataset_name)
-
+        variable_name = GEOMSColumnNames.TEMPERATURE_INDEPENDENT.value
         data = np.zeros(df["JulianDate"].shape + ptf["Altitude"].shape)
 
         for i in range(df["JulianDate"].shape[0]):
@@ -364,7 +362,7 @@ class GEOMSAPI:
             VAR_DATA_TYPE="REAL",
             VAR_DEPEND="DATETIME;ALTITUDE",
             VAR_DESCRIPTION="Effective air temperature at each altitude",
-            VAR_NAME=dataset_name,
+            VAR_NAME=variable_name,
             VAR_SIZE=str(np.array(";".join(map(str, list(data.shape))))),
             VAR_SI_CONVERSION="0.0;1.0;K",
             VAR_UNITS="K",
@@ -373,39 +371,35 @@ class GEOMSAPI:
             units="K",
             valid_range=[np.amin(data), np.amax(data)],
         )
+        GEOMSAPI._write_to_hdf5_file(hdf5_file, variable_name, data, metadata)
 
-        self.SRC_dtst = self._write_dataset(data, dataset_name, metadata)
-
-    def write_temperature_src(self, df: pd.DataFrame) -> None:
+    @staticmethod
+    def write_temperature_src(hdf5_file: h5py.File, df: pd.DataFrame) -> None:
         """Source of the effective air temperature"""
 
-        dataset_name = self.hdf5_vars[GEOMSColumnNames.TEMPERATURE_INDEPENDENT_SOURCE.value]
-        self.variables.append(dataset_name)
-
-        data_src = []
-
+        variable_name = GEOMSColumnNames.TEMPERATURE_INDEPENDENT_SOURCE.value
+        data = []
         for i in range(df["JulianDate"].shape[0]):
-            data_src.append("Temperature profile from NCEP at local noon")
+            data.append("Temperature profile from NCEP at local noon")
 
         metadata = GEOMSSRCAttributeMetadata(
             VAR_DATA_TYPE="STRING",
             VAR_DEPEND="DATETIME",
             VAR_DESCRIPTION="Temperature profile source (NCEP)",
-            VAR_NAME=dataset_name,
-            VAR_SIZE=str(np.size(data_src)),
+            VAR_NAME=variable_name,
+            VAR_SIZE=str(np.size(data)),
         )
-        self.SRC_dtst = self._write_dataset_src(data_src, dataset_name, metadata)
+        GEOMSAPI._write_to_hdf5_file(hdf5_file, variable_name, data, metadata)
 
+    @staticmethod
     def write_col(
-        self,
+        hdf5_file: h5py.File,
         df: pd.DataFrame,
         species: Literal["CO2", "CH4", "CO", "H2O"],
     ) -> None:
         """Column average dry air mole fraction"""
 
-        dataset_name = self.hdf5_vars[GEOMSColumnNames.GAS_COLUMN(species)]
-        self.variables.append(dataset_name)
-
+        variable_name = GEOMSColumnNames.GAS_COLUMN(species)
         unit: Literal["ppmv", "ppbv"]
 
         # Convert data to numpy array.
@@ -441,20 +435,20 @@ class GEOMSAPI:
             units=unit,
             valid_range=[np.amin(data), np.amax(data)],
         )
-        self.SRC_dtst = self._write_dataset(data, dataset_name, metadata)
+        GEOMSAPI._write_to_hdf5_file(hdf5_file, variable_name, data, metadata)
 
+    @staticmethod
     def write_column_uncertainty(
-        self,
+        hdf5_file: h5py.File,
         df: pd.DataFrame,
         species: Literal["CO2", "CH4", "CO", "H2O"],
     ) -> None:
         """Column average dry air mole fraction uncertainty"""
 
-        dataset_name = self.hdf5_vars[GEOMSColumnNames.GAS_UNCERTAINTY(species)]
-        self.variables.append(dataset_name)
-
+        variable_name = GEOMSColumnNames.GAS_UNCERTAINTY(species)
         data = np.zeros(df["JulianDate"].shape)
 
+        # TODO: replace with correct call
         h2o_unc, co2_unc, ch4_unc, co_unc = self.get_col_unc(df)
         unit: Literal["ppmv", "ppbv"]
 
@@ -477,7 +471,7 @@ class GEOMSAPI:
             VAR_DATA_TYPE="REAL",
             VAR_DEPEND="DATETIME",
             VAR_DESCRIPTION="Total random uncertainty on the retrieved total column (expressed in same units as the column)",
-            VAR_NAME=dataset_name,
+            VAR_NAME=variable_name,
             VAR_SIZE=str(np.size(data)),
             VAR_SI_CONVERSION="0.0;1.0E-9;1" if unit == "ppbv" else "0.0;1.0E-6;1",
             VAR_UNITS=unit,
@@ -486,11 +480,11 @@ class GEOMSAPI:
             units=unit,
             valid_range=[np.amin(data), np.amax(data)],
         )
+        GEOMSAPI._write_to_hdf5_file(hdf5_file, variable_name, data, metadata)
 
-        self.SRC_dtst = self._write_dataset(data, dataset_name, metadata)
-
+    @staticmethod
     def write_apriori(
-        self,
+        hdf5_file: h5py.File,
         df: pd.DataFrame,
         ptf: pd.DataFrame,
         vmr: pd.DataFrame,
@@ -498,11 +492,8 @@ class GEOMSAPI:
     ) -> None:
         """A-priori total vertical column of target gas"""
 
-        dataset_name = self.hdf5_vars[GEOMSColumnNames.GAS_APRIOR(species)]
-        self.variables.append(dataset_name)
-
+        variable_name = GEOMSColumnNames.GAS_APRIOR(species)
         data = np.zeros(df["JulianDate"].shape + ptf["Altitude"].shape)
-
         unit: Literal["ppmv", "ppbv"]
 
         if species == "H2O":
@@ -537,7 +528,7 @@ class GEOMSAPI:
             VAR_DATA_TYPE="REAL",
             VAR_DEPEND="DATETIME;ALTITUDE",
             VAR_DESCRIPTION="A-priori total vertical column of target gas",
-            VAR_NAME=dataset_name,
+            VAR_NAME=variable_name,
             VAR_SIZE=str(np.array(";".join(map(str, list(data.shape))))),
             VAR_SI_CONVERSION="0.0;1.0E-9;1" if unit == "ppbv" else "0.0;1.0E-6;1",
             VAR_UNITS=unit,
@@ -546,43 +537,37 @@ class GEOMSAPI:
             units=unit,
             valid_range=[np.amin(data), np.amax(data)],
         )
+        GEOMSAPI._write_to_hdf5_file(hdf5_file, variable_name, data, metadata)
 
-        self.SRC_dtst = self._write_dataset(data, dataset_name, metadata)
-
+    @staticmethod
     def write_apriori_src(
-        self,
+        hdf5_file: h5py.File,
         df: pd.DataFrame,
         species: Literal["CO2", "CH4", "CO", "H2O"],
+        variant: Literal["GGG2014", "GGG2020"],
     ) -> None:
         """A-priori source of the vertical profile of a-priori per layer"""
 
-        dataset_name = self.hdf5_vars[GEOMSColumnNames.GAS_APRIOR_SOURCE(species)]
-        self.variables.append(dataset_name)
-
-        data_src = []
-        ggg_ver = self.input_args["APRIORI_SOURCE"]
-
+        variable_name = GEOMSColumnNames.GAS_APRIOR_SOURCE(species)
+        data = []
         for i in range(df["JulianDate"].shape[0]):
             if species == "H2O":
-                data_src.append("Total vertical column of H2O from NCEP at local noon")
-            elif species == "CO2":
-                data_src.append("Map file GFIT Code ({})".format(ggg_ver))
-            elif species == "CH4":
-                data_src.append("Map file GFIT Code ({})".format(ggg_ver))
-            elif species == "CO":
-                data_src.append("Map file GFIT Code ({})".format(ggg_ver))
+                data.append("Total vertical column of H2O from NCEP at local noon")
+            else:
+                data.append(f"Map file GFIT Code ({variant})")
 
         metadata = GEOMSSRCAttributeMetadata(
             VAR_DATA_TYPE="STRING",
             VAR_DEPEND="DATETIME",
             VAR_DESCRIPTION="Source of the vertical profile of a-priori per layer",
-            VAR_NAME=dataset_name,
-            VAR_SIZE=str(np.size(data_src)),
+            VAR_NAME=variable_name,
+            VAR_SIZE=str(np.size(data)),
         )
-        self.SRC_dtst = self._write_dataset_src(data_src, dataset_name, metadata)
+        GEOMSAPI._write_to_hdf5_file(hdf5_file, variable_name, data, metadata)
 
+    @staticmethod
     def write_avk(
-        self,
+        hdf5_file: h5py.File,
         df: pd.DataFrame,
         ptf: pd.DataFrame,
         sen: Any,
@@ -590,9 +575,7 @@ class GEOMSAPI:
     ) -> None:
         """Column sensitivities assosiated with the total vertical column"""
 
-        dataset_name = self.hdf5_vars[GEOMSColumnNames.GAS_AVK(species)]
-        self.variables.append(dataset_name)
-
+        variable_name = GEOMSColumnNames.GAS_AVK(species)
         data = np.zeros(df["JulianDate"].shape + ptf["Altitude"].shape)
 
         if species == "H2O":
@@ -622,7 +605,7 @@ class GEOMSAPI:
             VAR_DATA_TYPE="REAL",
             VAR_DEPEND="DATETIME;ALTITUDE",
             VAR_DESCRIPTION="Column sensitivity associated with the total vertical column of the target gas",
-            VAR_NAME=dataset_name,
+            VAR_NAME=variable_name,
             VAR_SIZE=str(np.array(";".join(map(str, list(data.shape))))),
             VAR_SI_CONVERSION="0.0;1.0;1",
             VAR_UNITS="1",
@@ -631,15 +614,13 @@ class GEOMSAPI:
             units="1",
             valid_range=[np.amin(data), np.amax(data)],
         )
+        GEOMSAPI._write_to_hdf5_file(hdf5_file, variable_name, data, metadata)
 
-        self.SRC_dtst = self._write_dataset(data, dataset_name, metadata)
-
-    def write_air_partial(self, df: pd.DataFrame, ptf: pd.DataFrame) -> None:
+    @staticmethod
+    def write_air_partial(hdf5_file: h5py.File, df: pd.DataFrame, ptf: pd.DataFrame) -> None:
         """Partial pressure of dry air"""
 
-        dataset_name = self.hdf5_vars[GEOMSColumnNames.AIR_COLUMN]
-        self.variables.append(dataset_name)
-
+        variable_name = GEOMSColumnNames.AIR_COLUMN
         data = np.zeros(df["JulianDate"].shape + ptf["Altitude"].shape)
 
         k_B = 1.3807e-23  # 1.380649E-23 # k_boltz = 1.3807e-23
@@ -695,7 +676,7 @@ class GEOMSAPI:
             VAR_DATA_TYPE="REAL",
             VAR_DEPEND="DATETIME;ALTITUDE",
             VAR_DESCRIPTION="Vertical profile of partial columns of air number densities (for conversion between VMR and partial column profile)",
-            VAR_NAME=dataset_name,
+            VAR_NAME=variable_name,
             VAR_SIZE=str(np.array(";".join(map(str, list(data.shape))))),
             VAR_SI_CONVERSION="0.0;1.66054E1;mol m-2",
             VAR_UNITS="Zmolec cm-2",
@@ -704,15 +685,13 @@ class GEOMSAPI:
             units="Zmolec cm-2",
             valid_range=[np.amin(data), np.amax(data)],
         )
+        GEOMSAPI._write_to_hdf5_file(hdf5_file, variable_name, data, metadata)
 
-        self.SRC_dtst = self._write_dataset(data, dataset_name, metadata)
-
-    def write_air_density(self, df, ptf) -> None:
+    @staticmethod
+    def write_air_density(hdf5_file: h5py.File, df, ptf) -> None:
         """Dry air number density profile"""
 
-        dataset_name = self.hdf5_vars[GEOMSColumnNames.AIR_DENSITY]
-        self.variables.append(dataset_name)
-
+        variable_name = GEOMSColumnNames.AIR_DENSITY
         data = np.zeros(df["JulianDate"].shape + ptf["Altitude"].shape)
 
         k_B = 1.3807e-23  # 1.380649E-23 # k_boltz = 1.3807e-23
@@ -735,7 +714,7 @@ class GEOMSAPI:
             VAR_DATA_TYPE="REAL",
             VAR_DEPEND="DATETIME;ALTITUDE",
             VAR_DESCRIPTION="Dry air number density profile",
-            VAR_NAME=dataset_name,
+            VAR_NAME=variable_name,
             VAR_SIZE=str(np.array(";".join(map(str, list(data.shape))))),
             VAR_SI_CONVERSION="0.0;1.66054E-18;mol m-3",
             VAR_UNITS="molec cm-3",
@@ -744,24 +723,21 @@ class GEOMSAPI:
             units="molec cm-3",
             valid_range=[np.amin(data), np.amax(data)],
         )
-        self.SRC_dtst = self._write_dataset(data, dataset_name, metadata)
+        GEOMSAPI._write_to_hdf5_file(hdf5_file, variable_name, data, metadata)
 
-    def write_air_density_src(self, df: pd.DataFrame) -> None:
+    @staticmethod
+    def write_air_density_src(hdf5_file: h5py.File, df: pd.DataFrame) -> None:
         """Source of the dry air number density profile"""
 
-        dataset_name = self.hdf5_vars[GEOMSColumnNames.AIR_DENSITY_SOURCE]
-        self.variables.append(dataset_name)
-
-        data_src = []
-
+        variable_name = GEOMSColumnNames.AIR_DENSITY_SOURCE
+        data = []
         for i in range(df["JulianDate"].shape[0]):
-            data_src.append("Dry air number density profile from NCEP at local noon")
-
+            data.append("Dry air number density profile from NCEP at local noon")
         metadata = GEOMSSRCAttributeMetadata(
             VAR_DATA_TYPE="STRING",
             VAR_DEPEND="DATETIME",
             VAR_DESCRIPTION="Dry air number density profile source (hydrostatic)",
-            VAR_NAME=dataset_name,
-            VAR_SIZE=str(np.size(data_src)),
+            VAR_NAME=variable_name,
+            VAR_SIZE=str(np.size(data)),
         )
-        self.SRC_dtst = self._write_dataset_src(data_src, dataset_name, metadata)
+        GEOMSAPI._write_to_hdf5_file(hdf5_file, variable_name, data, metadata)
