@@ -1,6 +1,24 @@
 import pydantic
 
 
+class EVDCGeneralMetadata(pydantic.BaseModel):
+    network: str = pydantic.Field(
+        ...,
+        description="Used in the filename of the HDF5 file",
+        examples=["FTIR.COCCON"],
+    )
+    affiliation: str = pydantic.Field(
+        ...,
+        description="Used in the filename of the HDF5 file",
+        examples=["TUM.ESM"],
+    )
+    pressure_sensor_name: str = pydantic.Field(
+        ...,
+        description="The value of the HDF5 attribute `SURFACE.PRESSURE_INDEPENDENT_SOURCE`",
+        examples=["young-61302", "vaisala-PTB330"],
+    )
+
+
 class EVDCFDataMetadata(pydantic.BaseModel):
     discipline: str = pydantic.Field(
         ...,
@@ -77,16 +95,7 @@ class EVDCContactlMetadata(pydantic.BaseModel):
 
 
 class EVDCMetadata(pydantic.BaseModel):
-    network: str = pydantic.Field(
-        ...,
-        description="Used in the filename of the HDF5 file",
-        examples=["FTIR.COCCON"],
-    )
-    affiliation: str = pydantic.Field(
-        ...,
-        description="Used in the filename of the HDF5 file",
-        examples=["TUM.ESM"],
-    )
+    general: EVDCGeneralMetadata
     data: EVDCFDataMetadata
     file: EVDCFileMetadata
     principle_investigator: EVDCContactlMetadata

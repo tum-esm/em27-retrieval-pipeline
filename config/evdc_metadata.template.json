@@ -1,6 +1,9 @@
 {
-  "network": "FTIR.COCCON",
-  "affiliation": "TUM.ESM",
+  "general": {
+    "network": "FTIR.COCCON",
+    "affiliation": "TUM.ESM",
+    "pressure_sensor_name": "MIRO2Datalogger"
+  },
   "data": {
     "discipline": "ATMOSPHERIC.CHEMISTRY;REMOTE.SENSING;GROUNDBASED",
     "group": "EXPERIMENTAL;PROFILE.STATIONARY",

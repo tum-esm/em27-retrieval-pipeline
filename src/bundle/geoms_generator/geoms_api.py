@@ -1,11 +1,11 @@
+from typing import Any, Callable, Literal
 import math
-from typing import Any, Callable, Literal, Optional
 import h5py
-import polars as pl
 import pandas as pd
 import numpy as np
 import pydantic
 from utils import geoms_times_to_datetime, datetimes_to_geoms_times
+import src
 
 
 # fmt: off
@@ -151,15 +151,15 @@ class GEOMSAPI:
         )
 
     @staticmethod
-    def write_altitude(hdf5_file: h5py.File, df: pd.DataFrame, ptf: pd.DataFrame) -> None:
+    def write_altitude(hdf5_file: h5py.File, df: pd.DataFrame, pt_df: pd.DataFrame) -> None:
         """Altitude information used in the a-priori profile matrix"""
 
         variable_name = GEOMSColumnNames.ALTITUDE
-        data = np.zeros(df["JulianDate"].shape + ptf["Altitude"].shape)
+        data = np.zeros(df["JulianDate"].shape + pt_df["Altitude"].shape)
 
         for i in range(df["JulianDate"].shape[0]):
-            for j in range(ptf["Altitude"].shape[0]):
-                data[i][j] = ptf["Altitude"][j] / 1000.0  # in km
+            for j in range(pt_df["Altitude"].shape[0]):
+                data[i][j] = pt_df["Altitude"][j] / 1000.0  # in km
 
         metadata = GEOMSAttributeMetadata(
             VAR_DATA_TYPE="REAL",
@@ -328,13 +328,13 @@ class GEOMSAPI:
 
     @staticmethod
     def write_surface_pressure_source(
-        hdf5_file: h5py.File, df: pd.DataFrame, pressure_source_name: str
+        hdf5_file: h5py.File, evdc_metadata: src.types.EVDCMetadata, df: pd.DataFrame
     ) -> None:
         """Source of the surface pressure"""
 
         variable_name = GEOMSColumnNames.SURFACE_PRESSURE_INDEPENDENT_SOURCE
         data_size = df["lon"].to_numpy().size
-        data = [pressure_source_name] * data_size
+        data = [evdc_metadata.general.pressure_sensor_name] * data_size
 
         metadata = GEOMSSRCAttributeMetadata(
             VAR_DATA_TYPE="STRING",
@@ -346,15 +346,15 @@ class GEOMSAPI:
         GEOMSAPI._write_to_hdf5_file(hdf5_file, variable_name, data, metadata, float_type=np.bytes_)
 
     @staticmethod
-    def write_pressure(hdf5_file: h5py.File, df: pd.DataFrame, ptf: pd.DataFrame) -> None:
+    def write_pressure(hdf5_file: h5py.File, df: pd.DataFrame, pt_df: pd.DataFrame) -> None:
         """Effective air pressure at each altitude"""
 
         variable_name = GEOMSColumnNames.PRESSURE_INDEPENDENT
-        data = np.zeros(df["JulianDate"].shape + ptf["Altitude"].shape)
+        data = np.zeros(df["JulianDate"].shape + pt_df["Altitude"].shape)
 
         for i in range(df["JulianDate"].shape[0]):
-            for j in range(ptf["Altitude"].shape[0]):
-                data[i][j] = ptf["Pre"][j] / 100.0  # hPa
+            for j in range(pt_df["Altitude"].shape[0]):
+                data[i][j] = pt_df["Pre"][j] / 100.0  # hPa
 
         metadata = GEOMSAttributeMetadata(
             VAR_DATA_TYPE="REAL",
@@ -393,15 +393,15 @@ class GEOMSAPI:
         GEOMSAPI._write_to_hdf5_file(hdf5_file, variable_name, data, metadata, float_type=np.bytes_)
 
     @staticmethod
-    def write_temperature(hdf5_file: h5py.File, df: pd.DataFrame, ptf: pd.DataFrame) -> None:
+    def write_temperature(hdf5_file: h5py.File, df: pd.DataFrame, pt_df: pd.DataFrame) -> None:
         """Effective air temperature"""
 
         variable_name = GEOMSColumnNames.TEMPERATURE_INDEPENDENT
-        data = np.zeros(df["JulianDate"].shape + ptf["Altitude"].shape)
+        data = np.zeros(df["JulianDate"].shape + pt_df["Altitude"].shape)
 
         for i in range(df["JulianDate"].shape[0]):
-            for j in range(ptf["Altitude"].shape[0]):
-                data[i][j] = ptf["Tem"][j]
+            for j in range(pt_df["Altitude"].shape[0]):
+                data[i][j] = pt_df["Tem"][j]
 
         metadata = GEOMSAttributeMetadata(
             VAR_DATA_TYPE="REAL",
@@ -471,7 +471,7 @@ class GEOMSAPI:
 
         minval = np.nanmin(data[data > 0])
         maxval = np.nanmax(data[data > 0])
-        print(f"{species}: min={minval}, max={maxval}")
+        # print(f"{species}: min={minval}, max={maxval}")
         metadata = GEOMSAttributeMetadata(
             VAR_DATA_TYPE="REAL",
             VAR_DEPEND="DATETIME",
@@ -492,9 +492,8 @@ class GEOMSAPI:
     @staticmethod
     def write_column_uncertainty(
         hdf5_file: h5py.File,
-        df: pd.DataFrame,
         species: Literal["CO2", "CH4", "CO", "H2O"],
-        uncertainty: np.ndarray[Any, Any],
+        column_uncertainty: np.ndarray[Any, Any],
     ) -> None:
         """Column average dry air mole fraction uncertainty"""
 
@@ -512,15 +511,15 @@ class GEOMSAPI:
         else:
             raise ValueError("Invalid variable_name")
 
-        minval = np.nanmin(uncertainty[uncertainty > 0])
-        maxval = np.nanmax(uncertainty[uncertainty > 0])
-        print(f"{species} uncertainty: min={minval}, max={maxval}")
+        minval = np.nanmin(column_uncertainty[column_uncertainty > 0])
+        maxval = np.nanmax(column_uncertainty[column_uncertainty > 0])
+        # print(f"{species} uncertainty: min={minval}, max={maxval}")
         metadata = GEOMSAttributeMetadata(
             VAR_DATA_TYPE="REAL",
             VAR_DEPEND="DATETIME",
             VAR_DESCRIPTION="Total random uncertainty on the retrieved total column (expressed in same units as the column)",
             VAR_NAME=variable_name,
-            VAR_SIZE=str(np.size(uncertainty)),
+            VAR_SIZE=str(np.size(column_uncertainty)),
             VAR_SI_CONVERSION="0.0;1.0E-9;1" if unit == "ppbv" else "0.0;1.0E-6;1",
             VAR_UNITS=unit,
             VAR_VALID_MIN=minval,
@@ -529,48 +528,48 @@ class GEOMSAPI:
             valid_range=[minval, maxval],
         )
         GEOMSAPI._write_to_hdf5_file(
-            hdf5_file, variable_name, uncertainty, metadata, float_type=np.float32
+            hdf5_file, variable_name, column_uncertainty, metadata, float_type=np.float32
         )
 
     @staticmethod
     def write_apriori(
         hdf5_file: h5py.File,
         df: pd.DataFrame,
-        ptf: pd.DataFrame,
-        vmr: pd.DataFrame,
+        pt_df: pd.DataFrame,
+        vmr_df: pd.DataFrame,
         species: Literal["CO2", "CH4", "CO", "H2O"],
     ) -> None:
         """A-priori total vertical column of target gas"""
 
         variable_name = GEOMSColumnNames.GAS_APRIOR(species)
-        data = np.zeros(df["JulianDate"].shape + ptf["Altitude"].shape)
+        data = np.zeros(df["JulianDate"].shape + pt_df["Altitude"].shape)
         unit: Literal["ppmv", "ppbv"]
 
         if species == "H2O":
-            H2O_prior = ptf["H2O"]  # VMR prior for H2O
+            H2O_prior = pt_df["H2O"]  # VMR prior for H2O
             for i in range(df["JulianDate"].shape[0]):
-                for j in range(ptf["Altitude"].shape[0]):
+                for j in range(pt_df["Altitude"].shape[0]):
                     data[i][j] = H2O_prior[j]  # in ppm
             unit = "ppmv"
 
         elif species == "CO2":
-            CO2_prior = vmr["CO2"]  # VMR prior for CO2
+            CO2_prior = vmr_df["CO2"]  # VMR prior for CO2
             for i in range(df["JulianDate"].shape[0]):
-                for j in range(ptf["Altitude"].shape[0]):
+                for j in range(pt_df["Altitude"].shape[0]):
                     data[i][j] = CO2_prior[j]  # in ppm
             unit = "ppmv"
 
         elif species == "CH4":
-            CH4_prior = vmr["CH4"] * 1000.0  # VMR prior for CH4
+            CH4_prior = vmr_df["CH4"] * 1000.0  # VMR prior for CH4
             for i in range(df["JulianDate"].shape[0]):
-                for j in range(ptf["Altitude"].shape[0]):
+                for j in range(pt_df["Altitude"].shape[0]):
                     data[i][j] = CH4_prior[j]  # in ppb
             unit = "ppbv"
 
         elif species == "CO":
-            CO_prior = vmr["CO"] * 1000.0  # VMR prior for CO
+            CO_prior = vmr_df["CO"] * 1000.0  # VMR prior for CO
             for i in range(df["JulianDate"].shape[0]):
-                for j in range(ptf["Altitude"].shape[0]):
+                for j in range(pt_df["Altitude"].shape[0]):
                     data[i][j] = CO_prior[j]  # in ppb
             unit = "ppbv"
 
@@ -621,34 +620,34 @@ class GEOMSAPI:
     def write_averaging_kernel(
         hdf5_file: h5py.File,
         df: pd.DataFrame,
-        ptf: pd.DataFrame,
-        sen: Any,
+        pt_df: pd.DataFrame,
+        column_sensitivity: list[list[list[float]]],
         species: Literal["CO2", "CH4", "CO", "H2O"],
     ) -> None:
         """Column sensitivities assosiated with the total vertical column"""
 
         variable_name = GEOMSColumnNames.GAS_AVK(species)
-        data = np.zeros(df["JulianDate"].shape + ptf["Altitude"].shape)
+        data = np.zeros(df["JulianDate"].shape + pt_df["Altitude"].shape)
 
         if species == "H2O":
             for i in range(df["JulianDate"].shape[0]):
-                for j in range(ptf["Altitude"].shape[0]):
-                    data[i][j] = sen[0][i][j]  # 0: "CO2_int"
+                for j in range(pt_df["Altitude"].shape[0]):
+                    data[i][j] = column_sensitivity[0][i][j]
 
         elif species == "CO2":
             for i in range(df["JulianDate"].shape[0]):
-                for j in range(ptf["Altitude"].shape[0]):
-                    data[i][j] = sen[2][i][j]  # 1: "CH4_int"
+                for j in range(pt_df["Altitude"].shape[0]):
+                    data[i][j] = column_sensitivity[2][i][j]
 
         elif species == "CH4":
             for i in range(df["JulianDate"].shape[0]):
-                for j in range(ptf["Altitude"].shape[0]):
-                    data[i][j] = sen[3][i][j]  # 2: "CO_int"
+                for j in range(pt_df["Altitude"].shape[0]):
+                    data[i][j] = column_sensitivity[3][i][j]
 
         elif species == "CO":
             for i in range(df["JulianDate"].shape[0]):
-                for j in range(ptf["Altitude"].shape[0]):
-                    data[i][j] = sen[5][i][j]  # 3: "H2O_int"
+                for j in range(pt_df["Altitude"].shape[0]):
+                    data[i][j] = column_sensitivity[5][i][j]
 
         else:
             raise ValueError("Invalid species")
@@ -671,17 +670,17 @@ class GEOMSAPI:
         )
 
     @staticmethod
-    def write_air_partial(hdf5_file: h5py.File, df: pd.DataFrame, ptf: pd.DataFrame) -> None:
+    def write_air_partial(hdf5_file: h5py.File, df: pd.DataFrame, pt_df: pd.DataFrame) -> None:
         """Partial pressure of dry air"""
 
         variable_name = GEOMSColumnNames.AIR_COLUMN
-        data = np.zeros(df["JulianDate"].shape + ptf["Altitude"].shape)
+        data = np.zeros(df["JulianDate"].shape + pt_df["Altitude"].shape)
 
         k_B = 1.3807e-23  # 1.380649E-23 # k_boltz = 1.3807e-23
 
-        T_prior = ptf["Tem"]
-        P_prior = ptf["Pre"] / 100.0  # conversion Pa to hPa
-        H2O_prior = ptf["H2O"]  # / 10000.0 ???
+        T_prior = pt_df["Tem"]
+        P_prior = pt_df["Pre"] / 100.0  # conversion Pa to hPa
+        H2O_prior = pt_df["H2O"]  # / 10000.0 ???
 
         p_dry = P_prior * 1.0 / (1.0 + 1.0e-6 * H2O_prior)
         # / 100.0 for conversion Pa to hPa
@@ -695,11 +694,11 @@ class GEOMSAPI:
             sum1 = 0.0
             sum2 = 0.0
 
-            for j in range(ptf["Altitude"].shape[0]):
-                if j < len(ptf["Altitude"]) - 1:
-                    h1 = float(ptf["Altitude"][j])
+            for j in range(pt_df["Altitude"].shape[0]):
+                if j < len(pt_df["Altitude"]) - 1:
+                    h1 = float(pt_df["Altitude"][j])
                     # * 1000.0 for conversion km to m
-                    h2 = float(ptf["Altitude"][j + 1])
+                    h2 = float(pt_df["Altitude"][j + 1])
                     # * 1000.0 for conversion km to m
 
                     n1_dry = float(n_dry[j])
@@ -715,14 +714,14 @@ class GEOMSAPI:
 
                     sum1 += data[i][j]
                     # sum1 += data[i][H_len-j]
-                    sum2 += float(ptf["DAC"][j])
+                    sum2 += float(pt_df["DAC"][j])
 
                 else:
                     data[i][j] = 0
                     # data[i][H_len-j] = 0
                     sum1 += data[i][j]
                     # sum1 += data[i][H_len-j]
-                    sum2 += float(ptf["DAC"][j])
+                    sum2 += float(pt_df["DAC"][j])
 
         data = data / 1.0e25
 
@@ -744,17 +743,17 @@ class GEOMSAPI:
         )
 
     @staticmethod
-    def write_air_density(hdf5_file: h5py.File, df, ptf) -> None:
+    def write_air_density(hdf5_file: h5py.File, df: pd.DataFrame, pt_df: pd.DataFrame) -> None:
         """Dry air number density profile"""
 
         variable_name = GEOMSColumnNames.AIR_DENSITY
-        data = np.zeros(df["JulianDate"].shape + ptf["Altitude"].shape)
+        data = np.zeros(df["JulianDate"].shape + pt_df["Altitude"].shape)
 
         k_B = 1.3807e-23  # 1.380649E-23 # k_boltz = 1.3807e-23
 
-        T_prior = ptf["Tem"]
-        P_prior = ptf["Pre"] / 100.0  # conversion to hPa
-        H2O_prior = ptf["H2O"]  # / 10000.0 ???
+        T_prior = pt_df["Tem"]
+        P_prior = pt_df["Pre"] / 100.0  # conversion to hPa
+        H2O_prior = pt_df["H2O"]  # / 10000.0 ???
 
         # Calculation of the dry air number density profile.
 
@@ -763,7 +762,7 @@ class GEOMSAPI:
         n_dry = p_dry / (k_B * T_prior)
 
         for i in range(df["JulianDate"].shape[0]):
-            for j in range(ptf["Altitude"].shape[0]):
+            for j in range(pt_df["Altitude"].shape[0]):
                 data[i][j] = n_dry[j]
 
         metadata = GEOMSAttributeMetadata(

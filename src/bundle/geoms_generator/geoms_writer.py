@@ -7,7 +7,7 @@ import sys
 
 sys.path.append(tum_esm_utils.files.rel_to_abs_path("../../.."))
 
-from src import types
+import src
 from utils import (
     load_comb_invparms_df,
     get_ils_form_preprocess_inp,
@@ -25,8 +25,8 @@ import constants
 
 class GEOMSWriter:
     @staticmethod
-    def generate_geoms_file(results_folder: str) -> None:
-        about = types.AboutRetrieval.model_validate(
+    def generate_geoms_file(results_folder: str, evdc_metadata: src.types.EVDCMetadata) -> None:
+        about = src.types.AboutRetrieval.model_validate(
             tum_esm_utils.files.load_json_file(os.path.join(results_folder, "about.json")),
             context={"ignore-path-existence": True},
         )
@@ -85,7 +85,7 @@ class GEOMSWriter:
 
         # enclosure pressure sensor
         GEOMSAPI.write_surface_pressure(hdf_file, df)
-        GEOMSAPI.write_surface_pressure_source(hdf_file, df, pressure_source_name="TODO")
+        GEOMSAPI.write_surface_pressure_source(hdf_file, evdc_metadata, df)
 
         # pt profile
         GEOMSAPI.write_pressure(hdf_file, df, pt_df)
@@ -96,7 +96,7 @@ class GEOMSWriter:
         # gases
         for species in ["H2O", "CO2", "CH4", "CO"]:
             GEOMSAPI.write_column(hdf_file, df, species)
-            GEOMSAPI.write_column_uncertainty(hdf_file, df, species, species_uncertainty[species])
+            GEOMSAPI.write_column_uncertainty(hdf_file, species, species_uncertainty[species])
             GEOMSAPI.write_apriori(hdf_file, df, pt_df, vmr_df, species)
             GEOMSAPI.write_apriori_source(hdf_file, df, species, "GGG2020")
             GEOMSAPI.write_averaging_kernel(
