@@ -1,0 +1,44 @@
+{
+  "network": "FTIR.COCCON",
+  "affiliation": "TUM.ESM",
+  "data": {
+    "discipline": "ATMOSPHERIC.CHEMISTRY;REMOTE.SENSING;GROUNDBASED",
+    "group": "EXPERIMENTAL;PROFILE.STATIONARY",
+    "file_version": 1,
+    "quality": "Station data.",
+    "template": "GEOMS-TE-FTIR-COCCON-001"
+  },
+  "file": {
+    "doi": "",
+    "meta_version": "04R088;CUSTOM",
+    "access": "COCCON",
+    "project_id": "COCCON"
+  },
+  "principle_investigator": {
+    "name": "Chen;Jia",
+    "email": "jia.chen@tum.de",
+    "affiliation": "Technical University of Munich - Professorship of Environmental Sensing and Modeling;TUM.ESM",
+    "address": "Theresienstr. 90;D-80333 Munich;GERMANY"
+  },
+  "data_originator": {
+    "name": "Makowski;Moritz",
+    "email": "moritz.makowski@tum.de",
+    "affiliation": "Technical University of Munich - Professorship of Environmental Sensing and Modeling;TUM.ESM",
+    "address": "Theresienstr. 90;D-80333 Munich;GERMANY"
+  },
+  "data_submitter": {
+    "name": "Makowski;Moritz",
+    "email": "moritz.makowski@tum.de",
+    "affiliation": "Technical University of Munich - Professorship of Environmental Sensing and Modeling;TUM.ESM",
+    "address": "Theresienstr. 90;D-80333 Munich;GERMANY"
+  },
+  "locations": {
+    "TUM_I": "MUNICH.TUM",
+    "FEL": "MUNICH.FELDKIRCHEN",
+    "GRAE": "MUNICH.GRAEFELFING",
+    "OBE": "MUNICH.OBERSCHLEISSHEIM",
+    "TAU": "MUNICH.TAUFKIRCHEN",
+    "DLR_2": "MUNICH.DLR_2",
+    "DLR_3": "MUNICH.DLR_3"
+  }
+}
