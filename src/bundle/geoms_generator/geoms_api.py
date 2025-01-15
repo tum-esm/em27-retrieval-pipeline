@@ -1,57 +1,40 @@
 import math
-from typing import Literal
+from typing import Any, Callable, Literal
 import polars as pl
 import pandas as pd
 import numpy as np
 import pydantic
+from utils import geoms_times_to_datetime, datetimes_to_geoms_times
 
 
 # fmt: off
 class GEOMSColumnNames:
-    SOURCE_PRODUCT = "SOURCE.PRODUCT"
-    DATETIME = "DATETIME"
-    ALTITUDE = "ALTITUDE"
-    SOLAR_ZENITH_ANGLE = "ANGLE.SOLAR_ZENITH.ASTRONOMICAL"
+    SOURCE_PRODUCT =      "SOURCE.PRODUCT"
+    DATETIME =            "DATETIME"
+    ALTITUDE =            "ALTITUDE"
+    SOLAR_ZENITH_ANGLE =  "ANGLE.SOLAR_ZENITH.ASTRONOMICAL"
     SOLAR_AZIMUTH_ANGLE = "ANGLE.SOLAR_AZIMUTH"
 
-    INSTRUMENT_LAT = "LATITUDE.INSTRUMENT"
-    INSTRUMENT_LON = "LONGITUDE.INSTRUMENT"
+    INSTRUMENT_LAT =      "LATITUDE.INSTRUMENT"
+    INSTRUMENT_LON =      "LONGITUDE.INSTRUMENT"
     INSTRUMENT_ALTITUDE = "ALTITUDE.INSTRUMENT"
 
-    SURFACE_PRESSURE_INDEPENDENT = "SURFACE.PRESSURE_INDEPENDENT"
+    SURFACE_PRESSURE_INDEPENDENT =        "SURFACE.PRESSURE_INDEPENDENT"
     SURFACE_PRESSURE_INDEPENDENT_SOURCE = "SURFACE.PRESSURE_INDEPENDENT_SOURCE"
-    PRESSURE_INDEPENDENT = "PRESSURE_INDEPENDENT"
-    PRESSURE_INDEPENDENT_SOURCE = "PRESSURE_INDEPENDENT_SOURCE"
-    TEMPERATURE_INDEPENDENT = "TEMPERATURE_INDEPENDENT"
-    TEMPERATURE_INDEPENDENT_SOURCE = "TEMPERATURE_INDEPENDENT_SOURCE"
+    PRESSURE_INDEPENDENT =                "PRESSURE_INDEPENDENT"
+    PRESSURE_INDEPENDENT_SOURCE =         "PRESSURE_INDEPENDENT_SOURCE"
+    TEMPERATURE_INDEPENDENT =             "TEMPERATURE_INDEPENDENT"
+    TEMPERATURE_INDEPENDENT_SOURCE =      "TEMPERATURE_INDEPENDENT_SOURCE"
 
-    AIR_COLUMN = "DRY.AIR.COLUMN.PARTIAL_INDEPENDENT"
-    AIR_DENSITY = "DRY.AIR.NUMBER.DENSITY_INDEPENDENT"
+    AIR_COLUMN =         "DRY.AIR.COLUMN.PARTIAL_INDEPENDENT"
+    AIR_DENSITY =        "DRY.AIR.NUMBER.DENSITY_INDEPENDENT"
     AIR_DENSITY_SOURCE = "DRY.AIR.NUMBER.DENSITY_INDEPENDENT_SOURCE"
-
-    H2O_APRIORI = "H2O.MIXING.RATIO.VOLUME.DRY_APRIORI"
-    H2O_APRIORI_SOURCE = "H2O.MIXING.RATIO.VOLUME.DRY_APRIORI.SOURCE"
-    H2O_COLUMN = "H2O.COLUMN.MIXING.RATIO.VOLUME.DRY_ABSORPTION.SOLAR"
-    H2O_UNCERTAINTY = "H2O.COLUMN.MIXING.RATIO.VOLUME.DRY_ABSORPTION.SOLAR_UNCERTAINTY.RANDOM.STANDARD"
-    H2O_AVK = "H2O.COLUMN_ABSORPTION.SOLAR_AVK"
-
-    CO2_APRIORI = "CO2.MIXING.RATIO.VOLUME.DRY_APRIORI"
-    CO2_APRIORI_SOURCE = "CO2.MIXING.RATIO.VOLUME.DRY_APRIORI.SOURCE"
-    CO2_COLUMN = "CO2.COLUMN.MIXING.RATIO.VOLUME.DRY_ABSORPTION.SOLAR"
-    CO2_UNCERTAINTY = "CO2.COLUMN.MIXING.RATIO.VOLUME.DRY_ABSORPTION.SOLAR_UNCERTAINTY.RANDOM.STANDARD"
-    CO2_AVK = "CO2.COLUMN_ABSORPTION.SOLAR_AVK"
-
-    CH4_APRIORI = "CH4.MIXING.RATIO.VOLUME.DRY_APRIORI"
-    CH4_APRIORI_SOURCE = "CH4.MIXING.RATIO.VOLUME.DRY_APRIORI.SOURCE"
-    CH4_COLUMN = "CH4.COLUMN.MIXING.RATIO.VOLUME.DRY_ABSORPTION.SOLAR"
-    CH4_UNCERTAINTY = "CH4.COLUMN.MIXING.RATIO.VOLUME.DRY_ABSORPTION.SOLAR_UNCERTAINTY.RANDOM.STANDARD"
-    CH4_AVK = "CH4.COLUMN_ABSORPTION.SOLAR_AVK"
-
-    CO_APRIORI = "CO.MIXING.RATIO.VOLUME.DRY_APRIORI"
-    CO_APRIORI_SOURCE = "CO.MIXING.RATIO.VOLUME.DRY_APRIORI.SOURCE"
-    CO_COLUMN = "CO.COLUMN.MIXING.RATIO.VOLUME.DRY_ABSORPTION.SOLAR"
-    CO_UNCERTAINTY = "CO.COLUMN.MIXING.RATIO.VOLUME.DRY_ABSORPTION.SOLAR_UNCERTAINTY.RANDOM.STANDARD"
-    CO_AVK = "CO.COLUMN_ABSORPTION.SOLAR_AVK"
+    
+    GAS_APRIOR:        Callable[[str], str] = lambda gas: f"{gas}.MIXING.RATIO.VOLUME.DRY_APRIORI"
+    GAS_APRIOR_SOURCE: Callable[[str], str] = lambda gas: f"{gas}.MIXING.RATIO.VOLUME.DRY_APRIORI.SOURCE"
+    GAS_COLUMN:        Callable[[str], str] = lambda gas: f"{gas}.COLUMN.MIXING.RATIO.VOLUME.DRY_ABSORPTION.SOLAR"
+    GAS_UNCERTAINTY:   Callable[[str], str] = lambda gas: f"{gas}.COLUMN.MIXING.RATIO.VOLUME.DRY_ABSORPTION.SOLAR_UNCERTAINTY.RANDOM.STANDARD"
+    GAS_AVK:           Callable[[str], str] = lambda gas: f"{gas}.COLUMN_ABSORPTION.SOLAR_AVK"
 
 # fmt: on
 
@@ -89,30 +72,24 @@ class GEOMSSRCAttributeMetadata(pydantic.BaseModel):
 
 
 class GEOMSAPI:
-    def write_datetime(self, df, variable_name: str = "DAT_TIM"):
-        # "DAT_TIM": "DATETIME"
+    def write_datetime(self, julian_dates: list[float]) -> None:
+        """Datetime information"""
 
-        # Write DateTime to the HDF5 file
-        # (MJD2K is 0.0 on January 1, 2000 at 00:00:00 UTC).
-
-        dataset_name = self.hdf5_vars[variable_name]
+        dataset_name = self.hdf5_vars[GEOMSColumnNames.DATETIME]
         self.variables.append(dataset_name)
 
-        datetime_notes = self.input_args["DATETIME_NOTES"]
-
-        data = df["JulianDate"].to_numpy()
-
-        data = self._GEOMStoDateTime((data - 2451544.5) * 86400.0)
-        # data = self._GEOMStoDateTime(np.round((data - 2451544.5) * 86400.0))
-        # ???
-        data = self._DateTimeToGEOMS(data) / 86400.0
+        data = [
+            d / 86400.0
+            for d in datetimes_to_geoms_times(
+                geoms_times_to_datetime([(d - 2451544.5) * 86400.0 for d in julian_dates])
+            )
+        ]
 
         metadata = GEOMSAttributeMetadata(
             VAR_DATA_TYPE="DOUBLE",
             VAR_DEPEND="DATETIME",
             VAR_DESCRIPTION="MJD2K is 0.0 on January 1, 2000 at 00:00:00 UTC",
             VAR_NAME=dataset_name,
-            VAR_NOTES=datetime_notes,
             VAR_SIZE=str(np.size(data)),
             VAR_SI_CONVERSION="0.0;86400.0;s",
             VAR_UNITS="MJD2K",
@@ -124,12 +101,10 @@ class GEOMSAPI:
 
         self.SRC_dtst = self._write_dataset_dt(data, dataset_name, metadata)
 
-    def write_altitude(self, df, ptf, variable_name: str = "ALT") -> None:
-        # "ALT": "ALTITUDE"
+    def write_altitude(self, df: pd.DataFrame, ptf: pd.DataFrame) -> None:
+        """Altitude information used in the a-priori profile matrix"""
 
-        # Write altitude information used in the a-priori profile matrix.
-
-        dataset_name = self.hdf5_vars[variable_name]
+        dataset_name = self.hdf5_vars[GEOMSColumnNames.ALTITUDE]
         self.variables.append(dataset_name)
 
         data = np.zeros(df["JulianDate"].shape + ptf["Altitude"].shape)
@@ -155,13 +130,10 @@ class GEOMSAPI:
 
         self.SRC_dtst = self._write_dataset(data, dataset_name, metadata)
 
-    def write_solar_angle_zenith(self, df, variable_name: str = "SOL_ZEN") -> None:
-        # "SOL_ZEN": "ANGLE.SOLAR_ZENITH.ASTRONOMICAL"
+    def write_solar_angle_zenith(self, df: pd.DataFrame) -> None:
+        """Solar zenith angle"""
 
-        # Write solar zenith angle to the HDF5 file
-        # (solar astronomical zenith angle).
-
-        dataset_name = self.hdf5_vars[variable_name]
+        dataset_name = self.hdf5_vars[GEOMSColumnNames.SOLAR_ZENITH_ANGLE]
         self.variables.append(dataset_name)
 
         data = df["appSZA"].to_numpy()
@@ -183,20 +155,13 @@ class GEOMSAPI:
 
         self.SRC_dtst = self._write_dataset(data, dataset_name, metadata)
 
-    def write_solar_angle_azimuth(self, df, variable_name: str = "SOL_AZI") -> None:
-        # "SOL_AZI": "ANGLE.SOLAR_AZIMUTH"
+    def write_solar_angle_azimuth(self, df: pd.DataFrame) -> None:
+        """Solar azimuth angle"""
 
-        # Write solar azimuth angle to the HDF5 file.
-
-        dataset_name = self.hdf5_vars[variable_name]
+        dataset_name = self.hdf5_vars[GEOMSColumnNames.SOLAR_AZIMUTH_ANGLE]
         self.variables.append(dataset_name)
 
         data = df["azimuth"].to_numpy() + 180.0
-
-        # To avoid values lower than 0.0° or higher than 360.0°
-        # causing an error message
-        # in the quality checks of the HDF5 files, a small numer is
-        # added or subtracted.
 
         for i in range(len(data)):
             if data[i] <= 0.0 + 1.0e-5 or data[i] >= 360.0 - 1.0e-5:
@@ -218,13 +183,10 @@ class GEOMSAPI:
 
         self.SRC_dtst = self._write_dataset(data, dataset_name, metadata)
 
-    def write_instr_latitude(self, df, variable_name: str = "INST_LAT") -> None:
-        # "INST_LAT": "LATITUDE.INSTRUMENT"
+    def write_instr_latitude(self, df: pd.DataFrame) -> None:
+        """Instrument latitude"""
 
-        # Write the instrument's latitude to the HDF5 file
-        # (i.e. the geolocation with + for north and - for south).
-
-        dataset_name = self.hdf5_vars[variable_name]
+        dataset_name = self.hdf5_vars[GEOMSColumnNames.INSTRUMENT_LAT]
         self.variables.append(dataset_name)
 
         data = df["latdeg"].to_numpy()
@@ -245,13 +207,10 @@ class GEOMSAPI:
 
         self.SRC_dtst = self._write_dataset(data, dataset_name, metadata)
 
-    def write_instr_longitude(self, df, variable_name: str = "INST_LON") -> None:
-        # "INST_LON": "LONGITUDE.INSTRUMENT"
+    def write_instr_longitude(self, df: pd.DataFrame) -> None:
+        """Instrument longitude"""
 
-        # Write the instrument's longitude to the HDF5 file
-        # (i.e. the geolocation with + for east and - for west).
-
-        dataset_name = self.hdf5_vars[variable_name]
+        dataset_name = self.hdf5_vars[GEOMSColumnNames.INSTRUMENT_LON]
         self.variables.append(dataset_name)
 
         data = df["londeg"].to_numpy()
@@ -272,13 +231,10 @@ class GEOMSAPI:
 
         self.SRC_dtst = self._write_dataset(data, dataset_name, metadata)
 
-    def write_instr_altitude(self, df, variable_name: str = "INST_ALT") -> None:
-        # "INST_ALT": "ALTITUDE.INSTRUMENT"
+    def write_instrument_altitude(self, df: pd.DataFrame) -> None:
+        """Instrument altitude"""
 
-        # Write the instrument's altitude to the HDF5 file
-        # (i.e. the geolocation).
-
-        dataset_name = self.hdf5_vars[variable_name]
+        dataset_name = self.hdf5_vars[GEOMSColumnNames.INSTRUMENT_ALTITUDE]
         self.variables.append(dataset_name)
 
         data = df["altim"].to_numpy()
@@ -299,13 +255,10 @@ class GEOMSAPI:
 
         self.SRC_dtst = self._write_dataset(data, dataset_name, metadata)
 
-    def write_surface_pressure(self, df, variable_name: str = "SUR_IND") -> None:
-        # "SUR_IND": "SURFACE.PRESSURE_INDEPENDENT"
+    def write_surface_pressure(self, df: pd.DataFrame) -> None:
+        """Surface pressure"""
 
-        #  Write the surface pressure (i.e. the ground pressure)
-        # to the HDF5 file.
-
-        dataset_name = self.hdf5_vars[variable_name]
+        dataset_name = self.hdf5_vars[GEOMSColumnNames.SURFACE_PRESSURE_INDEPENDENT]
         self.variables.append(dataset_name)
 
         data = df["gndP"].to_numpy()
@@ -326,13 +279,10 @@ class GEOMSAPI:
 
         self.SRC_dtst = self._write_dataset(data, dataset_name, metadata)
 
-    def write_surface_pressure_src(self, df, variable_name: str = "SUR_SRC") -> None:
-        # "SUR_SRC": "SURFACE.PRESSURE_INDEPENDENT_SOURCE"
+    def write_surface_pressure_src(self, df: pd.DataFrame) -> None:
+        """Source of the surface pressure"""
 
-        # Write the source of the surface pressure
-        # (i.e. the ground pressure) to the HDF5 file.
-
-        dataset_name = self.hdf5_vars[variable_name]
+        dataset_name = self.hdf5_vars[GEOMSColumnNames.SURFACE_PRESSURE_INDEPENDENT_SOURCE]
         self.variables.append(dataset_name)
 
         data = df["londeg"].to_numpy()
@@ -349,13 +299,10 @@ class GEOMSAPI:
 
         self.SRC_dtst = self._write_dataset_src(data_src, dataset_name, metadata)
 
-    def write_pressure(self, df, ptf, variable_name: str = "PRE_IND") -> None:
-        # "PRE_IND": "PRESSURE_INDEPENDENT"
+    def write_pressure(self, df: pd.DataFrame, ptf: pd.DataFrame) -> None:
+        """Effective air pressure at each altitude"""
 
-        # Write the effective air pressure at each
-        # altitude level to the HDF5 file.
-
-        dataset_name = self.hdf5_vars[variable_name]
+        dataset_name = self.hdf5_vars[GEOMSColumnNames.PRESSURE_INDEPENDENT.value]
         self.variables.append(dataset_name)
 
         data = np.zeros(df["JulianDate"].shape + ptf["Altitude"].shape)
@@ -380,13 +327,10 @@ class GEOMSAPI:
 
         self.SRC_dtst = self._write_dataset(data, dataset_name, metadata)
 
-    def write_pressure_src(self, df, variable_name: str = "PRE_SRC") -> None:
-        # "PRE_SRC": "PRESSURE_INDEPENDENT_SOURCE"
+    def write_pressure_src(self, df: pd.DataFrame) -> None:
+        """Source of the effective air pressure"""
 
-        # Write the source of the effective air pressure
-        # for each altitude to the HDf5 file.
-
-        dataset_name = self.hdf5_vars[variable_name]
+        dataset_name = self.hdf5_vars[GEOMSColumnNames.PRESSURE_INDEPENDENT_SOURCE.value]
         self.variables.append(dataset_name)
 
         data_src = []
@@ -404,13 +348,10 @@ class GEOMSAPI:
 
         self.SRC_dtst = self._write_dataset_src(data_src, dataset_name, metadata)
 
-    def write_temperature(self, df, ptf, variable_name: str = "TEM_IND") -> None:
-        # "TEM_IND": "TEMPERATURE_INDEPENDENT"
+    def write_temperature(self, df: pd.DataFrame, ptf: pd.DataFrame) -> None:
+        """Effective air temperature"""
 
-        # Write the effective air temperature at each
-        # altitude to the HDF5 file.
-
-        dataset_name = self.hdf5_vars[variable_name]
+        dataset_name = self.hdf5_vars[GEOMSColumnNames.TEMPERATURE_INDEPENDENT.value]
         self.variables.append(dataset_name)
 
         data = np.zeros(df["JulianDate"].shape + ptf["Altitude"].shape)
@@ -435,13 +376,10 @@ class GEOMSAPI:
 
         self.SRC_dtst = self._write_dataset(data, dataset_name, metadata)
 
-    def write_temperature_src(self, df, variable_name: str = "TEM_SRC") -> None:
-        # "TEM_SRC": "TEMPERATURE_INDEPENDENT_SOURCE"
+    def write_temperature_src(self, df: pd.DataFrame) -> None:
+        """Source of the effective air temperature"""
 
-        # Write the source of the effective air pressure for
-        # each altitude to the HDF5 file.
-
-        dataset_name = self.hdf5_vars[variable_name]
+        dataset_name = self.hdf5_vars[GEOMSColumnNames.TEMPERATURE_INDEPENDENT_SOURCE.value]
         self.variables.append(dataset_name)
 
         data_src = []
@@ -449,47 +387,41 @@ class GEOMSAPI:
         for i in range(df["JulianDate"].shape[0]):
             data_src.append("Temperature profile from NCEP at local noon")
 
-        self.hdf5_atts_src["VAR_DATA_TYPE"] = "STRING"
-        self.hdf5_atts_src["VAR_DEPEND"] = "DATETIME"
-        self.hdf5_atts_src["VAR_DESCRIPTION"] = (
-            "Temperature profile source (e.g. Lidar NCEP Sonde ECMWF etc.)"
+        metadata = GEOMSSRCAttributeMetadata(
+            VAR_DATA_TYPE="STRING",
+            VAR_DEPEND="DATETIME",
+            VAR_DESCRIPTION="Temperature profile source (NCEP)",
+            VAR_NAME=dataset_name,
+            VAR_SIZE=str(np.size(data_src)),
         )
-        self.hdf5_atts_src["VAR_NAME"] = dataset_name
-        # self.hdf5_atts_src["VAR_NOTES"] = ""
-        self.hdf5_atts_src["VAR_SIZE"] = str(np.size(data_src))
-
-        self.SRC_dtst = self._write_dataset_src(data_src, dataset_name, self.hdf5_atts_src)
+        self.SRC_dtst = self._write_dataset_src(data_src, dataset_name, metadata)
 
     def write_col(
         self,
-        df,
-        variable_name: Literal["CO2_COL", "CH4_COL", "CO_COL", "H2O_COL"],
+        df: pd.DataFrame,
+        species: Literal["CO2", "CH4", "CO", "H2O"],
     ) -> None:
-        # "XXX_COL": "XXX.COLUMN.MIXING.RATIO.VOLUME.DRY_ABSORPTION.SOLAR"
+        """Column average dry air mole fraction"""
 
-        # Write column average dry air mole fractions for
-        # each trace gas to HDF5 file.
-
-        dataset_name = self.hdf5_vars[variable_name]
+        dataset_name = self.hdf5_vars[GEOMSColumnNames.GAS_COLUMN(species)]
         self.variables.append(dataset_name)
 
         unit: Literal["ppmv", "ppbv"]
 
         # Convert data to numpy array.
-        if variable_name == "H2O_COL":
-            # "H2O_COL": "H2O.COLUMN.MIXING.RATIO.VOLUME.DRY_ABSORPTION.SOLAR"
+        if species == "H2O":
             data = df["XH2O"].to_numpy()
             unit = "ppmv"
-        elif variable_name == "CO2_COL":
-            # "CO2_COL": "CO2.COLUMN.MIXING.RATIO.VOLUME.DRY_ABSORPTION.SOLAR"
+
+        elif species == "CO2":
             data = df["XCO2"].to_numpy()
             unit = "ppmv"
-        elif variable_name == "CH4_COL":
-            # "CH4_COL": "CH4.COLUMN.MIXING.RATIO.VOLUME.DRY_ABSORPTION.SOLAR"
+
+        elif species == "CH4":
             data = df["XCH4"].to_numpy()
             unit = "ppmv"
-        elif variable_name == "CO_COL":
-            # "CO_COL":  "CO.COLUMN.MIXING.RATIO.VOLUME.DRY_ABSORPTION.SOLAR"
+
+        elif species == "CO":
             data = df["XCO"].to_numpy() * 1000.0  # in ppbv
             data[data < 0] = -900000.0  # default fill value
             unit = "ppbv"
@@ -511,18 +443,14 @@ class GEOMSAPI:
         )
         self.SRC_dtst = self._write_dataset(data, dataset_name, metadata)
 
-    def write_col_unc(
+    def write_column_uncertainty(
         self,
-        df,
-        variable_name: Literal["CO2_UNC", "CH4_UNC", "CO_UNC", "H2O_UNC"],
+        df: pd.DataFrame,
+        species: Literal["CO2", "CH4", "CO", "H2O"],
     ) -> None:
-        # "XXX_UNC":
-        # "XXX.COLUMN.MIXING.RATIO.VOLUME.DRY_ABSORPTION.SOLAR_UNCERTAINTY.RANDOM.STANDARD"
+        """Column average dry air mole fraction uncertainty"""
 
-        # Write uncertainty on the retrieved total column
-        # for each trace gas to HDF5 file.
-
-        dataset_name = self.hdf5_vars[variable_name]
+        dataset_name = self.hdf5_vars[GEOMSColumnNames.GAS_UNCERTAINTY(species)]
         self.variables.append(dataset_name)
 
         data = np.zeros(df["JulianDate"].shape)
@@ -530,24 +458,16 @@ class GEOMSAPI:
         h2o_unc, co2_unc, ch4_unc, co_unc = self.get_col_unc(df)
         unit: Literal["ppmv", "ppbv"]
 
-        if variable_name == "H2O_UNC":
-            # "H2O_UNC":
-            # "H2O.COLUMN.MIXING.RATIO.VOLUME.DRY_ABSORPTION.SOLAR_UNCERTAINTY.RANDOM.STANDARD"
+        if species == "H2O":
             data = h2o_unc
             unit = "ppmv"
-        elif variable_name == "CO2_UNC":
-            # "CO2_UNC":
-            # "CO2.COLUMN.MIXING.RATIO.VOLUME.DRY_ABSORPTION.SOLAR_UNCERTAINTY.RANDOM.STANDARD"
+        elif species == "CO2":
             data = co2_unc  # uncertainty for CO2
             unit = "ppmv"
-        elif variable_name == "CH4_UNC":
-            # "CH4_UNC":
-            # "CH4.COLUMN.MIXING.RATIO.VOLUME.DRY_ABSORPTION.SOLAR_UNCERTAINTY.RANDOM.STANDARD"
+        elif species == "CH4":
             data = ch4_unc  # uncertainty for CH4
             unit = "ppmv"
-        elif variable_name == "CO_UNC":
-            # "CO_UNC":
-            # "CO.COLUMN.MIXING.RATIO.VOLUME.DRY_ABSORPTION.SOLAR_UNCERTAINTY.RANDOM.STANDARD"
+        elif species == "CO":
             data = co_unc  # uncertainty for CO
             unit = "ppbv"
         else:
@@ -569,45 +489,44 @@ class GEOMSAPI:
 
         self.SRC_dtst = self._write_dataset(data, dataset_name, metadata)
 
-    def write_apr(
+    def write_apriori(
         self,
-        df,
-        ptf,
-        vmr,
-        variable_name: Literal["CO2_APR", "CH4_APR", "CO_APR", "H2O_APR"],
+        df: pd.DataFrame,
+        ptf: pd.DataFrame,
+        vmr: pd.DataFrame,
+        species: Literal["CO2", "CH4", "CO", "H2O"],
     ) -> None:
-        """Write prior total vertical column for each trace gas to the HDF5 file.
-        "XXX_APR": "XXX.MIXING.RATIO.VOLUME.DRY_APRIORI"""
-        dataset_name = self.hdf5_vars[variable_name]
+        """A-priori total vertical column of target gas"""
+
+        dataset_name = self.hdf5_vars[GEOMSColumnNames.GAS_APRIOR(species)]
         self.variables.append(dataset_name)
 
         data = np.zeros(df["JulianDate"].shape + ptf["Altitude"].shape)
 
         unit: Literal["ppmv", "ppbv"]
 
-        if variable_name == "H2O_APR":
-            # "H2O_APR": "H2O.MIXING.RATIO.VOLUME.DRY_APRIORI"
+        if species == "H2O":
             H2O_prior = ptf["H2O"]  # VMR prior for H2O
             for i in range(df["JulianDate"].shape[0]):
                 for j in range(ptf["Altitude"].shape[0]):
                     data[i][j] = H2O_prior[j]  # in ppm
             unit = "ppmv"
-        elif variable_name == "CO2_APR":
-            # "CO2_APR": "CO2.MIXING.RATIO.VOLUME.DRY_APRIORI"
+
+        elif species == "CO2":
             CO2_prior = vmr["CO2"]  # VMR prior for CO2
             for i in range(df["JulianDate"].shape[0]):
                 for j in range(ptf["Altitude"].shape[0]):
                     data[i][j] = CO2_prior[j]  # in ppm
             unit = "ppmv"
-        elif variable_name == "CH4_APR":
-            # "CH4_APR": "CH4.MIXING.RATIO.VOLUME.DRY_APRIORI"
+
+        elif species == "CH4":
             CH4_prior = vmr["CH4"] * 1000.0  # VMR prior for CH4
             for i in range(df["JulianDate"].shape[0]):
                 for j in range(ptf["Altitude"].shape[0]):
                     data[i][j] = CH4_prior[j]  # in ppb
             unit = "ppbv"
-        elif variable_name == "CO_APR":
-            # "CO_APR": "CO.MIXING.RATIO.VOLUME.DRY_APRIORI"
+
+        elif species == "CO":
             CO_prior = vmr["CO"] * 1000.0  # VMR prior for CO
             for i in range(df["JulianDate"].shape[0]):
                 for j in range(ptf["Altitude"].shape[0]):
@@ -630,34 +549,27 @@ class GEOMSAPI:
 
         self.SRC_dtst = self._write_dataset(data, dataset_name, metadata)
 
-    def write_apr_src(
+    def write_apriori_src(
         self,
-        df,
-        variable_name: Literal["CO2_SRC", "CH4_SRC", "CO_SRC", "H2O_SRC"],
+        df: pd.DataFrame,
+        species: Literal["CO2", "CH4", "CO", "H2O"],
     ) -> None:
-        # "XXX_SRC": "XXX.MIXING.RATIO.VOLUME.DRY_APRIORI.SOURCE"
+        """A-priori source of the vertical profile of a-priori per layer"""
 
-        # Write source of the a-prior total vertical column for each
-        # trace gas to the HDF5 file.
-
-        dataset_name = self.hdf5_vars[variable_name]
+        dataset_name = self.hdf5_vars[GEOMSColumnNames.GAS_APRIOR_SOURCE(species)]
         self.variables.append(dataset_name)
 
         data_src = []
         ggg_ver = self.input_args["APRIORI_SOURCE"]
 
         for i in range(df["JulianDate"].shape[0]):
-            if variable_name == "H2O_SRC":
-                # "H2O_SRC": "H2O.MIXING.RATIO.VOLUME.DRY_APRIORI.SOURCE"
+            if species == "H2O":
                 data_src.append("Total vertical column of H2O from NCEP at local noon")
-            elif variable_name == "CO2_SRC":
-                # "CO2_SRC": "CO2.MIXING.RATIO.VOLUME.DRY_APRIORI.SOURCE"
+            elif species == "CO2":
                 data_src.append("Map file GFIT Code ({})".format(ggg_ver))
-            elif variable_name == "CH4_SRC":
-                # "CH4_SRC": "CH4.MIXING.RATIO.VOLUME.DRY_APRIORI.SOURCE"
+            elif species == "CH4":
                 data_src.append("Map file GFIT Code ({})".format(ggg_ver))
-            elif variable_name == "CO_SRC":
-                # "CO_SRC":  "CO.MIXING.RATIO.VOLUME.DRY_APRIORI.SOURCE"
+            elif species == "CO":
                 data_src.append("Map file GFIT Code ({})".format(ggg_ver))
 
         metadata = GEOMSSRCAttributeMetadata(
@@ -671,41 +583,40 @@ class GEOMSAPI:
 
     def write_avk(
         self,
-        df: pl.DataFrame | pd.DataFrame,
-        ptf,
-        sen,
-        variable_name: Literal["CO2_AVK", "CH4_AVK", "CO_AVK", "H2O_AVK"],
+        df: pd.DataFrame,
+        ptf: pd.DataFrame,
+        sen: Any,
+        species: Literal["CO2", "CH4", "CO", "H2O"],
     ) -> None:
-        # "XXX_AVK": "XXX.COLUMN_ABSORPTION.SOLAR_AVK"
+        """Column sensitivities assosiated with the total vertical column"""
 
-        # Write column sensitivities assosiated with the total vertical column
-        # for each trace gas to the HDF5 file.
-
-        dataset_name = self.hdf5_vars[variable_name]
+        dataset_name = self.hdf5_vars[GEOMSColumnNames.GAS_AVK(species)]
         self.variables.append(dataset_name)
 
         data = np.zeros(df["JulianDate"].shape + ptf["Altitude"].shape)
 
-        if variable_name == "H2O_AVK":
-            # "H2O_APR": "H2O.MIXING.RATIO.VOLUME.DRY_APRIORI"
+        if species == "H2O":
             for i in range(df["JulianDate"].shape[0]):
                 for j in range(ptf["Altitude"].shape[0]):
                     data[i][j] = sen[0][i][j]  # 0: "CO2_int"
-        elif variable_name == "CO2_AVK":
-            # "CO2_APR": "CO2.MIXING.RATIO.VOLUME.DRY_APRIORI"
+
+        elif species == "CO2":
             for i in range(df["JulianDate"].shape[0]):
                 for j in range(ptf["Altitude"].shape[0]):
                     data[i][j] = sen[2][i][j]  # 1: "CH4_int"
-        elif variable_name == "CH4_AVK":
-            # "CH4_APR": "CH4.MIXING.RATIO.VOLUME.DRY_APRIOR"
+
+        elif species == "CH4":
             for i in range(df["JulianDate"].shape[0]):
                 for j in range(ptf["Altitude"].shape[0]):
                     data[i][j] = sen[3][i][j]  # 2: "CO_int"
-        elif variable_name == "CO_AVK":
-            # "CO_APR": "CO.MIXING.RATIO.VOLUME.DRY_APRIORI"
+
+        elif species == "CO":
             for i in range(df["JulianDate"].shape[0]):
                 for j in range(ptf["Altitude"].shape[0]):
                     data[i][j] = sen[5][i][j]  # 3: "H2O_int"
+
+        else:
+            raise ValueError("Invalid species")
 
         metadata = GEOMSAttributeMetadata(
             VAR_DATA_TYPE="REAL",
@@ -723,17 +634,10 @@ class GEOMSAPI:
 
         self.SRC_dtst = self._write_dataset(data, dataset_name, metadata)
 
-    def write_air_partial(self, df, ptf, variable_name: str = "AIR_COL") -> None:
-        # "AIR_COL": "DRY.AIR.COLUMN.PARTIAL_INDEPENDENT"
+    def write_air_partial(self, df: pd.DataFrame, ptf: pd.DataFrame) -> None:
+        """Partial pressure of dry air"""
 
-        # Write vertical profile of partial columns of air number densities
-        # (for conversion between VMR and partial column profile).
-        # 0: "Index", 1: "Altitude", 2: "Tem", 3: "Pre", 4: "DAC",
-        # 5: "H2O", 6: "HDO"
-        # 0: "Index", 1: "Altitude", 2: "Temperature", 3: "Pressure",
-        # 4: "Column", 5: "H2O", 6: "HDO"
-
-        dataset_name = self.hdf5_vars[variable_name]
+        dataset_name = self.hdf5_vars[GEOMSColumnNames.AIR_COLUMN]
         self.variables.append(dataset_name)
 
         data = np.zeros(df["JulianDate"].shape + ptf["Altitude"].shape)
@@ -803,16 +707,10 @@ class GEOMSAPI:
 
         self.SRC_dtst = self._write_dataset(data, dataset_name, metadata)
 
-    def write_air_density(self, df, ptf, variable_name: str = "AIR_DEN") -> None:
-        # "AIR_DEN": "DRY.AIR.NUMBER.DENSITY_INDEPENDENT"
+    def write_air_density(self, df, ptf) -> None:
+        """Dry air number density profile"""
 
-        # Write the dry air number density profile to the HDF5 file.
-        # 0: "Index", 1: "Altitude", 2: "Tem", 3: "Pre", 4: "DAC", 5:
-        # "H2O", 6: "HDO"
-        # 0: "Index", 1: "Altitude", 2: "Temperature", 3: "Pressure",
-        # 4: "Column", 5: "H2O", 6: "HDO"
-
-        dataset_name = self.hdf5_vars[variable_name]
+        dataset_name = self.hdf5_vars[GEOMSColumnNames.AIR_DENSITY]
         self.variables.append(dataset_name)
 
         data = np.zeros(df["JulianDate"].shape + ptf["Altitude"].shape)
@@ -848,13 +746,10 @@ class GEOMSAPI:
         )
         self.SRC_dtst = self._write_dataset(data, dataset_name, metadata)
 
-    def write_air_density_src(self, df, variable_name: str = "AIR_SRC") -> None:
-        # "AIR_SRC": "DRY.AIR.NUMBER.DENSITY_INDEPENDENT_SOURCE"
+    def write_air_density_src(self, df: pd.DataFrame) -> None:
+        """Source of the dry air number density profile"""
 
-        # Write source of the dry air number density profile
-        # (hydrostatic) to the HDF5 file.
-
-        dataset_name = self.hdf5_vars[variable_name]
+        dataset_name = self.hdf5_vars[GEOMSColumnNames.AIR_DENSITY_SOURCE]
         self.variables.append(dataset_name)
 
         data_src = []
