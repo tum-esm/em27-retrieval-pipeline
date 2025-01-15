@@ -164,22 +164,20 @@ def run(
         if dumped_config.general.metadata is not None:
             if dumped_config.general.metadata.access_token is not None:
                 dumped_config.general.metadata.access_token = "REDACTED"
-
-        assert dumped_config.retrieval is not None
-        about_dict = {
-            "automationVersion": utils.functions.get_pipeline_version(),
-            "automationCommitSha": tum_esm_utils.shell.get_commit_sha(),
-            "generationTime": now.strftime("%Y-%m-%dT%H:%M:%S%z"),
-            "config": {
-                "general": dumped_config.general.model_dump(mode="json"),
-                "retrieval": dumped_config.retrieval.model_dump(mode="json"),
-            },
-            "session": session.model_dump(mode="json"),
-        }
-        json.dump(about_dict, f, indent=4)
+        about = types.AboutRetrieval(
+            automationVersion=utils.functions.get_pipeline_version(),
+            automationCommitSha=tum_esm_utils.shell.get_commit_sha(),
+            generationTime=now.strftime("%Y-%m-%dT%H:%M:%S%z"),
+            config=types.AboutRetrievalConfig(
+                general=dumped_config.general,
+                retrieval=dumped_config.retrieval,
+            ),
+            session=session,
+        )
+        f.write(about.model_dump_json(indent=4))
 
     # RENAME TEMPORARY OUTPUT DIRECTORY
-    
+
     # this operation is atomic, i.e., output directories
     # with a correct name are always complete
     os.rename(output_dst_tmp, output_dst)
