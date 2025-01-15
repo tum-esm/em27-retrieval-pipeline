@@ -13,7 +13,6 @@ from utils import (
     get_ils_form_preprocess_inp,
     load_pt_file,
     load_vmr_file,
-    load_column_sensitivity_file,
     load_interpolated_column_sensitivity_file,
     calculate_column_uncertainty,
 )
@@ -36,7 +35,6 @@ class GEOMSWriter:
         serial_number = about.session.ctx.serial_number
         from_dt, to_dt = about.session.ctx.from_datetime, about.session.ctx.to_datetime
         assert from_dt.date() == to_dt.date()
-        label = from_dt.strftime("%Y%m%dT%H%M%S") + "-" + to_dt.strftime("%Y%m%dT%H%M%S")
 
         pl_df = load_comb_invparms_df(results_folder, sensor_id)
         if len(pl_df) < 11:
@@ -61,12 +59,13 @@ class GEOMSWriter:
             "CH4": XCH4_uncertainty,
             "CO": XCO_uncertainty,
         }
-        data_source = f"FTIR.COCCON_TUM{serial_number:03d}"
+        evdc_location = constants.EVDC_LOCATIONS[location_id]
+        data_source = f"{constants.EVDC_NETWORK}_{constants.EVDC_AFFILIATION}{serial_number:03d}"
         filename = (
-            f"groundbased_{data_source}_munich_"
+            f"groundbased_{data_source}_{evdc_location}_"
             f"{data_from_dt.strftime('%Y%m%dT%H%M%SZ')}_"
             f"{data_to_dt.strftime('%Y%m%dT%H%M%SZ')}_"
-            f"{constants.HDF_METADATA['DATA_FILE_VERSION']}"
+            f"{constants.EVDC_METADATA['DATA_FILE_VERSION']}"
             f".h5"
         ).lower()
         filepath = os.path.join(results_folder, filename)
@@ -110,8 +109,9 @@ class GEOMSWriter:
         GEOMSAPI.write_air_density_source(hdf_file, df)
 
         # metadata
-        metadata = {**constants.HDF_METADATA}
+        metadata = {**constants.EVDC_METADATA}
         metadata["DATA_SOURCE"] = data_source
+        metadata["DATA_LOCATION"] = evdc_location
         metadata["FILE_NAME"] = filename
         GEOMSWriter.write_metadata(
             hdf_file,
