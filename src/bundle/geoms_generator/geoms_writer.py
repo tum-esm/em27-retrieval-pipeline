@@ -61,7 +61,7 @@ class GEOMSWriter:
             "CH4": XCH4_uncertainty,
             "CO": XCO_uncertainty,
         }
-        data_source = f"FTIR.COCCON_TUM_{sensor_id}_SN{serial_number:03d}_{location_id}"
+        data_source = f"FTIR.COCCON_TUM{serial_number:03d}"
         filename = (
             f"groundbased_{data_source}_munich_"
             f"{data_from_dt.strftime('%Y%m%dT%H%M%SZ')}_"
@@ -86,26 +86,28 @@ class GEOMSWriter:
 
         # enclosure pressure sensor
         GEOMSAPI.write_surface_pressure(hdf_file, df)
-        GEOMSAPI.write_surface_pressure_src(hdf_file, df, pressure_source_name="TODO")
+        GEOMSAPI.write_surface_pressure_source(hdf_file, df, pressure_source_name="TODO")
 
         # pt profile
         GEOMSAPI.write_pressure(hdf_file, df, pt_df)
-        GEOMSAPI.write_pressure_src(hdf_file, df)
+        GEOMSAPI.write_pressure_source(hdf_file, df)
         GEOMSAPI.write_temperature(hdf_file, df, pt_df)
-        GEOMSAPI.write_temperature_src(hdf_file, df)
+        GEOMSAPI.write_temperature_source(hdf_file, df)
 
         # gases
         for species in ["H2O", "CO2", "CH4", "CO"]:
             GEOMSAPI.write_column(hdf_file, df, species)
             GEOMSAPI.write_column_uncertainty(hdf_file, df, species, species_uncertainty[species])
             GEOMSAPI.write_apriori(hdf_file, df, pt_df, vmr_df, species)
-            GEOMSAPI.write_apriori_src(hdf_file, df, species, "GGG2020")
-            GEOMSAPI.write_avk(hdf_file, df, pt_df, interpolated_column_sensitivity, species)
+            GEOMSAPI.write_apriori_source(hdf_file, df, species, "GGG2020")
+            GEOMSAPI.write_averaging_kernel(
+                hdf_file, df, pt_df, interpolated_column_sensitivity, species
+            )
 
         # air
         GEOMSAPI.write_air_partial(hdf_file, df, pt_df)
         GEOMSAPI.write_air_density(hdf_file, df, pt_df)
-        GEOMSAPI.write_air_density_src(hdf_file, df)
+        GEOMSAPI.write_air_density_source(hdf_file, df)
 
         # metadata
         metadata = {**constants.HDF_METADATA}
