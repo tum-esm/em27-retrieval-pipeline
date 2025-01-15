@@ -1,33 +1,35 @@
-import datetime as dt
+import datetime
 import glob
 import os
+import re
 import numpy as np
 import math
+import pandas as pd
 import polars as pl
 from src import bundle
 from . import constants
 
 
-def geoms_times_to_datetime(times: np.ndarray[float]) -> list[dt.datetime]:
+def geoms_times_to_datetime(times: np.ndarray[float]) -> list[datetime.datetime]:
     """Transforms GEOMS DATETIME variable to dt.datetime instances
     (input is seconds, since 1/1/2000 at 0UT)"""
-    new_times: list[dt.datetime] = []
+    new_times: list[datetime.datetime] = []
     times = times / 86400.0
-    t_ref = dt.date(2000, 1, 1).toordinal()
+    t_ref = datetime.date(2000, 1, 1).toordinal()
 
     for t in times:
-        t_tmp = dt.datetime.fromordinal(t_ref + int(t / 86400.0))
-        t_del = dt.timedelta(days=(t - math.floor(t)))
+        t_tmp = datetime.datetime.fromordinal(t_ref + int(t / 86400.0))
+        t_del = datetime.timedelta(days=(t - math.floor(t)))
         new_times.append(t_tmp + t_del)
 
     return new_times
 
 
-def datetimes_to_geoms_times(times: list[dt.datetime]) -> list[float]:
+def datetimes_to_geoms_times(times: list[datetime.datetime]) -> list[float]:
     """Transforms dt.datetime instances to GEOMS DATETIME
     (output is seconds, since 1/1/2000 at 0UT)"""
     new_times: list[float] = []
-    t_ref = np.longdouble(dt.date(2000, 1, 1).toordinal())
+    t_ref = np.longdouble(datetime.date(2000, 1, 1).toordinal())
     for t in times:
         t_h = np.longdouble(t.hour)
         t_m = np.longdouble(t.minute)
@@ -98,7 +100,7 @@ def load_comb_invparms_df(results_folder: str, sensor_id: str) -> pl.DataFrame:
 
 
 def get_ils_form_preprocess_inp(
-    results_folder: str, date: dt.date
+    results_folder: str, date: datetime.date
 ) -> tuple[float, float, float, float]:
     """Return ILS from preprocess input file."""
     search_path = os.path.join(
@@ -130,3 +132,299 @@ def get_ils_form_preprocess_inp(
             j += 1
     assert len(ils) == 4
     return (float(i) for i in ils)
+
+
+def load_vmr_file(results_folder: str, date: datetime.date, sensor_id: str) -> pd.DataFrame:
+    # The content of the output VMR file is read separately for each
+    # measurement day.
+    # Each VMR file (i.e. VMR_fast_out.dat) contains:
+    # 0: "Index", 1: "Altitude", 2: "H2O", 3: "HDO", 4: "CO2", 5: "CH4",
+    # 6: "N2O", 7: "CO", 8: "O2", 9: "HF"
+    names = ["Index", "Altitude", "H2O", "HDO", "CO2", "CH4", "N2O", "CO", "O2", "HF"]
+    return pd.read_csv(
+        os.path.join(
+            results_folder,
+            "raw_output_proffast",
+            f"{sensor_id}{date.strftime('%y%m%d')}-VMR_fast_out.dat",
+        ),
+        header=None,
+        skipinitialspace=True,
+        usecols=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+        names=names,
+        sep=" ",
+        engine="python",
+    )
+
+
+def load_pt_file(results_folder: str, date: datetime.date, sensor_id: str) -> pd.DataFrame:
+    # The content of the pT output file is read separately for
+    # each measurement day.
+    # Each pT file (i.e. pT_fast_out.dat) contains:
+    # 0: "Index", 1: "Altitude", 2: "Temperature", 3: "Pressure",
+    # 4: "DryAirColumn", 5: "H2O", 6: "HDO"
+
+    return pd.read_csv(
+        os.path.join(
+            results_folder,
+            "raw_output_proffast",
+            f"{sensor_id}{date.strftime('%y%m%d')}-VMR_fast_out.dat",
+        ),
+        header=0,
+        skipinitialspace=True,
+        usecols=[0, 1, 2, 3, 4, 5, 6],
+        names=["Index", "Altitude", "Tem", "Pre", "DAC", "H2O", "HDO"],
+        sep=" ",
+        engine="python",
+    )
+
+
+def load_column_sensitivity_file(
+    results_folder: str, date: datetime.date, sensor_id: str
+) -> tuple[np.ndarray[float], np.ndarray[float], np.ndarray[float], np.ndarray[float]]:
+    # The column sensivity file (i.e. *colsens.dat") contains the vertical
+    # profile of the pressure and
+    # the sensitivities for each species (these are H2O, HDO, CO2, CH4,
+    # N2O, CO, O2, HF) as function of the SZA.
+    # alt [km], p [mbar], SZA [rad]:
+    # 0.000E+00, 3.965E-01, 5.607E-01, 6.867E-01, 7.930E-01, 8.866E-01,
+    # 9.712E-01, 1.049E+00,
+    # 1.121E+00, 1.189E+00, 1.254E+00, 1.315E+00, 1.373E+00, 1.430E+00,
+    # 1.484E+00
+
+    sza = []
+    alt = []
+    pre = []
+    sen = []
+
+    # Get path and name for the column sensitivity file of a certain day.
+
+    day_str = date.strftime("%y%m%d")
+    colsens_filename = f"{sensor_id}{date.strftime('%y%m%d')}-colsens.dat"
+    path = os.path.join(results_folder, "raw_output_proffast", colsens_filename)
+
+    # Read pressure and sensitivities as function of the altitude and SZA.
+
+    with open(path, "r") as file:
+        for i in range(8):  # H2O, HDO, CO2, CH4, N2O, CO, O2, HF
+            sza.append([])
+            alt.append([])
+            pre.append([])
+            sen.append([])
+
+            for j in range(6):  # 6 header lines for each species
+                header = file.readline()  # skip header line
+                if j == 3:  # read SZA [rad] values in the third line
+                    header = re.sub(" +", "\t", header)
+                    header = header.split("\t")  # tab separator
+                    sza[i] = np.array(header[3:])  # SZA header/columns
+                    sza[i] = sza[i].astype(float)  # string to float
+
+            for j in range(49):  # number of altitude levels
+                line = file.readline()[1:-1]  # skip first empty
+                # space and carriage return character at the end
+                line = re.sub(" +", ",", line)  # replace empty spaces
+                # by a comma
+                line = line.split(",")  # split line into columns
+
+                alt[i].append(line[0])  # altitude (first column)
+                pre[i].append(line[1])  # pressure (second column)
+
+                sen[i].append([])
+                for k in range(2, len(line)):  # SZA (third column
+                    # upwards, total 15 columns)
+                    sen[i][j].append(float(line[k]))
+
+    sza = np.array(sza, dtype=float)  # SZA [deg]
+    alt = np.array(alt, dtype=float)  # altitude [km]
+    pre = np.array(pre, dtype=float)  # pressure [mbar]
+    sen = np.array(sen, dtype=float)  # sensitivity
+
+    return sza, alt, pre, sen
+
+
+def load_interpolated_column_sensitivity_file(
+    results_folder: str,
+    date: datetime.date,
+    sensor_id: str,
+    szas: np.ndarray[float],
+) -> list[list[list[float]]]:
+    sza, alt, pre, sen = load_column_sensitivity_file(results_folder, date, sensor_id)
+
+    if (sza is None) or (alt is None) or (pre is None) or (sen is None):
+        return None
+
+    appSZA = szas
+    gas_sens = []
+
+    for k in range(8):  # H2O, HDO, CO2, CH4, N2O, CO, O2, HF
+        gas_sens.append([])
+
+        for i in range(len(appSZA)):
+            # number of measurements
+
+            gas_sens[k].append([])
+
+            SZA_app_rad = appSZA[i] * 2.0 * math.pi / 360.0
+            # SZA_app_deg = appSZA[i]
+
+            for j in range(len(sza[k]) - 1):  # number SZA angels
+                SZA_sen_rad_1 = sza[k][j]
+                # SZA_sen_deg_1 = sza[k][j] / 2.0 / math.pi * 360.
+                SZA_sen_rad_2 = sza[k][j + 1]
+                # SZA_sen_deg_2 = sza[k][j+1] / 2.0 / math.pi * 360.
+                SZA_dif_rad = SZA_sen_rad_2 - SZA_sen_rad_1
+                # SZA_dif_deg = SZA_sen_deg_2 - SZA_sen_deg_1
+
+                if SZA_app_rad >= SZA_sen_rad_1 and SZA_app_rad <= SZA_sen_rad_2:
+                    for h in range(len(alt[k])):
+                        gas_1 = sen[k][h][j]
+                        gas_2 = sen[k][h][j + 1]
+                        gas_dif = gas_2 - gas_1
+
+                        m_rad = gas_dif / SZA_dif_rad
+                        # m_deg = gas_dif/SZA_dif_deg
+
+                        b_gas = gas_1 - m_rad * SZA_sen_rad_1
+
+                        # gas interpolation
+                        gas_int = m_rad * SZA_app_rad + b_gas
+                        gas_sens[k][i].append(gas_int)
+
+                elif j == len(sza[k]) - 2 and SZA_app_rad > sza[k][len(sza) - 1]:
+                    for h in range(len(alt[k])):
+                        gas_1 = sen[k][h][j]
+                        gas_2 = sen[k][h][j + 1]
+                        gas_dif = gas_2 - gas_1
+
+                        m_rad = gas_dif / SZA_dif_rad
+                        # m_deg = gas_dif/SZA_dif_deg
+
+                        b_gas = gas_1 - m_rad * SZA_sen_rad_1
+
+                        # gas extrapolation
+                        gas_int = m_rad * SZA_app_rad + b_gas
+                        gas_sens[k][i].append(gas_int)
+    return gas_sens
+
+
+def calculate_column_uncertainty(
+    df: pd.DataFrame,
+) -> tuple[np.ndarray[float], np.ndarray[float], np.ndarray[float], np.ndarray[float]]:
+    # The error calculation (uncertainty) is performed
+    # by using the column mixing ratios and dry air mole fraction.
+
+    XH2O = df["XH2O"].to_numpy()
+    XCO2 = df["XCO2"].to_numpy()
+    XCH4 = df["XCH4"].to_numpy()
+    XCO = df["XCO"].to_numpy()
+
+    AvgNr = 11  # number of moving mean values
+    ErrNr = int(AvgNr / 2)  # number of moving mean values divided by two
+    MeaNr = len(XH2O)  # number of measurements
+
+    # Calculation of the moving mean for each species with 11 data points.
+
+    XH2O_mean = np.zeros(df["JulianDate"].shape)
+    XCO2_mean = np.zeros(df["JulianDate"].shape)
+    XCH4_mean = np.zeros(df["JulianDate"].shape)
+    XCO_mean = np.zeros(df["JulianDate"].shape)
+
+    for i in range(MeaNr - AvgNr + 1):  # moving mean calculation
+        XH2O_mean_tmp = 0.0
+        XCO2_mean_tmp = 0.0
+        XCH4_mean_tmp = 0.0
+        XCO_mean_tmp = 0.0
+
+        for j in range(AvgNr):
+            XH2O_mean_tmp += XH2O[i + j]
+            XCO2_mean_tmp += XCO2[i + j]
+            XCH4_mean_tmp += XCH4[i + j]
+            XCO_mean_tmp += XCO[i + j]
+
+        XH2O_mean[i + ErrNr] = XH2O_mean_tmp / float(AvgNr)
+        XCO2_mean[i + ErrNr] = XCO2_mean_tmp / float(AvgNr)
+        XCH4_mean[i + ErrNr] = XCH4_mean_tmp / float(AvgNr)
+        XCO_mean[i + ErrNr] = XCO_mean_tmp / float(AvgNr)
+
+    for i in range(ErrNr):  # first entries const
+        XH2O_mean[i] = XH2O_mean[ErrNr]
+        XCO2_mean[i] = XCO2_mean[ErrNr]
+        XCH4_mean[i] = XCH4_mean[ErrNr]
+        XCO_mean[i] = XCO_mean[ErrNr]
+
+    for i in range(ErrNr):  # last entries const
+        XH2O_mean[MeaNr - i - 1] = XH2O_mean[MeaNr - ErrNr - 1]
+        XCO2_mean[MeaNr - i - 1] = XCO2_mean[MeaNr - ErrNr - 1]
+        XCH4_mean[MeaNr - i - 1] = XCH4_mean[MeaNr - ErrNr - 1]
+        XCO_mean[MeaNr - i - 1] = XCO_mean[MeaNr - ErrNr - 1]
+
+    # The error calculation is based on the difference between
+    # the column mixing ratios
+    # and the the moving mean value for each trace gas.
+    # Therefore, it corresponds to a standard deviation with respect to
+    # the moving mean.
+
+    XH2O_err = np.zeros(MeaNr)
+    XCO2_err = np.zeros(MeaNr)
+    XCH4_err = np.zeros(MeaNr)
+    XCO_err = np.zeros(MeaNr)
+
+    for i in range(MeaNr - AvgNr + 1):
+        XH2O_err_tmp = 0.0
+        XCO2_err_tmp = 0.0
+        XCH4_err_tmp = 0.0
+        XCO_err_tmp = 0.0
+
+        for j in range(AvgNr):
+            XH2O_err_tmp += np.power(XH2O[i + j] - XH2O_mean[i + j], 2)
+            XCO2_err_tmp += np.power(XCO2[i + j] - XCO2_mean[i + j], 2)
+            XCH4_err_tmp += np.power(XCH4[i + j] - XCH4_mean[i + j], 2)
+            XCO_err_tmp += np.power(XCO[i + j] - XCO_mean[i + j], 2)
+
+        XH2O_err[i + ErrNr] = np.sqrt(XH2O_err_tmp / float(AvgNr - 1))
+        XCO2_err[i + ErrNr] = np.sqrt(XCO2_err_tmp / float(AvgNr - 1))
+        XCH4_err[i + ErrNr] = np.sqrt(XCH4_err_tmp / float(AvgNr - 1))
+        XCO_err[i + ErrNr] = np.sqrt(XCO_err_tmp / float(AvgNr - 1)) * 1000.0
+
+        if XH2O[i + ErrNr] == -900000.0:
+            XH2O_err[i + ErrNr] = -900000.0
+        if XCO2[i + ErrNr] == -900000.0:
+            XCO2_err[i + ErrNr] = -900000.0
+        if XCH4[i + ErrNr] == -900000.0:
+            XCH4_err[i + ErrNr] = -900000.0
+        if XCO[i + ErrNr] == -900000.0:
+            XCO_err[i + ErrNr] = -900000.0
+
+    # The uncertainty for the first and last entries is constant.
+
+    for i in range(ErrNr):
+        XH2O_err[i] = XH2O_err[ErrNr]
+        XCO2_err[i] = XCO2_err[ErrNr]
+        XCH4_err[i] = XCH4_err[ErrNr]
+        XCO_err[i] = XCO_err[ErrNr]
+
+        if XH2O[i] == -900000.0:
+            XH2O_err[i] = -900000.0
+        if XCO2[i] == -900000.0:
+            XCO2_err[i] = -900000.0
+        if XCH4[i] == -900000.0:
+            XCH4_err[i] = -900000.0
+        if XCO[i] == -900000.0:
+            XCO_err[i] = -900000.0
+
+    for i in range(ErrNr):
+        XH2O_err[MeaNr - i - 1] = XH2O_err[MeaNr - ErrNr - 1]
+        XCO2_err[MeaNr - i - 1] = XCO2_err[MeaNr - ErrNr - 1]
+        XCH4_err[MeaNr - i - 1] = XCH4_err[MeaNr - ErrNr - 1]
+        XCO_err[MeaNr - i - 1] = XCO_err[MeaNr - ErrNr - 1]
+
+        if XH2O[MeaNr - i - 1] == -900000.0:
+            XH2O_err[MeaNr - i - 1] = -900000.0
+        if XCO2[MeaNr - i - 1] == -900000.0:
+            XCO2_err[MeaNr - i - 1] = -900000.0
+        if XCH4[MeaNr - i - 1] == -900000.0:
+            XCH4_err[MeaNr - i - 1] = -900000.0
+        if XCO[MeaNr - i - 1] == -900000.0:
+            XCO_err[MeaNr - i - 1] = -900000.0
+
+    return XH2O_err, XCO2_err, XCH4_err, XCO_err

@@ -2,7 +2,15 @@ import os
 import h5py
 import tum_esm_utils
 from src import types
-from .utils import load_comb_invparms_df, get_ils_form_preprocess_inp
+from .utils import (
+    load_comb_invparms_df,
+    get_ils_form_preprocess_inp,
+    load_pt_file,
+    load_vmr_file,
+    load_column_sensitivity_file,
+    load_interpolated_column_sensitivity_file,
+    calculate_column_uncertainty,
+)
 
 
 # TODO: apply calibration factors
@@ -26,14 +34,13 @@ class GEOMSWriter:
 
         comb_invparms_df = load_comb_invparms_df(results_folder, sensor_id)
 
-        pt_filepath = os.path.join(
-            results_folder,
-            "raw_output_proffast",
-            f"{sensor_id}{from_dt.date().strftime('%y%m%d')}-pT_fast_out.dat",
+        pt_data = load_pt_file(results_folder, from_dt.date(), sensor_id)
+        vmr_data = load_vmr_file(results_folder, from_dt.date(), sensor_id)
+        ils_data = get_ils_form_preprocess_inp(results_folder, from_dt.date())
+        column_sensitivity = load_column_sensitivity_file(results_folder, from_dt.date(), sensor_id)
+        interpolated_column_sensitivity = load_interpolated_column_sensitivity_file(
+            results_folder, from_dt.date(), sensor_id, comb_invparms_df["appSZA"].to_numpy()
         )
-        vmr_filepath = os.path.join(
-            results_folder,
-            "raw_output_proffast",
-            f"{sensor_id}{from_dt.date().strftime('%y%m%d')}-VMR_fast_out.dat",
+        XH2O_uncertainty, XCO2_uncertainty, XCH4_uncertainty, XCO_uncertainty = (
+            calculate_column_uncertainty(comb_invparms_df)
         )
-        ils = get_ils_form_preprocess_inp(results_folder, from_dt.date())
