@@ -1,5 +1,7 @@
+import datetime
 import os
 import h5py
+import numpy as np
 import tum_esm_utils
 import sys
 
@@ -16,6 +18,7 @@ from utils import (
     calculate_column_uncertainty,
 )
 from geoms_api import GEOMSAPI
+import constants
 
 
 # TODO: apply calibration factors
@@ -29,6 +32,7 @@ class GEOMSWriter:
             context={"ignore-path-existence": True},
         )
         sensor_id = about.session.ctx.sensor_id
+        location_id = about.session.ctx.location.location_id
         serial_number = about.session.ctx.serial_number
         from_dt, to_dt = about.session.ctx.from_datetime, about.session.ctx.to_datetime
         assert from_dt.date() == to_dt.date()
@@ -38,6 +42,9 @@ class GEOMSWriter:
         if len(pl_df) < 11:
             print(f"Skipping this date because there are only {len(pl_df)} record")
             return
+
+        data_from_dt = pl_df["utc"].min()
+        data_to_dt = pl_df["utc"].max()
 
         pt_df = load_pt_file(results_folder, from_dt.date(), sensor_id)
         vmr_df = load_vmr_file(results_folder, from_dt.date(), sensor_id)
@@ -54,15 +61,21 @@ class GEOMSWriter:
             "CH4": XCH4_uncertainty,
             "CO": XCO_uncertainty,
         }
-
-        # write file to results folder
-        filename = f"geoms.groundbased_ftir.em27_tum_{sensor_id}_SN{serial_number:03d}_{label}.h5"
+        data_source = f"FTIR.COCCON_TUM_{sensor_id}_SN{serial_number:03d}_{location_id}"
+        filename = (
+            f"groundbased_{data_source}_munich_"
+            f"{data_from_dt.strftime('%Y%m%dT%H%M%SZ')}_"
+            f"{data_to_dt.strftime('%Y%m%dT%H%M%SZ')}_"
+            f"{constants.HDF_METADATA['DATA_FILE_VERSION']}"
+            f".h5"
+        ).lower()
         filepath = os.path.join(results_folder, filename)
         hdf_file = h5py.File(filepath, "w")
 
         df = pl_df.to_pandas()
 
         # setup
+        GEOMSAPI.write_source(hdf_file)
         GEOMSAPI.write_datetime(hdf_file, df)
         GEOMSAPI.write_altitude(hdf_file, df, pt_df)
         GEOMSAPI.write_solar_angle_zenith(hdf_file, df)
@@ -93,6 +106,56 @@ class GEOMSWriter:
         GEOMSAPI.write_air_partial(hdf_file, df, pt_df)
         GEOMSAPI.write_air_density(hdf_file, df, pt_df)
         GEOMSAPI.write_air_density_src(hdf_file, df)
+
+        # metadata
+        metadata = {**constants.HDF_METADATA}
+        metadata["DATA_SOURCE"] = data_source
+        metadata["FILE_NAME"] = filename
+        GEOMSWriter.write_metadata(
+            hdf_file,
+            serial_number,
+            ils_data,
+            calibration_factors={"XCO2": 1.0, "XCH4": 1.0, "XH2O": 1.0, "XCO": 1.0},
+            data_from_dt=data_from_dt,
+            data_to_dt=data_to_dt,
+            metadata=metadata,
+        )
+
+    @staticmethod
+    def write_metadata(
+        hdf5_file: h5py.File,
+        serial_number: int,
+        ils_parameters: tuple[float, float, float, float],
+        calibration_factors: dict[str, float],
+        data_from_dt: datetime.datetime,
+        data_to_dt: datetime.datetime,
+        metadata: dict[str, str],
+    ) -> None:
+        """Write metadata to the GEOMS file!"""
+
+        variables: list[str] = hdf5_file.keys()
+        for key, value in metadata.items():
+            hdf5_file.attrs[key] = np.bytes_([value])
+
+        hdf5_file.attrs["DATA_DESCRIPTION"] = np.bytes_(
+            f"EM27/SUN ({serial_number}) measurements from {constants.SITE_DESCRIPTION}."
+        )
+        hdf5_file.attrs["DATA_MODIFICATIONS"] = np.bytes_(
+            "ILS parms applied: "
+            f"{str(ils_parameters)} (ME1, PE1, ME2, PE2). "
+            "Calibration factors applied: "
+            f"{calibration_factors['XCO2']} for XCO2, "
+            f"{calibration_factors['XCH4']} for XCH4, "
+            f"{calibration_factors['XH2O']} for XH2O, "
+            f"{calibration_factors['XCO']} for XCO."
+        )
+
+        hdf5_file.attrs["DATA_START_DATE"] = np.bytes_(data_from_dt.strftime("%Y%m%dT%H%M%SZ"))
+        hdf5_file.attrs["DATA_STOP_DATE"] = np.bytes_(data_to_dt.strftime("%Y%m%dT%H%M%SZ"))
+        hdf5_file.attrs["DATA_VARIABLES"] = np.bytes_(";".join(variables))
+        hdf5_file.attrs["FILE_GENERATION_DATE"] = np.bytes_(
+            datetime.datetime.now().strftime("%Y%m%dT%H%M%SZ")
+        )
 
 
 if __name__ == "__main__":

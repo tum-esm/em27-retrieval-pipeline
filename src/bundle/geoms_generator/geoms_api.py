@@ -96,6 +96,21 @@ class GEOMSAPI:
         return dataset
 
     @staticmethod
+    def write_source(hdf5_file: h5py.File) -> None:
+        """Source information"""
+
+        variable_name = GEOMSColumnNames.SOURCE_PRODUCT
+        data = "Some Information."
+        metadata = GEOMSSRCAttributeMetadata(
+            VAR_DATA_TYPE="STRING",
+            VAR_DEPEND="INDEPENDENT",
+            VAR_DESCRIPTION="Information relevant to the source history of the Metadata and Data in the form Original_Archive;Original_Filename;Original_File_Generation_Date",
+            VAR_NAME=variable_name,
+            VAR_SIZE="1",
+        )
+        GEOMSAPI._write_to_hdf5_file(hdf5_file, variable_name, data, metadata)
+
+    @staticmethod
     def write_datetime(hdf5_file: h5py.File, df: pd.DataFrame) -> None:
         """Datetime information"""
 
