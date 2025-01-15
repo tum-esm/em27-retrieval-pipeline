@@ -7,7 +7,7 @@ import math
 import pandas as pd
 import polars as pl
 from src import bundle
-from . import constants
+import constants
 
 
 def geoms_times_to_datetime(times: np.ndarray[float]) -> list[datetime.datetime]:
@@ -44,11 +44,14 @@ def datetimes_to_geoms_times(times: list[datetime.datetime]) -> list[float]:
 
 def load_comb_invparms_df(results_folder: str, sensor_id: str) -> pl.DataFrame:
     df = bundle.load_results.load_results_directory(
-        results_folder, sensor_id, parse_dc_timeseries=constants.PARSE_DC_TIMESERIES
+        results_folder,
+        sensor_id,
+        parse_dc_timeseries=constants.PARSE_DC_TIMESERIES,
+        keep_julian_dates=True,
     )
 
     # convert altim from m to km
-    df = df.with_columns(pl.col("altim").div(1000).alias("altim"))
+    df = df.with_columns(pl.col("alt").truediv(1000).alias("altim"))
 
     # fill out of bounds values
     fill_value = -900_000
@@ -71,11 +74,13 @@ def load_comb_invparms_df(results_folder: str, sensor_id: str) -> pl.DataFrame:
             pl.col("ch1_fwd_dc_mean")
             .add(pl.col("ch1_bwd_dc_mean"))
             .mul(0.5)
+            .abs()
             .ge(0.05)
             .alias("ch1_valid"),
             pl.col("ch2_fwd_dc_mean")
             .add(pl.col("ch2_bwd_dc_mean"))
             .mul(0.5)
+            .abs()
             .ge(0.01)
             .alias("ch2_valid"),
         )
@@ -90,7 +95,7 @@ def load_comb_invparms_df(results_folder: str, sensor_id: str) -> pl.DataFrame:
 
     # filter based on SZA and XAIR
     if constants.MIN_SZA is not None:
-        df = df.filter(pl.col("appSZA").ge(constants.MIN_SZA))
+        df = df.filter(pl.col("sza").ge(constants.MIN_SZA))
     if constants.MIN_XAIR is not None:
         df = df.filter(pl.col("XAIR").ge(constants.MIN_XAIR))
     if constants.MAX_XAIR is not None:
@@ -308,7 +313,7 @@ def load_interpolated_column_sensitivity_file(
 
 
 def calculate_column_uncertainty(
-    df: pd.DataFrame,
+    df: pl.DataFrame,
 ) -> tuple[np.ndarray[float], np.ndarray[float], np.ndarray[float], np.ndarray[float]]:
     # The error calculation (uncertainty) is performed
     # by using the column mixing ratios and dry air mole fraction.

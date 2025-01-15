@@ -11,6 +11,7 @@ def load_results_directory(
     sensor_id: str,
     parse_dc_timeseries: bool = False,
     retrieval_job_output_suffix: Optional[str] = None,
+    keep_julian_dates: bool = False,
 ) -> Optional[pl.DataFrame]:
     # 1. PARSE ABOUT.JSON
 
@@ -79,11 +80,9 @@ def load_results_directory(
     )
     df = df.rename({col: col.strip() for col in df.columns if col.strip() != col})
 
-    df = df.drop(
-        list(
-            set(["LocalTime", "JulianDate", "UTtimeh", "gndT", "SX"]).intersection(set(df.columns))
-        )
-    )
+    df = df.drop(list(set(["LocalTime", "UTtimeh", "gndT", "SX"]).intersection(set(df.columns))))
+    if not keep_julian_dates and "JulianDate" in df.columns:
+        df = df.drop("JulianDate")
 
     if "UTC" not in df.columns:
         if "HHMMSS_ID" not in df.columns:
