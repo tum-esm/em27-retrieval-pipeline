@@ -1,15 +1,11 @@
 import os
-from typing import Optional
 import h5py
 import tum_esm_utils
-import polars as pl
-from src import types, bundle
+from src import types
+from .utils import load_comb_invparms_df, get_ils_form_preprocess_inp
 
 
-MIN_SZA: float = 0
-MIN_XAIR: Optional[float] = None
-MAX_XAIR: Optional[float] = None
-PARSE_DC_TIMESERIES: bool = True
+# TODO: apply calibration factors
 
 
 class GEOMSWriter:
@@ -28,61 +24,16 @@ class GEOMSWriter:
         filepath = os.path.join(results_folder, filename)
         hdf_file = h5py.File(filepath, "w")
 
-        comb_invparms_df = GEOMSWriter.load_comb_invparms_df(results_folder, sensor_id)
+        comb_invparms_df = load_comb_invparms_df(results_folder, sensor_id)
 
-    @staticmethod
-    def load_comb_invparms_df(results_folder: str, sensor_id: str) -> pl.DataFrame:
-        df = bundle.load_results.load_results_directory(
-            results_folder, sensor_id, parse_dc_timeseries=PARSE_DC_TIMESERIES
+        pt_filepath = os.path.join(
+            results_folder,
+            "raw_output_proffast",
+            f"{sensor_id}{from_dt.date().strftime('%y%m%d')}-pT_fast_out.dat",
         )
-
-        # convert altim from m to km
-        df = df.with_columns(pl.col("altim").div(1000).alias("altim"))
-
-        # fill out of bounds values
-        fill_value = -900_000
-        for gas, max_value in [
-            ("XCO2", 10_000),
-            ("XCH4", 10),
-            ("XCO", 10_000),
-            ("XH2O", 10_000),
-        ]:
-            df = df.with_columns(
-                pl.when(pl.col(gas).lt(0.0) | pl.col(gas).gt(max_value))
-                .then(fill_value)
-                .otherwise(pl.col(gas))
-                .alias(gas)
-            )
-
-        # filter based on DC amplitude
-        if PARSE_DC_TIMESERIES:
-            df = df.with_columns(
-                pl.col("ch1_fwd_dc_mean")
-                .add(pl.col("ch1_bwd_dc_mean"))
-                .mul(0.5)
-                .ge(0.05)
-                .alias("ch1_valid"),
-                pl.col("ch2_fwd_dc_mean")
-                .add(pl.col("ch2_bwd_dc_mean"))
-                .mul(0.5)
-                .ge(0.01)
-                .alias("ch2_valid"),
-            )
-            df = df.with_columns(
-                pl.when("ch1_valid").then(pl.col("XCO2")).otherwise(fill_value).alias("XCO2"),
-                pl.when("ch1_valid").then(pl.col("XCH4")).otherwise(fill_value).alias("XCH4"),
-                pl.when("ch1_valid").then(pl.col("XH2O")).otherwise(fill_value).alias("XH2O"),
-                pl.when("ch2_valid").then(pl.col("XCO")).otherwise(fill_value).alias("XCO"),
-            )
-            df = df.filter(pl.col("ch1_valid") | pl.col("ch2_valid"))
-            df = df.drop("ch1_valid", "ch2_valid")
-
-        # filter based on SZA and XAIR
-        if MIN_SZA is not None:
-            df = df.filter(pl.col("appSZA").ge(MIN_SZA))
-        if MIN_XAIR is not None:
-            df = df.filter(pl.col("XAIR").ge(MIN_XAIR))
-        if MAX_XAIR is not None:
-            df = df.filter(pl.col("XAIR").le(MAX_XAIR))
-
-        return df
+        vmr_filepath = os.path.join(
+            results_folder,
+            "raw_output_proffast",
+            f"{sensor_id}{from_dt.date().strftime('%y%m%d')}-VMR_fast_out.dat",
+        )
+        ils = get_ils_form_preprocess_inp(results_folder, from_dt.date())
