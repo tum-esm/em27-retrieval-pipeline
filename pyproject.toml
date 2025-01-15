@@ -7,7 +7,7 @@ authors = [
     { name = "Marlon Müller" },
     { name = "Andreas Luther" },
     { name = "Vyas Giridhard" },
-    { name = "Catehrine Fait" },
+    { name = "Catherine Fait" },
 ]
 dependencies = [
     "filelock>=3.16.1",
@@ -28,6 +28,7 @@ dependencies = [
     "timezonefinder>=6.5.5", # used by Proffast Pylot only
     "pyyaml>=6.0.2",         # used by Proffast Pylot only
     "fortranformat>=2.0.0",  # used by Proffast Pylot only
+    "h5py>=3.12.1",
 ]
 classifiers = [
     "License :: OSI Approved :: GNU General Public License (GPL)",
@@ -111,12 +112,5 @@ ignore = [
 ]
 
 [[tool.mypy.overrides]]
-module = [
-    "src.prfpylot.prfpylot.pylot",
-    "scipy",
-    "scipy.signal",
-    "polars",
-    "matplotlib.*",
-    "skyfield.*",
-]
+module = ["src.prfpylot.prfpylot.pylot", "scipy", "scipy.signal", "polars", "matplotlib.*", "skyfield.*"]
 ignore_missing_imports = true
