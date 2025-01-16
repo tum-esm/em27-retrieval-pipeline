@@ -58,6 +58,7 @@ dev = [
     "pytest-order>=1.3.0",
     "types-tqdm>=4.67.0.20241119",
     "ruff>=0.8.1",
+    "pandas-stubs>=2.2.3.241126",
 ]
 
 [tool.pdm]
@@ -113,5 +114,13 @@ ignore = [
 ]
 
 [[tool.mypy.overrides]]
-module = ["src.prfpylot.prfpylot.pylot", "scipy", "scipy.signal", "polars", "matplotlib.*", "skyfield.*"]
+module = [
+    "src.prfpylot.prfpylot.pylot",
+    "scipy",
+    "scipy.signal",
+    "polars",
+    "matplotlib.*",
+    "skyfield.*",
+    "h5py",
+]
 ignore_missing_imports = true

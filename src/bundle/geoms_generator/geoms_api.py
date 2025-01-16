@@ -4,7 +4,7 @@ import h5py
 import pandas as pd
 import numpy as np
 import pydantic
-from utils import geoms_times_to_datetime, datetimes_to_geoms_times
+from .utils import geoms_times_to_datetime, datetimes_to_geoms_times
 import src
 
 
@@ -75,10 +75,9 @@ class GEOMSSRCAttributeMetadata(pydantic.BaseModel):
 class GEOMSAPI:
     def _write_to_hdf5_file(
         hdf5_file: h5py.File,
-        variable_name: np.array,
+        variable_name: str,
         data: Any,
         metadata: GEOMSAttributeMetadata | GEOMSSRCAttributeMetadata,
-        float_type: np.float32 | np.float64 | np.bytes_,
     ) -> None:
         """
         Helper method to write a dataset to the file.
@@ -105,7 +104,6 @@ class GEOMSAPI:
                 dataset.attrs[key] = float_type(value)
             else:
                 dataset.attrs[key] = np.bytes_(value)
-        return dataset
 
     @staticmethod
     def write_source(hdf5_file: h5py.File) -> None:
@@ -120,7 +118,7 @@ class GEOMSAPI:
             VAR_NAME=variable_name,
             VAR_SIZE="1",
         )
-        GEOMSAPI._write_to_hdf5_file(hdf5_file, variable_name, data, metadata, float_type=np.bytes_)
+        GEOMSAPI._write_to_hdf5_file(hdf5_file, variable_name, data, metadata)
 
     @staticmethod
     def write_datetime(hdf5_file: h5py.File, df: pd.DataFrame) -> None:
@@ -146,9 +144,7 @@ class GEOMSAPI:
             units="MJD2K",
             valid_range=[np.amin(data), np.amax(data)],
         )
-        GEOMSAPI._write_to_hdf5_file(
-            hdf5_file, variable_name, data, metadata, float_type=np.float64
-        )
+        GEOMSAPI._write_to_hdf5_file(hdf5_file, variable_name, data, metadata)
 
     @staticmethod
     def write_altitude(hdf5_file: h5py.File, df: pd.DataFrame, pt_df: pd.DataFrame) -> None:
@@ -175,9 +171,7 @@ class GEOMSAPI:
             units="km",
             valid_range=[np.amin(data), np.amax(data)],
         )
-        GEOMSAPI._write_to_hdf5_file(
-            hdf5_file, variable_name, data, metadata, float_type=np.float32
-        )
+        GEOMSAPI._write_to_hdf5_file(hdf5_file, variable_name, data, metadata)
 
     @staticmethod
     def write_solar_angle_zenith(hdf5_file: h5py.File, df: pd.DataFrame) -> None:
@@ -199,9 +193,7 @@ class GEOMSAPI:
             units="deg",
             valid_range=[np.amin(data), np.amax(data)],
         )
-        GEOMSAPI._write_to_hdf5_file(
-            hdf5_file, variable_name, data, metadata, float_type=np.float32
-        )
+        GEOMSAPI._write_to_hdf5_file(hdf5_file, variable_name, data, metadata)
 
     @staticmethod
     def write_solar_angle_azimuth(hdf5_file: h5py.File, df: pd.DataFrame) -> None:
@@ -227,9 +219,7 @@ class GEOMSAPI:
             units="deg",
             valid_range=[np.amin(data), np.amax(data)],
         )
-        GEOMSAPI._write_to_hdf5_file(
-            hdf5_file, variable_name, data, metadata, float_type=np.float32
-        )
+        GEOMSAPI._write_to_hdf5_file(hdf5_file, variable_name, data, metadata)
 
     @staticmethod
     def write_instrument_latitude(hdf5_file: h5py.File, df: pd.DataFrame) -> None:
@@ -250,9 +240,7 @@ class GEOMSAPI:
             units="deg",
             valid_range=[np.amin(data), np.amax(data)],
         )
-        GEOMSAPI._write_to_hdf5_file(
-            hdf5_file, variable_name, data, metadata, float_type=np.float32
-        )
+        GEOMSAPI._write_to_hdf5_file(hdf5_file, variable_name, data, metadata)
 
     @staticmethod
     def write_instrument_longitude(hdf5_file: h5py.File, df: pd.DataFrame) -> None:
@@ -274,9 +262,7 @@ class GEOMSAPI:
             units="deg",
             valid_range=[np.amin(data), np.amax(data)],
         )
-        GEOMSAPI._write_to_hdf5_file(
-            hdf5_file, variable_name, data, metadata, float_type=np.float32
-        )
+        GEOMSAPI._write_to_hdf5_file(hdf5_file, variable_name, data, metadata)
 
     @staticmethod
     def write_instrument_altitude(hdf5_file: h5py.File, df: pd.DataFrame) -> None:
@@ -298,9 +284,7 @@ class GEOMSAPI:
             units="km",
             valid_range=[np.amin(data), np.amax(data)],
         )
-        GEOMSAPI._write_to_hdf5_file(
-            hdf5_file, variable_name, data, metadata, float_type=np.float32
-        )
+        GEOMSAPI._write_to_hdf5_file(hdf5_file, variable_name, data, metadata)
 
     @staticmethod
     def write_surface_pressure(hdf5_file: h5py.File, df: pd.DataFrame) -> None:
@@ -322,9 +306,7 @@ class GEOMSAPI:
             units="hPa",
             valid_range=[np.amin(data), np.amax(data)],
         )
-        GEOMSAPI._write_to_hdf5_file(
-            hdf5_file, variable_name, data, metadata, float_type=np.float32
-        )
+        GEOMSAPI._write_to_hdf5_file(hdf5_file, variable_name, data, metadata)
 
     @staticmethod
     def write_surface_pressure_source(
@@ -343,7 +325,7 @@ class GEOMSAPI:
             VAR_NAME=variable_name,
             VAR_SIZE=str(data_size),
         )
-        GEOMSAPI._write_to_hdf5_file(hdf5_file, variable_name, data, metadata, float_type=np.bytes_)
+        GEOMSAPI._write_to_hdf5_file(hdf5_file, variable_name, data, metadata)
 
     @staticmethod
     def write_pressure(hdf5_file: h5py.File, df: pd.DataFrame, pt_df: pd.DataFrame) -> None:
@@ -369,9 +351,7 @@ class GEOMSAPI:
             units="hPa",
             valid_range=[np.amin(data), np.amax(data)],
         )
-        GEOMSAPI._write_to_hdf5_file(
-            hdf5_file, variable_name, data, metadata, float_type=np.float32
-        )
+        GEOMSAPI._write_to_hdf5_file(hdf5_file, variable_name, data, metadata)
 
     @staticmethod
     def write_pressure_source(hdf5_file: h5py.File, df: pd.DataFrame) -> None:
@@ -390,7 +370,7 @@ class GEOMSAPI:
             VAR_NAME=variable_name,
             VAR_SIZE=str(np.size(data)),
         )
-        GEOMSAPI._write_to_hdf5_file(hdf5_file, variable_name, data, metadata, float_type=np.bytes_)
+        GEOMSAPI._write_to_hdf5_file(hdf5_file, variable_name, data, metadata)
 
     @staticmethod
     def write_temperature(hdf5_file: h5py.File, df: pd.DataFrame, pt_df: pd.DataFrame) -> None:
@@ -416,9 +396,7 @@ class GEOMSAPI:
             units="K",
             valid_range=[np.amin(data), np.amax(data)],
         )
-        GEOMSAPI._write_to_hdf5_file(
-            hdf5_file, variable_name, data, metadata, float_type=np.float32
-        )
+        GEOMSAPI._write_to_hdf5_file(hdf5_file, variable_name, data, metadata)
 
     @staticmethod
     def write_temperature_source(hdf5_file: h5py.File, df: pd.DataFrame) -> None:
@@ -436,7 +414,7 @@ class GEOMSAPI:
             VAR_NAME=variable_name,
             VAR_SIZE=str(np.size(data)),
         )
-        GEOMSAPI._write_to_hdf5_file(hdf5_file, variable_name, data, metadata, float_type=np.bytes_)
+        GEOMSAPI._write_to_hdf5_file(hdf5_file, variable_name, data, metadata)
 
     @staticmethod
     def write_column(
@@ -485,9 +463,7 @@ class GEOMSAPI:
             units=unit,
             valid_range=[minval, maxval],
         )
-        GEOMSAPI._write_to_hdf5_file(
-            hdf5_file, variable_name, data, metadata, float_type=np.float32
-        )
+        GEOMSAPI._write_to_hdf5_file(hdf5_file, variable_name, data, metadata)
 
     @staticmethod
     def write_column_uncertainty(
@@ -527,9 +503,7 @@ class GEOMSAPI:
             units=unit,
             valid_range=[minval, maxval],
         )
-        GEOMSAPI._write_to_hdf5_file(
-            hdf5_file, variable_name, column_uncertainty, metadata, float_type=np.float32
-        )
+        GEOMSAPI._write_to_hdf5_file(hdf5_file, variable_name, column_uncertainty, metadata)
 
     @staticmethod
     def write_apriori(
@@ -586,9 +560,7 @@ class GEOMSAPI:
             units=unit,
             valid_range=[np.amin(data), np.amax(data)],
         )
-        GEOMSAPI._write_to_hdf5_file(
-            hdf5_file, variable_name, data, metadata, float_type=np.float32
-        )
+        GEOMSAPI._write_to_hdf5_file(hdf5_file, variable_name, data, metadata)
 
     @staticmethod
     def write_apriori_source(
@@ -614,7 +586,7 @@ class GEOMSAPI:
             VAR_NAME=variable_name,
             VAR_SIZE=str(np.size(data)),
         )
-        GEOMSAPI._write_to_hdf5_file(hdf5_file, variable_name, data, metadata, float_type=np.bytes_)
+        GEOMSAPI._write_to_hdf5_file(hdf5_file, variable_name, data, metadata)
 
     @staticmethod
     def write_averaging_kernel(
@@ -665,9 +637,7 @@ class GEOMSAPI:
             units="1",
             valid_range=[np.amin(data), np.amax(data)],
         )
-        GEOMSAPI._write_to_hdf5_file(
-            hdf5_file, variable_name, data, metadata, float_type=np.float32
-        )
+        GEOMSAPI._write_to_hdf5_file(hdf5_file, variable_name, data, metadata)
 
     @staticmethod
     def write_air_partial(hdf5_file: h5py.File, df: pd.DataFrame, pt_df: pd.DataFrame) -> None:
@@ -738,9 +708,7 @@ class GEOMSAPI:
             units="Zmolec cm-2",
             valid_range=[np.amin(data), np.amax(data)],
         )
-        GEOMSAPI._write_to_hdf5_file(
-            hdf5_file, variable_name, data, metadata, float_type=np.float32
-        )
+        GEOMSAPI._write_to_hdf5_file(hdf5_file, variable_name, data, metadata)
 
     @staticmethod
     def write_air_density(hdf5_file: h5py.File, df: pd.DataFrame, pt_df: pd.DataFrame) -> None:
@@ -778,9 +746,7 @@ class GEOMSAPI:
             units="molec cm-3",
             valid_range=[np.amin(data), np.amax(data)],
         )
-        GEOMSAPI._write_to_hdf5_file(
-            hdf5_file, variable_name, data, metadata, float_type=np.float32
-        )
+        GEOMSAPI._write_to_hdf5_file(hdf5_file, variable_name, data, metadata)
 
     @staticmethod
     def write_air_density_source(hdf5_file: h5py.File, df: pd.DataFrame) -> None:
@@ -797,4 +763,4 @@ class GEOMSAPI:
             VAR_NAME=variable_name,
             VAR_SIZE=str(np.size(data)),
         )
-        GEOMSAPI._write_to_hdf5_file(hdf5_file, variable_name, data, metadata, float_type=np.bytes_)
+        GEOMSAPI._write_to_hdf5_file(hdf5_file, variable_name, data, metadata)

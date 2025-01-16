@@ -2,12 +2,13 @@ import datetime
 import glob
 import os
 import re
+from typing import Any, Optional
 import numpy as np
 import math
 import pandas as pd
 import polars as pl
 from src import bundle
-import constants
+from . import constants
 
 
 def geoms_times_to_datetime(times: list[float]) -> list[datetime.datetime]:
@@ -31,6 +32,7 @@ def load_comb_invparms_df(results_folder: str, sensor_id: str) -> pl.DataFrame:
         parse_dc_timeseries=constants.PARSE_DC_TIMESERIES,
         keep_julian_dates=True,
     )
+    assert df is not None
 
     # convert altim from m to km
     df = df.with_columns(pl.col("alt").truediv(1000).alias("altim"))
@@ -95,7 +97,7 @@ def get_ils_form_preprocess_inp(
     )
     file_list = glob.glob(search_path)
     if len(file_list) == 0:
-        return  # no parameters from ils present
+        raise FileNotFoundError(f"No preprocess input file found for {date}")
     else:
         preprocess_input_file = file_list[0]
 
@@ -106,7 +108,7 @@ def get_ils_form_preprocess_inp(
     # and read the following two lines (counter j)
     i = 0
     j = 0
-    ils = []
+    ils: Any = []
     for line in lines:
         if line.startswith("$"):
             i += 1
@@ -118,7 +120,7 @@ def get_ils_form_preprocess_inp(
             ils.extend(tmp_ils)
             j += 1
     assert len(ils) == 4
-    return (float(i) for i in ils)
+    return (float(ils[0]), float(ils[1]), float(ils[2]), float(ils[3]))
 
 
 def load_vmr_file(results_folder: str, date: datetime.date, sensor_id: str) -> pd.DataFrame:
@@ -167,7 +169,7 @@ def load_pt_file(results_folder: str, date: datetime.date, sensor_id: str) -> pd
 
 def load_column_sensitivity_file(
     results_folder: str, date: datetime.date, sensor_id: str
-) -> tuple[np.ndarray[float], np.ndarray[float], np.ndarray[float], np.ndarray[float]]:
+) -> tuple[np.ndarray[Any, Any], np.ndarray[Any, Any], np.ndarray[Any, Any], np.ndarray[Any, Any]]:
     # The column sensivity file (i.e. *colsens.dat") contains the vertical
     # profile of the pressure and
     # the sensitivities for each species (these are H2O, HDO, CO2, CH4,
@@ -178,10 +180,10 @@ def load_column_sensitivity_file(
     # 1.121E+00, 1.189E+00, 1.254E+00, 1.315E+00, 1.373E+00, 1.430E+00,
     # 1.484E+00
 
-    sza = []
-    alt = []
-    pre = []
-    sen = []
+    sza: Any = []
+    alt: Any = []
+    pre: Any = []
+    sen: Any = []
 
     # Get path and name for the column sensitivity file of a certain day.
 
@@ -199,7 +201,7 @@ def load_column_sensitivity_file(
             sen.append([])
 
             for j in range(6):  # 6 header lines for each species
-                header = file.readline()  # skip header line
+                header: Any = file.readline()  # skip header line
                 if j == 3:  # read SZA [rad] values in the third line
                     header = re.sub(" +", "\t", header)
                     header = header.split("\t")  # tab separator
@@ -207,7 +209,7 @@ def load_column_sensitivity_file(
                     sza[i] = sza[i].astype(float)  # string to float
 
             for j in range(49):  # number of altitude levels
-                line = file.readline()[1:-1]  # skip first empty
+                line: Any = file.readline()[1:-1]  # skip first empty
                 # space and carriage return character at the end
                 line = re.sub(" +", ",", line)  # replace empty spaces
                 # by a comma
@@ -233,25 +235,24 @@ def load_interpolated_column_sensitivity_file(
     results_folder: str,
     date: datetime.date,
     sensor_id: str,
-    szas: np.ndarray[float],
+    szas: np.ndarray[Any, Any],
 ) -> list[list[list[float]]]:
     sza, alt, pre, sen = load_column_sensitivity_file(results_folder, date, sensor_id)
 
     if (sza is None) or (alt is None) or (pre is None) or (sen is None):
         return None
 
-    appSZA = szas
-    gas_sens = []
+    gas_sens: list[list[list[float]]] = []
 
     for k in range(8):  # H2O, HDO, CO2, CH4, N2O, CO, O2, HF
         gas_sens.append([])
 
-        for i in range(len(appSZA)):
+        for i in range(len(szas)):
             # number of measurements
 
             gas_sens[k].append([])
 
-            SZA_app_rad = appSZA[i] * 2.0 * math.pi / 360.0
+            SZA_app_rad = szas[i] * 2.0 * math.pi / 360.0
             # SZA_app_deg = appSZA[i]
 
             for j in range(len(sza[k]) - 1):  # number SZA angels
@@ -296,7 +297,7 @@ def load_interpolated_column_sensitivity_file(
 
 def calculate_column_uncertainty(
     df: pl.DataFrame,
-) -> tuple[np.ndarray[float], np.ndarray[float], np.ndarray[float], np.ndarray[float]]:
+) -> tuple[np.ndarray[Any, Any], np.ndarray[Any, Any], np.ndarray[Any, Any], np.ndarray[Any, Any]]:
     # The error calculation (uncertainty) is performed
     # by using the column mixing ratios and dry air mole fraction.
 

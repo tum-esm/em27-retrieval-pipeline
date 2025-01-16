@@ -509,8 +509,7 @@ class Config(pydantic.BaseModel):
         if path is None:
             path = Config.get_config_path()
 
-        with open(path, "r") as f:
-            return Config.model_validate_json(
-                f.read(),
-                context={"ignore-path-existence": ignore_path_existence},
-            )
+        return Config.model_validate_json(
+            tum_esm_utils.files.load_file(path),
+            context={"ignore-path-existence": ignore_path_existence},
+        )

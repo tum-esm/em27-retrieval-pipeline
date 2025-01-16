@@ -9,7 +9,7 @@ from .config import RetrievalJobSettingsConfig, RetrievalConfig, GeneralConfig
 
 
 class RetrievalContainerBase(pydantic.BaseModel):
-    container_dir: Optional[str] = tum_esm_utils.files.rel_to_abs_path("../../data/containers")
+    container_dir: str = tum_esm_utils.files.rel_to_abs_path("../../data/containers")
     container_id: str
 
     @property

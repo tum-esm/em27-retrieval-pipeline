@@ -1,5 +1,6 @@
 import datetime
 import os
+from typing import Literal
 import h5py
 import numpy as np
 import tum_esm_utils
@@ -8,7 +9,7 @@ import sys
 sys.path.append(tum_esm_utils.files.rel_to_abs_path("../../.."))
 
 import src
-from utils import (
+from .utils import (
     load_comb_invparms_df,
     get_ils_form_preprocess_inp,
     load_pt_file,
@@ -16,8 +17,8 @@ from utils import (
     load_interpolated_column_sensitivity_file,
     calculate_column_uncertainty,
 )
-from geoms_api import GEOMSAPI
-import constants
+from .geoms_api import GEOMSAPI
+from . import constants
 
 
 # TODO: apply calibration factors
@@ -25,9 +26,9 @@ import constants
 
 class GEOMSWriter:
     @staticmethod
-    def generate_geoms_file(results_folder: str, evdc_metadata: src.types.EVDCMetadata) -> None:
+    def generate_geoms_file(results_dir: str, evdc_metadata: src.types.EVDCMetadata) -> None:
         about = src.types.AboutRetrieval.model_validate(
-            tum_esm_utils.files.load_json_file(os.path.join(results_folder, "about.json")),
+            tum_esm_utils.files.load_json_file(os.path.join(results_dir, "about.json")),
             context={"ignore-path-existence": True},
         )
         sensor_id = about.session.ctx.sensor_id
@@ -36,19 +37,19 @@ class GEOMSWriter:
         from_dt, to_dt = about.session.ctx.from_datetime, about.session.ctx.to_datetime
         assert from_dt.date() == to_dt.date()
 
-        pl_df = load_comb_invparms_df(results_folder, sensor_id)
+        pl_df = load_comb_invparms_df(results_dir, sensor_id)
         if len(pl_df) < 11:
             print(f"Skipping this date because there are only {len(pl_df)} record")
             return
 
-        data_from_dt = pl_df["utc"].min()
-        data_to_dt = pl_df["utc"].max()
+        data_from_dt: datetime.datetime = pl_df["utc"].min()  # type: ignore
+        data_to_dt: datetime.datetime = pl_df["utc"].max()  # type: ignore
 
-        pt_df = load_pt_file(results_folder, from_dt.date(), sensor_id)
-        vmr_df = load_vmr_file(results_folder, from_dt.date(), sensor_id)
-        ils_data = get_ils_form_preprocess_inp(results_folder, from_dt.date())
+        pt_df = load_pt_file(results_dir, from_dt.date(), sensor_id)
+        vmr_df = load_vmr_file(results_dir, from_dt.date(), sensor_id)
+        ils_data = get_ils_form_preprocess_inp(results_dir, from_dt.date())
         interpolated_column_sensitivity = load_interpolated_column_sensitivity_file(
-            results_folder, from_dt.date(), sensor_id, pl_df["sza"].to_numpy()
+            results_dir, from_dt.date(), sensor_id, pl_df["sza"].to_numpy()
         )
         XH2O_uncertainty, XCO2_uncertainty, XCH4_uncertainty, XCO_uncertainty = (
             calculate_column_uncertainty(pl_df)
@@ -68,7 +69,7 @@ class GEOMSWriter:
             f"{constants.EVDC_METADATA['DATA_FILE_VERSION']}"
             f".h5"
         ).lower()
-        filepath = os.path.join(results_folder, filename)
+        filepath = os.path.join(results_dir, filename)
         hdf_file = h5py.File(filepath, "w")
 
         df = pl_df.to_pandas()
@@ -94,7 +95,8 @@ class GEOMSWriter:
         GEOMSAPI.write_temperature_source(hdf_file, df)
 
         # gases
-        for species in ["H2O", "CO2", "CH4", "CO"]:
+        all_species: list[Literal["H2O", "CO2", "CH4", "CO"]] = ["H2O", "CO2", "CH4", "CO"]
+        for species in all_species:
             GEOMSAPI.write_column(hdf_file, df, species)
             GEOMSAPI.write_column_uncertainty(hdf_file, species, species_uncertainty[species])
             GEOMSAPI.write_apriori(hdf_file, df, pt_df, vmr_df, species)
@@ -161,6 +163,8 @@ class GEOMSWriter:
 
 
 if __name__ == "__main__":
+    evdc_metadata = src.types.EVDCMetadata.load(template=True)
     GEOMSWriter.generate_geoms_file(
-        "/data/01/retrieval-archive/v3/proffast-2.4/GGG2020/ma/successful/20241021"
+        results_dir="/data/01/retrieval-archive/v3/proffast-2.4/GGG2020/ma/successful/20241021",
+        evdc_metadata=evdc_metadata,
     )
