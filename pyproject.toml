@@ -1,6 +1,6 @@
 [project]
 name = "em27-retrieval-pipeline"
-version = "1.6.0"
+version = "1.6.1"
 description = "automated EM27 data processing"
 authors = [
     { name = "Moritz Makowski", email = "moritz.makowski@tum.de" },
@@ -13,7 +13,7 @@ dependencies = [
     "filelock>=3.16.1",
     "pydantic>=2.10.2",
     "em27-metadata>=1.2.1",
-    "tum-esm-utils>=2.4.0",
+    "tum-esm-utils>=2.6.0",
     "tomli>=2.2.1",
     "python-dotenv>=1.0.1",
     "skyfield>=1.49",        # used by the retrieval
@@ -28,8 +28,8 @@ dependencies = [
     "timezonefinder>=6.5.5", # used by Proffast Pylot only
     "pyyaml>=6.0.2",         # used by Proffast Pylot only
     "fortranformat>=2.0.0",  # used by Proffast Pylot only
-    "h5py>=3.12.1",
-    "pyarrow>=18.1.0",
+    "h5py>=3.12.1",          # used by GEOMS generator
+    "pyarrow>=18.1.0",       # used by GEOMS generator
 ]
 classifiers = [
     "License :: OSI Approved :: GNU General Public License (GPL)",
