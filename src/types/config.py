@@ -481,6 +481,18 @@ class GEOMSConfig(pydantic.BaseModel):
         False,
         description="Whether to parse the DC timeseries from the results directories. This is an output only available in this Pipeline for Proffast2.4. We adapted the preprocessor to output the DC min/mean/max/variation values for each record of data. If you having issues with a low signal intensity on one or both channels, you can run the retrieval with a very low DC_min threshold and filter the data afterwards instead of having to rerun the retrieval.",
     )
+    max_sza: Optional[float] = pydantic.Field(
+        None,
+        description="Maximum solar zenith angle to consider in the GEOMS outputs. If not set, it will consider all solar zenith angles.",
+    )
+    min_xair: Optional[float] = pydantic.Field(
+        None,
+        description="Minimum XAIR required to consider in the GEOMS outputs. If not set, it will consider all XAIR values.",
+    )
+    max_xair: Optional[float] = pydantic.Field(
+        None,
+        description="Maximum XAIR required to consider in the GEOMS outputs. If not set, it will consider all XAIR values.",
+    )
 
 
 class Config(pydantic.BaseModel):

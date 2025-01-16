@@ -2,13 +2,13 @@ import datetime
 import glob
 import os
 import re
-from typing import Any, Optional
+from typing import Any
 import numpy as np
 import math
 import pandas as pd
 import polars as pl
 from src import bundle
-from . import constants
+import src
 
 
 def geoms_times_to_datetime(times: list[float]) -> list[datetime.datetime]:
@@ -25,11 +25,13 @@ def datetimes_to_geoms_times(times: list[datetime.datetime]) -> list[float]:
     return [(t - t_ref).total_seconds() for t in times]
 
 
-def load_comb_invparms_df(results_folder: str, sensor_id: str) -> pl.DataFrame:
+def load_comb_invparms_df(
+    results_folder: str, sensor_id: str, geoms_config: src.types.GEOMSConfig
+) -> pl.DataFrame:
     df = bundle.load_results.load_results_directory(
         results_folder,
         sensor_id,
-        parse_dc_timeseries=constants.PARSE_DC_TIMESERIES,
+        parse_dc_timeseries=geoms_config.parse_dc_timeseries,
         keep_julian_dates=True,
     )
     assert df is not None
@@ -53,7 +55,7 @@ def load_comb_invparms_df(results_folder: str, sensor_id: str) -> pl.DataFrame:
         )
 
     # filter based on DC amplitude
-    if constants.PARSE_DC_TIMESERIES:
+    if geoms_config.parse_dc_timeseries:
         df = df.with_columns(
             pl.col("ch1_fwd_dc_mean")
             .add(pl.col("ch1_bwd_dc_mean"))
@@ -78,12 +80,12 @@ def load_comb_invparms_df(results_folder: str, sensor_id: str) -> pl.DataFrame:
         df = df.drop("ch1_valid", "ch2_valid")
 
     # filter based on SZA and XAIR
-    if constants.MIN_SZA is not None:
-        df = df.filter(pl.col("sza").ge(constants.MIN_SZA))
-    if constants.MIN_XAIR is not None:
-        df = df.filter(pl.col("XAIR").ge(constants.MIN_XAIR))
-    if constants.MAX_XAIR is not None:
-        df = df.filter(pl.col("XAIR").le(constants.MAX_XAIR))
+    if geoms_config.max_sza is not None:
+        df = df.filter(pl.col("sza").le(geoms_config.max_sza))
+    if geoms_config.min_xair is not None:
+        df = df.filter(pl.col("XAIR").ge(geoms_config.min_xair))
+    if geoms_config.max_xair is not None:
+        df = df.filter(pl.col("XAIR").le(geoms_config.max_xair))
 
     return df
 

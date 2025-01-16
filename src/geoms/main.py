@@ -28,6 +28,7 @@ class GEOMSWriter:
         results_dir: str,
         geoms_metadata: src.types.GEOMSMetadata,
         calibration_factors: src.types.CalibrationFactorsList,
+        geoms_config: src.types.GEOMSConfig,
     ) -> None:
         about = src.types.AboutRetrieval.model_validate(
             tum_esm_utils.files.load_json_file(os.path.join(results_dir, "about.json")),
@@ -53,7 +54,7 @@ class GEOMSWriter:
             )
 
         # load dataframe
-        pl_df = load_comb_invparms_df(results_dir, sensor_id)
+        pl_df = load_comb_invparms_df(results_dir, sensor_id, geoms_config)
         if len(pl_df) < 11:
             print(f"Skipping this date because there are only {len(pl_df)} record")
             return
@@ -196,8 +197,13 @@ class GEOMSWriter:
 if __name__ == "__main__":
     geoms_metadata = src.types.GEOMSMetadata.load(template=True)
     calibration_factors = src.types.CalibrationFactorsList.load(template=True)
+    geoms_config = src.types.Config.load(
+        "/home/moritz-makowski/documents/em27/em27-retrieval-pipeline/config/config.template.json"
+    ).geoms
+    assert geoms_config is not None
     GEOMSWriter.generate_geoms_file(
         results_dir="/data/01/retrieval-archive/v3/proffast-2.4/GGG2020/ma/successful/20241021",
         geoms_metadata=geoms_metadata,
         calibration_factors=calibration_factors,
+        geoms_config=geoms_config,
     )

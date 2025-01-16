@@ -5,6 +5,7 @@ from .calibration_factors import CalibrationFactors as CalibrationFactors
 from .calibration_factors import CalibrationFactorsList as CalibrationFactorsList
 
 from .config import BundleTargetConfig as BundleTargetConfig
+from .config import GEOMSConfig as GEOMSConfig
 from .config import Config as Config
 from .config import RetrievalJobConfig as RetrievalJobConfig
 

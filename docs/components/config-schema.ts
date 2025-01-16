@@ -884,6 +884,45 @@ const CONFIG_SCHEMA: any = {
                             "description": "Whether to parse the DC timeseries from the results directories. This is an output only available in this Pipeline for Proffast2.4. We adapted the preprocessor to output the DC min/mean/max/variation values for each record of data. If you having issues with a low signal intensity on one or both channels, you can run the retrieval with a very low DC_min threshold and filter the data afterwards instead of having to rerun the retrieval.",
                             "title": "Parse Dc Timeseries",
                             "type": "boolean"
+                        },
+                        "max_sza": {
+                            "anyOf": [
+                                {
+                                    "type": "number"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "default": null,
+                            "description": "Maximum solar zenith angle to consider in the GEOMS outputs. If not set, it will consider all solar zenith angles.",
+                            "title": "Max Sza"
+                        },
+                        "min_xair": {
+                            "anyOf": [
+                                {
+                                    "type": "number"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "default": null,
+                            "description": "Minimum XAIR required to consider in the GEOMS outputs. If not set, it will consider all XAIR values.",
+                            "title": "Min Xair"
+                        },
+                        "max_xair": {
+                            "anyOf": [
+                                {
+                                    "type": "number"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "default": null,
+                            "description": "Maximum XAIR required to consider in the GEOMS outputs. If not set, it will consider all XAIR values.",
+                            "title": "Max Xair"
                         }
                     },
                     "required": [
