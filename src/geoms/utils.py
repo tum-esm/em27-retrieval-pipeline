@@ -9,7 +9,7 @@ import datetime
 import glob
 import os
 import re
-from typing import Any
+from typing import Any, Optional
 import numpy as np
 import math
 import pandas as pd
@@ -34,14 +34,15 @@ def datetimes_to_geoms_times(times: list[datetime.datetime]) -> list[float]:
 
 def load_comb_invparms_df(
     results_folder: str, sensor_id: str, geoms_config: src.types.GEOMSConfig
-) -> pl.DataFrame:
+) -> Optional[pl.DataFrame]:
     df = bundle.load_results.load_results_directory(
         results_folder,
         sensor_id,
         parse_dc_timeseries=geoms_config.parse_dc_timeseries,
         keep_julian_dates=True,
     )
-    assert df is not None
+    if df is None:
+        return None
 
     # convert altim from m to km
     df = df.with_columns(pl.col("alt").truediv(1000).alias("altim"))

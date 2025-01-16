@@ -68,6 +68,8 @@ def generate_geoms_file(
 
     # load dataframe
     pl_df = load_comb_invparms_df(results_dir, sensor_id, geoms_config)
+    if pl_df is None:
+        return None, "No data found"
     pl_df = pl_df.filter(
         (pl.col("utc") >= from_datetime) & (pl.col("utc") <= to_datetime)
     )
@@ -305,7 +307,8 @@ def run() -> None:
                         config.geoms.to_datetime,
                     )
                     progress.write(
-                        f"  {result}: {status_message}" + (f" ({filepath})" if filepath else "")
+                        f"  {sensor_id}/{result}: {status_message}"
+                        + (f" ({filepath})" if filepath else "")
                     )
 
 
