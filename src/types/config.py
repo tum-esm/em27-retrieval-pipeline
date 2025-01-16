@@ -493,6 +493,9 @@ class GEOMSConfig(pydantic.BaseModel):
         None,
         description="Maximum XAIR required to consider in the GEOMS outputs. If not set, it will consider all XAIR values.",
     )
+    conflict_mode: Literal["error", "skip", "replace"] = pydantic.Field(
+        "replace", description="What to do if an output file already exist."
+    )
 
 
 class Config(pydantic.BaseModel):

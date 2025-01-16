@@ -113,6 +113,7 @@
     "parse_dc_timeseries": false,
     "max_sza": 80,
     "min_xair": 0.98,
-    "max_xair": 1.02
+    "max_xair": 1.02,
+    "conflict_mode": "replace"
   }
 }

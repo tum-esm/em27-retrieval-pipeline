@@ -31,7 +31,11 @@ def generate_geoms_file(
     geoms_config: src.types.GEOMSConfig,
     from_datetime: datetime.datetime,
     to_datetime: datetime.datetime,
-) -> Optional[str]:
+) -> tuple[Optional[str], str]:
+    """Generate a GEOMS file within a given results directory.
+    
+    Returns: filepath and status message."""
+    
     about = src.types.AboutRetrieval.model_validate(
         tum_esm_utils.files.load_json_file(os.path.join(results_dir, "about.json")),
         context={"ignore-path-existence": True},
@@ -61,7 +65,26 @@ def generate_geoms_file(
         (pl.col("utc") >= from_datetime) & (pl.col("utc") <= to_datetime)
     )
     if len(pl_df) < 11:
-        return None
+        return None, "Not enough data (less than 11 datapoints)"
+    
+    # determine filename
+    data_from_dt: datetime.datetime = pl_df["utc"].min()  # type: ignore
+    data_to_dt: datetime.datetime = pl_df["utc"].max()  # type: ignore
+    geoms_location = geoms_metadata.locations[location_id]
+    data_source = f"{geoms_metadata.general.network}_{geoms_metadata.general.affiliation}{serial_number:03d}"
+    filename = (
+        f"groundbased_{data_source}_{geoms_location}_"
+        f"{data_from_dt.strftime('%Y%m%dT%H%M%SZ')}_"
+        f"{data_to_dt.strftime('%Y%m%dT%H%M%SZ')}_"
+        f"{geoms_metadata.data.file_version:03d}"
+        f".h5"
+    ).lower()
+    filepath = os.path.join(results_dir, filename)
+    if os.path.isfile(filepath):
+        if geoms_config.conflict_mode == "skip":
+            return filepath, "File already exists"
+        if geoms_config.conflict_mode == "error":
+            raise FileExistsError(f"File already exists: {filepath}")
     
     # apply calibration factors
     cal = calibration_factors.root[to_dt_calibration_factors_index]
@@ -79,20 +102,6 @@ def generate_geoms_file(
     interpolated_column_sensitivity = load_interpolated_column_sensitivity_file(results_dir, from_dt.date(), sensor_id, pl_df["sza"].to_numpy())
     XH2O_uncertainty, XCO2_uncertainty, XCH4_uncertainty, XCO_uncertainty = calculate_column_uncertainty(pl_df)
     species_uncertainty = { "H2O": XH2O_uncertainty, "CO2": XCO2_uncertainty, "CH4": XCH4_uncertainty, "CO": XCO_uncertainty}
-    
-    # determine filename
-    data_from_dt: datetime.datetime = pl_df["utc"].min()  # type: ignore
-    data_to_dt: datetime.datetime = pl_df["utc"].max()  # type: ignore
-    geoms_location = geoms_metadata.locations[location_id]
-    data_source = f"{geoms_metadata.general.network}_{geoms_metadata.general.affiliation}{serial_number:03d}"
-    filename = (
-        f"groundbased_{data_source}_{geoms_location}_"
-        f"{data_from_dt.strftime('%Y%m%dT%H%M%SZ')}_"
-        f"{data_to_dt.strftime('%Y%m%dT%H%M%SZ')}_"
-        f"{geoms_metadata.data.file_version:03d}"
-        f".h5"
-    ).lower()
-    filepath = os.path.join(results_dir, filename)
     
     # open hdf file, the writing functions only work with pandas (not polars)
     hdf_file = h5py.File(filepath, "w")
@@ -195,7 +204,7 @@ def generate_geoms_file(
     )
     
     hdf_file.close()
-    return filepath
+    return filepath, "File generated"
 
 # fmt: on
 
@@ -273,7 +282,7 @@ def run() -> None:
                 )
                 for result in progress:
                     progress.desc = f"{result}"
-                    filepath = generate_geoms_file(
+                    filepath, status_message = generate_geoms_file(
                         os.path.join(results_folders, result),
                         geoms_metadata,
                         calibration_factors,
@@ -281,10 +290,9 @@ def run() -> None:
                         config.geoms.from_datetime,
                         config.geoms.to_datetime,
                     )
-                    if filepath is None:
-                        progress.write(f"  {result}: Not enough data (less than 11 datapoints)")
-                    else:
-                        progress.write(f"  {result}: Generated {filepath}")
+                    progress.write(
+                        f"  {result}: {status_message}" + (f" ({filepath})" if filepath else "")
+                    )
 
 
 if __name__ == "__main__":

@@ -923,6 +923,17 @@ const CONFIG_SCHEMA: any = {
                             "default": null,
                             "description": "Maximum XAIR required to consider in the GEOMS outputs. If not set, it will consider all XAIR values.",
                             "title": "Max Xair"
+                        },
+                        "conflict_mode": {
+                            "default": "replace",
+                            "description": "What to do if an output file already exist.",
+                            "enum": [
+                                "error",
+                                "skip",
+                                "replace"
+                            ],
+                            "title": "Conflict Mode",
+                            "type": "string"
                         }
                     },
                     "required": [
