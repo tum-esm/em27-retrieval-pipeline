@@ -10,7 +10,7 @@ from .config import RetrievalJobConfig as RetrievalJobConfig
 
 from .download_query import DownloadQuery as DownloadQuery
 
-from .evdc_metadata import EVDCMetadata as EVDCMetadata
+from .geoms_metadata import GEOMSMetadata as GEOMSMetadata
 
 from .input_warnings import InputWarning as InputWarning
 from .input_warnings import InputWarningsList as InputWarningsList

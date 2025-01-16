@@ -19,8 +19,8 @@ def test_config_template() -> None:
 
 @pytest.mark.order(2)
 @pytest.mark.quick
-def test_evdc_metadata_template() -> None:
-    src.types.EVDCMetadata.load(template=True)
+def test_geoms_metadata_template() -> None:
+    src.types.GEOMSMetadata.load(template=True)
 
 
 @pytest.mark.order(2)

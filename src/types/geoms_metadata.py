@@ -5,7 +5,7 @@ import pydantic
 import tum_esm_utils
 
 
-class EVDCGeneralMetadata(pydantic.BaseModel):
+class GEOMSGeneralMetadata(pydantic.BaseModel):
     network: str = pydantic.Field(
         ...,
         description="Used in the filename of the HDF5 file",
@@ -23,7 +23,7 @@ class EVDCGeneralMetadata(pydantic.BaseModel):
     )
 
 
-class EVDCFDataMetadata(pydantic.BaseModel):
+class GEOMSDataMetadata(pydantic.BaseModel):
     discipline: str = pydantic.Field(
         ...,
         description="The value of the HDF5 attribute `DATA_DISCIPLINE`",
@@ -51,7 +51,7 @@ class EVDCFDataMetadata(pydantic.BaseModel):
     )
 
 
-class EVDCFileMetadata(pydantic.BaseModel):
+class GEOMSFileMetadata(pydantic.BaseModel):
     doi: str = pydantic.Field(
         ...,
         description="The value of the HDF5 attribute `FILE_DOI`",
@@ -73,7 +73,7 @@ class EVDCFileMetadata(pydantic.BaseModel):
     )
 
 
-class EVDCContactlMetadata(pydantic.BaseModel):
+class GEOMSContactlMetadata(pydantic.BaseModel):
     name: str = pydantic.Field(
         ...,
         description="The value of the HDF5 attribute `PI_NAME`/`DO_NAME`/`DS_NAME`",
@@ -98,20 +98,20 @@ class EVDCContactlMetadata(pydantic.BaseModel):
     )
 
 
-class EVDCMetadata(pydantic.BaseModel):
-    general: EVDCGeneralMetadata
-    data: EVDCFDataMetadata
-    file: EVDCFileMetadata
-    principle_investigator: EVDCContactlMetadata
-    data_originator: EVDCContactlMetadata
-    data_submitter: EVDCContactlMetadata
+class GEOMSMetadata(pydantic.BaseModel):
+    general: GEOMSGeneralMetadata
+    data: GEOMSDataMetadata
+    file: GEOMSFileMetadata
+    principle_investigator: GEOMSContactlMetadata
+    data_originator: GEOMSContactlMetadata
+    data_submitter: GEOMSContactlMetadata
     locations: dict[str, str] = pydantic.Field(
         ..., description="Maps your locations id to the corresponding EVDC location id"
     )
 
     @staticmethod
-    def load(template: bool = False) -> EVDCMetadata:
-        """Load the EVDC metadata from `<config_dir>/evdc_metadata.json`."""
+    def load(template: bool = False) -> GEOMSMetadata:
+        """Load the EVDC metadata from `<config_dir>/geoms_metadata.json`."""
 
         erp_config_dir = tum_esm_utils.files.rel_to_abs_path("../../config")
         if not template:
@@ -120,6 +120,6 @@ class EVDCMetadata(pydantic.BaseModel):
                 dotenv.load_dotenv(env_path)
             erp_config_dir = os.getenv("ERP_CONFIG_DIR", erp_config_dir)
         filepath = os.path.join(
-            erp_config_dir, f"evdc_metadata{'.template' if template else ''}.json"
+            erp_config_dir, f"geoms_metadata{'.template' if template else ''}.json"
         )
-        return EVDCMetadata.model_validate_json(tum_esm_utils.files.load_file(filepath))
+        return GEOMSMetadata.model_validate_json(tum_esm_utils.files.load_file(filepath))
