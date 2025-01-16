@@ -258,12 +258,12 @@ with open(os.path.join(PROJECT_DIR, "docs", "pages", "guides", "configuration.md
 # ---------------------------------------------------------
 # Replace geoms config example files
 
-print("Exporting metadata example files to docs/pages/api-reference/geoms_configuration.mdx")
+print("Exporting metadata example files to docs/pages/api-reference/geoms-configuration.mdx")
 example_geoms_configuration = src.types.GEOMSMetadata.load(template=True)
 example_calibration_factors = src.types.CalibrationFactorsList.load(template=True)
 
 with open(
-    os.path.join(PROJECT_DIR, "docs", "pages", "api-reference", "geoms_configuration.mdx"), "r"
+    os.path.join(PROJECT_DIR, "docs", "pages", "api-reference", "geoms-configuration.mdx"), "r"
 ) as _f:
     current_metadata_reference = _f.read()
 
@@ -294,7 +294,7 @@ current_metadata_reference = current_metadata_reference.replace(
 )
 
 with open(
-    os.path.join(PROJECT_DIR, "docs", "pages", "api-reference", "geoms_configuration.mdx"), "w"
+    os.path.join(PROJECT_DIR, "docs", "pages", "api-reference", "geoms-configuration.mdx"), "w"
 ) as _f:
     _f.write(current_metadata_reference)
 

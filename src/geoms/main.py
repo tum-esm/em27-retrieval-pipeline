@@ -245,7 +245,7 @@ def run() -> None:
             print(f"Processing {retrieval_algorithm}/{atmospheric_profile_model}")
 
             for i, sensor_id in enumerate(config.geoms.sensor_ids):
-                print(f"Processing sensor_id #{i + 1}")
+                print(f'Processing sensor id "{sensor_id}"')
 
                 results_folders = os.path.join(
                     config.general.data.results.root,

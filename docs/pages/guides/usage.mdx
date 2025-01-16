@@ -108,6 +108,54 @@ Bundle all the retrieval outputs using the following command:
 python cli.py bundle run
 ```
 
+## Generating GEOMS compliant HDF5 files
+
+The [Generic Earth Observation Metadata Standard (GEOMS)](https://en.wikipedia.org/wiki/Generic_Earth_Observation_Metadata_Standard) is a
+standard for exchanging ground-based total-column concentration data. It uses the [HDF5 file format](https://en.wikipedia.org/wiki/Hierarchical_Data_Format)
+and enforces a specific structure for the data (see [guidelines from EVDC](https://evdc.esa.int/documentation/geoms/)).
+
+This pipeline can generate GEOMS compliant HDF5 files for the entire retrieval output. For that it requires the files `calibration_factors.json`
+and `geoms_metadata.json` to be present in the configuration directory. You can use the [example files and the API reference](/api-reference/geoms-configuration)
+to create your own files. You need to add a section `geoms` to the [general `config.json` file ](/api-reference/configuration) defining
+the scope for which you want to generate GEOMS files.
+
+As always, the pipeline will tell you if any of your configuration files are invalid. Create the GEOMS files using the following command:
+
+```bash
+python cli.py geoms run
+```
+
+The logs will report, which files have been generated:
+
+```
+Config is valid
+Loading configuration
+Loading calibration factors
+Loading geoms metadata
+Processing proffast-2.4/GGG2020
+Processing sensor id "ma"
+Sensor ma: found 1105 results in total
+Sensor ma: found 173 results within the time range
+  ma/20240501: Generated .../proffast-2.4/GGG2020/ma/successful/20240501/groundbased_ftir.coccon_tum.esm061_munich.tum_20240501t114016z_20240501t171933z_1.h5
+  ma/20240502: Generated .../proffast-2.4/GGG2020/ma/successful/20240502/groundbased_ftir.coccon_tum.esm061_munich.tum_20240502t070418z_20240502t164544z_1.h5
+  ma/20240504: Generated .../proffast-2.4/GGG2020/ma/successful/20240504/groundbased_ftir.coccon_tum.esm061_munich.tum_20240504t053204z_20240504t171926z_1.h5
+  ma/20240505: Generated .../proffast-2.4/GGG2020/ma/successful/20240505/groundbased_ftir.coccon_tum.esm061_munich.tum_20240505t051558z_20240505t172421z_1.h5
+  ma/20240506: Generated .../proffast-2.4/GGG2020/ma/successful/20240506/groundbased_ftir.coccon_tum.esm061_munich.tum_20240506t052157z_20240506t125438z_1.h5
+  ma/20240507: Not enough data (less than 11 datapoints)
+  ma/20240509: Generated .../proffast-2.4/GGG2020/ma/successful/20240509/groundbased_ftir.coccon_tum.esm061_munich.tum_20240509t072631z_20240509t152931z_1.h5
+  ma/20240510: Generated .../proffast-2.4/GGG2020/ma/successful/20240510/groundbased_ftir.coccon_tum.esm061_munich.tum_20240510t061155z_20240510t083149z_1.h5
+ma/20240511:  5%|██████                                                                                                            | 8/173 [00:19<03:07, 1.20s/it]
+```
+
+<Callout type="info" emoji="🐞">
+
+The code to generate these GEOMS compliant HDF5 files has been adapted from the [PROFFASTpylot](https://doi.org/10.21105/joss.06481). The authors of the
+original code are Lena Feld, Benedikt Herkommer, Darko Dubravica affiliated with the Karlsruhe Institut of Technology (KIT).
+
+Please make sure to not only cite this pipeline, but also the Proffast Pylot when using this feature.
+
+</Callout>
+
 ## Generate a Data Report
 
 You can generate a report about the data on your system using the following command:
