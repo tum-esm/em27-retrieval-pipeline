@@ -13,6 +13,10 @@ def _get_checksum() -> str:
     )
 
 
+@pytest.mark.skipif(
+    sys.version_info >= (3, 13),
+    reason="Skipping test for Python 3.13 because the documentation renders differently",
+)
 @pytest.mark.order(2)
 @pytest.mark.quick
 def test_api_reference_state() -> None:
