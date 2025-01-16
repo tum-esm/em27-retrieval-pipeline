@@ -305,124 +305,36 @@ def load_interpolated_column_sensitivity_file(
     return gas_sens
 
 
-def calculate_column_uncertainty(
-    df: pl.DataFrame,
-) -> tuple[np.ndarray[Any, Any], np.ndarray[Any, Any], np.ndarray[Any, Any], np.ndarray[Any, Any]]:
-    # The error calculation (uncertainty) is performed
-    # by using the column mixing ratios and dry air mole fraction.
+def calculate_column_uncertainty(df: pl.DataFrame) -> pl.DataFrame:
+    window_size = 11
+    side_window_size = window_size // 2
+    new_df = df.clone()
 
-    XH2O = df["XH2O"].to_numpy()
-    XCO2 = df["XCO2"].to_numpy()
-    XCH4 = df["XCH4"].to_numpy()
-    XCO = df["XCO"].to_numpy()
+    for gas in ["XH2O", "XCO2", "XCH4", "XCO"]:
+        gas_df = df.select("JulianDate", gas).filter(pl.col(gas).gt(0.0))
+        gas_column: list[float] = gas_df[gas].to_list()
 
-    AvgNr = 11  # number of moving mean values
-    ErrNr = int(AvgNr / 2)  # number of moving mean values divided by two
-    MeaNr = len(XH2O)  # number of measurements
+        rolling_mean: list[float] = [-900_000.0] * len(gas_column)
+        for i in range(side_window_size, len(gas_column) - side_window_size):
+            window = gas_column[i - side_window_size : i + side_window_size + 1]
+            rolling_mean[i] = sum(window) / window_size
 
-    # Calculation of the moving mean for each species with 11 data points.
+        gas_uncertainties: list[float] = [-900_000.0] * len(gas_column)
+        for i in range(side_window_size * 2, len(gas_column) - (side_window_size * 2)):
+            rolling_mean_window = rolling_mean[i - side_window_size : i + side_window_size + 1]
+            window = gas_column[i - side_window_size : i + side_window_size + 1]
+            squared_error = [
+                math.pow(window[i] - rolling_mean_window[i], 2) for i in range(window_size)
+            ]
+            root_mean_squared_error = math.sqrt(sum(squared_error) / (window_size - 1))
+            gas_uncertainties[i] = root_mean_squared_error
 
-    XH2O_mean = np.zeros(df["JulianDate"].shape)
-    XCO2_mean = np.zeros(df["JulianDate"].shape)
-    XCH4_mean = np.zeros(df["JulianDate"].shape)
-    XCO_mean = np.zeros(df["JulianDate"].shape)
+        new_df = new_df.join(
+            pl.DataFrame(
+                {"JulianDate": gas_df["JulianDate"], f"{gas}_uncertainty": gas_uncertainties}
+            ),
+            how="left",
+            on="JulianDate",
+        ).fill_null(-900_000.0)
 
-    for i in range(MeaNr - AvgNr + 1):  # moving mean calculation
-        XH2O_mean_tmp = 0.0
-        XCO2_mean_tmp = 0.0
-        XCH4_mean_tmp = 0.0
-        XCO_mean_tmp = 0.0
-
-        for j in range(AvgNr):
-            XH2O_mean_tmp += XH2O[i + j]
-            XCO2_mean_tmp += XCO2[i + j]
-            XCH4_mean_tmp += XCH4[i + j]
-            XCO_mean_tmp += XCO[i + j]
-
-        XH2O_mean[i + ErrNr] = XH2O_mean_tmp / float(AvgNr)
-        XCO2_mean[i + ErrNr] = XCO2_mean_tmp / float(AvgNr)
-        XCH4_mean[i + ErrNr] = XCH4_mean_tmp / float(AvgNr)
-        XCO_mean[i + ErrNr] = XCO_mean_tmp / float(AvgNr)
-
-    for i in range(ErrNr):  # first entries const
-        XH2O_mean[i] = XH2O_mean[ErrNr]
-        XCO2_mean[i] = XCO2_mean[ErrNr]
-        XCH4_mean[i] = XCH4_mean[ErrNr]
-        XCO_mean[i] = XCO_mean[ErrNr]
-
-    for i in range(ErrNr):  # last entries const
-        XH2O_mean[MeaNr - i - 1] = XH2O_mean[MeaNr - ErrNr - 1]
-        XCO2_mean[MeaNr - i - 1] = XCO2_mean[MeaNr - ErrNr - 1]
-        XCH4_mean[MeaNr - i - 1] = XCH4_mean[MeaNr - ErrNr - 1]
-        XCO_mean[MeaNr - i - 1] = XCO_mean[MeaNr - ErrNr - 1]
-
-    # The error calculation is based on the difference between
-    # the column mixing ratios
-    # and the the moving mean value for each trace gas.
-    # Therefore, it corresponds to a standard deviation with respect to
-    # the moving mean.
-
-    XH2O_err = np.zeros(MeaNr)
-    XCO2_err = np.zeros(MeaNr)
-    XCH4_err = np.zeros(MeaNr)
-    XCO_err = np.zeros(MeaNr)
-
-    for i in range(MeaNr - AvgNr + 1):
-        XH2O_err_tmp = 0.0
-        XCO2_err_tmp = 0.0
-        XCH4_err_tmp = 0.0
-        XCO_err_tmp = 0.0
-
-        for j in range(AvgNr):
-            XH2O_err_tmp += np.power(XH2O[i + j] - XH2O_mean[i + j], 2)
-            XCO2_err_tmp += np.power(XCO2[i + j] - XCO2_mean[i + j], 2)
-            XCH4_err_tmp += np.power(XCH4[i + j] - XCH4_mean[i + j], 2)
-            XCO_err_tmp += np.power(XCO[i + j] - XCO_mean[i + j], 2)
-
-        XH2O_err[i + ErrNr] = np.sqrt(XH2O_err_tmp / float(AvgNr - 1))
-        XCO2_err[i + ErrNr] = np.sqrt(XCO2_err_tmp / float(AvgNr - 1))
-        XCH4_err[i + ErrNr] = np.sqrt(XCH4_err_tmp / float(AvgNr - 1))
-        XCO_err[i + ErrNr] = np.sqrt(XCO_err_tmp / float(AvgNr - 1)) * 1000.0
-
-        if XH2O[i + ErrNr] == -900000.0:
-            XH2O_err[i + ErrNr] = -900000.0
-        if XCO2[i + ErrNr] == -900000.0:
-            XCO2_err[i + ErrNr] = -900000.0
-        if XCH4[i + ErrNr] == -900000.0:
-            XCH4_err[i + ErrNr] = -900000.0
-        if XCO[i + ErrNr] == -900000.0:
-            XCO_err[i + ErrNr] = -900000.0
-
-    # The uncertainty for the first and last entries is constant.
-
-    for i in range(ErrNr):
-        XH2O_err[i] = XH2O_err[ErrNr]
-        XCO2_err[i] = XCO2_err[ErrNr]
-        XCH4_err[i] = XCH4_err[ErrNr]
-        XCO_err[i] = XCO_err[ErrNr]
-
-        if XH2O[i] == -900000.0:
-            XH2O_err[i] = -900000.0
-        if XCO2[i] == -900000.0:
-            XCO2_err[i] = -900000.0
-        if XCH4[i] == -900000.0:
-            XCH4_err[i] = -900000.0
-        if XCO[i] == -900000.0:
-            XCO_err[i] = -900000.0
-
-    for i in range(ErrNr):
-        XH2O_err[MeaNr - i - 1] = XH2O_err[MeaNr - ErrNr - 1]
-        XCO2_err[MeaNr - i - 1] = XCO2_err[MeaNr - ErrNr - 1]
-        XCH4_err[MeaNr - i - 1] = XCH4_err[MeaNr - ErrNr - 1]
-        XCO_err[MeaNr - i - 1] = XCO_err[MeaNr - ErrNr - 1]
-
-        if XH2O[MeaNr - i - 1] == -900000.0:
-            XH2O_err[MeaNr - i - 1] = -900000.0
-        if XCO2[MeaNr - i - 1] == -900000.0:
-            XCO2_err[MeaNr - i - 1] = -900000.0
-        if XCH4[MeaNr - i - 1] == -900000.0:
-            XCH4_err[MeaNr - i - 1] = -900000.0
-        if XCO[MeaNr - i - 1] == -900000.0:
-            XCO_err[MeaNr - i - 1] = -900000.0
-
-    return XH2O_err, XCO2_err, XCH4_err, XCO_err
+    return new_df

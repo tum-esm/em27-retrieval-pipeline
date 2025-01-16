@@ -115,8 +115,7 @@ def generate_geoms_file(
     vmr_df = load_vmr_file(results_dir, from_dt.date(), sensor_id)
     ils_data = get_ils_form_preprocess_inp(results_dir, from_dt.date())
     interpolated_column_sensitivity = load_interpolated_column_sensitivity_file(results_dir, from_dt.date(), sensor_id, pl_df["sza"].to_numpy())
-    XH2O_uncertainty, XCO2_uncertainty, XCH4_uncertainty, XCO_uncertainty = calculate_column_uncertainty(pl_df)
-    species_uncertainty = { "H2O": XH2O_uncertainty, "CO2": XCO2_uncertainty, "CH4": XCH4_uncertainty, "CO": XCO_uncertainty}
+    df_with_uncertainties = calculate_column_uncertainty(pl_df)
     
     # open hdf file, the writing functions only work with pandas (not polars)
     hdf_file = h5py.File(tmp_filepath, "w")
@@ -146,7 +145,7 @@ def generate_geoms_file(
     all_species: list[Literal["H2O", "CO2", "CH4", "CO"]] = ["H2O", "CO2", "CH4", "CO"]
     for species in all_species:
         GEOMSAPI.write_column(hdf_file, df, species)
-        GEOMSAPI.write_column_uncertainty(hdf_file, species, species_uncertainty[species])
+        GEOMSAPI.write_column_uncertainty(hdf_file, species, df_with_uncertainties[f"X{species}_uncertainty"].to_numpy(writable=True))
         GEOMSAPI.write_apriori(hdf_file, df, pt_df, vmr_df, species)
         GEOMSAPI.write_apriori_source(hdf_file, df, species, about.session.atmospheric_profile_model)
         GEOMSAPI.write_averaging_kernel(hdf_file, df, pt_df, interpolated_column_sensitivity, species)

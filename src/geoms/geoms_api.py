@@ -497,6 +497,7 @@ class GEOMSAPI:
         elif species == "CH4":
             unit = "ppmv"
         elif species == "CO":
+            column_uncertainty = column_uncertainty * 1000.0  # in ppbv
             unit = "ppbv"
         else:
             raise ValueError("Invalid variable_name")
