@@ -1,8 +1,9 @@
 import datetime
 import os
 from typing import Literal
-import h5py
+import polars as pl
 import numpy as np
+import h5py
 import tum_esm_utils
 import sys
 
@@ -21,12 +22,14 @@ from .geoms_api import GEOMSAPI
 from . import constants
 
 
-# TODO: apply calibration factors
-
-
+# fmt: off
 class GEOMSWriter:
     @staticmethod
-    def generate_geoms_file(results_dir: str, evdc_metadata: src.types.EVDCMetadata) -> None:
+    def generate_geoms_file(
+        results_dir: str,
+        geoms_metadata: src.types.GEOMSMetadata,
+        calibration_factors: src.types.CalibrationFactorsList,
+    ) -> None:
         about = src.types.AboutRetrieval.model_validate(
             tum_esm_utils.files.load_json_file(os.path.join(results_dir, "about.json")),
             context={"ignore-path-existence": True},
@@ -35,31 +38,46 @@ class GEOMSWriter:
         location_id = about.session.ctx.location.location_id
         serial_number = about.session.ctx.serial_number
         from_dt, to_dt = about.session.ctx.from_datetime, about.session.ctx.to_datetime
-        assert from_dt.date() == to_dt.date()
+        assert from_dt.date() == to_dt.date(), "Something is wrong"
 
+        # determine calibration factors
+        from_dt_calibration_factors_index = calibration_factors.get_index(sensor_id, from_dt)
+        to_dt_calibration_factors_index = calibration_factors.get_index(sensor_id, to_dt)
+        if from_dt_calibration_factors_index is None:
+            raise ValueError(f"Calibration factors not found for {sensor_id} @ {from_dt}")
+        if to_dt_calibration_factors_index is None:
+            raise ValueError(f"Calibration factors not found for {sensor_id} @ {to_dt}")
+        if from_dt_calibration_factors_index != to_dt_calibration_factors_index:
+            raise ValueError(
+                f"Calibration factors changed during the period {from_dt} - {to_dt}. "
+                + "Please make sure, there is a break in the metadata setup timeseries"
+            )
+
+        # load dataframe
         pl_df = load_comb_invparms_df(results_dir, sensor_id)
         if len(pl_df) < 11:
             print(f"Skipping this date because there are only {len(pl_df)} record")
             return
+        
+        # apply calibration factors
+        pl_df = pl_df.with_columns(
+            pl.col("XCO2").mul(calibration_factors.root[to_dt_calibration_factors_index].xco2).alias("XCO2"),
+            pl.col("XCH4").mul(calibration_factors.root[to_dt_calibration_factors_index].xch4).alias("XCH4"),
+            pl.col("XH2O").mul(calibration_factors.root[to_dt_calibration_factors_index].xh2o).alias("XH2O"),
+            pl.col("XCO").mul(calibration_factors.root[to_dt_calibration_factors_index].xco).alias("XCO"),
+        )
 
-        data_from_dt: datetime.datetime = pl_df["utc"].min()  # type: ignore
-        data_to_dt: datetime.datetime = pl_df["utc"].max()  # type: ignore
-
+        # load data inputs
         pt_df = load_pt_file(results_dir, from_dt.date(), sensor_id)
         vmr_df = load_vmr_file(results_dir, from_dt.date(), sensor_id)
         ils_data = get_ils_form_preprocess_inp(results_dir, from_dt.date())
-        interpolated_column_sensitivity = load_interpolated_column_sensitivity_file(
-            results_dir, from_dt.date(), sensor_id, pl_df["sza"].to_numpy()
-        )
-        XH2O_uncertainty, XCO2_uncertainty, XCH4_uncertainty, XCO_uncertainty = (
-            calculate_column_uncertainty(pl_df)
-        )
-        species_uncertainty = {
-            "H2O": XH2O_uncertainty,
-            "CO2": XCO2_uncertainty,
-            "CH4": XCH4_uncertainty,
-            "CO": XCO_uncertainty,
-        }
+        interpolated_column_sensitivity = load_interpolated_column_sensitivity_file(results_dir, from_dt.date(), sensor_id, pl_df["sza"].to_numpy())
+        XH2O_uncertainty, XCO2_uncertainty, XCH4_uncertainty, XCO_uncertainty = calculate_column_uncertainty(pl_df)
+        species_uncertainty = { "H2O": XH2O_uncertainty, "CO2": XCO2_uncertainty, "CH4": XCH4_uncertainty, "CO": XCO_uncertainty}
+        
+        # determine filename
+        data_from_dt: datetime.datetime = pl_df["utc"].min()  # type: ignore
+        data_to_dt: datetime.datetime = pl_df["utc"].max()  # type: ignore
         evdc_location = constants.EVDC_LOCATIONS[location_id]
         data_source = f"{constants.EVDC_NETWORK}_{constants.EVDC_AFFILIATION}{serial_number:03d}"
         filename = (
@@ -70,8 +88,9 @@ class GEOMSWriter:
             f".h5"
         ).lower()
         filepath = os.path.join(results_dir, filename)
+        
+        # open hdf file, the writing functions only work with pandas (not polars)
         hdf_file = h5py.File(filepath, "w")
-
         df = pl_df.to_pandas()
 
         # setup
@@ -86,7 +105,7 @@ class GEOMSWriter:
 
         # enclosure pressure sensor
         GEOMSAPI.write_surface_pressure(hdf_file, df)
-        GEOMSAPI.write_surface_pressure_source(hdf_file, evdc_metadata, df)
+        GEOMSAPI.write_surface_pressure_source(hdf_file, geoms_metadata, df)
 
         # pt profile
         GEOMSAPI.write_pressure(hdf_file, df, pt_df)
@@ -161,10 +180,13 @@ class GEOMSWriter:
             datetime.datetime.now().strftime("%Y%m%dT%H%M%SZ")
         )
 
+# fmt: on
 
 if __name__ == "__main__":
-    evdc_metadata = src.types.EVDCMetadata.load(template=True)
+    geoms_metadata = src.types.GEOMSMetadata.load(template=True)
+    calibration_factors = src.types.CalibrationFactorsList.load(template=True)
     GEOMSWriter.generate_geoms_file(
         results_dir="/data/01/retrieval-archive/v3/proffast-2.4/GGG2020/ma/successful/20241021",
-        evdc_metadata=evdc_metadata,
+        geoms_metadata=geoms_metadata,
+        calibration_factors=calibration_factors,
     )

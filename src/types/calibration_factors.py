@@ -1,6 +1,7 @@
 from __future__ import annotations
 import datetime
 import os
+from typing import Optional
 import dotenv
 import pydantic
 import tum_esm_utils
@@ -68,3 +69,16 @@ class CalibrationFactorsList(pydantic.RootModel[list[CalibrationFactors]]):
             erp_config_dir, f"calibration_factors{'.template' if template else ''}.json"
         )
         return CalibrationFactorsList.model_validate_json(tum_esm_utils.files.load_file(filepath))
+
+    def get_index(self, sensor_id: str, datetime: datetime.datetime) -> Optional[int]:
+        """Get the calibration factors for the specified sensor."""
+        try:
+            return next(
+                i
+                for i, v in enumerate(self.root)
+                if v.sensor_id == sensor_id
+                and v.valid_from_datetime <= datetime
+                and v.valid_to_datetime >= datetime
+            )
+        except StopIteration:
+            return None

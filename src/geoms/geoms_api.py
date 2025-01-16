@@ -310,13 +310,13 @@ class GEOMSAPI:
 
     @staticmethod
     def write_surface_pressure_source(
-        hdf5_file: h5py.File, evdc_metadata: src.types.EVDCMetadata, df: pd.DataFrame
+        hdf5_file: h5py.File, geoms_metadata: src.types.GEOMSMetadata, df: pd.DataFrame
     ) -> None:
         """Source of the surface pressure"""
 
         variable_name = GEOMSColumnNames.SURFACE_PRESSURE_INDEPENDENT_SOURCE
         data_size = df["lon"].to_numpy().size
-        data = [evdc_metadata.general.pressure_sensor_name] * data_size
+        data = [geoms_metadata.general.pressure_sensor_name] * data_size
 
         metadata = GEOMSSRCAttributeMetadata(
             VAR_DATA_TYPE="STRING",
