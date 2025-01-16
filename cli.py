@@ -13,6 +13,7 @@ cli = click.Group(name="cli")
 retrieval_command_group = click.Group(name="retrieval")
 profiles_command_group = click.Group(name="profiles")
 bundle_command_group = click.Group(name="bundle")
+geoms_command_group = click.Group(name="geoms")
 
 
 def _check_config_validity() -> None:
@@ -146,6 +147,17 @@ def run_bundle() -> None:
     src.bundle.main.run()
 
 
+@geoms_command_group.command(
+    name="run", help="Create GEOMS files for your entire retrieval dataset"
+)
+def run_geoms() -> None:
+    _check_config_validity()
+
+    import src  # import here so that the CLI is more reactive
+
+    src.geoms.main.run()
+
+
 @cli.command(
     name="data-report",
     help="exports a report of the data present on the configured system",
@@ -191,6 +203,7 @@ def print_data_report() -> None:
 cli.add_command(retrieval_command_group)
 cli.add_command(profiles_command_group)
 cli.add_command(bundle_command_group)
+cli.add_command(geoms_command_group)
 
 if __name__ == "__main__":
     cli()

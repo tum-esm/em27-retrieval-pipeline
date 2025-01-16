@@ -2,7 +2,7 @@
   "general": {
     "network": "FTIR.COCCON",
     "affiliation": "TUM.ESM",
-    "pressure_sensor_name": "MIRO2Datalogger"
+    "pressure_sensor_name": "vaisala-PTB330"
   },
   "data": {
     "discipline": "ATMOSPHERIC.CHEMISTRY;REMOTE.SENSING;GROUNDBASED",
