@@ -1,7 +1,7 @@
+from typing import Literal, Optional
 import datetime
 import os
 import re
-from typing import Literal, Optional
 import polars as pl
 import numpy as np
 import h5py
@@ -29,6 +29,8 @@ def generate_geoms_file(
     geoms_metadata: src.types.GEOMSMetadata,
     calibration_factors: src.types.CalibrationFactorsList,
     geoms_config: src.types.GEOMSConfig,
+    from_datetime: datetime.datetime,
+    to_datetime: datetime.datetime,
 ) -> Optional[str]:
     about = src.types.AboutRetrieval.model_validate(
         tum_esm_utils.files.load_json_file(os.path.join(results_dir, "about.json")),
@@ -55,6 +57,9 @@ def generate_geoms_file(
 
     # load dataframe
     pl_df = load_comb_invparms_df(results_dir, sensor_id, geoms_config)
+    pl_df = pl_df.filter(
+        (pl.col("utc") >= from_datetime) & (pl.col("utc") <= to_datetime)
+    )
     if len(pl_df) < 11:
         return None
     
@@ -84,7 +89,7 @@ def generate_geoms_file(
         f"groundbased_{data_source}_{geoms_location}_"
         f"{data_from_dt.strftime('%Y%m%dT%H%M%SZ')}_"
         f"{data_to_dt.strftime('%Y%m%dT%H%M%SZ')}_"
-        f"{geoms_metadata.data.file_version}"
+        f"{geoms_metadata.data.file_version:03d}"
         f".h5"
     ).lower()
     filepath = os.path.join(results_dir, filename)
@@ -169,10 +174,10 @@ def generate_geoms_file(
     hdf_file.attrs["DATA_VARIABLES"] = np.bytes_(";".join(variables))
     
     loc = about.session.ctx.location
-    hdf_file.attrs["DATA_DESCRIPTION"] = np.bytes_(
-        f"EM27/SUN ({serial_number}) measurements from {loc.location_id} " +
-        f"({loc.details}, {loc.lat}°N {loc.lon}°E {loc.alt}m)"
-    )
+    hdf_file.attrs["DATA_DESCRIPTION"] = np.bytes_((
+        f"EM27/SUN (SN{serial_number:03d}) measurements from {loc.location_id} " +
+        f"({loc.details}, {loc.lat} N {loc.lon} E {loc.alt} m)"
+    ).encode("ascii", errors="ignore").decode("ascii"))
     hdf_file.attrs["DATA_MODIFICATIONS"] = np.bytes_(
         "ILS parms applied: "
         f"{str(ils_data)} (ME1, PE1, ME2, PE2). "
@@ -234,9 +239,38 @@ def run() -> None:
                     if os.path.isdir(os.path.join(results_folders, result))
                     and re.match(r"^\d{8}(_\d{8}_\d{8})?(_.+)?$", result)
                 ]
-                print(f"Sensor {sensor_id}: found {len(results)} results")
+                print(f"Sensor {sensor_id}: found {len(results)} results in total")
+                results_within_time_range: list[str] = []
+                for result in results:
+                    date = datetime.datetime.strptime(result[:8], "%Y%m%d")
+                    from_dt = datetime.datetime.combine(
+                        date, datetime.time(0, 0, 0), tzinfo=datetime.timezone.utc
+                    )
+                    to_dt = datetime.datetime.combine(
+                        date, datetime.time(23, 59, 59), tzinfo=datetime.timezone.utc
+                    )
+                    if len(result) > 8:
+                        from_time = datetime.datetime.strptime(result.split("_")[1], "%H%M%S")
+                        to_time = datetime.datetime.strptime(result.split("_")[2], "%H%M%S")
+                        from_dt = from_dt.replace(
+                            hour=from_time.hour, minute=from_time.minute, second=from_time.second
+                        )
+                        to_dt = to_dt.replace(
+                            hour=to_time.hour, minute=to_time.minute, second=to_time.second
+                        )
 
-                progress = tqdm.tqdm(sorted(results), dynamic_ncols=True, desc="...")
+                    if (from_dt <= config.geoms.to_datetime) and (
+                        to_dt >= config.geoms.from_datetime
+                    ):
+                        results_within_time_range.append(result)
+
+                print(
+                    f"Sensor {sensor_id}: found {len(results_within_time_range)} results within the time range"
+                )
+
+                progress = tqdm.tqdm(
+                    sorted(results_within_time_range), dynamic_ncols=True, desc="..."
+                )
                 for result in progress:
                     progress.desc = f"{result}"
                     filepath = generate_geoms_file(
@@ -244,6 +278,8 @@ def run() -> None:
                         geoms_metadata,
                         calibration_factors,
                         config.geoms,
+                        config.geoms.from_datetime,
+                        config.geoms.to_datetime,
                     )
                     if filepath is None:
                         progress.write(f"  {result}: Not enough data (less than 11 datapoints)")
@@ -263,4 +299,6 @@ if __name__ == "__main__":
         geoms_metadata=geoms_metadata,
         calibration_factors=calibration_factors,
         geoms_config=geoms_config,
+        from_datetime=datetime.datetime(2024, 10, 20, 0, 0, 0),
+        to_datetime=datetime.datetime(2024, 10, 23, 23, 59, 59),
     )

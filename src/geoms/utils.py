@@ -48,7 +48,7 @@ def load_comb_invparms_df(
         ("XH2O", 10_000),
     ]:
         df = df.with_columns(
-            pl.when(pl.col(gas).lt(0.0) | pl.col(gas).gt(max_value))
+            pl.when(pl.col(gas).le(0.0) | pl.col(gas).ge(max_value))
             .then(fill_value)
             .otherwise(pl.col(gas))
             .alias(gas)
