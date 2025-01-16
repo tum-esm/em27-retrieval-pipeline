@@ -1,4 +1,8 @@
+from __future__ import annotations
+import os
+import dotenv
 import pydantic
+import tum_esm_utils
 
 
 class EVDCGeneralMetadata(pydantic.BaseModel):
@@ -104,3 +108,18 @@ class EVDCMetadata(pydantic.BaseModel):
     locations: dict[str, str] = pydantic.Field(
         ..., description="Maps your locations id to the corresponding EVDC location id"
     )
+
+    @staticmethod
+    def load(template: bool = False) -> EVDCMetadata:
+        """Load the EVDC metadata from `<config_dir>/evdc_metadata.json`."""
+
+        erp_config_dir = tum_esm_utils.files.rel_to_abs_path("../../config")
+        if not template:
+            env_path = os.path.join(tum_esm_utils.files.rel_to_abs_path("../../config"), ".env")
+            if os.path.isfile(env_path):
+                dotenv.load_dotenv(env_path)
+            erp_config_dir = os.getenv("ERP_CONFIG_DIR", erp_config_dir)
+        filepath = os.path.join(
+            erp_config_dir, f"evdc_metadata{'.template' if template else ''}.json"
+        )
+        return EVDCMetadata.model_validate_json(tum_esm_utils.files.load_file(filepath))
