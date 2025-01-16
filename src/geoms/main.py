@@ -19,7 +19,6 @@ from .utils import (
     calculate_column_uncertainty,
 )
 from .geoms_api import GEOMSAPI
-from . import constants
 
 
 # fmt: off
@@ -60,11 +59,12 @@ class GEOMSWriter:
             return
         
         # apply calibration factors
+        cal = calibration_factors.root[to_dt_calibration_factors_index]
         pl_df = pl_df.with_columns(
-            pl.col("XCO2").mul(calibration_factors.root[to_dt_calibration_factors_index].xco2).alias("XCO2"),
-            pl.col("XCH4").mul(calibration_factors.root[to_dt_calibration_factors_index].xch4).alias("XCH4"),
-            pl.col("XH2O").mul(calibration_factors.root[to_dt_calibration_factors_index].xh2o).alias("XH2O"),
-            pl.col("XCO").mul(calibration_factors.root[to_dt_calibration_factors_index].xco).alias("XCO"),
+            pl.col("XCO2").mul(cal.xco2).alias("XCO2"),
+            pl.col("XCH4").mul(cal.xch4).alias("XCH4"),
+            pl.col("XH2O").mul(cal.xh2o).alias("XH2O"),
+            pl.col("XCO").mul(cal.xco).alias("XCO"),
         )
 
         # load data inputs
@@ -78,13 +78,13 @@ class GEOMSWriter:
         # determine filename
         data_from_dt: datetime.datetime = pl_df["utc"].min()  # type: ignore
         data_to_dt: datetime.datetime = pl_df["utc"].max()  # type: ignore
-        evdc_location = constants.EVDC_LOCATIONS[location_id]
-        data_source = f"{constants.EVDC_NETWORK}_{constants.EVDC_AFFILIATION}{serial_number:03d}"
+        geoms_location = geoms_metadata.locations[location_id]
+        data_source = f"{geoms_metadata.general.network}_{geoms_metadata.general.affiliation}{serial_number:03d}"
         filename = (
-            f"groundbased_{data_source}_{evdc_location}_"
+            f"groundbased_{data_source}_{geoms_location}_"
             f"{data_from_dt.strftime('%Y%m%dT%H%M%SZ')}_"
             f"{data_to_dt.strftime('%Y%m%dT%H%M%SZ')}_"
-            f"{constants.EVDC_METADATA['DATA_FILE_VERSION']}"
+            f"{geoms_metadata.data.file_version}"
             f".h5"
         ).lower()
         filepath = os.path.join(results_dir, filename)
@@ -119,7 +119,7 @@ class GEOMSWriter:
             GEOMSAPI.write_column(hdf_file, df, species)
             GEOMSAPI.write_column_uncertainty(hdf_file, species, species_uncertainty[species])
             GEOMSAPI.write_apriori(hdf_file, df, pt_df, vmr_df, species)
-            GEOMSAPI.write_apriori_source(hdf_file, df, species, "GGG2020")
+            GEOMSAPI.write_apriori_source(hdf_file, df, species, about.session.atmospheric_profile_model)
             GEOMSAPI.write_averaging_kernel(
                 hdf_file, df, pt_df, interpolated_column_sensitivity, species
             )
@@ -130,53 +130,64 @@ class GEOMSWriter:
         GEOMSAPI.write_air_density_source(hdf_file, df)
 
         # metadata
-        metadata = {**constants.EVDC_METADATA}
-        metadata["DATA_SOURCE"] = data_source
-        metadata["DATA_LOCATION"] = evdc_location
-        metadata["FILE_NAME"] = filename
-        GEOMSWriter.write_metadata(
-            hdf_file,
-            serial_number,
-            ils_data,
-            calibration_factors={"XCO2": 1.0, "XCH4": 1.0, "XH2O": 1.0, "XCO": 1.0},
-            data_from_dt=data_from_dt,
-            data_to_dt=data_to_dt,
-            metadata=metadata,
-        )
-
-    @staticmethod
-    def write_metadata(
-        hdf5_file: h5py.File,
-        serial_number: int,
-        ils_parameters: tuple[float, float, float, float],
-        calibration_factors: dict[str, float],
-        data_from_dt: datetime.datetime,
-        data_to_dt: datetime.datetime,
-        metadata: dict[str, str],
-    ) -> None:
-        """Write metadata to the GEOMS file!"""
-
-        variables: list[str] = hdf5_file.keys()
+        metadata = {
+            # file
+            "FILE_ACCESS": geoms_metadata.file.access,
+            "FILE_PROJECT_ID": geoms_metadata.file.project_id,
+            "FILE_DOI": geoms_metadata.file.doi,
+            "FILE_META_VERSION": geoms_metadata.file.meta_version,
+            "FILE_NAME": filename,
+            
+            # data
+            "DATA_DISCIPLINE": geoms_metadata.data.discipline,
+            "DATA_GROUP": geoms_metadata.data.group,
+            "DATA_FILE_VERSION": f"{geoms_metadata.data.file_version:03d}",
+            "DATA_QUALITY": geoms_metadata.data.quality,
+            "DATA_TEMPLATE": geoms_metadata.data.template,
+            "DATA_SOURCE": data_source,
+            "DATA_LOCATION": geoms_location,
+            "DATA_PROCESSOR": f"PROFFAST Version {about.session.retrieval_algorithm.split('-')[-1]}",
+            
+            # contact
+            "PI_NAME": geoms_metadata.principle_investigator.name,
+            "PI_EMAIL": geoms_metadata.principle_investigator.email,
+            "PI_AFFILIATION": geoms_metadata.principle_investigator.affiliation,
+            "PI_ADDRESS": geoms_metadata.principle_investigator.address,
+            "DO_NAME": geoms_metadata.data_originator.name,
+            "DO_EMAIL": geoms_metadata.data_originator.email,
+            "DO_AFFILIATION": geoms_metadata.data_originator.affiliation,
+            "DO_ADDRESS": geoms_metadata.data_originator.address,
+            "DS_NAME": geoms_metadata.data_submitter.name,
+            "DS_EMAIL": geoms_metadata.data_submitter.email,
+            "DS_AFFILIATION": geoms_metadata.data_submitter.affiliation,
+            "DS_ADDRESS": geoms_metadata.data_submitter.address
+        }
+        
+        # write metadata
+        
+        variables: list[str] = hdf_file.keys()
         for key, value in metadata.items():
-            hdf5_file.attrs[key] = np.bytes_([value])
-
-        hdf5_file.attrs["DATA_DESCRIPTION"] = np.bytes_(
-            f"EM27/SUN ({serial_number}) measurements from {constants.SITE_DESCRIPTION}."
+            hdf_file.attrs[key] = np.bytes_([value])
+        hdf_file.attrs["DATA_VARIABLES"] = np.bytes_(";".join(variables))
+        
+        loc = about.session.ctx.location
+        hdf_file.attrs["DATA_DESCRIPTION"] = np.bytes_(
+            f"EM27/SUN ({serial_number}) measurements from {loc.location_id} " +
+            f"({loc.details}, {loc.lat}°N {loc.lon}°E {loc.alt}m)"
         )
-        hdf5_file.attrs["DATA_MODIFICATIONS"] = np.bytes_(
+        hdf_file.attrs["DATA_MODIFICATIONS"] = np.bytes_(
             "ILS parms applied: "
-            f"{str(ils_parameters)} (ME1, PE1, ME2, PE2). "
+            f"{str(ils_data)} (ME1, PE1, ME2, PE2). "
             "Calibration factors applied: "
-            f"{calibration_factors['XCO2']} for XCO2, "
-            f"{calibration_factors['XCH4']} for XCH4, "
-            f"{calibration_factors['XH2O']} for XH2O, "
-            f"{calibration_factors['XCO']} for XCO."
+            f"{cal.xco2} for XCO2, "
+            f"{cal.xch4} for XCH4, "
+            f"{cal.xh2o} for XH2O, "
+            f"{cal.xco} for XCO."
         )
 
-        hdf5_file.attrs["DATA_START_DATE"] = np.bytes_(data_from_dt.strftime("%Y%m%dT%H%M%SZ"))
-        hdf5_file.attrs["DATA_STOP_DATE"] = np.bytes_(data_to_dt.strftime("%Y%m%dT%H%M%SZ"))
-        hdf5_file.attrs["DATA_VARIABLES"] = np.bytes_(";".join(variables))
-        hdf5_file.attrs["FILE_GENERATION_DATE"] = np.bytes_(
+        hdf_file.attrs["DATA_START_DATE"] = np.bytes_(data_from_dt.strftime("%Y%m%dT%H%M%SZ"))
+        hdf_file.attrs["DATA_STOP_DATE"] = np.bytes_(data_to_dt.strftime("%Y%m%dT%H%M%SZ"))
+        hdf_file.attrs["FILE_GENERATION_DATE"] = np.bytes_(
             datetime.datetime.now().strftime("%Y%m%dT%H%M%SZ")
         )
 
