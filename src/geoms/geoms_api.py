@@ -430,25 +430,32 @@ class GEOMSAPI:
         # Convert data to numpy array.
         if species == "H2O":
             data = df["XH2O"].to_numpy()
+            data[data <= 0] = -900000.0  # default fill value
             unit = "ppmv"
 
         elif species == "CO2":
             data = df["XCO2"].to_numpy()
+            data[data <= 0] = -900000.0  # default fill value
             unit = "ppmv"
 
         elif species == "CH4":
             data = df["XCH4"].to_numpy()
+            data[data <= 0] = -900000.0  # default fill value
             unit = "ppmv"
 
         elif species == "CO":
             data = df["XCO"].to_numpy() * 1000.0  # in ppbv
-            data[data < 0] = -900000.0  # default fill value
+            data[data <= 0] = -900000.0  # default fill value
             unit = "ppbv"
         else:
             raise ValueError("Invalid variable_name")
 
-        minval = np.nanmin(data[data > 0])
-        maxval = np.nanmax(data[data > 0])
+        nonzero_data = data[data > 0]
+        minval = 0
+        maxval = 0
+        if len(nonzero_data) > 0:
+            minval = np.nanmin(nonzero_data)
+            maxval = np.nanmax(nonzero_data)
         # print(f"{species}: min={minval}, max={maxval}")
         metadata = GEOMSAttributeMetadata(
             VAR_DATA_TYPE="REAL",
@@ -487,8 +494,13 @@ class GEOMSAPI:
         else:
             raise ValueError("Invalid variable_name")
 
-        minval = np.nanmin(column_uncertainty[column_uncertainty > 0])
-        maxval = np.nanmax(column_uncertainty[column_uncertainty > 0])
+        column_uncertainty[column_uncertainty <= 0] = -900000.0  # default fill value
+        nonzero_values = column_uncertainty[column_uncertainty > 0]
+        minval = 0
+        maxval = 0
+        if len(nonzero_values) > 0:
+            minval = np.nanmin(nonzero_values)
+            maxval = np.nanmax(nonzero_values)
         # print(f"{species} uncertainty: min={minval}, max={maxval}")
         metadata = GEOMSAttributeMetadata(
             VAR_DATA_TYPE="REAL",
