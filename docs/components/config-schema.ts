@@ -827,6 +827,80 @@ const CONFIG_SCHEMA: any = {
             "default": null,
             "description": "List of output bundling targets.",
             "title": "Bundles"
+        },
+        "geoms": {
+            "anyOf": [
+                {
+                    "properties": {
+                        "sensor_ids": {
+                            "description": "The sensor ids for which to generate the GEOMS outputs",
+                            "items": {
+                                "type": "string"
+                            },
+                            "title": "Sensor Ids",
+                            "type": "array"
+                        },
+                        "retrieval_algorithms": {
+                            "description": "The retrieval algorithms for which to generate the GEOMS outputs",
+                            "items": {
+                                "enum": [
+                                    "proffast-1.0",
+                                    "proffast-2.2",
+                                    "proffast-2.3",
+                                    "proffast-2.4",
+                                    "proffast-2.4.1"
+                                ],
+                                "type": "string"
+                            },
+                            "title": "Retrieval Algorithms",
+                            "type": "array"
+                        },
+                        "atmospheric_profile_models": {
+                            "description": "The atmospheric profile models for which to generate the GEOMS outputs",
+                            "items": {
+                                "enum": [
+                                    "GGG2014",
+                                    "GGG2020"
+                                ],
+                                "type": "string"
+                            },
+                            "title": "Atmospheric Profile Models",
+                            "type": "array"
+                        },
+                        "from_datetime": {
+                            "description": "Date in format `YYYY-MM-DDTHH:MM:SS` from which to generate GEOMS data",
+                            "format": "date-time",
+                            "title": "From Datetime",
+                            "type": "string"
+                        },
+                        "to_datetime": {
+                            "description": "Date in format `YYYY-MM-DDTHH:MM:SS` to which to generate GEOMS data",
+                            "format": "date-time",
+                            "title": "To Datetime",
+                            "type": "string"
+                        },
+                        "parse_dc_timeseries": {
+                            "default": false,
+                            "description": "Whether to parse the DC timeseries from the results directories. This is an output only available in this Pipeline for Proffast2.4. We adapted the preprocessor to output the DC min/mean/max/variation values for each record of data. If you having issues with a low signal intensity on one or both channels, you can run the retrieval with a very low DC_min threshold and filter the data afterwards instead of having to rerun the retrieval.",
+                            "title": "Parse Dc Timeseries",
+                            "type": "boolean"
+                        }
+                    },
+                    "required": [
+                        "sensor_ids",
+                        "retrieval_algorithms",
+                        "atmospheric_profile_models",
+                        "from_datetime",
+                        "to_datetime"
+                    ],
+                    "title": "GEOMSConfig",
+                    "type": "object"
+                },
+                {
+                    "type": "null"
+                }
+            ],
+            "default": null
         }
     },
     "required": [

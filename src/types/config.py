@@ -461,6 +461,28 @@ class BundleTargetConfig(pydantic.BaseModel):
     )
 
 
+class GEOMSConfig(pydantic.BaseModel):
+    sensor_ids: list[str] = pydantic.Field(
+        ..., description="The sensor ids for which to generate the GEOMS outputs"
+    )
+    retrieval_algorithms: list[RetrievalAlgorithm] = pydantic.Field(
+        ..., description="The retrieval algorithms for which to generate the GEOMS outputs"
+    )
+    atmospheric_profile_models: list[AtmosphericProfileModel] = pydantic.Field(
+        ..., description="The atmospheric profile models for which to generate the GEOMS outputs"
+    )
+    from_datetime: datetime.datetime = pydantic.Field(
+        ..., description="Date in format `YYYY-MM-DDTHH:MM:SS` from which to generate GEOMS data"
+    )
+    to_datetime: datetime.datetime = pydantic.Field(
+        ..., description="Date in format `YYYY-MM-DDTHH:MM:SS` to which to generate GEOMS data"
+    )
+    parse_dc_timeseries: bool = pydantic.Field(
+        False,
+        description="Whether to parse the DC timeseries from the results directories. This is an output only available in this Pipeline for Proffast2.4. We adapted the preprocessor to output the DC min/mean/max/variation values for each record of data. If you having issues with a low signal intensity on one or both channels, you can run the retrieval with a very low DC_min threshold and filter the data afterwards instead of having to rerun the retrieval.",
+    )
+
+
 class Config(pydantic.BaseModel):
     """A pydantic model describing the config file schema."""
 
@@ -476,6 +498,7 @@ class Config(pydantic.BaseModel):
     bundles: Optional[list[BundleTargetConfig]] = pydantic.Field(
         None, description="List of output bundling targets."
     )
+    geoms: Optional[GEOMSConfig] = None
 
     @staticmethod
     def get_config_dir() -> str:
