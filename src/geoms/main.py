@@ -79,12 +79,18 @@ def generate_geoms_file(
         f"{geoms_metadata.data.file_version:03d}"
         f".h5"
     ).lower()
+    tmp_filename = filename[:-2] + "tmp.h5"
     filepath = os.path.join(results_dir, filename)
+    tmp_filepath = os.path.join(results_dir, tmp_filename)
+    if os.path.isfile(tmp_filepath):
+        os.remove(tmp_filepath)
+    
     if os.path.isfile(filepath):
         if geoms_config.conflict_mode == "skip":
             return filepath, "File already exists"
         if geoms_config.conflict_mode == "error":
             raise FileExistsError(f"File already exists: {filepath}")
+        os.remove(filepath)
     
     # apply calibration factors
     cal = calibration_factors.root[to_dt_calibration_factors_index]
@@ -104,7 +110,7 @@ def generate_geoms_file(
     species_uncertainty = { "H2O": XH2O_uncertainty, "CO2": XCO2_uncertainty, "CH4": XCH4_uncertainty, "CO": XCO_uncertainty}
     
     # open hdf file, the writing functions only work with pandas (not polars)
-    hdf_file = h5py.File(filepath, "w")
+    hdf_file = h5py.File(tmp_filepath, "w")
     df = pl_df.to_pandas()
 
     # setup
@@ -204,6 +210,7 @@ def generate_geoms_file(
     )
     
     hdf_file.close()
+    os.rename(tmp_filepath, filepath)
     return filepath, "File generated"
 
 # fmt: on
