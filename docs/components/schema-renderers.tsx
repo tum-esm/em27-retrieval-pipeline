@@ -3,6 +3,8 @@ import CONFIG_SCHEMA from "./config-schema";
 import LOCATIONS_SCHEMA from "./locations-schema";
 import SENSORS_SCHEMA from "./sensors-schema";
 import CAMPAIGNS_SCHEMA from "./campaigns-schema";
+import CALIBRATION_FACTORS_SCHEMA from "./calibration-factors-schema";
+import GEOM_METADATA_SCHEMA from "./geom-metadata-schema";
 
 const COLORS: {
   [key in number]: string;
@@ -420,4 +422,12 @@ export function SensorsSchema() {
 
 export function CampaignsSchema() {
   return <Schema schema={CAMPAIGNS_SCHEMA} />;
+}
+
+export function CalibrationFactorsSchema() {
+  return <Schema schema={CALIBRATION_FACTORS_SCHEMA} />;
+}
+
+export function GeomMetadataSchema() {
+  return <Schema schema={GEOM_METADATA_SCHEMA} />;
 }

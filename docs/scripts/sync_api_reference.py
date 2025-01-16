@@ -32,19 +32,26 @@ def recursive_help(
             output += recursive_help(sub_command, parent_context=context)
     else:
         output += f"## `{context.command_path[4:]}`\n\n"
-        output += command.get_help(context).replace(
-            "\n  ",
-            "\n",
-        ).replace(
-            f"Usage: {context.command_path}",
-            f"**Usage: python cli.py {context.command_path[4:]}",
-        ).replace(
-            "[OPTIONS]",
-            "[OPTIONS]**",
-        ).replace(
-            "Options:\n",
-            "**Options:**\n\n",
-        ) + "\n\n"
+        output += (
+            command.get_help(context)
+            .replace(
+                "\n  ",
+                "\n",
+            )
+            .replace(
+                f"Usage: {context.command_path}",
+                f"**Usage: python cli.py {context.command_path[4:]}",
+            )
+            .replace(
+                "[OPTIONS]",
+                "[OPTIONS]**",
+            )
+            .replace(
+                "Options:\n",
+                "**Options:**\n\n",
+            )
+            + "\n\n"
+        )
     return output
 
 
@@ -64,15 +71,13 @@ def _remove_allof_wrapping(o: Any) -> Any:
         if "properties" in o.keys():
             return {
                 **o,
-                "properties": {k: _remove_allof_wrapping(v)
-                               for k, v in o["properties"].items()},
+                "properties": {k: _remove_allof_wrapping(v) for k, v in o["properties"].items()},
             }
         elif "allOf" in o.keys():
             assert len(o["allOf"]) == 1
             return {
                 **o["allOf"][0],
-                **{k: v
-                   for k, v in o.items() if k != "allOf"},
+                **{k: v for k, v in o.items() if k != "allOf"},
             }
         else:
             return {k: _remove_allof_wrapping(v) for k, v in o.items()}
@@ -104,8 +109,9 @@ def export_schema(src_object: pydantic.BaseModel, dst_filepath: str, label: str)
     # write out file
     with open(dst_filepath, "w") as f:
         f.write(
-            f"/* prettier-ignore */\nconst {label}: any = " +
-            json.dumps(schema_without_allofs, indent=4) + f";\n\nexport default {label};"
+            f"/* prettier-ignore */\nconst {label}: any = "
+            + json.dumps(schema_without_allofs, indent=4)
+            + f";\n\nexport default {label};"
         )
 
 
@@ -130,6 +136,16 @@ export_schema(
     os.path.join(COMPONENTS_DIR, "campaigns-schema.ts"),
     "CAMPAIGNS_SCHEMA",
 )
+export_schema(
+    src.types.GEOMSMetadata,
+    os.path.join(COMPONENTS_DIR, "geom-metadata-schema.ts"),
+    "GEOM_METADATA_SCHEMA",
+)
+export_schema(
+    src.types.CalibrationFactorsList,
+    os.path.join(COMPONENTS_DIR, "calibration-factors-schema.ts"),
+    "CALIBRATION_FACTORS_SCHEMA",
+)
 
 # ---------------------------------------------------------
 # Replace metadata example files
@@ -148,8 +164,9 @@ match1 = re.search(
 assert match1 is not None
 current_metadata_reference = current_metadata_reference.replace(
     match1.group(0),
-    "## `locations.json`\n\n### Example File\n\n```json\n" +
-    example_metadata.locations.model_dump_json(indent=4) + "\n```",
+    "## `locations.json`\n\n### Example File\n\n```json\n"
+    + example_metadata.locations.model_dump_json(indent=4)
+    + "\n```",
 )
 
 match2 = re.search(
@@ -160,8 +177,9 @@ match2 = re.search(
 assert match2 is not None
 current_metadata_reference = current_metadata_reference.replace(
     match2.group(0),
-    "## `sensors.json`\n\n### Example File\n\n```json\n" +
-    example_metadata.sensors.model_dump_json(indent=4) + "\n```",
+    "## `sensors.json`\n\n### Example File\n\n```json\n"
+    + example_metadata.sensors.model_dump_json(indent=4)
+    + "\n```",
 )
 
 match3 = re.search(
@@ -172,8 +190,9 @@ match3 = re.search(
 assert match3 is not None
 current_metadata_reference = current_metadata_reference.replace(
     match3.group(0),
-    "## `campaigns.json`\n\n### Example File\n\n```json\n" +
-    example_metadata.campaigns.model_dump_json(indent=4) + "\n```",
+    "## `campaigns.json`\n\n### Example File\n\n```json\n"
+    + example_metadata.campaigns.model_dump_json(indent=4)
+    + "\n```",
 )
 
 with open(os.path.join(PROJECT_DIR, "docs", "pages", "api-reference", "metadata.mdx"), "w") as _f:
@@ -235,6 +254,50 @@ current_config_guide = current_config_guide.replace(
 with open(os.path.join(PROJECT_DIR, "docs", "pages", "guides", "configuration.mdx"), "w") as _f:
     _f.write(current_config_guide)
 
+
+# ---------------------------------------------------------
+# Replace geoms config example files
+
+print("Exporting metadata example files to docs/pages/api-reference/geoms_configuration.mdx")
+example_geoms_configuration = src.types.GEOMSMetadata.load(template=True)
+example_calibration_factors = src.types.CalibrationFactorsList.load(template=True)
+
+with open(
+    os.path.join(PROJECT_DIR, "docs", "pages", "api-reference", "geoms_configuration.mdx"), "r"
+) as _f:
+    current_metadata_reference = _f.read()
+
+match1 = re.search(
+    r"## `geoms_metadata.json`\n\n### Example File\n\n```json[^`]+```",
+    current_metadata_reference,
+    flags=re.MULTILINE,
+)
+assert match1 is not None
+current_metadata_reference = current_metadata_reference.replace(
+    match1.group(0),
+    "## `geoms_metadata.json`\n\n### Example File\n\n```json\n"
+    + example_geoms_configuration.model_dump_json(indent=4)
+    + "\n```",
+)
+
+match2 = re.search(
+    r"## `calibration_factors.json`\n\n### Example File\n\n```json[^`]+```",
+    current_metadata_reference,
+    flags=re.MULTILINE,
+)
+assert match2 is not None
+current_metadata_reference = current_metadata_reference.replace(
+    match2.group(0),
+    "## `calibration_factors.json`\n\n### Example File\n\n```json\n"
+    + example_calibration_factors.model_dump_json(indent=4)
+    + "\n```",
+)
+
+with open(
+    os.path.join(PROJECT_DIR, "docs", "pages", "api-reference", "geoms_configuration.mdx"), "w"
+) as _f:
+    _f.write(current_metadata_reference)
+
 # ---------------------------------------------------------
 # Sync README
 
@@ -243,11 +306,11 @@ print("Syncing README with docs landing page")
 with open(os.path.join(PROJECT_DIR, "docs", "pages", "index.mdx")) as _f:
     current_docs_landing_page = _f.read()
 
-xs = current_docs_landing_page.split('##')
+xs = current_docs_landing_page.split("##")
 assert len(xs) >= 2
 
 with open(os.path.join(PROJECT_DIR, "README.md")) as _f:
     readme = _f.read()
 
 with open(os.path.join(PROJECT_DIR, "docs", "pages", "index.mdx"), "w") as _f:
-    _f.write(readme + '\n##' + "##".join(xs[1 :]))
+    _f.write(readme + "\n##" + "##".join(xs[1:]))

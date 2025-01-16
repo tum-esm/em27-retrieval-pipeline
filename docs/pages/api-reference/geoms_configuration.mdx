@@ -1,0 +1,104 @@
+import {
+  GeomMetadataSchema,
+  CalibrationFactorsSchema,
+} from "../../components/schema-renderers";
+
+# GEOMS Metadata
+
+## `geoms_metadata.json`
+
+### Example File
+
+```json
+{
+    "general": {
+        "network": "FTIR.COCCON",
+        "affiliation": "TUM.ESM",
+        "pressure_sensor_name": "vaisala-PTB330"
+    },
+    "data": {
+        "discipline": "ATMOSPHERIC.CHEMISTRY;REMOTE.SENSING;GROUNDBASED",
+        "group": "EXPERIMENTAL;PROFILE.STATIONARY",
+        "file_version": 1,
+        "quality": "Station data.",
+        "template": "GEOMS-TE-FTIR-COCCON-001"
+    },
+    "file": {
+        "doi": "",
+        "meta_version": "04R088;CUSTOM",
+        "access": "COCCON",
+        "project_id": "COCCON"
+    },
+    "principle_investigator": {
+        "name": "Chen;Jia",
+        "email": "jia.chen@tum.de",
+        "affiliation": "Technical University of Munich - Professorship of Environmental Sensing and Modeling;TUM.ESM",
+        "address": "Theresienstr. 90;D-80333 Munich;GERMANY"
+    },
+    "data_originator": {
+        "name": "Makowski;Moritz",
+        "email": "moritz.makowski@tum.de",
+        "affiliation": "Technical University of Munich - Professorship of Environmental Sensing and Modeling;TUM.ESM",
+        "address": "Theresienstr. 90;D-80333 Munich;GERMANY"
+    },
+    "data_submitter": {
+        "name": "Makowski;Moritz",
+        "email": "moritz.makowski@tum.de",
+        "affiliation": "Technical University of Munich - Professorship of Environmental Sensing and Modeling;TUM.ESM",
+        "address": "Theresienstr. 90;D-80333 Munich;GERMANY"
+    },
+    "locations": {
+        "TUM_I": "MUNICH.TUM",
+        "FEL": "MUNICH.FELDKIRCHEN",
+        "GRAE": "MUNICH.GRAEFELFING",
+        "OBE": "MUNICH.OBERSCHLEISSHEIM",
+        "TAU": "MUNICH.TAUFKIRCHEN",
+        "DLR_2": "MUNICH.DLR_2",
+        "DLR_3": "MUNICH.DLR_3"
+    }
+}
+```
+
+### Schema definition
+
+<GeomMetadataSchema />
+
+## `calibration_factors.json`
+
+### Example File
+
+```json
+[
+    {
+        "sensor_id": "ma",
+        "valid_from_datetime": "2019-01-01T00:00:00Z",
+        "valid_to_datetime": "2019-12-31T23:59:59Z",
+        "xco2": 1.0,
+        "xch4": 1.0,
+        "xco": 1.0,
+        "xh2o": 1.0
+    },
+    {
+        "sensor_id": "mb",
+        "valid_from_datetime": "2019-01-01T00:00:00Z",
+        "valid_to_datetime": "2019-12-31T23:59:59Z",
+        "xco2": 1.0005,
+        "xch4": 1.0005,
+        "xco": 1.0005,
+        "xh2o": 1.0005
+    },
+    {
+        "sensor_id": "ma",
+        "valid_from_datetime": "2020-01-01T00:00:00Z",
+        "valid_to_datetime": "2024-12-31T23:59:59Z",
+        "xco2": 1.001,
+        "xch4": 1.001,
+        "xco": 1.001,
+        "xh2o": 1.001
+    }
+]
+```
+
+### Schema definition
+
+<CalibrationFactorsSchema />
