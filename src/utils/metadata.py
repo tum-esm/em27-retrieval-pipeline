@@ -5,14 +5,15 @@ import em27_metadata
 
 from src import types
 
-CONFIG_DIR = types.Config.get_config_dir()
 
-
-def load_local_em27_metadata_interface() -> Optional[em27_metadata.EM27MetadataInterface]:
-    assert os.path.isdir(CONFIG_DIR)
-    locations_path = os.path.join(CONFIG_DIR, "locations.json")
-    sensors_path = os.path.join(CONFIG_DIR, "sensors.json")
-    campaigns_path = os.path.join(CONFIG_DIR, "campaigns.json")
+def load_local_em27_metadata_interface(
+    config_dir: str = types.Config.get_config_dir(),
+) -> Optional[em27_metadata.EM27MetadataInterface]:
+    if not os.path.isdir(config_dir):
+        return None
+    locations_path = os.path.join(config_dir, "locations.json")
+    sensors_path = os.path.join(config_dir, "sensors.json")
+    campaigns_path = os.path.join(config_dir, "campaigns.json")
     file_existence = [
         os.path.isfile(locations_path),
         os.path.isfile(sensors_path),
