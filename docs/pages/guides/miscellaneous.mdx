@@ -81,3 +81,9 @@ Errors:
 ============================================
 ============================================
 ```
+
+## Can I use the PyPy interpreter to make the Pipeline faster?
+
+Maybe, but this is not tested. Since the pipeline spends almost the entire time
+on IO or running Fortran programs, using a faster Python interpreter will not
+have a measurable impact on the runtime.
