@@ -74,6 +74,7 @@ markers = [
     "ci: can be run in a CI environment, ~ 3 min, run the complete tests but without running the actual retrieval algorithms",
     "complete: can be run in a CI environment, ~ 10 - 20 minutes, runs three sample days from different instruments and locations for every retrieval algorithm and every atmospheric profile",
 ]
+addopts = "--exitfirst --verbose --durations=0 --no-header"
 
 [tool.mypy]
 strict = true
