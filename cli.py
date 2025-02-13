@@ -62,16 +62,31 @@ def is_running() -> None:
     name="watch",
     help="Opens an active watch window for the retrieval background process.",
 )
-def watch() -> None:
+@click.option(
+    "--cluster-mode",
+    is_flag=True,
+    help=(
+        "Watch the retrieval process when the retrieval is running on a cluster. "
+        + "In this mode the watcher does not care whether it find an active "
+        + "retrieval process on the current node, but only looks at the queue. "
+        + "This means it can not detect when the pipeline has stopped (e.g. due "
+        + "to a SLURM timeout)."
+    ),
+)
+def watch(
+    cluster_mode: bool,
+) -> None:
     # no config check because this does not require a config
 
-    pids = tum_esm_utils.processes.get_process_pids(_RETRIEVAL_ENTRYPOINT)
-    if len(pids) == 0:
-        click.echo("automated retrieval is not running")
-    else:
-        import src
+    if not cluster_mode:
+        pids = tum_esm_utils.processes.get_process_pids(_RETRIEVAL_ENTRYPOINT)
+        if len(pids) == 0:
+            click.echo("automated retrieval is not running")
+            return
 
-        src.retrieval.utils.queue_watcher.start_retrieval_watcher()
+    import src
+
+    src.retrieval.utils.queue_watcher.start_retrieval_watcher(cluster_mode)
 
 
 @retrieval_command_group.command(
