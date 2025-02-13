@@ -277,7 +277,7 @@ class RetrievalGeneralConfig(pydantic.BaseModel):
     )
     container_dir: Optional[str] = pydantic.Field(
         None,
-        description="Directory to store the containers in. If not set, it will use `./data/containers` inside the pipeline directory.",
+        description="Directory to store the containers in. If not set, it will use `./data/containers` inside the pipeline directory. If your system has enough memory, you could also use `/dev/shm` which is a memory-based file system where files are stored in memory and never written to disk.",
     )
 
 
