@@ -35,25 +35,41 @@ def _prettify_timedelta(dt: datetime.timedelta) -> str:
     return out.strip()
 
 
-def _render() -> Any:
+def _render(cluster_mode: bool) -> Any:
     processes = RetrievalStatusList.load()
     pending_process_count = len([x for x in processes if x.process_start_time is None])
     done_process_count = len([x for x in processes if x.process_end_time is not None])
     in_progress_process_count = len(processes) - pending_process_count - done_process_count
 
-    if len(processes) == done_process_count:
-        pipeline_pids = tum_esm_utils.processes.get_process_pids(_RETRIEVAL_ENTRYPOINT)
-        if len(pipeline_pids) == 0:
-            return rich.panel.Panel("[white]Pipeline is not running[/white]", height=3)
-        else:
-            if len(processes) == 0:
-                return rich.panel.Panel(
-                    "[white]Pipeline is spinning up - wait a bit[/white]", height=3
+    if cluster_mode:
+        message: Optional[str] = None
+        if len(processes) == 0:
+            message = "[white]No Processes In the Queue[/white]"
+        elif len(processes) == done_process_count:
+            message = "[green]All Processes Done[/green]"
+        if message is not None:
+            grid = rich.table.Table.grid(expand=True)
+            grid.add_row(rich.panel.Panel(rich.align.Align.center(message), height=3))
+            grid.add_row(
+                rich.align.Align.center(
+                    "[white]Watching the queue only. Does not detect whether the pipeline is running or not.[/white]"
                 )
+            )
+            return grid
+    else:
+        if len(processes) == done_process_count:
+            pipeline_pids = tum_esm_utils.processes.get_process_pids(_RETRIEVAL_ENTRYPOINT)
+            if len(pipeline_pids) == 0:
+                return rich.panel.Panel("[white]Pipeline is not running[/white]", height=3)
             else:
-                return rich.panel.Panel(
-                    "[white]Pipeline is shutting down - wait a bit[/white]", height=3
-                )
+                if len(processes) == 0:
+                    return rich.panel.Panel(
+                        "[white]Pipeline is spinning up - wait a bit[/white]", height=3
+                    )
+                else:
+                    return rich.panel.Panel(
+                        "[white]Pipeline is shutting down - wait a bit[/white]", height=3
+                    )
 
     table = rich.table.Table(expand=True, box=rich.box.ROUNDED)
     table.add_column("Container ID")
@@ -128,6 +144,7 @@ def _render() -> Any:
                 ),
             )
         )
+
     grid.add_row(
         rich.align.Align.center(
             "[white]Press Ctrl+C or close the terminal to stop watching. This "
@@ -135,17 +152,24 @@ def _render() -> Any:
         )
     )
 
+    if cluster_mode:
+        grid.add_row(
+            rich.align.Align.center(
+                "[white]Watching the queue only. Does not detect whether the pipeline is running or not.[/white]"
+            )
+        )
+
     return grid
 
 
-def start_retrieval_watcher() -> None:
+def start_retrieval_watcher(cluster_mode: bool = False) -> None:
     console = rich.console.Console()
     console.clear()
     with rich.live.Live(refresh_per_second=1) as live:
         try:
             while True:
                 with tum_esm_utils.timing.ensure_section_duration(1):
-                    live.update(_render())
+                    live.update(_render(cluster_mode))
         except KeyboardInterrupt:
             console.clear()
             live.update("[white]Stopped watching.[/white]")
