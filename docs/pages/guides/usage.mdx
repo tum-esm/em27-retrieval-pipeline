@@ -186,3 +186,74 @@ from_datetime,to_datetime,location_id,interferograms,ground_pressure,ggg2014_pro
 
 The numbers in the columns "interferograms" and "ground_pressure" are the number of interferograms
 and the number of ground_pressure lines for the respective day.
+
+## Running the Retrieval in a Computing Cluster
+
+You can of course run this pipeline on a computing cluster (e.g. SLURM-based).
+
+Since the `python cli.py retrieval start` command terminates after starting the
+pipeline in the background, any compute node would also terminate right away.
+Therefore, you have to use the underlying call the the `main.py` script of the
+retrieval module: `python src/retrieval/main.py`.
+
+We use the following SLURM script on [CoolMUC-4 at LRZ](https://doku.lrz.de/coolmuc-4-1082337877.html):
+
+```bash
+#!/bin/bash
+#SBATCH -J erp
+#SBATCH -o /dss/dsshome1/lxc01/ge69zeh2/Documents/em27-retrieval/em27-retrieval-pipeline/data/logs/%x.%j.%N.out
+#SBATCH -D /dss/dsshome1/lxc01/ge69zeh2/Documents/em27-retrieval/em27-retrieval-pipeline
+#SBATCH --clusters=cm4
+#SBATCH --partition=cm4_tiny
+#SBATCH --qos=cm4_tiny
+#SBATCH --time=06:00:00
+#SBATCH --nodes=1
+#SBATCH --cpus-per-task=112
+#SBATCH --export=NONE
+#SBATCH --get-user-env
+#SBATCH --mail-type=all
+#SBATCH --mail-user=moritz.makowski@tum.de
+
+# setup environment: git is used to determine the commit hash of the currently
+# running pipeline, gfortan (gcc) is used to compile proffast and the ifg
+# corruption filter
+module load slurm_setup
+module load git
+module load gcc/13.2.0
+
+# activate virtual environment: we set up the virtual environment on the login
+# nodes, but you can also do that inside the compute nodes
+source .venv/bin/activate
+
+# run retrieval
+python src/retrieval/main.py
+```
+
+Simpliy dispatch it with SLURM using:
+
+```bash
+sbatch cm4.sh  # using your script name
+```
+
+As of Pipeline version `1.6.2`, the retrieval watcher also works, when the retrieval process is
+running on a separate node using the `--cluster-mode` flag:
+
+```bash
+python cli.py retrieval watch --cluster-mode
+```
+
+Don't forget to increase the number of parallel processes of the pipeline with
+`config.retrieval.general.max_process_count` 😉. We run 100 retrievals in parallel
+on CoolMUC-4.
+
+<Callout type="info" emoji="🌈">
+You might have a fast temporary storage system available on your compute nodes. By default, the
+pipeline uses `./data/containers` to store all the temporary process data (Proffast environment,
+spectra, temporary results, etc.). You can use `config.retrieval.general.container_dir` to change
+this path. On our compute nodes, we set this to `/tmp/erp` because we have a local SSD mounted at
+`/tmp` and processing there is much faster than on a network file system.
+
+If your system/your compute nodes have enough memory, you could also use `/dev/shm` which is a
+memory-based file system where files are stored in memory and never written to disk.
+
+</Callout>
