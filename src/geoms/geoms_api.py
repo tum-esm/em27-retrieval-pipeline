@@ -59,9 +59,6 @@ class GEOMSAttributeMetadata(pydantic.BaseModel):
     VAR_UNITS: str
     VAR_VALID_MAX: float
     VAR_VALID_MIN: float
-    _FillValue: float = -900000.0
-    units: str
-    valid_range: list[float] = pydantic.Field(..., min_length=2, max_length=2)
 
 
 class GEOMSSRCAttributeMetadata(pydantic.BaseModel):
@@ -76,7 +73,6 @@ class GEOMSSRCAttributeMetadata(pydantic.BaseModel):
     VAR_UNITS: str = ""
     VAR_VALID_MAX: str = ""
     VAR_VALID_MIN: str = ""
-    _FillValue: str = ""
 
 
 class GEOMSAPI:
@@ -106,7 +102,12 @@ class GEOMSAPI:
             "_FillValue",
             "valid_range",
         ]
-        for key, value in metadata.model_dump().items():
+        metadata_dict = metadata.model_dump()
+        metadata_dict["_FillValue"] = metadata.VAR_FILL_VALUE
+        if isinstance(metadata, GEOMSAttributeMetadata):
+            metadata_dict["units"] = metadata.VAR_UNITS
+            metadata_dict["valid_range"] = [metadata.VAR_VALID_MIN, metadata.VAR_VALID_MAX]
+        for key, value in metadata_dict.items():
             if key in float_keys:
                 dataset.attrs[key] = float_type(value)
             else:
@@ -148,8 +149,6 @@ class GEOMSAPI:
             VAR_UNITS="MJD2K",
             VAR_VALID_MAX=np.amax(data),
             VAR_VALID_MIN=np.amin(data),
-            units="MJD2K",
-            valid_range=[np.amin(data), np.amax(data)],
         )
         GEOMSAPI._write_to_hdf5_file(hdf5_file, variable_name, data, metadata)
 
@@ -175,8 +174,6 @@ class GEOMSAPI:
             VAR_UNITS="km",
             VAR_VALID_MAX=np.amax(data),
             VAR_VALID_MIN=np.amin(data),
-            units="km",
-            valid_range=[np.amin(data), np.amax(data)],
         )
         GEOMSAPI._write_to_hdf5_file(hdf5_file, variable_name, data, metadata)
 
@@ -197,8 +194,6 @@ class GEOMSAPI:
             VAR_UNITS="deg",
             VAR_VALID_MAX=np.amax(data),
             VAR_VALID_MIN=np.amin(data),
-            units="deg",
-            valid_range=[np.amin(data), np.amax(data)],
         )
         GEOMSAPI._write_to_hdf5_file(hdf5_file, variable_name, data, metadata)
 
@@ -223,8 +218,6 @@ class GEOMSAPI:
             VAR_UNITS="deg",
             VAR_VALID_MAX=np.amax(data),
             VAR_VALID_MIN=np.amin(data),
-            units="deg",
-            valid_range=[np.amin(data), np.amax(data)],
         )
         GEOMSAPI._write_to_hdf5_file(hdf5_file, variable_name, data, metadata)
 
@@ -244,8 +237,6 @@ class GEOMSAPI:
             VAR_UNITS="deg",
             VAR_VALID_MAX=np.amax(data),
             VAR_VALID_MIN=np.amin(data),
-            units="deg",
-            valid_range=[np.amin(data), np.amax(data)],
         )
         GEOMSAPI._write_to_hdf5_file(hdf5_file, variable_name, data, metadata)
 
@@ -266,8 +257,6 @@ class GEOMSAPI:
             VAR_UNITS="deg",
             VAR_VALID_MAX=np.amax(data),
             VAR_VALID_MIN=np.amin(data),
-            units="deg",
-            valid_range=[np.amin(data), np.amax(data)],
         )
         GEOMSAPI._write_to_hdf5_file(hdf5_file, variable_name, data, metadata)
 
@@ -288,8 +277,6 @@ class GEOMSAPI:
             VAR_UNITS="km",
             VAR_VALID_MAX=np.amax(data),
             VAR_VALID_MIN=np.amin(data),
-            units="km",
-            valid_range=[np.amin(data), np.amax(data)],
         )
         GEOMSAPI._write_to_hdf5_file(hdf5_file, variable_name, data, metadata)
 
@@ -310,8 +297,6 @@ class GEOMSAPI:
             VAR_UNITS="hPa",
             VAR_VALID_MAX=np.amax(data),
             VAR_VALID_MIN=np.amin(data),
-            units="hPa",
-            valid_range=[np.amin(data), np.amax(data)],
         )
         GEOMSAPI._write_to_hdf5_file(hdf5_file, variable_name, data, metadata)
 
@@ -355,8 +340,6 @@ class GEOMSAPI:
             VAR_UNITS="hPa",
             VAR_VALID_MAX=np.amax(data),
             VAR_VALID_MIN=np.amin(data),
-            units="hPa",
-            valid_range=[np.amin(data), np.amax(data)],
         )
         GEOMSAPI._write_to_hdf5_file(hdf5_file, variable_name, data, metadata)
 
@@ -400,8 +383,6 @@ class GEOMSAPI:
             VAR_UNITS="K",
             VAR_VALID_MAX=np.amax(data),
             VAR_VALID_MIN=np.amin(data),
-            units="K",
-            valid_range=[np.amin(data), np.amax(data)],
         )
         GEOMSAPI._write_to_hdf5_file(hdf5_file, variable_name, data, metadata)
 
@@ -474,8 +455,6 @@ class GEOMSAPI:
             VAR_UNITS=unit,
             VAR_VALID_MIN=minval,
             VAR_VALID_MAX=maxval,
-            units=unit,
-            valid_range=[minval, maxval],
         )
         GEOMSAPI._write_to_hdf5_file(hdf5_file, variable_name, data, metadata)
 
@@ -520,8 +499,6 @@ class GEOMSAPI:
             VAR_UNITS=unit,
             VAR_VALID_MIN=minval,
             VAR_VALID_MAX=maxval,
-            units=unit,
-            valid_range=[minval, maxval],
         )
         GEOMSAPI._write_to_hdf5_file(hdf5_file, variable_name, column_uncertainty, metadata)
 
@@ -577,8 +554,6 @@ class GEOMSAPI:
             VAR_UNITS=unit,
             VAR_VALID_MAX=np.amax(data),
             VAR_VALID_MIN=np.amin(data),
-            units=unit,
-            valid_range=[np.amin(data), np.amax(data)],
         )
         GEOMSAPI._write_to_hdf5_file(hdf5_file, variable_name, data, metadata)
 
@@ -654,8 +629,6 @@ class GEOMSAPI:
             VAR_UNITS="1",
             VAR_VALID_MAX=np.amax(data),
             VAR_VALID_MIN=np.amin(data),
-            units="1",
-            valid_range=[np.amin(data), np.amax(data)],
         )
         GEOMSAPI._write_to_hdf5_file(hdf5_file, variable_name, data, metadata)
 
@@ -725,8 +698,6 @@ class GEOMSAPI:
             VAR_UNITS="Zmolec cm-2",
             VAR_VALID_MAX=np.amax(data),
             VAR_VALID_MIN=np.amin(data),
-            units="Zmolec cm-2",
-            valid_range=[np.amin(data), np.amax(data)],
         )
         GEOMSAPI._write_to_hdf5_file(hdf5_file, variable_name, data, metadata)
 
@@ -763,8 +734,6 @@ class GEOMSAPI:
             VAR_UNITS="molec cm-3",
             VAR_VALID_MAX=np.amax(data),
             VAR_VALID_MIN=np.amin(data),
-            units="molec cm-3",
-            valid_range=[np.amin(data), np.amax(data)],
         )
         GEOMSAPI._write_to_hdf5_file(hdf5_file, variable_name, data, metadata)
 
