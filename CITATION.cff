@@ -5,6 +5,13 @@ authors:
     family-names: Makowski
     given-names: Moritz
     orcid: 0000-0002-2948-2993
+  - affiliation: Karlsruhe Institute of Technology
+    family-names: Hase
+    given-names: Frank
+  - affiliation: Karlsruhe Institute of Technology
+    family-names: Feld
+    given-names: Lena
+    orcid: 0009-0000-9955-7658
   - affiliation: Technical University of Munich
     family-names: Klappenbach
     given-names: Friedrich
@@ -13,13 +20,6 @@ authors:
     family-names: Luther
     given-names: Andreas
     orcid: 0000-0001-6382-0899
-  - affiliation: Karlsruhe Institute of Technology
-    family-names: Hase
-    given-names: Frank
-  - affiliation: Karlsruhe Institute of Technology
-    family-names: Feld
-    given-names: Lena
-    orcid: 0009-0000-9955-7658
   - affiliation: Technical University of Munich
     family-names: "M\xFCller"
     given-names: Marlon
@@ -39,5 +39,5 @@ doi: 10.5281/zenodo.14284968
 license:
   - gpl-3.0-or-later
 type: software
-version: 1.6.2
+version: 1.6.3
 date-released: "2025-02-13"
