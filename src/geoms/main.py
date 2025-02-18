@@ -158,7 +158,7 @@ def generate_geoms_file(
     # metadata
     metadata = {
         # file
-        "FILE_ACCESS":        geoms_metadata.file.access,
+        "FILE_ACCESS":       geoms_metadata.file.access,
         "FILE_PROJECT_ID":   geoms_metadata.file.project_id,
         "FILE_DOI":          geoms_metadata.file.doi,
         "FILE_META_VERSION": geoms_metadata.file.meta_version,
@@ -193,7 +193,7 @@ def generate_geoms_file(
     
     variables: list[str] = hdf_file.keys()
     for key, value in metadata.items():
-        hdf_file.attrs[key] = np.bytes_([value])
+        hdf_file.attrs[key] = np.bytes_(value)
     hdf_file.attrs["DATA_VARIABLES"] = np.bytes_(";".join(variables))
     
     loc = about.session.ctx.location
