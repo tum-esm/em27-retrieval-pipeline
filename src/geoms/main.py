@@ -224,6 +224,15 @@ def generate_geoms_file(
     )
     
     hdf_file.close()
+    
+    existing_geoms_files = [
+        f for f in os.listdir(results_dir)
+        if re.match(r".*_\d{8}t\d{6}[^_]+_\d{8}t\d{6}[^_]+_\d+(\.tmp)?\.h5", f)
+    ]
+    for f in existing_geoms_files:
+        if f != tmp_filename:
+            os.remove(os.path.join(results_dir, f))
+    
     os.rename(tmp_filepath, filepath)
     return filepath, "File generated"
 
