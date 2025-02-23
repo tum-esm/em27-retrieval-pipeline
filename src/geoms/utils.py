@@ -64,28 +64,38 @@ def load_comb_invparms_df(
 
     # filter based on DC amplitude
     if geoms_config.parse_dc_timeseries:
+        # fmt: off
         df = df.with_columns(
-            pl.col("ch1_fwd_dc_mean")
-            .add(pl.col("ch1_bwd_dc_mean"))
-            .mul(0.5)
-            .abs()
-            .ge(0.05)
-            .alias("ch1_valid"),
-            pl.col("ch2_fwd_dc_mean")
-            .add(pl.col("ch2_bwd_dc_mean"))
-            .mul(0.5)
-            .abs()
-            .ge(0.01)
-            .alias("ch2_valid"),
+            pl.col("ch1_fwd_dc_mean").add(pl.col("ch1_bwd_dc_mean")).mul(0.5).abs() \
+                .ge(geoms_config.dc_min_xco2).alias("xco2_dc_valid"),
+                
+            pl.col("ch1_fwd_dc_mean").add(pl.col("ch1_bwd_dc_mean")).mul(0.5).abs() \
+                .ge(geoms_config.dc_min_xch4).alias("xch4_dc_valid"),
+                
+            pl.col("ch1_fwd_dc_mean").add(pl.col("ch1_bwd_dc_mean")).mul(0.5).abs() \
+                .ge(geoms_config.dc_min_xh2o).alias("xh2o_dc_valid"),
+                
+            pl.col("ch2_fwd_dc_mean").add(pl.col("ch2_bwd_dc_mean")).mul(0.5).abs() \
+                .ge(geoms_config.dc_min_xco).alias("xco_dc_valid"),
         )
+        # fmt: on
         df = df.with_columns(
-            pl.when("ch1_valid").then(pl.col("XCO2")).otherwise(fill_value).alias("XCO2"),
-            pl.when("ch1_valid").then(pl.col("XCH4")).otherwise(fill_value).alias("XCH4"),
-            pl.when("ch1_valid").then(pl.col("XH2O")).otherwise(fill_value).alias("XH2O"),
-            pl.when("ch2_valid").then(pl.col("XCO")).otherwise(fill_value).alias("XCO"),
+            pl.when("xco2_dc_valid").then(pl.col("XCO2")).otherwise(fill_value).alias("XCO2"),
+            pl.when("xch4_dc_valid").then(pl.col("XCH4")).otherwise(fill_value).alias("XCH4"),
+            pl.when("xh2o_dc_valid").then(pl.col("XH2O")).otherwise(fill_value).alias("XH2O"),
+            pl.when("xco_dc_valid").then(pl.col("XCO")).otherwise(fill_value).alias("XCO"),
         )
-        df = df.filter(pl.col("ch1_valid") | pl.col("ch2_valid"))
-        df = df.drop("ch1_valid", "ch2_valid")
+        df = df.filter(
+            pl.col("xco2_dc_valid")
+            | pl.col("xch4_dc_valid")
+            | pl.col("xh2o_dc_valid")
+            | pl.col("xco_dc_valid")
+        ).drop(
+            "xco2_dc_valid",
+            "xch4_dc_valid",
+            "xh2o_dc_valid",
+            "xco_dc_valid",
+        )
 
     # filter based on SZA and XAIR
     if geoms_config.max_sza is not None:
