@@ -885,6 +885,38 @@ const CONFIG_SCHEMA: any = {
                             "title": "Parse Dc Timeseries",
                             "type": "boolean"
                         },
+                        "dc_min_xco2": {
+                            "default": 0.05,
+                            "description": "Only considered if `parse_dc_timeseries` is set. Minimum DC value to consider for XCO2 records in the GEOMS outputs. It not set, it uses the default value of Proffast (0.05).",
+                            "exclusiveMaximum": 10.0,
+                            "exclusiveMinimum": 0.0,
+                            "title": "Dc Min Xco2",
+                            "type": "number"
+                        },
+                        "dc_min_xch4": {
+                            "default": 0.05,
+                            "description": "Only considered if `parse_dc_timeseries` is set. Minimum DC value to consider for XCH4 records in the GEOMS outputs. It not set, it uses the default value of Proffast (0.05).",
+                            "exclusiveMaximum": 10.0,
+                            "exclusiveMinimum": 0.0,
+                            "title": "Dc Min Xch4",
+                            "type": "number"
+                        },
+                        "dc_min_xh2o": {
+                            "default": 0.05,
+                            "description": "Only considered if `parse_dc_timeseries` is set. Minimum DC value to consider for XH2O records in the GEOMS outputs. It not set, it uses the default value of Proffast (0.05).",
+                            "exclusiveMaximum": 10.0,
+                            "exclusiveMinimum": 0.0,
+                            "title": "Dc Min Xh2O",
+                            "type": "number"
+                        },
+                        "dc_min_xco": {
+                            "default": 0.05,
+                            "description": "Only considered if `parse_dc_timeseries` is set. Minimum DC value to consider for XCO records in the GEOMS outputs. It not set, it uses the default value of Proffast (0.05).",
+                            "exclusiveMaximum": 10.0,
+                            "exclusiveMinimum": 0.0,
+                            "title": "Dc Min Xco",
+                            "type": "number"
+                        },
                         "max_sza": {
                             "anyOf": [
                                 {
