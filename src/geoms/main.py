@@ -26,6 +26,7 @@ from .utils import (
     load_vmr_file,
     load_interpolated_column_sensitivity_file,
     calculate_column_uncertainty,
+    geoms_times_to_datetime,
 )
 from .geoms_api import GEOMSAPI
 
@@ -77,8 +78,13 @@ def generate_geoms_file(
         return None, "Not enough data (less than 11 datapoints)"
     
     # determine filename
-    data_from_dt: datetime.datetime = pl_df["utc"].min()  # type: ignore
-    data_to_dt: datetime.datetime = pl_df["utc"].max()  # type: ignore
+    start_stop_times = geoms_times_to_datetime([
+        np.round((pl_df["JulianDate"].min() - 2451544.5) * 86400.0),  # type: ignore# type: ignore
+        np.round((pl_df["JulianDate"].max() - 2451544.5) * 86400.0),  # type: ignore
+    ])
+    data_from_dt: datetime.datetime = start_stop_times[0]
+    data_to_dt: datetime.datetime = start_stop_times[1]
+    
     geoms_location = geoms_metadata.locations[location_id]
     data_source = f"{geoms_metadata.general.network}_{geoms_metadata.general.affiliation}{serial_number:03d}"
     filename = (
