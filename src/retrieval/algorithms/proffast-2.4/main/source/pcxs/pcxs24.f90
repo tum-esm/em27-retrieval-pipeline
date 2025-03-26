@@ -1080,7 +1080,7 @@ do k = -ngauradius,ngauradius
 end do
 gausskernel(:) = gausskernel(:) / sumgau
 
-! Faltung Mittenbereich (keine Linienzentren am Rand), nur für Spektralpunkte mit Beitrag 
+! Faltung Mittenbereich (keine Linienzentren am Rand), nur fï¿½r Spektralpunkte mit Beitrag 
 do k = 1 + ngauradius,wvskal%ngrid - ngauradius
     if (convdec(k)) then
         faltung = 0.0d0
@@ -1910,7 +1910,7 @@ subroutine read_pT(ptdatei,pobs_hPa,n_lev,h_lev_m,T_K,p_Pa,vmr_h2o_ppm,vmr_hdo_p
 
 implicit none
 
-integer,parameter :: npT_max = 120
+integer,parameter :: npT_max = 137
 
 character(len=*),intent(in) :: pTdatei
 real(8) :: pobs_hPa 
@@ -2227,7 +2227,7 @@ real(8),dimension(n_lev),intent(in) :: h_lev_m
 real(8),dimension(n_lev),intent(out) :: vmr_lev
 
 character(len=300) :: zeile
-integer,parameter :: nvmr_max = 120
+integer,parameter :: nvmr_max = 137
 integer,parameter :: nJD_max = 100
 logical :: readmapdec,flagdown
 integer :: i,j,ipos,iowert,nhead,ncol,nvmr,inear,nJD,ivmrleft &
@@ -2753,7 +2753,7 @@ end subroutine tofile_vmr
 
 
 !====================================================================
-!  Warnung rausschreiben und Programm evtl. beenden
+!ï¿½ Warnung rausschreiben und Programm evtl. beenden
 !====================================================================
 subroutine warnout(text,predec)
 
