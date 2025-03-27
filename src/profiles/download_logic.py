@@ -20,9 +20,13 @@ def download_data(
     tarballs_on_server: list[str]
     if atmospheric_profile_model == "GGG2020":
         tarballs_on_server = ftp.nlst("ginput-jobs")
-    else:
+    elif atmospheric_profile_model == "GGG2014":
         tarballs_on_server = ftp.nlst("upload/modfiles/tar/maps") + ftp.nlst(
             "upload/modfiles/tar/mods"
+        )
+    else:
+        raise NotImplementedError(
+            f"Download of {atmospheric_profile_model} has not been implemented yet."
         )
 
     # GGG2014: /upload/modfiles/tar/mods/mods_48N011E_20231211_20231217.tar

@@ -22,6 +22,10 @@ def upload_requests(
     assert config.profiles is not None, "this is a bug in the code"
 
     cache = profiles.cache.DownloadQueryCache.load()
+    if atmospheric_profile_model not in ["GGG2014", "GGG2020"]:
+        raise NotImplementedError(
+            f"Download of {atmospheric_profile_model} has not been implemented yet."
+        )
 
     with rich.progress.Progress() as progress:
         for query in progress.track(queries, description="Requesting ..."):

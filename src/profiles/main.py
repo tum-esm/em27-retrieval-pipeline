@@ -17,6 +17,9 @@ def run() -> None:
             os.path.join(config.general.data.atmospheric_profiles.root, variant), exist_ok=True
         )
 
+    if "CAMSFC" in config.profiles.scope.models:
+        raise NotImplementedError(f"Download of CAMSFC has not been implemented yet.")
+
     try:
         if len(config.profiles.GGG2020_standard_sites) > 0:
             print("Downloading standard site data")
