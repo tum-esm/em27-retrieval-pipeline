@@ -33,13 +33,13 @@ class ContainerFactory:
         self.config = config
         self.logger = logger
         assert config.retrieval is not None
-        
+
         # set the container directory (where the data processing is happening)
         self.container_dir = tum_esm_utils.files.rel_to_abs_path("../../../data/containers")
         if config.retrieval.general.container_dir is not None:
             self.container_dir = config.retrieval.general.container_dir
             os.makedirs(self.container_dir, exist_ok=True)
-        
+
         self.containers: list[types.RetrievalContainer] = []
         self.label_generator = tum_esm_utils.text.RandomLabelGenerator()
 
@@ -352,21 +352,26 @@ class ContainerFactory:
             )
             os.remove(os.path.join(ROOT_DIR, ZIPFILE_NAME))
 
-        _print("Copying the adapted preprocess6.F90 source code")
-        ORIGINAL_SOURCE_FILE = os.path.join(
-            _RETRIEVAL_CODE_DIR,
-            "proffast-2.4",
-            "main",
-            "prf",
-            "source",
-            "preprocess",
-            "preprocess6.F90",
-        )
-        ADAPTED_SOURCE_FILE = os.path.join(
-            _RETRIEVAL_CODE_DIR, "proffast-2.4", "main", "source", "preprocess", "preprocess6.F90"
-        )
-        os.remove(ORIGINAL_SOURCE_FILE)
-        shutil.copyfile(ADAPTED_SOURCE_FILE, ORIGINAL_SOURCE_FILE)
+        for program, filename in [
+            ("preprocess", "preprocess6.F90"),
+            ("pcxs", "pcxs24.f90"),
+        ]:
+            _print(f"Copying the adapted {program}/{filename} source code")
+            ORIGINAL_SOURCE_FILE = os.path.join(
+                _RETRIEVAL_CODE_DIR,
+                "proffast-2.4",
+                "main",
+                "prf",
+                "source",
+                program,
+                filename,
+            )
+            ADAPTED_SOURCE_FILE = os.path.join(
+                _RETRIEVAL_CODE_DIR, "proffast-2.4", "main", "source", program, filename
+            )
+            if os.path.exists(ORIGINAL_SOURCE_FILE):
+                os.remove(ORIGINAL_SOURCE_FILE)
+            shutil.copyfile(ADAPTED_SOURCE_FILE, ORIGINAL_SOURCE_FILE)
 
         _print("Compiling")
         tum_esm_utils.shell.run_shell_command(
