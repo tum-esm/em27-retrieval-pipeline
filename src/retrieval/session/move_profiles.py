@@ -19,7 +19,7 @@ def run(
         files_to_copy = [
             (f"{date_string}_{coordinates_slug}.map", f"{session.ctx.sensor_id}{date_string}.map"),
         ]
-    if session.atmospheric_profile_model == "GGG2020":
+    else:
         files_to_copy = [
             (
                 f"{date_string}{t:02d}_{coordinates_slug}.map",

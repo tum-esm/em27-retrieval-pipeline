@@ -210,7 +210,7 @@ class ProfilesScopeConfig(pydantic.BaseModel):
     )
     models: list[AtmosphericProfileModel] = pydantic.Field(
         ...,
-        description="list of data types to request from the ccycle ftp server.",
+        description="list of data types to request from the ccycle ftp server. The download for CAMSFC has not been implemented yet.",
     )
 
     @pydantic.model_validator(mode="after")

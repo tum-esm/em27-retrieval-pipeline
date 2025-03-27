@@ -10,4 +10,5 @@ RetrievalAlgorithm = Literal[
 AtmosphericProfileModel = Literal[
     "GGG2014",
     "GGG2020",
+    "CAMSFC",
 ]
