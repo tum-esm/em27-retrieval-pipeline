@@ -351,11 +351,12 @@ const CONFIG_SCHEMA: any = {
                                             "type": "string"
                                         },
                                         "models": {
-                                            "description": "list of data types to request from the ccycle ftp server.",
+                                            "description": "list of data types to request from the ccycle ftp server. The download for CAMSFC has not been implemented yet.",
                                             "items": {
                                                 "enum": [
                                                     "GGG2014",
-                                                    "GGG2020"
+                                                    "GGG2020",
+                                                    "CAMSFC"
                                                 ],
                                                 "type": "string"
                                             },
@@ -516,7 +517,8 @@ const CONFIG_SCHEMA: any = {
                                         "description": "Which vertical profiles to use for the retrieval.",
                                         "enum": [
                                             "GGG2014",
-                                            "GGG2020"
+                                            "GGG2020",
+                                            "CAMSFC"
                                         ],
                                         "title": "Atmospheric Profile Model",
                                         "type": "string"
@@ -752,7 +754,8 @@ const CONFIG_SCHEMA: any = {
                                 "items": {
                                     "enum": [
                                         "GGG2014",
-                                        "GGG2020"
+                                        "GGG2020",
+                                        "CAMSFC"
                                     ],
                                     "type": "string"
                                 },
@@ -860,7 +863,8 @@ const CONFIG_SCHEMA: any = {
                             "items": {
                                 "enum": [
                                     "GGG2014",
-                                    "GGG2020"
+                                    "GGG2020",
+                                    "CAMSFC"
                                 ],
                                 "type": "string"
                             },

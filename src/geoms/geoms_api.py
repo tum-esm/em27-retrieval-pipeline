@@ -562,7 +562,7 @@ class GEOMSAPI:
         hdf5_file: h5py.File,
         df: pd.DataFrame,
         species: Literal["CO2", "CH4", "CO", "H2O"],
-        variant: Literal["GGG2014", "GGG2020"],
+        variant: Literal["GGG2014", "GGG2020", "CAMSFC"],
     ) -> None:
         """A-priori source of the vertical profile of a-priori per layer"""
 

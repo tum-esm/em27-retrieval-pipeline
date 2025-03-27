@@ -17,7 +17,7 @@ def run() -> None:
             os.path.join(config.general.data.atmospheric_profiles.root, variant), exist_ok=True
         )
 
-    if "CAMSFC" in config.profiles.scope.models:
+    if (config.profiles.scope is not None) and ("CAMSFC" in config.profiles.scope.models):
         raise NotImplementedError(f"Download of CAMSFC has not been implemented yet.")
 
     try:
