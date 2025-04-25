@@ -1,4 +1,4 @@
-from typing import Generator, Literal
+from typing import Generator
 import datetime
 import os
 import time
@@ -191,7 +191,7 @@ def test_container_lifecycle_complete(
                 ),
             )
             print(f"Creating new process")
-            p = multiprocessing.Process(
+            p = multiprocessing.get_context("spawn").Process(
                 target=run_session,
                 args=(session, config, False),
                 name=(
