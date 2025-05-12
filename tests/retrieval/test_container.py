@@ -1,4 +1,4 @@
-from typing import Generator
+from typing import Any, Generator
 import datetime
 import os
 import time
@@ -163,8 +163,8 @@ def test_container_lifecycle_complete(
     assert config.retrieval is not None
 
     pending_jobs = _generate_job_list()
-    active_processes: list[multiprocessing.Process] = []
-    finished_processes: list[multiprocessing.Process] = []
+    active_processes: list[Any] = []
+    finished_processes: list[Any] = []
 
     cpu_count = multiprocessing.cpu_count()
     print(f"Detected {cpu_count} CPU cores")
@@ -206,7 +206,7 @@ def test_container_lifecycle_complete(
 
         time.sleep(0.5)
 
-        newly_finished_processes: list[multiprocessing.Process] = []
+        newly_finished_processes: list[Any] = []
         for p in active_processes:
             if not p.is_alive():
                 newly_finished_processes.append(p)
