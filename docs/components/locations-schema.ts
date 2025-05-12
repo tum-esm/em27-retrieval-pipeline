@@ -17,20 +17,20 @@ const LOCATIONS_SCHEMA: any = {
                 "type": "string"
             },
             "lon": {
-                "maximum": 180.0,
-                "minimum": -180.0,
+                "maximum": 180,
+                "minimum": -180,
                 "title": "Lon",
                 "type": "number"
             },
             "lat": {
-                "maximum": 90.0,
-                "minimum": -90.0,
+                "maximum": 90,
+                "minimum": -90,
                 "title": "Lat",
                 "type": "number"
             },
             "alt": {
-                "maximum": 10000.0,
-                "minimum": -20.0,
+                "maximum": 10000,
+                "minimum": -20,
                 "title": "Alt",
                 "type": "number"
             }

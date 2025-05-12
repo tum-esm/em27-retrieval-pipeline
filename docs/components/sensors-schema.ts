@@ -56,8 +56,8 @@ const SENSORS_SCHEMA: any = {
                                 "utc_offset": {
                                     "default": 0,
                                     "description": "UTC offset of the location, if not set, using an offset of 0",
-                                    "exclusiveMaximum": 12.0,
-                                    "exclusiveMinimum": -12.0,
+                                    "exclusiveMaximum": 12,
+                                    "exclusiveMinimum": -12,
                                     "title": "Utc Offset",
                                     "type": "number"
                                 },
