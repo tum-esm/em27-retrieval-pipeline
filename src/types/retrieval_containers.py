@@ -108,7 +108,7 @@ class AboutRetrievalConfig(pydantic.BaseModel):
 
 class AboutRetrieval(pydantic.BaseModel):
     automationVersion: str
-    automationCommitSha: str
+    automationCommitSha: Optional[str]
     generationTime: str
     config: AboutRetrievalConfig
     session: RetrievalSession
