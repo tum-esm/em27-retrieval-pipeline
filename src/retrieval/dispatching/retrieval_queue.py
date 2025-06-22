@@ -259,6 +259,8 @@ def generate_retrieval_queue(
                     break
             if profiles_complete:
                 unprocessed_sensor_data_contexts_with_atmospheric_profiles.append(sdc)
+            else:
+                unprocessed_sensor_data_contexts_without_atmospheric_profiles.append(sdc)
         _log_filtering_step_message(
             positive_message="of these sensor data contexts have atmospheric profiles",
             positive_items=unprocessed_sensor_data_contexts_with_atmospheric_profiles,
