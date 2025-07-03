@@ -51,7 +51,7 @@ def run(
         return "+".join(matching_campaign_id)
 
     for i, bundle_target in enumerate(config.bundles):
-        print(f"Processing bundle target #{i+1}")
+        print(f"Processing bundle target #{i + 1}")
         print(f"Bundle target: {bundle_target.model_dump_json(indent=4)}")
 
         for retrieval_algorithm in bundle_target.retrieval_algorithms:
@@ -74,7 +74,11 @@ def run(
                     )
                     print(f"  Sensor {sensor_id}: looking for files in {d}")
 
-                    results_pattern = re.compile(r"^\d{8}(_\d{8}_\d{8})?(_.+)?$")
+                    # fmt: off
+                    results_pattern =                re.compile(r"^\d{8}(_\d{6}_\d{6})?(_.+)?$")
+                    results_pattern_without_suffix = re.compile(r"^\d{8}(_\d{6}_\d{6})?$")
+                    results_pattern_with_suffix =    re.compile(r"^\d{8}(_\d{6}_\d{6})?(_.+)$")
+                    # fmt: on
 
                     all_results = [
                         r
@@ -84,7 +88,6 @@ def run(
                     print(f"    Found {len(all_results)} results directories")
 
                     if bundle_target.retrieval_job_output_suffix is None:
-                        results_pattern_without_suffix = re.compile(r"^\d{8}(_\d{8}_\d{8})?$")
                         matching_results = [
                             r for r in all_results if results_pattern_without_suffix.match(r)
                         ]
@@ -92,7 +95,6 @@ def run(
                             f"    Found {len(matching_results)} results directories with output suffix `None`"
                         )
                     else:
-                        results_pattern_with_suffix = re.compile(r"^\d{8}(_\d{8}_\d{8})?(_.+)$")
                         matching_results = [
                             r
                             for r in all_results
@@ -103,25 +105,27 @@ def run(
                             f"    Found {len(matching_results)} results directories matching the output suffix"
                         )
 
-                    timed_results: list[str] = [
-                        r
-                        for r in matching_results
-                        if (
-                            (
-                                bundle_target.from_datetime.date()
-                                <= datetime.datetime.strptime(r[:8], "%Y%m%d").date()
+                    timed_results: list[str] = sorted(
+                        [
+                            r
+                            for r in matching_results
+                            if (
+                                (
+                                    bundle_target.from_datetime.date()
+                                    <= datetime.datetime.strptime(r[:8], "%Y%m%d").date()
+                                )
+                                and (
+                                    datetime.datetime.strptime(r[:8], "%Y%m%d").date()
+                                    <= bundle_target.to_datetime.date()
+                                )
                             )
-                            and (
-                                datetime.datetime.strptime(r[:8], "%Y%m%d").date()
-                                <= bundle_target.to_datetime.date()
-                            )
-                        )
-                    ]
+                        ]
+                    )
                     print(
                         f"    Found {len(timed_results)} results directories matching the time range"
                     )
 
-                    progress = tqdm.tqdm(sorted(timed_results), dynamic_ncols=True, desc="    ...")
+                    progress = tqdm.tqdm(timed_results, dynamic_ncols=True, desc="    ...")
                     for result in progress:
                         progress.desc = f"    {result}"
                         progress.refresh()
