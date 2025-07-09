@@ -36,18 +36,25 @@ def list_downloaded_data(
     assert config.profiles.scope is not None
     downloaded_data: dict[ProfilesQueryLocation, set[datetime.date]] = {}
 
-    r = re.compile(r"^\d{8,10}_\d{2}(N|S)\d{3}(E|W)\.(map|mod|vmr)$")
-    filenames: set[str] = set(
-        [
-            f
-            for f in os.listdir(
-                os.path.join(
-                    config.general.data.atmospheric_profiles.root, atmospheric_profile_model
-                )
-            )
-            if r.match(f)
-        ]
+    profile_root_dir = os.path.join(
+        config.general.data.atmospheric_profiles.root, atmospheric_profile_model
     )
+
+    r = re.compile(r"^\d{8,10}_\d{2}(N|S)\d{3}(E|W)\.(map|mod|vmr)$")
+    filenames: set[str] = set([f for f in os.listdir(profile_root_dir) if r.match(f)])
+
+    # starting with 1.7.0, the default way of storing atmospheric profiles
+    # is to store them in subdirectories by year and month. However, only newly
+    # downloaded data will be stored in this way. Data in the old format can still
+    # be used. There is a script to move all data from the previous paths to
+    # the new paths, but this should not be done automatically.
+    years = set([f"{y:04d}" for y in range(1950, 2500)]).union(set(os.listdir(profile_root_dir)))
+    for y in years:
+        for m in range(1, 13):
+            d = os.path.join(profile_root_dir, y, f"{m:02d}")
+            if os.path.isdir(d):
+                filenames.update([f for f in os.listdir(d) if r.match(f)])
+
     dates: set[datetime.date] = set(
         [
             d

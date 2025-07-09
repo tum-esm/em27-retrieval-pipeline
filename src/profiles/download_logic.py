@@ -1,5 +1,6 @@
 import ftplib
 import io
+import os
 import tarfile
 from typing import BinaryIO
 
@@ -91,6 +92,7 @@ def extract_archive(
                 continue
 
             cs = utils.text.get_coordinates_slug(lat, lon)
+            date: str
 
             if atmospheric_profile_model == "GGG2020":
                 basename = name.split("/")[-1]
@@ -105,6 +107,8 @@ def extract_archive(
                 elif extension == "vmr":
                     date = basename.split("_")[1][:8]
                     hour = basename.split("_")[1][8:10]
+                else:
+                    continue
                 member.name = f"{date}{hour}_{cs}.{extension}"
                 # 2022010100_48N011E.map
                 # 2022010103_48N011E.map
@@ -115,7 +119,11 @@ def extract_archive(
                     date, type_ = name[2:10], "map"
                 elif name.endswith(".mod"):
                     date, type_ = name[5:13], "mod"
+                else:
+                    continue
                 member.name = f"{date}_{cs}.{type_}"
                 # 20220101_48N011E.map
 
-            tar.extract(member, dst_path)
+            member_dir = os.path.join(dst_path, date[:4], date[4:6])
+            os.makedirs(member_dir, exist_ok=True)
+            tar.extract(member, member_dir)
