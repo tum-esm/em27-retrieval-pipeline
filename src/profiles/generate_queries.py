@@ -51,9 +51,9 @@ def list_downloaded_data(
     years = set([f"{y:04d}" for y in range(1950, 2500)]).union(set(os.listdir(profile_root_dir)))
     for y in years:
         for m in range(1, 13):
-            d = os.path.join(profile_root_dir, y, f"{m:02d}")
-            if os.path.isdir(d):
-                filenames.update([f for f in os.listdir(d) if r.match(f)])
+            _d = os.path.join(profile_root_dir, y, f"{m:02d}")
+            if os.path.isdir(_d):
+                filenames.update([f for f in os.listdir(_d) if r.match(f)])
 
     dates: set[datetime.date] = set(
         [
