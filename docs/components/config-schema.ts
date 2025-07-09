@@ -361,6 +361,15 @@ const CONFIG_SCHEMA: any = {
                                             },
                                             "title": "Models",
                                             "type": "array"
+                                        },
+                                        "force_download_locations": {
+                                            "default": [],
+                                            "description": "List of locations to force download data for. These will be downloaded even at times where no instrument in the metadata is located there.",
+                                            "items": {
+                                                "type": "string"
+                                            },
+                                            "title": "Force Download Locations",
+                                            "type": "array"
                                         }
                                     },
                                     "required": [

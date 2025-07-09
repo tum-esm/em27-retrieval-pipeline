@@ -29,8 +29,8 @@ def download_sample_data() -> Generator[None, None, None]:
     # download testing data tarball if it does not exist
     if not os.path.isfile(os.path.join(testing_data_path, tarball_filename)):
         tum_esm_utils.shell.run_shell_command(
-            "wget --quiet https://syncandshare.lrz.de/dl/" +
-            f"fiEh5KjXeb8b715kU4cwWi/{tarball_filename}",
+            "wget --quiet https://syncandshare.lrz.de/dl/"
+            + f"fiEh5KjXeb8b715kU4cwWi/{tarball_filename}",
             working_directory=testing_data_path,
         )
 
@@ -60,6 +60,7 @@ def provide_config_template() -> Generator[src.types.Config, None, None]:
     config.general.data.interferograms.root = "/tmp"
     config.general.data.results.root = "/tmp"
     config.bundles = []
+    config.profiles.scope.force_download_locations = []  # type: ignore
 
     yield config
 
