@@ -1,7 +1,8 @@
 import ftplib
 import io
+import os
 import sys
-
+import tqdm
 import click
 import em27_metadata
 import pydantic
@@ -151,6 +152,43 @@ def request_ginput_status() -> None:
         with io.BytesIO(config.profiles.server.email.encode("utf-8")) as f:
             ftp.storbinary("STOR upload/ginput_status.txt", f)
     click.echo(f"Requested ginput status for email address {config.profiles.server.email}")
+
+
+@profiles_command_group.command(
+    name="migrate-storage-location",
+    help="Migrate the storage location of the atmospheric profiles to the new directory structure introduced in the pipeline version 1.7.0. See https://github.com/tum-esm/em27-retrieval-pipeline/issues/127 for more details.",
+)
+def migrate_storage_location() -> None:
+    _check_config_validity()
+
+    import src  # import here so that the CLI is more reactive
+
+    config = src.types.Config.load()
+    profiles_dir = config.general.data.atmospheric_profiles.root
+    click.echo(f"Migrating atmospheric profiles from {profiles_dir} to {profiles_dir}/YYYY/MM")
+
+    for model in ["GGG2014", "GGG2020"]:
+        model_dir = f"{profiles_dir}/{model}"
+        filenames = sorted(
+            [
+                f
+                for f in os.listdir(model_dir)
+                if (
+                    os.path.isfile(os.path.join(model_dir, f))
+                    and (len(f) >= 8)
+                    and (f.endswith(".map") or f.endswith(".mod") or f.endswith(".vmr"))
+                    and f[:8].isdigit()
+                )
+            ]
+        )
+        progress = tqdm.tqdm(filenames, dynamic_ncols=True)
+        for f in progress:
+            progress.set_description(f"Moving {f}")
+            dst_path = os.path.join(model_dir, f[:4], f[4:6])
+            if not os.path.isdir(dst_path):
+                progress.write(f"Creating subdirectory {dst_path}")
+                os.makedirs(dst_path, exist_ok=True)
+            os.rename(os.path.join(model_dir, f), os.path.join(dst_path, f))
 
 
 @bundle_command_group.command(name="run", help="Create a bundle of your entire retrieval dataset")
