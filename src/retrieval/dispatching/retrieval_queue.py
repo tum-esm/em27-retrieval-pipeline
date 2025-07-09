@@ -254,7 +254,24 @@ def generate_retrieval_queue(
             # so that it stops looking on the first encountered missing file
             profiles_complete: bool = True
             for datetime_slug in datetime_slugs:
-                if not os.path.isfile(os.path.join(profiles_dir, f"{datetime_slug}_{cd}.map")):
+                if not (
+                    # before ERP 1.7.0
+                    os.path.isfile(
+                        os.path.join(
+                            profiles_dir,
+                            f"{datetime_slug}_{cd}.map",
+                        )
+                    )
+                    # starting with ERP 1.7.0
+                    or os.path.isfile(
+                        os.path.join(
+                            profiles_dir,
+                            datetime_slug[:4],
+                            datetime_slug[4:6],
+                            f"{datetime_slug}_{cd}.map",
+                        )
+                    )
+                ):
                     profiles_complete = False
                     break
             if profiles_complete:
