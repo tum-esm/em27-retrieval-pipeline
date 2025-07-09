@@ -107,11 +107,35 @@ def list_downloaded_data(
 
 
 def list_desired_data(
-    config: types.Config, em27_metadata_interface: em27_metadata.interfaces.EM27MetadataInterface
+    config: types.Config,
+    em27_metadata_interface: em27_metadata.interfaces.EM27MetadataInterface,
 ) -> dict[ProfilesQueryLocation, set[datetime.date]]:
     assert config.profiles is not None
     assert config.profiles.scope is not None
     requested_data: dict[ProfilesQueryLocation, set[datetime.date]] = {}
+
+    for location_id in config.profiles.scope.force_download_locations:
+        try:
+            location = next(
+                filter(
+                    lambda _l: _l.location_id == location_id,
+                    em27_metadata_interface.locations.root,
+                )
+            )
+        except StopIteration:
+            raise ValueError(
+                f"Location with ID {location_id} not found in metadata. Please check your configuration."
+            )
+
+        query_location = ProfilesQueryLocation(lat=round(location.lat), lon=round(location.lon))
+        if query_location not in requested_data.keys():
+            requested_data[query_location] = set()
+        requested_data[query_location].update(
+            tum_esm_utils.timing.date_range(
+                from_date=config.profiles.scope.from_date,
+                to_date=config.profiles.scope.to_date,
+            )
+        )
 
     for sensor in em27_metadata_interface.sensors.root:
         for sensor_setup in sensor.setups:

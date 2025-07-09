@@ -212,6 +212,10 @@ class ProfilesScopeConfig(pydantic.BaseModel):
         ...,
         description="list of data types to request from the ccycle ftp server.",
     )
+    force_download_locations: list[str] = pydantic.Field(
+        [],
+        description="List of locations to force download data for. These will be downloaded even at times where no instrument in the metadata is located there.",
+    )
 
     @pydantic.model_validator(mode="after")
     def check_date_order(self) -> ProfilesScopeConfig:
