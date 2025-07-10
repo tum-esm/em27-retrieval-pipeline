@@ -1,7 +1,7 @@
 {
     "automationVersion": "1.6.5",
-    "automationCommitSha": "e5c662d",
-    "generationTime": "2025-07-10T10:26:17+0000",
+    "automationCommitSha": "cd9b86c",
+    "generationTime": "2025-07-10T16:03:31+0000",
     "config": {
         "general": {
             "metadata": {
@@ -104,7 +104,7 @@
         "atmospheric_profile_model": "GGG2014",
         "job_settings": {
             "store_binary_spectra": true,
-            "dc_min_threshold": 0.01,
+            "dc_min_threshold": 0.05,
             "dc_var_threshold": 0.1,
             "use_local_pressure_in_pcxs": false,
             "use_ifg_corruption_filter": true,
@@ -137,7 +137,7 @@
         },
         "ctn": {
             "container_dir": "/home/moritz-makowski/documents/em27/em27-retrieval-pipeline/data/containers",
-            "container_id": "competent-tu"
+            "container_id": "affectionate-swanson"
         }
     }
 }
