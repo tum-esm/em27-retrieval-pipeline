@@ -36,7 +36,7 @@ from functools import partial
 from copy import deepcopy
 import codecs
 from prfpylot.output.nc_cf_writer import NcWriter
-from prfpylot.output.hdf_geoms_writer import GeomsGenWriter
+# from prfpylot.output.hdf_geoms_writer import GeomsGenWriter
 
 
 class Pylot(FileMover):
@@ -72,12 +72,12 @@ class Pylot(FileMover):
         cf_writer.write_nc()
 
         # additionally generate hdf output
-        if self.geomsgen_inputfile is not None:
-            geoms_out_path = os.path.join(
-                self.result_folder, "output_hdf_geoms")
-            geoms_writer = GeomsGenWriter(
-                self.geomsgen_inputfile, geoms_out_path=geoms_out_path)
-            geoms_writer.generate_geoms_files()
+        # if self.geomsgen_inputfile is not None:
+        #     geoms_out_path = os.path.join(
+        #         self.result_folder, "output_hdf_geoms")
+        #     geoms_writer = GeomsGenWriter(
+        #         self.geomsgen_inputfile, geoms_out_path=geoms_out_path)
+        #     geoms_writer.generate_geoms_files()
 
         self.logger.info(
             "The results of PROFFAST were written "

@@ -74,8 +74,8 @@ distribution = false
 markers = [
     "integration: can only be run on a configured system",
     "quick: can be run in a CI environment, < 30 seconds, everything except running actual retrievals",
-    "ci: can be run in a CI environment, ~ 3 min, run the complete tests but without running the actual retrieval algorithms",
-    "complete: can be run in a CI environment, ~ 10 - 20 minutes, runs three sample days from different instruments and locations for every retrieval algorithm and every atmospheric profile",
+    "ci: can be run in a CI environment, ~ 1 - 2 min, runs the complete tests but without running the actual retrieval algorithms",
+    "complete: can be run in a CI environment, ~ 3 - 10 minutes, runs three sample days from different instruments and locations for every retrieval algorithm and every atmospheric profile",
 ]
 addopts = "--exitfirst --verbose --durations=0 --no-header"
 

@@ -246,15 +246,13 @@ def run_session(
     )
 
 
-def _generate_job_list() -> (
-    list[
-        tuple[
-            src.types.RetrievalAlgorithm,
-            src.types.AtmosphericProfileModel,
-            em27_metadata.types.SensorDataContext,
-        ]
+def _generate_job_list() -> list[
+    tuple[
+        src.types.RetrievalAlgorithm,
+        src.types.AtmosphericProfileModel,
+        em27_metadata.types.SensorDataContext,
     ]
-):
+]:
     src.retrieval.utils.retrieval_status.RetrievalStatusList.reset()
 
     pending_jobs: list[
@@ -266,7 +264,7 @@ def _generate_job_list() -> (
     ] = []
 
     # start proffast 1.0 first because it takes the longest
-    for alg in ["proffast-1.0", "proffast-2.2", "proffast-2.3", "proffast-2.4"]:
+    for alg in ["proffast-1.0", "proffast-2.2", "proffast-2.3", "proffast-2.4", "proffast-2.4.1"]:
         for atm in ["GGG2014", "GGG2020"]:
             if alg == "proffast-1.0" and atm == "GGG2020":
                 continue
@@ -330,22 +328,6 @@ def _assert_output_correctness(
         "logfiles/container.log",
     ]
     output_csv_name: str
-    if retrieval_algorithm in ["proffast-2.2", "proffast-2.3", "proffast-2.4"]:
-        output_csv_name = (
-            f"comb_invparms_{sensor_data_context.sensor_id}_"
-            + f"SN{str(sensor_data_context.serial_number).zfill(3)}"
-            + f"_{date_string[2:]}-{date_string[2:]}.csv"
-        )
-        expected_files.extend(
-            [
-                output_csv_name,
-                "pylot_config.yml",
-                "pylot_log_format.yml",
-                "logfiles/preprocess_output.log",
-                "logfiles/pcxs_output.log",
-                "logfiles/inv_output.log",
-            ]
-        )
     if retrieval_algorithm == "proffast-1.0":
         output_csv_name = f"{sensor_data_context.sensor_id}{date_string[2:]}-combined-invparms.csv"
         expected_files.extend(
@@ -358,6 +340,28 @@ def _assert_output_correctness(
                 "logfiles/invers10.log",
             ]
         )
+    elif retrieval_algorithm in ["proffast-2.2", "proffast-2.3", "proffast-2.4", "proffast-2.4.1"]:
+        output_csv_name = (
+            f"comb_invparms_{sensor_data_context.sensor_id}_"
+            + f"SN{str(sensor_data_context.serial_number).zfill(3)}"
+            + f"_{date_string[2:]}-{date_string[2:]}.csv"
+        )
+        expected_files.extend(
+            [
+                output_csv_name,
+                (
+                    "pylot_config.yml"
+                    if (retrieval_algorithm in ["proffast-2.2", "proffast-2.3", "proffast-2.4"])
+                    else "proffastpylot_parameters.yml"
+                ),
+                "pylot_log_format.yml",
+                "logfiles/preprocess_output.log",
+                "logfiles/pcxs_output.log",
+                "logfiles/inv_output.log",
+            ]
+        )
+    else:
+        raise Exception("This should not happen")
 
     for filename in expected_files:
         filepath = os.path.join(out_path, filename)
