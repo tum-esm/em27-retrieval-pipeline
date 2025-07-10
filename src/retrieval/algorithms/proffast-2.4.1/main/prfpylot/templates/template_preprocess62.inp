@@ -7,8 +7,8 @@ DCvar
 $
 .false.
 %mpow_fft%
-%DC_MIN_THRESHOLD%
-%DC_VAR_THRESHOLD%
+0.05
+0.10
 
 
 
@@ -29,7 +29,7 @@ specify time offset of OPUS time versus UT (hours+decimals)
 if fixed observer coordinates: specify fixed observer coords (lat_deg,long_deg (East pos),alt_km)
 
 $
-T
+%fixed_observer%
 %site_name%
 %utc_offset%
 %lat%  %lon%  %alt%

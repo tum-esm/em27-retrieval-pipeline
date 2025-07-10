@@ -34,6 +34,9 @@ import pytz
 import numpy as np
 from functools import partial
 from copy import deepcopy
+import codecs
+from prfpylot.output.nc_cf_writer import NcWriter
+from prfpylot.output.hdf_geoms_writer import GeomsGenWriter
 
 
 class Pylot(FileMover):
@@ -63,6 +66,22 @@ class Pylot(FileMover):
             self.combine_results()
         finally:
             self.clean_files()
+
+        # additionally generate netcdf output
+        cf_writer = NcWriter(self.result_folder)
+        cf_writer.write_nc()
+
+        # additionally generate hdf output
+        if self.geomsgen_inputfile is not None:
+            geoms_out_path = os.path.join(
+                self.result_folder, "output_hdf_geoms")
+            geoms_writer = GeomsGenWriter(
+                self.geomsgen_inputfile, geoms_out_path=geoms_out_path)
+            geoms_writer.generate_geoms_files()
+
+        self.logger.info(
+            "The results of PROFFAST were written "
+            f"to {self.result_folder}/ .")
 
     def run_preprocess(self, n_processes=1):
         """Main method to run preprocess."""
@@ -126,7 +145,7 @@ class Pylot(FileMover):
             - run pcxs(in parallel).
 
         Parameters:
-            n_processes(int) = 1: 
+            n_processes(int) = 1:
                 If n_processes == 1, `run_pcxs_at` is called directly.
                 Otherwise it is called via run_parallel.
         """
@@ -139,6 +158,12 @@ class Pylot(FileMover):
         # create a list out of the dictionary to increase code clarity
         self.local_dates = list(self.localdate_spectra.keys())
         wrk_fast_path = os.path.join(self.proffast_path, "wrk_fast")
+
+        # If we want to add the meassured p-value for PCXS we have to create
+        # the pressure_df already now.
+        if self.use_measured_pressure_for_pcxs:
+            self.pressure_handler.prepare_pressure_df()
+
         inputfile_list = []
         temp = deepcopy(self.local_dates)
         for local_date in temp:
@@ -189,11 +214,12 @@ class Pylot(FileMover):
         """Run inverse.
 
         Loops over localdates, generates the input files and runs invers.
+        Execute write_ils_list.
 
         Parameters:
-            n_processes(int) = 1: 
+            n_processes(int) = 1:
                 If n_processes == 1, `run_inv_at` is called directly.
-                Otherwise it is called via run_parallel.        
+                Otherwise it is called via run_parallel.
         """
         self.executed_invers = True
         self.logger.info(f"Running invers with {n_processes} task(s) ...")
@@ -204,9 +230,18 @@ class Pylot(FileMover):
 
         output = []
 
-        # the interpolated pressure is stored and can be
-        # accesed from self.pressure_handler
-        self.pressure_handler.prepare_pressure_df()
+        # The pressure_df is prepared already in PCXS when
+        # the option `use_measured_pressure_for_pcxs` is selected.
+        # When PCXS was not yet executed then prepare the df now::
+        if (not self.executed_pcxs):
+            # the interpolated pressure is stored and can be
+            # accesed from self.pressure_handler
+            self.pressure_handler.prepare_pressure_df()
+        else:
+            # apparently pcxs was executed. Check if the
+            # `use_measured_pressure_for_pcxs` option is False, then create df
+            if not self.use_measured_pressure_for_pcxs:
+                self.pressure_handler.prepare_pressure_df()
 
         p_data_warnings = {}
 
@@ -218,7 +253,7 @@ class Pylot(FileMover):
             no_pData = all([infile is None for infile in input_files])
             if no_pData:
                 self.logger.debug(
-                    f"For date {local_date} no pressure data was available"
+                    f"For date {local_date} no auxiliary data was available"
                     ". Hence, this day is skipped."
                 )
                 p_data_warnings[local_date] = "All spectra of this local day!"
@@ -234,7 +269,7 @@ class Pylot(FileMover):
                     all_inputfiles.append(input_file)
         if len(p_data_warnings) != 0:
             warn_strg = (
-                "Due to missing pressure data the following spectra were "
+                "Due to missing auxiliary data the following spectra were "
                 "skipped:")
             for date, status in p_data_warnings.items():
                 datestr = date.strftime("%Y-%m-%d")
@@ -248,34 +283,6 @@ class Pylot(FileMover):
         inv_exe = self._get_executable("inv")
         # store the path to change the cwd for the popen commmand
         exec_path = os.path.dirname(inv_exe)
-
-        # check for failed interpolation of pressure
-        interpolation_failed_at = self.pressure_handler.interpolation_failed_at
-        n_failed_interpolation = len(interpolation_failed_at)
-        if n_failed_interpolation > 0:
-            failed_list_print = " ".join(
-                [
-                    d.strftime("%Y-%m-%d %H:%M:%S")
-                    for d in interpolation_failed_at
-                    ]
-                )
-            self.logger.error(
-                "The interpolated pressure was NaN!\n"
-                f"This occured {n_failed_interpolation} times. Check if the "
-                "time is parsed correctly and if there are duplicates in the "
-                "pressure data. The interpolation failed at the following "
-                "times:\n"
-                f"{failed_list_print}.\n"
-                "If this is due to unavoidable overlap from different "
-                "pressure files and only occured in limited time ranges, "
-                "there is an option to continue execution. Set\n"
-                "ignore_interpolation_error: True\n"
-                "in the PROFFASTpylot input file."
-                )
-            if self.ignore_interpolation_error is not True:
-                raise RuntimeError("The interpolated pressure was NaN!")
-            else:
-                self.logger.warning("The interpolation error was ignored!")
 
         if n_processes <= 1:
             for inputfile in all_inputfiles:
@@ -291,6 +298,10 @@ class Pylot(FileMover):
             output = pool.map(subs_method, all_inputfiles)
 
         self._write_logfile("inv", output)
+
+        self.logger.debug("Write ot ILS file.")
+        self.write_ils_file()
+
         self.logger.info("Finished invers.\n")
 
     def run_prf_with_inputfile(
@@ -305,6 +316,46 @@ class Pylot(FileMover):
             out, err, str(return_val),\
             " ".join([executable, prf_inputfile])
         return outlist
+
+    def _read_ils_from_spectrum(self, spectrum):
+        """Open spectrum and return used ILS Parameters."""
+        with codecs.open(
+                spectrum, "r", encoding="utf-8", errors="ignore") as f:
+            header = f.readlines(1)[:40]
+        ils_str_list = header[34].strip().split(",")
+        ils = [float(ils_str) for ils_str in ils_str_list]
+        if len(ils) == 4:  # with second channel
+            return ils  # ME1, PE1, ME1, PE1
+        elif len(ils) == 2:
+            return [*ils, *ils]  # no second channel, ME1 = ME2 and PE1 = PE2
+
+    def write_ils_file(self):
+        """Write file containing ILS parameters.
+
+        Read all ILS parameters from the spectra file header.
+        Check if the ILS parameters are equal for the processing period.
+        """
+        ils_dict = {
+            "ME1": [],
+            "PE1": [],
+            "ME2": [],
+            "PE2": []
+        }
+
+        local_dates = []
+        for local_date, spectra in self.localdate_spectra.items():
+            # read ils form header
+            ils_params = self._read_ils_from_spectrum(spectra[0])
+            for ils_param, key in zip(ils_params, ils_dict.keys()):
+                ils_dict[key].append(ils_param)
+            local_dates.append(local_date)
+
+        ils_dict["LocalDate"] = local_dates
+        df_ils = pd.DataFrame(ils_dict).set_index("LocalDate")
+
+        ils_path = os.path.join(self.result_folder, "ils_list.csv")
+        df_ils.to_csv(ils_path)
+        return
 
     def combine_results(self):
         """Combine the generated result files and save as csv."""
@@ -338,30 +389,23 @@ class Pylot(FileMover):
         format_list = [
             "%s",  # UTC
             "%s",  # LocalTime
-            "%s",  # spectrum
             "%12.5f",  # JulianDate
+            "%6.0f",  # YYMMDD
             "%6.1f",  # UTtimeh
+            "%s",  # spectrum
+            "%5.2f",  # gndPmap
             "%5.2f",  # gndP
+            "%5.2f",  # gndTmap
             "%5.2f",  # gndT
             "%7.5f",  # latdeg
             "%7.5f",  # londeg
             "%7.3f",  # altim
             "%4.2f",  # appSZA
             "%5.2f",  # azimuth
-            "%.5e",  # XH20
-            "%.5e",  # XAIR
-            "%.5e",  # XCO2
-            "%.5e",  # XCH4
-            "%.5e",  # XCO2_STR
-            "%.5e",  # XCO
-            "%.5e",  # XCH4_S5P
-            "%.5e",  # H20
-            "%.5e",  # O2
-            "%.5e",  # CO2
-            "%.5e",  # CH4
-            "%.5e",  # CO
-            "%.5e"  # CH4_S5P
         ]
+
+        len_remaining = len(df.keys()) - len(format_list)
+        format_list.extend(["%.5e"]*len_remaining)
 
         header = ", ".join(df.columns)
         np.savetxt(
@@ -370,10 +414,6 @@ class Pylot(FileMover):
             fmt=format_list,
             delimiter=', ',
             comments='')
-
-        self.logger.info(
-            "The combined results of PROFFAST were written "
-            f"to {combined_file}.")
 
     def clean_files(self):
         """After execution clean up the files not needed anymore"""
@@ -491,21 +531,11 @@ class Pylot(FileMover):
         }
         df = df.rename(columns=rename)
 
-        sel_cols = [
-            "UTC", "LocalTime", "spectrum",
-            "JulianDate", "UTtimeh",
-            "gndP", "gndT",
-            "latdeg", "londeg", "altim",
-            "appSZA", "azimuth",
-            "XH2O", "XAIR",
-            "XCO2", "XCH4",
-            "XCO2_STR",
-            "XCO", "XCH4_S5P",
-            "H2O", "O2",
-            "CO2", "CH4",
-            "CO", "CH4_S5P"
-        ]
-        df = df[[*sel_cols]]
+        # reorder colums
+        cols = df.columns.tolist()
+        cols = cols[-2:] + cols[:-2]
+        df = df[cols]
+
         return df
 
     def _get_executable(self, program):
