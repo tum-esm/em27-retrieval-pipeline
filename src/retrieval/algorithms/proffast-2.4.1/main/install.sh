@@ -34,7 +34,7 @@ done
 # Compile the source code
 echo "compiling preprocess with flag $COMPILATION_FLAG ..."
 cd "$INSTALL_FOLDER/source/preprocess/"
-gfortran -nocpp $COMPILATION_FLAG -o ../../preprocess/preprocess6 glob_prepro6.F90 glob_OPUSparms6.F90 preprocess6.F90
+gfortran -nocpp $COMPILATION_FLAG -o ../../preprocess/preprocess62 glob_prepro62.F90 glob_OPUSparms62.F90 preprocess62.F90
 
 echo "compiling pcxs with flag $COMPILATION_FLAG ..."
 cd "$INSTALL_FOLDER/source/pcxs"
@@ -42,7 +42,7 @@ gfortran -nocpp $COMPILATION_FLAG -o ../../pcxs24 globvar24.f90 globlin24.f90 gl
 
 echo "compiling invers with flag $COMPILATION_FLAG ..."
 cd "$INSTALL_FOLDER/source/invers"
-gfortran -nocpp $COMPILATION_FLAG -o ../../invers25 globinv25.f90 invers25.f90
+gfortran -nocpp $COMPILATION_FLAG -o ../../invers26 globinv26.f90 invers26.f90
 
 cd ..
 
