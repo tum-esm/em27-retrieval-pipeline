@@ -352,7 +352,7 @@ class ContainerFactory:
             )
             os.remove(os.path.join(ROOT_DIR, ZIPFILE_NAME))
 
-        _print("Copying the adapted preprocess6.F90 source code")
+        _print("Copying the modified preprocess6.F90 source code")
         ORIGINAL_SOURCE_FILE = os.path.join(
             _RETRIEVAL_CODE_DIR,
             "proffast-2.4",
@@ -410,6 +410,27 @@ class ContainerFactory:
                 working_directory=ROOT_DIR,
             )
             os.remove(os.path.join(ROOT_DIR, ZIPFILE_NAME))
+
+        _print("Copying the modified preprocess62.F90 source code")
+        ORIGINAL_SOURCE_FILE = os.path.join(
+            _RETRIEVAL_CODE_DIR,
+            "proffast-2.4.1.",
+            "main",
+            "prf",
+            "source",
+            "preprocess",
+            "preprocess62.F90",
+        )
+        ADAPTED_SOURCE_FILE = os.path.join(
+            _RETRIEVAL_CODE_DIR,
+            "proffast-2.4.1",
+            "main",
+            "source",
+            "preprocess",
+            "preprocess62.F90",
+        )
+        os.remove(ORIGINAL_SOURCE_FILE)
+        shutil.copyfile(ADAPTED_SOURCE_FILE, ORIGINAL_SOURCE_FILE)
 
         _print("Compiling")
         tum_esm_utils.shell.run_shell_command(

@@ -40,6 +40,11 @@ character(len=300) :: inputdatei,logdatei,logdatei_test
 character(len=7) :: idchar,imeaschar
 character(len=4) :: argchar
 
+real :: dc_ch1_fwd_mean,dc_ch1_fwd_min,dc_ch1_fwd_max
+real :: dc_ch1_bwd_mean,dc_ch1_bwd_min,dc_ch1_bwd_max
+real :: dc_ch2_fwd_mean,dc_ch2_fwd_min,dc_ch2_fwd_max
+real :: dc_ch2_bwd_mean,dc_ch2_bwd_min,dc_ch2_bwd_max
+
 character(len=lengthcharmeas),dimension(:),allocatable :: measfile
 integer(8),dimension(:),allocatable :: errflag,errflag_CO 
 integer,dimension(:),allocatable :: nptrfirstdir,nofblock,nifg &
@@ -67,7 +72,9 @@ real,dimension(:),allocatable :: specfwd,specbwd,specfwd2,specbwd2
 real,dimension(:),allocatable :: specfwdrs,specbwdrs,specfwd2rs,specbwd2rs
 real,dimension(:),allocatable :: specmeanrs,specmean2rs
 
-
+! use to compute the width of the column of filenames in the logfile
+integer :: output_filename_column_width
+character(len=5) :: output_filename_column_width_string
 
 !====================================================================
 !  read command argument
@@ -198,6 +205,12 @@ oob2(1:nmeas) = 0.0
 
 do imeas = 1,nmeas
 
+    ! compute how many characters are needed to store the filename
+    if (imeas .eq. 1) then
+        output_filename_column_width = len(trim(measfile(imeas))) + 7
+        write(output_filename_column_width_string, '(I5)') output_filename_column_width
+    end if
+
     print *,'Read OPUS parms:',imeas
 
     ! read OPUS parms
@@ -246,6 +259,19 @@ else
 end if
 iunit = next_free_unit()
 open (iunit,file = logdatei,status = 'replace')
+write (iunit,'(A)') &
+    'index  &
+    &errorflag  errorflag_co  &
+    &elevation  azimuth  &
+    &UTh  utcdate  localdate  localtime  &
+    &outputfile  &
+    &ch1fw_cb  ch1bw_cb  ch2fw_cb  ch2bw_cb  &
+    &ch1_dcraw  ch2_dcraw  ch1_varraw  ch2_varraw  &
+    &ch1_oob  ch2_oob  &
+    &ch1fw_mean  ch1fw_min  ch1fw_max  ch1fw_var  &
+    &ch1bw_mean  ch1bw_min  ch1bw_max  ch1bw_var  &
+    &ch2fw_mean  ch2fw_min  ch2fw_max  ch2fw_var  &
+    &ch2bw_mean  ch2bw_min  ch2bw_max  ch2bw_var'
 close (iunit)
 
 !====================================================================
@@ -261,6 +287,19 @@ do imeas = 1,nmeas
             logdatei = logdatei_test
             iunit = next_free_unit()
             open (iunit,file = logdatei,status = 'replace')
+            write (iunit,'(A)') &
+                'index  &
+                &errorflag  errorflag_co  &
+                &elevation  azimuth  &
+                &UTh  utcdate  localdate  localtime  &
+                &outputfile  &
+                &ch1fw_cb  ch1bw_cb  ch2fw_cb  ch2bw_cb  &
+                &ch1_dcraw  ch2_dcraw  ch1_varraw  ch2_varraw  &
+                &ch1_oob  ch2_oob  &
+                &ch1fw_mean  ch1fw_min  ch1fw_max  ch1fw_var  &
+                &ch1bw_mean  ch1bw_min  ch1bw_max  ch1bw_var  &
+                &ch2fw_mean  ch2fw_min  ch2fw_max  ch2fw_var  &
+                &ch2bw_mean  ch2bw_min  ch2bw_max  ch2bw_var'
             close (iunit)
         end if
     end if
@@ -315,9 +354,15 @@ do imeas = 1,nmeas
 
     print *,'DC correction ...',imeas
     
-    ! perform DC correction
-    call DCtoACifg(DCmin,DCvar,nifgeff,errflag(imeas),icbfwd(imeas),cbfwd(imeas),DCfwd,varfwd,ifgfwd)
-    call DCtoACifg(DCmin,DCvar,nifgeff,errflag(imeas),icbbwd(imeas),cbbwd(imeas),DCbwd,varbwd,ifgbwd)
+    ! perform DC correction for channel 1
+    call DCtoACifg( &
+        DCmin,DCvar,nifgeff,errflag(imeas),icbfwd(imeas),cbfwd(imeas),DCfwd,varfwd,ifgfwd, &
+        dc_ch1_fwd_mean,dc_ch1_fwd_min,dc_ch1_fwd_max &
+    )
+    call DCtoACifg( &
+        DCmin,DCvar,nifgeff,errflag(imeas),icbbwd(imeas),cbbwd(imeas),DCbwd,varbwd,ifgbwd, &
+        dc_ch1_bwd_mean,dc_ch1_bwd_min,dc_ch1_bwd_max &
+    )
     DCraw(imeas) = 0.5 * abs(DCfwd + DCbwd)
     varraw(imeas) = 0.5 * (varfwd + varbwd)
     if (errflag(imeas) .eq. 0) then
@@ -327,11 +372,17 @@ do imeas = 1,nmeas
     if (errflag(imeas) .eq. 0) then
         if (abs(icbfwd(imeas) - icbbwd(imeas)) .gt. 10) errflag(imeas) = errflag(imeas) + 3000
     end if
+
+    ! perform DC correction for channel 2 (if channel 1 passed the checks)
     if (errflag(imeas) .eq. 0 .and. bandselect .eq. 1) then
-        call DCtoACifg(DCmin,DCvar,nifgeff,errflag_CO(imeas),icbfwd2(imeas),cbfwd2(imeas) &
-          ,DCfwd2,varfwd2,ifgfwd2)
-        call DCtoACifg(DCmin,DCvar,nifgeff,errflag_CO(imeas),icbbwd2(imeas),cbbwd2(imeas) &
-          ,DCbwd2,varbwd2,ifgbwd2)
+        call DCtoACifg( &
+            DCmin,DCvar,nifgeff,errflag_CO(imeas),icbfwd2(imeas),cbfwd2(imeas),DCfwd2,varfwd2,ifgfwd2, &
+            dc_ch2_fwd_mean,dc_ch2_fwd_min,dc_ch2_fwd_max &
+        )
+        call DCtoACifg( &
+            DCmin,DCvar,nifgeff,errflag_CO(imeas),icbbwd2(imeas),cbbwd2(imeas),DCbwd2,varbwd2,ifgbwd2, &
+            dc_ch2_bwd_mean,dc_ch2_bwd_min,dc_ch2_bwd_max &
+        )
         DCraw2(imeas) = 0.5 * abs(DCfwd2 + DCbwd2)
         varraw2(imeas) = 0.5 * (varfwd2 + varbwd2)
         if (errflag_CO(imeas) .eq. 0) then
@@ -537,12 +588,32 @@ do imeas = 1,nmeas
 
     iunit = next_free_unit()
     open (iunit,file = logdatei,status = 'old',position = 'append')
-    write (iunit &
-      ,'(I7,2X,I12,2X,I12,2X,F9.5,2X,F9.4,2X,F9.4,8(2X,F6.4),2X,F8.6,2X,F8.6,2X,A6,2X,A6,2X,A6,2X,A)') &
-      imeas,errflag(imeas),errflag_CO(imeas),astrelev(imeas),azimuth(imeas),UTh(imeas) &
-      ,cbfwd(imeas),cbbwd(imeas),cbfwd2(imeas),cbbwd2(imeas),DCraw(imeas),DCraw2(imeas) &
-      ,varraw(imeas),varraw2(imeas),oob(imeas),oob2(imeas),YYMMDDUT(imeas),YYMMDDlocal(imeas) &
-      ,HHMMSSlocal(imeas),trim(measfile(imeas))
+        write (iunit,'(&
+        &I7,2X,&
+        &I12,2X,I12,2X,&
+        &F9.5,2X,F9.4,2X,&
+        &F9.4,2X,A6,2X,A6,2X,A6,2X,&
+        &A'//output_filename_column_width_string//',2X,&
+        &F6.4,2X,F6.4,2X,F6.4,2X,F6.4,2X,&
+        &F6.4,2X,F6.4,2X,F6.4,2X,F6.4,2X,&
+        &F8.6,2X,F8.6,2X,&
+        &F9.6,2X,F9.6,2X,F9.6,2X,F9.6,2X,&
+        &F9.6,2X,F9.6,2X,F9.6,2X,F9.6,2X,&
+        &F9.6,2X,F9.6,2X,F9.6,2X,F9.6,2X,&
+        &F9.6,2X,F9.6,2X,F9.6,2X,F9.6&
+        &)' &
+    ) imeas, &
+        errflag(imeas),errflag_CO(imeas), &
+        astrelev(imeas),azimuth(imeas), &
+        UTh(imeas),YYMMDDUT(imeas),YYMMDDlocal(imeas),HHMMSSlocal(imeas),&
+        ADJUSTL(measfile(imeas)), &
+        cbfwd(imeas),cbbwd(imeas),cbfwd2(imeas),cbbwd2(imeas), &
+        DCraw(imeas),DCraw2(imeas),varraw(imeas),varraw2(imeas), &
+        oob(imeas),oob2(imeas), &
+        dc_ch1_fwd_mean,dc_ch1_fwd_min,dc_ch1_fwd_max,((dc_ch1_fwd_max/dc_ch1_fwd_min)-1.0), & 
+        dc_ch1_bwd_mean,dc_ch1_bwd_min,dc_ch1_bwd_max,((dc_ch1_bwd_max/dc_ch1_bwd_min)-1.0), &
+        dc_ch2_fwd_mean,dc_ch2_fwd_min,dc_ch2_fwd_max,((dc_ch2_fwd_max/dc_ch2_fwd_min)-1.0), &
+        dc_ch2_bwd_mean,dc_ch2_bwd_min,dc_ch2_bwd_max,((dc_ch2_bwd_max/dc_ch2_bwd_min)-1.0)
     close (iunit)
 end do
 
@@ -1247,7 +1318,7 @@ end subroutine checkoutofband
 !====================================================================
 !  DCtoACifg
 !====================================================================
-subroutine DCtoACifg(DCmin,DCvar,nifg,errflag,icb,cbamp,mean,var,ifg)
+subroutine DCtoACifg(DCmin,DCvar,nifg,errflag,icb,cbamp,mean,var,ifg,dc_mean_out,dc_min_out,dc_max_out)
 
 use glob_prepro62,only : maxifg,nsmooth
 
@@ -1259,6 +1330,8 @@ integer(8),intent(inout) :: errflag
 integer,intent(out) :: icb
 real,intent(out) :: cbamp,mean,var
 real,dimension(maxifg),intent(inout) :: ifg
+
+real,intent(out) :: dc_mean_out,dc_min_out,dc_max_out
 
 integer :: i,ismooth
 real :: werta,wertb,abswert,minwert,maxwert
@@ -1289,6 +1362,11 @@ do i = 1,nifg
 end do
 mean = mean / real(nifg)
 var = (abs(maxwert) + 1.0e-5) / (abs(minwert) + 1.0e-6) - 1.0
+
+! store them to output them in the logfile
+dc_mean_out = mean
+dc_min_out = minwert
+dc_max_out = maxwert
 
 if (abs(mean) .lt. DCmin) then
     errflag = errflag + 10
@@ -3477,7 +3555,7 @@ write (iunit) 'Comments',eol
 write (iunit) '$',eol
 write (iunit) trim(infotext),eol,eol
 
-! Sechster Block: binäres Spektrum: firstwvnr(real*8),dwvnr(real*8)
+! Sechster Block: binaeres Spektrum: firstwvnr(real*8),dwvnr(real*8)
 ! ,nofpts,ordinatenwerte(real*4)
 write (iunit) '$',eol
 write (iunit) firstnue_out
@@ -3573,7 +3651,7 @@ end subroutine tofile_ifg
 
 
 !====================================================================
-!  Warnung rausschreiben und Programm evtl. beenden
+!ï¿½ Warnung rausschreiben und Programm evtl. beenden
 !====================================================================
 subroutine warnout(text,predec)
 
