@@ -33,13 +33,13 @@ class ContainerFactory:
         self.config = config
         self.logger = logger
         assert config.retrieval is not None
-        
+
         # set the container directory (where the data processing is happening)
         self.container_dir = tum_esm_utils.files.rel_to_abs_path("../../../data/containers")
         if config.retrieval.general.container_dir is not None:
             self.container_dir = config.retrieval.general.container_dir
             os.makedirs(self.container_dir, exist_ok=True)
-        
+
         self.containers: list[types.RetrievalContainer] = []
         self.label_generator = tum_esm_utils.text.RandomLabelGenerator()
 
@@ -64,7 +64,7 @@ class ContainerFactory:
             ("proffast-2.2", ContainerFactory.init_proffast22_code),
             ("proffast-2.3", ContainerFactory.init_proffast23_code),
             ("proffast-2.4", ContainerFactory.init_proffast24_code),
-            ("proffast-2.4.1", ContainerFactory.init_proffast24_code),
+            ("proffast-2.4.1", ContainerFactory.init_proffast241_code),
         ]:
             if (algorithm in retrieval_algorithms) or (mode != "normal"):
                 self.logger.info(f"Initializing {algorithm} ContainerFactory")
@@ -377,11 +377,60 @@ class ContainerFactory:
         _print("Proffast 2.4 is set up")
 
     @staticmethod
-    def init_proffast241_code(_print: Callable[[str], None]) -> None:
+    def init_proffast241_code(
+        _print: Callable[[str], None], fast_compilation: bool = False
+    ) -> None:
+        """Initialize the Proffast 2.4.1 and pylot 2.4.1-0 code.
+
+        It will download the Proffast 2.4.1 code from the KIT website
+        (https://www.imk-asf.kit.edu/downloads/Coccon-SW/PROFFASTv2.4.zip)
+        and copy it to the directory `src/prfpylot/main/prf`."""
+
+        KIT_BASE_URL = "https://www.imk-asf.kit.edu/downloads/Coccon-SW/"
+        ZIPFILE_NAME = "PROFFASTv2.4.1.zip"
         ROOT_DIR = os.path.join(_RETRIEVAL_CODE_DIR, "proffast-2.4.1", "main")
 
+        # DOWNLOAD PROFFAST 2.4 code if it doesn't exist yet
         if os.path.exists(os.path.join(ROOT_DIR, "prf")):
-            _print("Proffast 2.41 has already been downloaded")
-            return
+            _print("Proffast 2.4.1 has already been downloaded")
+        else:
+            _print("Downloading Proffast 2.4.1 code")
+            if os.path.exists(os.path.join(ROOT_DIR, ZIPFILE_NAME)):
+                os.remove(os.path.join(ROOT_DIR, ZIPFILE_NAME))
 
-        raise NotImplementedError("Proffast 2.4.1 is not yet available to the public")
+            _print("Downloading")
+            tum_esm_utils.shell.run_shell_command(
+                command=f"wget --quiet {KIT_BASE_URL}/{ZIPFILE_NAME}",
+                working_directory=ROOT_DIR,
+            )
+
+            _print("Unzipping")
+            tum_esm_utils.shell.run_shell_command(
+                command=f"unzip -q {ZIPFILE_NAME}",
+                working_directory=ROOT_DIR,
+            )
+            os.remove(os.path.join(ROOT_DIR, ZIPFILE_NAME))
+
+        _print("Copying the adapted preprocess6.F90 source code")
+        ORIGINAL_SOURCE_FILE = os.path.join(
+            _RETRIEVAL_CODE_DIR,
+            "proffast-2.4.1",
+            "main",
+            "prf",
+            "source",
+            "preprocess",
+            "preprocess6.F90",
+        )
+        ADAPTED_SOURCE_FILE = os.path.join(
+            _RETRIEVAL_CODE_DIR, "proffast-2.4.1", "main", "source", "preprocess", "preprocess6.F90"
+        )
+        os.remove(ORIGINAL_SOURCE_FILE)
+        shutil.copyfile(ADAPTED_SOURCE_FILE, ORIGINAL_SOURCE_FILE)
+
+        _print("Compiling")
+        tum_esm_utils.shell.run_shell_command(
+            command="./install.sh -O0" if fast_compilation else "./install.sh",
+            working_directory=ROOT_DIR,
+        )
+
+        _print("Proffast 2.4.1 is set up")
