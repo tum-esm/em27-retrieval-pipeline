@@ -68,7 +68,7 @@ def generate_geoms_file(
         )
 
     # load dataframe
-    pl_df = load_comb_invparms_df(results_dir, sensor_id, geoms_config)
+    pl_df = load_comb_invparms_df(results_dir, sensor_id, geoms_config, about.session.retrieval_algorithm)
     if pl_df is None:
         return None, "No data found"
     pl_df = pl_df.filter(

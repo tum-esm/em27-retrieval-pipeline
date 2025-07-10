@@ -1,14 +1,15 @@
+from typing import Any, Optional
 import datetime
 import os
-from typing import Any, Optional
-
 import polars as pl
 import tum_esm_utils
+import src
 
 
 def load_results_directory(
     d: str,
     sensor_id: str,
+    retrieval_algorithm: "src.types.RetrievalAlgorithm",
     parse_dc_timeseries: bool = False,
     retrieval_job_output_suffix: Optional[str] = None,
     keep_julian_dates: bool = False,
@@ -139,7 +140,9 @@ def load_results_directory(
 
     # 4. PARSE DC TIMESERIES
 
-    if parse_dc_timeseries:
+    if parse_dc_timeseries and (
+        retrieval_algorithm not in ["proffast-1.0", "proffast-2.2", "proffast-2.3"]
+    ):
         spectrums: list[str] = []
         data: list[list[Optional[float]]] = [[] for _ in range(16)]
 
@@ -150,19 +153,36 @@ def load_results_directory(
                 parts = line.replace("\t", " ").split(" ")
                 parts = [p for p in parts if p != ""]
 
-                # 10 parts for normal preprocess6
-                # 16 parts
-                if len(parts) != 26:
-                    continue
+                if retrieval_algorithm == "proffast-2.4":
+                    # 10 parts for normal preprocess6
+                    # 16 parts
+                    if len(parts) != 26:
+                        continue
 
-                spectrums.append(f"{parts[6]}_{parts[8]}SN.BIN")
-                for i in range(16):
-                    value: Optional[float]
-                    try:
-                        value = float(parts[i + 10])
-                    except ValueError:
-                        value = None
-                    data[i].append(value)
+                    spectrums.append(f"{parts[6]}_{parts[8]}SN.BIN")
+                    for i in range(16):
+                        value: Optional[float]
+                        try:
+                            value = float(parts[i + 10])
+                        except ValueError:
+                            value = None
+                        data[i].append(value)
+                elif retrieval_algorithm == "proffast-2.4.1":
+                    # 20 parts for normal preprocess6
+                    # 16 parts
+                    if len(parts) != 36:
+                        continue
+
+                    spectrums.append(f"{parts[6]}_{parts[8]}SN.BIN")
+                    for i in range(16):
+                        value: Optional[float]
+                        try:
+                            value = float(parts[i + 20])
+                        except ValueError:
+                            value = None
+                        data[i].append(value)
+                else:
+                    raise Exception("This should not happen")
         else:
             print(f"Could not find preprocessing log file at {preprocessing_log_path}")
 

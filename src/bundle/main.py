@@ -132,10 +132,8 @@ def run(
                         df = load_results_directory(
                             os.path.join(d, result),
                             sensor_id,
-                            parse_dc_timeseries=(
-                                bundle_target.parse_dc_timeseries
-                                and (retrieval_algorithm == "proffast-2.4")
-                            ),
+                            retrieval_algorithm,
+                            parse_dc_timeseries=bundle_target.parse_dc_timeseries,
                             retrieval_job_output_suffix=bundle_target.retrieval_job_output_suffix,
                         )
                         if df is not None:
