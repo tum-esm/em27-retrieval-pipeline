@@ -1,7 +1,7 @@
 [project]
 name = "em27-retrieval-pipeline"
 version = "1.6.5"
-description = "automated EM27 data processing"
+description = "automated EM27/SUN data processing"
 authors = [
     { name = "Moritz Makowski", email = "moritz.makowski@tum.de" },
     { name = "Marlon Müller" },
@@ -30,6 +30,9 @@ dependencies = [
     "fortranformat>=2.0.0",  # used by Proffast Pylot only
     "h5py>=3.12.1",          # used by GEOMS generator
     "pyarrow>=18.1.0",       # used by GEOMS generator
+    "netCDF4>=1.7.2",        # used by Proffast Pylot only
+    "xarray>=2025.6.1",      # used by Proffast Pylot only
+    "cftime>=1.6.4.post1",   # used by Proffast Pylot only
 ]
 classifiers = [
     "License :: OSI Approved :: GNU General Public License (GPL)",
@@ -39,7 +42,7 @@ classifiers = [
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
 ]
-requires-python = ">=3.10,<4.0"
+requires-python = ">=3.10,<=3.13"
 readme = "README.md"
 license = { text = "GPL-3.0" }
 
