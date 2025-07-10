@@ -153,6 +153,7 @@ def load_results_directory(
                 parts = line.replace("\t", " ").split(" ")
                 parts = [p for p in parts if p != ""]
 
+                value: Optional[float]
                 if retrieval_algorithm == "proffast-2.4":
                     # 10 parts for normal preprocess6
                     # 16 parts
@@ -161,7 +162,6 @@ def load_results_directory(
 
                     spectrums.append(f"{parts[6]}_{parts[8]}SN.BIN")
                     for i in range(16):
-                        value: Optional[float]
                         try:
                             value = float(parts[i + 10])
                         except ValueError:
@@ -175,7 +175,6 @@ def load_results_directory(
 
                     spectrums.append(f"{parts[6]}_{parts[8]}SN.BIN")
                     for i in range(16):
-                        value: Optional[float]
                         try:
                             value = float(parts[i + 20])
                         except ValueError:
