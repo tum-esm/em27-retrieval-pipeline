@@ -414,7 +414,7 @@ class ContainerFactory:
         _print("Copying the modified preprocess62.F90 source code")
         ORIGINAL_SOURCE_FILE = os.path.join(
             _RETRIEVAL_CODE_DIR,
-            "proffast-2.4.1.",
+            "proffast-2.4.1",
             "main",
             "prf",
             "source",

@@ -156,6 +156,15 @@ def run(
             os.path.join(output_dst_tmp, "pylot_log_format.yml"),
         )
 
+    # renamed with proffast pylot 2.4.1
+    if os.path.isfile(os.path.join(output_dst_tmp, "proffastpylot_parameters.yml")):
+        if os.path.isfile(os.path.join(output_dst_tmp, "pylot_config.yml")):
+            os.remove(os.path.join(output_dst_tmp, "pylot_config.yml"))
+        os.rename(
+            os.path.join(output_dst_tmp, "proffastpylot_parameters.yml"),
+            os.path.join(output_dst_tmp, "pylot_config.yml"),
+        )
+
     # STORE AUTOMATION INFO
 
     with open(os.path.join(output_dst_tmp, "about.json"), "w") as f:

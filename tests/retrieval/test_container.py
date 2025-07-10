@@ -349,11 +349,7 @@ def _assert_output_correctness(
         expected_files.extend(
             [
                 output_csv_name,
-                (
-                    "pylot_config.yml"
-                    if (retrieval_algorithm in ["proffast-2.2", "proffast-2.3", "proffast-2.4"])
-                    else "proffastpylot_parameters.yml"
-                ),
+                "pylot_config.yml",
                 "pylot_log_format.yml",
                 "logfiles/preprocess_output.log",
                 "logfiles/pcxs_output.log",
