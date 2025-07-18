@@ -142,9 +142,7 @@ def load_results_directory(
 
     # 4. PARSE DC TIMESERIES
 
-    if parse_dc_timeseries and (
-        retrieval_algorithm not in ["proffast-1.0", "proffast-2.2", "proffast-2.3"]
-    ):
+    if parse_dc_timeseries and (retrieval_algorithm != "proffast-1.0"):
         spectrums: list[str] = []
         opus_filenames: list[str] = []
         data: list[list[Optional[float]]] = [[] for _ in range(16)]
@@ -157,9 +155,18 @@ def load_results_directory(
                 parts = [p for p in parts if p != ""]
 
                 value: Optional[float]
-                if retrieval_algorithm == "proffast-2.4":
-                    # 10 parts for normal preprocess6
-                    # 16 parts
+                if retrieval_algorithm in ["proffast-2.2", "proffast-2.3"]:
+                    # proffast-2.2 and proffast-2.3: 10 columns, no DC data
+                    if len(parts) != 10:
+                        continue
+
+                    spectrums.append(f"{parts[6]}_{parts[8]}SN.BIN")
+                    opus_filenames.append(os.path.basename(parts[9]))
+                    # No DC data for these versions, fill with None
+                    for i in range(16):
+                        data[i].append(None)
+                elif retrieval_algorithm == "proffast-2.4":
+                    # proffast-2.4: 26 columns with DC data starting at column 10
                     if len(parts) != 26:
                         continue
 
@@ -172,8 +179,7 @@ def load_results_directory(
                             value = None
                         data[i].append(value)
                 elif retrieval_algorithm == "proffast-2.4.1":
-                    # 20 parts for normal preprocess6
-                    # 16 parts
+                    # proffast-2.4.1: 36 columns with DC data starting at column 20
                     if len(parts) != 36:
                         continue
 
@@ -186,7 +192,7 @@ def load_results_directory(
                             value = None
                         data[i].append(value)
                 else:
-                    raise Exception("This should not happen")
+                    raise Exception(f"Unsupported retrieval algorithm: {retrieval_algorithm}")
         else:
             print(f"Could not find preprocessing log file at {preprocessing_log_path}")
 
