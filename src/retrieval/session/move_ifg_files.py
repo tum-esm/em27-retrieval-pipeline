@@ -59,11 +59,22 @@ def run(
     date_string = session.ctx.from_datetime.strftime("%Y%m%d")
     dst_date_path = os.path.join(session.ctn.data_input_path, "ifg", date_string[2:])
     os.mkdir(dst_date_path)
+
+    renamed_files: list[str] = []
     for ifg_index, filename in enumerate(ifg_filenames):
         os.symlink(
             os.path.join(ifg_src_directory, filename),
             os.path.join(dst_date_path, f"{date_string[2:]}SN.{ifg_index + 1}"),
         )
+        renamed_files.append(f"{date_string[2:]}SN.{ifg_index + 1}")
+
+    # write opus_files.csv with statistics about the interferograms
+    opus_files_content = "opus_filename,retrieval_filename"
+    for i in range(len(ifg_filenames)):
+        opus_files_content += f"\n{ifg_filenames[i]},{renamed_files[i]}"
+    tum_esm_utils.files.dump_file(
+        os.path.join(session.ctn.container_path, "opus_files.csv"), opus_files_content
+    )
 
     # OPTIONALLY EXCLUDE CORRUPT INTERFEROGRAM FILES
 
