@@ -1,8 +1,10 @@
-from typing import Any, Optional
 import datetime
 import os
+from typing import Any, Optional
+
 import polars as pl
 import tum_esm_utils
+
 import src
 
 
@@ -144,6 +146,7 @@ def load_results_directory(
         retrieval_algorithm not in ["proffast-1.0", "proffast-2.2", "proffast-2.3"]
     ):
         spectrums: list[str] = []
+        opus_filenames: list[str] = []
         data: list[list[Optional[float]]] = [[] for _ in range(16)]
 
         preprocessing_log_path = os.path.join(d, "analysis", "cal", "logfile.dat")
@@ -161,6 +164,7 @@ def load_results_directory(
                         continue
 
                     spectrums.append(f"{parts[6]}_{parts[8]}SN.BIN")
+                    opus_filenames.append(os.path.basename(parts[9]))
                     for i in range(16):
                         try:
                             value = float(parts[i + 10])
@@ -174,6 +178,7 @@ def load_results_directory(
                         continue
 
                     spectrums.append(f"{parts[6]}_{parts[8]}SN.BIN")
+                    opus_filenames.append(os.path.basename(parts[9]))
                     for i in range(16):
                         try:
                             value = float(parts[i + 20])
@@ -188,6 +193,7 @@ def load_results_directory(
         preprocessing_df = pl.DataFrame(
             {
                 "spectrum": spectrums,
+                "opus_filename": opus_filenames,
                 "ch1_fwd_dc_mean": data[0],
                 "ch1_fwd_dc_min": data[1],
                 "ch1_fwd_dc_max": data[2],
@@ -207,6 +213,7 @@ def load_results_directory(
             },
             schema_overrides={
                 "spectrum": pl.Utf8,
+                "opus_filename": pl.Utf8,
                 "ch1_fwd_dc_mean": pl.Float64,
                 "ch1_fwd_dc_min": pl.Float64,
                 "ch1_fwd_dc_max": pl.Float64,
@@ -227,7 +234,8 @@ def load_results_directory(
         )
 
         preprocessing_df = preprocessing_df.group_by("spectrum").agg(
-            *[pl.col(c).mean() for c in preprocessing_df.columns if c != "spectrum"]
+            pl.col("opus_filename").first(),  # Take first since they should be the same for each spectrum
+            *[pl.col(c).mean() for c in preprocessing_df.columns if c not in ["spectrum", "opus_filename"]]
         )
 
         merged_df = df.join(preprocessing_df, on="spectrum", how="left")
