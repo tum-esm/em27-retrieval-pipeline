@@ -12,7 +12,7 @@ METADATA_DIR = os.path.join(INPUT_DATA_DIR, "metadata")
 BUNDLE_OUTPUT_DIR = os.path.join(PROJECT_DIR, "data", "testing", "bundle", "outputs")
 
 CONFIG = {
-    "version": "1.6",
+    "version": "1.7",
     "general": {
         "metadata": None,
         "data": {
