@@ -68,12 +68,13 @@ def run(
         )
         renamed_files.append(f"{date_string[2:]}SN.{ifg_index + 1}")
 
-    # write opus_files.csv with statistics about the interferograms
+    # SAVE STATISTICS ABOUT INTERFEROGRAMS
+
     opus_files_content = "opus_filename,retrieval_filename"
     for i in range(len(ifg_filenames)):
         opus_files_content += f"\n{ifg_filenames[i]},{renamed_files[i]}"
     tum_esm_utils.files.dump_file(
-        os.path.join(session.ctn.container_path, "opus_files.csv"), opus_files_content
+        os.path.join(session.ctn.container_path, "opus_file_stats.csv"), opus_files_content
     )
 
     # OPTIONALLY EXCLUDE CORRUPT INTERFEROGRAM FILES

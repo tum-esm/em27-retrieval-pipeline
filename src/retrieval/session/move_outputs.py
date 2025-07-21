@@ -143,6 +143,13 @@ def run(
                     os.path.join(output_dst_tmp, "analysis", "cal", "logfile.dat"),
                 )
 
+        # STORE OPUS FILE STATS
+
+        shutil.copyfile(
+            os.path.join(session.ctn.container_path, "opus_file_stats.csv"),
+            os.path.join(output_dst_tmp, "opus_file_stats.csv"),
+        )
+
     # STORE AUTOMATION LOGS
 
     os.makedirs(os.path.join(output_dst_tmp, "logfiles"), exist_ok=True)
