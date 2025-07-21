@@ -265,7 +265,7 @@ class GEOMSAPI:
         """Instrument altitude"""
 
         variable_name = GEOMSColumnNames.INSTRUMENT_ALTITUDE
-        data = df["alt"].to_numpy()
+        data = df["alt"].to_numpy() / 1000
 
         metadata = GEOMSAttributeMetadata(
             VAR_DATA_TYPE="REAL",
