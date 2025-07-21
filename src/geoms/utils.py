@@ -180,7 +180,7 @@ def load_pt_file(results_folder: str, date: datetime.date, sensor_id: str) -> pd
         os.path.join(
             results_folder,
             "raw_output_proffast",
-            f"{sensor_id}{date.strftime('%y%m%d')}-VMR_fast_out.dat",
+            f"{sensor_id}{date.strftime('%y%m%d')}-pT_fast_out.dat",
         ),
         header=0,
         skipinitialspace=True,
