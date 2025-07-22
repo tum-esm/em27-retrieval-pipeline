@@ -121,3 +121,6 @@ def test_bundling(download_sample_data: None) -> None:
                 assert "none" not in campaigns, f"Expected 'none' not in campaigns, got {campaigns}."
                 assert f"only-{sensor_id}" in campaigns, f"Expected 'only-{sensor_id}' in campaigns, got {campaigns}."
                 assert len(campaigns) == 2, f"Expected 2 campaigns, got {len(campaigns)}."
+
+                df = parquet_df.drop_nulls().drop_nans()
+                assert len(df) == len(parquet_df), "Expected no nulls or NaNs in the DataFrame."
