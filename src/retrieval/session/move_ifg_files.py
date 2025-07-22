@@ -1,6 +1,7 @@
 import json
 import os
 import subprocess
+from typing import Optional
 
 import tum_esm_utils
 
@@ -61,18 +62,50 @@ def run(
     os.mkdir(dst_date_path)
 
     renamed_files: list[str] = []
+    instrument_vars = [
+        "ABP",
+        "LWN",
+        "RSN",
+        "TSC",
+        "DUR",
+        "MVD",
+        "PKA",
+        "PKL",
+        "PRA",
+        "PRL",
+        "P2A",
+        "P2L",
+        "P2R",
+        "P2K",
+    ]
+    file_checksums: list[str] = []
+    instrument_values: list[list[Optional[float]]] = []
     for ifg_index, filename in enumerate(ifg_filenames):
-        os.symlink(
-            os.path.join(ifg_src_directory, filename),
-            os.path.join(dst_date_path, f"{date_string[2:]}SN.{ifg_index + 1}"),
-        )
-        renamed_files.append(f"{date_string[2:]}SN.{ifg_index + 1}")
+        src_path = os.path.join(ifg_src_directory, filename)
+        dst_path = os.path.join(dst_date_path, f"{date_string[2:]}SN.{ifg_index + 1}")
+        os.symlink(src_path, dst_path)
+        renamed_files.append(os.path.basename(dst_path))
+        file_checksums.append(tum_esm_utils.files.get_file_checksum(dst_path))
+
+        values: list[Optional[float]] = [None] * len(instrument_vars)
+        try:
+            opus_file = tum_esm_utils.opus.OpusFile.read(dst_path, interferogram_mode="skip")
+            for i, var in enumerate(instrument_vars):
+                values[i] = opus_file.channel_parameters[0].instrument.get(var, None)
+        except:
+            pass
+        instrument_values.append(values)
 
     # SAVE STATISTICS ABOUT INTERFEROGRAMS
 
-    opus_files_content = "opus_filename,retrieval_filename"
+    opus_files_content = "opus_filename,retrieval_filename,checksum," + ",".join(
+        [f"instrument_{var}" for var in instrument_vars]
+    )
     for i in range(len(ifg_filenames)):
-        opus_files_content += f"\n{ifg_filenames[i]},{renamed_files[i]}"
+        opus_files_content += f"\n{ifg_filenames[i]},{renamed_files[i]},{file_checksums[i]},"
+        opus_files_content += ",".join(
+            [str(v) if v is not None else "" for v in instrument_values[i]]
+        )
     tum_esm_utils.files.dump_file(
         os.path.join(session.ctn.container_path, "opus_file_stats.csv"), opus_files_content
     )
