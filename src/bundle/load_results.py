@@ -234,6 +234,80 @@ def load_results_directory(
         assert len(merged_df) == len(df), f"{len(merged_df)} != {len(df)}"
         df = merged_df
 
+    # 5. PARSE OPUS FILE STATS
+
+    opus_file_stats_df: pl.DataFrame
+    if os.path.isfile(os.path.join(d, "opus_file_stats.csv")):
+        opus_file_stats_df = pl.read_csv(
+            os.path.join(d, "opus_file_stats.csv"),
+            has_header=True,
+            separator=",",
+            schema_overrides={"opus_filename": pl.Utf8, "retrieval_filename": pl.Utf8},
+        )
+    else:
+        opus_file_stats_df = pl.DataFrame(
+            {"opus_filename": [], "retrieval_filename": []},
+            schema={"opus_filename": pl.Utf8, "retrieval_filename": pl.Utf8},
+        )
+
+    # 6. PARSE SPECTRA FILENAMES
+
+    spectra_filename_maps: pl.DataFrame
+    if os.path.isfile(os.path.join(d, "analysis", "cal", "logfile.dat")):
+        preprocess_logs_content = (
+            tum_esm_utils.files.load_file(os.path.join(d, "analysis", "cal", "logfile.dat"))
+            .replace("\t", " ")
+            .strip("\n ")
+        )
+        while "  " in preprocess_logs_content:
+            preprocess_logs_content = preprocess_logs_content.replace("  ", " ")
+        spectra_names: list[str] = []
+        retrieval_names: list[str] = []
+        for line in preprocess_logs_content.split("\n"):
+            parts = line.strip(" ").split(" ")
+            s: str
+            r: str
+            try:
+                assert parts[0].isnumeric()
+                s = parts[7] + "_" + parts[8] + "SN.BIN"
+                r = parts[9].split("/")[-1]
+            except:
+                continue
+            spectra_names.append(s)
+            retrieval_names.append(r)
+        spectra_filename_maps = pl.DataFrame(
+            {
+                "spectrum": spectra_names,
+                "retrieval_filename": retrieval_names,
+            },
+            schema_overrides={
+                "spectrum": pl.Utf8,
+                "retrieval_filename": pl.Utf8,
+            },
+        )
+    else:
+        spectra_filename_maps = pl.DataFrame(
+            {"spectrum": [], "retrieval_filename": []},
+            schema_overrides={
+                "spectrum": pl.Utf8,
+                "retrieval_filename": pl.Utf8,
+            },
+        )
+    if retrieval_algorithm.startswith("proffast-2."):
+        if "spectrum" not in df.columns:
+            df = df.with_columns(
+                (
+                    pl.col("utc").dt.strftime("%y%m%d")
+                    + "_"
+                    + pl.col("HHMMSS_ID").cast(pl.Int32).cast(pl.Utf8).str.zfill(6)
+                    + "SN.BIN"
+                ).alias("spectrum")
+            )
+        df = df.join(spectra_filename_maps, on="spectrum", how="left")
+        df = df.join(opus_file_stats_df, on="retrieval_filename", how="left")
+
+    # MOVE UTC COLUMN TO THE FRONT
+
     df = df.select("utc", pl.exclude("utc"))
 
     return df
