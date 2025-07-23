@@ -17,7 +17,7 @@ CONFIG = {
         "metadata": None,
         "data": {
             "ground_pressure": {
-                "path": os.path.join(INPUT_DATA_DIR, "data", "log"),
+                "path": os.path.join(INPUT_DATA_DIR, "data", "ground-pressure"),
                 "file_regex": "^$(SENSOR_ID)$(DATE).*\\.csv$",
                 "separator": ",",
                 "pressure_column": "pressure",
@@ -27,8 +27,8 @@ CONFIG = {
                 "time_column": "UTCtime_____",
                 "time_column_format": "%H:%M:%S",
             },
-            "atmospheric_profiles": os.path.join(INPUT_DATA_DIR, "data", "map"),
-            "interferograms": os.path.join(INPUT_DATA_DIR, "data", "ifg"),
+            "atmospheric_profiles": os.path.join(INPUT_DATA_DIR, "data", "atmospheric-profiles"),
+            "interferograms": os.path.join(INPUT_DATA_DIR, "data", "interferograms"),
             "results": os.path.join(INPUT_DATA_DIR, "results"),
         },
     },
