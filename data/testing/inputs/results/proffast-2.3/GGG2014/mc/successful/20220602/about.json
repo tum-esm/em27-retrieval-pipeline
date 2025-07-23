@@ -1,7 +1,7 @@
 {
     "automationVersion": "1.7.0",
-    "automationCommitSha": "e588610",
-    "generationTime": "2025-07-21T15:53:27+0000",
+    "automationCommitSha": "f4da7c6",
+    "generationTime": "2025-07-23T06:17:03+0000",
     "config": {
         "general": {
             "metadata": {
@@ -137,7 +137,7 @@
         },
         "ctn": {
             "container_dir": "/home/moritz-makowski/documents/em27/em27-retrieval-pipeline/data/containers",
-            "container_id": "funny-beaver"
+            "container_id": "sweet-faraday"
         }
     }
 }
