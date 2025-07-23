@@ -10,8 +10,8 @@ sys.path.append(tum_esm_utils.files.rel_to_abs_path("../.."))
 from src import utils
 
 # TODO: set these paths
-IFG_PATH = tum_esm_utils.files.rel_to_abs_path("../../data/testing/inputs/data/interferograms")
-RESULTS_PATH = tum_esm_utils.files.rel_to_abs_path("../../data/testing/inputs/results")
+IFG_PATH = tum_esm_utils.files.rel_to_abs_path("/mnt/dss-0002/em27-ifg-archive")
+RESULTS_PATH = tum_esm_utils.files.rel_to_abs_path("/mnt/dss-0002/retrieval-archive/v3")
 
 if __name__ == "__main__":
     if not os.path.exists(IFG_PATH):
@@ -165,5 +165,9 @@ if __name__ == "__main__":
                             [str(v) if v is not None else "" for v in instrument_values[i]]
                         )
                     tum_esm_utils.files.dump_file(
-                        os.path.join(results_path, "opus_file_stats.csv"), opus_files_content
+                        os.path.join(results_path, "opus_file_stats.csv.tmp"), opus_files_content
+                    )
+                    os.rename(
+                        os.path.join(results_path, "opus_file_stats.csv.tmp"),
+                        os.path.join(results_path, "opus_file_stats.csv"),
                     )
