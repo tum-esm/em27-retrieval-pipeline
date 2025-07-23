@@ -10,8 +10,8 @@ import jsonref
 import pydantic
 import tum_esm_utils
 
-PROJECT_DIR = tum_esm_utils.files.get_parent_dir_path(__file__, current_depth=3)
-sys.path.append(PROJECT_DIR)
+_PROJECT_DIR = tum_esm_utils.files.rel_to_abs_path("../..")
+sys.path.append(_PROJECT_DIR)
 import cli
 import src
 
@@ -56,7 +56,7 @@ def recursive_help(
 
 
 print("Exporting CLI reference to docs/pages/api-reference/cli.mdx")
-with open(os.path.join(PROJECT_DIR, "docs", "pages", "api-reference", "cli.mdx"), "w") as f:
+with open(os.path.join(_PROJECT_DIR, "docs", "pages", "api-reference", "cli.mdx"), "w") as f:
     f.write("# CLI Reference\n\n")
     f.write(recursive_help(cli.cli))
 
@@ -115,7 +115,7 @@ def export_schema(src_object: pydantic.BaseModel, dst_filepath: str, label: str)
         )
 
 
-COMPONENTS_DIR = os.path.join(PROJECT_DIR, "docs", "components")
+COMPONENTS_DIR = os.path.join(_PROJECT_DIR, "docs", "components")
 export_schema(
     src.types.Config,
     os.path.join(COMPONENTS_DIR, "config-schema.ts"),
@@ -153,7 +153,7 @@ export_schema(
 print("Exporting metadata example files to docs/pages/api-reference/metadata.mdx")
 example_metadata = em27_metadata.load_from_example_data()
 
-with open(os.path.join(PROJECT_DIR, "docs", "pages", "api-reference", "metadata.mdx"), "r") as _f:
+with open(os.path.join(_PROJECT_DIR, "docs", "pages", "api-reference", "metadata.mdx"), "r") as _f:
     current_metadata_reference = _f.read()
 
 match1 = re.search(
@@ -195,7 +195,7 @@ current_metadata_reference = current_metadata_reference.replace(
     + "\n```",
 )
 
-with open(os.path.join(PROJECT_DIR, "docs", "pages", "api-reference", "metadata.mdx"), "w") as _f:
+with open(os.path.join(_PROJECT_DIR, "docs", "pages", "api-reference", "metadata.mdx"), "w") as _f:
     _f.write(current_metadata_reference)
 
 # ---------------------------------------------------------
@@ -203,7 +203,7 @@ with open(os.path.join(PROJECT_DIR, "docs", "pages", "api-reference", "metadata.
 
 config_string = src.types.Config.load(
     tum_esm_utils.files.rel_to_abs_path(
-        os.path.join(PROJECT_DIR, "config", "config.template.json")
+        os.path.join(_PROJECT_DIR, "config", "config.template.json")
     ),
     ignore_path_existence=True,
 ).model_dump_json(indent=4)
@@ -213,7 +213,7 @@ config_string = src.types.Config.load(
 print("Exporting config example file to docs/pages/api-reference/configuration.mdx")
 
 with open(
-    os.path.join(PROJECT_DIR, "docs", "pages", "api-reference", "configuration.mdx"), "r"
+    os.path.join(_PROJECT_DIR, "docs", "pages", "api-reference", "configuration.mdx"), "r"
 ) as _f:
     current_config_reference = _f.read()
 
@@ -229,7 +229,7 @@ current_config_reference = current_config_reference.replace(
 )
 
 with open(
-    os.path.join(PROJECT_DIR, "docs", "pages", "api-reference", "configuration.mdx"), "w"
+    os.path.join(_PROJECT_DIR, "docs", "pages", "api-reference", "configuration.mdx"), "w"
 ) as _f:
     _f.write(current_config_reference)
 
@@ -237,7 +237,7 @@ with open(
 
 print("Exporting config example file to docs/pages/guides/configuration.mdx")
 
-with open(os.path.join(PROJECT_DIR, "docs", "pages", "guides", "configuration.mdx"), "r") as _f:
+with open(os.path.join(_PROJECT_DIR, "docs", "pages", "guides", "configuration.mdx"), "r") as _f:
     current_config_guide = _f.read()
 
 match5 = re.search(
@@ -251,7 +251,7 @@ current_config_guide = current_config_guide.replace(
     "\nTemplate:\n\n```json\n" + config_string + "\n```",
 )
 
-with open(os.path.join(PROJECT_DIR, "docs", "pages", "guides", "configuration.mdx"), "w") as _f:
+with open(os.path.join(_PROJECT_DIR, "docs", "pages", "guides", "configuration.mdx"), "w") as _f:
     _f.write(current_config_guide)
 
 
@@ -263,7 +263,7 @@ example_geoms_configuration = src.types.GEOMSMetadata.load(template=True)
 example_calibration_factors = src.types.CalibrationFactorsList.load(template=True)
 
 with open(
-    os.path.join(PROJECT_DIR, "docs", "pages", "api-reference", "geoms-configuration.mdx"), "r"
+    os.path.join(_PROJECT_DIR, "docs", "pages", "api-reference", "geoms-configuration.mdx"), "r"
 ) as _f:
     current_metadata_reference = _f.read()
 
@@ -294,7 +294,7 @@ current_metadata_reference = current_metadata_reference.replace(
 )
 
 with open(
-    os.path.join(PROJECT_DIR, "docs", "pages", "api-reference", "geoms-configuration.mdx"), "w"
+    os.path.join(_PROJECT_DIR, "docs", "pages", "api-reference", "geoms-configuration.mdx"), "w"
 ) as _f:
     _f.write(current_metadata_reference)
 
@@ -303,14 +303,14 @@ with open(
 
 print("Syncing README with docs landing page")
 
-with open(os.path.join(PROJECT_DIR, "docs", "pages", "index.mdx")) as _f:
+with open(os.path.join(_PROJECT_DIR, "docs", "pages", "index.mdx")) as _f:
     current_docs_landing_page = _f.read()
 
 xs = current_docs_landing_page.split("##")
 assert len(xs) >= 2
 
-with open(os.path.join(PROJECT_DIR, "README.md")) as _f:
+with open(os.path.join(_PROJECT_DIR, "README.md")) as _f:
     readme = _f.read()
 
-with open(os.path.join(PROJECT_DIR, "docs", "pages", "index.mdx"), "w") as _f:
+with open(os.path.join(_PROJECT_DIR, "docs", "pages", "index.mdx"), "w") as _f:
     _f.write(readme + "\n##" + "##".join(xs[1:]))

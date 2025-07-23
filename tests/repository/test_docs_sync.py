@@ -22,7 +22,7 @@ def _get_checksum() -> str:
 def test_api_reference_state() -> None:
     checksum_before = _get_checksum()
     tum_esm_utils.shell.run_shell_command(
-        f"{sys.executable} docs/scripts/sync_api_reference.py",
+        f"{sys.executable} src/scripts/sync_api_reference.py",
         working_directory=_PROJECT_DIR,
     )
     checksum_after = _get_checksum()
