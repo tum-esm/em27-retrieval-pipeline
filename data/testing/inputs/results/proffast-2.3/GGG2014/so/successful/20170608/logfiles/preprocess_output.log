@@ -1,0 +1,158 @@
+
+================= Task 0 ================
+/home/moritz-makowski/documents/em27/em27-retrieval-pipeline/data/containers/retrieval-container-loving-merkle/prf/preprocess/preprocess5 preprocess5so_170608.inp
+Return code: 0
+
+Output:
+ Reading input file...
+ Done!
+ Number of raw measurements to be processed:          14
+ Reading file names
+ /home/moritz-makowski/documents/em27/em27-retrieval-pipeline/data/containers/retrieval-container-loving-merkle-inputs/ifg/170608/170608SN.3
+ /home/moritz-makowski/documents/em27/em27-retrieval-pipeline/data/containers/retrieval-container-loving-merkle-inputs/ifg/170608/170608SN.12
+ /home/moritz-makowski/documents/em27/em27-retrieval-pipeline/data/containers/retrieval-container-loving-merkle-inputs/ifg/170608/170608SN.8
+ /home/moritz-makowski/documents/em27/em27-retrieval-pipeline/data/containers/retrieval-container-loving-merkle-inputs/ifg/170608/170608SN.1
+ /home/moritz-makowski/documents/em27/em27-retrieval-pipeline/data/containers/retrieval-container-loving-merkle-inputs/ifg/170608/170608SN.2
+ /home/moritz-makowski/documents/em27/em27-retrieval-pipeline/data/containers/retrieval-container-loving-merkle-inputs/ifg/170608/170608SN.4
+ /home/moritz-makowski/documents/em27/em27-retrieval-pipeline/data/containers/retrieval-container-loving-merkle-inputs/ifg/170608/170608SN.5
+ /home/moritz-makowski/documents/em27/em27-retrieval-pipeline/data/containers/retrieval-container-loving-merkle-inputs/ifg/170608/170608SN.7
+ /home/moritz-makowski/documents/em27/em27-retrieval-pipeline/data/containers/retrieval-container-loving-merkle-inputs/ifg/170608/170608SN.6
+ /home/moritz-makowski/documents/em27/em27-retrieval-pipeline/data/containers/retrieval-container-loving-merkle-inputs/ifg/170608/170608SN.11
+ /home/moritz-makowski/documents/em27/em27-retrieval-pipeline/data/containers/retrieval-container-loving-merkle-inputs/ifg/170608/170608SN.13
+ /home/moritz-makowski/documents/em27/em27-retrieval-pipeline/data/containers/retrieval-container-loving-merkle-inputs/ifg/170608/170608SN.14
+ /home/moritz-makowski/documents/em27/em27-retrieval-pipeline/data/containers/retrieval-container-loving-merkle-inputs/ifg/170608/170608SN.9
+ /home/moritz-makowski/documents/em27/em27-retrieval-pipeline/data/containers/retrieval-container-loving-merkle-inputs/ifg/170608/170608SN.10
+ Done!
+ Read OPUS parms:           1
+ Read OPUS parms:           2
+ Read OPUS parms:           3
+ Read OPUS parms:           4
+ Read OPUS parms:           5
+ Read OPUS parms:           6
+ Read OPUS parms:           7
+ Read OPUS parms:           8
+ Read OPUS parms:           9
+ Read OPUS parms:          10
+ Read OPUS parms:          11
+ Read OPUS parms:          12
+ Read OPUS parms:          13
+ Read OPUS parms:          14
+ Starting preprocessing loop for spectrum:           1
+ Reading file from disc ...           1
+ DC correction ...           1
+ Preparing FFT ...           1
+ FFT ...           1
+ Phase correction ...           1
+ Spectral resampling ...           1
+ Binary file(s) to disc ...           1
+ Starting preprocessing loop for spectrum:           2
+ Reading file from disc ...           2
+ DC correction ...           2
+ Preparing FFT ...           2
+ FFT ...           2
+ Phase correction ...           2
+ Spectral resampling ...           2
+ Binary file(s) to disc ...           2
+ Starting preprocessing loop for spectrum:           3
+ Reading file from disc ...           3
+ DC correction ...           3
+ Preparing FFT ...           3
+ FFT ...           3
+ Phase correction ...           3
+ Spectral resampling ...           3
+ Binary file(s) to disc ...           3
+ Starting preprocessing loop for spectrum:           4
+ Reading file from disc ...           4
+ DC correction ...           4
+ Preparing FFT ...           4
+ FFT ...           4
+ Phase correction ...           4
+ Spectral resampling ...           4
+ Binary file(s) to disc ...           4
+ Starting preprocessing loop for spectrum:           5
+ Reading file from disc ...           5
+ DC correction ...           5
+ Preparing FFT ...           5
+ FFT ...           5
+ Phase correction ...           5
+ Spectral resampling ...           5
+ Binary file(s) to disc ...           5
+ Starting preprocessing loop for spectrum:           6
+ Reading file from disc ...           6
+ DC correction ...           6
+ Preparing FFT ...           6
+ FFT ...           6
+ Phase correction ...           6
+ Spectral resampling ...           6
+ Binary file(s) to disc ...           6
+ Starting preprocessing loop for spectrum:           7
+ Reading file from disc ...           7
+ DC correction ...           7
+ Preparing FFT ...           7
+ FFT ...           7
+ Phase correction ...           7
+ Spectral resampling ...           7
+ Binary file(s) to disc ...           7
+ Starting preprocessing loop for spectrum:           8
+ Reading file from disc ...           8
+ DC correction ...           8
+ Preparing FFT ...           8
+ FFT ...           8
+ Phase correction ...           8
+ Spectral resampling ...           8
+ Binary file(s) to disc ...           8
+ Starting preprocessing loop for spectrum:           9
+ Reading file from disc ...           9
+ DC correction ...           9
+ Preparing FFT ...           9
+ FFT ...           9
+ Phase correction ...           9
+ Spectral resampling ...           9
+ Binary file(s) to disc ...           9
+ Starting preprocessing loop for spectrum:          10
+ Reading file from disc ...          10
+ DC correction ...          10
+ Preparing FFT ...          10
+ FFT ...          10
+ Phase correction ...          10
+ Spectral resampling ...          10
+ Binary file(s) to disc ...          10
+ Starting preprocessing loop for spectrum:          11
+ Reading file from disc ...          11
+ DC correction ...          11
+ Preparing FFT ...          11
+ FFT ...          11
+ Phase correction ...          11
+ Spectral resampling ...          11
+ Binary file(s) to disc ...          11
+ Starting preprocessing loop for spectrum:          12
+ Reading file from disc ...          12
+ DC correction ...          12
+ Preparing FFT ...          12
+ FFT ...          12
+ Phase correction ...          12
+ Spectral resampling ...          12
+ Binary file(s) to disc ...          12
+ Starting preprocessing loop for spectrum:          13
+ Reading file from disc ...          13
+ DC correction ...          13
+ Preparing FFT ...          13
+ FFT ...          13
+ Phase correction ...          13
+ Spectral resampling ...          13
+ Binary file(s) to disc ...          13
+ Starting preprocessing loop for spectrum:          14
+ Reading file from disc ...          14
+ DC correction ...          14
+ Preparing FFT ...          14
+ FFT ...          14
+ Phase correction ...          14
+ Spectral resampling ...          14
+ Binary file(s) to disc ...          14
+
+
+Errors:
+============================================
+============================================
+
+

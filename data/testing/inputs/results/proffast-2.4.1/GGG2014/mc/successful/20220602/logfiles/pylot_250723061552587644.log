@@ -1,0 +1,73 @@
+2025-07-23 06:15:52,587, DEBUG(prepare.py): Initialized logger with datetime 250723061552587644.
+2025-07-23 06:15:52,587, INFO(prepare.py): ++++ Welcome to PROFFASTpylot ++++
+Cite this software as
+
+Feld et al., (2024). PROFFASTpylot: Running PROFFAST with Python. Journal of Open Source Software, 9(96), 6481, https://doi.org/10.21105/joss.06481
+
+2025-07-23 06:15:52,587, DEBUG(prepare.py): Start reading input file...
+2025-07-23 06:15:52,589, DEBUG(prepare.py): mapfile_wetair_vmr was set to default value: None.
+2025-07-23 06:15:52,589, DEBUG(prepare.py): custom_mapfile was set to default value: None.
+2025-07-23 06:15:52,589, DEBUG(prepare.py): use_measured_pressure_for_pcxs was set to default value: False.
+2025-07-23 06:15:52,589, DEBUG(prepare.py): coord_file was set to default value: None.
+2025-07-23 06:15:52,589, DEBUG(prepare.py): note was set to default value: None.
+2025-07-23 06:15:52,589, DEBUG(prepare.py): delete_spc_files was set to default value: True.
+2025-07-23 06:15:52,589, DEBUG(prepare.py): ils_parameters was set to default value: None.
+2025-07-23 06:15:52,589, DEBUG(prepare.py): backup_results was set to default value: True.
+2025-07-23 06:15:52,589, DEBUG(prepare.py): igram_pattern was set to default value: *.*.
+2025-07-23 06:15:52,589, DEBUG(prepare.py): instrument_parameters was set to default value: em27.
+2025-07-23 06:15:52,589, DEBUG(prepare.py): coord_type_file was set to default value: None.
+2025-07-23 06:15:52,589, DEBUG(prepare.py): geomsgen_inputfile was set to default value: None.
+2025-07-23 06:15:52,589, DEBUG(prepare.py): Searching for all interferogram folders ...
+2025-07-23 06:15:52,590, DEBUG(prepare.py): The following dates were found at /home/moritz-makowski/documents/em27/em27-retrieval-pipeline/data/containers/retrieval-container-priceless-bassi-inputs/ifg: 22-06-02
+2025-07-23 06:15:52,590, INFO(prepare.py): Run information:
+Retrieval for Instrument SN115 at mc with time offset 0.0.
+The following dates will be processed:
+2022-06-02.
+
+2025-07-23 06:15:52,591, DEBUG(auxiliary.py): The parameter max_interpolation_time was set to the default value: 2.
+2025-07-23 06:15:53,152, DEBUG(prepare.py): Finished reading of input file.
+2025-07-23 06:15:53,152, DEBUG(filemover.py): Created the subdirs in the result folder.
+2025-07-23 06:15:53,152, DEBUG(filemover.py): Logfile was moved and relinked to the logger
+2025-07-23 06:15:53,152, DEBUG(pylot.py): Initialized the FileMover
+2025-07-23 06:15:53,162, INFO(pylot.py): Running preprocess with 1 task(s) ...
+2025-07-23 06:15:53,163, DEBUG(prepare.py): Generating preprocess inp file for 220602..
+2025-07-23 06:15:53,163, DEBUG(prepare.py): Load ILS parameters from file.
+2025-07-23 06:15:53,169, DEBUG(prepare.py): No interferogram was skipped because of its filesize at 2022-06-02.
+2025-07-23 06:15:56,133, DEBUG(pylot.py): ... Write logfile of preprocess ...
+2025-07-23 06:15:56,133, INFO(pylot.py): Finished preprocessing.
+
+2025-07-23 06:15:56,133, INFO(pylot.py): Running pcxs with 1 task(s) ...
+2025-07-23 06:15:56,133, DEBUG(pylot.py): Get localdate spectra...
+2025-07-23 06:15:56,142, WARNING(prepare.py): Detected GGG2014 map file, at day 2022-06-02. This is not recommended! PROFFASTpylot is calibrated using GGG2020 map files, please use GGG2014 only for comparison purposes!
+2025-07-23 06:15:56,142, DEBUG(prepare.py): Create pcxs input parameters ...
+2025-07-23 06:15:56,142, DEBUG(prepare.py): Generating pcxs24 inp file for 220602..
+2025-07-23 06:16:56,597, DEBUG(pylot.py): ... Write logfile of pcxs ...
+2025-07-23 06:16:56,597, INFO(pylot.py): Finished pcxs.
+
+2025-07-23 06:16:56,597, INFO(pylot.py): Running invers with 1 task(s) ...
+2025-07-23 06:16:56,597, DEBUG(auxiliary.py): Execute prepare_pressure_df()...
+2025-07-23 06:16:56,598, DEBUG(auxiliary.py): Read in file /home/moritz-makowski/documents/em27/em27-retrieval-pipeline/data/containers/retrieval-container-priceless-bassi-inputs/log/ground-pressure-mc-20220602.csv
+2025-07-23 06:16:56,609, DEBUG(auxiliary.py): Created pressure DataFrame:
+
+# start of self.p_df #
+      parsed_datetime  pressure
+0 2022-06-02 00:00:49    997.05
+1 2022-06-02 00:01:49    997.06
+2 2022-06-02 00:02:49    997.06
+3 2022-06-02 00:03:49    997.05
+4 2022-06-02 00:04:49    997.07
+
+2025-07-23 06:16:56,609, DEBUG(prepare.py): Generating invers26 inp file for 220602..
+2025-07-23 06:16:57,421, DEBUG(pylot.py): ... Write logfile of inv ...
+2025-07-23 06:16:57,421, DEBUG(pylot.py): Write ot ILS file.
+2025-07-23 06:16:57,423, INFO(pylot.py): Finished invers.
+
+2025-07-23 06:16:57,423, DEBUG(pylot.py): Moving results to final output folder ...
+2025-07-23 06:16:57,702, INFO(pylot.py): Removing temporary files ...
+2025-07-23 06:16:57,702, DEBUG(pylot.py): Handling pT and VMR files...
+2025-07-23 06:16:57,702, DEBUG(pylot.py): Deleting abscos.bin files ...
+2025-07-23 06:16:57,763, DEBUG(pylot.py): Moving input files ...
+2025-07-23 06:16:57,763, DEBUG(filemover.py): Copying the PROFFASTpylot input_file /home/moritz-makowski/documents/em27/em27-retrieval-pipeline/data/containers/retrieval-container-priceless-bassi-inputs/pylot_config.yml to /home/moritz-makowski/documents/em27/em27-retrieval-pipeline/data/containers/retrieval-container-priceless-bassi-outputs/mc_SN115_220602-220602
+2025-07-23 06:16:57,764, INFO(pylot.py): Done.
+
+2025-07-23 06:16:58,084, INFO(pylot.py): The results of PROFFAST were written to /home/moritz-makowski/documents/em27/em27-retrieval-pipeline/data/containers/retrieval-container-priceless-bassi-outputs/mc_SN115_220602-220602/ .

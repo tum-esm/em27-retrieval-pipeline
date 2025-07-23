@@ -1,0 +1,1227 @@
+ first wavenumber:           4150.0000000000000     
+ last wavenumber:            8500.0057013457681     
+ number of ref grid pts:       1433917
+ Observer altitude:            181.00000000000000     
+ Observer latitude:            67.366000000000000     
+ Observer longitude:           26.629999999999999     
+ Observer pressure:            995.47900000000004     
+ date folder:               /home/moritz-makowski/documents/em27/em27-retrieval-pipeline/data/containers/retrieval-container-vibrant-lalande-outputs/analysis/so/170609                                                                                                                                                                 
+ site name:                 so                                                
+ yymmddchar:                170609
+ filesoutdec:                F
+ pT-file:                   /home/moritz-makowski/documents/em27/em27-retrieval-pipeline/data/containers/retrieval-container-vibrant-lalande-outputs/analysis/so/170609/pT/so20170609.map                                                                                                                                               
+ pThumdec:                   T
+ n_Tdisturb:                           6
+ pT file:                   /home/moritz-makowski/documents/em27/em27-retrieval-pipeline/data/containers/retrieval-container-vibrant-lalande-outputs/analysis/so/170609/pT/so20170609.map                                                                                                                                               
+ fractional external FOV:     0.600000024    
+ n_tau:           8
+ /home/moritz-makowski/documents/em27/em27-retrieval-pipeline/data/containers/retrieval-container-vibrant-lalande/prf/inp_fwd/hitran/linedata/01_hit09-corr140821.par                                                                                                                                        
+ iso_handle:           3
+ /home/moritz-makowski/documents/em27/em27-retrieval-pipeline/data/containers/retrieval-container-vibrant-lalande/prf/inp_fwd/hitran/linedata/01_hit09-corr140821.par                                                                                                                                        
+ iso_handle:           1
+ /home/moritz-makowski/documents/em27/em27-retrieval-pipeline/data/containers/retrieval-container-vibrant-lalande/prf/inp_fwd/hitran/linedata/02_hit12.par                                                                                                                                                   
+ iso_handle:           6
+ /home/moritz-makowski/documents/em27/em27-retrieval-pipeline/data/containers/retrieval-container-vibrant-lalande/prf/inp_fwd/hitran/linedata/06_hit08.par                                                                                                                                                   
+ iso_handle:           0
+ /home/moritz-makowski/documents/em27/em27-retrieval-pipeline/data/containers/retrieval-container-vibrant-lalande/prf/inp_fwd/hitran/linedata/04_hit08.par                                                                                                                                                   
+ iso_handle:           0
+ /home/moritz-makowski/documents/em27/em27-retrieval-pipeline/data/containers/retrieval-container-vibrant-lalande/prf/inp_fwd/hitran/linedata/05_hit12.par                                                                                                                                                   
+ iso_handle:           0
+ /home/moritz-makowski/documents/em27/em27-retrieval-pipeline/data/containers/retrieval-container-vibrant-lalande/prf/inp_fwd/hitran/linedata/07_hit_gfit.par                                                                                                                                                
+ iso_handle:           0
+ /home/moritz-makowski/documents/em27/em27-retrieval-pipeline/data/containers/retrieval-container-vibrant-lalande/prf/inp_fwd/hitran/linedata/14_hit12.par                                                                                                                                                   
+ iso_handle:           0
+ VMR files:                      
+ /home/moritz-makowski/documents/em27/em27-retrieval-pipeline/data/containers/retrieval-container-vibrant-lalande-outputs/analysis/so/170609/pT/so20170609.map                                                                                                                                               
+ /home/moritz-makowski/documents/em27/em27-retrieval-pipeline/data/containers/retrieval-container-vibrant-lalande-outputs/analysis/so/170609/pT/so20170609.map                                                                                                                                               
+ /home/moritz-makowski/documents/em27/em27-retrieval-pipeline/data/containers/retrieval-container-vibrant-lalande-outputs/analysis/so/170609/pT/so20170609.map                                                                                                                                               
+ /home/moritz-makowski/documents/em27/em27-retrieval-pipeline/data/containers/retrieval-container-vibrant-lalande-outputs/analysis/so/170609/pT/so20170609.map                                                                                                                                               
+ /home/moritz-makowski/documents/em27/em27-retrieval-pipeline/data/containers/retrieval-container-vibrant-lalande-outputs/analysis/so/170609/pT/so20170609.map                                                                                                                                               
+ /home/moritz-makowski/documents/em27/em27-retrieval-pipeline/data/containers/retrieval-container-vibrant-lalande-outputs/analysis/so/170609/pT/so20170609.map                                                                                                                                               
+ /home/moritz-makowski/documents/em27/em27-retrieval-pipeline/data/containers/retrieval-container-vibrant-lalande-outputs/analysis/so/170609/pT/so20170609.map                                                                                                                                               
+ /home/moritz-makowski/documents/em27/em27-retrieval-pipeline/data/containers/retrieval-container-vibrant-lalande-outputs/analysis/so/170609/pT/so20170609.map                                                                                                                                               
+ AVK calculation:
+ gas name, gas number for AVK calc:'H2O'   
+ requested microwindow bounds:               (8353.3999999999996,8463.1000000000004)
+ gas name, gas number for AVK calc:'HDO'   
+ requested microwindow bounds:               (4208.6999999999998,4318.8000000000002)
+ gas name, gas number for AVK calc:'CO2'   
+ requested microwindow bounds:               (6173.0000000000000,6390.0000000000000)
+ gas name, gas number for AVK calc:'CH4'   
+ requested microwindow bounds:               (5897.0000000000000,6145.0000000000000)
+ gas name, gas number for AVK calc:'N2O'   
+ requested microwindow bounds:               (4208.6999999999998,4318.8000000000002)
+ gas name, gas number for AVK calc:'CO'    
+ requested microwindow bounds:               (4208.6999999999998,4318.8000000000002)
+ gas name, gas number for AVK calc:'O2'    
+ requested microwindow bounds:               (7765.0000000000000,8005.0000000000000)
+ gas name, gas number for AVK calc:'HF'    
+ requested microwindow bounds:               (4208.6999999999998,4318.8000000000002)
+ Number of levels:                         49
+ Level altitudes [m]:
+ 1.8100E+02 4.2600E+02 6.9600E+02 9.9100E+02 1.3120E+03
+ 1.6500E+03 2.0140E+03 2.4020E+03 2.8090E+03 3.2410E+03
+ 3.6920E+03 4.1670E+03 4.6680E+03 5.1870E+03 5.7310E+03
+ 6.2930E+03 6.8810E+03 7.4940E+03 8.1250E+03 8.7810E+03
+ 9.4560E+03 1.0156E+04 1.0881E+04 1.1625E+04 1.2394E+04
+ 1.3181E+04 1.3994E+04 1.4831E+04 1.5687E+04 1.6568E+04
+ 1.7469E+04 1.8393E+04 1.9362E+04 2.0412E+04 2.1575E+04
+ 2.2894E+04 2.4412E+04 2.6162E+04 2.8187E+04 3.0525E+04
+ 3.3212E+04 3.6293E+04 3.9806E+04 4.3787E+04 4.8275E+04
+ 5.3431E+04 5.9244E+04 6.6431E+04 7.5181E+04
+ Reading solar spectrum...         
+ Interpolating solar spectrum...   
+ Writing solar spectrum to file... 
+ Reading pT input file...          
+ pT, H2O, HDO profiles after read_pT:
+ 1.8100E+02 2.8725E+02 9.9548E+04 1.3434E+04 1.3196E+04
+ 4.2600E+02 2.8652E+02 9.6688E+04 1.1543E+04 1.1241E+04
+ 6.9600E+02 2.8572E+02 9.3624E+04 9.4604E+03 9.0873E+03
+ 9.9100E+02 2.8485E+02 9.0377E+04 7.1844E+03 6.7338E+03
+ 1.3120E+03 2.8295E+02 8.6956E+04 6.4074E+03 5.9591E+03
+ 1.6500E+03 2.8093E+02 8.3470E+04 5.6408E+03 5.1976E+03
+ 2.0140E+03 2.7876E+02 7.9846E+04 4.8204E+03 4.3834E+03
+ 2.4020E+03 2.7644E+02 7.6126E+04 4.0844E+03 3.6745E+03
+ 2.8090E+03 2.7402E+02 7.2380E+04 3.3123E+03 2.9310E+03
+ 3.2410E+03 2.7139E+02 6.8570E+04 2.5948E+03 2.2538E+03
+ 3.6920E+03 2.6860E+02 6.4770E+04 1.9300E+03 1.6395E+03
+ 4.1670E+03 2.6564E+02 6.0956E+04 1.3452E+03 1.1059E+03
+ 4.6680E+03 2.6246E+02 5.7134E+04 9.5282E+02 7.6342E+02
+ 5.1870E+03 2.5908E+02 5.3382E+04 6.2512E+02 4.8092E+02
+ 5.7310E+03 2.5535E+02 4.9665E+04 4.2825E+02 3.1925E+02
+ 6.2930E+03 2.5118E+02 4.6042E+04 3.1631E+02 2.2781E+02
+ 6.8810E+03 2.4651E+02 4.2475E+04 2.8703E+02 2.0476E+02
+ 7.4940E+03 2.4128E+02 3.8983E+04 2.4222E+02 1.7016E+02
+ 8.1250E+03 2.3575E+02 3.5618E+04 1.9086E+02 1.3097E+02
+ 8.7810E+03 2.2982E+02 3.2351E+04 1.3031E+02 8.6173E+01
+ 9.4560E+03 2.2379E+02 2.9227E+04 8.8171E+01 5.5903E+01
+ 1.0156E+04 2.1839E+02 2.6233E+04 5.7508E+01 3.4672E+01
+ 1.0881E+04 2.1574E+02 2.3407E+04 3.6584E+01 2.0926E+01
+ 1.1625E+04 2.1607E+02 2.0810E+04 1.7538E+01 9.3806E+00
+ 1.2394E+04 2.1783E+02 1.8439E+04 7.1227E+00 3.2597E+00
+ 1.3181E+04 2.2029E+02 1.6311E+04 5.1699E+00 2.2488E+00
+ 1.3994E+04 2.2229E+02 1.4389E+04 3.6333E+00 1.4886E+00
+ 1.4831E+04 2.2235E+02 1.2654E+04 3.7591E+00 1.5486E+00
+ 1.5687E+04 2.2241E+02 1.1096E+04 3.8997E+00 1.6170E+00
+ 1.6568E+04 2.2248E+02 9.6930E+03 4.0459E+00 1.6880E+00
+ 1.7469E+04 2.2257E+02 8.4419E+03 4.1963E+00 1.7615E+00
+ 1.8393E+04 2.2272E+02 7.3270E+03 4.3510E+00 1.8372E+00
+ 1.9362E+04 2.2306E+02 6.3167E+03 4.5142E+00 1.9174E+00
+ 2.0412E+04 2.2363E+02 5.3803E+03 4.6912E+00 2.0052E+00
+ 2.1575E+04 2.2425E+02 4.5064E+03 4.8843E+00 2.1012E+00
+ 2.2894E+04 2.2495E+02 3.6879E+03 5.1015E+00 2.2102E+00
+ 2.4412E+04 2.2590E+02 2.9307E+03 5.3485E+00 2.3350E+00
+ 2.6162E+04 2.2761E+02 2.2521E+03 5.6243E+00 2.4748E+00
+ 2.8187E+04 2.3046E+02 1.6654E+03 5.9198E+00 2.6255E+00
+ 3.0525E+04 2.3440E+02 1.1815E+03 6.2435E+00 2.7923E+00
+ 3.3212E+04 2.3858E+02 8.0170E+02 6.4805E+00 2.9151E+00
+ 3.6293E+04 2.4314E+02 5.1809E+02 6.6258E+00 2.9910E+00
+ 3.9806E+04 2.5117E+02 3.1895E+02 6.9572E+00 3.1637E+00
+ 4.3787E+04 2.6069E+02 1.8757E+02 7.3339E+00 3.3618E+00
+ 4.8275E+04 2.7019E+02 1.0533E+02 7.4779E+00 3.4379E+00
+ 5.3431E+04 2.6140E+02 5.4328E+01 7.0682E+00 3.2225E+00
+ 5.9244E+04 2.4805E+02 2.4933E+01 6.5076E+00 2.9298E+00
+ 6.6431E+04 2.3157E+02 8.9649E+00 5.7765E+00 2.5526E+00
+ 7.5181E+04 2.2338E+02 2.4121E+00 5.0430E+00 2.1810E+00
+ Reading VMR files...
+ pT profile after hydrostat rebalancing:
+ 1.8100E+02 2.8725E+02 9.9548E+04 2.5100E+25 2.4767E+25
+ 4.2600E+02 2.8652E+02 9.6694E+04 2.4442E+25 2.4163E+25
+ 6.9600E+02 2.8572E+02 9.3633E+04 2.3735E+25 2.3512E+25
+ 9.9100E+02 2.8485E+02 9.0387E+04 2.2982E+25 2.2819E+25
+ 1.3120E+03 2.8295E+02 8.6966E+04 2.2260E+25 2.2119E+25
+ 1.6500E+03 2.8093E+02 8.3479E+04 2.1522E+25 2.1401E+25
+ 2.0140E+03 2.7876E+02 7.9852E+04 2.0747E+25 2.0648E+25
+ 2.4020E+03 2.7644E+02 7.6131E+04 1.9946E+25 1.9865E+25
+ 2.8090E+03 2.7402E+02 7.2381E+04 1.9131E+25 1.9068E+25
+ 3.2410E+03 2.7139E+02 6.8569E+04 1.8299E+25 1.8252E+25
+ 3.6920E+03 2.6860E+02 6.4765E+04 1.7463E+25 1.7430E+25
+ 4.1670E+03 2.6564E+02 6.0948E+04 1.6617E+25 1.6595E+25
+ 4.6680E+03 2.6246E+02 5.7122E+04 1.5763E+25 1.5748E+25
+ 5.1870E+03 2.5908E+02 5.3367E+04 1.4919E+25 1.4910E+25
+ 5.7310E+03 2.5535E+02 4.9647E+04 1.4082E+25 1.4076E+25
+ 6.2930E+03 2.5118E+02 4.6022E+04 1.3271E+25 1.3266E+25
+ 6.8810E+03 2.4651E+02 4.2454E+04 1.2473E+25 1.2470E+25
+ 7.4940E+03 2.4128E+02 3.8962E+04 1.1696E+25 1.1693E+25
+ 8.1250E+03 2.3575E+02 3.5597E+04 1.0936E+25 1.0934E+25
+ 8.7810E+03 2.2982E+02 3.2332E+04 1.0189E+25 1.0188E+25
+ 9.4560E+03 2.2379E+02 2.9209E+04 9.4531E+24 9.4523E+24
+ 1.0156E+04 2.1839E+02 2.6218E+04 8.6948E+24 8.6943E+24
+ 1.0881E+04 2.1574E+02 2.3394E+04 7.8536E+24 7.8533E+24
+ 1.1625E+04 2.1607E+02 2.0800E+04 6.9723E+24 6.9722E+24
+ 1.2394E+04 2.1783E+02 1.8432E+04 6.1284E+24 6.1284E+24
+ 1.3181E+04 2.2029E+02 1.6307E+04 5.3614E+24 5.3613E+24
+ 1.3994E+04 2.2229E+02 1.4388E+04 4.6880E+24 4.6879E+24
+ 1.4831E+04 2.2235E+02 1.2656E+04 4.1223E+24 4.1223E+24
+ 1.5687E+04 2.2241E+02 1.1100E+04 3.6148E+24 3.6148E+24
+ 1.6568E+04 2.2248E+02 9.6996E+03 3.1576E+24 3.1576E+24
+ 1.7469E+04 2.2257E+02 8.4506E+03 2.7499E+24 2.7499E+24
+ 1.8393E+04 2.2272E+02 7.3374E+03 2.3861E+24 2.3861E+24
+ 1.9362E+04 2.2306E+02 6.3285E+03 2.0548E+24 2.0548E+24
+ 2.0412E+04 2.2363E+02 5.3932E+03 1.7467E+24 1.7467E+24
+ 2.1575E+04 2.2425E+02 4.5202E+03 1.4599E+24 1.4599E+24
+ 2.2894E+04 2.2495E+02 3.7023E+03 1.1920E+24 1.1920E+24
+ 2.4412E+04 2.2590E+02 2.9452E+03 9.4427E+23 9.4426E+23
+ 2.6162E+04 2.2761E+02 2.2662E+03 7.2112E+23 7.2112E+23
+ 2.8187E+04 2.3046E+02 1.6787E+03 5.2758E+23 5.2758E+23
+ 3.0525E+04 2.3440E+02 1.1935E+03 3.6878E+23 3.6878E+23
+ 3.3212E+04 2.3858E+02 8.1208E+02 2.4653E+23 2.4653E+23
+ 3.6293E+04 2.4314E+02 5.2664E+02 1.5688E+23 1.5688E+23
+ 3.9806E+04 2.5117E+02 3.2563E+02 9.3897E+22 9.3897E+22
+ 4.3787E+04 2.6069E+02 1.9253E+02 5.3490E+22 5.3490E+22
+ 4.8275E+04 2.7019E+02 1.0883E+02 2.9173E+22 2.9173E+22
+ 5.3431E+04 2.6140E+02 5.6621E+01 1.5688E+22 1.5688E+22
+ 5.9244E+04 2.4805E+02 2.6282E+01 7.6741E+21 7.6741E+21
+ 6.6431E+04 2.3157E+02 9.6112E+00 3.0061E+21 3.0060E+21
+ 7.5181E+04 2.2338E+02 2.6523E+00 8.5996E+20 8.5996E+20
+ Calculating total columns...
+ raytracing results (airmass ratios):
+ 1.0000E+00 1.0000E+00 1.0000E+00 1.0000E+00 1.0000E+00
+ 1.0000E+00 9.9975E-01 9.9925E-01 9.9850E-01 9.9751E-01
+ 1.0000E+00 9.9947E-01 9.9842E-01 9.9685E-01 9.9477E-01
+ 1.0000E+00 9.9917E-01 9.9751E-01 9.9504E-01 9.9178E-01
+ 1.0000E+00 9.9883E-01 9.9650E-01 9.9304E-01 9.8848E-01
+ 1.0000E+00 9.9847E-01 9.9544E-01 9.9094E-01 9.8503E-01
+ 1.0000E+00 9.9808E-01 9.9429E-01 9.8867E-01 9.8133E-01
+ 1.0000E+00 9.9767E-01 9.9306E-01 9.8627E-01 9.7742E-01
+ 1.0000E+00 9.9724E-01 9.9177E-01 9.8375E-01 9.7334E-01
+ 1.0000E+00 9.9677E-01 9.9040E-01 9.8108E-01 9.6905E-01
+ 1.0000E+00 9.9628E-01 9.8897E-01 9.7830E-01 9.6460E-01
+ 1.0000E+00 9.9577E-01 9.8746E-01 9.7539E-01 9.5996E-01
+ 1.0000E+00 9.9522E-01 9.8587E-01 9.7232E-01 9.5510E-01
+ 1.0000E+00 9.9466E-01 9.8422E-01 9.6916E-01 9.5012E-01
+ 1.0000E+00 9.9406E-01 9.8249E-01 9.6586E-01 9.4495E-01
+ 1.0000E+00 9.9344E-01 9.8069E-01 9.6246E-01 9.3966E-01
+ 1.0000E+00 9.9279E-01 9.7881E-01 9.5892E-01 9.3418E-01
+ 1.0000E+00 9.9210E-01 9.7685E-01 9.5524E-01 9.2854E-01
+ 1.0000E+00 9.9140E-01 9.7484E-01 9.5149E-01 9.2281E-01
+ 1.0000E+00 9.9066E-01 9.7275E-01 9.4761E-01 9.1694E-01
+ 1.0000E+00 9.8991E-01 9.7061E-01 9.4366E-01 9.1099E-01
+ 1.0000E+00 9.8912E-01 9.6840E-01 9.3961E-01 9.0495E-01
+ 1.0000E+00 9.8832E-01 9.6614E-01 9.3550E-01 8.9885E-01
+ 1.0000E+00 9.8750E-01 9.6384E-01 9.3135E-01 8.9273E-01
+ 1.0000E+00 9.8665E-01 9.6147E-01 9.2708E-01 8.8649E-01
+ 1.0000E+00 9.8577E-01 9.5905E-01 9.2274E-01 8.8019E-01
+ 1.0000E+00 9.8486E-01 9.5653E-01 9.1828E-01 8.7375E-01
+ 1.0000E+00 9.8391E-01 9.5393E-01 9.1370E-01 8.6720E-01
+ 1.0000E+00 9.8294E-01 9.5129E-01 9.0906E-01 8.6062E-01
+ 1.0000E+00 9.8194E-01 9.4857E-01 9.0434E-01 8.5397E-01
+ 1.0000E+00 9.8091E-01 9.4580E-01 8.9956E-01 8.4729E-01
+ 1.0000E+00 9.7986E-01 9.4298E-01 8.9472E-01 8.4058E-01
+ 1.0000E+00 9.7876E-01 9.4004E-01 8.8972E-01 8.3369E-01
+ 1.0000E+00 9.7756E-01 9.3688E-01 8.8437E-01 8.2638E-01
+ 1.0000E+00 9.7624E-01 9.3340E-01 8.7854E-01 8.1850E-01
+ 1.0000E+00 9.7474E-01 9.2949E-01 8.7206E-01 8.0980E-01
+ 1.0000E+00 9.7303E-01 9.2504E-01 8.6475E-01 8.0010E-01
+ 1.0000E+00 9.7105E-01 9.1998E-01 8.5654E-01 7.8932E-01
+ 1.0000E+00 9.6878E-01 9.1423E-01 8.4731E-01 7.7736E-01
+ 1.0000E+00 9.6618E-01 9.0770E-01 8.3700E-01 7.6420E-01
+ 1.0000E+00 9.6321E-01 9.0038E-01 8.2561E-01 7.4986E-01
+ 1.0000E+00 9.5984E-01 8.9219E-01 8.1310E-01 7.3437E-01
+ 1.0000E+00 9.5605E-01 8.8313E-01 7.9953E-01 7.1785E-01
+ 1.0000E+00 9.5181E-01 8.7320E-01 7.8495E-01 7.0043E-01
+ 1.0000E+00 9.4710E-01 8.6242E-01 7.6946E-01 6.8226E-01
+ 1.0000E+00 9.4179E-01 8.5054E-01 7.5278E-01 6.6307E-01
+ 1.0000E+00 9.3592E-01 8.3774E-01 7.3526E-01 6.4332E-01
+ 1.0000E+00 9.2883E-01 8.2273E-01 7.1526E-01 6.2123E-01
+ 1.0000E+00 9.2045E-01 8.0557E-01 6.9305E-01 5.9727E-01
+ Species, line intensity limit:            1   2.7480761536218724E-029
+ Species, line intensity limit:            2   3.0351385143409675E-029
+ Species, line intensity limit:            3   4.2119293795624209E-029
+ Species, line intensity limit:            4   1.0853125941928704E-026
+ Species, line intensity limit:            5   6.9611662719705906E-026
+ Species, line intensity limit:            6   3.7392769733559606E-025
+ Species, line intensity limit:            7   8.0492199730537810E-032
+ Species, line intensity limit:            8   4.5024087693434475E-023
+ Reading lines from ASCII HITRAN file... species:           1
+ HIT08 format detected!
+ Reading species file:
+ /home/moritz-makowski/documents/em27/em27-retrieval-pipeline/data/containers/retrieval-container-vibrant-lalande/prf/inp_fwd/hitran/linedata/01_hit09-corr140821.par                                                                                                                                        
+ Line pointer and nof lines for species:            1
+           1       12513       12513
+ Reading lines from ASCII HITRAN file... species:           2
+ HIT08 format detected!
+ Reading species file:
+ /home/moritz-makowski/documents/em27/em27-retrieval-pipeline/data/containers/retrieval-container-vibrant-lalande/prf/inp_fwd/hitran/linedata/01_hit09-corr140821.par                                                                                                                                        
+ Line pointer and nof lines for species:            2
+       12514       15117        2604
+ Reading lines from ASCII HITRAN file... species:           3
+ HIT08 format detected!
+ Reading species file:
+ /home/moritz-makowski/documents/em27/em27-retrieval-pipeline/data/containers/retrieval-container-vibrant-lalande/prf/inp_fwd/hitran/linedata/02_hit12.par                                                                                                                                                   
+ Line pointer and nof lines for species:            3
+       15118       62298       47181
+ Reading lines from ASCII HITRAN file... species:           4
+ HIT08 format detected!
+ Reading species file:
+ /home/moritz-makowski/documents/em27/em27-retrieval-pipeline/data/containers/retrieval-container-vibrant-lalande/prf/inp_fwd/hitran/linedata/06_hit08.par                                                                                                                                                   
+ Line pointer and nof lines for species:            4
+       62299      119653       57355
+ Reading lines from ASCII HITRAN file... species:           5
+ HIT08 format detected!
+ Reading species file:
+ /home/moritz-makowski/documents/em27/em27-retrieval-pipeline/data/containers/retrieval-container-vibrant-lalande/prf/inp_fwd/hitran/linedata/04_hit08.par                                                                                                                                                   
+ Line pointer and nof lines for species:            5
+      119654      125795        6142
+ Reading lines from ASCII HITRAN file... species:           6
+ HIT08 format detected!
+ Reading species file:
+ /home/moritz-makowski/documents/em27/em27-retrieval-pipeline/data/containers/retrieval-container-vibrant-lalande/prf/inp_fwd/hitran/linedata/05_hit12.par                                                                                                                                                   
+ Line pointer and nof lines for species:            6
+      125796      125961         166
+ Reading lines from ASCII HITRAN file... species:           7
+ Reading species file:
+ /home/moritz-makowski/documents/em27/em27-retrieval-pipeline/data/containers/retrieval-container-vibrant-lalande/prf/inp_fwd/hitran/linedata/07_hit_gfit.par                                                                                                                                                
+ Line pointer and nof lines for species:            7
+      125962      126463         502
+ Reading lines from ASCII HITRAN file... species:           8
+ HIT08 format detected!
+ Reading species file:
+ /home/moritz-makowski/documents/em27/em27-retrieval-pipeline/data/containers/retrieval-container-vibrant-lalande/prf/inp_fwd/hitran/linedata/14_hit12.par                                                                                                                                                   
+ Line pointer and nof lines for species:            8
+      126464      126487          24
+ ...reading lines from HITRAN file completed!
+ Processing species:            1
+ Calculating tau_lev for species (+ far wing):           1
+ Processing level:           1
+ Processing level:           2
+ Processing level:           3
+ Processing level:           4
+ Processing level:           5
+ Processing level:           6
+ Processing level:           7
+ Processing level:           8
+ Processing level:           9
+ Processing level:          10
+ Processing level:          11
+ Processing level:          12
+ Processing level:          13
+ Processing level:          14
+ Processing level:          15
+ Processing level:          16
+ Processing level:          17
+ Processing level:          18
+ Processing level:          19
+ Processing level:          20
+ Processing level:          21
+ Processing level:          22
+ Processing level:          23
+ Processing level:          24
+ Processing level:          25
+ Processing level:          26
+ Processing level:          27
+ Processing level:          28
+ Processing level:          29
+ Processing level:          30
+ Processing level:          31
+ Processing level:          32
+ Processing level:          33
+ Processing level:          34
+ Processing level:          35
+ Processing level:          36
+ Processing level:          37
+ Processing level:          38
+ Processing level:          39
+ Processing level:          40
+ Processing level:          41
+ Processing level:          42
+ Processing level:          43
+ Processing level:          44
+ Processing level:          45
+ Processing level:          46
+ Processing level:          47
+ Processing level:          48
+ Processing level:          49
+ Calculating total optical thickness ...
+ Calculating AVKs ...
+ Calculating closed fct air mass dep...
+ checking polynomial approx species... 
+ nue_index n_ams maxerr:       226393           2   7.3680956584675306E-007
+ ... Done!
+ ...closed fct air mass dep calculated!
+ Determining dsumtau/dT ...
+ Calculating tau_lev for species (+ far wing):           1
+ Processing level:           1
+ Processing level:           2
+ Processing level:           3
+ Processing level:           4
+ Processing level:           5
+ Processing level:           6
+ Determining dsumtau/dp ...
+ Calculating tau_lev for species (+ far wing):           1
+ Processing level:           1
+ Processing level:           2
+ Processing level:           3
+ Processing level:           4
+ Processing level:           5
+ Processing level:           6
+ Processing level:           7
+ Processing level:           8
+ Processing level:           9
+ Processing level:          10
+ Processing level:          11
+ Processing level:          12
+ Processing level:          13
+ Processing level:          14
+ Processing level:          15
+ Processing level:          16
+ Processing level:          17
+ Processing level:          18
+ Processing level:          19
+ Processing level:          20
+ Processing level:          21
+ Processing level:          22
+ Processing level:          23
+ Processing level:          24
+ Processing level:          25
+ Processing level:          26
+ Processing level:          27
+ Processing level:          28
+ Processing level:          29
+ Processing level:          30
+ Processing level:          31
+ Processing level:          32
+ Processing level:          33
+ Processing level:          34
+ Processing level:          35
+ Processing level:          36
+ Processing level:          37
+ Processing level:          38
+ Processing level:          39
+ Processing level:          40
+ Processing level:          41
+ Processing level:          42
+ Processing level:          43
+ Processing level:          44
+ Processing level:          45
+ Processing level:          46
+ Processing level:          47
+ Processing level:          48
+ Processing level:          49
+ Processing species:            2
+ Calculating tau_lev for species (+ far wing):           2
+ Processing level:           1
+ Processing level:           2
+ Processing level:           3
+ Processing level:           4
+ Processing level:           5
+ Processing level:           6
+ Processing level:           7
+ Processing level:           8
+ Processing level:           9
+ Processing level:          10
+ Processing level:          11
+ Processing level:          12
+ Processing level:          13
+ Processing level:          14
+ Processing level:          15
+ Processing level:          16
+ Processing level:          17
+ Processing level:          18
+ Processing level:          19
+ Processing level:          20
+ Processing level:          21
+ Processing level:          22
+ Processing level:          23
+ Processing level:          24
+ Processing level:          25
+ Processing level:          26
+ Processing level:          27
+ Processing level:          28
+ Processing level:          29
+ Processing level:          30
+ Processing level:          31
+ Processing level:          32
+ Processing level:          33
+ Processing level:          34
+ Processing level:          35
+ Processing level:          36
+ Processing level:          37
+ Processing level:          38
+ Processing level:          39
+ Processing level:          40
+ Processing level:          41
+ Processing level:          42
+ Processing level:          43
+ Processing level:          44
+ Processing level:          45
+ Processing level:          46
+ Processing level:          47
+ Processing level:          48
+ Processing level:          49
+ Calculating total optical thickness ...
+ Calculating AVKs ...
+ Calculating closed fct air mass dep...
+ checking polynomial approx species... 
+ nue_index n_ams maxerr:       811794           2   6.6085388620661273E-007
+ ... Done!
+ ...closed fct air mass dep calculated!
+ Determining dsumtau/dT ...
+ Calculating tau_lev for species (+ far wing):           2
+ Processing level:           1
+ Processing level:           2
+ Processing level:           3
+ Processing level:           4
+ Processing level:           5
+ Processing level:           6
+ Determining dsumtau/dp ...
+ Calculating tau_lev for species (+ far wing):           2
+ Processing level:           1
+ Processing level:           2
+ Processing level:           3
+ Processing level:           4
+ Processing level:           5
+ Processing level:           6
+ Processing level:           7
+ Processing level:           8
+ Processing level:           9
+ Processing level:          10
+ Processing level:          11
+ Processing level:          12
+ Processing level:          13
+ Processing level:          14
+ Processing level:          15
+ Processing level:          16
+ Processing level:          17
+ Processing level:          18
+ Processing level:          19
+ Processing level:          20
+ Processing level:          21
+ Processing level:          22
+ Processing level:          23
+ Processing level:          24
+ Processing level:          25
+ Processing level:          26
+ Processing level:          27
+ Processing level:          28
+ Processing level:          29
+ Processing level:          30
+ Processing level:          31
+ Processing level:          32
+ Processing level:          33
+ Processing level:          34
+ Processing level:          35
+ Processing level:          36
+ Processing level:          37
+ Processing level:          38
+ Processing level:          39
+ Processing level:          40
+ Processing level:          41
+ Processing level:          42
+ Processing level:          43
+ Processing level:          44
+ Processing level:          45
+ Processing level:          46
+ Processing level:          47
+ Processing level:          48
+ Processing level:          49
+ Processing species:            3
+ Calculating tau_lev for species (+ far wing):           3
+ Processing level:           1
+ Processing level:           2
+ Processing level:           3
+ Processing level:           4
+ Processing level:           5
+ Processing level:           6
+ Processing level:           7
+ Processing level:           8
+ Processing level:           9
+ Processing level:          10
+ Processing level:          11
+ Processing level:          12
+ Processing level:          13
+ Processing level:          14
+ Processing level:          15
+ Processing level:          16
+ Processing level:          17
+ Processing level:          18
+ Processing level:          19
+ Processing level:          20
+ Processing level:          21
+ Processing level:          22
+ Processing level:          23
+ Processing level:          24
+ Processing level:          25
+ Processing level:          26
+ Processing level:          27
+ Processing level:          28
+ Processing level:          29
+ Processing level:          30
+ Processing level:          31
+ Processing level:          32
+ Processing level:          33
+ Processing level:          34
+ Processing level:          35
+ Processing level:          36
+ Processing level:          37
+ Processing level:          38
+ Processing level:          39
+ Processing level:          40
+ Processing level:          41
+ Processing level:          42
+ Processing level:          43
+ Processing level:          44
+ Processing level:          45
+ Processing level:          46
+ Processing level:          47
+ Processing level:          48
+ Processing level:          49
+ Calculating total optical thickness ...
+ Calculating AVKs ...
+ Calculating closed fct air mass dep...
+ checking polynomial approx species... 
+ nue_index n_ams maxerr:        99344           2   4.4729064006625654E-005
+ ... Done!
+ ...closed fct air mass dep calculated!
+ Determining dsumtau/dT ...
+ Calculating tau_lev for species (+ far wing):           3
+ Processing level:           1
+ Processing level:           2
+ Processing level:           3
+ Processing level:           4
+ Processing level:           5
+ Processing level:           6
+ Determining dsumtau/dp ...
+ Calculating tau_lev for species (+ far wing):           3
+ Processing level:           1
+ Processing level:           2
+ Processing level:           3
+ Processing level:           4
+ Processing level:           5
+ Processing level:           6
+ Processing level:           7
+ Processing level:           8
+ Processing level:           9
+ Processing level:          10
+ Processing level:          11
+ Processing level:          12
+ Processing level:          13
+ Processing level:          14
+ Processing level:          15
+ Processing level:          16
+ Processing level:          17
+ Processing level:          18
+ Processing level:          19
+ Processing level:          20
+ Processing level:          21
+ Processing level:          22
+ Processing level:          23
+ Processing level:          24
+ Processing level:          25
+ Processing level:          26
+ Processing level:          27
+ Processing level:          28
+ Processing level:          29
+ Processing level:          30
+ Processing level:          31
+ Processing level:          32
+ Processing level:          33
+ Processing level:          34
+ Processing level:          35
+ Processing level:          36
+ Processing level:          37
+ Processing level:          38
+ Processing level:          39
+ Processing level:          40
+ Processing level:          41
+ Processing level:          42
+ Processing level:          43
+ Processing level:          44
+ Processing level:          45
+ Processing level:          46
+ Processing level:          47
+ Processing level:          48
+ Processing level:          49
+ Processing species:            4
+ Calculating tau_lev for species (+ far wing):           4
+ Processing level:           1
+ Processing level:           2
+ Processing level:           3
+ Processing level:           4
+ Processing level:           5
+ Processing level:           6
+ Processing level:           7
+ Processing level:           8
+ Processing level:           9
+ Processing level:          10
+ Processing level:          11
+ Processing level:          12
+ Processing level:          13
+ Processing level:          14
+ Processing level:          15
+ Processing level:          16
+ Processing level:          17
+ Processing level:          18
+ Processing level:          19
+ Processing level:          20
+ Processing level:          21
+ Processing level:          22
+ Processing level:          23
+ Processing level:          24
+ Processing level:          25
+ Processing level:          26
+ Processing level:          27
+ Processing level:          28
+ Processing level:          29
+ Processing level:          30
+ Processing level:          31
+ Processing level:          32
+ Processing level:          33
+ Processing level:          34
+ Processing level:          35
+ Processing level:          36
+ Processing level:          37
+ Processing level:          38
+ Processing level:          39
+ Processing level:          40
+ Processing level:          41
+ Processing level:          42
+ Processing level:          43
+ Processing level:          44
+ Processing level:          45
+ Processing level:          46
+ Processing level:          47
+ Processing level:          48
+ Processing level:          49
+ Calculating total optical thickness ...
+ Calculating AVKs ...
+ Calculating closed fct air mass dep...
+ checking polynomial approx species... 
+ nue_index n_ams maxerr:       673856           2   1.1234943999785344E-004
+ ... Done!
+ ...closed fct air mass dep calculated!
+ Determining dsumtau/dT ...
+ Calculating tau_lev for species (+ far wing):           4
+ Processing level:           1
+ Processing level:           2
+ Processing level:           3
+ Processing level:           4
+ Processing level:           5
+ Processing level:           6
+ Determining dsumtau/dp ...
+ Calculating tau_lev for species (+ far wing):           4
+ Processing level:           1
+ Processing level:           2
+ Processing level:           3
+ Processing level:           4
+ Processing level:           5
+ Processing level:           6
+ Processing level:           7
+ Processing level:           8
+ Processing level:           9
+ Processing level:          10
+ Processing level:          11
+ Processing level:          12
+ Processing level:          13
+ Processing level:          14
+ Processing level:          15
+ Processing level:          16
+ Processing level:          17
+ Processing level:          18
+ Processing level:          19
+ Processing level:          20
+ Processing level:          21
+ Processing level:          22
+ Processing level:          23
+ Processing level:          24
+ Processing level:          25
+ Processing level:          26
+ Processing level:          27
+ Processing level:          28
+ Processing level:          29
+ Processing level:          30
+ Processing level:          31
+ Processing level:          32
+ Processing level:          33
+ Processing level:          34
+ Processing level:          35
+ Processing level:          36
+ Processing level:          37
+ Processing level:          38
+ Processing level:          39
+ Processing level:          40
+ Processing level:          41
+ Processing level:          42
+ Processing level:          43
+ Processing level:          44
+ Processing level:          45
+ Processing level:          46
+ Processing level:          47
+ Processing level:          48
+ Processing level:          49
+ Processing species:            5
+ Calculating tau_lev for species (+ far wing):           5
+ Processing level:           1
+ Processing level:           2
+ Processing level:           3
+ Processing level:           4
+ Processing level:           5
+ Processing level:           6
+ Processing level:           7
+ Processing level:           8
+ Processing level:           9
+ Processing level:          10
+ Processing level:          11
+ Processing level:          12
+ Processing level:          13
+ Processing level:          14
+ Processing level:          15
+ Processing level:          16
+ Processing level:          17
+ Processing level:          18
+ Processing level:          19
+ Processing level:          20
+ Processing level:          21
+ Processing level:          22
+ Processing level:          23
+ Processing level:          24
+ Processing level:          25
+ Processing level:          26
+ Processing level:          27
+ Processing level:          28
+ Processing level:          29
+ Processing level:          30
+ Processing level:          31
+ Processing level:          32
+ Processing level:          33
+ Processing level:          34
+ Processing level:          35
+ Processing level:          36
+ Processing level:          37
+ Processing level:          38
+ Processing level:          39
+ Processing level:          40
+ Processing level:          41
+ Processing level:          42
+ Processing level:          43
+ Processing level:          44
+ Processing level:          45
+ Processing level:          46
+ Processing level:          47
+ Processing level:          48
+ Processing level:          49
+ Calculating total optical thickness ...
+ Calculating AVKs ...
+ Calculating closed fct air mass dep...
+ checking polynomial approx species... 
+ nue_index n_ams maxerr:       125250           2   1.7811779941617431E-005
+ ... Done!
+ ...closed fct air mass dep calculated!
+ Determining dsumtau/dT ...
+ Calculating tau_lev for species (+ far wing):           5
+ Processing level:           1
+ Processing level:           2
+ Processing level:           3
+ Processing level:           4
+ Processing level:           5
+ Processing level:           6
+ Determining dsumtau/dp ...
+ Calculating tau_lev for species (+ far wing):           5
+ Processing level:           1
+ Processing level:           2
+ Processing level:           3
+ Processing level:           4
+ Processing level:           5
+ Processing level:           6
+ Processing level:           7
+ Processing level:           8
+ Processing level:           9
+ Processing level:          10
+ Processing level:          11
+ Processing level:          12
+ Processing level:          13
+ Processing level:          14
+ Processing level:          15
+ Processing level:          16
+ Processing level:          17
+ Processing level:          18
+ Processing level:          19
+ Processing level:          20
+ Processing level:          21
+ Processing level:          22
+ Processing level:          23
+ Processing level:          24
+ Processing level:          25
+ Processing level:          26
+ Processing level:          27
+ Processing level:          28
+ Processing level:          29
+ Processing level:          30
+ Processing level:          31
+ Processing level:          32
+ Processing level:          33
+ Processing level:          34
+ Processing level:          35
+ Processing level:          36
+ Processing level:          37
+ Processing level:          38
+ Processing level:          39
+ Processing level:          40
+ Processing level:          41
+ Processing level:          42
+ Processing level:          43
+ Processing level:          44
+ Processing level:          45
+ Processing level:          46
+ Processing level:          47
+ Processing level:          48
+ Processing level:          49
+ Processing species:            6
+ Calculating tau_lev for species (+ far wing):           6
+ Processing level:           1
+ Processing level:           2
+ Processing level:           3
+ Processing level:           4
+ Processing level:           5
+ Processing level:           6
+ Processing level:           7
+ Processing level:           8
+ Processing level:           9
+ Processing level:          10
+ Processing level:          11
+ Processing level:          12
+ Processing level:          13
+ Processing level:          14
+ Processing level:          15
+ Processing level:          16
+ Processing level:          17
+ Processing level:          18
+ Processing level:          19
+ Processing level:          20
+ Processing level:          21
+ Processing level:          22
+ Processing level:          23
+ Processing level:          24
+ Processing level:          25
+ Processing level:          26
+ Processing level:          27
+ Processing level:          28
+ Processing level:          29
+ Processing level:          30
+ Processing level:          31
+ Processing level:          32
+ Processing level:          33
+ Processing level:          34
+ Processing level:          35
+ Processing level:          36
+ Processing level:          37
+ Processing level:          38
+ Processing level:          39
+ Processing level:          40
+ Processing level:          41
+ Processing level:          42
+ Processing level:          43
+ Processing level:          44
+ Processing level:          45
+ Processing level:          46
+ Processing level:          47
+ Processing level:          48
+ Processing level:          49
+ Calculating total optical thickness ...
+ Calculating AVKs ...
+ Calculating closed fct air mass dep...
+ checking polynomial approx species... 
+ nue_index n_ams maxerr:        50546           2   2.4775229371399230E-005
+ ... Done!
+ ...closed fct air mass dep calculated!
+ Determining dsumtau/dT ...
+ Calculating tau_lev for species (+ far wing):           6
+ Processing level:           1
+ Processing level:           2
+ Processing level:           3
+ Processing level:           4
+ Processing level:           5
+ Processing level:           6
+ Determining dsumtau/dp ...
+ Calculating tau_lev for species (+ far wing):           6
+ Processing level:           1
+ Processing level:           2
+ Processing level:           3
+ Processing level:           4
+ Processing level:           5
+ Processing level:           6
+ Processing level:           7
+ Processing level:           8
+ Processing level:           9
+ Processing level:          10
+ Processing level:          11
+ Processing level:          12
+ Processing level:          13
+ Processing level:          14
+ Processing level:          15
+ Processing level:          16
+ Processing level:          17
+ Processing level:          18
+ Processing level:          19
+ Processing level:          20
+ Processing level:          21
+ Processing level:          22
+ Processing level:          23
+ Processing level:          24
+ Processing level:          25
+ Processing level:          26
+ Processing level:          27
+ Processing level:          28
+ Processing level:          29
+ Processing level:          30
+ Processing level:          31
+ Processing level:          32
+ Processing level:          33
+ Processing level:          34
+ Processing level:          35
+ Processing level:          36
+ Processing level:          37
+ Processing level:          38
+ Processing level:          39
+ Processing level:          40
+ Processing level:          41
+ Processing level:          42
+ Processing level:          43
+ Processing level:          44
+ Processing level:          45
+ Processing level:          46
+ Processing level:          47
+ Processing level:          48
+ Processing level:          49
+ Processing species:            7
+ Calculating tau_lev for species (+ far wing):           7
+ Processing level:           1
+ Processing level:           2
+ Processing level:           3
+ Processing level:           4
+ Processing level:           5
+ Processing level:           6
+ Processing level:           7
+ Processing level:           8
+ Processing level:           9
+ Processing level:          10
+ Processing level:          11
+ Processing level:          12
+ Processing level:          13
+ Processing level:          14
+ Processing level:          15
+ Processing level:          16
+ Processing level:          17
+ Processing level:          18
+ Processing level:          19
+ Processing level:          20
+ Processing level:          21
+ Processing level:          22
+ Processing level:          23
+ Processing level:          24
+ Processing level:          25
+ Processing level:          26
+ Processing level:          27
+ Processing level:          28
+ Processing level:          29
+ Processing level:          30
+ Processing level:          31
+ Processing level:          32
+ Processing level:          33
+ Processing level:          34
+ Processing level:          35
+ Processing level:          36
+ Processing level:          37
+ Processing level:          38
+ Processing level:          39
+ Processing level:          40
+ Processing level:          41
+ Processing level:          42
+ Processing level:          43
+ Processing level:          44
+ Processing level:          45
+ Processing level:          46
+ Processing level:          47
+ Processing level:          48
+ Processing level:          49
+ Calculating total optical thickness ...
+ Calculating AVKs ...
+ Calculating closed fct air mass dep...
+ checking polynomial approx species... 
+ nue_index n_ams maxerr:      1284960           2   2.5926597383327395E-005
+ ... Done!
+ ...closed fct air mass dep calculated!
+ Determining dsumtau/dT ...
+ Calculating tau_lev for species (+ far wing):           7
+ Processing level:           1
+ Processing level:           2
+ Processing level:           3
+ Processing level:           4
+ Processing level:           5
+ Processing level:           6
+ Determining dsumtau/dp ...
+ Calculating tau_lev for species (+ far wing):           7
+ Processing level:           1
+ Processing level:           2
+ Processing level:           3
+ Processing level:           4
+ Processing level:           5
+ Processing level:           6
+ Processing level:           7
+ Processing level:           8
+ Processing level:           9
+ Processing level:          10
+ Processing level:          11
+ Processing level:          12
+ Processing level:          13
+ Processing level:          14
+ Processing level:          15
+ Processing level:          16
+ Processing level:          17
+ Processing level:          18
+ Processing level:          19
+ Processing level:          20
+ Processing level:          21
+ Processing level:          22
+ Processing level:          23
+ Processing level:          24
+ Processing level:          25
+ Processing level:          26
+ Processing level:          27
+ Processing level:          28
+ Processing level:          29
+ Processing level:          30
+ Processing level:          31
+ Processing level:          32
+ Processing level:          33
+ Processing level:          34
+ Processing level:          35
+ Processing level:          36
+ Processing level:          37
+ Processing level:          38
+ Processing level:          39
+ Processing level:          40
+ Processing level:          41
+ Processing level:          42
+ Processing level:          43
+ Processing level:          44
+ Processing level:          45
+ Processing level:          46
+ Processing level:          47
+ Processing level:          48
+ Processing level:          49
+ Processing species:            8
+ Calculating tau_lev for species (+ far wing):           8
+ Processing level:           1
+ Processing level:           2
+ Processing level:           3
+ Processing level:           4
+ Processing level:           5
+ Processing level:           6
+ Processing level:           7
+ Processing level:           8
+ Processing level:           9
+ Processing level:          10
+ Processing level:          11
+ Processing level:          12
+ Processing level:          13
+ Processing level:          14
+ Processing level:          15
+ Processing level:          16
+ Processing level:          17
+ Processing level:          18
+ Processing level:          19
+ Processing level:          20
+ Processing level:          21
+ Processing level:          22
+ Processing level:          23
+ Processing level:          24
+ Processing level:          25
+ Processing level:          26
+ Processing level:          27
+ Processing level:          28
+ Processing level:          29
+ Processing level:          30
+ Processing level:          31
+ Processing level:          32
+ Processing level:          33
+ Processing level:          34
+ Processing level:          35
+ Processing level:          36
+ Processing level:          37
+ Processing level:          38
+ Processing level:          39
+ Processing level:          40
+ Processing level:          41
+ Processing level:          42
+ Processing level:          43
+ Processing level:          44
+ Processing level:          45
+ Processing level:          46
+ Processing level:          47
+ Processing level:          48
+ Processing level:          49
+ Calculating total optical thickness ...
+ Calculating AVKs ...
+ Calculating closed fct air mass dep...
+ checking polynomial approx species... 
+ nue_index n_ams maxerr:        61676           2   2.5827797324133183E-004
+ ... Done!
+ ...closed fct air mass dep calculated!
+ Determining dsumtau/dT ...
+ Calculating tau_lev for species (+ far wing):           8
+ Processing level:           1
+ Processing level:           2
+ Processing level:           3
+ Processing level:           4
+ Processing level:           5
+ Processing level:           6
+ Determining dsumtau/dp ...
+ Calculating tau_lev for species (+ far wing):           8
+ Processing level:           1
+ Processing level:           2
+ Processing level:           3
+ Processing level:           4
+ Processing level:           5
+ Processing level:           6
+ Processing level:           7
+ Processing level:           8
+ Processing level:           9
+ Processing level:          10
+ Processing level:          11
+ Processing level:          12
+ Processing level:          13
+ Processing level:          14
+ Processing level:          15
+ Processing level:          16
+ Processing level:          17
+ Processing level:          18
+ Processing level:          19
+ Processing level:          20
+ Processing level:          21
+ Processing level:          22
+ Processing level:          23
+ Processing level:          24
+ Processing level:          25
+ Processing level:          26
+ Processing level:          27
+ Processing level:          28
+ Processing level:          29
+ Processing level:          30
+ Processing level:          31
+ Processing level:          32
+ Processing level:          33
+ Processing level:          34
+ Processing level:          35
+ Processing level:          36
+ Processing level:          37
+ Processing level:          38
+ Processing level:          39
+ Processing level:          40
+ Processing level:          41
+ Processing level:          42
+ Processing level:          43
+ Processing level:          44
+ Processing level:          45
+ Processing level:          46
+ Processing level:          47
+ Processing level:          48
+ Processing level:          49
+ ... All species processed!
+ writing column sensitivities to file ...
+ generating binary file ...
+ ...done!
+ Deallocating arrays ...
+ ...deallocated!
+ 
+ Program pcxs10 finished.

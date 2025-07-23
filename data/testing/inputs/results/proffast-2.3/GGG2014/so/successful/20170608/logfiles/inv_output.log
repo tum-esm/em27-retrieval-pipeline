@@ -1,0 +1,520 @@
+
+================= Task 0 ================
+/home/moritz-makowski/documents/em27/em27-retrieval-pipeline/data/containers/retrieval-container-loving-merkle/prf/invers20 invers20so_170608_a.inp
+Return code: 0
+
+Output:
+ date folder:               /home/moritz-makowski/documents/em27/em27-retrieval-pipeline/data/containers/retrieval-container-loving-merkle-outputs/analysis/so_SN039/170608                                                                                                                                                             
+ site name:                 so                                                
+ yymmdd:                    170608
+ abscodatei:                so170608-abscos.bin                                                                                                                                                                                                                                                                                         
+ pTdetaildec:                T
+ quietrundec:                T
+ output handle:             _a
+ number of jobs:                       5
+ number of species:                    8
+ persistence:         0.100000001    
+ Job in process...           1
+ requested microwindow bounds:               (8353.3999999999996,8463.1000000000004)
+ method:            2
+ method:            0
+ method:            0
+ method:            0
+ method:            0
+ method:            0
+ method:            0
+ method:            0
+ gases in forward calc:                    1
+ derived gases in forward calc:            1
+ Job in process...           2
+ requested microwindow bounds:               (7765.0000000000000,8005.0000000000000)
+ method:            2
+ method:            0
+ method:            1
+ method:            0
+ method:            0
+ method:            0
+ method:            2
+ method:            0
+ gases in forward calc:                    3
+ derived gases in forward calc:            2
+ Job in process...           3
+ requested microwindow bounds:               (6173.0000000000000,6390.0000000000000)
+ method:            2
+ method:            0
+ method:            2
+ method:            1
+ method:            0
+ method:            0
+ method:            0
+ method:            0
+ gases in forward calc:                    3
+ derived gases in forward calc:            2
+ Job in process...           4
+ requested microwindow bounds:               (5897.0000000000000,6145.0000000000000)
+ method:            2
+ method:            0
+ method:            2
+ method:            2
+ method:            0
+ method:            0
+ method:            0
+ method:            0
+ gases in forward calc:                    3
+ derived gases in forward calc:            3
+ Job in process...           5
+ requested microwindow bounds:               (4208.6999999999998,4318.8000000000002)
+ method:            2
+ method:            2
+ method:            0
+ method:            2
+ method:            1
+ method:            2
+ method:            0
+ method:            1
+ gases in forward calc:                    6
+ derived gases in forward calc:            4
+ number of spectra:           14
+ 
+ pcxs table version info:
+ pcxs-2.0---rev210815
+ 
+ array sizes / imported integers: 
+ 
+ n_Tdisturb:                  6
+ maxpoly:                     5
+ wvskal%ngrid_ref:      1433917
+ n_tau:                       8
+ n_roi:                       4
+ 
+ other imported floats:
+ 
+ altim_gnd_ref            181.00000000000000     
+ pPa_gnd_ref:             99735.105071129554     
+ wvskal%firstnue_ref:     4150.0000000000000     
+ wvskal%dnuerel:          4.9999999999999998E-007
+ 
+ Allocating arrays...
+ ...allocated!
+ Reading tabellated arrays...
+ ...done!
+ first tabellated wavenumber:    4150.0000000000000     
+ last tabellated wavenumber:     8500.0014513439819     
+ Checking spectra...
+ CO spectra detected!
+ firstnue_mess:    3799.9866368927260     
+ lastnue_mess:     13999.950767499515     
+ dnue_mess:       0.27777680094245072     
+ ngrid_mess:           36721
+ ngrid_mess1:          34201
+ ngrid_mess2:           5041
+ ...all spectra compatible!
+ ILS OPDmax:     1.8000000000000000     
+ ILS semifov:    2.3600000000000001E-003
+ ILS apolin:    0.99860000000000004     
+ ILS apoeff:     0.0000000000000000     
+ ILS phaserr:   -2.4399999999999999E-003
+ radius of selfapo kernel:            5
+ spectra minimally sampled!
+ isa selfapo grid:               5
+ zerofill factor:               32
+ ILS dnue increment:     8.6805250294515850E-003
+ ILS radius:                  1280
+ wvskal%ngrid_isa:       143392
+ performing retrievals...
+ solar scale correction:  -2.0305949730875658E-007
+ processing spectrum job:            1           1
+ make_tau ...
+ allocating job-specific arrays ...
+ spectrum job iteration           1           1           1   5.09665534E-02
+ spectrum job iteration           1           1           2   6.97381888E-03
+ spectrum job iteration           1           1           3   4.47561033E-03
+ processing spectrum job:            1           2
+ make_tau ...
+ allocating job-specific arrays ...
+ spectrum job iteration           1           2           1   4.94022034E-02
+ spectrum job iteration           1           2           2   4.34950413E-03
+ spectrum job iteration           1           2           3   1.97268534E-03
+ spectrum job iteration           1           2           4   1.95069949E-03
+ processing spectrum job:            1           3
+ make_tau ...
+ allocating job-specific arrays ...
+ spectrum job iteration           1           3           1   2.20077187E-02
+ spectrum job iteration           1           3           2   4.37768269E-03
+ spectrum job iteration           1           3           3   1.87851291E-03
+ spectrum job iteration           1           3           4   1.82639586E-03
+ processing spectrum job:            1           4
+ make_tau ...
+ allocating job-specific arrays ...
+ spectrum job iteration           1           4           1   1.41579602E-02
+ spectrum job iteration           1           4           2   1.95994158E-03
+ spectrum job iteration           1           4           3   1.09464943E-03
+ spectrum job iteration           1           4           4   1.08033745E-03
+ processing spectrum job:            1           5
+ make_tau ...
+ allocating job-specific arrays ...
+ spectrum job iteration           1           5           1   3.02229784E-02
+ spectrum job iteration           1           5           2   2.21226946E-03
+ spectrum job iteration           1           5           3   1.24079583E-03
+ solar scale correction:  -2.6604409737088662E-007
+ processing spectrum job:            2           1
+ make_tau ...
+ allocating job-specific arrays ...
+ spectrum job iteration           2           1           1   2.12957580E-02
+ spectrum job iteration           2           1           2   4.48087417E-03
+ spectrum job iteration           2           1           3   4.42102598E-03
+ processing spectrum job:            2           2
+ make_tau ...
+ allocating job-specific arrays ...
+ spectrum job iteration           2           2           1   3.95506201E-03
+ spectrum job iteration           2           2           2   2.00261385E-03
+ spectrum job iteration           2           2           3   1.92636868E-03
+ processing spectrum job:            2           3
+ make_tau ...
+ allocating job-specific arrays ...
+ spectrum job iteration           2           3           1   3.20731639E-03
+ spectrum job iteration           2           3           2   1.75004429E-03
+ spectrum job iteration           2           3           3   1.69792457E-03
+ processing spectrum job:            2           4
+ make_tau ...
+ allocating job-specific arrays ...
+ spectrum job iteration           2           4           1   2.44678371E-03
+ spectrum job iteration           2           4           2   1.12161878E-03
+ spectrum job iteration           2           4           3   1.09073322E-03
+ processing spectrum job:            2           5
+ make_tau ...
+ allocating job-specific arrays ...
+ spectrum job iteration           2           5           1   1.24318283E-02
+ spectrum job iteration           2           5           2   1.29810662E-03
+ spectrum job iteration           2           5           3   1.25971949E-03
+ solar scale correction:  -3.5308452278720053E-007
+ processing spectrum job:            3           1
+ make_tau ...
+ allocating job-specific arrays ...
+ spectrum job iteration           3           1           1   6.09612837E-03
+ spectrum job iteration           3           1           2   4.28130198E-03
+ spectrum job iteration           3           1           3   4.27208934E-03
+ processing spectrum job:            3           2
+ make_tau ...
+ allocating job-specific arrays ...
+ spectrum job iteration           3           2           1   3.85157322E-03
+ spectrum job iteration           3           2           2   1.95197726E-03
+ spectrum job iteration           3           2           3   1.93050562E-03
+ processing spectrum job:            3           3
+ make_tau ...
+ allocating job-specific arrays ...
+ spectrum job iteration           3           3           1   1.99112273E-03
+ spectrum job iteration           3           3           2   1.60093326E-03
+ spectrum job iteration           3           3           3   1.58500369E-03
+ processing spectrum job:            3           4
+ make_tau ...
+ allocating job-specific arrays ...
+ spectrum job iteration           3           4           1   1.33423973E-03
+ spectrum job iteration           3           4           2   1.08864775E-03
+ spectrum job iteration           3           4           3   1.08014769E-03
+ processing spectrum job:            3           5
+ make_tau ...
+ allocating job-specific arrays ...
+ spectrum job iteration           3           5           1   2.73563503E-03
+ spectrum job iteration           3           5           2   1.26726646E-03
+ spectrum job iteration           3           5           3   1.25610025E-03
+ solar scale correction:  -4.5940103145929184E-007
+ processing spectrum job:            4           1
+ make_tau ...
+ allocating job-specific arrays ...
+ spectrum job iteration           4           1           1   5.03257709E-03
+ spectrum job iteration           4           1           2   4.23494587E-03
+ processing spectrum job:            4           2
+ make_tau ...
+ allocating job-specific arrays ...
+ spectrum job iteration           4           2           1   2.94157956E-03
+ spectrum job iteration           4           2           2   1.92621828E-03
+ processing spectrum job:            4           3
+ make_tau ...
+ allocating job-specific arrays ...
+ spectrum job iteration           4           3           1   1.54868583E-03
+ processing spectrum job:            4           4
+ make_tau ...
+ allocating job-specific arrays ...
+ spectrum job iteration           4           4           1   1.11594528E-03
+ spectrum job iteration           4           4           2   1.09290634E-03
+ processing spectrum job:            4           5
+ make_tau ...
+ allocating job-specific arrays ...
+ spectrum job iteration           4           5           1   1.90417224E-03
+ spectrum job iteration           4           5           2   1.28990761E-03
+ solar scale correction:  -5.7926283701020705E-007
+ processing spectrum job:            5           1
+ make_tau ...
+ allocating job-specific arrays ...
+ spectrum job iteration           5           1           1   4.98425309E-03
+ spectrum job iteration           5           1           2   4.33915248E-03
+ processing spectrum job:            5           2
+ make_tau ...
+ allocating job-specific arrays ...
+ spectrum job iteration           5           2           1   2.41983752E-03
+ spectrum job iteration           5           2           2   1.91611226E-03
+ processing spectrum job:            5           3
+ make_tau ...
+ allocating job-specific arrays ...
+ spectrum job iteration           5           3           1   1.56638119E-03
+ spectrum job iteration           5           3           2   1.52517075E-03
+ processing spectrum job:            5           4
+ make_tau ...
+ allocating job-specific arrays ...
+ spectrum job iteration           5           4           1   1.16880273E-03
+ spectrum job iteration           5           4           2   1.09119376E-03
+ processing spectrum job:            5           5
+ make_tau ...
+ allocating job-specific arrays ...
+ spectrum job iteration           5           5           1   2.07289588E-03
+ spectrum job iteration           5           5           2   1.31535891E-03
+ solar scale correction:  -7.0593441638302406E-007
+ processing spectrum job:            6           1
+ make_tau ...
+ allocating job-specific arrays ...
+ spectrum job iteration           6           1           1   5.04000299E-03
+ spectrum job iteration           6           1           2   4.30280482E-03
+ processing spectrum job:            6           2
+ make_tau ...
+ allocating job-specific arrays ...
+ spectrum job iteration           6           2           1   2.00543250E-03
+ spectrum job iteration           6           2           2   1.92170299E-03
+ processing spectrum job:            6           3
+ make_tau ...
+ allocating job-specific arrays ...
+ spectrum job iteration           6           3           1   1.52630021E-03
+ spectrum job iteration           6           3           2   1.50501961E-03
+ processing spectrum job:            6           4
+ make_tau ...
+ allocating job-specific arrays ...
+ spectrum job iteration           6           4           1   1.14845438E-03
+ spectrum job iteration           6           4           2   1.10468152E-03
+ processing spectrum job:            6           5
+ make_tau ...
+ allocating job-specific arrays ...
+ spectrum job iteration           6           5           1   2.03476613E-03
+ spectrum job iteration           6           5           2   1.35295105E-03
+ solar scale correction:  -8.3264558447183743E-007
+ processing spectrum job:            7           1
+ make_tau ...
+ allocating job-specific arrays ...
+ spectrum job iteration           7           1           1   5.98782348E-03
+ spectrum job iteration           7           1           2   4.52371500E-03
+ spectrum job iteration           7           1           3   4.51830728E-03
+ processing spectrum job:            7           2
+ make_tau ...
+ allocating job-specific arrays ...
+ spectrum job iteration           7           2           1   2.08764547E-03
+ spectrum job iteration           7           2           2   1.94182550E-03
+ processing spectrum job:            7           3
+ make_tau ...
+ allocating job-specific arrays ...
+ spectrum job iteration           7           3           1   1.66721537E-03
+ spectrum job iteration           7           3           2   1.56769226E-03
+ processing spectrum job:            7           4
+ make_tau ...
+ allocating job-specific arrays ...
+ spectrum job iteration           7           4           1   1.28738384E-03
+ spectrum job iteration           7           4           2   1.12094055E-03
+ processing spectrum job:            7           5
+ make_tau ...
+ allocating job-specific arrays ...
+ spectrum job iteration           7           5           1   2.76686694E-03
+ spectrum job iteration           7           5           2   1.40010309E-03
+ solar scale correction:  -9.5232706814080897E-007
+ processing spectrum job:            8           1
+ make_tau ...
+ allocating job-specific arrays ...
+ spectrum job iteration           8           1           1   1.03208395E-02
+ spectrum job iteration           8           1           2   5.08192135E-03
+ spectrum job iteration           8           1           3   5.06856991E-03
+ processing spectrum job:            8           2
+ make_tau ...
+ allocating job-specific arrays ...
+ spectrum job iteration           8           2           1   2.41330522E-03
+ spectrum job iteration           8           2           2   1.94759003E-03
+ processing spectrum job:            8           3
+ make_tau ...
+ allocating job-specific arrays ...
+ spectrum job iteration           8           3           1   1.78170973E-03
+ spectrum job iteration           8           3           2   1.68604357E-03
+ processing spectrum job:            8           4
+ make_tau ...
+ allocating job-specific arrays ...
+ spectrum job iteration           8           4           1   1.81597308E-03
+ spectrum job iteration           8           4           2   1.10846723E-03
+ processing spectrum job:            8           5
+ make_tau ...
+ allocating job-specific arrays ...
+ spectrum job iteration           8           5           1   5.50265145E-03
+ spectrum job iteration           8           5           2   1.43652491E-03
+ spectrum job iteration           8           5           3   1.42506964E-03
+ solar scale correction:  -1.0574703083309001E-006
+ processing spectrum job:            9           1
+ make_tau ...
+ allocating job-specific arrays ...
+ spectrum job iteration           9           1           1   1.35225626E-02
+ spectrum job iteration           9           1           2   5.86264068E-03
+ spectrum job iteration           9           1           3   5.84419398E-03
+ processing spectrum job:            9           2
+ make_tau ...
+ allocating job-specific arrays ...
+ spectrum job iteration           9           2           1   2.96582072E-03
+ spectrum job iteration           9           2           2   1.98323280E-03
+ processing spectrum job:            9           3
+ make_tau ...
+ allocating job-specific arrays ...
+ spectrum job iteration           9           3           1   1.97413354E-03
+ spectrum job iteration           9           3           2   1.85578503E-03
+ processing spectrum job:            9           4
+ make_tau ...
+ allocating job-specific arrays ...
+ spectrum job iteration           9           4           1   2.03647045E-03
+ spectrum job iteration           9           4           2   1.08796952E-03
+ processing spectrum job:            9           5
+ make_tau ...
+ allocating job-specific arrays ...
+ spectrum job iteration           9           5           1   6.28598966E-03
+ spectrum job iteration           9           5           2   1.59228011E-03
+ spectrum job iteration           9           5           3   1.58404023E-03
+ solar scale correction:  -1.1438157777650646E-006
+ processing spectrum job:           10           1
+ make_tau ...
+ allocating job-specific arrays ...
+ spectrum job iteration          10           1           1   1.27215711E-02
+ spectrum job iteration          10           1           2   6.06214395E-03
+ processing spectrum job:           10           2
+ make_tau ...
+ allocating job-specific arrays ...
+ spectrum job iteration          10           2           1   3.85819748E-03
+ spectrum job iteration          10           2           2   1.97856291E-03
+ processing spectrum job:           10           3
+ make_tau ...
+ allocating job-specific arrays ...
+ spectrum job iteration          10           3           1   2.02727620E-03
+ spectrum job iteration          10           3           2   1.93718495E-03
+ processing spectrum job:           10           4
+ make_tau ...
+ allocating job-specific arrays ...
+ spectrum job iteration          10           4           1   1.36083923E-03
+ spectrum job iteration          10           4           2   1.06877205E-03
+ processing spectrum job:           10           5
+ make_tau ...
+ allocating job-specific arrays ...
+ spectrum job iteration          10           5           1   5.16778743E-03
+ spectrum job iteration          10           5           2   1.69524259E-03
+ solar scale correction:  -1.2057264107997237E-006
+ processing spectrum job:           11           1
+ make_tau ...
+ allocating job-specific arrays ...
+ spectrum job iteration          11           1           1   6.24443451E-03
+ spectrum job iteration          11           1           2   6.15402171E-03
+ processing spectrum job:           11           2
+ make_tau ...
+ allocating job-specific arrays ...
+ spectrum job iteration          11           2           1   5.18153841E-03
+ spectrum job iteration          11           2           2   2.01092754E-03
+ processing spectrum job:           11           3
+ make_tau ...
+ allocating job-specific arrays ...
+ spectrum job iteration          11           3           1   2.17966037E-03
+ spectrum job iteration          11           3           2   2.15493585E-03
+ processing spectrum job:           11           4
+ make_tau ...
+ allocating job-specific arrays ...
+ spectrum job iteration          11           4           1   1.15775201E-03
+ spectrum job iteration          11           4           2   1.12405536E-03
+ processing spectrum job:           11           5
+ make_tau ...
+ allocating job-specific arrays ...
+ spectrum job iteration          11           5           1   2.47155409E-03
+ spectrum job iteration          11           5           2   1.70324801E-03
+ solar scale correction:  -1.2395116240163401E-006
+ processing spectrum job:           12           1
+ make_tau ...
+ allocating job-specific arrays ...
+ spectrum job iteration          12           1           1   7.97466189E-03
+ spectrum job iteration          12           1           2   5.82946138E-03
+ processing spectrum job:           12           2
+ make_tau ...
+ allocating job-specific arrays ...
+ spectrum job iteration          12           2           1   7.55398488E-03
+ spectrum job iteration          12           2           2   2.05582986E-03
+ processing spectrum job:           12           3
+ make_tau ...
+ allocating job-specific arrays ...
+ spectrum job iteration          12           3           1   2.56323395E-03
+ spectrum job iteration          12           3           2   2.37598899E-03
+ processing spectrum job:           12           4
+ make_tau ...
+ allocating job-specific arrays ...
+ spectrum job iteration          12           4           1   1.59799703E-03
+ spectrum job iteration          12           4           2   1.27025298E-03
+ processing spectrum job:           12           5
+ make_tau ...
+ allocating job-specific arrays ...
+ spectrum job iteration          12           5           1   2.53602094E-03
+ spectrum job iteration          12           5           2   1.62907119E-03
+ solar scale correction:  -1.2431994626015717E-006
+ processing spectrum job:           13           1
+ make_tau ...
+ allocating job-specific arrays ...
+ spectrum job iteration          13           1           1   7.82910082E-03
+ spectrum job iteration          13           1           2   6.03507878E-03
+ processing spectrum job:           13           2
+ make_tau ...
+ allocating job-specific arrays ...
+ spectrum job iteration          13           2           1   1.12367654E-02
+ spectrum job iteration          13           2           2   2.17287196E-03
+ processing spectrum job:           13           3
+ make_tau ...
+ allocating job-specific arrays ...
+ spectrum job iteration          13           3           1   2.89857201E-03
+ spectrum job iteration          13           3           2   2.82459147E-03
+ processing spectrum job:           13           4
+ make_tau ...
+ allocating job-specific arrays ...
+ spectrum job iteration          13           4           1   1.50975608E-03
+ spectrum job iteration          13           4           2   1.37107074E-03
+ processing spectrum job:           13           5
+ make_tau ...
+ allocating job-specific arrays ...
+ spectrum job iteration          13           5           1   3.03924130E-03
+ spectrum job iteration          13           5           2   1.68751075E-03
+ solar scale correction:  -1.2164476550779174E-006
+ processing spectrum job:           14           1
+ make_tau ...
+ allocating job-specific arrays ...
+ spectrum job iteration          14           1           1   6.92406856E-03
+ spectrum job iteration          14           1           2   6.22227974E-03
+ processing spectrum job:           14           2
+ make_tau ...
+ allocating job-specific arrays ...
+ spectrum job iteration          14           2           1   1.73071586E-02
+ spectrum job iteration          14           2           2   2.30291556E-03
+ processing spectrum job:           14           3
+ make_tau ...
+ allocating job-specific arrays ...
+ spectrum job iteration          14           3           1   3.66409728E-03
+ spectrum job iteration          14           3           2   3.59579548E-03
+ processing spectrum job:           14           4
+ make_tau ...
+ allocating job-specific arrays ...
+ spectrum job iteration          14           4           1   1.58947241E-03
+ spectrum job iteration          14           4           2   1.51162955E-03
+ processing spectrum job:           14           5
+ make_tau ...
+ allocating job-specific arrays ...
+ spectrum job iteration          14           5           1   4.41528996E-03
+ spectrum job iteration          14           5           2   1.74534810E-03
+ Deallocating arrays ...
+ ...deallocated!
+ Program invers20 finished!
+
+
+Errors:
+============================================
+============================================
+
+

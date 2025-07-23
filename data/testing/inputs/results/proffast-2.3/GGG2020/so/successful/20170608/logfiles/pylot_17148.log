@@ -1,0 +1,65 @@
+2025-07-23 06:15:51,180, DEBUG: Initialized logger with random number 17148.
+2025-07-23 06:15:51,180, INFO: ++++ Welcome to PROFFASTpylot ++++
+2025-07-23 06:15:51,180, DEBUG: Start reading input file...
+2025-07-23 06:15:51,182, DEBUG: mapfile_wetair_vmr was set to default value: None.
+2025-07-23 06:15:51,182, DEBUG: coord_file was set to default value: None.
+2025-07-23 06:15:51,182, DEBUG: note was set to default value: None.
+2025-07-23 06:15:51,182, DEBUG: ils_parameters was set to default value: None.
+2025-07-23 06:15:51,182, DEBUG: ignore_interpolation_error was set to default value: None.
+2025-07-23 06:15:51,182, DEBUG: backup_results was set to default value: True.
+2025-07-23 06:15:51,182, DEBUG: igram_pattern was set to default value: *.*.
+2025-07-23 06:15:51,182, DEBUG: instrument_parameters was set to default value: em27.
+2025-07-23 06:15:51,183, DEBUG: Searching for all interferogram folders ...
+2025-07-23 06:15:51,183, DEBUG: The following dates were found at /home/moritz-makowski/documents/em27/em27-retrieval-pipeline/data/containers/retrieval-container-distracted-swirles-inputs/ifg: 17-06-08
+2025-07-23 06:15:51,183, DEBUG: start_date is None
+2025-07-23 06:15:51,183, DEBUG: end_date is None
+2025-07-23 06:15:51,183, INFO: Run information:
+Retrieval for Instrument SN039 at so with time offset 0.0.
+The following dates will be processed:
+2017-06-08.
+
+2025-07-23 06:15:51,651, DEBUG: Date to load pressure files for:2017-06-08
+2025-07-23 06:15:51,651, DEBUG: Finished reading of input file.
+2025-07-23 06:15:51,652, DEBUG: Logfile path did not exist, create /home/moritz-makowski/documents/em27/em27-retrieval-pipeline/data/containers/retrieval-container-distracted-swirles-outputs/so_SN039_170608-170608/logfiles.
+2025-07-23 06:15:51,652, DEBUG: Logfile_path: /home/moritz-makowski/documents/em27/em27-retrieval-pipeline/data/containers/retrieval-container-distracted-swirles-outputs/so_SN039_170608-170608/logfiles
+2025-07-23 06:15:51,652, DEBUG: Initialized the FileMover
+2025-07-23 06:15:51,664, INFO: Running preprocess with 1 task(s) ...
+2025-07-23 06:15:51,665, DEBUG: Generating preprocess inp file for 170608..
+2025-07-23 06:15:51,665, DEBUG: Load ILS parameters from file.
+2025-07-23 06:15:51,672, DEBUG: No interferogram was skipped because of its filesize at 2017-06-08.
+2025-07-23 06:15:56,540, DEBUG: ... Write logfile of preprocess ...
+2025-07-23 06:15:56,541, INFO: Finished preprocessing.
+
+2025-07-23 06:15:56,541, INFO: Running pcxs with 1 task(s) ...
+2025-07-23 06:15:56,541, DEBUG: Get localdate spectra...
+2025-07-23 06:15:56,553, DEBUG: Detected GGG2020 map files!
+2025-07-23 06:15:56,555, WARNING: The Latitude of the map file (20.0) does not match the Latitude given to PROFFASTpylot (67.366)!
+2025-07-23 06:15:56,555, WARNING: The Longitude of the map file (60.0) Does not match the Latitude given to PROFFASTpylot (26.63)!
+2025-07-23 06:15:56,559, DEBUG: Create pcxs input parameters ...
+2025-07-23 06:15:56,559, DEBUG: Generating pcxs20 inp file for 170608..
+2025-07-23 06:17:03,862, DEBUG: ... Write logfile of pcxs ...
+2025-07-23 06:17:03,863, INFO: Finished pcxs.
+
+2025-07-23 06:17:03,863, INFO: Running invers with 1 task(s) ...
+2025-07-23 06:17:03,863, DEBUG: Execute prepare_pressure_df()...
+2025-07-23 06:17:03,863, DEBUG: Read in file /home/moritz-makowski/documents/em27/em27-retrieval-pipeline/data/containers/retrieval-container-distracted-swirles-inputs/log/ground-pressure-so-20170608.csv
+2025-07-23 06:17:03,869, DEBUG: Created pressure DataFrame:
+
+# start of self.p_df #
+      parsed_datetime  pressure
+0 2017-06-08 00:10:00    998.92
+1 2017-06-08 00:20:00    999.02
+2 2017-06-08 00:30:00    999.02
+3 2017-06-08 00:40:00    999.12
+4 2017-06-08 00:50:00    999.12
+
+2025-07-23 06:17:03,869, DEBUG: Generating invers20 inp file for 170608..
+2025-07-23 06:17:05,134, DEBUG: ... Write logfile of inv ...
+2025-07-23 06:17:05,134, INFO: Finished invers.
+
+2025-07-23 06:17:05,134, DEBUG: Moving results to final output folder ...
+2025-07-23 06:17:05,404, INFO: The combined results of PROFFAST were written to /home/moritz-makowski/documents/em27/em27-retrieval-pipeline/data/containers/retrieval-container-distracted-swirles-outputs/so_SN039_170608-170608/comb_invparms_so_SN039_170608-170608.csv.
+2025-07-23 06:17:05,404, INFO: Removing temporary files ...
+2025-07-23 06:17:05,404, DEBUG: Deleting abscos.bin files ...
+2025-07-23 06:17:05,465, DEBUG: Deleting pT and VMR files...
+2025-07-23 06:17:05,465, DEBUG: Moving input files ...

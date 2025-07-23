@@ -1,0 +1,65 @@
+20250723 06:15:49 - INFO - Starting session in container id sharp-babbage
+20250723 06:15:49 - INFO - Sensor mc: from 2022-06-02 00:00:00 to 2022-06-02 23:59:59.999999
+20250723 06:15:49 - DEBUG - Session object: {
+    "retrieval_algorithm": "proffast-2.2",
+    "atmospheric_profile_model": "GGG2020",
+    "job_settings": {
+        "store_binary_spectra": true,
+        "dc_min_threshold": 0.05,
+        "dc_var_threshold": 0.1,
+        "use_local_pressure_in_pcxs": false,
+        "use_ifg_corruption_filter": true,
+        "custom_ils": {},
+        "output_suffix": null,
+        "pressure_calibration_factors": {},
+        "pressure_calibration_offsets": {}
+    },
+    "ctx": {
+        "sensor_id": "mc",
+        "serial_number": 115,
+        "from_datetime": "2022-06-02T00:00:00",
+        "to_datetime": "2022-06-02T23:59:59",
+        "location": {
+            "location_id": "ZEN",
+            "details": "Zentralfriedhof",
+            "lon": 16.438481,
+            "lat": 48.147699,
+            "alt": 180.0
+        },
+        "utc_offset": 0.0,
+        "pressure_data_source": "mc",
+        "atmospheric_profile_location": {
+            "location_id": "ZEN",
+            "details": "Zentralfriedhof",
+            "lon": 16.438481,
+            "lat": 48.147699,
+            "alt": 180.0
+        }
+    },
+    "ctn": {
+        "container_dir": "/home/moritz-makowski/documents/em27/em27-retrieval-pipeline/data/containers",
+        "container_id": "sharp-babbage"
+    }
+}
+20250723 06:15:49 - INFO - Established graceful teardown hook
+20250723 06:15:49 - DEBUG - Moving atmospheric profiles
+20250723 06:15:49 - DEBUG - Moving ground pressure files
+20250723 06:15:49 - DEBUG - Looking for files in /home/moritz-makowski/documents/em27/em27-retrieval-pipeline/data/testing/inputs/data/log/mc with regex ^ground-pressure-$(SENSOR_ID)-$(YYYY)-$(MM)-$(DD).csv$
+20250723 06:15:49 - DEBUG - Found 1 files in total
+20250723 06:15:49 - DEBUG - Found 1 files that match the regex
+20250723 06:15:49 - DEBUG - Found 1 files that match the regex on that date
+20250723 06:15:49 - DEBUG - Parsing file ground-pressure-mc-2022-06-02.csv
+20250723 06:15:49 - DEBUG - Found 1440 ground pressure records in total
+20250723 06:15:49 - DEBUG - Reduced to 1440 records for the current day
+20250723 06:15:49 - DEBUG - Reduced to 1440 records after binning in 1s intervals
+20250723 06:15:49 - DEBUG - Moving interferograms
+20250723 06:15:49 - DEBUG - used regex for ifg files: ^mc20220602.*\.\d+$
+20250723 06:15:49 - DEBUG - 10 ifg files found in src directory (/home/moritz-makowski/documents/em27/em27-retrieval-pipeline/data/testing/inputs/data/ifg/mc/20220602)
+20250723 06:15:49 - INFO - Using ifg corruption filter
+20250723 06:15:49 - INFO - No corrupt files found
+20250723 06:15:49 - INFO - Updating retrieval templates
+20250723 06:15:49 - INFO - Writing values to templates: {'DC_MIN_THRESHOLD': '0.05', 'DC_VAR_THRESHOLD': '0.1', 'MEAN_PRESSURE_AT_NOON': '9999.9'}
+20250723 06:15:49 - INFO - Running proffast
+20250723 06:17:03 - DEBUG - Pylot execution was successful
+20250723 06:17:03 - INFO - Moving the outputs
+20250723 06:17:03 - DEBUG - Retrieval output csv exists

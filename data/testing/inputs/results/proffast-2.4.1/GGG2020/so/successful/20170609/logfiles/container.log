@@ -1,0 +1,69 @@
+20250723 06:15:52 - INFO - Starting session in container id hardcore-euler
+20250723 06:15:52 - INFO - Sensor so: from 2017-06-09 00:00:00 to 2017-06-09 23:59:59.999999
+20250723 06:15:52 - DEBUG - Session object: {
+    "retrieval_algorithm": "proffast-2.4.1",
+    "atmospheric_profile_model": "GGG2020",
+    "job_settings": {
+        "store_binary_spectra": true,
+        "dc_min_threshold": 0.05,
+        "dc_var_threshold": 0.1,
+        "use_local_pressure_in_pcxs": true,
+        "use_ifg_corruption_filter": true,
+        "custom_ils": {},
+        "output_suffix": null,
+        "pressure_calibration_factors": {},
+        "pressure_calibration_offsets": {}
+    },
+    "ctx": {
+        "sensor_id": "so",
+        "serial_number": 39,
+        "from_datetime": "2017-06-09T00:00:00",
+        "to_datetime": "2017-06-09T23:59:59",
+        "location": {
+            "location_id": "SOD",
+            "details": "Sodankyla",
+            "lon": 26.63,
+            "lat": 67.366,
+            "alt": 181.0
+        },
+        "utc_offset": 0.0,
+        "pressure_data_source": "so",
+        "atmospheric_profile_location": {
+            "location_id": "SOD",
+            "details": "Sodankyla",
+            "lon": 26.63,
+            "lat": 67.366,
+            "alt": 181.0
+        }
+    },
+    "ctn": {
+        "container_dir": "/home/moritz-makowski/documents/em27/em27-retrieval-pipeline/data/containers",
+        "container_id": "hardcore-euler"
+    }
+}
+20250723 06:15:52 - INFO - Established graceful teardown hook
+20250723 06:15:52 - DEBUG - Moving atmospheric profiles
+20250723 06:15:52 - DEBUG - Moving ground pressure files
+20250723 06:15:52 - DEBUG - Looking for files in /home/moritz-makowski/documents/em27/em27-retrieval-pipeline/data/testing/inputs/data/log/so with regex ^ground-pressure-$(SENSOR_ID)-$(YYYY)-$(MM)-$(DD).csv$
+20250723 06:15:52 - DEBUG - Found 2 files in total
+20250723 06:15:52 - DEBUG - Found 2 files that match the regex
+20250723 06:15:52 - DEBUG - Found 1 files that match the regex on that date
+20250723 06:15:52 - DEBUG - Parsing file ground-pressure-so-2017-06-09.csv
+20250723 06:15:52 - DEBUG - Found 136 ground pressure records in total
+20250723 06:15:52 - DEBUG - Reduced to 136 records for the current day
+20250723 06:15:52 - DEBUG - Reduced to 136 records after binning in 1s intervals
+20250723 06:15:52 - DEBUG - Moving interferograms
+20250723 06:15:52 - DEBUG - used regex for ifg files: ^so20170609.*\.\d+$
+20250723 06:15:52 - DEBUG - 14 ifg files found in src directory (/home/moritz-makowski/documents/em27/em27-retrieval-pipeline/data/testing/inputs/data/ifg/so/20170609)
+20250723 06:15:52 - INFO - Using ifg corruption filter
+20250723 06:15:52 - INFO - No corrupt files found
+20250723 06:15:52 - INFO - Updating retrieval templates
+20250723 06:15:52 - INFO - Computing mean pressure around solarnoon
+20250723 06:15:52 - DEBUG - Solar noon time: 10:12:44.487063 (UTC)
+20250723 06:15:52 - DEBUG - Found 136 pressure data points
+20250723 06:15:52 - DEBUG - Found 22 pressure data points around noon (+- 2h)
+20250723 06:15:52 - INFO - Writing values to templates: {'DC_MIN_THRESHOLD': '0.05', 'DC_VAR_THRESHOLD': '0.1', 'MEAN_PRESSURE_AT_NOON': '995.479'}
+20250723 06:15:52 - INFO - Running proffast
+20250723 06:17:00 - DEBUG - Pylot execution was successful
+20250723 06:17:00 - INFO - Moving the outputs
+20250723 06:17:00 - DEBUG - Retrieval output csv exists

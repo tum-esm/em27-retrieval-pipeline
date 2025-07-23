@@ -1,0 +1,14 @@
+Parsing session string
+preparing data
+creating preprocess input file
+run preprocess
+finished preprocess (took 2.898228 seconds)
+move BIN files
+creating pcxs input file
+run pcxs
+finished pcxs10 (took 55.166733 seconds)
+creating invers input file
+run invers
+finished invers10 (took 1.126454 seconds)
+merge invers output files
+done
