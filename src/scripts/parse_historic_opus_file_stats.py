@@ -4,6 +4,7 @@ import datetime
 import os
 import tqdm
 import tum_esm_utils
+import sys
 
 sys.path.append(tum_esm_utils.files.rel_to_abs_path("../.."))
 
@@ -14,6 +15,12 @@ IFG_PATH = tum_esm_utils.files.rel_to_abs_path("/mnt/dss-0002/em27-ifg-archive")
 RESULTS_PATH = tum_esm_utils.files.rel_to_abs_path("/mnt/dss-0002/retrieval-archive/v3")
 
 if __name__ == "__main__":
+
+    # call as "s.py allowedsid1 allowedsid2 ..."
+    allowed_sensor_ids: Optional[set[str]] = None
+    if len(sys.argv) > 1:
+        allowed_sensor_ids = set(sys.argv[1:])
+
     if not os.path.exists(IFG_PATH):
         raise FileNotFoundError(f"IFG_PATH does not exist: {IFG_PATH}")
     if not os.path.exists(RESULTS_PATH):
@@ -28,13 +35,15 @@ if __name__ == "__main__":
             d1 = os.path.join(RESULTS_PATH, retrieval_algorithm, atmospheric_profile_model)
             if not os.path.isdir(d1):
                 continue
-            for sensor_id in os.listdir(d1):
+            for sensor_id in sorted(os.listdir(d1)):
+                if (allowed_sensor_ids is not None) and (sensor_id not in allowed_sensor_ids):
+                    continue
                 d2 = os.path.join(d1, sensor_id, "successful")
                 if not os.path.isdir(d2):
                     continue
                 print(f"Processing results in {d2}")
 
-                progress = tqdm.tqdm(os.listdir(d2))
+                progress = tqdm.tqdm(sorted(os.listdir(d2), reverse=True))
                 for results_dir in progress:
                     results_path = os.path.join(d2, results_dir)
                     if not os.path.isdir(results_path):
@@ -109,9 +118,9 @@ if __name__ == "__main__":
                             .strip(" *\n\t")
                         ).split("\n")
 
-                    if len(input_filenames) != len(filtered_filenames):
+                    if len(input_filenames) > len(filtered_filenames):
                         progress.write(
-                            f"Skipping {results_dir} because there the number of files found now differ from the number of files used in the processing ({len(input_filenames)} != {len(filtered_filenames)})."
+                            f"Skipping {results_dir} because there are less files now ({len(filtered_filenames)}) than during processing ({len(input_filenames)})."
                         )
                         continue
 
