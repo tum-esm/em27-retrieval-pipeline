@@ -6,6 +6,7 @@ import tum_esm_utils
 import src
 
 _PROJECT_DIR = tum_esm_utils.files.rel_to_abs_path("..")
+_TEST_DATA_DIR = os.path.join(_PROJECT_DIR, "data", "testing", "inputs", "data")
 
 
 @pytest.fixture
@@ -16,33 +17,19 @@ def wrap_test_with_mainlock() -> Generator[None, None, None]:
 
 @pytest.fixture(scope="session")
 def download_sample_data() -> Generator[None, None, None]:
-    """Download sample data from https://syncandshare.lrz.de and
-    extract it to the testing data directory. This is done only
-    once per test run. The tar file will not be deleted afterwards
-    and the download is skipped if the tar file already exists.
+    """Download sample data from a GitHub release because it is too big for the repository.
+    Could also be done with a Git LFS but this way it is easier to share for other purposes."""
 
-    The tar file has about 96MB."""
-
-    """testing_data_path = os.path.join(_PROJECT_DIR, "data", "testing", "inputs", "data")
-    tarball_filename = "em27-retrieval-pipeline-test-interferograms-2024-09-17.tar.gz"
-
-    # download testing data tarball if it does not exist
-    if not os.path.isfile(os.path.join(testing_data_path, tarball_filename)):
-        tum_esm_utils.shell.run_shell_command(
-            "wget --quiet https://syncandshare.lrz.de/dl/"
-            + f"fiEh5KjXeb8b715kU4cwWi/{tarball_filename}",
-            working_directory=testing_data_path,
+    for label in ["interferograms", "atmospheric-profiles", "ground-pressure"]:
+        tum_esm_utils.code.download_github_release_asset(
+            repository="tum-esm/em27-retrieval-pipeline",
+            asset_name=f"em27-retrieval-pipeline-tests-data-20250723-{label}.tar.gz",
+            dst_dir=_TEST_DATA_DIR,
+            final_name=f"{label}.tar.gz",
         )
-
-    # remove existing input data
-    if os.path.isdir(os.path.join(testing_data_path, "ifg")):
-        shutil.rmtree(os.path.join(testing_data_path, "ifg"))
-
-    # extract tarball
-    tum_esm_utils.shell.run_shell_command(
-        f"tar -xzf {tarball_filename}",
-        working_directory=testing_data_path,
-    )"""
+        tum_esm_utils.shell.run_shell_command(
+            f"tar -xzf {label}.tar.gz", working_directory=_TEST_DATA_DIR
+        )
 
     yield
 
