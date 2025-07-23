@@ -1,6 +1,7 @@
 import os
 import shutil
 import sys
+import time
 import pytest
 import tum_esm_utils
 
@@ -14,10 +15,11 @@ def test_historic_opus_stat_parsing() -> None:
     print(git_status_before)
     assert (
         os.system(
-            f"cd {PROJECT_DIR} && {sys.executable} src/scripts/parse_historic_opus_file_stats.py"
+            f"cd {PROJECT_DIR} && {sys.executable} src/scripts/parse_historic_opus_file_stats.py --force"
         )
         == 0
     )
+    time.sleep(0.2)
     git_status_after = tum_esm_utils.shell.run_shell_command("git status")
     print(git_status_after)
     assert git_status_before == git_status_after, "Git status changed after running the script."

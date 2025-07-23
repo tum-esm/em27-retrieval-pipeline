@@ -20,6 +20,10 @@ if __name__ == "__main__":
     if len(sys.argv) > 1:
         allowed_sensor_ids = set(sys.argv[1:])
 
+    force = "--force" in sys.argv[1:]
+    if force and (len(allowed_sensor_ids) == 1):
+        allowed_sensor_ids = None
+
     if not os.path.exists(IFG_PATH):
         raise FileNotFoundError(f"IFG_PATH does not exist: {IFG_PATH}")
     if not os.path.exists(RESULTS_PATH):
@@ -49,8 +53,12 @@ if __name__ == "__main__":
                         continue
 
                     progress.set_description(f"{results_dir}")
+
                     if os.path.exists(os.path.join(results_path, "opus_file_stats.csv")):
-                        continue
+                        if force:
+                            os.remove(os.path.join(results_path, "opus_file_stats.csv"))
+                        else:
+                            continue
 
                     about = tum_esm_utils.files.load_json_file(
                         os.path.join(results_path, "about.json")
