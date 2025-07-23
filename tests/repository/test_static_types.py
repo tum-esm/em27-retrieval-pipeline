@@ -25,5 +25,6 @@ def test_static_types() -> None:
         "mypy -p tests",
         "mypy cli.py",
         "mypy src/retrieval/algorithms/proffast-1.0/main/prfpylot/main.py",
+        "mypy src/scripts",
     ]:
         assert os.system(f"cd {PROJECT_DIR} && {sys.executable} -m {call}") == 0

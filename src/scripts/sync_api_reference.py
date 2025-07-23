@@ -85,7 +85,7 @@ def _remove_allof_wrapping(o: Any) -> Any:
         return o
 
 
-def export_schema(src_object: pydantic.BaseModel, dst_filepath: str, label: str) -> None:
+def export_schema(src_object: type[pydantic.BaseModel], dst_filepath: str, label: str) -> None:
     print(f"Exporting schema object to {dst_filepath}")
 
     schema_with_refs = src_object.model_json_schema(mode="validation")

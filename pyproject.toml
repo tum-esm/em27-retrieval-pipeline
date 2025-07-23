@@ -71,9 +71,7 @@ distribution = false
 # using pytest markers from the `pytest-order` library, we run the
 # quick tests before the retrieval tests to fail fast
 [tool.pytest.ini_options]
-filterwarnings = [
-    "ignore::UserWarning",
-]
+filterwarnings = ["ignore::UserWarning"]
 markers = [
     "integration: can only be run on a configured system",
     "quick: can be run in a CI environment, < 30 seconds, everything except running actual retrievals",
@@ -130,5 +128,6 @@ module = [
     "matplotlib.*",
     "skyfield.*",
     "h5py",
+    "jsonref",
 ]
 ignore_missing_imports = true
