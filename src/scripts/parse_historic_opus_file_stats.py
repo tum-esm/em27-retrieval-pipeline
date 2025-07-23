@@ -11,11 +11,10 @@ sys.path.append(tum_esm_utils.files.rel_to_abs_path("../.."))
 from src import utils
 
 # TODO: set these paths
-IFG_PATH = tum_esm_utils.files.rel_to_abs_path("/mnt/dss-0002/em27-ifg-archive")
-RESULTS_PATH = tum_esm_utils.files.rel_to_abs_path("/mnt/dss-0002/retrieval-archive/v3")
+IFG_PATH = tum_esm_utils.files.rel_to_abs_path("../../data/testing/inputs/data/interferograms")
+RESULTS_PATH = tum_esm_utils.files.rel_to_abs_path("../../data/testing/inputs/results")
 
 if __name__ == "__main__":
-
     # call as "s.py allowedsid1 allowedsid2 ..."
     allowed_sensor_ids: Optional[set[str]] = None
     if len(sys.argv) > 1:
