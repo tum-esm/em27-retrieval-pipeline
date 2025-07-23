@@ -1,0 +1,59 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/*
+Add additional Tailwind styles to this file, for example with @layer:
+https://tailwindcss.com/docs/adding-custom-styles#using-css-and-layer
+*/
+
+:root {
+  --sl-font: "Inter", sans-serif;
+  --sl-text-h1: 2rem;
+  --sl-text-h2: 1.4rem;
+  --sl-text-h3: 1.2rem;
+}
+
+.pagination-links {
+  @apply text-sm;
+
+  a {
+    @apply shadow-none;
+    background-color: none;
+    @apply p-2;
+  }
+  .link-title {
+    @apply text-lg;
+  }
+}
+
+.site-title {
+  @apply text-slate-900 dark:text-slate-100;
+}
+
+code {
+  @apply !bg-slate-100 dark:!bg-slate-800 !border !border-slate-300 dark:!border-slate-700 !rounded-md;
+}
+
+.expressive-code {
+  pre,
+  code {
+    @apply !bg-slate-100 dark:!bg-slate-800;
+  }
+
+  pre {
+    @apply !rounded-lg;
+    border-top-width: 1px !important;
+  }
+
+  figcaption {
+    @apply !hidden;
+  }
+}
+
+figure.is-terminal {
+  @apply !ring-1 !ring-slate-300 !rounded-md dark:!ring-slate-700;
+  pre {
+    @apply !border-none;
+  }
+}

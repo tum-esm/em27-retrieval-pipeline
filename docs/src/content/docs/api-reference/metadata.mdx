@@ -1,0 +1,44 @@
+---
+title: Metadata
+---
+
+import JSONSchemaRenderer from "../../../components/JSONSchemaRenderer.tsx";
+import { Code } from "@astrojs/starlight/components";
+import LocationsSchema from "../../../assets/locations.schema.json";
+import LocationsExample from "../../../assets/locations.example.json?raw";
+import SensorsSchema from "../../../assets/sensors.schema.json";
+import SensorsExample from "../../../assets/sensors.example.json?raw";
+import CampaignsSchema from "../../../assets/campaigns.schema.json";
+import CampaignsExample from "../../../assets/campaigns.example.json?raw";
+
+## `locations.json`
+
+### Reference
+
+<JSONSchemaRenderer schema={LocationsSchema} />
+
+### Example
+
+<Code code={LocationsExample} lang="json" />
+
+
+## `sensors.json`
+
+### Reference
+
+<JSONSchemaRenderer schema={SensorsSchema} />
+
+### Example
+
+<Code code={SensorsExample} lang="json" />
+
+
+## `campaigns.json`
+
+### Reference
+
+<JSONSchemaRenderer schema={CampaignsSchema} />
+
+### Example
+
+<Code code={CampaignsExample} lang="json" />

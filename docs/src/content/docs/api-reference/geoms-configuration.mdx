@@ -1,0 +1,30 @@
+---
+title: Configuration
+---
+
+import JSONSchemaRenderer from "../../../components/JSONSchemaRenderer.tsx";
+import { Code } from "@astrojs/starlight/components";
+import GeomsMetadataSchema from "../../../assets/geoms-metadata.schema.json";
+import GeomsMetadataExample from "../../../assets/geoms-metadata.example.json?raw";
+import CalibrationFactorsSchema from "../../../assets/calibration-factors.schema.json";
+import CalibrationFactorsExample from "../../../assets/calibration-factors.example.json?raw";
+
+## `geoms_metadata.json`
+
+### Reference
+
+<JSONSchemaRenderer schema={GeomsMetadataSchema} />
+
+### Example
+
+<Code code={GeomsMetadataExample} lang="json" />
+
+## `calibration_factors.json`
+
+### Reference
+
+<JSONSchemaRenderer schema={CalibrationFactorsSchema} />
+
+### Example
+
+<Code code={CalibrationFactorsExample} lang="json" />

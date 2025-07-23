@@ -1,0 +1,18 @@
+---
+title: Configuration
+---
+
+import JSONSchemaRenderer from "../../../components/JSONSchemaRenderer.tsx";
+import { Code } from "@astrojs/starlight/components";
+import ConfigSchema from "../../../assets/config.schema.json";
+import ConfigExample from "../../../assets/config.example.json?raw";
+
+## `config.json`
+
+### Reference
+
+<JSONSchemaRenderer schema={ConfigSchema} />
+
+### Example
+
+<Code code={ConfigExample} lang="json" />

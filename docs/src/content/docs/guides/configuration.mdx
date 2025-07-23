@@ -1,0 +1,24 @@
+---
+title: Configuration
+---
+
+import { Aside } from '@astrojs/starlight/components';
+import ConfigExample from "../../../assets/config.example.json?raw";
+
+## Configuration file
+
+The `config/config.json` file configures all steps of the pipeline. You can use the `config/config.template.json` file as a template to create your own configuration file.
+
+For setting up alternate locations for the `config.json` file, see the [metadata section](/guides/metadata).
+
+<Aside type="note">
+
+The full schema specification and description of each parameter can be found [in the API Reference section](/api-reference/configuration).
+
+</Aside>
+
+Template:
+
+<Code code={ConfigExample} lang="json" />
+
+The [next section](/guides/directories) describes how the directories for the data sources (interferograms, ground pressure, atmospheric profiles), the outputs of this pipeline (retrieval results, bundles, logs), and the internal directories (containers, etc.) are structured.

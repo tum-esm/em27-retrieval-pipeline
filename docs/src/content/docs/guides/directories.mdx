@@ -1,0 +1,334 @@
+---
+title: Directories
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+The pipeline and none of the retrieval algorithms manipulate any data in the directories `config.general.data.ground_pressure.path`, `config.general.data.atmospheric_profiles`, and `config.general.data.interferograms`. The retrieval only writes to `config.general.data.results`.
+
+<Aside type="note">
+
+We can ensure this pipeline doesn't modify any data from the input directories. We cannot guarantee this for the retrieval algorithms, but we are very confident about this and have never observed it on our systems.
+
+However, if you want to ensure the retrieval cannot manipulate any of your interferograms or ground pressure files, you can create a read-only mount of the directories. Only point the pipeline to those read-only directories.
+
+See https://askubuntu.com/a/243390.
+
+</Aside>
+
+### Interferograms
+
+Point the `config.general.data.interferograms` variable to the directory your interferograms are stored in.
+
+```
+📂 <config.general.data.interferograms>
++--- 📂 ma
+|    +--- 📂 20220101
+|    |    +--- 📄 ma20210101.ifg.001
+|    |    +--- 📄 ma20210101.ifg.002
+|    |    +--- 📄 ma20210101.ifg.003
+|    |    +--- ...
+|    +--- 📂 20220101
+|    |    +--- 📄 ma20210102.ifg.001
+|    |    +--- 📄 ma20210102.ifg.002
+|    |    +--- 📄 ma20210102.ifg.003
+|    |    +--- ...
+|    +--- 📂 ...
++--- 📂 mb
+|    +--- 📂 20220101
+|    +--- 📂 ...
++--- 📂 ...
+```
+
+In this example, `ma`, `mb`, and so on are the "sensor ids" used by us (see the [next section about metadata](/guides/metadata)).
+
+You must set the `config.retrieval.general.ifg_file_regex` value to a regex matching your files. In the example above, we can use `^$(SENSOR_ID)$(DATE).*ifg.\\d+$`.
+
+### Ground Pressure Files
+
+Point the `config.general.data.ground_pressure.path` variable to the directory where you store your local meteorological files, i.e. your ground pressure logs.
+
+```
+📂 <config.general.data.ground_pressure.path>
++--- 📂 ma
+|    +--- 📄 ground-pressure-ma-2021-01-01.csv
+|    +--- 📄 ground-pressure-ma-2021-01-02.csv
+|    +--- 📄 ...
++--- 📂 mb
+|    +--- 📄 ground-pressure-mb-2021-01-01.csv
+|    +--- 📄 ...
++--- 📂 ...
+```
+
+You can fully specify the naming schema of these pressure files. For example, the example above matches the following naming schema: `^ground-pressure-$(SENSOR_ID)-$(YYYY)-$(MM)-$(DD).csv$`. When looking for ground pressure files for a certain sensor id and date, the pipeline will replace the placeholders with the actual values. Available placeholders are `$(SENSOR_ID)`, `$(YYYY)`, `$(YY)`, `$(MM)`, and `$(DD)`.
+
+<Aside type="note">
+
+**Subdaily files:** If multiple files match the regex, the pipeline will merge all of them into a single file which is then used for the retrieval.
+
+**Multi-day files:** If each file contains the data of multiple days, the pipeline will filter the data for the specific day. Hence, you could also have monthly files using the schema `^ground-pressure-$(SENSOR_ID)-$(YYYY)-$(MM).csv$`.
+
+</Aside>
+
+The second thing you need to specify is in which column to find the pressure and datetime data:
+
+- Pressure column: Pass the name of the column with `config.general.data.ground_pressure.pressure_column` and specify the unit (either `hPa` or `Pa`) with `config.general.data.ground_pressure.pressure_column_format`.
+- Datetime column: Pass exactly, one of the following
+  - A datetime column containing both date and time information: `datetime_column` and `datetime_column_format`
+  - One date column and one time column: `date_column`, `date_column_format`, `time_column`, and `time_column_format`
+  - A column containing a Unix timestamp: `unix_timestamp_column` and `unix_timestamp_column_format` (format `s`, `ms`, `us`, or `ns`)
+
+**All Ground Pressure is assumed to be in UTC!**
+
+### Examples
+
+The following examples all use the pressure column config:
+
+```json
+{
+  "pressure_column": "pressure",
+  "pressure_column_format": "hPa"
+}
+```
+
+#### 1
+
+Datetime column config:
+
+```json
+{
+  "date_column": "utc-date",
+  "date_column_format": "%Y-%m-%d",
+  "time_column": "utc-time",
+  "time_column_format": "%H:%M:%S"
+}
+```
+
+Corresponding pressure files:
+
+```csv
+pressure,utc-date,utc-time
+997.05,2022-06-02,00:00:49
+997.06,2022-06-02,00:01:49
+997.06,2022-06-02,00:02:49
+```
+
+#### 2
+
+Datetime column config:
+
+```json
+{
+  "datetime_column": "utc-datetime",
+  "datetime_column_format": "%Y-%m-%dT%H:%M:%S"
+}
+```
+
+Corresponding pressure files:
+
+```csv
+pressure,utc-datetime
+997.05,2022-06-02T00:00:49
+997.06,2022-06-02T00:01:49
+997.06,2022-06-02T00:02:49
+```
+
+#### 3
+
+Datetime column config:
+
+```json
+{
+  "unix_timestamp_column": "utc-datetime",
+  "unix_timestamp_column_format": "s"
+}
+```
+
+Corresponding pressure files:
+
+```csv
+pressure,unix-timestamp
+997.05,1654128049
+997.06,1654128109
+997.06,1654128169
+```
+
+### Atmospheric Profiles
+
+Point the `config.general.data.atmospheric_profiles` variable to the directory you want to store the atmospheric profiles.
+
+```
+📂 <config.general.data.atmospheric_profiles>
++--- 📂 GGG2014
+|    +--- 📄 20210101_48N011E.map
+|    +--- 📄 20210101_48N011E.mod
+|    +--- 📄 20210101_48N012E.map
+|    +--- 📄 20210101_48N012E.mod
+|    +--- 📄 20210102_48N011E.map
+|    +--- 📄 ...
++--- 📂 GGG2020
+     +--- 📄 2021010100_48N011E.map
+     +--- 📄 2021010100_48N011E.mod
+     +--- 📄 2021010100_48N011E.vmr
+     +--- 📄 2021010100_48N012E.map
+     +--- 📄 2021010100_48N012E.mod
+     +--- 📄 2021010100_48N012E.vmr
+     +--- 📄 2021010103_48N011E.map
+     +--- 📄 ...
+```
+
+<Aside type="note">
+
+Since this pipeline includes a fully automated downloader for this data, you can point it to an empty directory and let the pipeline populate it.
+
+</Aside>
+
+### Results
+
+The pipeline populates the results directory in the following way:
+
+```
+📂 <config.general.data.results>
++--- 📂 proffast-2.3/GGG2020
+|    +--- 📂 ma
+|    |    +--- 📂 failed
+|    |    +--- 📂 successful
+|    |         +--- 📂 20210101
+|    |         |    +--- 📂 input_files
+|    |         |    |    +--- 📄 invers20ma_210101_a.inp
+|    |         |    |    +--- 📄 pcxs20ma_210101.inp
+|    |         |    |    +--- 📄 preprocess5ma_210101.inp
+|    |         |    +--- 📂 logfiles
+|    |         |    |    +--- 📄 container.log
+|    |         |    |    +--- 📄 inv_output.log
+|    |         |    |    +--- 📄 pcxs_output.log
+|    |         |    |    +--- 📄 preprocess_output.log
+|    |         |    |    +--- 📄 pylot_38218.log
+|    |         |    +--- 📄 comb_invparms_ma_SN061_210101-210101.csv
+|    |         |    +--- 📄 about.json
+|    |         |    +--- 📄 pylot_config.yml
+|    |         |    +--- 📄 pylot_log_format.yml
+|    |         |    +--- 📄 ... (more files depending on retrieval algorithm)
+|    +--- 📂 mb
+|         +--- 📂 failed
+|         +--- 📂 successful
++--- 📂 proffast-2.3/GGG2014
++--- 📂 ...
+```
+
+The `about.json` file in each successful retrieval directory contains all information required to reproduce the respective retrieval results. The structure of the directories in `failed/` and `successful/` is the same - the outputs are moved to `successful/` if the retrieval has produced a final CSV file and to `failed` otherwise.
+
+### Bundles
+
+With `config.bundles`, you can specify a list of bundles to produce from the raw retrieval results. The script will generate one bundle per sensor, retrieval algorithm, and atmospheric profile. For example, when using the following bundle config:
+
+```json
+{
+  "dst_dir": "/some/path/where/the/bundle_should/be/written/to",
+  "output_formats": ["csv", "parquet"],
+  "from_datetime": "2024-05-10T00:00:00+0000",
+  "to_datetime": "2024-07-09T23:59:59+0000",
+  "retrieval_algorithms": ["proffast-2.2", "proffast-2.4"],
+  "atmospheric_profile_models": ["GGG2020"],
+  "sensor_ids": ["ma", "mb"]
+}
+```
+
+... the following bundles will be generated in the output directory `/some/path/where/the/bundle_should/be/written/to`:
+
+```
+📂 /some/path/where/the/bundle_should/be/written/to
+├─── 📄 em27-retrieval-bundle-ma-proffast-2.2-GGG2020-20240510-20240709.csv
+├─── 📄 em27-retrieval-bundle-ma-proffast-2.2-GGG2020-20240510-20240709.parquet
+├─── 📄 em27-retrieval-bundle-ma-proffast-2.4-GGG2020-20240510-20240709.csv
+├─── 📄 em27-retrieval-bundle-ma-proffast-2.4-GGG2020-20240510-20240709.parquet
+├─── 📄 em27-retrieval-bundle-mb-proffast-2.2-GGG2020-20240510-20240709.csv
+├─── 📄 em27-retrieval-bundle-mb-proffast-2.2-GGG2020-20240510-20240709.parquet
+├─── 📄 em27-retrieval-bundle-mb-proffast-2.4-GGG2020-20240510-20240709.csv
+└─── 📄 em27-retrieval-bundle-mb-proffast-2.4-GGG2020-20240510-20240709.parquet
+```
+
+The output files will include all data from the `<config.general.data.results>` path that matches the time period. The CSV and Parquet files contain the same data - just in two different tabular formats. They keep all columns from the raw retrieval algorithm but add four more columns `utc`, `retrieval_time`, `location_id` and `campaign_ids`:
+
+- `utc`: parsed from the `UTC`/`HHMMSS_ID` columns to have a consistent timestamp format
+- `retrieval_time`: the timestamp when the retrieval was finished
+- `location_id`: the location ID of the sensor at that time
+- `campaign_ids`: the campaign IDs that match this datapoint separated by a `+` sign
+
+Proffast 1.0 bundle example:
+
+```csv
+utc,HHMMSS_ID,ground_pressure,lat,lon,alt,sza,azi,XH2O,XAIR,XCO2,XCH4,XCH4_S5P,XCO,retrieval_time,location_id,campaign_ids
+2022-06-02T05:13:49.000000+0000,51349.0,998.2,48.148,16.438,180.0,70.1,-101.45,3316.9,1.00387,418.077,1.8772,0.0,0.0,2024-09-11T22:48:42.000000+0000,ZEN,both+only-mc
+2022-06-02T05:14:04.000000+0000,51404.0,998.2,48.148,16.438,180.0,70.06,-101.41,3317.72,1.00343,417.989,1.87669,0.0,0.0,2024-09-11T22:48:42.000000+0000,ZEN,both+only-mc
+2022-06-02T05:14:19.000000+0000,51419.0,998.2,48.148,16.438,180.0,70.02,-101.37,3317.16,1.00421,417.361,1.87585,0.0,0.0,2024-09-11T22:48:42.000000+0000,ZEN,both+only-mc
+...
+```
+
+Proffast 2.4 bundle example:
+
+```csv
+utc,spectrum,ground_pressure,lat,lon,alt,sza,azi,XH2O,XAIR,XCO2,XCH4,XCO2_STR,XCO,XCH4_S5P,H2O,O2,CO2,CH4,CO,CH4_S5P,retrieval_time,location_id,campaign_ids
+2022-06-02T05:13:55.000000+0000,220602_051349SN.BIN,998.2,48.148,16.438,180.0,70.1,-101.45,3435.8,0.998586,420.051,1.88495,0.0,0.0,0.0,7.24389e26,4.46289e28,8.89103e25,4.01976e23,0.0,0.0,2024-09-11T22:50:05.000000+0000,ZEN,both+only-mc
+2022-06-02T05:14:09.000000+0000,220602_051404SN.BIN,998.19,48.148,16.438,180.0,70.06,-101.41,3436.61,0.998166,419.96,1.88445,0.0,0.0,0.0,7.24253e26,4.46095e28,8.88534e25,4.01701e23,0.0,0.0,2024-09-11T22:50:05.000000+0000,ZEN,both+only-mc
+2022-06-02T05:14:24.000000+0000,220602_051419SN.BIN,998.19,48.148,16.438,180.0,70.02,-101.37,3435.96,0.998954,419.327,1.88353,0.0,0.0,0.0,7.24683e26,4.46442e28,8.87892e25,4.01823e23,0.0,0.0,2024-09-11T22:50:05.000000+0000,ZEN,both+only-mc
+...
+```
+
+Filtering by Campaign ID can be done with one line of code:
+
+```python
+import polars as pl
+
+df = pl.read_parquet()
+
+df = df.filter(pl.col("campaign_ids").str.split("+").list.contains("muccnet"))
+```
+
+<Aside type="note">
+
+With our MUCCnet campaign config:
+
+```json
+{
+  "campaign_id": "muccnet",
+  "from_datetime": "2019-09-13T00:00:00+0000",
+  "to_datetime": "2100-01-01T23:59:59+0000",
+  "sensor_ids": ["ma", "mb", "mc", "md", "me"],
+  "location_ids": ["TUM_I", "FEL", "GRAE", "OBE", "TAU", "DLR_2", "DLR_3"]
+}
+```
+
+... the dataframe filtered by the campaign ID `muccnet` will only contain dat that has been generated between 2019-09-13 and 2100-01-01 by the sensors `ma`, `mb`, `mc`, `md`, and `me` at the locations `TUM_I`, `FEL`, `GRAE`, `OBE`, `TAU`, `DLR_2`, and `DLR_3`.
+
+</Aside>
+
+### Logs
+
+The logs are stored within the directory of the pipeline at `data/logs`:
+
+```
+📂 data
++--- 📂 logs
+     +--- 📂 retrieval
+          +--- 📄 20240106-23-54_main.log
+          +--- 📄 20240106-22-55_generous-easley.log
+          +--- 📄 20240106-23-10_eloquent-oppenheimer.log
+          +--- 📂 archive
+               +--- 📂 container (old container logs)
+               +--- 📂 main (old main logs)
+```
+
+The files are either from containers (`startingdate-startingtime_containername.log`) or from the main process (`startingdate-startingtime_main.log`), which orchestrates the containers.
+
+### Internal
+
+#### Containers
+
+The containers in which the retrieval is running are working on `data/containers`. Each container with a container name like `eloquent-oppenheimer` has three active directories: `data/containers/retrieval-container-$containername`, `data/containers/retrieval-container-$containername-input`, and `data/containers/retrieval-container-$containername-output`.
+
+You can change `data/containers` to some other path (maybe a high-speed local storage device) using `config.retrieval.general.container_dir`.
+
+#### Profiles Query Cache
+
+The profiles downloader uses the file `data/profiles_query_cache.json` to save the information on which profiles have already been requested. Profiles will only be re-requested if they have not been produced within 24 hours.

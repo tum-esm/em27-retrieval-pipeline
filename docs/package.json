@@ -1,24 +1,32 @@
 {
-  "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "serve": "serve out/"
-  },
+  "name": "docs",
+  "version": "0.0.1",
   "dependencies": {
-    "autoprefixer": "^10.4.17",
-    "next": "^13.5.6",
-    "nextra": "^2.13.2",
-    "nextra-theme-docs": "^2.13.2",
-    "postcss": "^8.4.33",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "tailwindcss": "^3.3.2",
-    "zod": "^3.22.4"
+    "@apidevtools/json-schema-ref-parser": "^11.7.3",
+    "@astrojs/mdx": "^4.0.8",
+    "@astrojs/react": "^4.1.6",
+    "@astrojs/starlight": "^0.31.1",
+    "@astrojs/starlight-tailwind": "^3.0.0",
+    "@astrojs/tailwind": "^5.1.4",
+    "@fontsource/inter": "^5.1.1",
+    "@tabler/icons-react": "^3.29.0",
+    "@types/react": "^19.0.8",
+    "@types/react-dom": "^19.0.3",
+    "astro": "^5.1.5",
+    "katex": "^0.16.21",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "rehype-mathjax": "^6.0.0",
+    "remark-math": "^6.0.0",
+    "sharp": "^0.32.5",
+    "tailwindcss": "^3.4.4"
   },
-  "devDependencies": {
-    "@types/json-schema": "^7.0.11",
-    "@types/node": "20.1.4",
-    "serve": "^14.2.1",
-    "typescript": "5.0.4"
-  }
+  "scripts": {
+    "dev": "astro dev",
+    "start": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "astro": "astro"
+  },
+  "type": "module"
 }
