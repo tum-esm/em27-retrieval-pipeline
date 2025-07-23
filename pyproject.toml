@@ -1,6 +1,6 @@
 [project]
 name = "em27-retrieval-pipeline"
-version = "1.7.0"
+version = "1.8.0"
 description = "automated EM27/SUN data processing"
 authors = [
     { name = "Moritz Makowski", email = "moritz.makowski@tum.de" },
@@ -71,7 +71,9 @@ distribution = false
 # using pytest markers from the `pytest-order` library, we run the
 # quick tests before the retrieval tests to fail fast
 [tool.pytest.ini_options]
-filterwarnings = ["ignore::UserWarning"]
+filterwarnings = [
+    "ignore::UserWarning",
+]
 markers = [
     "integration: can only be run on a configured system",
     "quick: can be run in a CI environment, < 30 seconds, everything except running actual retrievals",
