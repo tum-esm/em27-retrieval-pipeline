@@ -79,7 +79,7 @@ tum_esm_utils.files.dump_json_file(
     em27_metadata.types.CampaignMetadataList.model_json_schema(mode="validation"),
 )
 tum_esm_utils.files.dump_json_file(
-    f"{_DOCS_DIR}/src/assets/geom-metadata.schema.json",
+    f"{_DOCS_DIR}/src/assets/geomS-metadata.schema.json",
     src.types.GEOMSMetadata.model_json_schema(mode="validation"),
 )
 tum_esm_utils.files.dump_json_file(
@@ -97,11 +97,11 @@ shutil.copyfile(
 )
 shutil.copyfile(
     f"{_PROJECT_DIR}/config/geoms_metadata.template.json",
-    f"{_DOCS_DIR}/src/assets/geoms_metadata.example.json",
+    f"{_DOCS_DIR}/src/assets/geoms-metadata.example.json",
 )
 shutil.copyfile(
     f"{_PROJECT_DIR}/config/calibration_factors.template.json",
-    f"{_DOCS_DIR}/src/assets/calibration_factors.example.json",
+    f"{_DOCS_DIR}/src/assets/calibration-factors.example.json",
 )
 example_metadata = em27_metadata.load_from_example_data()
 tum_esm_utils.files.dump_file(
@@ -124,12 +124,15 @@ print("Syncing README with docs landing page")
 
 current = tum_esm_utils.files.load_file(f"{_DOCS_DIR}/src/content/docs/index.mdx")
 
-xs = current.split("##")
-assert len(xs) >= 2
+a = current.split("We retrieve a lot of ")[0]
+b = current.split("We retrieve a lot of ")[1].split("##")[0]
+c = "##".join(current.split("We retrieve a lot of ")[1].split("##")[1:])
 
-readme = tum_esm_utils.files.load_file(os.path.join(_PROJECT_DIR, "README.md"))
+readme = tum_esm_utils.files.load_file(os.path.join(_PROJECT_DIR, "README.md")).split(
+    "We retrieve a lot of "
+)[1]
 
 tum_esm_utils.files.dump_file(
     f"{_DOCS_DIR}/src/content/docs/index.mdx",
-    readme + "\n##" + "##".join(xs[1:]),
+    f"{a}We retrieve a lot of {readme}\n##{c}",
 )

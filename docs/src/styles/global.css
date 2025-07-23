@@ -113,7 +113,7 @@ figure.is-terminal {
 */
 
 code {
-  @apply !bg-slate-100 !px-2 !py-1 !rounded-sm dark:!bg-slate-800;
+  @apply !bg-slate-100 !px-1.5 !py-1 !rounded-sm dark:!bg-slate-800;
 }
 
 .expressive-code {
