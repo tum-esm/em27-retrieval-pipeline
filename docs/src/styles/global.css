@@ -4,11 +4,55 @@
 @import 'tailwindcss/theme.css' layer(theme);
 @import 'tailwindcss/utilities.css' layer(utilities);
 
+/* Dark mode colors. */
+:root {
+	--sl-color-accent-low: #00273d;
+	--sl-color-accent: #0071a7;
+	--sl-color-accent-high: #92d1fe;
+	--sl-color-white: #ffffff;
+	--sl-color-gray-1: #e7eff2;
+	--sl-color-gray-2: #bac4c8;
+	--sl-color-gray-3: #7b8f96;
+	--sl-color-gray-4: #495c62;
+	--sl-color-gray-5: #2a3b41;
+	--sl-color-gray-6: #182a2f;
+	--sl-color-black: #121a1c;
+}
+/* Light mode colors. */
+:root[data-theme='light'] {
+	--sl-color-accent-low: #b0deff;
+	--sl-color-accent: #0073aa;
+	--sl-color-accent-high: #003653;
+	--sl-color-white: #121a1c;
+	--sl-color-gray-1: #182a2f;
+	--sl-color-gray-2: #2a3b41;
+	--sl-color-gray-3: #495c62;
+	--sl-color-gray-4: #7b8f96;
+	--sl-color-gray-5: #bac4c8;
+	--sl-color-gray-6: #e7eff2;
+	--sl-color-gray-7: #f3f7f9;
+	--sl-color-black: #ffffff;
+}
+
 @theme {
 	/*
 	Configure your Tailwind theme that will be used by Starlight.
 	https://starlight.astro.build/guides/css-and-tailwind/#styling-starlight-with-tailwind
 	*/
+  /* Generated accent color palettes. */
+  --color-accent-200: #92d1fe;
+  --color-accent-600: #0073aa;
+  --color-accent-900: #003653;
+  --color-accent-950: #00273d;
+  /* Generated gray color palettes. */
+  --color-gray-100: #f3f7f9;
+  --color-gray-200: #e7eff2;
+  --color-gray-300: #bac4c8;
+  --color-gray-400: #7b8f96;
+  --color-gray-500: #495c62;
+  --color-gray-700: #2a3b41;
+  --color-gray-800: #182a2f;
+  --color-gray-900: #121a1c;
 }
 
 /*
@@ -67,3 +111,45 @@ figure.is-terminal {
   }
 }
 */
+
+code {
+  @apply !bg-slate-100 !px-2 !py-1 !rounded-sm dark:!bg-slate-800;
+}
+
+.expressive-code {
+  figcaption {
+    @apply !hidden;
+  }
+
+  pre {
+    @apply !border !border-slate-300 dark:!border-slate-600 !rounded-md;
+  }
+}
+
+.expressive-code pre {
+  /* Hide scrollbar for Webkit browsers */
+  &::-webkit-scrollbar {
+    display: none;
+  }
+  /* Hide scrollbar for Firefox */
+  scrollbar-width: none;
+  /* Hide scrollbar for IE/Edge */
+  -ms-overflow-style: none;
+}
+
+aside[aria-label="Tip"], aside[aria-label="Note"] {
+  @apply bg-rose-100 text-rose-950 dark:bg-rose-950 dark:text-rose-100;
+
+  .starlight-aside__title {
+    @apply text-rose-900 dark:text-rose-200;
+  }
+  a {
+    @apply text-rose-800 dark:text-rose-300
+  }
+  
+  @apply border-rose-300 dark:border-rose-700;
+
+  code {
+    @apply !bg-rose-200 dark:!bg-rose-900;
+  }
+}

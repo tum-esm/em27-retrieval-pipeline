@@ -2,6 +2,8 @@
 title: Automatic Test Suite
 ---
 
+import { Aside } from '@astrojs/starlight/components';
+
 The pipeline comes with a suite of tests: They ensure the code is doing what it's supposed to and enable developers to change code confidently.
 
 ## Test Classes
@@ -37,6 +39,10 @@ The tests are ordered the following way - the fast tests should run first to get
 
 ## Retrieval Tests
 
-When running the `ci` or `complete` tests, the test suite will download some sample data to `data/testing/container/em27-retrieval-pipeline-test-inputs-1.0.0.tar.gz` and unpack this into `data/testing/container/inputs`. After the tests have run successfully, the directory `data/testing/container/outputs` will be fully populated with the results of any retrieval algorithm using any atmospheric profiles.
+When running the `ci` or `complete` tests, the test suite will download some sample data to `data/testing/container/inputs`. After the tests have run successfully, the directory `data/testing/container/outputs` will be fully populated with the results of any retrieval algorithm using any atmospheric profiles.
 
-**🌈 You can use this as a demonstration of the input and output format of the pipeline.**
+<Aside type="tip">
+
+You can use this as a demonstration of the input and output format of the pipeline.
+
+</Aside>
