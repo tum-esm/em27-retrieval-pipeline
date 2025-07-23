@@ -1,13 +1,21 @@
+import sys
 from typing import Optional
 import datetime
 import os
 import tqdm
 import tum_esm_utils
+
+sys.path.append(tum_esm_utils.files.rel_to_abs_path("../.."))
+
 from src import utils
 
 # set these paths
-IFG_PATH = "somepath"
-RESULTS_PATH = "results"
+IFG_PATH = (
+    "/home/moritz-makowski/documents/em27/em27-retrieval-pipeline/data/testing/inputs/data/ifg"
+)
+RESULTS_PATH = (
+    "/home/moritz-makowski/documents/em27/em27-retrieval-pipeline/data/testing/inputs/results"
+)
 
 if __name__ == "__main__":
     if not os.path.exists(IFG_PATH):
@@ -16,7 +24,7 @@ if __name__ == "__main__":
         raise FileNotFoundError(f"RESULTS_PATH does not exist: {RESULTS_PATH}")
 
     retrieval_algorithms = set(
-        ["proffast-2.2", "proffast-2.3", "proffast-2.4", "proffast-2.4.1"]
+        ["proffast-1.0", "proffast-2.2", "proffast-2.3", "proffast-2.4", "proffast-2.4.1"]
     ).intersection(set(os.listdir(RESULTS_PATH)))
 
     for retrieval_algorithm in retrieval_algorithms:
@@ -74,22 +82,36 @@ if __name__ == "__main__":
                     )
 
                     # find preprocess input file to get the used filenames
-                    input_file_dir = os.path.join(results_path, "input_files")
-                    input_files = [
-                        f
-                        for f in os.listdir(input_file_dir)
-                        if f.startswith("preprocess") and f.endswith(".inp")
-                    ]
-                    if len(input_files) != 1:
-                        progress.write(
-                            f"Skipping {results_dir} because there is not exactly one input file in {input_file_dir}: {input_files}"
-                        )
-                        continue
-                    input_filenames = (
-                        tum_esm_utils.files.load_file(os.path.join(input_file_dir, input_files[0]))
-                        .split("$")[-1]
-                        .strip(" *\n\t")
-                    ).split("\n")
+                    input_filenames: list[str]
+                    if retrieval_algorithm == "proffast-1.0":
+                        input_filenames = (
+                            tum_esm_utils.files.load_file(
+                                os.path.join(results_path, "logfiles/preprocess4.log")
+                            )
+                            .split("Reading file names")[1]
+                            .split("Done!")[0]
+                            .strip(" \t\n")
+                        ).split("\n")
+                    else:
+                        # find preprocess input file to get the used filenames
+                        input_file_dir = os.path.join(results_path, "input_files")
+                        input_files = [
+                            f
+                            for f in os.listdir(input_file_dir)
+                            if f.startswith("preprocess") and f.endswith(".inp")
+                        ]
+                        if len(input_files) != 1:
+                            progress.write(
+                                f"Skipping {results_dir} because there is not exactly one input file in {input_file_dir}: {input_files}"
+                            )
+                            continue
+                        input_filenames = (
+                            tum_esm_utils.files.load_file(
+                                os.path.join(input_file_dir, input_files[0])
+                            )
+                            .split("$")[-1]
+                            .strip(" *\n\t")
+                        ).split("\n")
 
                     if len(input_filenames) != len(filtered_filenames):
                         progress.write(
