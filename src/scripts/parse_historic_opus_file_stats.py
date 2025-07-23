@@ -9,13 +9,9 @@ sys.path.append(tum_esm_utils.files.rel_to_abs_path("../.."))
 
 from src import utils
 
-# set these paths
-IFG_PATH = (
-    "/home/moritz-makowski/documents/em27/em27-retrieval-pipeline/data/testing/inputs/data/ifg"
-)
-RESULTS_PATH = (
-    "/home/moritz-makowski/documents/em27/em27-retrieval-pipeline/data/testing/inputs/results"
-)
+# TODO: set these paths
+IFG_PATH = tum_esm_utils.files.rel_to_abs_path("../../data/testing/inputs/data/ifg")
+RESULTS_PATH = tum_esm_utils.files.rel_to_abs_path("../../data/testing/inputs/results")
 
 if __name__ == "__main__":
     if not os.path.exists(IFG_PATH):
