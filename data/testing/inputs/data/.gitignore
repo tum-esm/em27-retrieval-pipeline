@@ -1,4 +1,5 @@
-ifg/*
-!ifg/.gitkeep
-!*.csv
-!*.map
+interferograms/*
+ground-pressure/*
+atmospheric-profiles/*
+!*/.gitkeep
+

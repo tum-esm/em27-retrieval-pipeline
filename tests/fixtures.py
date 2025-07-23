@@ -23,7 +23,7 @@ def download_sample_data() -> Generator[None, None, None]:
 
     The tar file has about 96MB."""
 
-    testing_data_path = os.path.join(_PROJECT_DIR, "data", "testing", "inputs", "data")
+    """testing_data_path = os.path.join(_PROJECT_DIR, "data", "testing", "inputs", "data")
     tarball_filename = "em27-retrieval-pipeline-test-interferograms-2024-09-17.tar.gz"
 
     # download testing data tarball if it does not exist
@@ -42,7 +42,7 @@ def download_sample_data() -> Generator[None, None, None]:
     tum_esm_utils.shell.run_shell_command(
         f"tar -xzf {tarball_filename}",
         working_directory=testing_data_path,
-    )
+    )"""
 
     yield
 

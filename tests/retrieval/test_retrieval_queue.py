@@ -4,7 +4,11 @@ import pytest
 import dotenv
 import em27_metadata
 import tum_esm_utils
-from ..fixtures import download_sample_data, provide_config_template, remove_temporary_retrieval_data
+from ..fixtures import (
+    download_sample_data,
+    provide_config_template,
+    remove_temporary_retrieval_data,
+)
 
 from src import types, retrieval
 from src.retrieval.dispatching.retrieval_queue import generate_retrieval_queue
@@ -68,21 +72,23 @@ def test_retrieval_queue(
 
     # target config at test data
     config.general.data.ground_pressure.path.root = os.path.join(
-        PROJECT_DIR, "data", "testing", "inputs", "data", "log"
+        PROJECT_DIR, "data", "testing", "inputs", "data", "ground-pressure"
     )
     config.general.data.ground_pressure.pressure_column = "BaroYoung"
     config.general.data.ground_pressure.pressure_column_format = "hPa"
-    config.general.data.ground_pressure.file_regex = "^ground-pressure-$(SENSOR_ID)-$(YYYY)-$(MM)-$(DD).csv$"
+    config.general.data.ground_pressure.file_regex = (
+        "^ground-pressure-$(SENSOR_ID)-$(YYYY)-$(MM)-$(DD).csv$"
+    )
     config.general.data.ground_pressure.date_column = "utc-date"
     config.general.data.ground_pressure.date_column_format = "%Y-%m-%d"
     config.general.data.ground_pressure.time_column = "utc-time"
     config.general.data.ground_pressure.time_column_format = "%H:%M:%S"
 
     config.general.data.interferograms.root = os.path.join(
-        PROJECT_DIR, "data", "testing", "inputs", "data", "ifg"
+        PROJECT_DIR, "data", "testing", "inputs", "data", "interferograms"
     )
     config.general.data.atmospheric_profiles.root = os.path.join(
-        PROJECT_DIR, "data", "testing", "inputs", "data", "map"
+        PROJECT_DIR, "data", "testing", "inputs", "data", "atmospheric-profiles"
     )
     config.general.data.results.root = os.path.join(
         PROJECT_DIR, "data", "testing", "container", "outputs"
@@ -99,7 +105,7 @@ def test_retrieval_queue(
             sensor_ids=["so"],
             from_date=datetime.date(2017, 6, 9),
             to_date=datetime.date(2017, 6, 10),
-        )
+        ),
     )
     _check_retrieval_queue(
         expected=[
@@ -119,7 +125,7 @@ def test_retrieval_queue(
             sensor_ids=["so"],
             from_date=datetime.date(2017, 6, 1),
             to_date=datetime.date(2017, 6, 10),
-        )
+        ),
     )
     _check_retrieval_queue(
         expected=[
@@ -140,7 +146,7 @@ def test_retrieval_queue(
             sensor_ids=["so"],
             from_date=datetime.date(2017, 6, 1),
             to_date=datetime.date(2017, 6, 8),
-        )
+        ),
     )
     _check_retrieval_queue(
         expected=[datetime.date(2017, 6, 8)],
@@ -158,7 +164,7 @@ def test_retrieval_queue(
             sensor_ids=["so"],
             from_date=datetime.date(2017, 6, 8),
             to_date=datetime.date(2017, 6, 8),
-        )
+        ),
     )
     _check_retrieval_queue(
         expected=[datetime.date(2017, 6, 8)],
@@ -176,7 +182,7 @@ def test_retrieval_queue(
             sensor_ids=["so"],
             from_date=datetime.date(2017, 6, 1),
             to_date=datetime.date(2017, 6, 7),
-        )
+        ),
     )
     _check_retrieval_queue(
         expected=[],
