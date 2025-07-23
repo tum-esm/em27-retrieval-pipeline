@@ -1,0 +1,37 @@
+# Variables to be set:
+# SERIAL_NUMBER, SENSOR, PROJECT_DIR, DATE
+
+# SITE AND INSTRUMENT
+instrument_number: SN039
+site_name: so
+site_abbrev: so
+start_date:
+end_date:
+coords:
+  lat: 67.366
+  lon: 26.63
+  alt: 0.181
+coord_file:
+utc_offset: 0.0
+
+# BEHAVIOUR
+min_interferogram_size: 0.2
+start_with_spectra: False
+delete_abscosbin_files: True
+delete_input_files: False
+note:
+proffast_path: /home/moritz-makowski/documents/em27/em27-retrieval-pipeline/data/containers/retrieval-container-gallant-engelbart/prf
+
+# TCCON
+tccon_mode: False
+tccon_setting:
+
+# INPUT PATHS
+interferogram_path: /home/moritz-makowski/documents/em27/em27-retrieval-pipeline/data/containers/retrieval-container-gallant-engelbart-inputs/ifg
+map_path: /home/moritz-makowski/documents/em27/em27-retrieval-pipeline/data/containers/retrieval-container-gallant-engelbart-inputs/map
+pressure_path: /home/moritz-makowski/documents/em27/em27-retrieval-pipeline/data/containers/retrieval-container-gallant-engelbart-inputs/log
+pressure_type_file: /home/moritz-makowski/documents/em27/em27-retrieval-pipeline/data/containers/retrieval-container-gallant-engelbart-inputs/pylot_log_format.yml
+
+# OUTPUT PATHS
+analysis_path: /home/moritz-makowski/documents/em27/em27-retrieval-pipeline/data/containers/retrieval-container-gallant-engelbart-outputs/analysis
+result_path: /home/moritz-makowski/documents/em27/em27-retrieval-pipeline/data/containers/retrieval-container-gallant-engelbart-outputs

@@ -1,0 +1,61 @@
+# This is the example pressure file for the MIRA Datalogger file
+
+# the filename used to search for the pressure file looks like:
+# filename = basename + "%Y-%m-%d" + "*.dat"
+filename_parameters:
+  basename: "ground-pressure-mc-"
+  time_format: "%Y%m%d"
+  ending: ".csv"
+
+# the pressure file itself has the structure:
+# """
+# UTCdate_____ UTCtime___ UTCsec____ BaroYoung
+# "27.11.2019" "00:00:16" 1574812816 +9.4088e+02
+# """
+dataframe_parameters:
+  pressure_key: "pressure"
+  time_key: "utc-time"
+  time_fmt: "%H:%M:%S"
+  date_key: "utc-date"
+  date_fmt: "%Y-%m-%d"
+  datetime_key: ""
+  datetime_fmt: ""
+  csv_kwargs:
+    sep: ","
+
+# Check the pressure data for the following parameters:
+#  - Check if pressure is between min_pressure and max_pressure.
+#    Else use default-value
+#  - default_value can be either "skip", to skip the line or a number to use
+#    instead
+data_parameters:
+  max_pressure: "1500"
+  min_pressure: "500"
+  default_value: "skip"
+
+# UTC Offset of data:
+# Have to be given even if data is processed in localtime!
+utc_offset: 0.0
+
+# pressure factor:
+# The pressure column will be multiplied by this factor.
+# Can be used e.g. for unit conversion or to correct for hight differences.
+# The pressure column is assumed to be in hPa.
+# IMPORTANT: the em27-retrieval pipeline does support this option, but
+#            computes the corrected pressure when copying the log files
+pressure_factor: 1.0
+
+# pressure offset:
+# The pressure offset is added to the read in pressure values.
+# This can be used to correct for a constant offset.
+# IMPORTANT: the em27-retrieval pipeline does support this option, but
+#            computes the corrected pressure when copying the log files
+pressure_offset: 0.0
+
+# Frequency of pressure files. Options are
+# - subdaily: Several files per day
+# - daily: One single file per day
+# - weekly: One single file per Week
+# - monthly: One single file per month
+# - yearly: One single file per year
+frequency: "daily"

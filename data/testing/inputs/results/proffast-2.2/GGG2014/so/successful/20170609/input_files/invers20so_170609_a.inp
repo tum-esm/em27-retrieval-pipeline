@@ -1,0 +1,135 @@
+Input file invers20
+
+complete analysis folder
+site name
+date
+absco file
+pT detail dec (True/False)
+quiet run option (True/False)
+handle (single character is appended to the output files. For default behaviour choose 'X')
+$
+/home/moritz-makowski/documents/em27/em27-retrieval-pipeline/data/containers/retrieval-container-elated-archimedes-outputs/analysis/so_SN039/170609
+so
+170609
+so170609-abscos.bin
+.true.
+.true.
+a
+
+Unrefracted (False / COCCON standard) or refracted (True) solar elevation in *.bin file?
+$
+.false.
+
+
+number of jobs
+number of species
+retrieval parameter persistence
+$
+5
+8
+0.1
+
+
+for each job:
+  microwindow bounds
+  treatment of species (0: neglected, 1: forward calculated, 2: retrieved)
+      H2O (major isotopes)
+      HDO
+      CO2
+      CH4
+      N2O
+      CO      
+      O2
+      HF
+
+  number of baseline points
+  deweighting:
+      number of windows
+      spectral bounds and steepness
+
+jobs listed here (for SN processing): H2O / O2 / CO2 / CH4 / CO + CH4_S5P
+$
+(8353.4,8463.1)
+2
+1.0,0.0,0.0,"XH2O    "
+0
+0
+0
+0
+0
+0
+0
+8
+0
+(7765.0,8005.0)
+2
+1.0,0.0,0.0,"XDUM1   "
+0
+1
+0
+0
+0
+2
+0.9905,-0.007,-0.0070,"XAIR    "
+0
+20
+0
+(6173.00,6390.00)
+2
+1.0,0.0,0.0,"XDUM2   "
+0
+2
+0.9962,0.0,-0.0060,"XCO2    "
+1
+0
+0
+0
+0
+20
+0
+(5897.00,6145.00)
+2
+1.0,0.0,0.0,"XDUM3   "
+0
+2
+1.0,0.0,0.0,"XDUM4   "
+2
+0.9880,0.001,0.004,"XCH4    "
+0
+0
+0
+0
+20
+0
+(4208.7,4318.8)
+2
+1.0,0.0,0.0,"XDUM5   "
+2
+1.0,0.0,0.0,"XDUM6   "
+0
+2
+0.9948,-0.003,0.007,"XCH4_S5P"
+1
+2
+1.0,0.060,0.0,"XCO     "
+0
+1
+20
+0
+
+list for all spectra: name of spectra, pressure, T_PBL
+(only list SN spectra here, the code will check whether a corresponding SM is available)
+$
+170609_054220SN.BIN, 996.62, 0.0
+170609_063537SN.BIN, 996.62, 0.0
+170609_072912SN.BIN, 996.32, 0.0
+170609_082251SN.BIN, 996.12, 0.0
+170609_091635SN.BIN, 995.82, 0.0
+170609_101024SN.BIN, 995.516, 0.0
+170609_110415SN.BIN, 995.1775, 0.0
+170609_115739SN.BIN, 994.88175, 0.0
+170609_125151SN.BIN, 994.72, 0.0
+170609_153413SN.BIN, 993.82, 0.0
+170609_162832SN.BIN, 993.4346666666667, 0.0
+170609_172255SN.BIN, 993.22, 0.0
+***

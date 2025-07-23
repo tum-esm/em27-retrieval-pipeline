@@ -1,0 +1,156 @@
+Input file invers20
+
+complete analysis folder (YYMMDD in measurement time)
+site name
+local date
+abscos file
+pT detail dec (T/F)
+Quiet execution (no user requests) (T/F)
+handle
+$
+/home/moritz-makowski/documents/em27/em27-retrieval-pipeline/data/containers/retrieval-container-eloquent-hopper-outputs/analysis/so_SN039/170608
+so
+170608
+so170608-abscos.bin
+.true.
+.true.
+a
+
+Unrefracted (false / COCCON standard) or refracted (true) solar elevation in *.bin file?
+$
+.false.
+
+
+number of jobs
+number of species
+retrieval parameter persistence
+$
+6
+8
+0.1
+
+
+for each job:
+  microwindow bounds
+  treatment of species (0: neglected, 1: forward calculated, 2: retrieved)
+      H2O (major isotopes)
+      HDO
+      CO2
+      CH4
+      N2O
+      CO      
+      O2
+      HF
+
+  number of baseline points
+  deweighting:
+      number of windows
+      spectral bounds and steepness
+
+jobs listed here (for SN processing): H2O / O2 / CO2 / CH4 / CO2_STR / CO + CH4_S5P
+
+
+
+$
+(8353.4,8463.1)
+2
+1,0.0,0.0,0.0,0.0,"XH2O    "
+0
+0
+0
+0
+0
+0
+0
+8
+0
+(7765.0,8005.0)
+2
+1.0,0.0,0.0,0.0,0.0,"XDUM1   "
+0
+1
+0
+0
+0
+2
+0.9907,-0.0075,-0.0072,0.0,0.0,"XAIR    "
+0
+20
+0
+(6173.00,6390.00)
+2
+1.0,0.0,0.0,0.0,0.0,"XDUM2   "
+0
+2
+0.9970,0.0004,0.002,0.0,-1.15,"XCO2    "
+1
+0
+0
+0
+0
+20
+0
+(5897.00,6145.00)
+2
+1.0,0.0,0.0,0.0,0.0,"XDUM3   "
+0
+2
+1.0,0.0,0.0,0.0,0.0,"XDUM4   "
+2
+0.9884,0.00275,0.011,0.0,-0.72,"XCH4    "
+0
+0
+0
+0
+20
+0
+(4820.0,4884.0)
+2
+1.0,0.0,0.0,0.0,0.0,"XDUM5   "
+2
+1.0,0.0,0.0,0.0,0.0,"XDUM6   "
+2
+1.0024,-0.001,-0.029,0.0,-1.15,"XCO2_STR"
+0
+0
+0
+0
+0
+10
+0
+(4208.7,4318.8)
+2
+1.0,0.0,0.0,0.0,0.0,"XDUM7   "
+2
+1.0,0.0,0.0,0.0,0.0,"XDUM8   "
+0
+2
+0.9948,-0.0008,0.002,0.0,-0.72,"XCH4_S5P"
+1
+2
+0.9997,0.0715,0.0068,0.0,-0.3,"XCO     "
+0
+1
+20
+0
+
+
+
+names of spectra
+(only list SN spectra here, the code will check whether a corresponding SM is available)
+$
+170608_054549SN.BIN, 998.856848, 0.0
+170608_063902SN.BIN, 998.72, 0.0
+170608_073232SN.BIN, 998.72, 0.0
+170608_082609SN.BIN, 998.62, 0.0
+170608_091953SN.BIN, 998.41624, 0.0
+170608_101338SN.BIN, 997.878754, 0.0
+170608_110729SN.BIN, 997.52, 0.0
+170608_120126SN.BIN, 997.22, 0.0
+170608_125459SN.BIN, 997.02, 0.0
+170608_134900SN.BIN, 996.825048, 0.0
+170608_144308SN.BIN, 996.62, 0.0
+170608_153719SN.BIN, 996.32, 0.0
+170608_163133SN.BIN, 996.12, 0.0
+170608_172551SN.BIN, 995.92, 0.0
+***

@@ -1,0 +1,64 @@
+Input file for COCCON PROCEEDS prf96-EM27-fast/preprocessor                        
+
+Generate ASCII output for testing
+mpowFFT (17 for EM27/SUN)
+DCmin
+DCvar
+$
+.false.
+17
+0.05
+0.1
+
+
+ILS parameter: apo + phase error
+primary channel
+secondary channel
+$
+0.9816 -0.00244
+0.9816 -0.00244
+
+
+T/F: fixed or variable observer coordinates
+specify site name
+specify time offset of OPUS time versus UT (hours+decimals)
+if fixed observer coordinates: specify fixed observer coords (lat_deg,long_deg (East pos),alt_km)
+
+$
+.true.
+so
+0.0
+67.366  26.63  0.181
+
+
+Quiet execution (no user requests)
+Output path diagnosis
+Output path bin spectra
+$
+T
+/home/moritz-makowski/documents/em27/em27-retrieval-pipeline/data/containers/retrieval-container-stoic-banach-outputs/so_SN039_170608-170608/logfiles
+/home/moritz-makowski/documents/em27/em27-retrieval-pipeline/data/containers/retrieval-container-stoic-banach-outputs/analysis/so_SN039/170608/cal
+
+
+input for comments added to file header (up to 150 characters)
+$
+This spectrum is generated using preprocess4, a part of PROFFAST controlled by PROFFASTpylot. 
+
+
+list of raw measurements (path and filename, end marker ***)
+$
+/home/moritz-makowski/documents/em27/em27-retrieval-pipeline/data/containers/retrieval-container-stoic-banach-inputs/ifg/170608/170608SN.3
+/home/moritz-makowski/documents/em27/em27-retrieval-pipeline/data/containers/retrieval-container-stoic-banach-inputs/ifg/170608/170608SN.12
+/home/moritz-makowski/documents/em27/em27-retrieval-pipeline/data/containers/retrieval-container-stoic-banach-inputs/ifg/170608/170608SN.8
+/home/moritz-makowski/documents/em27/em27-retrieval-pipeline/data/containers/retrieval-container-stoic-banach-inputs/ifg/170608/170608SN.1
+/home/moritz-makowski/documents/em27/em27-retrieval-pipeline/data/containers/retrieval-container-stoic-banach-inputs/ifg/170608/170608SN.2
+/home/moritz-makowski/documents/em27/em27-retrieval-pipeline/data/containers/retrieval-container-stoic-banach-inputs/ifg/170608/170608SN.4
+/home/moritz-makowski/documents/em27/em27-retrieval-pipeline/data/containers/retrieval-container-stoic-banach-inputs/ifg/170608/170608SN.5
+/home/moritz-makowski/documents/em27/em27-retrieval-pipeline/data/containers/retrieval-container-stoic-banach-inputs/ifg/170608/170608SN.7
+/home/moritz-makowski/documents/em27/em27-retrieval-pipeline/data/containers/retrieval-container-stoic-banach-inputs/ifg/170608/170608SN.6
+/home/moritz-makowski/documents/em27/em27-retrieval-pipeline/data/containers/retrieval-container-stoic-banach-inputs/ifg/170608/170608SN.11
+/home/moritz-makowski/documents/em27/em27-retrieval-pipeline/data/containers/retrieval-container-stoic-banach-inputs/ifg/170608/170608SN.13
+/home/moritz-makowski/documents/em27/em27-retrieval-pipeline/data/containers/retrieval-container-stoic-banach-inputs/ifg/170608/170608SN.14
+/home/moritz-makowski/documents/em27/em27-retrieval-pipeline/data/containers/retrieval-container-stoic-banach-inputs/ifg/170608/170608SN.9
+/home/moritz-makowski/documents/em27/em27-retrieval-pipeline/data/containers/retrieval-container-stoic-banach-inputs/ifg/170608/170608SN.10
+***

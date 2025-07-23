@@ -1,0 +1,34 @@
+# Variables to be set:
+# SERIAL_NUMBER, SENSOR, PROJECT_DIR, DATE
+
+# SITE AND INSTRUMENT
+instrument_number: SN115
+site_name: mc
+site_abbrev: mc
+start_date:
+end_date:
+coords:
+  lat: 48.147699
+  lon: 16.438481
+  alt: 0.18
+coord_file:
+utc_offset: 0.0
+
+# BEHAVIOUR
+min_interferogram_size: 0.2
+start_with_spectra: False
+delete_abscosbin_files: True
+delete_pT_VMR_files: False
+delete_input_files: False
+note:
+proffast_path: /home/moritz-makowski/documents/em27/em27-retrieval-pipeline/data/containers/retrieval-container-wizardly-lewin/prf
+
+# INPUT PATHS
+interferogram_path: /home/moritz-makowski/documents/em27/em27-retrieval-pipeline/data/containers/retrieval-container-wizardly-lewin-inputs/ifg
+map_path: /home/moritz-makowski/documents/em27/em27-retrieval-pipeline/data/containers/retrieval-container-wizardly-lewin-inputs/map
+pressure_path: /home/moritz-makowski/documents/em27/em27-retrieval-pipeline/data/containers/retrieval-container-wizardly-lewin-inputs/log
+pressure_type_file: /home/moritz-makowski/documents/em27/em27-retrieval-pipeline/data/containers/retrieval-container-wizardly-lewin-inputs/pylot_log_format.yml
+
+# OUTPUT PATHS
+analysis_path: /home/moritz-makowski/documents/em27/em27-retrieval-pipeline/data/containers/retrieval-container-wizardly-lewin-outputs/analysis
+result_path: /home/moritz-makowski/documents/em27/em27-retrieval-pipeline/data/containers/retrieval-container-wizardly-lewin-outputs

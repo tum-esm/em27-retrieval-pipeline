@@ -1,0 +1,75 @@
+Input file for COCCON PROCEEDS prf96-EM27-fast/preprocessor                        
+
+Generate ASCII output for testing
+mpowFFT (17 for EM27/SUN and IR Cube: 1.8 cm MPD, 181/182: 2.5 cm /3.0 cm MPD, 19 for VERTEX / INVENIO: 4.5 cm MPD, 20 for 125HR: 16.2 cm MPD)
+DCmin
+DCvar
+$
+.false.
+17
+0.05
+0.1
+
+
+
+ILS parameter: apo + phase error
+primary channel
+secondary channel
+semiFOV [rad]
+$
+0.9862 0.000944
+0.9862 0.000944
+0.00236
+
+
+
+T/F: fixed or variable observer coordinates
+specify site name
+specify time offset of OPUS time versus UT (hours+decimals)
+if fixed observer coordinates: specify fixed observer coords (lat_deg,long_deg (East pos),alt_km)
+
+$
+T
+mc
+0.0
+48.147699  16.438481  0.18
+
+
+
+Quiet execution (no user requests)
+Output path diagnosis
+Output path bin spectra
+Dual IFG recording (T/F)
+Swap channels (applies for dual IFG recording: 1st channel SN, second channel SM - otherwise choose swap = true)
+use analytical phase (T/F)
+band selection (0: only generate SN from first channel, 1: generate SN from first and SM from second channel, 2: generate SN + SM from first chann)
+$
+T
+/home/moritz-makowski/documents/em27/em27-retrieval-pipeline/data/containers/retrieval-container-magical-lewin-outputs/mc_SN115_220602-220602/logfiles
+/home/moritz-makowski/documents/em27/em27-retrieval-pipeline/data/containers/retrieval-container-magical-lewin-outputs/analysis/mc_SN115/220602/cal
+T
+F
+F
+1
+
+
+
+input for comments added to file header (up to 150 characters)
+$
+This spectrum is generated using preprocess5, a part of PROFFAST controlled by PROFFASTpylot.
+
+
+
+list of raw measurements (path and filename, end marker ***)
+$
+/home/moritz-makowski/documents/em27/em27-retrieval-pipeline/data/containers/retrieval-container-magical-lewin-inputs/ifg/220602/220602SN.1
+/home/moritz-makowski/documents/em27/em27-retrieval-pipeline/data/containers/retrieval-container-magical-lewin-inputs/ifg/220602/220602SN.10
+/home/moritz-makowski/documents/em27/em27-retrieval-pipeline/data/containers/retrieval-container-magical-lewin-inputs/ifg/220602/220602SN.2
+/home/moritz-makowski/documents/em27/em27-retrieval-pipeline/data/containers/retrieval-container-magical-lewin-inputs/ifg/220602/220602SN.9
+/home/moritz-makowski/documents/em27/em27-retrieval-pipeline/data/containers/retrieval-container-magical-lewin-inputs/ifg/220602/220602SN.4
+/home/moritz-makowski/documents/em27/em27-retrieval-pipeline/data/containers/retrieval-container-magical-lewin-inputs/ifg/220602/220602SN.3
+/home/moritz-makowski/documents/em27/em27-retrieval-pipeline/data/containers/retrieval-container-magical-lewin-inputs/ifg/220602/220602SN.8
+/home/moritz-makowski/documents/em27/em27-retrieval-pipeline/data/containers/retrieval-container-magical-lewin-inputs/ifg/220602/220602SN.6
+/home/moritz-makowski/documents/em27/em27-retrieval-pipeline/data/containers/retrieval-container-magical-lewin-inputs/ifg/220602/220602SN.5
+/home/moritz-makowski/documents/em27/em27-retrieval-pipeline/data/containers/retrieval-container-magical-lewin-inputs/ifg/220602/220602SN.7
+***

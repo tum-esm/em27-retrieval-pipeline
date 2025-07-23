@@ -4,3 +4,6 @@
 !*.spc
 !*.parquet
 !*.json
+!*.inp
+!*.yml
+!*.map
