@@ -1,7 +1,7 @@
 // @ts-check
 import { defineConfig } from "astro/config";
 import starlight from "@astrojs/starlight";
-import tailwind from "@astrojs/tailwind";
+import tailwindcss from '@tailwindcss/vite';
 import mdx from "@astrojs/mdx";
 import react from "@astrojs/react";
 import remarkMath from "remark-math";
@@ -75,7 +75,7 @@ export default defineConfig({
         },
       ],
       customCss: [
-        "./src/tailwind.css",
+        "./src/styles/global.css",
         "@fontsource/inter/300.css",
         "@fontsource/inter/300-italic.css",
         "@fontsource/inter/400.css",
@@ -88,7 +88,6 @@ export default defineConfig({
         "@fontsource/inter/700-italic.css",
       ],
     }),
-    tailwind({ applyBaseStyles: false }),
     react(),
     mdx(),
   ],
@@ -96,4 +95,7 @@ export default defineConfig({
     remarkPlugins: [remarkMath],
     rehypePlugins: [rehypeMathjax],
   },
+  vite: {
+		plugins: [tailwindcss()],
+	},
 });
