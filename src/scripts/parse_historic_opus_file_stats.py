@@ -21,7 +21,7 @@ if __name__ == "__main__":
         allowed_sensor_ids = set(sys.argv[1:])
 
     force = "--force" in sys.argv[1:]
-    if force and (len(allowed_sensor_ids) == 1):
+    if force and (allowed_sensor_ids is not None) and (len(allowed_sensor_ids) == 1):
         allowed_sensor_ids = None
 
     if not os.path.exists(IFG_PATH):
