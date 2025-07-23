@@ -89,3 +89,96 @@ Errors:
 Maybe, but this is not tested. Since the pipeline spends almost the entire time
 on IO or running Fortran programs, using a faster Python interpreter will not
 have a measurable impact on the runtime.
+
+## What do the parameters in the OPUS files mean?
+
+The list below was blatantly stolen from the TCCON wiki (https://tccon-wiki.caltech.edu/Main/I2SAndOPUSHeaders).
+
+| Parameter ID              | Description                                                               |
+| ------------------------- | ------------------------------------------------------------------------- |
+| **Instrument Parameter**  |                                                                           |
+| DUR                       | Scan time [seconds]                                                       |
+| PKA                       | Peak Amplitude                                                            |
+| PKL                       | Peak Location                                                             |
+| PRA                       | Backward Peak Amplitude                                                   |
+| PRL                       | Backward Peak Location                                                    |
+| HFL                       | High Folding Limit                                                        |
+| LFL                       | Low Folding Limit                                                         |
+| LWN                       | Laser Wavenumber                                                          |
+| SSP                       | Sample Spacing Divisor                                                    |
+| SSM                       | Sample Spacing Multiplicator                                              |
+| INS                       | Instrument Type                                                           |
+| FOC                       | Focal Length                                                              |
+| ASS                       | Number of Sample Scans                                                    |
+| GFW                       | Number of Good FW Scans                                                   |
+| GBW                       | Number of Good BW Scans                                                   |
+| BFW                       | Number of Bad FW Scans                                                    |
+| BBW                       | Number of Bad BW Scans                                                    |
+| RSN                       | Running Sample Number                                                     |
+| HFF                       | Digital Filter HFL                                                        |
+| LFF                       | Digital Filter LFL                                                        |
+| HUM                       | Humidity Interferometer                                                   |
+| TLP                       | IFSSrcT                                                                   |
+| PIM                       | Pressure Interferometer                                                   |
+| TSC                       | Scanner Temperature                                                       |
+| SRN                       | Slice request number???                                                   |
+| **Acquisition Parameter** |                                                                           |
+| AQM                       | Acquisition Mode                                                          |
+| SGN                       | Signal Gain, Sample                                                       |
+| RES                       | Resolution                                                                |
+| OPL                       | Optical path difference, long side [cm]                                   |
+| OPS                       | Optical path difference, short side [cm]                                  |
+| NSS                       | Sample Scans                                                              |
+| **FT Parameters**         |                                                                           |
+| APF                       | Apodization Function                                                      |
+| PHR                       | Phase Resolution                                                          |
+| SVF                       | SIV correction frequency                                                  |
+| PCL                       | Phase Corr Operator Length                                                |
+| PCT                       | Phase Correction Thresh                                                   |
+| ZFF                       | Zero Filling Factor                                                       |
+| ZPL                       | ZPD Location                                                              |
+| SCF                       |                                                                           |
+| DCL                       |                                                                           |
+| ZPA                       |                                                                           |
+| VER                       | Version Number                                                            |
+| VDC                       | variability in the DC level                                               |
+| LST                       | laser sampling type [0: none; 1: InGaAs; 2: Si; 3: Dohe et al.; 4: other] |
+| LSE                       | laser sampling error [the shift]                                          |
+| LSU                       | laser sampling uncertainty                                                |
+| **Optic Parameters**      |                                                                           |
+| SRC                       | Source Setting                                                            |
+| APT                       | Aperture Setting                                                          |
+| FOV                       | Field of view in mrad                                                     |
+| BMS                       | Beamsplitter Setting                                                      |
+| VEL                       | Scanner Velocity                                                          |
+| DTC                       | Detector Setting                                                          |
+| HPF                       | High Pass Filter                                                          |
+| LPF                       | Low Pass Filter                                                           |
+| CHN                       | Measurement Channel                                                       |
+| PGN                       | Preamplifier Gain                                                         |
+| RDX                       |                                                                           |
+| SON                       | External Synchronisation                                                  |
+| **Sample Parameters**     |                                                                           |
+| SFM                       | Sample Form                                                               |
+| LAT                       | Latitude                                                                  |
+| LON                       | Longitude                                                                 |
+| ALT                       | Altitude [m a.s.l.]                                                       |
+| TOU                       | Average temperature [outside, °C]                                         |
+| POU                       | Average pressure [outside, hPa]                                           |
+| HOU                       | Average humidity [outside, %]                                             |
+| SIA                       | Average solar intensity                                                   |
+| SIS                       | Standard deviation of solar intensity                                     |
+| WSA                       | Average wind speed [m/s]                                                  |
+| WDA                       | Average wind direction                                                    |
+| EXP                       | Experiment [filename]                                                     |
+| **Data Parameters**       |                                                                           |
+| DPF                       | Data Point Format                                                         |
+| NPT                       | Number of Data Points                                                     |
+| FXV                       | Frequency of First Point                                                  |
+| LXV                       | Frequency of Last Point                                                   |
+| CSF                       | Y - Scaling Factor                                                        |
+| MXY                       | Y - Maximum                                                               |
+| MNY                       | Y - Minimum                                                               |
+| DXU                       | X Units                                                                   |
+| DAT                       | Date of Measurement                                                       |
+| TIM                       | Time of Measurement                                                       |
