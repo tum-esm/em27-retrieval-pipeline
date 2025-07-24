@@ -35,6 +35,7 @@ def _check_config_validity() -> None:
 
 @retrieval_command_group.command(
     name="start",
+    short_help="Start Retrieval Process",
     help="Start the retrieval as a background process. Prevents spawning multiple processes. The logs and the current processing queue from this process can be found at `logs/retrieval`.",
 )
 def start() -> None:
@@ -47,6 +48,7 @@ def start() -> None:
 
 @retrieval_command_group.command(
     name="is-running",
+    short_help="Check If Retrieval Is Running",
     help="Checks whether the retrieval background process is running. The logs and the current processing queue from this process can be found at `logs/retrieval`.",
 )
 def is_running() -> None:
@@ -61,6 +63,7 @@ def is_running() -> None:
 
 @retrieval_command_group.command(
     name="watch",
+    short_help="Watch Retrieval Process",
     help="Opens an active watch window for the retrieval background process.",
 )
 @click.option(
@@ -92,6 +95,7 @@ def watch(
 
 @retrieval_command_group.command(
     name="stop",
+    short_help="Stop Retrieval Process",
     help="Stop the retrieval background process. The logs and the current processing queue from this process can be found at `logs/retrieval`.",
 )
 def stop() -> None:
@@ -109,7 +113,8 @@ def stop() -> None:
 
 @retrieval_command_group.command(
     name="download-algorithms",
-    help="Downloads all retrieval algorithms into the local container factories",
+    short_help="Download Retrieval Algorithms",
+    help="Downloads all retrieval algorithms into the local container factories. Can be used if you don't want to run the pipeline but download all algorithms.",
 )
 def download_algorithms() -> None:
     import src
@@ -122,6 +127,7 @@ def download_algorithms() -> None:
 
 @profiles_command_group.command(
     name="run",
+    short_help="Run Atmospheric Profiles Download",
     help="Run the profiles download script. This will check, which profiles are not yet present locally, request and download them from the `ccycle.gps.caltech.edu` FTP server. The logs from this process can be found at `logs/profiles`.",
 )
 def run_profiles_download() -> None:
@@ -134,6 +140,7 @@ def run_profiles_download() -> None:
 
 @profiles_command_group.command(
     name="request-ginput-status",
+    short_help="Request Ginput Status",
     help="Request ginput status. This will upload a file `upload/ginput_status.txt` to the `ccycle.gps.caltech.edu` FTP server containing the configured email address. You will receive an email with the ginput status which normally takes less than two minutes.",
 )
 def request_ginput_status() -> None:
@@ -156,6 +163,7 @@ def request_ginput_status() -> None:
 
 @profiles_command_group.command(
     name="migrate-storage-location",
+    short_help="Migrate Atmospheric Profiles Storage Location",
     help="Migrate the storage location of the atmospheric profiles to the new directory structure introduced in the pipeline version 1.7.0. See https://github.com/tum-esm/em27-retrieval-pipeline/issues/127 for more details.",
 )
 def migrate_storage_location() -> None:
@@ -191,7 +199,11 @@ def migrate_storage_location() -> None:
             os.rename(os.path.join(model_dir, f), os.path.join(dst_path, f))
 
 
-@bundle_command_group.command(name="run", help="Create a bundle of your entire retrieval dataset")
+@bundle_command_group.command(
+    name="run",
+    short_help="Create Retrieval Dataset Bundle",
+    help="Create a bundle of your entire retrieval dataset",
+)
 def run_bundle() -> None:
     _check_config_validity()
 
@@ -201,7 +213,9 @@ def run_bundle() -> None:
 
 
 @geoms_command_group.command(
-    name="run", help="Create GEOMS files for your entire retrieval dataset"
+    name="run",
+    short_help="Create GEOMS Files",
+    help="Create GEOMS files for your entire retrieval dataset",
 )
 def run_geoms() -> None:
     _check_config_validity()
@@ -213,6 +227,7 @@ def run_geoms() -> None:
 
 @cli.command(
     name="data-report",
+    short_help="Export Data Report",
     help="exports a report of the data present on the configured system",
 )
 def print_data_report() -> None:

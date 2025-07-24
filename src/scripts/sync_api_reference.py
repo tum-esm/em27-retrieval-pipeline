@@ -29,7 +29,10 @@ def recursive_help(
         for sub_command in command.commands.values():
             output += recursive_help(sub_command, parent_context=context)
     else:
-        output += f"## `{context.command_path[4:]}`\n\n"
+        assert (
+            command.short_help is not None
+        ), f"Command {context.command_path} has no short help".format(command=command)
+        output += f"## {command.short_help}\n\n"
         output += (
             command.get_help(context)
             .replace(
