@@ -96,11 +96,11 @@ async function Schema(props: {
     <p>
       <span className="text-base font-semibold">{props.name} </span>
       {props.required && (
-        <span className="text-rose-600 font-bold" title="required">
+        <span className="font-bold text-rose-600" title="required">
           *
         </span>
       )}{" "}
-      <span className="text-rose-600 font-bold text-sm">({label})</span>
+      <span className="text-sm font-bold text-rose-600">({label})</span>
     </p>
   );
   const body = (
@@ -168,7 +168,7 @@ async function Schema(props: {
     </>
   );
 
-  const boxSchema = `border px-3 py-3 flex flex-col space-y-2 m-0 text-sm bg-slate-300/25 border-slate-600/30 dark:bg-slate-700/20 dark:border-slate-400/30 text-slate-950 dark:text-slate-50 rounded-lg ${props.className}`;
+  const boxSchema = `border-[1px] px-3 py-3 flex flex-col space-y-2 m-0 text-sm bg-slate-300/15 border-slate-500/40 dark:bg-slate-700/20 dark:border-slate-400/30 text-slate-950 dark:text-slate-50 rounded-lg ${props.className}`;
 
   if ("anyOf" in schema) {
     return (
@@ -183,7 +183,7 @@ async function Schema(props: {
             className={
               "!mt-0 !-mb-px rounded-none" +
               (i === 0 ? " !rounded-t-lg !mt-2" : "") +
-              (i === schema.anyOf.length - 1 ? " !rounded-b-lg" : "")
+              (i === schema.anyOf.length - 1 ? " !rounded-b-lg" : " border-b-0")
             }
           />
         ))}
@@ -210,11 +210,11 @@ async function Schema(props: {
               key={key}
               required={required.includes(key)}
               className={
-                "!mt-0 !-mb-px rounded-none" +
+                "!mt-0 rounded-none" +
                 (i === 0 ? " !rounded-t-lg !mt-2" : "") +
                 (i === Object.keys(schema.properties).length - 1
                   ? " !rounded-b-lg"
-                  : "")
+                  : " border-b-0")
               }
             />
           ))}

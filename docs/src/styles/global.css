@@ -1,41 +1,67 @@
 @layer base, starlight, theme, components, utilities;
 
-@import '@astrojs/starlight-tailwind';
-@import 'tailwindcss/theme.css' layer(theme);
-@import 'tailwindcss/utilities.css' layer(utilities);
+@import "@astrojs/starlight-tailwind";
+@import "tailwindcss/theme.css" layer(theme);
+@import "tailwindcss/utilities.css" layer(utilities);
 
 /* Dark mode colors. */
 :root {
-	--sl-color-accent-low: #00273d;
-	--sl-color-accent: #0071a7;
-	--sl-color-accent-high: #92d1fe;
-	--sl-color-white: #ffffff;
-	--sl-color-gray-1: #e7eff2;
-	--sl-color-gray-2: #bac4c8;
-	--sl-color-gray-3: #7b8f96;
-	--sl-color-gray-4: #495c62;
-	--sl-color-gray-5: #2a3b41;
-	--sl-color-gray-6: #182a2f;
-	--sl-color-black: #121a1c;
+  --sl-color-accent-low: #00273d;
+  --sl-color-accent: #0071a7;
+  --sl-color-accent-high: #92d1fe;
+
+  --sl-color-white: #ffffff;
+  --sl-color-gray-1: theme("colors.slate.100");
+  --sl-color-gray-2: theme("colors.slate.200");
+  --sl-color-gray-3: theme("colors.slate.300");
+  --sl-color-gray-4: theme("colors.slate.400");
+  --sl-color-gray-5: theme("colors.slate.600");
+  --sl-color-gray-6: theme("colors.slate.800");
+  --sl-color-gray-7: theme("colors.slate.900");
+  --sl-color-black: theme("colors.slate.950");
+
+  --sl-font: "Inter", sans-serif;
+  --sl-text-h1: 2rem;
+  --sl-text-h2: 1.4rem;
+  --sl-text-h3: 1.2rem;
+
+  --sl-color-bg-sidebar: theme("colors.slate.900");
+  --sl-color-bg-nav: theme("colors.slate.900");
+  --sl-color-bg: theme("colors.slate.950");
+
+  .site-title,
+  .social-icons a {
+    @apply text-white;
+  }
 }
 /* Light mode colors. */
-:root[data-theme='light'] {
-	--sl-color-accent-low: #b0deff;
-	--sl-color-accent: #0073aa;
-	--sl-color-accent-high: #003653;
-	--sl-color-white: #121a1c;
-	--sl-color-gray-1: #182a2f;
-	--sl-color-gray-2: #2a3b41;
-	--sl-color-gray-3: #495c62;
-	--sl-color-gray-4: #7b8f96;
-	--sl-color-gray-5: #bac4c8;
-	--sl-color-gray-6: #e7eff2;
-	--sl-color-gray-7: #f3f7f9;
-	--sl-color-black: #ffffff;
+:root[data-theme="light"] {
+  --sl-color-accent-low: #b0deff;
+  --sl-color-accent: #0073aa;
+  --sl-color-accent-high: #003653;
+
+  --sl-colsor-white: theme("colors.slate.950");
+  --sl-color-gray-1: theme("colors.slate.900");
+  --sl-color-gray-2: theme("colors.slate.800");
+  --sl-color-gray-3: theme("colors.slate.600");
+  --sl-color-gray-4: theme("colors.slate.400");
+  --sl-color-gray-5: theme("colors.slate.300");
+  --sl-color-gray-6: theme("colors.slate.200");
+  --sl-color-gray-7: theme("colors.slate.100");
+  --sl-color-black: #ffffff;
+
+  --sl-color-bg-sidebar: theme("colors.slate.100");
+  --sl-color-bg-nav: theme("colors.slate.100");
+  --sl-color-bg: theme("colors.slate.50");
+
+  .site-title,
+  .social-icons a {
+    @apply text-slate-950;
+  }
 }
 
 @theme {
-	/*
+  /*
 	Configure your Tailwind theme that will be used by Starlight.
 	https://starlight.astro.build/guides/css-and-tailwind/#styling-starlight-with-tailwind
 	*/
@@ -60,12 +86,7 @@ Add additional Tailwind styles to this file:
 https://tailwindcss.com/docs/adding-custom-styles#using-custom-css
 */
 
-/*:root {
-  --sl-font: "Inter", sans-serif;
-  --sl-text-h1: 2rem;
-  --sl-text-h2: 1.4rem;
-  --sl-text-h3: 1.2rem;
-}
+/*
 
 .pagination-links {
   @apply text-sm;
@@ -126,30 +147,63 @@ code {
   }
 }
 
-.expressive-code pre {
+.expressive-code,
+.expressive-code pre,
+.expressive-code code {
   /* Hide scrollbar for Webkit browsers */
   &::-webkit-scrollbar {
     display: none;
   }
   /* Hide scrollbar for Firefox */
   scrollbar-width: none;
+
   /* Hide scrollbar for IE/Edge */
   -ms-overflow-style: none;
 }
 
-aside[aria-label="Tip"], aside[aria-label="Note"] {
-  @apply bg-rose-100 text-rose-950 dark:bg-rose-950 dark:text-rose-100;
+aside[aria-label="Tip"],
+aside[aria-label="Note"] {
+  @apply bg-green-100 text-green-950 dark:bg-green-950 dark:text-green-100;
 
   .starlight-aside__title {
-    @apply text-rose-900 dark:text-rose-200;
+    @apply text-green-900 dark:text-green-200;
   }
   a {
-    @apply text-rose-800 dark:text-rose-300
+    @apply text-green-800 dark:text-green-300;
   }
-  
-  @apply border-rose-300 dark:border-rose-700;
+
+  @apply border-green-300 dark:border-green-700;
 
   code {
-    @apply !bg-rose-200 dark:!bg-rose-900;
+    @apply !bg-green-200 dark:!bg-green-900;
   }
+}
+
+.pagination-links {
+  @apply text-sm;
+
+  a {
+    @apply shadow-none;
+    background-color: none;
+    @apply p-2;
+  }
+  .link-title {
+    @apply text-lg;
+  }
+}
+
+.sidebar-content li a[aria-current="page"] {
+  @apply bg-blue-200 text-blue-950 dark:bg-blue-400 dark:text-blue-950;
+}
+
+.sidebar-content li {
+  @apply py-0.25 border-none ml-0;
+
+  a {
+    @apply py-2 px-3 text-sm text-slate-700 dark:text-slate-300;
+  }
+}
+
+.sidebar-content summary {
+  @apply pt-4 pb-3 mt-0 border-t border-slate-300 dark:border-slate-600;
 }

@@ -20,12 +20,10 @@ title: "🌋 EM27 Retrieval Pipeline: Automated EM27/SUN Data Processing"
   />
   <img
     alt="Static Badge"
-    src="https://img.shields.io/badge/GGG2014%20%7C%20GGG2020%20-%20whydoineedthis?style=flat&label=Atmospheric%20Profile%20Models&labelColor=%230f172a&color=%2399f6e4&cacheSeconds=60" className="inline !p-0 !m-0"
+    src="https://img.shields.io/badge/GGG2014%20%7C%20GGG2020%20-%20whydoineedthis?style=flat&label=Atmospheric%20Profile%20Models&labelColor=%230f172a&color=%2399f6e4&cacheSeconds=60"
+    className="inline !p-0 !m-0"
   />
-  <a 
-    href="https://doi.org/10.5281/zenodo.14284968"
-    target="_blank"
-  >
+  <a href="https://doi.org/10.5281/zenodo.14284968" target="_blank">
     <img
       alt="Static Badge"
       src="https://img.shields.io/badge/DOI-10.5281/zenodo.14284968-%23bae6fd?labelColor=%230f172a"
@@ -46,7 +44,7 @@ This codebase provides an automated data pipeline for [Proffast 1 and 2.X](https
 ⚙️ Many of our projects (including this pipeline) use functionality from the [`tum-esm-utils` package](https://github.com/tum-esm/utils).<br/>
 🤖 Our EM27/SUN systems are running autonomously with the help of [Pyra](https://github.com/tum-esm/pyra).
 
-## EM27 Retrieval Pipeline vs. Proffast Pylot
+## EM27 Retrieval Pipeline vs. PROFFASTpylot
 
 This pipeline does not intend to replace the Proffast Pylot by any means. It uses most of the Pylot's functionality and provides an automation layer on top of that. You can use Proffast directly for full flexibility, the Pylot for some flexibility, or this pipeline, which is more opinionated than the Pylot but highly automated. Furthermore, this pipeline will continue to include support for the different retrieval algorithms.
 
@@ -56,13 +54,15 @@ We decided to include a copy of the Python codebase of the Proffast Pylot inside
 
 The pipeline consists of three building blocks that are required to retrieve EM27 data:
 
-| Task                                                                                 | Script Entrypoint               |
-| ------------------------------------------------------------------------------------ | ------------------------------- |
-| 1. Downloading vertical profiles from the Caltech FTP server                         | `python cli.py profiles run`    |
-| 2. Running the retrieval to generate the averaged column concentrations              | `python cli.py retrieval start` |
-| 3. Bundle all retrieval results into one file per sensor/retrieval alg./atm. profile | `python cli.py bundle run`      |
+| Task                                                                                 | <p className='whitespace-nowrap'>Script Entrypoint <span className='text-transparent'>aaaaaaaaaaaaa</span></p> |
+| ------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------- |
+| 1. Downloading vertical profiles from the Caltech FTP server                         | `python cli.py profiles run`                                                                                   |
+| 2. Running the retrieval to generate the averaged column concentrations              | `python cli.py retrieval start`                                                                                |
+| 3. Bundle all retrieval results into one file per sensor/retrieval alg./atm. profile | `python cli.py bundle run`                                                                                     |
 
-The data flow from input to merged outputs:
+<br />
+
+**The data flow from input to merged outputs:**
 
 <img
   src="/images/architecture.png"
@@ -72,7 +72,9 @@ The data flow from input to merged outputs:
   className="my-8 max-w-lg mx-auto w-full dark:p-4 dark:bg-white dark:rounded"
 />
 
-The pipeline offers:
+<br />
+
+**The pipeline offers:**
 
 - **Easy configuration of using a validated `config.json` (and metadata files):** By "validated", we mean that before the processing starts, the config files content will be parsed and validated against a JSON schema. This way, you can be sure that the pipeline will not fail due to a misconfiguration, and you will immediately get precise error messages.
 - **Opinionated management of station metadata:** We manage our EM27 metadata using JSON files instead of database tables, which has several benefits mentioned in the [metadata repository](https://github.com/tum-esm/em27-metadata)
@@ -87,12 +89,11 @@ The pipeline offers:
 
 To fully understand the pipeline, you should read the following sections:
 
-- The [configuration section](/guides/configuration) explains how the pipeline uses a `config.json` file to read the parameters of your environment.
-- The [directories section](/guides/directories) explains how the input directories should be structured and how the pipeline structures its outputs.
-- The [metadata section](/guides/metadata) explains what the metadata the pipeline requires is structured and how to connect it to the pipeline.
+1. The [configuration section](/guides/configuration) explains how the pipeline uses a `config.json` file to read the parameters of your environment.
+2. The [directories section](/guides/directories) explains how the input directories should be structured and how the pipeline structures its outputs.
+3. The [metadata section](/guides/metadata) explains what the metadata the pipeline requires is structured and how to connect it to the pipeline.
+4. The [usage section](/guides/usage) explains how to run the pipeline.
 
 You can look into the API Reference pages for an exact schema definition and explanation of every parameter. You can also use this documentation's search function (top right) to find what you are looking for.
-
-The [usage section](/guides/usage) explains how to run the pipeline.
 
 If you have issues or feature requests, please open an [issue on GitHub](https://github.com/tum-esm/em27-retrieval-pipeline/issues) or ask [Moritz Makowski (moritz.makowski@tum.de)](mailto:moritz.makowski@tum.de).

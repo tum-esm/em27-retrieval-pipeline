@@ -1,7 +1,7 @@
 // @ts-check
 import { defineConfig } from "astro/config";
 import starlight from "@astrojs/starlight";
-import tailwindcss from '@tailwindcss/vite';
+import tailwindcss from "@tailwindcss/vite";
 import mdx from "@astrojs/mdx";
 import react from "@astrojs/react";
 import remarkMath from "remark-math";
@@ -16,7 +16,8 @@ export default defineConfig({
         github: "https://github.com/tum-esm/em27-retrieval-pipeline",
       },
       editLink: {
-        baseUrl: "https://github.com/tum-esm/em27-retrieval-pipeline/edit/main/",
+        baseUrl:
+          "https://github.com/tum-esm/em27-retrieval-pipeline/edit/main/",
       },
       sidebar: [
         {
@@ -24,7 +25,8 @@ export default defineConfig({
           link: "/",
         },
         {
-          label: "📚 Guides",
+          label: "Guides",
+          collapsed: false,
           items: [
             {
               label: "Configuration",
@@ -53,7 +55,8 @@ export default defineConfig({
           ],
         },
         {
-          label: "⚙ API Reference",
+          label: "API Reference",
+          collapsed: false,
           items: [
             {
               label: "Metadata",
@@ -75,7 +78,6 @@ export default defineConfig({
         },
       ],
       customCss: [
-        "./src/styles/global.css",
         "@fontsource/inter/300.css",
         "@fontsource/inter/300-italic.css",
         "@fontsource/inter/400.css",
@@ -86,6 +88,7 @@ export default defineConfig({
         "@fontsource/inter/600-italic.css",
         "@fontsource/inter/700.css",
         "@fontsource/inter/700-italic.css",
+        "./src/styles/global.css",
       ],
     }),
     react(),
@@ -96,6 +99,6 @@ export default defineConfig({
     rehypePlugins: [rehypeMathjax],
   },
   vite: {
-		plugins: [tailwindcss()],
-	},
+    plugins: [tailwindcss()],
+  },
 });
