@@ -139,7 +139,7 @@ def run(
                         if df is not None:
                             dfs.append(df)
 
-                    combined_df = pl.concat(dfs).sort("utc")
+                    combined_df = pl.concat(dfs, how="diagonal").sort("utc")
 
                     # Attach a column "campaign_ids" to the data to make it
                     # easy to filter it by individual campaigns
