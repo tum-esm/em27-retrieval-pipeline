@@ -4,17 +4,26 @@ title: CLI Reference
 
 ## Export Data Report
 
-**Usage: python cli.py data-report [OPTIONS]**
+**Usage:**
+
+`python cli.py data-report [OPTIONS]`
+
+**Description:**  
 
 exports a report of the data present on the configured system
 
 **Options:**
 
---help Show this message and exit.
+
+`--help ` Show this message and exit.
 
 ## Start Retrieval Process
 
-**Usage: python cli.py retrieval start [OPTIONS]**
+**Usage:**
+
+`python cli.py retrieval start [OPTIONS]`
+
+**Description:**  
 
 Start the retrieval as a background process. Prevents spawning multiple
 processes. The logs and the current processing queue from this process can
@@ -22,59 +31,85 @@ be found at `logs/retrieval`.
 
 **Options:**
 
---help Show this message and exit.
+
+`--help ` Show this message and exit.
 
 ## Check If Retrieval Is Running
 
-**Usage: python cli.py retrieval is-running [OPTIONS]**
+**Usage:**
+
+`python cli.py retrieval is-running [OPTIONS]`
+
+**Description:**  
 
 Checks whether the retrieval background process is running. The logs and the
 current processing queue from this process can be found at `logs/retrieval`.
 
 **Options:**
 
---help Show this message and exit.
+
+`--help ` Show this message and exit.
 
 ## Watch Retrieval Process
 
-**Usage: python cli.py retrieval watch [OPTIONS]**
+**Usage:**
+
+`python cli.py retrieval watch [OPTIONS]`
+
+**Description:**  
 
 Opens an active watch window for the retrieval background process.
 
 **Options:**
 
---cluster-mode Watch the retrieval process when the retrieval is running on
-a cluster. In this mode the watcher does not care whether it
-find an active retrieval process on the current node, but
-only looks at the queue. This means it can not detect when
-the pipeline has stopped (e.g. due to a SLURM timeout).
---help Show this message and exit.
+
+`--cluster-mode ` Watch the retrieval process when the retrieval is running on
+                a cluster. In this mode the watcher does not care whether it
+                find an active retrieval process on the current node, but
+                only looks at the queue. This means it can not detect when
+                the pipeline has stopped (e.g. due to a SLURM timeout).
+
+`--help `         Show this message and exit.
 
 ## Stop Retrieval Process
 
-**Usage: python cli.py retrieval stop [OPTIONS]**
+**Usage:**
+
+`python cli.py retrieval stop [OPTIONS]`
+
+**Description:**  
 
 Stop the retrieval background process. The logs and the current processing
 queue from this process can be found at `logs/retrieval`.
 
 **Options:**
 
---help Show this message and exit.
+
+`--help ` Show this message and exit.
 
 ## Download Retrieval Algorithms
 
-**Usage: python cli.py retrieval download-algorithms [OPTIONS]**
+**Usage:**
+
+`python cli.py retrieval download-algorithms [OPTIONS]`
+
+**Description:**  
 
 Downloads all retrieval algorithms into the local container factories. Can
 be used if you don't want to run the pipeline but download all algorithms.
 
 **Options:**
 
---help Show this message and exit.
+
+`--help ` Show this message and exit.
 
 ## Run Atmospheric Profiles Download
 
-**Usage: python cli.py profiles run [OPTIONS]**
+**Usage:**
+
+`python cli.py profiles run [OPTIONS]`
+
+**Description:**  
 
 Run the profiles download script. This will check, which profiles are not
 yet present locally, request and download them from the
@@ -83,11 +118,16 @@ at `logs/profiles`.
 
 **Options:**
 
---help Show this message and exit.
+
+`--help ` Show this message and exit.
 
 ## Request Ginput Status
 
-**Usage: python cli.py profiles request-ginput-status [OPTIONS]**
+**Usage:**
+
+`python cli.py profiles request-ginput-status [OPTIONS]`
+
+**Description:**  
 
 Request ginput status. This will upload a file `upload/ginput_status.txt` to
 the `ccycle.gps.caltech.edu` FTP server containing the configured email
@@ -96,11 +136,16 @@ takes less than two minutes.
 
 **Options:**
 
---help Show this message and exit.
+
+`--help ` Show this message and exit.
 
 ## Migrate Atmospheric Profiles Storage Location
 
-**Usage: python cli.py profiles migrate-storage-location [OPTIONS]**
+**Usage:**
+
+`python cli.py profiles migrate-storage-location [OPTIONS]`
+
+**Description:**  
 
 Migrate the storage location of the atmospheric profiles to the new
 directory structure introduced in the pipeline version 1.7.0. See
@@ -109,24 +154,36 @@ details.
 
 **Options:**
 
---help Show this message and exit.
+
+`--help ` Show this message and exit.
 
 ## Create Retrieval Dataset Bundle
 
-**Usage: python cli.py bundle run [OPTIONS]**
+**Usage:**
+
+`python cli.py bundle run [OPTIONS]`
+
+**Description:**  
 
 Create a bundle of your entire retrieval dataset
 
 **Options:**
 
---help Show this message and exit.
+
+`--help ` Show this message and exit.
 
 ## Create GEOMS Files
 
-**Usage: python cli.py geoms run [OPTIONS]**
+**Usage:**
+
+`python cli.py geoms run [OPTIONS]`
+
+**Description:**  
 
 Create GEOMS files for your entire retrieval dataset
 
 **Options:**
 
---help Show this message and exit.
+
+`--help ` Show this message and exit.
+

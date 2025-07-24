@@ -1,3 +1,4 @@
+import re
 from typing import Optional
 import shutil
 import os
@@ -33,19 +34,23 @@ def recursive_help(
             command.short_help is not None
         ), f"Command {context.command_path} has no short help".format(command=command)
         output += f"## {command.short_help}\n\n"
+        help_text = command.get_help(context)
+        # find all options (--help)
+        options: list[str] = re.findall(r"(\-\-\w[\w\-]+ )", help_text)
+        for option in options:
+            help_text = help_text.replace(option, f"\n`{option}`")
         output += (
-            command.get_help(context)
-            .replace(
+            help_text.replace(
                 "\n  ",
                 "\n",
             )
             .replace(
-                f"Usage: {context.command_path}",
-                f"**Usage: python cli.py {context.command_path[4:]}",
+                "[OPTIONS]",
+                "",
             )
             .replace(
-                "[OPTIONS]",
-                "[OPTIONS]**",
+                f"Usage: {context.command_path}",
+                f"**Usage:**\n\n`python cli.py {context.command_path[4:]} [OPTIONS]`\n\n**Description:** ",
             )
             .replace(
                 "Options:\n",
