@@ -207,3 +207,9 @@ aside[aria-label="Note"] {
 .sidebar-content summary {
   @apply pt-4 pb-3 mt-0 border-t border-slate-300 dark:border-slate-600;
 }
+
+.title-wrapper {
+  img {
+    @apply p-1.5;
+  }
+}

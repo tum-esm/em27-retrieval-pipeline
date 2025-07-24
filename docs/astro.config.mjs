@@ -11,7 +11,11 @@ import rehypeMathjax from "rehype-mathjax";
 export default defineConfig({
   integrations: [
     starlight({
-      title: "🌋 EM27 Retrieval Pipeline",
+      title: "EM27 Retrieval Pipeline",
+      logo: {
+        light: "./src/assets/logo.svg",
+        dark: "./src/assets/logo-dark.svg",
+      },
       social: {
         github: "https://github.com/tum-esm/em27-retrieval-pipeline",
       },
