@@ -104,6 +104,7 @@ def download_sample_data() -> Generator[None, None, None]:
             asset_name=f"em27-retrieval-pipeline-tests-data-20250723-{label}.tar.gz",
             dst_dir=_TEST_DATA_DIR,
             final_name=f"{label}.tar.gz",
+            access_token=os.getenv("GITHUB_API_TOKEN", None),
         )
         tum_esm_utils.shell.run_shell_command(
             f"tar -xzf {label}.tar.gz", working_directory=_TEST_DATA_DIR
