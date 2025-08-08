@@ -35,15 +35,23 @@ def list_downloaded_data(
 
     cs = utils.text.get_coordinates_slug(lat=std_site_config.lat, lon=std_site_config.lon)
     r = re.compile(r"^\d{8,10}_" + cs + r"\.(map|mod|vmr)$")
+    profile_root_dir = os.path.join(config.general.data.atmospheric_profiles.root, "GGG2020")
     filenames: set[str] = set(
         [
             f
             for f in os.listdir(
-                os.path.join(config.general.data.atmospheric_profiles.root, "GGG2020")
+                profile_root_dir
             )
             if r.match(f)
         ]
     )
+    years = set([f"{y:04d}" for y in range(1950, 2500)]).union(set(os.listdir(profile_root_dir)))
+    for y in years:
+        for m in range(1, 13):
+            _d = os.path.join(profile_root_dir, y, f"{m:02d}")
+            if os.path.isdir(_d):
+                filenames.update([f for f in os.listdir(_d) if r.match(f)])
+    
     dates: set[datetime.date] = set(
         [
             d
