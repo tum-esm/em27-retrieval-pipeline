@@ -130,12 +130,18 @@ def list_desired_data(
         query_location = ProfilesQueryLocation(lat=round(location.lat), lon=round(location.lon))
         if query_location not in requested_data.keys():
             requested_data[query_location] = set()
-        requested_data[query_location].update(
-            tum_esm_utils.timing.date_range(
-                from_date=config.profiles.scope.from_date,
-                to_date=config.profiles.scope.to_date,
-            )
+        
+        cropped_to_date = min(
+            config.profiles.scope.to_date,
+            (datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(hours=36)).date(),
         )
+        if config.profiles.scope.from_date <= cropped_to_date:
+            requested_data[query_location].update(
+                tum_esm_utils.timing.date_range(
+                    from_date=config.profiles.scope.from_date,
+                    to_date=cropped_to_date,
+                )
+            )
 
     for sensor in em27_metadata_interface.sensors.root:
         for sensor_setup in sensor.setups:
