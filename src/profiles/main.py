@@ -70,7 +70,7 @@ def run() -> None:
                     cache.dump()
                     print("Updated cache")
 
-                    still_running_query_count = len(cache.get_timed_out_queries(profile_model))
+                    still_running_query_count = len(cache.get_active_queries(profile_model))
 
                 open_query_count = (
                     config.profiles.server.max_parallel_requests - still_running_query_count
