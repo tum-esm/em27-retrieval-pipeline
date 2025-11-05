@@ -14,20 +14,23 @@ def load_local_em27_metadata_interface(
     locations_path = os.path.join(config_dir, "locations.json")
     sensors_path = os.path.join(config_dir, "sensors.json")
     campaigns_path = os.path.join(config_dir, "campaigns.json")
+    events_path = os.path.join(config_dir, "events.json")
     file_existence = [
         os.path.isfile(locations_path),
         os.path.isfile(sensors_path),
-        os.path.isfile(campaigns_path),
     ]
     if any(file_existence):
         if not all(file_existence):
             raise FileNotFoundError(
                 "Found some local metadata files but not all (loca"
-                + "tions.json, sensors.json, campaigns.json). Please "
+                + "tions.json, sensors.json). Please "
                 + "add or remove all local metadata files."
             )
         return em27_metadata.loader.load_from_local_files(
-            locations_path, sensors_path, campaigns_path
+            locations_path=locations_path,
+            sensors_path=sensors_path,
+            campaigns_path=campaigns_path if os.path.isfile(campaigns_path) else None,
+            events_path=events_path if os.path.isfile(events_path) else None,
         )
     else:
         return None
