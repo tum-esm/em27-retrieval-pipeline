@@ -4,7 +4,7 @@ import random
 import tempfile
 import pytest
 import src
-from ..fixtures import provide_config_template
+from ..fixtures import provide_config_template  # pyright: ignore[reportUnusedImport]
 from .utils import generate_random_locations, generate_random_dates
 
 
@@ -21,17 +21,20 @@ def test_list_downloaded_data(provide_config_template: src.types.Config) -> None
     config.profiles.scope.to_date = max(random_dates)
     for _ in range(5):
         downloaded_data = {
-            l: set(random.sample(random_dates, 30))
-            for l in random.sample(random_locations, 5)
+            l: set(random.sample(random_dates, 30)) for l in random.sample(random_locations, 5)
         }
         model_filenames: dict[Any, list[str]] = {
             "GGG2014": [
-                f"{d.strftime('%Y%m%d')}_{cs[l]}.{e}" for e in ["map", "mod"]
-                for l in downloaded_data.keys() for d in downloaded_data[l]
+                f"{d.strftime('%Y%m%d')}_{cs[l]}.{e}"
+                for e in ["map", "mod"]
+                for l in downloaded_data.keys()
+                for d in downloaded_data[l]
             ],
             "GGG2020": [
-                f"{d.strftime('%Y%m%d')}{h:02d}_{cs[l]}.{e}" for e in ["map", "mod", "vmr"]
-                for l in downloaded_data.keys() for d in downloaded_data[l]
+                f"{d.strftime('%Y%m%d')}{h:02d}_{cs[l]}.{e}"
+                for e in ["map", "mod", "vmr"]
+                for l in downloaded_data.keys()
+                for d in downloaded_data[l]
                 for h in range(0, 24, 3)
             ],
         }

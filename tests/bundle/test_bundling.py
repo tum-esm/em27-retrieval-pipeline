@@ -4,7 +4,7 @@ import src
 import tum_esm_utils
 import em27_metadata
 import polars as pl
-from ..fixtures import download_sample_data
+from ..fixtures import download_sample_data  # pyright: ignore[reportUnusedImport]
 
 PROJECT_DIR = tum_esm_utils.files.rel_to_abs_path("../..")
 INPUT_DATA_DIR = os.path.join(PROJECT_DIR, "data", "testing", "inputs")

@@ -5,6 +5,8 @@ which is licensed under the GNU General Public License version 3. The authors of
 original code are Lena Feld, Benedikt Herkommer, Darko Dubravica affiliated with the
 Karlsruhe Institut of Technology (KIT)."""
 
+# pyright: basic
+
 from typing import Any, Callable, Literal
 import math
 import h5py
@@ -76,6 +78,7 @@ class GEOMSSRCAttributeMetadata(pydantic.BaseModel):
 
 
 class GEOMSAPI:
+    @staticmethod
     def _write_to_hdf5_file(
         hdf5_file: h5py.File,
         variable_name: str,

@@ -28,7 +28,7 @@ class CalibrationFactors(pydantic.BaseModel):
 
     @staticmethod
     @pydantic.field_validator("root", mode="after")
-    def validate(v: CalibrationFactors) -> CalibrationFactors:
+    def validate_times(v: CalibrationFactors) -> CalibrationFactors:
         if v.valid_from_datetime >= v.valid_to_datetime:
             raise ValueError(
                 f"valid_from_datetime {v.valid_from_datetime} should be less than valid_to_datetime {v.valid_to_datetime}"
@@ -41,7 +41,7 @@ class CalibrationFactorsList(pydantic.RootModel[list[CalibrationFactors]]):
 
     @staticmethod
     @pydantic.field_validator("root", mode="after")
-    def validate(vs: CalibrationFactorsList) -> CalibrationFactorsList:
+    def validate_sensor_ids(vs: CalibrationFactorsList) -> CalibrationFactorsList:
         sensor_ids = set([v.sensor_id for v in vs.root])
         for sensor_id in sensor_ids:
             sensor_values = sorted(

@@ -1,6 +1,7 @@
 import datetime
 import os
 import random
+from typing import Any
 import pytest
 import tempfile
 import polars as pl
@@ -22,8 +23,8 @@ def _popuplate_directory_structure(root_dir: str, files: dict[str, set[str]]) ->
 def test_pressure_file_locating() -> None:
     with tempfile.TemporaryDirectory() as tmpdir:
         files = {
-            "ma":
-                set([
+            "ma": set(
+                [
                     "gp-ma-2022-06-02-a.csv",
                     "gp-ma-2022-06-02-b.csv",
                     "gp-ma-2022-06-03.csv",
@@ -31,14 +32,16 @@ def test_pressure_file_locating() -> None:
                     "gp-mf-2022-06-04.csv",
                     "gp-2022-06-05.csv",
                     "gp-20220606.csv",
-                ]),
-            "mf":
-                set([
+                ]
+            ),
+            "mf": set(
+                [
                     "gp-mf-2022-06-02-a.csv",
                     "gp-mf-2022-06-02-a.csv",
                     "gp-2022-06-03-d.csv",
                     "gp-2022-06-04-d.csv",
-                ]),
+                ]
+            ),
         }
         _popuplate_directory_structure(tmpdir, files)
 
@@ -50,10 +53,12 @@ def test_pressure_file_locating() -> None:
             tmpdir, "ma", r"gp-$(SENSOR_ID)-$(YYYY)-$(MM)-$(DD)\.csv", datetime.date(2022, 6, 3)
         )
         assert set(r1[0]) == files["ma"]
-        assert set(r1[1]) == set([
-            "gp-ma-2022-06-03.csv",
-            "gp-ma-2022-06-04.csv",
-        ])
+        assert set(r1[1]) == set(
+            [
+                "gp-ma-2022-06-03.csv",
+                "gp-ma-2022-06-04.csv",
+            ]
+        )
         assert set(r1[2]) == set(["gp-ma-2022-06-03.csv"])
 
         # QUERY 2
@@ -62,16 +67,20 @@ def test_pressure_file_locating() -> None:
             tmpdir, "ma", r"gp-$(SENSOR_ID)-$(YYYY)-$(MM)-$(DD).*\.csv", datetime.date(2022, 6, 2)
         )
         assert set(r2[0]) == files["ma"]
-        assert set(r2[1]) == set([
-            "gp-ma-2022-06-02-a.csv",
-            "gp-ma-2022-06-02-b.csv",
-            "gp-ma-2022-06-03.csv",
-            "gp-ma-2022-06-04.csv",
-        ])
-        assert set(r2[2]) == set([
-            "gp-ma-2022-06-02-a.csv",
-            "gp-ma-2022-06-02-b.csv",
-        ])
+        assert set(r2[1]) == set(
+            [
+                "gp-ma-2022-06-02-a.csv",
+                "gp-ma-2022-06-02-b.csv",
+                "gp-ma-2022-06-03.csv",
+                "gp-ma-2022-06-04.csv",
+            ]
+        )
+        assert set(r2[2]) == set(
+            [
+                "gp-ma-2022-06-02-a.csv",
+                "gp-ma-2022-06-02-b.csv",
+            ]
+        )
 
         # QUERY 3
 
@@ -79,22 +88,26 @@ def test_pressure_file_locating() -> None:
             tmpdir, "ma", r".*-$(YYYY)-$(MM).*\.csv", datetime.date(2022, 6, 20)
         )
         assert set(r3[0]) == files["ma"]
-        assert set(r3[1]) == set([
-            "gp-ma-2022-06-02-a.csv",
-            "gp-ma-2022-06-02-b.csv",
-            "gp-ma-2022-06-03.csv",
-            "gp-ma-2022-06-04.csv",
-            "gp-mf-2022-06-04.csv",
-            "gp-2022-06-05.csv",
-        ])
-        assert set(r3[2]) == set([
-            "gp-ma-2022-06-02-a.csv",
-            "gp-ma-2022-06-02-b.csv",
-            "gp-ma-2022-06-03.csv",
-            "gp-ma-2022-06-04.csv",
-            "gp-mf-2022-06-04.csv",
-            "gp-2022-06-05.csv",
-        ])
+        assert set(r3[1]) == set(
+            [
+                "gp-ma-2022-06-02-a.csv",
+                "gp-ma-2022-06-02-b.csv",
+                "gp-ma-2022-06-03.csv",
+                "gp-ma-2022-06-04.csv",
+                "gp-mf-2022-06-04.csv",
+                "gp-2022-06-05.csv",
+            ]
+        )
+        assert set(r3[2]) == set(
+            [
+                "gp-ma-2022-06-02-a.csv",
+                "gp-ma-2022-06-02-b.csv",
+                "gp-ma-2022-06-03.csv",
+                "gp-ma-2022-06-04.csv",
+                "gp-mf-2022-06-04.csv",
+                "gp-2022-06-05.csv",
+            ]
+        )
 
         # QUERY 4
 
@@ -133,7 +146,7 @@ def test_pressure_file_loading() -> None:
     # test different naming formats for given: invalid combinations
 
     with tempfile.TemporaryDirectory() as tmpdir:
-        for i in range(50):
+        for _ in range(50):
             non_null_count = random.randint(10, 50)
             null_count = random.randint(0, 5)
 
@@ -153,8 +166,9 @@ def test_pressure_file_loading() -> None:
                 if t not in random_times:
                     random_times.append(t)
 
-            random_pressures = [random.uniform(950, 1050)
-                                for _ in range(non_null_count)] + ([None] * null_count)
+            random_pressures = [random.uniform(950, 1050) for _ in range(non_null_count)] + (
+                [None] * null_count
+            )
             random.shuffle(random_pressures)
 
             date_column = [random_date.strftime("%Y-%m-%d")] * (non_null_count + null_count)
@@ -166,7 +180,7 @@ def test_pressure_file_loading() -> None:
             ]
             pressure_column = [(f"{p:.6f}" if (p is not None) else "") for p in random_pressures]
 
-            for i in range(10):
+            for _ in range(10):
                 date_column_name = "date" + "".join(
                     random.choices("abcdefghijklmnopqrstuvwxyz", k=5)
                 )
@@ -183,7 +197,7 @@ def test_pressure_file_loading() -> None:
                     random.choices("abcdefghijklmnopqrstuvwxyz", k=5)
                 )
 
-                base_config = {
+                base_config: Any = {
                     "path": tum_esm_utils.validators.StrictDirectoryPath(tmpdir),
                     "file_regex": ".*",
                     "separator": ",",
@@ -202,8 +216,8 @@ def test_pressure_file_loading() -> None:
                 )
                 with open(os.path.join(tmpdir, "test1.csv"), "w") as f:
                     f.write(
-                        f"{date_column_name},{time_column_name},{pressure_column_name}\n" +
-                        "\n".join(
+                        f"{date_column_name},{time_column_name},{pressure_column_name}\n"
+                        + "\n".join(
                             f"{d},{t},{p}"
                             for d, t, p in zip(date_column, time_column, pressure_column)
                         )
@@ -218,8 +232,8 @@ def test_pressure_file_loading() -> None:
                 )
                 with open(os.path.join(tmpdir, "test2.csv"), "w") as f:
                     f.write(
-                        f"{datetime_column_name},{pressure_column_name}\n" +
-                        "\n".join(f"{dt},{p}" for dt, p in zip(datetime_column, pressure_column))
+                        f"{datetime_column_name},{pressure_column_name}\n"
+                        + "\n".join(f"{dt},{p}" for dt, p in zip(datetime_column, pressure_column))
                     )
 
                 # 3. given timestamp
@@ -231,8 +245,8 @@ def test_pressure_file_loading() -> None:
                 )
                 with open(os.path.join(tmpdir, "test3.csv"), "w") as f:
                     f.write(
-                        f"{timestamp_column_name},{pressure_column_name}\n" +
-                        "\n".join(f"{ts},{p}" for ts, p in zip(timestamp_column, pressure_column))
+                        f"{timestamp_column_name},{pressure_column_name}\n"
+                        + "\n".join(f"{ts},{p}" for ts, p in zip(timestamp_column, pressure_column))
                     )
 
                 # print("TEST FILE 1")
@@ -247,13 +261,20 @@ def test_pressure_file_loading() -> None:
                 df3 = load_pressure_file(c3, os.path.join(tmpdir, "test3.csv"))
 
                 expected = [
-                    e for e in sorted(
-                        zip([
-                            datetime.datetime.combine(random_date, t, tzinfo=datetime.timezone.utc)
-                            for t in random_times
-                        ], random_pressures),
-                        key=lambda x: x[0]
-                    ) if e[1] is not None
+                    e
+                    for e in sorted(
+                        zip(
+                            [
+                                datetime.datetime.combine(
+                                    random_date, t, tzinfo=datetime.timezone.utc
+                                )
+                                for t in random_times
+                            ],
+                            random_pressures,
+                        ),
+                        key=lambda x: x[0],
+                    )
+                    if e[1] is not None
                 ]
 
                 expected_datetimes = [e[0] for e in expected]

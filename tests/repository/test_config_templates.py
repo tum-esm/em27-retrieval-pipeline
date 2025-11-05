@@ -1,4 +1,3 @@
-import os
 import pytest
 import tum_esm_utils
 import src

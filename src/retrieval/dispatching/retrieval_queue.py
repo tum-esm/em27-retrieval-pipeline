@@ -49,12 +49,10 @@ def generate_retrieval_queue(
             for item in positive_items:
                 if isinstance(item, datetime.date):
                     pretty_items.append(item.strftime("%Y-%m-%d"))
-                elif isinstance(item, em27_metadata.types.SensorDataContext):
+                else:
                     pretty_items.append(
                         f"{item.from_datetime.strftime('%Y-%m-%dT%H:%M:%S')}-{item.to_datetime.strftime('%Y-%m-%dT%H:%M:%S')}-{item.location.location_id}"
                     )
-                else:
-                    pretty_items.append(item)
             message += ": " + _list_to_pretty_string(sorted(pretty_items))
             # pprint.pformat(pretty_items, compact=True, width=100, indent=4)[1 :]
         logger.info(message)
@@ -68,12 +66,10 @@ def generate_retrieval_queue(
             for item in negative_items:
                 if isinstance(item, datetime.date):
                     pretty_items.append(item.strftime("%Y-%m-%d"))
-                elif isinstance(item, em27_metadata.types.SensorDataContext):
+                else:
                     pretty_items.append(
                         f"{item.from_datetime.strftime('%Y-%m-%dT%H:%M:%S')}-{item.to_datetime.strftime('%Y-%m-%dT%H:%M:%S')}-{item.location.location_id}"
                     )
-                else:
-                    pretty_items.append(item)
             message += ": " + _list_to_pretty_string(sorted(pretty_items))
         logger.info(message)
 

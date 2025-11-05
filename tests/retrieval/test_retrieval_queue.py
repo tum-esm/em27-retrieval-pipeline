@@ -5,9 +5,9 @@ import dotenv
 import em27_metadata
 import tum_esm_utils
 from ..fixtures import (
-    download_sample_data,
-    provide_config_template,
-    remove_temporary_retrieval_data,
+    download_sample_data,  # pyright: ignore[reportUnusedImport]
+    provide_config_template,  # pyright: ignore[reportUnusedImport]
+    remove_temporary_retrieval_data,  # pyright: ignore[reportUnusedImport]
 )
 
 from src import types, retrieval
@@ -36,8 +36,8 @@ em27_metadata_interface = em27_metadata.interfaces.EM27MetadataInterface(
                 serial_number=1,
                 setups=[
                     em27_metadata.types.SetupsListItem(
-                        from_datetime="2017-01-01T00:00:00+0000",
-                        to_datetime="2017-12-31T23:59:59+0000",
+                        from_datetime="2017-01-01T00:00:00+0000",  # pyright: ignore[reportArgumentType]
+                        to_datetime="2017-12-31T23:59:59+0000",  # pyright: ignore[reportArgumentType]
                         value=em27_metadata.types.Setup(location_id="SOD"),
                     )
                 ],

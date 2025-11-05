@@ -1,1 +1,1 @@
-from . import fixtures
+from . import fixtures as fixtures

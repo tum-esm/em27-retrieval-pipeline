@@ -154,7 +154,7 @@ def load_vmr_file(results_folder: str, date: datetime.date, sensor_id: str) -> p
     # 0: "Index", 1: "Altitude", 2: "H2O", 3: "HDO", 4: "CO2", 5: "CH4",
     # 6: "N2O", 7: "CO", 8: "O2", 9: "HF"
     names = ["Index", "Altitude", "H2O", "HDO", "CO2", "CH4", "N2O", "CO", "O2", "HF"]
-    return pd.read_csv(
+    return pd.read_csv(  # pyright: ignore[reportUnknownMemberType]
         os.path.join(
             results_folder,
             "raw_output_proffast",
@@ -176,7 +176,7 @@ def load_pt_file(results_folder: str, date: datetime.date, sensor_id: str) -> pd
     # 0: "Index", 1: "Altitude", 2: "Temperature", 3: "Pressure",
     # 4: "DryAirColumn", 5: "H2O", 6: "HDO"
 
-    return pd.read_csv(
+    return pd.read_csv(  # pyright: ignore[reportUnknownMemberType]
         os.path.join(
             results_folder,
             "raw_output_proffast",
@@ -211,7 +211,6 @@ def load_column_sensitivity_file(
 
     # Get path and name for the column sensitivity file of a certain day.
 
-    day_str = date.strftime("%y%m%d")
     colsens_filename = f"{sensor_id}{date.strftime('%y%m%d')}-colsens.dat"
     path = os.path.join(results_folder, "raw_output_proffast", colsens_filename)
 
@@ -263,8 +262,10 @@ def load_interpolated_column_sensitivity_file(
 ) -> list[list[list[float]]]:
     sza, alt, pre, sen = load_column_sensitivity_file(results_folder, date, sensor_id)
 
-    if (sza is None) or (alt is None) or (pre is None) or (sen is None):
-        return None
+    if (sza is None) or (alt is None) or (pre is None) or (sen is None):  # pyright: ignore[reportUnnecessaryComparison]
+        raise FileNotFoundError(
+            f"Column sensitivity file for {sensor_id} on {date} not found in {results_folder}"
+        )
 
     gas_sens: list[list[list[float]]] = []
 

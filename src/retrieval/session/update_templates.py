@@ -43,9 +43,7 @@ def run(
         "DC_VAR_THRESHOLD": str(session.job_settings.dc_var_threshold),
         "MEAN_PRESSURE_AT_NOON": str(pcxs_pressure_value),
     }
-    if (session.job_settings.custom_ils is not None) and (
-        session.ctx.sensor_id in session.job_settings.custom_ils
-    ):
+    if session.ctx.sensor_id in session.job_settings.custom_ils:
         logger.info("Using custom ILS values")
         ils = session.job_settings.custom_ils[session.ctx.sensor_id]
         replacements["ILS_Channel1"] = f"{ils.channel1_me} {ils.channel1_pe}"

@@ -1,10 +1,9 @@
-import sys
 from typing import Optional
+import sys
 import datetime
 import os
 import tqdm
 import tum_esm_utils
-import sys
 
 sys.path.append(tum_esm_utils.files.rel_to_abs_path("../.."))
 

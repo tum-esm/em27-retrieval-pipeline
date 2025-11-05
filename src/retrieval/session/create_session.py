@@ -76,7 +76,7 @@ def run(
         new_session = types.Proffast1RetrievalSession(
             job_settings=job_settings,
             ctx=sensor_data_context,
-            ctn=container_factory.create_container(retrieval_algorithm),
+            ctn=container_factory.create_container(retrieval_algorithm),  # pyright: ignore[reportArgumentType]
         )
     elif retrieval_algorithm in ["proffast-2.2", "proffast-2.3", "proffast-2.4", "proffast-2.4.1"]:
         new_session = types.Proffast2RetrievalSession(
@@ -84,7 +84,7 @@ def run(
             atmospheric_profile_model=atmospheric_profile_model,
             job_settings=job_settings,
             ctx=sensor_data_context,
-            ctn=container_factory.create_container(retrieval_algorithm),
+            ctn=container_factory.create_container(retrieval_algorithm),  # pyright: ignore[reportArgumentType]
         )
         _generate_pylot2_config(new_session)
         _generate_pylot2_log_format(new_session)

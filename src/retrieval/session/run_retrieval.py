@@ -24,7 +24,7 @@ def run(session: types.RetrievalSession, test_mode: bool = False) -> None:
                 ]
             )
         )
-    elif isinstance(session, types.Proffast2RetrievalSession):
+    elif isinstance(session, types.Proffast2RetrievalSession):  # pyright: ignore[reportUnnecessaryIsInstance]
         tum_esm_utils.shell.run_shell_command(
             " ".join(
                 [

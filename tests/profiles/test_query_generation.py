@@ -13,20 +13,18 @@ def test_compute_missing_data() -> None:
     random_dates = generate_random_dates(2000)
     for _ in range(20):
         downloaded_data = {
-            l: set(random.sample(random_dates, 300))
-            for l in random.sample(random_locations, 15)
+            l: set(random.sample(random_dates, 300)) for l in random.sample(random_locations, 15)
         }
         requested_data = {
-            l: set(random.sample(random_dates, 300))
-            for l in random.sample(random_locations, 15)
+            l: set(random.sample(random_dates, 300)) for l in random.sample(random_locations, 15)
         }
         missing_data = src.profiles.generate_queries.compute_missing_data(
             requested_data, downloaded_data
         )
         for l in requested_data.keys():
-            rq = requested_data[l] if l in requested_data else set()
-            dl = downloaded_data[l] if l in downloaded_data else set()
-            ms = missing_data[l] if l in missing_data else set()
+            rq = requested_data.get(l, set())
+            dl = downloaded_data.get(l, set())
+            ms = missing_data.get(l, set())
             if l not in missing_data.keys():
                 assert rq.issubset(dl)
             else:
@@ -51,9 +49,9 @@ def test_time_period_generation() -> None:
         )
         time_periods = sorted(
             src.profiles.generate_queries.compute_time_periods(required_dates),
-            key=lambda tp: tp.from_date
+            key=lambda tp: tp.from_date,
         )
-        for tp1, tp2 in zip(time_periods[:-1], time_periods[1 :]):
+        for tp1, tp2 in zip(time_periods[:-1], time_periods[1:]):
             assert tp1.to_date < tp2.from_date
         requested_dates: set[datetime.date] = set()
         for tp in time_periods:

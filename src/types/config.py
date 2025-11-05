@@ -22,7 +22,7 @@ class MetadataConfig(pydantic.BaseModel):
         description="GitHub repository name, e.g. `my-org/my-repo`.",
     )
     access_token: Optional[str] = pydantic.Field(
-        None,
+        default=None,
         min_length=1,
         description="GitHub access token with read access to the repository, only required if the repository is private.",
     )
@@ -68,46 +68,46 @@ class GroundPressureConfig(pydantic.BaseModel):
 
     # one datetime column
     datetime_column: Optional[str] = pydantic.Field(
-        None,
+        default=None,
         description="Column name in the ground pressure files that contains the datetime.",
         examples=["datetime", "dt", "utc-datetime"],
     )
     datetime_column_format: Optional[str] = pydantic.Field(
-        None,
+        default=None,
         description="Format of the datetime column in the ground pressure files.",
         examples=["%Y-%m-%dT%H:%M:%S"],
     )
 
     # two columns for date and time
     date_column: Optional[str] = pydantic.Field(
-        None,
+        default=None,
         description="Column name in the ground pressure files that contains the date.",
         examples=["date", "d", "utc-date"],
     )
     date_column_format: Optional[str] = pydantic.Field(
-        None,
+        default=None,
         description="Format of the date column in the ground pressure files.",
         examples=["%Y-%m-%d", "%Y%m%d", "%d.%m.%Y"],
     )
     time_column: Optional[str] = pydantic.Field(
-        None,
+        default=None,
         description="Column name in the ground pressure files that contains the time.",
         examples=["time", "t", "utc-time"],
     )
     time_column_format: Optional[str] = pydantic.Field(
-        None,
+        default=None,
         description="Format of the time column in the ground pressure files.",
         examples=["%H:%M:%S", "%H:%M", "%H%M%S"],
     )
 
     # one unix timestamp column
     unix_timestamp_column: Optional[str] = pydantic.Field(
-        None,
+        default=None,
         description="Column name in the ground pressure files that contains the unix timestamp.",
         examples=["unix-timestamp", "timestamp", "ts"],
     )
     unix_timestamp_column_format: Optional[Literal["s", "ms", "us", "ns"]] = pydantic.Field(
-        None,
+        default=None,
         description="Format of the unix timestamp column in the ground pressure files. I.e. is the Unix timestamp in seconds, milliseconds, etc.?",
     )
 
@@ -298,44 +298,44 @@ class RetrievalJobSettingsConfig(pydantic.BaseModel):
     model_config = pydantic.ConfigDict(extra="forbid")
 
     store_binary_spectra: bool = pydantic.Field(
-        False,
+        default=False,
         description="Whether to store the binary spectra files. These are the files that are used by the retrieval algorithm. They are not needed for the output files, but can be useful for debugging.",
     )
     dc_min_threshold: float = pydantic.Field(
-        0.05,
+        default=0.05,
         ge=0.001,
         le=0.999,
         description="Value used for the `DC_min` threshold in Proffast. If not set, defaults to the Proffast default.",
     )
     dc_var_threshold: float = pydantic.Field(
-        0.10,
+        default=0.10,
         ge=0.001,
         le=0.999,
         description="Value used for the `DC_var` threshold in Proffast. If not set, defaults to the Proffast default.",
     )
     use_local_pressure_in_pcxs: bool = pydantic.Field(
-        False,
+        default=False,
         description="Whether to use the local pressure in the pcxs files. If not used, it will tell PCXS to use the pressure from the atmospheric profiles (set the input value in the `.inp` file to `9999.9`). If used, the pipeline computes the solar noon time using `skyfield` and averages the local pressure over the time period noon-2h to noon+2h.",
     )
     use_ifg_corruption_filter: bool = pydantic.Field(
-        True,
+        default=True,
         description="Whether to use the ifg corruption filter. This filter is a program based on `preprocess4` and is part of the `tum-esm-utils` library: https://tum-esm-utils.netlify.app/api-reference#tum_esm_utilsinterferograms. If activated, we will only pass the interferograms to the retrieval algorithm that pass the filter - i.e. that won't cause it to crash.",
     )
     custom_ils: dict[str, RetrievalJobSettingsILSConfig] = pydantic.Field(
-        {},
+        default={},
         description="Maps sensor IDS to ILS correction values. If not set, the pipeline will use the values published inside the Proffast Pylot codebase (https://gitlab.eudat.eu/coccon-kit/proffastpylot/-/blob/master/prfpylot/ILSList.csv?ref_type=heads).",
     )
     output_suffix: Optional[str] = pydantic.Field(
-        None,
+        default=None,
         description="Suffix to append to the output folders. If not set, the pipeline output folders are named `sensorid/YYYYMMDD/`. If set, the folders are named `sensorid/YYYYMMDD_suffix/`. This is useful when having multiple retrieval jobs processing the same sensor dates with different settings.",
     )
     pressure_calibration_factors: dict[str, float] = pydantic.Field(
-        {},
+        default={},
         description="Maps sensor IDS to pressure calibration factors. If not set, it is set to 1 for each sensor. `corrected_pressure = input_pressure * calibration_factor + calibration_offset`",
         examples=['{"ma": 0.99981}', '{"ma": 1.00019, "mb": 0.99981}'],
     )
     pressure_calibration_offsets: dict[str, float] = pydantic.Field(
-        {},
+        default={},
         description="Maps sensor IDS to pressure calibration offsets. If not set, it is set to 0 for each sensor. `corrected_pressure = input_pressure * calibration_factor + calibration_offset`",
         examples=['{"ma": -0.00007}', '{"ma": -0.00007, "mb": 0.00019}'],
     )
@@ -365,7 +365,7 @@ class RetrievalJobConfig(pydantic.BaseModel):
         description="Date string in format `YYYY-MM-DD` until which to consider data in the storage directory. Default is yesterday.",
     )
     settings: RetrievalJobSettingsConfig = pydantic.Field(
-        RetrievalJobSettingsConfig(),
+        default=RetrievalJobSettingsConfig(),
         description="Advanced settings that only apply to this retrieval job",
     )
 
@@ -384,7 +384,7 @@ class RetrievalJobConfig(pydantic.BaseModel):
 class GeneralConfig(pydantic.BaseModel):
     model_config = pydantic.ConfigDict(extra="forbid")
     metadata: Optional[MetadataConfig] = pydantic.Field(
-        None,
+        default=None,
         description="If not set, the pipeline will use local metadata files or abort if the local files are not found. If local files are found, they will always be preferred over the remote data even if the remote source is configured.",
     )
     data: DataConfig
@@ -397,7 +397,7 @@ class ProfilesConfig(pydantic.BaseModel):
 
     server: ProfilesServerConfig
     scope: Optional[ProfilesScopeConfig] = pydantic.Field(
-        None,
+        default=None,
         description="Scope of the vertical profiles to request from the ccycle ftp server. If set to `null`, the script will not request any vertical profiles besides the configured standard sites.",
     )
     GGG2020_standard_sites: list[ProfilesGGG2020StandardSitesItemConfig] = pydantic.Field(
@@ -450,17 +450,17 @@ class BundleTargetConfig(pydantic.BaseModel):
         ..., description="The sensor ids for which to bundle the outputs"
     )
     bundle_suffix: Optional[str] = pydantic.Field(
-        None,
+        default=None,
         description="Suffix to append to the output bundles.",
         min_length=1,
         examples=["v2.1", "v2.2", "oco2-gradient-paper-2021"],
     )
     retrieval_job_output_suffix: Optional[str] = pydantic.Field(
-        None,
+        default=None,
         description="When you ran the retrieval with a custom suffix, you can specify it here to only bundle the outputs of this suffix. Use the same value here as in the field `config.retrieval.jobs[i].settings.output_suffix`.",
     )
     parse_dc_timeseries: bool = pydantic.Field(
-        False,
+        default=False,
         description="Whether to parse the DC timeseries from the results directories. This is an output only available in this Pipeline for Proffast2.4. We adapted the preprocessor to output the DC min/mean/max/variation values for each record of data. If you having issues with a low signal intensity on one or both channels, you can run the retrieval with a very low DC_min threshold and filter the data afterwards instead of having to rerun the retrieval.",
     )
 
@@ -482,43 +482,43 @@ class GEOMSConfig(pydantic.BaseModel):
         ..., description="Date in format `YYYY-MM-DDTHH:MM:SS` to which to generate GEOMS data"
     )
     parse_dc_timeseries: bool = pydantic.Field(
-        False,
+        default=False,
         description="Whether to parse the DC timeseries from the results directories. This is an output only available in this Pipeline for Proffast2.4. We adapted the preprocessor to output the DC min/mean/max/variation values for each record of data. If you having issues with a low signal intensity on one or both channels, you can run the retrieval with a very low DC_min threshold and filter the data afterwards instead of having to rerun the retrieval.",
     )
     dc_min_xco2: float = pydantic.Field(
-        0.05,
+        default=0.05,
         gt=0,
         lt=10,
         description="Only considered if `parse_dc_timeseries` is set. Minimum DC value to consider for XCO2 records in the GEOMS outputs. It not set, it uses the default value of Proffast (0.05).",
     )
     dc_min_xch4: float = pydantic.Field(
-        0.05,
+        default=0.05,
         gt=0,
         lt=10,
         description="Only considered if `parse_dc_timeseries` is set. Minimum DC value to consider for XCH4 records in the GEOMS outputs. It not set, it uses the default value of Proffast (0.05).",
     )
     dc_min_xh2o: float = pydantic.Field(
-        0.05,
+        default=0.05,
         gt=0,
         lt=10,
         description="Only considered if `parse_dc_timeseries` is set. Minimum DC value to consider for XH2O records in the GEOMS outputs. It not set, it uses the default value of Proffast (0.05).",
     )
     dc_min_xco: float = pydantic.Field(
-        0.05,
+        default=0.05,
         gt=0,
         lt=10,
         description="Only considered if `parse_dc_timeseries` is set. Minimum DC value to consider for XCO records in the GEOMS outputs. It not set, it uses the default value of Proffast (0.05).",
     )
     max_sza: Optional[float] = pydantic.Field(
-        None,
+        default=None,
         description="Maximum solar zenith angle to consider in the GEOMS outputs. If not set, it will consider all solar zenith angles.",
     )
     min_xair: Optional[float] = pydantic.Field(
-        None,
+        default=None,
         description="Minimum XAIR required to consider in the GEOMS outputs. If not set, it will consider all XAIR values.",
     )
     max_xair: Optional[float] = pydantic.Field(
-        None,
+        default=None,
         description="Maximum XAIR required to consider in the GEOMS outputs. If not set, it will consider all XAIR values.",
     )
     conflict_mode: Literal["error", "skip", "replace"] = pydantic.Field(
@@ -539,7 +539,8 @@ class Config(pydantic.BaseModel):
     profiles: Optional[ProfilesConfig] = None
     retrieval: Optional[RetrievalConfig] = None
     bundles: Optional[list[BundleTargetConfig]] = pydantic.Field(
-        None, description="List of output bundling targets."
+        default=None,
+        description="List of output bundling targets.",
     )
     geoms: Optional[GEOMSConfig] = None
 

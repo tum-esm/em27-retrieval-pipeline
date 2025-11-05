@@ -9,10 +9,10 @@ import multiprocessing
 import src
 import polars as pl
 from tests.fixtures import (
-    wrap_test_with_mainlock,
-    download_sample_data,
-    provide_config_template,
-    remove_temporary_retrieval_data,
+    wrap_test_with_mainlock,  # pyright: ignore[reportUnusedImport]
+    download_sample_data,  # pyright: ignore[reportUnusedImport]
+    provide_config_template,  # pyright: ignore[reportUnusedImport]
+    remove_temporary_retrieval_data,  # pyright: ignore[reportUnusedImport]
 )
 
 PROJECT_DIR = tum_esm_utils.files.get_parent_dir_path(__file__, current_depth=3)

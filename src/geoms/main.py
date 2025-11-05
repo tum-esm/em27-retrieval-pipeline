@@ -11,7 +11,7 @@ import os
 import re
 import polars as pl
 import numpy as np
-import h5py
+import h5py  # pyright: ignore[reportMissingTypeStubs]
 import tqdm
 import tum_esm_utils
 import sys
@@ -197,7 +197,7 @@ def generate_geoms_file(
     
     # write metadata
     
-    variables: list[str] = hdf_file.keys()
+    variables: list[str] = hdf_file.keys() # pyright: ignore[reportAssignmentType]
     for key, value in metadata.items():
         hdf_file.attrs[key] = np.bytes_(value)
     hdf_file.attrs["DATA_VARIABLES"] = np.bytes_(";".join(variables))
@@ -258,7 +258,7 @@ def run() -> None:
 
             print(f"Processing {retrieval_algorithm}/{atmospheric_profile_model}")
 
-            for i, sensor_id in enumerate(config.geoms.sensor_ids):
+            for _, sensor_id in enumerate(config.geoms.sensor_ids):
                 print(f'Processing sensor id "{sensor_id}"')
 
                 results_folders = os.path.join(

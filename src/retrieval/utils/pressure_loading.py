@@ -84,9 +84,9 @@ def load_pressure_file(
         (c.unix_timestamp_column, "unix timestamp"),
     ]:
         if column_name is not None:
-            assert (
-                column_name in df.columns
-            ), f"{label} column not found, found columns: {df.columns} "
+            assert column_name in df.columns, (
+                f"{label} column not found, found columns: {df.columns} "
+            )
             df = df.drop_nulls(column_name)
 
     # LOAD PRESSURE
@@ -108,6 +108,8 @@ def load_pressure_file(
         custom_unit_to_hpa = 33.8639
     elif c.pressure_column_format == "mmHg":
         custom_unit_to_hpa = 1.33322
+    else:
+        raise Exception("This should not happen")
 
     pressures = [
         float(p)
@@ -169,8 +171,10 @@ def load_pressure_file(
             custom_unit_to_seconds = 1e-6
         elif c.unix_timestamp_column_format == "ns":
             custom_unit_to_seconds = 1e-9
+        else:
+            raise Exception("This should not happen")
 
-        datetimes = []
+        datetimes: list[datetime.datetime] = []
         for t in df[c.unix_timestamp_column]:
             try:
                 datetimes.append(

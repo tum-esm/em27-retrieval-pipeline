@@ -2,10 +2,9 @@ import datetime
 from typing import Any, Optional
 
 import polars as pl
-import skyfield.almanac
-import skyfield.api
-import skyfield.iokit
-import skyfield.timelib
+import skyfield.almanac  # pyright: ignore[reportMissingTypeStubs]
+import skyfield.api  # pyright: ignore[reportMissingTypeStubs]
+import skyfield.iokit  # pyright: ignore[reportMissingTypeStubs]
 import tum_esm_utils
 
 from .logger import Logger
@@ -18,18 +17,17 @@ def compute_solar_noon_time(
 ) -> datetime.datetime:
     start_time = datetime.datetime.combine(date, datetime.time.min, tzinfo=datetime.timezone.utc)
     end_time = start_time + datetime.timedelta(days=1)
-    timescale = skyfield.api.load.timescale()
-    ephemeris: Any = skyfield.iokit.Loader(tum_esm_utils.files.rel_to_abs_path("../../../data"))(
+    timescale = skyfield.api.load.timescale()  # pyright: ignore[reportUnknownMemberType]
+    ephemeris: Any = skyfield.iokit.Loader(tum_esm_utils.files.rel_to_abs_path("../../../data"))(  # pyright: ignore[reportUnknownVariableType]
         "de421.bsp"
     )
 
-    times, events = skyfield.almanac.find_discrete(
-        timescale.from_datetime(start_time),
-        timescale.from_datetime(end_time),
-        skyfield.almanac.meridian_transits(
+    times, events = skyfield.almanac.find_discrete(  # type: ignore
+        timescale.from_datetime(end_time),  # type: ignore
+        skyfield.almanac.meridian_transits(  # type: ignore
             ephemeris,
             ephemeris["Sun"],
-            skyfield.api.wgs84.latlon(
+            skyfield.api.wgs84.latlon(  # type: ignore
                 latitude_degrees=lat,
                 longitude_degrees=lon,
             ),
@@ -37,7 +35,7 @@ def compute_solar_noon_time(
     )
 
     # Select transits instead of antitransits.
-    t = times[events == 1][0].astimezone(datetime.timezone.utc)
+    t = times[events == 1][0].astimezone(datetime.timezone.utc)  # type: ignore
     assert isinstance(t, datetime.datetime)
     return t
 

@@ -1,5 +1,4 @@
 import datetime
-import json
 import os
 import shutil
 
@@ -26,7 +25,7 @@ def run(
             output_src_dir,
             f"{session.ctx.sensor_id}{date_string[2:]}-combined-invparms.csv",
         )
-    elif isinstance(session, types.Proffast2RetrievalSession):
+    elif isinstance(session, types.Proffast2RetrievalSession):  # pyright: ignore[reportUnnecessaryIsInstance]
         output_src_dir = (
             f"{session.ctn.data_output_path}/{session.ctx.sensor_id}_"
             + f"SN{str(session.ctx.serial_number).zfill(3)}_{date_string[2:]}-{date_string[2:]}"
@@ -177,6 +176,7 @@ def run(
     with open(os.path.join(output_dst_tmp, "about.json"), "w") as f:
         now = datetime.datetime.now(datetime.timezone.utc)
         dumped_config = config.model_copy(deep=True)
+        assert dumped_config.retrieval is not None
         if dumped_config.general.metadata is not None:
             if dumped_config.general.metadata.access_token is not None:
                 dumped_config.general.metadata.access_token = "REDACTED"
