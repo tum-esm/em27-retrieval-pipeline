@@ -134,6 +134,7 @@ def run(
                             sensor_id,
                             retrieval_algorithm,
                             parse_dc_timeseries=bundle_target.parse_dc_timeseries,
+                            parse_retrieval_diagnostics=bundle_target.parse_retrieval_diagnostics,
                             retrieval_job_output_suffix=bundle_target.retrieval_job_output_suffix,
                         )
                         if df is not None:

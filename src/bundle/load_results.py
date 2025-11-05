@@ -11,6 +11,7 @@ def load_results_directory(
     sensor_id: str,
     retrieval_algorithm: "src.types.RetrievalAlgorithm",
     parse_dc_timeseries: bool = False,
+    parse_retrieval_diagnostics: bool = False,
     retrieval_job_output_suffix: Optional[str] = None,
     keep_julian_dates: bool = False,
 ) -> Optional[pl.DataFrame]:
@@ -77,11 +78,12 @@ def load_results_directory(
         schema_overrides={
             "UTC": pl.Datetime,
             " spectrum": pl.Utf8,
+            " SX": pl.Utf8,
         },
     )
     df = df.rename({col: col.strip() for col in df.columns if col.strip() != col})
 
-    df = df.drop(list(set(["LocalTime", "UTtimeh", "gndT", "SX"]).intersection(set(df.columns))))
+    df = df.drop(list(set(["LocalTime", "UTtimeh", "gndT"]).intersection(set(df.columns))))
     if not keep_julian_dates and "JulianDate" in df.columns:
         df = df.drop("JulianDate")
 
@@ -109,7 +111,9 @@ def load_results_directory(
             "altim": "alt",
             "appSZA": "sza",
             "azimuth": "azi",
-        }
+            "SX": "spectrum",
+        },
+        strict=False,
     )
 
     df = (
@@ -234,7 +238,69 @@ def load_results_directory(
         assert len(merged_df) == len(df), f"{len(merged_df)} != {len(df)}"
         df = merged_df
 
-    # 5. PARSE OPUS FILE STATS
+    # 5. PARSE RETRIEVAL DIAGNOSTICS
+
+    if parse_retrieval_diagnostics:
+        job_gases: list[list[str]] = {
+            "proffast-1.0": [["H2O"], ["O2"], ["CO2"], ["CH4"], ["CO", "CH4_S5P"]],
+            "proffast-2.2": [["H2O"], ["O2"], ["CO2"], ["CH4"], ["CO", "CH4_S5P"]],
+            "proffast-2.3": [["H2O"], ["O2"], ["CO2"], ["CH4"], ["CO", "CH4_S5P"]],
+            "proffast-2.4": [["H2O"], ["O2"], ["CO2"], ["CH4"], ["CO2_STR"], ["CO", "CH4_S5P"]],
+            "proffast-2.4.1": [["H2O"], ["O2"], ["CO2"], ["CH4"], ["CO2_STR"], ["CO", "CH4_S5P"]],
+        }.get(retrieval_algorithm, [])
+
+        if len(job_gases) > 0:
+            invparms_filepath: str
+            if retrieval_algorithm == "proffast-1.0":
+                invparms_filepath = os.path.join(
+                    d, f"{sensor_id}{from_datetime.strftime('%y%m%d')}-invparms.dat"
+                )
+            elif (retrieval_algorithm == "proffast-2.2") or (retrieval_algorithm == "proffast-2.3"):
+                invparms_filepath = os.path.join(
+                    d, f"{sensor_id}{from_datetime.strftime('%y%m%d')}-invparms_a.dat"
+                )
+            elif (retrieval_algorithm == "proffast-2.4") or (
+                retrieval_algorithm == "proffast-2.4.1"
+            ):
+                invparms_filepath = os.path.join(
+                    d,
+                    "raw_output_proffast",
+                    f"{sensor_id}{from_datetime.strftime('%y%m%d')}-invparms_a.dat",
+                )
+
+            newdf = src.utils.functions.load_dat_file(invparms_filepath).rename(
+                {"SX": "spectrum"}, strict=False
+            )
+            for i in range(len(job_gases)):
+                expected_cols = [
+                    f"job{i + 1:02d}_rms",
+                    f"job{i + 1:02d}_niter",
+                    f"job{i + 1:02d}_scl",
+                ]
+                for col in expected_cols:
+                    if col not in newdf.columns:
+                        raise ValueError(
+                            f"Could not find expected column '{col}' in retrieval diagnostics file {invparms_filepath}"
+                        )
+
+            newdf = newdf.select(
+                pl.col("spectrum"),
+                *[
+                    pl.col(f"job{i + 1:02d}_{suffix}")
+                    .cast(dtype)
+                    .alias(f"{job_gases[i][j]}_{suffix}")
+                    for i in range(len(job_gases))
+                    for j in range(len(job_gases[i]))
+                    for suffix, dtype in [
+                        ("rms", pl.Float64),
+                        ("scl", pl.Float64),
+                        ("niter", pl.Int16),
+                    ]
+                ],
+            )
+            df = df.join(newdf, on="spectrum", how="left")
+
+    # 6. PARSE OPUS FILE STATS
 
     opus_file_stats_df: pl.DataFrame
     if os.path.isfile(os.path.join(d, "opus_file_stats.csv")):
@@ -250,7 +316,7 @@ def load_results_directory(
             schema={"opus_filename": pl.Utf8, "retrieval_filename": pl.Utf8},
         )
 
-    # 6. PARSE SPECTRA FILENAMES
+    # 7. PARSE SPECTRA FILENAMES
 
     spectra_filename_maps: pl.DataFrame
     if os.path.isfile(os.path.join(d, "analysis", "cal", "logfile.dat")):
