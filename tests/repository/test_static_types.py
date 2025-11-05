@@ -15,7 +15,7 @@ def _rmdir(path: str) -> None:
 
 @pytest.mark.order(1)
 @pytest.mark.quick
-def test_static_types() -> None:
+def test_with_mypy() -> None:
     os.system(f"cd {PROJECT_DIR} && rm -f .mypy_cache/3.*/cli.*")
     _rmdir(".mypy_cache/3.11/src")
     _rmdir(".mypy_cache/3.11/tests")
@@ -28,3 +28,9 @@ def test_static_types() -> None:
         "mypy src/scripts",
     ]:
         assert os.system(f"cd {PROJECT_DIR} && {sys.executable} -m {call}") == 0
+
+
+@pytest.mark.order(1)
+@pytest.mark.quick
+def test_with_pyright() -> None:
+    assert os.system(f"cd {PROJECT_DIR} && {sys.executable} -m pyright") == 0

@@ -23,6 +23,7 @@ def compute_solar_noon_time(
     )
 
     times, events = skyfield.almanac.find_discrete(  # type: ignore
+        timescale.from_datetime(start_time),  # type: ignore
         timescale.from_datetime(end_time),  # type: ignore
         skyfield.almanac.meridian_transits(  # type: ignore
             ephemeris,

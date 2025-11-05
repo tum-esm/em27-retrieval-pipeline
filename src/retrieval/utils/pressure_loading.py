@@ -174,7 +174,7 @@ def load_pressure_file(
         else:
             raise Exception("This should not happen")
 
-        datetimes: list[datetime.datetime] = []
+        datetimes = []
         for t in df[c.unix_timestamp_column]:
             try:
                 datetimes.append(
