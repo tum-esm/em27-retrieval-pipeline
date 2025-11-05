@@ -10,6 +10,7 @@ CONFIG_DIR = tum_esm_utils.files.rel_to_abs_path("../../config")
 LOCATIONS_PATH = os.path.join(CONFIG_DIR, "locations.json")
 SENSORS_PATH = os.path.join(CONFIG_DIR, "sensors.json")
 CAMPAIGNS_PATH = os.path.join(CONFIG_DIR, "campaigns.json")
+EVENTS_PATH = os.path.join(CONFIG_DIR, "events.json")
 
 
 @pytest.fixture(scope="function")
@@ -40,21 +41,24 @@ def test_local_metadata_loader(store_local_metadata_during_test: None) -> None:
 
     with open(LOCATIONS_PATH, "w") as f:
         f.write("[]")
-
     with pytest.raises(FileNotFoundError):
         src.utils.metadata.load_local_em27_metadata_interface(config_dir=CONFIG_DIR)
 
     with open(SENSORS_PATH, "w") as f:
         f.write("[]")
-
-    with pytest.raises(FileNotFoundError):
-        src.utils.metadata.load_local_em27_metadata_interface(config_dir=CONFIG_DIR)
+    src.utils.metadata.load_local_em27_metadata_interface(config_dir=CONFIG_DIR)
 
     with open(CAMPAIGNS_PATH, "w") as f:
         f.write("[]")
+    src.utils.metadata.load_local_em27_metadata_interface(config_dir=CONFIG_DIR)
+
+    with open(EVENTS_PATH, "w") as f:
+        f.write("[]")
+    src.utils.metadata.load_local_em27_metadata_interface(config_dir=CONFIG_DIR)
 
     interface = src.utils.metadata.load_local_em27_metadata_interface(config_dir=CONFIG_DIR)
     assert interface is not None
     assert len(interface.locations.root) == 0
     assert len(interface.sensors.root) == 0
     assert len(interface.campaigns.root) == 0
+    assert len(interface.events.root) == 0
