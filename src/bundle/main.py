@@ -149,6 +149,27 @@ def run(
                         pl.Series("campaign_ids", matching_campaign_ids)
                     )
 
+                    # Attach a columns "event_description" and "event_data_quality_flag" to the data
+                    matching_event_descriptions: list[str] = ["" for _ in range(len(combined_df))]
+                    matching_event_flags: list[int] = [0 for _ in range(len(combined_df))]
+                    utcs = combined_df["utc"].to_list()
+                    location_ids = combined_df["location_id"].to_list()
+                    for e in em27_metadata_interface.events.root:
+                        if sensor_id not in e.sensor_ids:
+                            continue
+                        for i in range(len(combined_df)):
+                            if e.from_datetime <= utcs[i] <= e.to_datetime:
+                                matching_event_descriptions[i] += f"; {e.description}"
+                                if not e.data_is_usable:
+                                    matching_event_flags[i] = 1
+                    matching_event_descriptions = [
+                        s.strip("; ") for s in matching_event_descriptions
+                    ]
+                    combined_df = combined_df.with_columns(
+                        pl.Series("event_description", matching_event_descriptions),
+                        pl.Series("event_data_quality_flag", matching_event_flags),
+                    )
+
                     name = f"em27-retrieval-bundle-{sensor_id}-{retrieval_algorithm}-{atmospheric_profile_model}-{bundle_target.from_datetime.strftime('%Y%m%d')}-{bundle_target.to_datetime.strftime('%Y%m%d')}"
                     if bundle_target.bundle_suffix is not None:
                         name += f"-{bundle_target.bundle_suffix}"
