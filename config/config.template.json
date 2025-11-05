@@ -134,7 +134,8 @@
         "md",
         "me"
       ],
-      "parse_dc_timeseries": true
+      "parse_dc_timeseries": true,
+      "parse_retrieval_diagnostics": true
     }
   ],
   "geoms": {

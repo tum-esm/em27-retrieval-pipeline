@@ -104,6 +104,12 @@
                     "description": "Whether to parse the DC timeseries from the results directories. This is an output only available in this Pipeline for Proffast2.4. We adapted the preprocessor to output the DC min/mean/max/variation values for each record of data. If you having issues with a low signal intensity on one or both channels, you can run the retrieval with a very low DC_min threshold and filter the data afterwards instead of having to rerun the retrieval.",
                     "title": "Parse Dc Timeseries",
                     "type": "boolean"
+                },
+                "parse_retrieval_diagnostics": {
+                    "default": false,
+                    "description": "Whether to parse the retrieval diagnostics from the results directories - `niter`, `rms`, and `scl` for each retrieval job.",
+                    "title": "Parse Retrieval Diagnostics",
+                    "type": "boolean"
                 }
             },
             "required": [
