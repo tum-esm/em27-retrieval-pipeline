@@ -1,6 +1,6 @@
 import datetime
 import os
-from typing import Optional
+from typing import Any, Optional
 import polars as pl
 import em27_metadata
 import tum_esm_utils
@@ -26,7 +26,7 @@ def get_pipeline_version() -> str:
 
     with open(tum_esm_utils.files.rel_to_abs_path("../../pyproject.toml"), "rb") as f:
         try:
-            v = tomllib.load(f)["project"]["version"]
+            v: Any = tomllib.load(f)["project"]["version"]  # pyright: ignore[reportUnknownVariableType, reportUnknownMemberType]
             assert isinstance(v, str)
             return v
         except (KeyError, AssertionError):
