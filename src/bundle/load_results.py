@@ -78,12 +78,11 @@ def load_results_directory(
         schema_overrides={
             "UTC": pl.Datetime,
             " spectrum": pl.Utf8,
-            " SX": pl.Utf8,
         },
     )
     df = df.rename({col: col.strip() for col in df.columns if col.strip() != col})
 
-    df = df.drop(list(set(["LocalTime", "UTtimeh", "gndT"]).intersection(set(df.columns))))
+    df = df.drop(list(set(["LocalTime", "UTtimeh", "gndT", "SX"]).intersection(set(df.columns))))
     if not keep_julian_dates and "JulianDate" in df.columns:
         df = df.drop("JulianDate")
 
@@ -111,10 +110,18 @@ def load_results_directory(
             "altim": "alt",
             "appSZA": "sza",
             "azimuth": "azi",
-            "SX": "spectrum",
         },
-        strict=False,
     )
+    if "spectrum" not in df.columns:
+        df = df.with_columns(
+            (
+                pl.col("utc").dt.strftime("%y%m%d")
+                + "_"
+                + pl.col("HHMMSS_ID").cast(pl.Int32).cast(pl.Utf8).str.zfill(6)
+                + "SN.BIN"
+            ).alias("spectrum")
+        )
+    df = df.with_columns(pl.col("spectrum").cast(pl.Utf8).str.strip_chars(" "))
 
     df = (
         df.with_columns(
@@ -134,10 +141,6 @@ def load_results_directory(
             & pl.col("utc").le(to_datetime.astimezone(tz=datetime.timezone.utc))
         )
     )
-
-    if "spectrum" in df.columns:
-        # remove leading and trailing whitespaces
-        df = df.with_columns(pl.col("spectrum").cast(pl.Utf8).str.strip_chars(" "))
 
     if len(df) == 0:
         return None
@@ -268,9 +271,18 @@ def load_results_directory(
                     f"{sensor_id}{from_datetime.strftime('%y%m%d')}-invparms_a.dat",
                 )
 
-            newdf = src.utils.functions.load_dat_file(invparms_filepath).rename(
-                {"SX": "spectrum"}, strict=False
-            )
+            newdf = src.utils.functions.load_dat_file(invparms_filepath)
+            if "spectrum" not in newdf.columns:
+                newdf = newdf.with_columns(
+                    (
+                        from_datetime.strftime("%y%m%d")
+                        + "_"
+                        + pl.col("HHMMSS_ID").cast(pl.Int32).cast(pl.Utf8).str.zfill(6)
+                        + "SN.BIN"
+                    ).alias("spectrum")
+                )
+            newdf = newdf.with_columns(pl.col("spectrum").cast(pl.Utf8).str.strip_chars(" "))
+
             for i in range(len(job_gases)):
                 expected_cols = [
                     f"job{i + 1:02d}_rms",
@@ -298,7 +310,12 @@ def load_results_directory(
                     ]
                 ],
             )
+            dflenbefore = len(df)
             df = df.join(newdf, on="spectrum", how="left")
+            dflenafter = len(df)
+            assert dflenbefore == dflenafter, (
+                f"This should not happen: {dflenbefore=}, {dflenafter=}"
+            )
 
     # 6. PARSE OPUS FILE STATS
 
@@ -315,10 +332,10 @@ def load_results_directory(
             {"opus_filename": [], "retrieval_filename": []},
             schema={"opus_filename": pl.Utf8, "retrieval_filename": pl.Utf8},
         )
+        raise Exception(f"Could not find opus_file_stats.csv in {d}")
 
     # 7. PARSE SPECTRA FILENAMES
 
-    spectra_filename_maps: pl.DataFrame
     if os.path.isfile(os.path.join(d, "analysis", "cal", "logfile.dat")):
         preprocess_logs_content = (
             tum_esm_utils.files.load_file(os.path.join(d, "analysis", "cal", "logfile.dat"))
@@ -351,24 +368,7 @@ def load_results_directory(
                 "retrieval_filename": pl.Utf8,
             },
         )
-    else:
-        spectra_filename_maps = pl.DataFrame(
-            {"spectrum": [], "retrieval_filename": []},
-            schema_overrides={
-                "spectrum": pl.Utf8,
-                "retrieval_filename": pl.Utf8,
-            },
-        )
-    if retrieval_algorithm.startswith("proffast-2."):
-        if "spectrum" not in df.columns:
-            df = df.with_columns(
-                (
-                    pl.col("utc").dt.strftime("%y%m%d")
-                    + "_"
-                    + pl.col("HHMMSS_ID").cast(pl.Int32).cast(pl.Utf8).str.zfill(6)
-                    + "SN.BIN"
-                ).alias("spectrum")
-            )
+
         df = df.join(spectra_filename_maps, on="spectrum", how="left")
         df = df.join(opus_file_stats_df, on="retrieval_filename", how="left")
 
