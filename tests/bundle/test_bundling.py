@@ -1,3 +1,4 @@
+import datetime
 import os
 import pytest
 import src
@@ -74,6 +75,7 @@ def test_bundling(download_sample_data: None) -> None:
             locations_path=os.path.join(METADATA_DIR, "locations.json"),
             sensors_path=os.path.join(METADATA_DIR, "sensors.json"),
             campaigns_path=os.path.join(METADATA_DIR, "campaigns.json"),
+            events_path=os.path.join(METADATA_DIR, "events.json"),
         ),
     )
 
@@ -152,3 +154,30 @@ def test_bundling(download_sample_data: None) -> None:
                         col = f"{gas}_{suffix}"
                         if col not in df.columns:
                             raise Exception(f"Column {col} missing in DataFrame columns:")
+
+                # test event columns
+                for c in ["event_description", "event_data_quality_flag"]:
+                    assert c in df.columns, f"Column {c} missing in DataFrame columns."
+
+                # quality flag all 0 for sensor "mc"
+                # quality flag all 0 for sensor "so" and date 9
+                # quality flag all 1 for sensor "so" and date 8
+                if sensor_id == "mc":
+                    assert all(df["event_description"].eq("")), "Expected all event descriptions to be empty for sensor 'mc'."
+                    assert all(df["event_data_quality_flag"].eq(0)), "Expected all quality flags to be 0 for sensor 'mc'."
+                elif sensor_id == "so":
+                    date_8_df = df.filter(pl.col("utc").dt.date().eq(datetime.date(2017,6,8)))
+                    assert all(
+                        date_8_df["event_description"].eq("test event")
+                    ), "Expected all event descriptions to be 'test event' for sensor 'so' on day 8."
+                    assert all(
+                        date_8_df["event_data_quality_flag"].eq(1)
+                    ), "Expected all quality flags to be 1 for sensor 'so' on day 8."
+
+                    date_9_df = df.filter(pl.col("utc").dt.date().eq(datetime.date(2017,6,9)))
+                    assert all(
+                        date_9_df["event_description"].eq("")
+                    ), "Expected all event descriptions to be empty for sensor 'so' on day 9."
+                    assert all(
+                        date_9_df["event_data_quality_flag"].eq(0)
+                    ), "Expected all quality flags to be 0 for sensor 'so' on day 9."
