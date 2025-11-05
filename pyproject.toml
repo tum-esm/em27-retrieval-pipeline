@@ -12,7 +12,7 @@ authors = [
 dependencies = [
     "filelock>=3.16.1",
     "pydantic>=2.10.2",
-    "em27-metadata>=1.2.1",
+    "em27-metadata>=1.3.0",
     "tum-esm-utils[opus]>=2.8.3",
     "tomli>=2.2.1",
     "python-dotenv>=1.0.1",
@@ -28,7 +28,7 @@ dependencies = [
     "timezonefinder>=6.5.5",      # used by Proffast Pylot only
     "pyyaml>=6.0.2",              # used by Proffast Pylot only
     "fortranformat>=2.0.0",       # used by Proffast Pylot only
-    "h5py>=3.12.1",               # used by GEOMS generator
+    "h5py>=3.15.1",               # used by GEOMS generator
     "pyarrow>=18.1.0",            # used by GEOMS generator
     "netCDF4>=1.7.2",             # used by Proffast Pylot only
     "xarray>=2025.6.1",           # used by Proffast Pylot only
@@ -63,6 +63,7 @@ dev = [
     "types-tqdm>=4.67.0.20241119",
     "ruff>=0.8.1",
     "pandas-stubs>=2.2.3.241126",
+    "pyright>=1.1.407",
 ]
 
 [tool.pdm]
@@ -71,9 +72,7 @@ distribution = false
 # using pytest markers from the `pytest-order` library, we run the
 # quick tests before the retrieval tests to fail fast
 [tool.pytest.ini_options]
-filterwarnings = [
-    "ignore::UserWarning",
-]
+filterwarnings = ["ignore::UserWarning"]
 markers = [
     "integration: can only be run on a configured system",
     "quick: can be run in a CI environment, < 30 seconds, everything except running actual retrievals",
@@ -95,6 +94,7 @@ exclude = [
     "src/retrieval/algorithms/proffast-2.3/main/prfpylot",
     "src/retrieval/algorithms/proffast-2.4/main/prfpylot",
     "src/retrieval/algorithms/proffast-2.4.1/main/prfpylot",
+    "dev",
 ]
 
 [tool.ruff.lint]
@@ -104,6 +104,7 @@ exclude = [
     "src/retrieval/algorithms/proffast-2.4/main/prfpylot",
     "src/retrieval/algorithms/proffast-2.4.1/main/prfpylot",
     "tests/*",
+    "dev",
 ]
 select = [
     # Pyflakes
@@ -133,3 +134,15 @@ module = [
     "jsonref",
 ]
 ignore_missing_imports = true
+
+[tool.pyright]
+exclude = [
+    ".venv",
+    "src/retrieval/algorithms/proffast-1.0/main/prf",
+    "src/retrieval/algorithms/proffast-2.2/main/prfpylot",
+    "src/retrieval/algorithms/proffast-2.3/main/prfpylot",
+    "src/retrieval/algorithms/proffast-2.4/main/prfpylot",
+    "src/retrieval/algorithms/proffast-2.4.1/main/prfpylot",
+    "dev",
+]
+strict = ["src", "tests", "run.py", "cli.py"]

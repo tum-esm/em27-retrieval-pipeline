@@ -10,8 +10,7 @@ config/*.json
 !pdm.lock
 de421.bsp
 de421.bsp.download
-itms-submission
-tmpdata
+dev
 
 data/**/*.map
 data/**/*.mod
