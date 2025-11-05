@@ -28,7 +28,7 @@ from .utils import (
     calculate_column_uncertainty,
     geoms_times_to_datetime,
 )
-from .geoms_api import GEOMSAPI
+from .geoms_api import GEOMSAPI  # type: ignore
 
 
 # fmt: off
