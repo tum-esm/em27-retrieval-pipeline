@@ -30,9 +30,9 @@ def recursive_help(
         for sub_command in command.commands.values():
             output += recursive_help(sub_command, parent_context=context)
     else:
-        assert (
-            command.short_help is not None
-        ), f"Command {context.command_path} has no short help".format(command=command)
+        assert command.short_help is not None, (
+            f"Command {context.command_path} has no short help".format(command=command)
+        )
         output += f"## {command.short_help}\n\n"
         help_text = command.get_help(context)
         # find all options (--help)
@@ -87,6 +87,10 @@ tum_esm_utils.files.dump_json_file(
     em27_metadata.types.CampaignMetadataList.model_json_schema(mode="validation"),
 )
 tum_esm_utils.files.dump_json_file(
+    f"{_DOCS_DIR}/src/assets/events.schema.json",
+    em27_metadata.types.EventMetadataList.model_json_schema(mode="validation"),
+)
+tum_esm_utils.files.dump_json_file(
     f"{_DOCS_DIR}/src/assets/geoms-metadata.schema.json",
     src.types.GEOMSMetadata.model_json_schema(mode="validation"),
 )
@@ -123,6 +127,10 @@ tum_esm_utils.files.dump_file(
 tum_esm_utils.files.dump_file(
     f"{_DOCS_DIR}/src/assets/campaigns.example.json",
     example_metadata.campaigns.model_dump_json(indent=4),
+)
+tum_esm_utils.files.dump_file(
+    f"{_DOCS_DIR}/src/assets/events.example.json",
+    example_metadata.events.model_dump_json(indent=4),
 )
 
 # --------------------------------------------------------

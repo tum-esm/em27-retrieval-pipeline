@@ -6,10 +6,15 @@ import JSONSchemaRenderer from "../../../components/JSONSchemaRenderer.tsx";
 import { Code } from "@astrojs/starlight/components";
 import LocationsSchema from "../../../assets/locations.schema.json";
 import LocationsExample from "../../../assets/locations.example.json?raw";
+
 import SensorsSchema from "../../../assets/sensors.schema.json";
 import SensorsExample from "../../../assets/sensors.example.json?raw";
+
 import CampaignsSchema from "../../../assets/campaigns.schema.json";
 import CampaignsExample from "../../../assets/campaigns.example.json?raw";
+
+import EventsSchema from "../../../assets/events.schema.json";
+import EventsExample from "../../../assets/events.example.json?raw";
 
 ## Measurement Locations
 
@@ -37,6 +42,8 @@ Stored in the `config/sensors.json` file, or in a GitHub repository.
 
 ## Measurement Campaigns
 
+Can be used to group measurements together, e.g. "Hamburg Campaign". The campaigns will be included in the dataset bundles in the column `campaign_ids`.
+
 Stored in the `config/campaigns.json` file, or in a GitHub repository.
 
 ### Reference
@@ -46,3 +53,17 @@ Stored in the `config/campaigns.json` file, or in a GitHub repository.
 ### Example
 
 <Code code={CampaignsExample} lang="json" />
+
+## Events
+
+Can be used to mark special events during measurements, e.g. "Testing New Solar Tracker". You can mark that the data during an event should not be used in downstream tasks. The dataset bundles will include the columns `event_description` and `event_data_quality_flag` (0 = good data, 1 = should not be used because of an event).
+
+Stored in the `config/events.json` file, or in a GitHub repository.
+
+### Reference
+
+<JSONSchemaRenderer schema={EventsSchema} />
+
+### Example
+
+<Code code={EventsExample} lang="json" />

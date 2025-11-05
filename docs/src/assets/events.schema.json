@@ -1,0 +1,52 @@
+{
+    "$defs": {
+        "EventMetadata": {
+            "properties": {
+                "from_datetime": {
+                    "format": "date-time",
+                    "title": "From Datetime",
+                    "type": "string"
+                },
+                "to_datetime": {
+                    "format": "date-time",
+                    "title": "To Datetime",
+                    "type": "string"
+                },
+                "sensor_ids": {
+                    "description": "List of sensor IDs involved in the event",
+                    "items": {
+                        "type": "string"
+                    },
+                    "minItems": 1,
+                    "title": "Sensor Ids",
+                    "type": "array"
+                },
+                "description": {
+                    "description": "Description of the event",
+                    "minLength": 1,
+                    "title": "Description",
+                    "type": "string"
+                },
+                "data_is_usable": {
+                    "description": "Indicates if the data recorded during the event is usable for downstream analysis",
+                    "title": "Data Is Usable",
+                    "type": "boolean"
+                }
+            },
+            "required": [
+                "from_datetime",
+                "to_datetime",
+                "sensor_ids",
+                "description",
+                "data_is_usable"
+            ],
+            "title": "EventMetadata",
+            "type": "object"
+        }
+    },
+    "items": {
+        "$ref": "#/$defs/EventMetadata"
+    },
+    "title": "EventMetadataList",
+    "type": "array"
+}
