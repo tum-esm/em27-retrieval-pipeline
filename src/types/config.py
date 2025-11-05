@@ -535,7 +535,7 @@ class Config(pydantic.BaseModel):
 
     model_config = pydantic.ConfigDict(extra="forbid")
 
-    version: Literal["1.8"] = pydantic.Field(
+    version: Literal["1.9"] = pydantic.Field(
         ...,
         description="Version of the retrieval pipeline which is compatible with this config file. Retrievals done with any version `1.x` will produce the same output files as retrievals done with version `1.0`. But higher version numbers might use a different config file structure and produce more output files.",
     )
