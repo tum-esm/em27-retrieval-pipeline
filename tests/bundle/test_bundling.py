@@ -50,6 +50,7 @@ CONFIG = {
             "from_datetime": "2017-01-01T00:00:00+0000",
             "to_datetime": "2024-12-31T23:59:59+0000",
             "parse_dc_timeseries": True,
+            "parse_retrieval_diagnostics": True,
         }
     ],
 }
@@ -123,4 +124,31 @@ def test_bundling(download_sample_data: None) -> None:
                 assert len(campaigns) == 2, f"Expected 2 campaigns, got {len(campaigns)}."
 
                 df = parquet_df.drop_nulls().drop_nans()
-                assert len(df) == len(parquet_df), "Expected no nulls or NaNs in the DataFrame."
+                assert len(df) == len(parquet_df), f"Expected no nulls or NaNs in the DataFrame"
+
+                print(df.columns)
+
+                # check whether DC timeseries is there
+                if retrieval_algorithm in ["proffast-2.4", "proffast-2.4.1"]:
+                    for ch in ["ch1", "ch2"]:
+                        for direction in ["fwd", "bwd"]:
+                            for var in ["min", "max", "mean", "var"]:
+                                col = f"{ch}_{direction}_dc_{var}"
+                                if col not in df.columns:
+                                    raise Exception(f"Column {col} missing in DataFrame columns:")
+
+                # check whether opus file stats are there
+                if retrieval_algorithm != "proffast-1.0":
+                    for c in [
+                        'ABP', 'LWN', 'RSN', 'TSC', 'DUR', 'MVD', 'PKA', 'PKL', 'PRA', 'PRL', 'P2A', 'P2L', 'P2R', 'P2K'
+                    ]:
+                        col = f"instrument_{c}"
+                        if col not in df.columns:
+                            raise Exception(f"Column {col} missing in DataFrame columns:")
+
+                # check whether retrieval diagnostics are there
+                for gas in ["CO2", "CH4", "H2O", "CO"]:
+                    for suffix in ["niter", "rms", "scl"]:
+                        col = f"{gas}_{suffix}"
+                        if col not in df.columns:
+                            raise Exception(f"Column {col} missing in DataFrame columns:")
