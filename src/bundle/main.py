@@ -39,17 +39,6 @@ def run(
             )
             print("Successfully fetched metadata from GitHub")
 
-    def get_matching_campaign_ids(utc: datetime.datetime, sensor_id: str, location_id: str) -> str:
-        matching_campaign_id: list[str] = []
-        for c in em27_metadata_interface.campaigns.root:
-            if (
-                (sensor_id in c.sensor_ids)
-                and (location_id in c.location_ids)
-                and (c.from_datetime <= utc <= c.to_datetime)
-            ):
-                matching_campaign_id.append(c.campaign_id)
-        return "+".join(matching_campaign_id)
-
     for i, bundle_target in enumerate(config.bundles):
         print(f"Processing bundle target #{i + 1}")
         print(f"Bundle target: {bundle_target.model_dump_json(indent=4)}")
@@ -144,15 +133,20 @@ def run(
 
                     # Attach a column "campaign_ids" to the data to make it
                     # easy to filter it by individual campaigns
+                    matching_campaign_ids: list[str] = ["" for _ in range(len(combined_df))]
+                    utcs = combined_df["utc"].to_list()
+                    location_ids = combined_df["location_id"].to_list()
+                    for c in em27_metadata_interface.campaigns.root:
+                        if sensor_id not in c.sensor_ids:
+                            continue
+                        for i in range(len(combined_df)):
+                            if (location_ids[i] in c.location_ids) and (
+                                c.from_datetime <= utcs[i] <= c.to_datetime
+                            ):
+                                matching_campaign_ids[i] += f"+{c.campaign_id}"
+                    matching_campaign_ids = [s.lstrip("+") for s in matching_campaign_ids]
                     combined_df = combined_df.with_columns(
-                        pl.struct("utc", "location_id")
-                        .map_elements(
-                            lambda s: get_matching_campaign_ids(
-                                s["utc"], sensor_id, s["location_id"]
-                            ),
-                            return_dtype=pl.Utf8,
-                        )
-                        .alias("campaign_ids")
+                        pl.Series("campaign_ids", matching_campaign_ids)
                     )
 
                     name = f"em27-retrieval-bundle-{sensor_id}-{retrieval_algorithm}-{atmospheric_profile_model}-{bundle_target.from_datetime.strftime('%Y%m%d')}-{bundle_target.to_datetime.strftime('%Y%m%d')}"
