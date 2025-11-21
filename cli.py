@@ -1,6 +1,11 @@
+import os
+
+os.environ["POLARS_ENGINE_AFFINITY"] = "streaming"
+if "POLARS_MAX_THREADS" not in os.environ:
+    os.environ["POLARS_MAX_THREADS"] = "1"
+
 import ftplib
 import io
-import os
 import sys
 import tqdm
 import click
