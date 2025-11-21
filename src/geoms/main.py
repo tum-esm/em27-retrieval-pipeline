@@ -9,6 +9,7 @@ from typing import Literal, Optional
 import datetime
 import os
 import re
+import em27_metadata
 import polars as pl
 import numpy as np
 import h5py  # pyright: ignore[reportMissingTypeStubs]
@@ -39,19 +40,35 @@ def generate_geoms_file(
     geoms_config: src.types.GEOMSConfig,
     from_datetime: datetime.datetime,
     to_datetime: datetime.datetime,
+    retrieval_algorithm: src.types.RetrievalAlgorithm,
+    atmospheric_profile_model: src.types.AtmosphericProfileModel,
 ) -> tuple[Optional[str], str]:
     """Generate a GEOMS file within a given results directory.
     
     Returns: filepath and status message."""
     
-    about = src.types.AboutRetrieval.model_validate(
-        tum_esm_utils.files.load_json_file(os.path.join(results_dir, "about.json")),
-        context={"ignore-path-existence": True},
-    )
-    sensor_id = about.session.ctx.sensor_id
-    location_id = about.session.ctx.location.location_id
-    serial_number = about.session.ctx.serial_number
-    from_dt, to_dt = about.session.ctx.from_datetime, about.session.ctx.to_datetime
+    about_json = tum_esm_utils.files.load_json_file(os.path.join(results_dir, "about.json"))
+    
+    sensor_id: Optional[str] = None
+    serial_number: Optional[int] = None
+    location: Optional[em27_metadata.types.LocationMetadata] = None
+    date: Optional[datetime.date] = None
+    
+    if "ctx" in about_json["session"]:
+        sensor_id = about_json["session"]["ctx"]["sensor_id"]
+        serial_number = int(about_json["session"]["ctx"]["serial_number"])
+        location = em27_metadata.types.LocationMetadata.model_validate(about_json["session"]["ctx"]["location"])
+        from_dt = datetime.datetime.fromisoformat(about_json["session"]["ctx"]["from_datetime"])
+        to_dt = datetime.datetime.fromisoformat( about_json["session"]["ctx"]["to_datetime"])
+    else:
+        sensor_id = about_json["session"]["sensor_id"]
+        serial_number = int(about_json["session"]["serial_number"])
+        location = em27_metadata.types.LocationMetadata.model_validate(about_json["session"]["location"])
+        date = datetime.date.fromisoformat(about_json["session"]["date"])
+        from_dt = datetime.datetime.combine(date, datetime.time(0, 0, 0), tzinfo=datetime.timezone.utc)
+        to_dt = datetime.datetime.combine(date, datetime.time(23, 59, 59), tzinfo=datetime.timezone.utc)
+    
+    assert sensor_id is not None, "Sensor ID could not be determined"
     assert from_dt.date() == to_dt.date(), "Something is wrong"
 
     # determine calibration factors
@@ -68,7 +85,7 @@ def generate_geoms_file(
         )
 
     # load dataframe
-    pl_df = load_comb_invparms_df(results_dir, sensor_id, geoms_config, about.session.retrieval_algorithm)
+    pl_df = load_comb_invparms_df(results_dir, sensor_id, geoms_config, retrieval_algorithm)
     if pl_df is None:
         return None, "No data found"
     pl_df = pl_df.filter(
@@ -85,7 +102,7 @@ def generate_geoms_file(
     data_from_dt: datetime.datetime = start_stop_times[0]
     data_to_dt: datetime.datetime = start_stop_times[1]
     
-    geoms_location = geoms_metadata.locations[location_id]
+    geoms_location = geoms_metadata.locations[location.location_id]
     data_source = f"{geoms_metadata.general.network}_{geoms_metadata.general.affiliation}{serial_number:03d}"
     filename = (
         f"groundbased_{data_source}_{geoms_location}_"
@@ -153,7 +170,7 @@ def generate_geoms_file(
         GEOMSAPI.write_column(hdf_file, df, species)
         GEOMSAPI.write_column_uncertainty(hdf_file, species, df_with_uncertainties[f"X{species}_uncertainty"].to_numpy(writable=True))
         GEOMSAPI.write_apriori(hdf_file, df, pt_df, vmr_df, species)
-        GEOMSAPI.write_apriori_source(hdf_file, df, species, about.session.atmospheric_profile_model)
+        GEOMSAPI.write_apriori_source(hdf_file, df, species, atmospheric_profile_model)
         GEOMSAPI.write_averaging_kernel(hdf_file, df, pt_df, interpolated_column_sensitivity, species)
 
     # air
@@ -178,7 +195,7 @@ def generate_geoms_file(
         "DATA_TEMPLATE":     geoms_metadata.data.template,
         "DATA_SOURCE":       data_source,
         "DATA_LOCATION":     geoms_location,
-        "DATA_PROCESSOR":    f"PROFFAST Version {about.session.retrieval_algorithm.split('-')[-1]}",
+        "DATA_PROCESSOR":    f"PROFFAST Version {retrieval_algorithm.split('-')[-1]}",
         
         # contact
         "PI_NAME":        geoms_metadata.principle_investigator.name,
@@ -202,10 +219,9 @@ def generate_geoms_file(
         hdf_file.attrs[key] = np.bytes_(value)
     hdf_file.attrs["DATA_VARIABLES"] = np.bytes_(";".join(variables))
     
-    loc = about.session.ctx.location
     hdf_file.attrs["DATA_DESCRIPTION"] = np.bytes_((
-        f"EM27/SUN (SN{serial_number:03d}) measurements from {loc.location_id} " +
-        f"({loc.details}, {loc.lat} N {loc.lon} E {loc.alt} m)"
+        f"EM27/SUN (SN{serial_number:03d}) measurements from {location.location_id} " +
+        f"({location.details}, {location.lat} N {location.lon} E {location.alt} m)"
     ).encode("ascii", errors="ignore").decode("ascii"))
     hdf_file.attrs["DATA_MODIFICATIONS"] = np.bytes_(
         "ILS parms applied: "
@@ -319,6 +335,8 @@ def run() -> None:
                         config.geoms,
                         config.geoms.from_datetime,
                         config.geoms.to_datetime,
+                        retrieval_algorithm,
+                        atmospheric_profile_model,
                     )
                     progress.write(
                         f"  {sensor_id}/{result}: {status_message}"
@@ -340,4 +358,6 @@ if __name__ == "__main__":
         geoms_config=geoms_config,
         from_datetime=datetime.datetime(2024, 10, 20, 0, 0, 0),
         to_datetime=datetime.datetime(2024, 10, 23, 23, 59, 59),
+        retrieval_algorithm="proffast-2.4",
+        atmospheric_profile_model="GGG2020",
     )
