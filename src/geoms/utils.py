@@ -153,19 +153,36 @@ def load_vmr_file(results_folder: str, date: datetime.date, sensor_id: str) -> p
     # Each VMR file (i.e. VMR_fast_out.dat) contains:
     # 0: "Index", 1: "Altitude", 2: "H2O", 3: "HDO", 4: "CO2", 5: "CH4",
     # 6: "N2O", 7: "CO", 8: "O2", 9: "HF"
-    names = ["Index", "Altitude", "H2O", "HDO", "CO2", "CH4", "N2O", "CO", "O2", "HF"]
-    return pd.read_csv(  # pyright: ignore[reportUnknownMemberType]
+
+    paths: list[str] = [
         os.path.join(
             results_folder,
             "raw_output_proffast",
             f"{sensor_id}{date.strftime('%y%m%d')}-VMR_fast_out.dat",
         ),
-        header=None,
-        skipinitialspace=True,
-        usecols=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
-        names=names,
-        sep=" ",
-        engine="python",
+        os.path.join(
+            results_folder,
+            "analysis",
+            "pT",
+            f"{sensor_id}{date.strftime('%y%m%d')}-VMR_fast_out.dat",
+        ),
+    ]
+
+    names = ["Index", "Altitude", "H2O", "HDO", "CO2", "CH4", "N2O", "CO", "O2", "HF"]
+    for path in paths:
+        if os.path.exists(path):
+            return pd.read_csv(  # pyright: ignore[reportUnknownMemberType]
+                path,
+                header=None,
+                skipinitialspace=True,
+                usecols=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+                names=names,
+                sep=" ",
+                engine="python",
+            )
+    raise FileNotFoundError(
+        f"VMR file for {sensor_id} on {date} not found in {results_folder}. "
+        + f"Looked for {[p.replace(results_folder, '') for p in paths]}"
     )
 
 
@@ -176,18 +193,33 @@ def load_pt_file(results_folder: str, date: datetime.date, sensor_id: str) -> pd
     # 0: "Index", 1: "Altitude", 2: "Temperature", 3: "Pressure",
     # 4: "DryAirColumn", 5: "H2O", 6: "HDO"
 
-    return pd.read_csv(  # pyright: ignore[reportUnknownMemberType]
+    paths: list[str] = [
         os.path.join(
             results_folder,
             "raw_output_proffast",
             f"{sensor_id}{date.strftime('%y%m%d')}-pT_fast_out.dat",
         ),
-        header=0,
-        skipinitialspace=True,
-        usecols=[0, 1, 2, 3, 4, 5, 6],
-        names=["Index", "Altitude", "Tem", "Pre", "DAC", "H2O", "HDO"],
-        sep=" ",
-        engine="python",
+        os.path.join(
+            results_folder,
+            "analysis",
+            "pT",
+            f"{sensor_id}{date.strftime('%y%m%d')}-pT_fast_out.dat",
+        ),
+    ]
+    for path in paths:
+        if os.path.exists(path):
+            return pd.read_csv(  # pyright: ignore[reportUnknownMemberType]
+                path,
+                header=0,
+                skipinitialspace=True,
+                usecols=[0, 1, 2, 3, 4, 5, 6],
+                names=["Index", "Altitude", "Tem", "Pre", "DAC", "H2O", "HDO"],
+                sep=" ",
+                engine="python",
+            )
+    raise FileNotFoundError(
+        f"pT file for {sensor_id} on {date} not found in {results_folder}. "
+        + f"Looked for {[p.replace(results_folder, '') for p in paths]}"
     )
 
 
@@ -212,7 +244,21 @@ def load_column_sensitivity_file(
     # Get path and name for the column sensitivity file of a certain day.
 
     colsens_filename = f"{sensor_id}{date.strftime('%y%m%d')}-colsens.dat"
-    path = os.path.join(results_folder, "raw_output_proffast", colsens_filename)
+
+    paths = [
+        os.path.join(results_folder, "raw_output_proffast", colsens_filename),
+        os.path.join(results_folder, colsens_filename),
+    ]
+    path: Optional[str] = None
+    for p in paths:
+        if os.path.exists(p):
+            path = p
+            break
+    if path is None:
+        raise FileNotFoundError(
+            f"Column sensitivity file for {sensor_id} on {date} not found in {results_folder}. "
+            + f"Looked for {[p.replace(results_folder, '') for p in paths]}"
+        )
 
     # Read pressure and sensitivities as function of the altitude and SZA.
 
