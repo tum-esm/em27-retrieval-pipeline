@@ -332,7 +332,6 @@ def load_results_directory(
             {"opus_filename": [], "retrieval_filename": []},
             schema={"opus_filename": pl.Utf8, "retrieval_filename": pl.Utf8},
         )
-        raise Exception(f"Could not find opus_file_stats.csv in {d}")
 
     # 7. PARSE SPECTRA FILENAMES
 
