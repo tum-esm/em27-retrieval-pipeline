@@ -122,6 +122,7 @@ def generate_geoms_file(
             return filepath, "File already exists"
         if geoms_config.conflict_mode == "error":
             raise FileExistsError(f"File already exists: {filepath}")
+        # else: replace
         os.remove(filepath)
     
     # apply calibration factors
@@ -134,6 +135,7 @@ def generate_geoms_file(
     )
 
     # load data inputs
+    pl_df = pl_df.sort("utc")
     pt_df = load_pt_file(results_dir, from_dt.date(), sensor_id)
     vmr_df = load_vmr_file(results_dir, from_dt.date(), sensor_id)
     ils_data = get_ils_form_preprocess_inp(results_dir, from_dt.date())
@@ -143,6 +145,10 @@ def generate_geoms_file(
     # open hdf file, the writing functions only work with pandas (not polars)
     hdf_file = h5py.File(tmp_filepath, "w")
     df = pl_df.to_pandas()
+    utctimes = df["utc"]
+    for t1, t2 in zip(utctimes[:-1], utctimes[1:]):
+        if t2 <= t1:
+            raise ValueError("Timestamps are not strictly increasing")
 
     # setup
     GEOMSAPI.write_source(hdf_file)
