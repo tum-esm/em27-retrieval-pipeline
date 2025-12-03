@@ -15,13 +15,15 @@ def test_ils_parameter_sync() -> None:
     for local_path in [
         "../../src/retrieval/utils/ils-parameters.csv",
         "../../src/retrieval/algorithms/proffast-2.2/main/prfpylot/ILSList.csv",
-        "../../src/retrieval/algorithms/proffast-2.2/main/prfpylot/ILSList.csv"
+        "../../src/retrieval/algorithms/proffast-2.3/main/prfpylot/ILSList.csv",
+        "../../src/retrieval/algorithms/proffast-2.4/main/prfpylot/ILSList.csv",
+        "../../src/retrieval/algorithms/proffast-2.4.1/main/prfpylot/ILSList.csv",
     ]:
         with open(tum_esm_utils.files.rel_to_abs_path(local_path)) as f:
             local_file_content = f.read().strip("\n\t ")
 
         local_ILS_lines = set(local_file_content.split("\n"))
         lines_missing_locally = remote_ILS_lines.difference(local_ILS_lines)
-        assert len(
-            lines_missing_locally
-        ) == 0, f"Missing lines in {local_path}: {lines_missing_locally}"
+        assert len(lines_missing_locally) == 0, (
+            f"Missing lines in {local_path}: {lines_missing_locally}"
+        )
