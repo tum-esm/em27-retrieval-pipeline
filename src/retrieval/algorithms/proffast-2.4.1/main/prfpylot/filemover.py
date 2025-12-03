@@ -81,7 +81,7 @@ class FileMover(Preparation):
         """Create the result directories and a backup if previous results exist.
 
         Within this folder the following subfolders are created:
-            - input_files, 
+            - input_files,
             - logfiles
             - raw_output_proffast
 
@@ -122,7 +122,7 @@ class FileMover(Preparation):
     def _create_result_subdirs(self):
         """Create the subfolders in the result folder.
 
-        The folders 'input_files', 'logfiles' and 'raw_output_proffast' 
+        The folders 'input_files', 'logfiles' and 'raw_output_proffast'
         are only created if not existent.
         """
         if not os.path.exists(self.input_files_folder):
@@ -163,9 +163,9 @@ class FileMover(Preparation):
             sfile = os.path.join(source_folder, file)
             target = os.path.join(self.raw_output_prf_folder, file)
 
-            if self.delete_abscosbin_files: 
+            if self.delete_abscosbin_files:
                 action = "moved"
-            else: 
+            else:
                 action = "copied"
 
             try:
@@ -317,7 +317,7 @@ class FileMover(Preparation):
         For this it the file handler is closed, the file is moved and the
         handler is re-opend.
         """
-        # First get the correct handler. For this 
+        # First get the correct handler. For this
         for handler in self.logger.handlers:
             if handler.get_name() == "PRFpylotFileHandler":
                 FHandler = handler
@@ -330,7 +330,7 @@ class FileMover(Preparation):
         FHandler.close()
         self.logger.removeHandler(FHandler)
         shutil.move(self.global_log, new_logfile)
-        
+
         FHandler = logging.FileHandler(new_logfile, mode="a")
         FHandler.addFilter(PylotOnly)
         FHandler.setLevel(logging_level)

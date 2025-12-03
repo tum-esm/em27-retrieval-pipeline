@@ -72,12 +72,12 @@ class Pylot(FileMover):
         cf_writer.write_nc()
 
         # additionally generate hdf output
-        # if self.geomsgen_inputfile is not None:
-        #     geoms_out_path = os.path.join(
-        #         self.result_folder, "output_hdf_geoms")
-        #     geoms_writer = GeomsGenWriter(
-        #         self.geomsgen_inputfile, geoms_out_path=geoms_out_path)
-        #     geoms_writer.generate_geoms_files()
+        if self.geomsgen_inputfile is not None:
+            geoms_out_path = os.path.join(
+                self.result_folder, "output_hdf_geoms")
+            geoms_writer = GeomsGenWriter(
+                self.geomsgen_inputfile, geoms_out_path=geoms_out_path)
+            geoms_writer.generate_geoms_files()
 
         self.logger.info(
             "The results of PROFFAST were written "
@@ -265,8 +265,8 @@ class Pylot(FileMover):
                     if input_file is None:
                         # only a subset of the input file is none.
                         continue
-                else:
-                    all_inputfiles.append(input_file)
+                    else:
+                        all_inputfiles.append(input_file)
         if len(p_data_warnings) != 0:
             warn_strg = (
                 "Due to missing auxiliary data the following spectra were "

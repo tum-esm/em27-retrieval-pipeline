@@ -120,13 +120,13 @@ class AuxiliaryHandler():
 
         file_list = self._get_file_list(self.dates)
         df = self.concat_files(file_list)
-        df = self._parse_datetime_col(df)
+        df = self.parse_datetime_col(df)
         df = df.sort_values(self.parsed_dtcol).drop_duplicates()
         df = df.reset_index(drop=True)
         return df
 
     def concat_files(self, file_list):
-        # read all files from list and concatenate them
+        """Read all files from list and concatenate them."""
         df = pd.DataFrame()
         for file in file_list:
             self.logger.debug(f"Read in file {file}")
@@ -148,7 +148,7 @@ class AuxiliaryHandler():
                     "No pressure file could be found "
                     f"at {date.strftime('%Y-%m-%d')}")
             tmp = self.concat_files(file_list)
-            tmp = self._parse_datetime_col(tmp, date)
+            tmp = self.parse_datetime_col(tmp, date)
             dataframes.append(tmp)
         df = pd.concat(dataframes)
         df = df.sort_values(self.parsed_dtcol).drop_duplicates()
@@ -252,7 +252,7 @@ class AuxiliaryHandler():
                 "No pressure file could be found.")
         return file_list
 
-    def _parse_datetime_col(self, df, date=None):
+    def parse_datetime_col(self, df, date=None):
         """Parse the dataframe for a suitable datetime.
 
         Add the column 'parsed_datecol' to the dataframe
@@ -463,6 +463,7 @@ class CoordHandler(AuxiliaryHandler):
                 self.cols_to_use.append(dataframe_key)
 
     def prepare_coord_df(self):
+        """Create dataframe and optinoally add static column."""
         df = self.create_df()
         for coord_type in ["latitude", "longitude", "altitude"]:
             if self.dataframe_parameters.get(coord_type+"_key") is None:
@@ -501,6 +502,16 @@ class CoordHandler(AuxiliaryHandler):
         return coords
 
     def interpolate_coords(self, utc_time):
+        """Interpolate coords at a given time.
+
+        Parameters:
+            utc_time: Timestamp
+
+        Returns:
+            coords (list):
+                Containing interpolated latitude, longitude and altitude.
+                None, if one of the interpolatetd coordinates is None.
+        """
         coords = []
         for coord_name in ["latitude", "longitude", "altitude"]:
             data_key = self.dataframe_parameters[coord_name+"_key"]

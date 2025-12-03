@@ -1,0 +1,8 @@
+source: Ground-based solar FTIR observation
+comment:
+  Raw data recorded with Bruker EM27/SUN; Retrival with PROFFAST
+history: 
+  netCDF generated with PROFFASTpylot
+references:
+  'Feld et al., (2024). PROFFASTpylot: Running PROFFAST with Python. Journal of Open Source Software, 9(96), 6481, https://doi.org/10.21105/joss.06481'
+Conventions: CF-1.8

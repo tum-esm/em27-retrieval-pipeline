@@ -7,6 +7,7 @@ prf
 data/
 *.yml
 !em27.yml
+!nc_cf*.yml
 *.egg-info/
 build/
 example/*
