@@ -38,16 +38,16 @@ jobs:
             src/retrieval/algorithms/proffast-2.4/main/prf
           key: v1.0.0-ci-cache
 
-      # Run quick tests for all python versions except 3.10
+      # Run quick tests for all python versions except 3.11
       - name: Run quick tests
-        if: ${{ matrix.python_version != '3.10' }}
+        if: ${{ matrix.python_version != '3.11' }}
         env:
           GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: pytest -m "quick" --cov=src tests/
 
-      # Run all tests for python 3.10
+      # Run all tests for python 3.11
       - name: Run quick and ci tests
-        if: ${{ matrix.python_version == '3.10' }}
+        if: ${{ matrix.python_version == '3.11' }}
         env:
           GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: pytest -m "quick or ci" --capture=no --cov=src tests/
