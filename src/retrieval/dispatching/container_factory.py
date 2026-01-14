@@ -225,9 +225,9 @@ class ContainerFactory:
                 os.remove(f)
 
             # remove other unused files
-            os.system("rm " + os.path.join(ROOT_DIR, "prf", "*.py"))
-            os.system("rm " + os.path.join(ROOT_DIR, "prf", "invers10*"))
-            os.system("rm " + os.path.join(ROOT_DIR, "prf", "pcxs10*"))
+            os.system("rm " + os.path.join(ROOT_DIR, "prf", "*.py"))  # pyright: ignore[reportDeprecated]
+            os.system("rm " + os.path.join(ROOT_DIR, "prf", "invers10*"))  # pyright: ignore[reportDeprecated]
+            os.system("rm " + os.path.join(ROOT_DIR, "prf", "pcxs10*"))  # pyright: ignore[reportDeprecated]
 
         _print("Compiling")
         tum_esm_utils.shell.run_shell_command(

@@ -16,7 +16,7 @@ def _rmdir(path: str) -> None:
 @pytest.mark.order(1)
 @pytest.mark.quick
 def test_with_mypy() -> None:
-    os.system(f"cd {PROJECT_DIR} && rm -f .mypy_cache/3.*/cli.*")
+    os.system(f"cd {PROJECT_DIR} && rm -f .mypy_cache/3.*/cli.*")  # pyright: ignore[reportDeprecated]
     _rmdir(".mypy_cache/3.11/src")
     _rmdir(".mypy_cache/3.11/tests")
 
@@ -27,10 +27,10 @@ def test_with_mypy() -> None:
         "mypy src/retrieval/algorithms/proffast-1.0/main/prfpylot/main.py",
         "mypy src/scripts",
     ]:
-        assert os.system(f"cd {PROJECT_DIR} && {sys.executable} -m {call}") == 0
+        assert os.system(f"cd {PROJECT_DIR} && {sys.executable} -m {call}") == 0  # pyright: ignore[reportDeprecated]
 
 
 @pytest.mark.order(1)
 @pytest.mark.quick
 def test_with_pyright() -> None:
-    assert os.system(f"cd {PROJECT_DIR} && {sys.executable} -m pyright") == 0
+    assert os.system(f"cd {PROJECT_DIR} && {sys.executable} -m pyright") == 0  # pyright: ignore[reportDeprecated]

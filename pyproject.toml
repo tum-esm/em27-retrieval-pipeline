@@ -145,5 +145,6 @@ exclude = [
     "src/retrieval/algorithms/proffast-2.4.1/main/prfpylot",
     "dev",
     "docs",
+    "build",
 ]
 strict = ["src", "tests", "run.py", "cli.py"]
