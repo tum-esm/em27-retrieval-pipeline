@@ -64,7 +64,19 @@ The EM27/SUN [@Gisi2011;@Hase2016] is an FTIR spectrometer used to perform solar
 
 \vspace{-2mm}
 
-The Munich Urban Carbon Column network (MUCCnet) consists of 5 EM27/SUN spectrometers deployed in and around Munich, Germany [@Heinle2018;@Dietrich2021;@Aigner2023]. Due to its autonomous operation since 2019, our research group generates a significant amount of EM27/SUN data (see \autoref{table:coverage}). Processing this data in an automated and scalable way required us to extend the functionality of the PROFFASTpylot. Under the hood, we use the PROFFASTpylot to ensure consistency with the COCCON community. The EM27 Retrieval Pipeline is complementary to the PROFFASTpylot, but the more EM27/SUN measurement data one has to retrieve, the more benefits come from this higher degree of automation. While not implementing 100% of the flexibility the PROFFASTpylot provides, this pipeline is flexible enough to be used by any EM27/SUN setup, adhering to the COCCON standards.
+The Munich Urban Carbon Column network (MUCCnet) consists of 5 EM27/SUN spectrometers deployed in and around Munich, Germany [@Heinle2018;@Dietrich2021;@Aigner2023]. Due to its autonomous operation since 2019, our research group generates a significant amount of EM27/SUN data. Processing this data in an automated and scalable way required us to extend the functionality of the PROFFASTpylot. Under the hood, we use the PROFFASTpylot to ensure consistency with the COCCON community. The EM27 Retrieval Pipeline is complementary to the PROFFASTpylot, but the more EM27/SUN measurement data one has to retrieve, the more benefits come from this higher degree of automation. While not implementing 100% of the flexibility the PROFFASTpylot provides, this pipeline is flexible enough to be used by any EM27/SUN setup, adhering to the COCCON standards.
+
+# Statement of Need
+
+Human-induced climate change is one of the most pressing issues of our time, as it puts the stability of our Earth system at risk. Our civilization is built on that stability. Anthropogenic GHG emissions, as well as natural sources and sinks of GHGs, have to be quantified to create targeted reduction policies, measure policy effectiveness, and identify new emission sources [@Calvin2023].
+
+The EM27/SUN is widely used to achieve these GHG flux estimations [@Hase2015;@Klappenbach2015;@Chen2016;@Butz2017;@Vogel2019;@Luther2019;@Dietrich2021;@Jones2021;@Luther2022;@Tu2022;@Forstmaier2023;@Doc2025journal;@Stauber2025]. Unlike the HR125 used by TCCON [@tccon], the EM27/SUN can be transported and deployed at different and remote locations without much effort. Since 2016, the instruments of our permanent urban sensor network MUCCnet have been deployed at 3 locations in San Francisco [@Klappenbach2021], 4 in Hamburg [@Forstmaier2023], 4 in Vienna [@Luther2023], 12 in Poland [@Luther2019;@Luther2022], and 11 locations in Munich [@Chen2018;@Dietrich2021].
+
+\autoref{fig:data} shows the XCO2 timeseries of the MUCCnet instruments since September 2019. Running the retrievals for various instrument deployments and keeping track of all deployments over time requires an organizational system that this pipeline provides. To enable a large number of long-term observations with EM27/SUN spectrometers, such as the upcoming sensor networks of COCCON-Spain [@cocconspain] and GEMINI-UK [@geminiuk], an improvement in automation is crucial. The EM27 Retrieval Pipeline addresses this.
+
+![XCO2 of the MUCCnet instruments from 2019-09 to 2025-07\label{fig:data}](bundle-v3.1_20190901_20251101-joss-1m.png){width="100%"}
+
+# Software Design
 
 We made the following architectural decisions to achieve this higher degree of automation and ease of use:
 
@@ -82,17 +94,7 @@ Furthermore, the pipeline adds features required to produce long-term EM27/SUN d
 
 \autoref{fig:architecture} shows the current building blocks of the EM27 Retrieval Pipeline. For the full feature set of the pipeline, please refer to its GitHub repository at [github.com/tum-esm/em27-retrieval-pipeline](https://github.com/tum-esm/em27-retrieval-pipeline) and documentation. For example, starting with version 1.8, the pipeline extracts important parameters from the given OPUS files using the OPUS-file reader of the `tum-esm-utils` library [@tumesmutils].
 
-# Statement of Need
-
-Human-induced climate change is one of the most pressing issues of our time, as it puts the stability of our Earth system at risk. Our civilization is built on that stability. Anthropogenic GHG emissions, as well as natural sources and sinks of GHGs, have to be quantified to create targeted reduction policies, measure policy effectiveness, and identify new emission sources [@Calvin2023].
-
-The EM27/SUN is widely used to achieve these GHG flux estimations [@Hase2015;@Klappenbach2015;@Chen2016;@Butz2017;@Vogel2019;@Luther2019;@Dietrich2021;@Jones2021;@Luther2022;@Tu2022;@Forstmaier2023;@Doc2025journal;@Stauber2025]. Unlike the HR125 used by TCCON [@tccon], the EM27/SUN can be transported and deployed at different and remote locations without much effort. Since 2016, the instruments of our permanent urban sensor network MUCCnet have been deployed at 3 locations in San Francisco [@Klappenbach2021], 4 in Hamburg [@Forstmaier2023], 4 in Vienna [@Luther2023], 12 in Poland [@Luther2019;@Luther2022], and 11 locations in Munich [@Chen2018;@Dietrich2021].
-
-\autoref{fig:data} shows the XCO2 timeseries of the MUCCnet instruments since September 2019. Running the retrievals for various instrument deployments and keeping track of all deployments over time requires an organizational system that this pipeline provides. To enable a large number of long-term observations with EM27/SUN spectrometers, such as the upcoming sensor networks of COCCON-Spain [@cocconspain] and GEMINI-UK [@geminiuk], an improvement in automation is crucial. The EM27 Retrieval Pipeline addresses this.
-
-![XCO2 of the MUCCnet instruments from 2019-09 to 2025-07\label{fig:data}](bundle-v3.1_20190901_20251101-joss-1m.png){width="100%"}
-
-# Research Enabled by the EM27 Retrieval Pipeline
+# Research Impact Statement
 
 The pipeline was first established in 2021 [@Rimann2022] and has been used for our entire EM27/SUN dataset since 2022 [@Luther2023;@Klappenbach2024;@Chen2024;@Tang2024;@Loew2025;@Stauber2025;@Chen2025ICUC]. Multiple journal publications using MUCCnet for inverse modeling are currently in preparation. The data generated by MUCCnet and the EM27 Retrieval Pipeline has been published to the ICOS Carbon Portal [@Makowski2023CarbonPortal;@Makowski2024CarbonPortal] and the EVDC Portal [@Loew2025EVDC;@Chen2025EVDCOCOPF10;@Chen2025EVDCOCOPF22] and is a cruicial data input for the GHG modeling approaches developed with the grants listed below.
 
