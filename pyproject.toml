@@ -3,7 +3,7 @@ name = "em27-retrieval-pipeline"
 version = "1.9.1"
 description = "automated EM27/SUN data processing"
 authors = [
-    { name = "Moritz Makowski", email = "moritz.makowski@tum.de" },
+    { name = "Moritz Oliveira Makowski", email = "moritz.makowski@tum.de" },
     { name = "Marlon Müller" },
     { name = "Andreas Luther" },
     { name = "Vyas Giridhard" },

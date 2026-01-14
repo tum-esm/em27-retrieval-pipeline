@@ -18,7 +18,7 @@ tags:
   - GFIT
   - Python
 authors:
-  - name: Moritz Makowski
+  - name: Moritz Oliveira Makowski
     orcid: 0000-0002-2948-2993
     corresponding: true
     affiliation: 1
