@@ -31,5 +31,8 @@
     "preview": "astro preview",
     "astro": "astro"
   },
-  "type": "module"
+  "type": "module",
+  "devDependencies": {
+    "node-gyp": "^12.1.0"
+  }
 }
