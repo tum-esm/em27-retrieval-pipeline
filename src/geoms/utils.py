@@ -112,6 +112,8 @@ def load_comb_invparms_df(
     return df
 
 
+# https://github.com/coccon/proffastpylot/blob/2.4.1-2/prfpylot/output/hdf_geoms_writer.py#L1563
+# identical to PROFFASTpylot 2.4.1-2
 def get_ils_form_preprocess_inp(
     results_folder: str, date: datetime.date
 ) -> tuple[float, float, float, float]:
@@ -132,7 +134,7 @@ def get_ils_form_preprocess_inp(
     # and read the following two lines (counter j)
     i = 0
     j = 0
-    ils: Any = []
+    ils: list[Any] = []
     for line in lines:
         if line.startswith("$"):
             i += 1
@@ -143,10 +145,13 @@ def get_ils_form_preprocess_inp(
             tmp_ils = np.array(line.split(" ")).astype(float)
             ils.extend(tmp_ils)
             j += 1
+
     assert len(ils) == 4
     return (float(ils[0]), float(ils[1]), float(ils[2]), float(ils[3]))
 
 
+# https://github.com/coccon/proffastpylot/blob/2.4.1-2/prfpylot/output/hdf_geoms_writer.py#L377
+# identical to PROFFASTpylot 2.4.1-2
 def load_vmr_file(results_folder: str, date: datetime.date, sensor_id: str) -> pd.DataFrame:
     # The content of the output VMR file is read separately for each
     # measurement day.
@@ -186,6 +191,8 @@ def load_vmr_file(results_folder: str, date: datetime.date, sensor_id: str) -> p
     )
 
 
+# https://github.com/coccon/proffastpylot/blob/2.4.1-2/prfpylot/output/hdf_geoms_writer.py#L404
+# identical to PROFFASTpylot 2.4.1-2
 def load_pt_file(results_folder: str, date: datetime.date, sensor_id: str) -> pd.DataFrame:
     # The content of the pT output file is read separately for
     # each measurement day.
@@ -223,6 +230,8 @@ def load_pt_file(results_folder: str, date: datetime.date, sensor_id: str) -> pd
     )
 
 
+# https://github.com/coccon/proffastpylot/blob/2.4.1-2/prfpylot/output/hdf_geoms_writer.py#L443
+# identical to PROFFASTpylot 2.4.1-2
 def load_column_sensitivity_file(
     results_folder: str, date: datetime.date, sensor_id: str
 ) -> tuple[np.ndarray[Any, Any], np.ndarray[Any, Any], np.ndarray[Any, Any], np.ndarray[Any, Any]]:
@@ -300,18 +309,15 @@ def load_column_sensitivity_file(
     return sza, alt, pre, sen
 
 
+# https://github.com/coccon/proffastpylot/blob/2.4.1-2/prfpylot/output/hdf_geoms_writer.py#L509
+# identical to PROFFASTpylot 2.4.1-2
 def load_interpolated_column_sensitivity_file(
     results_folder: str,
     date: datetime.date,
     sensor_id: str,
     szas: np.ndarray[Any, Any],
 ) -> list[list[list[float]]]:
-    sza, alt, pre, sen = load_column_sensitivity_file(results_folder, date, sensor_id)
-
-    if (sza is None) or (alt is None) or (pre is None) or (sen is None):  # pyright: ignore[reportUnnecessaryComparison]
-        raise FileNotFoundError(
-            f"Column sensitivity file for {sensor_id} on {date} not found in {results_folder}"
-        )
+    sza, alt, pre, sen = load_column_sensitivity_file(results_folder, date, sensor_id)  # pyright: ignore[reportUnusedVariable]
 
     gas_sens: list[list[list[float]]] = []
 
@@ -363,9 +369,12 @@ def load_interpolated_column_sensitivity_file(
                         # gas extrapolation
                         gas_int = m_rad * SZA_app_rad + b_gas
                         gas_sens[k][i].append(gas_int)
+
     return gas_sens
 
 
+# https://github.com/coccon/proffastpylot/blob/2.4.1-2/prfpylot/output/hdf_geoms_writer.py#L581
+# equivalent to PROFFASTpylot 2.4.1-2
 def calculate_column_uncertainty(df: pl.DataFrame) -> pl.DataFrame:
     window_size = 11
     side_window_size = window_size // 2
