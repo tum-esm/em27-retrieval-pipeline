@@ -218,6 +218,11 @@ def generate_geoms_file(
         "DS_ADDRESS":     geoms_metadata.data_submitter.address
     }
     
+    # Darko asked to put "2.4.1" whenever we export 2.4 GEOMS files, because the PROFFASTpylot 2.4.0 had
+    # a bug where the AVK were not copied correctly. The data is otherwise identical.
+    if metadata["DATA_PROCESSOR"] == "PROFFAST Version 2.4":
+        metadata["DATA_PROCESSOR"] = "PROFFAST Version 2.4.1"
+    
     # write metadata
     
     variables: list[str] = hdf_file.keys() # pyright: ignore[reportAssignmentType]
