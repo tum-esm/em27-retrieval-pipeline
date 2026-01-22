@@ -261,16 +261,23 @@ def generate_geoms_file(
 # fmt: on
 
 
-def run() -> None:
-    print("Loading configuration")
-    config = src.types.Config.load()
+def run(
+    config: Optional[src.types.Config] = None,
+    geoms_metadata: Optional[src.types.GEOMSMetadata] = None,
+    calibration_factors: Optional[src.types.CalibrationFactorsList] = None,
+) -> None:
+    if config is None:
+        print("Loading configuration")
+        config = src.types.Config.load()
     assert config.geoms is not None, "no geoms config found"
 
-    print("Loading calibration factors")
-    calibration_factors = src.types.CalibrationFactorsList.load()
+    if geoms_metadata is None:
+        print("Loading geoms metadata")
+        geoms_metadata = src.types.GEOMSMetadata.load()
 
-    print("Loading geoms metadata")
-    geoms_metadata = src.types.GEOMSMetadata.load()
+    if calibration_factors is None:
+        print("Loading calibration factors")
+        calibration_factors = src.types.CalibrationFactorsList.load()
 
     for retrieval_algorithm in config.geoms.retrieval_algorithms:
         for atmospheric_profile_model in config.geoms.atmospheric_profile_models:
