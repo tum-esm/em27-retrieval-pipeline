@@ -517,6 +517,7 @@ class GEOMSAPI:
         else:
             raise ValueError("Invalid variable_name")
 
+        column_uncertainty[np.isnan(column_uncertainty)] = -900000.0  # default fill value
         column_uncertainty[column_uncertainty <= 0] = -900000.0  # default fill value
         nonzero_values = column_uncertainty[column_uncertainty > 0]
         minval = 0
