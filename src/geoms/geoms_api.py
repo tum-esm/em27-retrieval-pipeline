@@ -117,6 +117,8 @@ class GEOMSAPI:
             else:
                 dataset.attrs[key] = np.bytes_(value)
 
+    # https://github.com/coccon/proffastpylot/blob/2.4.1-2/prfpylot/output/hdf_geoms_writer.py#L705
+    # identical to PROFFASTpylot 2.4.1-2
     @staticmethod
     def write_source(hdf5_file: h5py.File) -> None:
         """Source information"""
@@ -132,6 +134,8 @@ class GEOMSAPI:
         )
         GEOMSAPI._write_to_hdf5_file(hdf5_file, variable_name, data, metadata)
 
+    # https://github.com/coccon/proffastpylot/blob/2.4.1-2/prfpylot/output/hdf_geoms_writer.py#L730
+    # identical to PROFFASTpylot 2.4.1-2
     @staticmethod
     def write_datetime(hdf5_file: h5py.File, df: pd.DataFrame) -> None:
         """Datetime information"""
@@ -156,6 +160,8 @@ class GEOMSAPI:
         )
         GEOMSAPI._write_to_hdf5_file(hdf5_file, variable_name, data, metadata)
 
+    # https://github.com/coccon/proffastpylot/blob/2.4.1-2/prfpylot/output/hdf_geoms_writer.py#L767
+    # identical to PROFFASTpylot 2.4.1-2
     @staticmethod
     def write_altitude(hdf5_file: h5py.File, df: pd.DataFrame, pt_df: pd.DataFrame) -> None:
         """Altitude information used in the a-priori profile matrix"""
@@ -181,6 +187,8 @@ class GEOMSAPI:
         )
         GEOMSAPI._write_to_hdf5_file(hdf5_file, variable_name, data, metadata)
 
+    # https://github.com/coccon/proffastpylot/blob/2.4.1-2/prfpylot/output/hdf_geoms_writer.py#L802
+    # identical to PROFFASTpylot 2.4.1-2
     @staticmethod
     def write_solar_angle_zenith(hdf5_file: h5py.File, df: pd.DataFrame) -> None:
         """Solar zenith angle"""
@@ -201,6 +209,8 @@ class GEOMSAPI:
         )
         GEOMSAPI._write_to_hdf5_file(hdf5_file, variable_name, data, metadata)
 
+    # https://github.com/coccon/proffastpylot/blob/2.4.1-2/prfpylot/output/hdf_geoms_writer.py#L832
+    # identical to PROFFASTpylot 2.4.1-2
     @staticmethod
     def write_solar_angle_azimuth(hdf5_file: h5py.File, df: pd.DataFrame) -> None:
         """Solar azimuth angle"""
@@ -225,6 +235,8 @@ class GEOMSAPI:
         )
         GEOMSAPI._write_to_hdf5_file(hdf5_file, variable_name, data, metadata)
 
+    # https://github.com/coccon/proffastpylot/blob/2.4.1-2/prfpylot/output/hdf_geoms_writer.py#L871
+    # identical to PROFFASTpylot 2.4.1-2
     @staticmethod
     def write_instrument_latitude(hdf5_file: h5py.File, df: pd.DataFrame) -> None:
         """Instrument latitude"""
@@ -244,6 +256,8 @@ class GEOMSAPI:
         )
         GEOMSAPI._write_to_hdf5_file(hdf5_file, variable_name, data, metadata)
 
+    # https://github.com/coccon/proffastpylot/blob/2.4.1-2/prfpylot/output/hdf_geoms_writer.py#L900
+    # identical to PROFFASTpylot 2.4.1-2
     @staticmethod
     def write_instrument_longitude(hdf5_file: h5py.File, df: pd.DataFrame) -> None:
         """Instrument longitude"""
@@ -264,6 +278,8 @@ class GEOMSAPI:
         )
         GEOMSAPI._write_to_hdf5_file(hdf5_file, variable_name, data, metadata)
 
+    # https://github.com/coccon/proffastpylot/blob/2.4.1-2/prfpylot/output/hdf_geoms_writer.py#L929
+    # identical to PROFFASTpylot 2.4.1-2
     @staticmethod
     def write_instrument_altitude(hdf5_file: h5py.File, df: pd.DataFrame) -> None:
         """Instrument altitude"""
@@ -284,6 +300,8 @@ class GEOMSAPI:
         )
         GEOMSAPI._write_to_hdf5_file(hdf5_file, variable_name, data, metadata)
 
+    # https://github.com/coccon/proffastpylot/blob/2.4.1-2/prfpylot/output/hdf_geoms_writer.py#L958
+    # identical to PROFFASTpylot 2.4.1-2
     @staticmethod
     def write_surface_pressure(hdf5_file: h5py.File, df: pd.DataFrame) -> None:
         """Surface pressure"""
@@ -304,6 +322,8 @@ class GEOMSAPI:
         )
         GEOMSAPI._write_to_hdf5_file(hdf5_file, variable_name, data, metadata)
 
+    # https://github.com/coccon/proffastpylot/blob/2.4.1-2/prfpylot/output/hdf_geoms_writer.py#L987
+    # identical to PROFFASTpylot 2.4.1-2
     @staticmethod
     def write_surface_pressure_source(
         hdf5_file: h5py.File, geoms_metadata: src.types.GEOMSMetadata, df: pd.DataFrame
@@ -323,6 +343,8 @@ class GEOMSAPI:
         )
         GEOMSAPI._write_to_hdf5_file(hdf5_file, variable_name, data, metadata)
 
+    # https://github.com/coccon/proffastpylot/blob/2.4.1-2/prfpylot/output/hdf_geoms_writer.py#L1011
+    # identical to PROFFASTpylot 2.4.1-2
     @staticmethod
     def write_pressure(hdf5_file: h5py.File, df: pd.DataFrame, pt_df: pd.DataFrame) -> None:
         """Effective air pressure at each altitude"""
@@ -347,6 +369,8 @@ class GEOMSAPI:
         )
         GEOMSAPI._write_to_hdf5_file(hdf5_file, variable_name, data, metadata)
 
+    # https://github.com/coccon/proffastpylot/blob/2.4.1-2/prfpylot/output/hdf_geoms_writer.py#L1046
+    # identical to PROFFASTpylot 2.4.1-2
     @staticmethod
     def write_pressure_source(hdf5_file: h5py.File, df: pd.DataFrame) -> None:
         """Source of the effective air pressure"""
@@ -366,6 +390,8 @@ class GEOMSAPI:
         )
         GEOMSAPI._write_to_hdf5_file(hdf5_file, variable_name, data, metadata)
 
+    # https://github.com/coccon/proffastpylot/blob/2.4.1-2/prfpylot/output/hdf_geoms_writer.py#L1071
+    # identical to PROFFASTpylot 2.4.1-2
     @staticmethod
     def write_temperature(hdf5_file: h5py.File, df: pd.DataFrame, pt_df: pd.DataFrame) -> None:
         """Effective air temperature"""
@@ -390,6 +416,8 @@ class GEOMSAPI:
         )
         GEOMSAPI._write_to_hdf5_file(hdf5_file, variable_name, data, metadata)
 
+    # https://github.com/coccon/proffastpylot/blob/2.4.1-2/prfpylot/output/hdf_geoms_writer.py#L1106
+    # identical to PROFFASTpylot 2.4.1-2
     @staticmethod
     def write_temperature_source(hdf5_file: h5py.File, df: pd.DataFrame) -> None:
         """Source of the effective air temperature"""
@@ -408,6 +436,8 @@ class GEOMSAPI:
         )
         GEOMSAPI._write_to_hdf5_file(hdf5_file, variable_name, data, metadata)
 
+    # https://github.com/coccon/proffastpylot/blob/2.4.1-2/prfpylot/output/hdf_geoms_writer.py#L1131
+    # identical to PROFFASTpylot 2.4.1-2
     @staticmethod
     def write_column(
         hdf5_file: h5py.File,
@@ -462,6 +492,8 @@ class GEOMSAPI:
         )
         GEOMSAPI._write_to_hdf5_file(hdf5_file, variable_name, data, metadata)
 
+    # https://github.com/coccon/proffastpylot/blob/2.4.1-2/prfpylot/output/hdf_geoms_writer.py#L1183
+    # identical to PROFFASTpylot 2.4.1-2
     @staticmethod
     def write_column_uncertainty(
         hdf5_file: h5py.File,
@@ -506,6 +538,8 @@ class GEOMSAPI:
         )
         GEOMSAPI._write_to_hdf5_file(hdf5_file, variable_name, column_uncertainty, metadata)
 
+    # https://github.com/coccon/proffastpylot/blob/2.4.1-2/prfpylot/output/hdf_geoms_writer.py#L1247
+    # identical to PROFFASTpylot 2.4.1-2
     @staticmethod
     def write_apriori(
         hdf5_file: h5py.File,
@@ -561,6 +595,8 @@ class GEOMSAPI:
         )
         GEOMSAPI._write_to_hdf5_file(hdf5_file, variable_name, data, metadata)
 
+    # https://github.com/coccon/proffastpylot/blob/2.4.1-2/prfpylot/output/hdf_geoms_writer.py#L1309
+    # identical to PROFFASTpylot 2.4.1-2
     @staticmethod
     def write_apriori_source(
         hdf5_file: h5py.File,
@@ -587,6 +623,8 @@ class GEOMSAPI:
         )
         GEOMSAPI._write_to_hdf5_file(hdf5_file, variable_name, data, metadata)
 
+    # https://github.com/coccon/proffastpylot/blob/2.4.1-2/prfpylot/output/hdf_geoms_writer.py#L1347
+    # identical to PROFFASTpylot 2.4.1-2
     @staticmethod
     def write_averaging_kernel(
         hdf5_file: h5py.File,
@@ -600,6 +638,7 @@ class GEOMSAPI:
         variable_name = GEOMSColumnNames.GAS_AVK(species)
         data = np.zeros(df["JulianDate"].shape + pt_df["Altitude"].shape)
 
+        # 0: H2O, 1: HDO, 2: CO2, 3: CO2_STR, 4: CH4, 5: CH4_S5P, 6: N2O, 7: CO, 8: O2, 9: HF
         if species == "H2O":
             for i in range(df["JulianDate"].shape[0]):
                 for j in range(pt_df["Altitude"].shape[0]):
@@ -636,6 +675,8 @@ class GEOMSAPI:
         )
         GEOMSAPI._write_to_hdf5_file(hdf5_file, variable_name, data, metadata)
 
+    # https://github.com/coccon/proffastpylot/blob/2.4.1-2/prfpylot/output/hdf_geoms_writer.py#L1401
+    # identical to PROFFASTpylot 2.4.1-2
     @staticmethod
     def write_air_partial(hdf5_file: h5py.File, df: pd.DataFrame, pt_df: pd.DataFrame) -> None:
         """Partial pressure of dry air"""
@@ -705,6 +746,8 @@ class GEOMSAPI:
         )
         GEOMSAPI._write_to_hdf5_file(hdf5_file, variable_name, data, metadata)
 
+    # https://github.com/coccon/proffastpylot/blob/2.4.1-2/prfpylot/output/hdf_geoms_writer.py#L1487
+    # identical to PROFFASTpylot 2.4.1-2
     @staticmethod
     def write_air_density(hdf5_file: h5py.File, df: pd.DataFrame, pt_df: pd.DataFrame) -> None:
         """Dry air number density profile"""
@@ -741,6 +784,8 @@ class GEOMSAPI:
         )
         GEOMSAPI._write_to_hdf5_file(hdf5_file, variable_name, data, metadata)
 
+    # https://github.com/coccon/proffastpylot/blob/2.4.1-2/prfpylot/output/hdf_geoms_writer.py#L1537
+    # identical to PROFFASTpylot 2.4.1-2
     @staticmethod
     def write_air_density_source(hdf5_file: h5py.File, df: pd.DataFrame) -> None:
         """Source of the dry air number density profile"""
