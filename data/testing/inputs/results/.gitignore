@@ -1,4 +1,5 @@
 *.BIN
+*.h5
 !*.csv
 !*.dat
 !*.spc

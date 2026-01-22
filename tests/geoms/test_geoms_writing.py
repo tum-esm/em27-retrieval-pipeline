@@ -8,7 +8,7 @@ from ..fixtures import download_sample_data  # pyright: ignore[reportUnusedImpor
 PROJECT_DIR = tum_esm_utils.files.rel_to_abs_path("../..")
 INPUT_DATA_DIR = os.path.join(PROJECT_DIR, "data", "testing", "inputs")
 METADATA_DIR = os.path.join(INPUT_DATA_DIR, "metadata")
-BUNDLE_OUTPUT_DIR = os.path.join(PROJECT_DIR, "data", "testing", "bundle", "outputs")
+RESULTS_DIR = os.path.join(INPUT_DATA_DIR, "results")
 
 CONFIG = {
     "version": "1.9",
@@ -28,7 +28,7 @@ CONFIG = {
             },
             "atmospheric_profiles": os.path.join(INPUT_DATA_DIR, "data", "atmospheric-profiles"),
             "interferograms": os.path.join(INPUT_DATA_DIR, "data", "interferograms"),
-            "results": os.path.join(INPUT_DATA_DIR, "results"),
+            "results": RESULTS_DIR,
         },
     },
     "profiles": None,
@@ -91,15 +91,8 @@ GEOMS_METADATA = {
         "address": "P.O. Box 3640;D-76021 Karlsruhe;GERMANY",
     },
     "locations": {
-        "TUM_I": "MUNICH.TUM",
-        "FEL": "MUNICH.FELDKIRCHEN",
-        "GRAE": "MUNICH.GRAEFELFING",
-        "OBE": "MUNICH.OBERSCHLEISSHEIM",
-        "TAU": "MUNICH.TAUFKIRCHEN",
-        "DLR": "MUNICH.DLR",
-        "DLR_2": "MUNICH.DLR",
-        "DLR_3": "MUNICH.DLR",
         "SOD": "SODANKYLA",
+        "ZEN": "VIENNA.ZENTRALFRIEDHOF",
     },
 }
 
@@ -107,16 +100,31 @@ GEOMS_METADATA = {
 @pytest.mark.order(3)
 @pytest.mark.quick
 def test_geoms_export(download_sample_data: None) -> None:
-    # Remove all files in the output
-    for f in tum_esm_utils.files.list_directory(
-        BUNDLE_OUTPUT_DIR, include_directories=False, ignore=[".gitkeep"]
-    ):
-        os.remove(os.path.join(BUNDLE_OUTPUT_DIR, f))
-
     config = src.types.Config.model_validate(CONFIG)
     assert config.geoms is not None
 
     geoms_metadata = src.types.GEOMSMetadata.model_validate(GEOMS_METADATA)
+
+    for retrieval_algorithm in config.geoms.retrieval_algorithms:
+        for atmospheric_profile_model in config.geoms.atmospheric_profile_models:
+            for sensor_id in config.geoms.sensor_ids:
+                d = os.path.join(
+                    RESULTS_DIR,
+                    retrieval_algorithm,
+                    atmospheric_profile_model,
+                    sensor_id,
+                    "successful",
+                )
+                dates = [f for f in os.listdir(d) if os.path.isdir(os.path.join(d, f))]
+                for date in dates:
+                    date_dir = os.path.join(d, date)
+                    filenames = [
+                        f
+                        for f in os.listdir(date_dir)
+                        if (f.startswith("groundbased_ftir.coccon") and f.endswith(".h5"))
+                    ]
+                    for filename in filenames:
+                        os.remove(os.path.join(date_dir, filename))
 
     src.geoms.main.run(
         config=config,
@@ -125,12 +133,8 @@ def test_geoms_export(download_sample_data: None) -> None:
             root=[
                 src.types.CalibrationFactors(
                     sensor_id="so",
-                    valid_from_datetime=datetime.datetime(2016, 1, 1).astimezone(
-                        datetime.timezone.utc
-                    ),
-                    valid_to_datetime=datetime.datetime(2026, 1, 1).astimezone(
-                        datetime.timezone.utc
-                    ),
+                    valid_from_datetime=datetime.datetime(2016, 1, 1, tzinfo=datetime.timezone.utc),
+                    valid_to_datetime=datetime.datetime(2026, 1, 1, tzinfo=datetime.timezone.utc),
                     xco2=1.0,
                     xch4=1.0,
                     xh2o=1.0,
@@ -148,3 +152,23 @@ def test_geoms_export(download_sample_data: None) -> None:
             ]
         ),
     )
+
+    for retrieval_algorithm in config.geoms.retrieval_algorithms:
+        for atmospheric_profile_model in config.geoms.atmospheric_profile_models:
+            for sensor_id in config.geoms.sensor_ids:
+                d = os.path.join(
+                    RESULTS_DIR,
+                    retrieval_algorithm,
+                    atmospheric_profile_model,
+                    sensor_id,
+                    "successful",
+                )
+                dates = [f for f in os.listdir(d) if os.path.isdir(os.path.join(d, f))]
+                for date in dates:
+                    date_dir = os.path.join(d, date)
+                    filenames = [
+                        f
+                        for f in os.listdir(date_dir)
+                        if (f.startswith("groundbased_ftir.coccon") and f.endswith(".h5"))
+                    ]
+                    assert len(filenames) == 1, f"GEOMS file not found in {date_dir}"
