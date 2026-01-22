@@ -451,22 +451,22 @@ class GEOMSAPI:
 
         # Convert data to numpy array.
         if species == "H2O":
-            data = df["XH2O"].to_numpy()
+            data = df["XH2O"].to_numpy(copy=True)
             data[data <= 0] = -900000.0  # default fill value
             unit = "ppmv"
 
         elif species == "CO2":
-            data = df["XCO2"].to_numpy()
+            data = df["XCO2"].to_numpy(copy=True)
             data[data <= 0] = -900000.0  # default fill value
             unit = "ppmv"
 
         elif species == "CH4":
-            data = df["XCH4"].to_numpy()
+            data = df["XCH4"].to_numpy(copy=True)
             data[data <= 0] = -900000.0  # default fill value
             unit = "ppmv"
 
         elif species == "CO":
-            data = df["XCO"].to_numpy() * 1000.0  # in ppbv
+            data = df["XCO"].to_numpy(copy=True) * 1000.0  # in ppbv
             data[data <= 0] = -900000.0  # default fill value
             unit = "ppbv"
         else:
