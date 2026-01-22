@@ -1,5 +1,5 @@
 {
-  "version": "1.9",
+  "version": "1.10",
   "general": {
     "metadata": {
       "github_repository": "tum-esm/em27-metadata-storage",
@@ -34,13 +34,8 @@
     "scope": {
       "from_date": "2022-01-01",
       "to_date": "2022-01-05",
-      "models": [
-        "GGG2014",
-        "GGG2020"
-      ],
-      "force_download_locations": [
-        "TUM_I"
-      ]
+      "models": ["GGG2014", "GGG2020"],
+      "force_download_locations": ["TUM_I"]
     },
     "GGG2020_standard_sites": [
       {
@@ -63,13 +58,7 @@
       {
         "retrieval_algorithm": "proffast-1.0",
         "atmospheric_profile_model": "GGG2014",
-        "sensor_ids": [
-          "ma",
-          "mb",
-          "mc",
-          "md",
-          "me"
-        ],
+        "sensor_ids": ["ma", "mb", "mc", "md", "me"],
         "from_date": "2019-01-01",
         "to_date": "2022-12-31",
         "settings": {
@@ -98,13 +87,7 @@
       {
         "retrieval_algorithm": "proffast-2.3",
         "atmospheric_profile_model": "GGG2020",
-        "sensor_ids": [
-          "ma",
-          "mb",
-          "mc",
-          "md",
-          "me"
-        ],
+        "sensor_ids": ["ma", "mb", "mc", "md", "me"],
         "from_date": "2019-01-01",
         "to_date": "2099-12-31"
       }
@@ -113,47 +96,20 @@
   "bundles": [
     {
       "dst_dir": "directory-to-write-the-bundles-to",
-      "output_formats": [
-        "csv",
-        "parquet"
-      ],
+      "output_formats": ["csv", "parquet"],
       "from_datetime": "2022-01-01T00:00:00Z",
       "to_datetime": "2022-12-31T23:59:59Z",
-      "retrieval_algorithms": [
-        "proffast-1.0",
-        "proffast-2.4"
-      ],
-      "atmospheric_profile_models": [
-        "GGG2014",
-        "GGG2020"
-      ],
-      "sensor_ids": [
-        "ma",
-        "mb",
-        "mc",
-        "md",
-        "me"
-      ],
+      "retrieval_algorithms": ["proffast-1.0", "proffast-2.4"],
+      "atmospheric_profile_models": ["GGG2014", "GGG2020"],
+      "sensor_ids": ["ma", "mb", "mc", "md", "me"],
       "parse_dc_timeseries": true,
       "parse_retrieval_diagnostics": true
     }
   ],
   "geoms": {
-    "sensor_ids": [
-      "ma",
-      "mb",
-      "mc",
-      "md",
-      "me"
-    ],
-    "retrieval_algorithms": [
-      "proffast-1.0",
-      "proffast-2.4"
-    ],
-    "atmospheric_profile_models": [
-      "GGG2014",
-      "GGG2020"
-    ],
+    "sensor_ids": ["ma", "mb", "mc", "md", "me"],
+    "retrieval_algorithms": ["proffast-1.0", "proffast-2.4"],
+    "atmospheric_profile_models": ["GGG2014", "GGG2020"],
     "from_datetime": "2022-01-01T00:00:00Z",
     "to_datetime": "2022-12-31T23:59:59Z",
     "parse_dc_timeseries": false,

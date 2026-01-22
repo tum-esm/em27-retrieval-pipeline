@@ -1,6 +1,6 @@
 [project]
 name = "em27-retrieval-pipeline"
-version = "1.9.1"
+version = "1.10.0"
 description = "automated EM27/SUN data processing"
 authors = [
     { name = "Moritz Oliveira Makowski", email = "moritz.makowski@tum.de" },

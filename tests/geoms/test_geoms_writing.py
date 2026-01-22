@@ -11,7 +11,7 @@ METADATA_DIR = os.path.join(INPUT_DATA_DIR, "metadata")
 RESULTS_DIR = os.path.join(INPUT_DATA_DIR, "results")
 
 CONFIG = {
-    "version": "1.9",
+    "version": "1.10",
     "general": {
         "metadata": None,
         "data": {
