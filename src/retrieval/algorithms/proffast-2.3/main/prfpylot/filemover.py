@@ -126,6 +126,7 @@ class FileMover(Preparation):
         """Move the results to the data folder.
         """
         suffix_list = [
+            "colsens.dat",
             "colsens_?.dat",
             "invparms_?.dat",
             "job01_?.spc",
