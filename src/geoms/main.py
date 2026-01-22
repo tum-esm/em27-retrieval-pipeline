@@ -58,8 +58,8 @@ def generate_geoms_file(
         sensor_id = about_json["session"]["ctx"]["sensor_id"]
         serial_number = int(about_json["session"]["ctx"]["serial_number"])
         location = em27_metadata.types.LocationMetadata.model_validate(about_json["session"]["ctx"]["location"])
-        from_dt = datetime.datetime.fromisoformat(about_json["session"]["ctx"]["from_datetime"])
-        to_dt = datetime.datetime.fromisoformat( about_json["session"]["ctx"]["to_datetime"])
+        from_dt = datetime.datetime.fromisoformat(about_json["session"]["ctx"]["from_datetime"]).astimezone(datetime.timezone.utc)
+        to_dt = datetime.datetime.fromisoformat(about_json["session"]["ctx"]["to_datetime"]).astimezone(datetime.timezone.utc)
     else:
         sensor_id = about_json["session"]["sensor_id"]
         serial_number = int(about_json["session"]["serial_number"])
@@ -91,8 +91,8 @@ def generate_geoms_file(
     pl_df = pl_df.filter(
         (pl.col("utc") >= from_datetime) & (pl.col("utc") <= to_datetime)
     )
-    if len(pl_df) < 11:
-        return None, "Not enough data (less than 11 datapoints)"
+    if len(pl_df) < 9:
+        return None, "Not enough data (less than 9 datapoints)"
     
     # determine filename
     start_stop_times = geoms_times_to_datetime([

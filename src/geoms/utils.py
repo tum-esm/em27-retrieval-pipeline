@@ -68,7 +68,13 @@ def load_comb_invparms_df(
         )
 
     # filter based on DC amplitude
-    if geoms_config.parse_dc_timeseries:
+    if geoms_config.parse_dc_timeseries and (
+        retrieval_algorithm
+        not in [
+            "proffast-2.2",
+            "proffast-2.3",
+        ]
+    ):
         # fmt: off
         df = df.with_columns(
             pl.col("ch1_fwd_dc_mean").add(pl.col("ch1_bwd_dc_mean")).mul(0.5).abs() \
@@ -301,8 +307,7 @@ def load_column_sensitivity_file(
                 header = f.readline()  # skip header line
                 if j == 3:  # read SZA [rad] values in the third line
                     header = re.sub(" +", "\t", header)
-                    header = header.split("\t")  # tab separator
-                    sza[i] = np.array(header[3:])  # SZA header/columns
+                    sza[i] = np.array(header.split("\t")[3:])  # SZA header/columns
                     sza[i] = sza[i].astype(float)  # string to float
 
             for j in range(49):  # number of altitude levels
