@@ -50,6 +50,7 @@ CONFIG = {
         "min_xair": 0.98,
         "max_xair": 1.02,
         "conflict_mode": "replace",
+        "min_datapoints_per_day": 9,
     },
 }
 

@@ -528,6 +528,11 @@ class GEOMSConfig(pydantic.BaseModel):
     conflict_mode: Literal["error", "skip", "replace"] = pydantic.Field(
         "replace", description="What to do if an output file already exist."
     )
+    min_datapoints_per_day: int = pydantic.Field(
+        default=11,
+        ge=1,
+        description="Minimum number of data points per day required to generate a GEOMS file for that day. If not enough data points are available, no GEOMS file will be generated for that day.",
+    )
 
 
 class Config(pydantic.BaseModel):

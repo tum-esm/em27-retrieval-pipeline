@@ -91,8 +91,8 @@ def generate_geoms_file(
     pl_df = pl_df.filter(
         (pl.col("utc") >= from_datetime) & (pl.col("utc") <= to_datetime)
     )
-    if len(pl_df) < 9:
-        return None, "Not enough data (less than 9 datapoints)"
+    if len(pl_df) < geoms_config.min_datapoints_per_day:
+        return None, f"Not enough data (less than {geoms_config.min_datapoints_per_day} datapoints)"
     
     # determine filename
     start_stop_times = geoms_times_to_datetime([
