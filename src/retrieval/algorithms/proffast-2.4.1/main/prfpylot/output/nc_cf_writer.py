@@ -99,7 +99,13 @@ class NcWriter(object):
             path = os.path.join(
                 self.path_results,
                 filename)
-        ds.to_netcdf(path, engine="scipy")
+        try:
+            ds.to_netcdf(path)
+        except RuntimeError:
+            try:
+                ds.to_netcdf(path, engine="scipy")
+            except ModuleNotFoundError:
+                self.logger.warning("Could not write netCDF output.")
 
     def create_dataset(self):
         """Combine all proffast output in one ds.
@@ -371,7 +377,7 @@ class NcWriter(object):
         """Return dict with dims for averaging kernels."""
         avk_dims = self.get_prior_dims()
         sza_avk = np.array(self.sza)
-        avk_dims["sza_avk"] = sza_avk
+        avk_dims["sza_avk"] = np.degrees(sza_avk)  # convert radian --> degree
 
         return avk_dims
 
@@ -404,7 +410,7 @@ class NcWriter(object):
 
         prior_dims = {
             "time_prior": time_prior_cf,
-            "height_prior": alt_prior,
+            "height_prior": alt_prior * 1e3,  # convert km --> m
         }
         return prior_dims
 
