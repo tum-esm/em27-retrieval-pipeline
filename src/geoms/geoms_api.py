@@ -613,12 +613,12 @@ class GEOMSAPI:
         elif species == "CH4":
             for i in range(df["JulianDate"].shape[0]):
                 for j in range(pt_df["Altitude"].shape[0]):
-                    data[i][j] = column_sensitivity[3][i][j]
+                    data[i][j] = column_sensitivity[4][i][j]
 
         elif species == "CO":
             for i in range(df["JulianDate"].shape[0]):
                 for j in range(pt_df["Altitude"].shape[0]):
-                    data[i][j] = column_sensitivity[5][i][j]
+                    data[i][j] = column_sensitivity[7][i][j]
 
         else:
             raise ValueError("Invalid species")

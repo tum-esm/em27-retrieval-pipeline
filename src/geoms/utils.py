@@ -271,15 +271,15 @@ def load_column_sensitivity_file(
 
     # Read pressure and sensitivities as function of the altitude and SZA.
 
-    with open(path, "r") as file:
-        for i in range(8):  # H2O, HDO, CO2, CH4, N2O, CO, O2, HF
+    with open(path, "r") as f:
+        for i in range(10):  # H2O, HDO, CO2, CO2_STR, CH4, CH4_S5P, N2O, CO, O2, HF
             sza.append([])
             alt.append([])
             pre.append([])
             sen.append([])
 
             for j in range(6):  # 6 header lines for each species
-                header: Any = file.readline()  # skip header line
+                header = f.readline()  # skip header line
                 if j == 3:  # read SZA [rad] values in the third line
                     header = re.sub(" +", "\t", header)
                     header = header.split("\t")  # tab separator
@@ -287,19 +287,19 @@ def load_column_sensitivity_file(
                     sza[i] = sza[i].astype(float)  # string to float
 
             for j in range(49):  # number of altitude levels
-                line: Any = file.readline()[1:-1]  # skip first empty
+                line = f.readline()[1:-1]  # skip first empty
                 # space and carriage return character at the end
                 line = re.sub(" +", ",", line)  # replace empty spaces
                 # by a comma
-                line = line.split(",")  # split line into columns
+                line_cols = line.split(",")  # split line into columns
 
-                alt[i].append(line[0])  # altitude (first column)
-                pre[i].append(line[1])  # pressure (second column)
+                alt[i].append(line_cols[0])  # altitude (first column)
+                pre[i].append(line_cols[1])  # pressure (second column)
 
                 sen[i].append([])
-                for k in range(2, len(line)):  # SZA (third column
+                for k in range(2, len(line_cols)):  # SZA (third column
                     # upwards, total 15 columns)
-                    sen[i][j].append(float(line[k]))
+                    sen[i][j].append(float(line_cols[k]))
 
     sza = np.array(sza, dtype=float)  # SZA [deg]
     alt = np.array(alt, dtype=float)  # altitude [km]
@@ -321,7 +321,7 @@ def load_interpolated_column_sensitivity_file(
 
     gas_sens: list[list[list[float]]] = []
 
-    for k in range(8):  # H2O, HDO, CO2, CH4, N2O, CO, O2, HF
+    for k in range(10):  # H2O, HDO, CO2, CO2_STR, CH4, CH4_S5P, N2O, CO, O2, HF
         gas_sens.append([])
 
         for i in range(len(szas)):
