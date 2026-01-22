@@ -630,7 +630,7 @@ class GEOMSAPI:
         hdf5_file: h5py.File,
         df: pd.DataFrame,
         pt_df: pd.DataFrame,
-        column_sensitivity: list[list[list[float]]],
+        column_sensitivity: dict[str, list[list[float]]],
         species: Literal["CO2", "CH4", "CO", "H2O"],
     ) -> None:
         """Column sensitivities assosiated with the total vertical column"""
@@ -642,22 +642,22 @@ class GEOMSAPI:
         if species == "H2O":
             for i in range(df["JulianDate"].shape[0]):
                 for j in range(pt_df["Altitude"].shape[0]):
-                    data[i][j] = column_sensitivity[0][i][j]
+                    data[i][j] = column_sensitivity["H2O"][i][j]
 
         elif species == "CO2":
             for i in range(df["JulianDate"].shape[0]):
                 for j in range(pt_df["Altitude"].shape[0]):
-                    data[i][j] = column_sensitivity[2][i][j]
+                    data[i][j] = column_sensitivity["CO2"][i][j]
 
         elif species == "CH4":
             for i in range(df["JulianDate"].shape[0]):
                 for j in range(pt_df["Altitude"].shape[0]):
-                    data[i][j] = column_sensitivity[4][i][j]
+                    data[i][j] = column_sensitivity["CH4"][i][j]
 
         elif species == "CO":
             for i in range(df["JulianDate"].shape[0]):
                 for j in range(pt_df["Altitude"].shape[0]):
-                    data[i][j] = column_sensitivity[7][i][j]
+                    data[i][j] = column_sensitivity["CO"][i][j]
 
         else:
             raise ValueError("Invalid species")

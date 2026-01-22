@@ -14,6 +14,7 @@ import numpy as np
 import math
 import pandas as pd
 import polars as pl
+import tum_esm_utils
 from src import bundle
 import src
 
@@ -234,7 +235,13 @@ def load_pt_file(results_folder: str, date: datetime.date, sensor_id: str) -> pd
 # identical to PROFFASTpylot 2.4.1-2
 def load_column_sensitivity_file(
     results_folder: str, date: datetime.date, sensor_id: str
-) -> tuple[np.ndarray[Any, Any], np.ndarray[Any, Any], np.ndarray[Any, Any], np.ndarray[Any, Any]]:
+) -> tuple[
+    list[str],
+    np.ndarray[Any, Any],
+    np.ndarray[Any, Any],
+    np.ndarray[Any, Any],
+    np.ndarray[Any, Any],
+]:
     # The column sensivity file (i.e. *colsens.dat") contains the vertical
     # profile of the pressure and
     # the sensitivities for each species (these are H2O, HDO, CO2, CH4,
@@ -269,10 +276,22 @@ def load_column_sensitivity_file(
             + f"Looked for {[p.replace(results_folder, '') for p in paths]}"
         )
 
+    full_file_lines = (
+        tum_esm_utils.files.load_file(path).replace("\t", " ").strip("\n ").split("\n")
+    )
+    gas_names: list[str] = []
+    for i in range(1, len(full_file_lines)):
+        if full_file_lines[i].strip(" ") == "$":
+            gas_names.append(full_file_lines[i - 1].strip("\"' "))
+
+    for gas in ["H2O", "CO2", "CH4"]:
+        if gas not in gas_names:
+            raise ValueError(f"Column sensitivity file is corrupted, {gas} header not found.")
+
     # Read pressure and sensitivities as function of the altitude and SZA.
 
     with open(path, "r") as f:
-        for i in range(10):  # H2O, HDO, CO2, CO2_STR, CH4, CH4_S5P, N2O, CO, O2, HF
+        for i in range(len(gas_names)):  # H2O, HDO, CO2, CO2_STR, CH4, CH4_S5P, N2O, CO, O2, HF
             sza.append([])
             alt.append([])
             pre.append([])
@@ -306,7 +325,7 @@ def load_column_sensitivity_file(
     pre = np.array(pre, dtype=float)  # pressure [mbar]
     sen = np.array(sen, dtype=float)  # sensitivity
 
-    return sza, alt, pre, sen
+    return gas_names, sza, alt, pre, sen
 
 
 # https://github.com/coccon/proffastpylot/blob/2.4.1-2/prfpylot/output/hdf_geoms_writer.py#L509
@@ -316,18 +335,18 @@ def load_interpolated_column_sensitivity_file(
     date: datetime.date,
     sensor_id: str,
     szas: np.ndarray[Any, Any],
-) -> list[list[list[float]]]:
-    sza, alt, pre, sen = load_column_sensitivity_file(results_folder, date, sensor_id)  # pyright: ignore[reportUnusedVariable]
+) -> dict[str, list[list[float]]]:
+    gas_names, sza, alt, pre, sen = load_column_sensitivity_file(results_folder, date, sensor_id)  # pyright: ignore[reportUnusedVariable]
 
-    gas_sens: list[list[list[float]]] = []
+    gas_sens: dict[str, list[list[float]]] = {}
 
-    for k in range(10):  # H2O, HDO, CO2, CO2_STR, CH4, CH4_S5P, N2O, CO, O2, HF
-        gas_sens.append([])
+    for k in range(len(gas_names)):  # H2O, HDO, CO2, CO2_STR, CH4, CH4_S5P, N2O, CO, O2, HF
+        gas_sens[gas_names[k]] = []
 
         for i in range(len(szas)):
             # number of measurements
 
-            gas_sens[k].append([])
+            gas_sens[gas_names[k]].append([])
 
             SZA_app_rad = szas[i] * 2.0 * math.pi / 360.0
             # SZA_app_deg = appSZA[i]
@@ -353,7 +372,7 @@ def load_interpolated_column_sensitivity_file(
 
                         # gas interpolation
                         gas_int = m_rad * SZA_app_rad + b_gas
-                        gas_sens[k][i].append(gas_int)
+                        gas_sens[gas_names[k]][i].append(gas_int)
 
                 elif j == len(sza[k]) - 2 and SZA_app_rad > sza[k][len(sza) - 1]:
                     for h in range(len(alt[k])):
@@ -368,7 +387,7 @@ def load_interpolated_column_sensitivity_file(
 
                         # gas extrapolation
                         gas_int = m_rad * SZA_app_rad + b_gas
-                        gas_sens[k][i].append(gas_int)
+                        gas_sens[gas_names[k]][i].append(gas_int)
 
     return gas_sens
 
