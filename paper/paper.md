@@ -60,11 +60,17 @@ bibliography: paper.bib
 
 The EM27/SUN [@Gisi2011;@Hase2016] is an FTIR spectrometer used to perform solar absorption measurements to derive column-averaged atmospheric concentrations of greenhouse gases (GHGs). In support of ESA, the COllaborative Carbon Column Observing Network (COCCON) [@Frey2019;@Alberti2021;@Herkommer2024] has been established to offer a framework for the operation and data analysis of the EM27/SUN, ensuring the generation of fiducial GHG observations. The process of estimating the column-averaged concentration of GHGs from the interferograms recorded by the EM27/SUN is called retrieval. The retrieval algorithm established in the COCCON community is PROFFAST [@Hase1999;@Sha2020;@Hase2023]. PROFFASTpylot [@Feld2024] is an interface around PROFFAST that significantly reduces the complexity of running PROFFAST retrievals.
 
-![Modules of the EM27 Retrieval Pipeline.\label{fig:architecture}](architecture.png){width="78%"}
+![Modules of the EM27 Retrieval Pipeline.\label{fig:architecture}](architecture.png){width="75%"}
 
-\vspace{-2mm}
+\vspace{-3mm}
 
-The Munich Urban Carbon Column network (MUCCnet) consists of 5 EM27/SUN spectrometers deployed in and around Munich, Germany [@Heinle2018;@Dietrich2021;@Aigner2023]. Due to its autonomous operation since 2019, our research group generates a significant amount of EM27/SUN data. Processing this data in an automated and scalable way required us to extend the functionality of the PROFFASTpylot. Under the hood, we use the PROFFASTpylot to ensure consistency with the COCCON community. The EM27 Retrieval Pipeline is complementary to the PROFFASTpylot, but the more EM27/SUN measurement data one has to retrieve, the more benefits come from this higher degree of automation. While not implementing 100% of the flexibility the PROFFASTpylot provides, this pipeline is flexible enough to be used by any EM27/SUN setup, adhering to the COCCON standards.
+The Munich Urban Carbon Column network (MUCCnet) consists of 5 EM27/SUN spectrometers deployed in and around Munich, Germany [@Heinle2018;@Dietrich2021;@Aigner2023]. Due to its autonomous operation since 2019, our research group generates a significant amount of EM27/SUN data. Processing this data in an automated and scalable way required us to extend the functionality of the PROFFASTpylot. Under the hood, we use the PROFFASTpylot to ensure consistency with the COCCON community.
+
+# State of the Field
+
+The EM27 Retrieval Pipeline is complementary to the PROFFASTpylot [@Feld2024]. In general, the more EM27/SUN measurement data one has to retrieve, the more benefits come from the higher degree of automation the pipeline offers. While not implementing 100% of the flexibility the PROFFASTpylot provides, this pipeline is flexible enough to be used by any EM27/SUN setup, adhering to COCCON processing standards. Since the EM27 Retrieval Pipeline is an automation layer on top of the underlying retrieval algorithm, it is algorithm-agnostic and could be extended to support GFIT [@Connor2016;@Zeng2021] or other algorithms.
+
+GGG2014/GGG2020 [@Wunch2015;@Laughner2024] is the data processing suite of the Total Carbon Column Observing Network (TCCON) [@tccon]. It is built around the GFIT retrieval algorithm and offers a similar degree of automation as the PROFFASTpylot. Since the TCCON instruments are significantly larger and more complex to deploy than the EM27/SUN, the GGG processing suite does not explicitly account for frequent instrument redeployments.
 
 # Statement of Need
 
@@ -74,7 +80,7 @@ The EM27/SUN is widely used to achieve these GHG flux estimations [@Hase2015;@Kl
 
 \autoref{fig:data} shows the XCO2 timeseries of the MUCCnet instruments since September 2019. Running the retrievals for various instrument deployments and keeping track of all deployments over time requires an organizational system that this pipeline provides. To enable a large number of long-term observations with EM27/SUN spectrometers, such as the upcoming sensor networks of COCCON-Spain [@cocconspain] and GEMINI-UK [@geminiuk], an improvement in automation is crucial. The EM27 Retrieval Pipeline addresses this.
 
-![XCO2 of the MUCCnet instruments from 2019-09 to 2025-07\label{fig:data}](bundle-v3.1_20190901_20251101-joss-1m.png){width="100%"}
+![XCO2 of the MUCCnet instruments from 2019-09-01 to 2025-11-01\label{fig:data}](bundle-v3.1_20190901_20251101-joss-1m.png){width="100%"}
 
 # Software Design
 
@@ -83,7 +89,7 @@ We made the following architectural decisions to achieve this higher degree of a
 - **Configuration:** JSON configuration files are used to specify input/output paths, retrieval algorithm, start/end dates, and so on. These files are validated against JSON schemas [@jsonschema;@pydantic] representing a strict set of rules for their structure and content. A misconfiguration will be detected at program start, instead of failing only once the code tries to use an invalid configuration parameter. The JSON schema is rendered as an API reference in the documentation, enabling us to adequately document a large number of configuration parameters.
 - **Metadata Management:** Metadata (where/when/how each sensor was set up) is provided as JSON files as well. These files can be stored locally or pulled from a GitHub repository, enabling centralized, version-controlled tracking of sensor deployments. Metadata systems used in different EM27/SUN teams can be easily translated into this pipeline's schema, which largely agrees with the schema proposed in @Zeeman2024.
 - **Parallelization and Containerization:** While the PROFFASTpylot parallelizes the individual steps of PROFFAST, the pipeline parallelizes the whole retrieval process by running one isolated retrieval job per instrument per day. Every result folder maintains the structure of an individual PROFFASTpylot run, but also contains all configuration files required to reproduce it.
-- **Algorithm Support:** While each tagged release of the PROFFASTpylot supports a specific range of PROFFAST versions, the EM27 Retrieval Pipeline keeps support for all implemented retrieval algorithms and versions. The pipeline's architecture is independent of the underlying retrieval algorithm; hence, it could be extended to support GFIT [@Connor2016;@Zeng2021] or other algorithms.
+- **Algorithm Support:** While each tagged release of the PROFFASTpylot supports a specific range of PROFFAST versions, the EM27 Retrieval Pipeline keeps support for all implemented retrieval algorithms and versions.
 - **Caching/Implicit Scheduling:** Users do not have to define an explicit queue of jobs, but instead define a date range and a list of sensors. The downloading/retrieval/bundling will decide which jobs to run, i.e., only run the jobs where no output exists yet.
 - **Testing:** The codebase is statically typed and checked with strict MyPy [@mypy] and Pyright [@pyright], and includes unit- and end-to-end tests (using PyTest [@pytest]) covering all major functions and retrieval scenarios.
 
@@ -100,7 +106,7 @@ The pipeline was first established in 2021 [@Rimann2022] and has been used for o
 
 # AI Usage Disclosure
 
-GitHub Copilot was used for single line code-completions, but not to write any complete functions or modules. We tried using GitHub Copilot Agent once for a small feature in a pull request, but did merge the result due to a lack in quality.
+GitHub Copilot was used for single line code-completions, but not to write any complete functions or modules. All code was reviewed and tested by human developers.
 
 # Acknowledgement of Financial Support
 
