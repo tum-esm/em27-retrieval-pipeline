@@ -17,7 +17,7 @@ echo "Retrieval completed successfully."
 
 # 2. Run the GEOMS export
 
-# TODO
+python ../cli.py geoms run
 
 # 3. Run the bundle export
 
