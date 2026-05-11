@@ -285,7 +285,7 @@ def _generate_job_list() -> list[
 
 def _point_config_to_test_data(config: src.types.Config) -> None:
     config.general.data.ground_pressure.path.root = os.path.join(
-        PROJECT_DIR, "data", "testing", "inputs", "data", "ground-pressure"
+        PROJECT_DIR, "example", "data", "inputs", "ground-pressure"
     )
     config.general.data.ground_pressure.file_regex = (
         "^ground-pressure-$(SENSOR_ID)-$(YYYY)-$(MM)-$(DD).csv$"
@@ -298,10 +298,10 @@ def _point_config_to_test_data(config: src.types.Config) -> None:
     config.general.data.ground_pressure.pressure_column_format = "hPa"
 
     config.general.data.interferograms.root = os.path.join(
-        PROJECT_DIR, "data", "testing", "inputs", "data", "interferograms"
+        PROJECT_DIR, "example", "data", "inputs", "interferograms"
     )
     config.general.data.atmospheric_profiles.root = os.path.join(
-        PROJECT_DIR, "data", "testing", "inputs", "data", "atmospheric-profiles"
+        PROJECT_DIR, "example", "data", "inputs", "atmospheric-profiles"
     )
     config.general.data.results.root = os.path.join(
         PROJECT_DIR, "data", "testing", "container", "outputs"
