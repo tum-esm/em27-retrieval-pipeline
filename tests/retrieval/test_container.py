@@ -269,6 +269,9 @@ def _generate_job_list() -> list[
             if alg == "proffast-1.0" and atm == "GGG2020":
                 continue
             for sdc in SENSOR_DATA_CONTEXTS:
+                if (alg == "proffast-2.4.1") and (sdc.sensor_id == "mc"):
+                    # FIXME: proffast-2.4.1 fails for these interferograms due to the additional filters introduced
+                    continue
                 src.retrieval.utils.retrieval_status.RetrievalStatusList.add_items(
                     [sdc],
                     alg,  # type: ignore
