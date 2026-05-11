@@ -304,7 +304,7 @@ def _point_config_to_test_data(config: src.types.Config) -> None:
         PROJECT_DIR, "example", "data", "inputs", "atmospheric-profiles"
     )
     config.general.data.results.root = os.path.join(
-        PROJECT_DIR, "data", "testing", "container", "outputs"
+        PROJECT_DIR, "data", "testing", "outputs", "individual-results"
     )
 
 
@@ -316,7 +316,7 @@ def _assert_output_correctness(
     date_string = sensor_data_context.from_datetime.strftime("%Y%m%d")
     out_path = os.path.join(
         PROJECT_DIR,
-        "data/testing/container/outputs",
+        "data/testing/outputs/individual-results",
         retrieval_algorithm,
         atmospheric_profile_model,
         sensor_data_context.sensor_id,

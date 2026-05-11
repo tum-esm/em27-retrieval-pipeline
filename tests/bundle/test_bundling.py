@@ -7,9 +7,10 @@ import em27_metadata
 import polars as pl
 
 PROJECT_DIR = tum_esm_utils.files.rel_to_abs_path("../..")
-INPUT_DATA_DIR = os.path.join(PROJECT_DIR, "data", "testing", "inputs")
-METADATA_DIR = os.path.join(INPUT_DATA_DIR, "metadata")
-BUNDLE_OUTPUT_DIR = os.path.join(PROJECT_DIR, "data", "testing", "bundle", "outputs")
+EXAMPLE_DIR = os.path.join(PROJECT_DIR, "example")
+TEST_DATA_DIR = os.path.join(PROJECT_DIR, "data", "testing")
+BUNDLE_INPUT_DIR = os.path.join(TEST_DATA_DIR, "inputs", "individual-results")
+BUNDLE_OUTPUT_DIR = os.path.join(TEST_DATA_DIR, "outputs", "bundles")
 
 CONFIG = {
     "version": "1.10",
@@ -17,7 +18,7 @@ CONFIG = {
         "metadata": None,
         "data": {
             "ground_pressure": {
-                "path": os.path.join(INPUT_DATA_DIR, "data", "ground-pressure"),
+                "path": os.path.join(EXAMPLE_DIR, "data", "inputs", "ground-pressure"),
                 "file_regex": "^$(SENSOR_ID)$(DATE).*\\.csv$",
                 "separator": ",",
                 "pressure_column": "pressure",
@@ -27,9 +28,11 @@ CONFIG = {
                 "time_column": "UTCtime_____",
                 "time_column_format": "%H:%M:%S",
             },
-            "atmospheric_profiles": os.path.join(INPUT_DATA_DIR, "data", "atmospheric-profiles"),
-            "interferograms": os.path.join(INPUT_DATA_DIR, "data", "interferograms"),
-            "results": os.path.join(INPUT_DATA_DIR, "results"),
+            "atmospheric_profiles": os.path.join(
+                EXAMPLE_DIR, "data", "inputs", "atmospheric-profiles"
+            ),
+            "interferograms": os.path.join(EXAMPLE_DIR, "data", "inputs", "interferograms"),
+            "results": BUNDLE_INPUT_DIR,
         },
     },
     "profiles": None,
@@ -71,10 +74,10 @@ def test_bundling() -> None:
     src.bundle.main.run(
         config=config,
         em27_metadata_interface=em27_metadata.loader.load_from_local_files(
-            locations_path=os.path.join(METADATA_DIR, "locations.json"),
-            sensors_path=os.path.join(METADATA_DIR, "sensors.json"),
-            campaigns_path=os.path.join(METADATA_DIR, "campaigns.json"),
-            events_path=os.path.join(METADATA_DIR, "events.json"),
+            locations_path=os.path.join(EXAMPLE_DIR, "config", "locations.json"),
+            sensors_path=os.path.join(EXAMPLE_DIR, "config", "sensors.json"),
+            campaigns_path=os.path.join(EXAMPLE_DIR, "config", "campaigns.json"),
+            events_path=os.path.join(EXAMPLE_DIR, "config", "events.json"),
         ),
     )
 
