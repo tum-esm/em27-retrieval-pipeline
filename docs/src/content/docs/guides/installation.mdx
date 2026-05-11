@@ -1,0 +1,45 @@
+---
+title: Installing the Pipeline
+label: Installation
+---
+import { Aside } from '@astrojs/starlight/components';
+
+**Get the code**
+
+1. Clone the [repository](https://github.com/tum-esm/automated-retrieval-pipeline) or download the source code of a [specific release](https://github.com/tum-esm/em27-retrieval-pipeline/releases).
+2. Create a virtual environment using `python3.11 -m venv .venv`
+3. Always activate the virtual environment using `source .venv/bin/activate`
+4. Install the dependencies using `pip install ".[dev]"` or `pdm sync --group dev`
+
+<Aside type="tip">
+
+We recommend using [PDM](https://pdm-project.org/) - a Python package manager - over pip. PDM uses a `pdm.lock` file - next to the `pyproject.toml` file - to pin the dependencies to specific versions. `pdm sync` installs the exact same dependencies on every system, hence errors are less likely not to be reproducible.
+
+</Aside>
+
+**Configure it on your system**
+
+5. Install System Dependencies: e.g. `sudo apt install unzip gfortran`
+6. Use the `config/config.template.json` to create a `config.json` file.
+7. Set up the metadata locally or remotely (see [metadata guide](/guides/metadata))
+
+**Run the tests to ensure everything is working**
+
+8. Test the pipeline using `pytest -m "integration or quick or ci" --verbose --exitfirst tests/`
+9. Test the actual retrieval using `pytest -m "complete" --verbose --exitfirst tests/`
+
+**Celebrate if the tests pass**
+
+10. Run `curl parrot.live`
+
+**Use the CLI to run the pipeline**
+
+The following sections describe how to trigger the different pipeline processes using the CLI. Whenever calling the CLI, it will validate the integrity of your local `config.json` file and output a message if your system is not correctly configured.
+
+<img
+  src="/images/cli-config-validation.png"
+  alt="CLI Config Validation"
+  width={1867}
+  height={281}
+  className="mt-2 w-full mx-auto block rounded-md bg-[#0C1621] p-2 dark:ring dark:ring-slate-700"
+/>
