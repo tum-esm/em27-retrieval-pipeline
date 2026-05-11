@@ -22,8 +22,8 @@
         "unix_timestamp_column_format": null
       },
       "atmospheric_profiles": "path-to-atmospheric-profiles",
-      "interferograms": "path-to-ifg-upload-directory",
-      "results": "path-to-results-storage"
+      "interferograms": "path-to-interferogram-directory",
+      "results": "path-to-results-directory"
     }
   },
   "profiles": {
