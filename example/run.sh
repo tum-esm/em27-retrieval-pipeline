@@ -18,6 +18,7 @@ echo "Retrieval completed successfully."
 # 2. Run the GEOMS export
 
 python ../cli.py geoms run
+cp data/outputs/individual/*/*/*/successful/*/groundbased_ftir.*.h5 data/outputs/geoms
 
 # 3. Run the bundle export
 
