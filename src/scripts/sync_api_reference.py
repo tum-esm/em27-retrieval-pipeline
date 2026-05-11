@@ -141,14 +141,15 @@ print("Syncing README with docs landing page")
 current = tum_esm_utils.files.load_file(f"{_DOCS_DIR}/src/content/docs/index.mdx")
 
 a = current.split("We retrieve a lot of ")[0]
-b = current.split("We retrieve a lot of ")[1].split("##")[0]
-c = "##".join(current.split("We retrieve a lot of ")[1].split("##")[1:])
-
-readme = tum_esm_utils.files.load_file(os.path.join(_PROJECT_DIR, "README.md")).split(
-    "We retrieve a lot of "
-)[1]
+b = (
+    tum_esm_utils.files.load_file(os.path.join(_PROJECT_DIR, "README.md"))
+    .split("We retrieve a lot of ")[1]
+    .replace("docs/public/images/", "images/")
+    .replace("https://em27-retrieval-pipeline.netlify.app/guides", "/guides")
+    .replace("https://tum-esm-utils.netlify.app/api-reference", "/api-reference")
+)
 
 tum_esm_utils.files.dump_file(
     f"{_DOCS_DIR}/src/content/docs/index.mdx",
-    f"{a}We retrieve a lot of {readme}\n##{c}",
+    f"{a}We retrieve a lot of {b}",
 )
