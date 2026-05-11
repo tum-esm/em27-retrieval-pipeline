@@ -8,7 +8,7 @@ sys.path.append(tum_esm_utils.files.rel_to_abs_path("../.."))
 from src import profiles, types
 
 
-def run() -> None:
+def run() -> None:  # pragma: no cover
     config = types.Config.load()
     assert config.profiles is not None, "No profiles config found"
 

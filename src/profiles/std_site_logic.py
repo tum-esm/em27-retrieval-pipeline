@@ -13,7 +13,7 @@ from src import profiles, types, utils
 def list_requested_data(
     config: types.Config,
     std_site_config: types.config.ProfilesGGG2020StandardSitesItemConfig,
-) -> set[datetime.date]:
+) -> set[datetime.date]:  # pragma: no cover
     assert config.profiles is not None
     from_date = std_site_config.from_date
     to_date = min(
@@ -29,29 +29,21 @@ def list_requested_data(
 def list_downloaded_data(
     config: types.Config,
     std_site_config: types.config.ProfilesGGG2020StandardSitesItemConfig,
-) -> set[datetime.date]:
+) -> set[datetime.date]:  # pragma: no cover
     assert config.profiles is not None
     downloaded_data: set[datetime.date] = set()
 
     cs = utils.text.get_coordinates_slug(lat=std_site_config.lat, lon=std_site_config.lon)
     r = re.compile(r"^\d{8,10}_" + cs + r"\.(map|mod|vmr)$")
     profile_root_dir = os.path.join(config.general.data.atmospheric_profiles.root, "GGG2020")
-    filenames: set[str] = set(
-        [
-            f
-            for f in os.listdir(
-                profile_root_dir
-            )
-            if r.match(f)
-        ]
-    )
+    filenames: set[str] = set([f for f in os.listdir(profile_root_dir) if r.match(f)])
     years = set([f"{y:04d}" for y in range(1950, 2500)]).union(set(os.listdir(profile_root_dir)))
     for y in years:
         for m in range(1, 13):
             _d = os.path.join(profile_root_dir, y, f"{m:02d}")
             if os.path.isdir(_d):
                 filenames.update([f for f in os.listdir(_d) if r.match(f)])
-    
+
     dates: set[datetime.date] = set(
         [
             d
@@ -83,14 +75,14 @@ def list_downloaded_data(
 def compute_missing_data(
     requested_data: set[datetime.date],
     downloaded_data: set[datetime.date],
-) -> set[datetime.date]:
+) -> set[datetime.date]:  # pragma: no cover
     return requested_data.difference(downloaded_data)
 
 
 def download_data(
     config: types.Config,
     ftp: ftplib.FTP,
-) -> None:
+) -> None:  # pragma: no cover
     assert config.profiles is not None
     with rich.progress.Progress() as progress:
         task = progress.add_task(

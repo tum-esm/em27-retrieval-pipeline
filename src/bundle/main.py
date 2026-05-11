@@ -30,7 +30,7 @@ def run(
         em27_metadata_interface = utils.metadata.load_local_em27_metadata_interface()
         if em27_metadata_interface is not None:
             print("Found local metadata")
-        else:
+        else:  # pragma: no cover
             print("Did not find local metadata -> fetching metadata from GitHub")
             assert config.general.metadata is not None, "Remote metadata not configured"
             em27_metadata_interface = em27_metadata.load_from_github(

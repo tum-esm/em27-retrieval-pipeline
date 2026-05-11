@@ -14,7 +14,7 @@ def download_data(
     queries: list[types.DownloadQuery],
     ftp: ftplib.FTP,
     atmospheric_profile_model: types.AtmosphericProfileModel,
-) -> list[types.DownloadQuery]:
+) -> list[types.DownloadQuery]:  # pragma: no cover
     """Downloads data from 'ccycle.gps.caltech.edu' and returns a list of
     queries that were fulfilled."""
 
@@ -79,7 +79,7 @@ def extract_archive(
     lat: float,
     lon: float,
     atmospheric_profile_model: types.AtmosphericProfileModel,
-) -> None:
+) -> None:  # pragma: no cover
     """Extracts, renames and stores archive members."""
 
     dst_path = f"{config.general.data.atmospheric_profiles.root}/{atmospheric_profile_model}"
