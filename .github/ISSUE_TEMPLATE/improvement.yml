@@ -1,0 +1,13 @@
+name: 💡 Improvement
+description: Propose a new feature
+title: "[Improvement]: "
+labels: ["needs triage"]
+assignees:
+  - dostuffthatmatters
+body:
+  - type: textarea
+    attributes:
+      label: Describe your idea
+  - type: markdown
+    attributes:
+      value: "🐝 Thank you for sharing this improvement!"
