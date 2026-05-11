@@ -13,7 +13,6 @@ fi
 
 echo "Running retrieval"
 python ../cli.py retrieval run
-echo "Retrieval completed successfully."
 
 # 2. Run the GEOMS export
 
@@ -22,4 +21,4 @@ cp data/outputs/individual/*/*/*/successful/*/groundbased_ftir.*.h5 data/outputs
 
 # 3. Run the bundle export
 
-# TODO
+python ../cli.py bundle run
