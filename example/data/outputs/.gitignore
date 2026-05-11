@@ -6,3 +6,6 @@ geoms/*
 
 bundles/*
 !bundles/.gitkeep
+
+reports/*
+!reports/.gitkeep

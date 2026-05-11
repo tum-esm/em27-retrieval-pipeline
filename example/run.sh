@@ -22,3 +22,8 @@ cp data/outputs/individual/*/*/*/successful/*/groundbased_ftir.*.h5 data/outputs
 # 3. Run the bundle export
 
 python ../cli.py bundle run
+
+# 4. Data report
+
+python ../cli.py data-report
+cp ../data/reports/mc.csv ../data/reports/so.csv data/outputs/reports

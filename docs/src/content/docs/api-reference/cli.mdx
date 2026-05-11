@@ -17,7 +17,7 @@ exports a report of the data present on the configured system
 
 `--help ` Show this message and exit.
 
-## Start Retrieval Process
+## Start Retrieval Process in the Background
 
 **Usage:**
 
@@ -27,7 +27,23 @@ exports a report of the data present on the configured system
 
 Start the retrieval as a background process. Prevents spawning multiple
 processes. The logs and the current processing queue from this process can
-be found at `logs/retrieval`.
+be found at `data/logs/retrieval`.
+
+**Options:**
+
+
+`--help ` Show this message and exit.
+
+## Start Retrieval Process in the Foreground
+
+**Usage:**
+
+`python cli.py retrieval run [OPTIONS]`
+
+**Description:**  
+
+Run the retrieval. Blocking. The logs and the current processing queue from
+this process can be found at `data/logs/retrieval`.
 
 **Options:**
 
@@ -43,7 +59,8 @@ be found at `logs/retrieval`.
 **Description:**  
 
 Checks whether the retrieval background process is running. The logs and the
-current processing queue from this process can be found at `logs/retrieval`.
+current processing queue from this process can be found at
+`data/logs/retrieval`.
 
 **Options:**
 
