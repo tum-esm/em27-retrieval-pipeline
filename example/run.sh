@@ -9,21 +9,24 @@ if [ "$(pwd)" != "$(dirname $(realpath $0))" ]; then
     exit 1
 fi
 
-# 1. Run the retrieval
+# 0. Clean up old results
+rm -rf data/outputs/individual/proffast-2.4
+rm -rf data/outputs/geoms/*.h5
+rm -rf data/outputs/bundles/*.csv
+rm -rf data/outputs/bundles/*.parquet
+rm -rf data/outputs/reports/*.csv
 
+# 1. Run the retrieval
 echo "Running retrieval"
 python ../cli.py retrieval run
 
 # 2. Run the GEOMS export
-
 python ../cli.py geoms run
 cp data/outputs/individual/*/*/*/successful/*/groundbased_ftir.*.h5 data/outputs/geoms
 
 # 3. Run the bundle export
-
 python ../cli.py bundle run
 
 # 4. Data report
-
 python ../cli.py data-report
 cp ../data/reports/mc.csv ../data/reports/so.csv data/outputs/reports

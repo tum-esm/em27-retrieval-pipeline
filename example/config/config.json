@@ -23,9 +23,7 @@
   "retrieval": {
     "general": {
       "max_process_count": 8,
-      "ifg_file_regex": "^$(SENSOR_ID)$(DATE).*\\.\\d+$",
-      "queue_verbosity": "compact",
-      "container_dir": null
+      "ifg_file_regex": "^$(SENSOR_ID)$(DATE).*\\.\\d+$"
     },
     "jobs": [
       {
