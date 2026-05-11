@@ -128,8 +128,9 @@ class GroundPressureConfig(pydantic.BaseModel):
     @pydantic.model_validator(mode="before")
     def _make_path_absolute(cls, values: Any) -> Any:
         path = values.get("path")
-        if path is not None and not os.path.isabs(path):
-            values["path"] = os.path.abspath(path)
+        if isinstance(path, str):
+            if not os.path.isabs(path):
+                values["path"] = os.path.abspath(path)
         return values
 
     # validate -> you can only set either date AND time OR unix_timestamp
@@ -190,8 +191,9 @@ class DataConfig(pydantic.BaseModel):
     def _make_path_absolute(cls, values: Any) -> Any:
         for key in ["atmospheric_profiles", "interferograms", "results"]:
             path = values.get(key)
-            if path is not None and not os.path.isabs(path):
-                values[key] = os.path.abspath(path)
+            if isinstance(path, str):
+                if not os.path.isabs(path):
+                    values[key] = os.path.abspath(path)
         return values
 
 
