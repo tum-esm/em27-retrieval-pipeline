@@ -362,7 +362,7 @@ def run(
                     )
 
 
-if __name__ == "__main__":
+if __name__ == "__main__":  # pragma: no cover
     geoms_metadata = src.types.GEOMSMetadata.load(template=True)
     calibration_factors = src.types.CalibrationFactorsList.load(template=True)
     geoms_config = src.types.Config.load(

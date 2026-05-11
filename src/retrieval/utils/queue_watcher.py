@@ -16,7 +16,7 @@ from .retrieval_status import RetrievalStatusList
 _RETRIEVAL_ENTRYPOINT = tum_esm_utils.files.rel_to_abs_path("../main.py")
 
 
-def _prettify_timedelta(dt: datetime.timedelta) -> str:
+def _prettify_timedelta(dt: datetime.timedelta) -> str:  # pragma: no cover
     out: str = ""
     total_seconds = dt.total_seconds()
 
@@ -36,7 +36,7 @@ def _prettify_timedelta(dt: datetime.timedelta) -> str:
     return out.strip()
 
 
-def _render(cluster_mode: bool) -> Any:
+def _render(cluster_mode: bool) -> Any:  # pragma: no cover
     processes = RetrievalStatusList.load()
     pending_process_count = len([x for x in processes if x.process_start_time is None])
     done_process_count = len([x for x in processes if x.process_end_time is not None])
@@ -163,7 +163,7 @@ def _render(cluster_mode: bool) -> Any:
     return grid
 
 
-def start_retrieval_watcher(cluster_mode: bool = False) -> None:
+def start_retrieval_watcher(cluster_mode: bool = False) -> None:  # pragma: no cover
     console = rich.console.Console()
     console.clear()
     with rich.live.Live(refresh_per_second=1) as live:

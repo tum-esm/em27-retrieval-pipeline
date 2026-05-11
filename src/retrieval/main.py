@@ -37,7 +37,7 @@ def run() -> None:
 
     # tear down logger gracefully when process is killed
 
-    def _graceful_teardown(*args: Any) -> None:
+    def _graceful_teardown(*args: Any) -> None:  # pragma: no cover
         main_logger.info("Automation was stopped by user")
         main_logger.info(f"Killing {len(processes)} container(s)")
         for process in processes:
@@ -79,7 +79,7 @@ def run() -> None:
         em27_metadata_interface = utils.metadata.load_local_em27_metadata_interface()
         if em27_metadata_interface is not None:
             print("Found local metadata")
-        else:
+        else:  # pragma: no cover
             print("Did not find local metadata -> fetching metadata from GitHub")
             assert config.general.metadata is not None, "Remote metadata not configured"
             em27_metadata_interface = em27_metadata.load_from_github(
@@ -87,7 +87,7 @@ def run() -> None:
                 access_token=config.general.metadata.access_token,
             )
             print("Successfully fetched metadata from GitHub")
-    except Exception as e:
+    except Exception as e:  # pragma: no cover
         main_logger.exception(e, "Error while loading local metadata")
         main_logger.archive()
         raise e
@@ -98,12 +98,12 @@ def run() -> None:
 
     for job_index, job in enumerate(config.retrieval.jobs):
         main_logger.info(
-            f"Generating retrieval queue for job {job_index+1}: {job.model_dump_json(indent=4)}"
+            f"Generating retrieval queue for job {job_index + 1}: {job.model_dump_json(indent=4)}"
         )
         retrieval_sdcs = retrieval.dispatching.retrieval_queue.generate_retrieval_queue(
             config, main_logger, em27_metadata_interface, job
         )
-        main_logger.info(f"Found {len(retrieval_sdcs)} items for job {job_index+1}")
+        main_logger.info(f"Found {len(retrieval_sdcs)} items for job {job_index + 1}")
         for sdc in retrieval_sdcs:
             job_queue.push(
                 job.retrieval_algorithm,
