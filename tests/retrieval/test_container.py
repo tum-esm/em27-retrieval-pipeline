@@ -10,7 +10,6 @@ import src
 import polars as pl
 from tests.fixtures import (
     wrap_test_with_mainlock,  # pyright: ignore[reportUnusedImport]
-    download_sample_data,  # pyright: ignore[reportUnusedImport]
     provide_config_template,  # pyright: ignore[reportUnusedImport]
     remove_temporary_retrieval_data,  # pyright: ignore[reportUnusedImport]
 )
@@ -113,7 +112,6 @@ def test_sdc_covers_the_full_day() -> None:
 @pytest.mark.ci
 def test_container_lifecycle_ci(
     wrap_test_with_mainlock: None,
-    download_sample_data: None,
     remove_temporary_retrieval_data: None,
     provide_config_template: src.types.Config,
     provide_container_factory_for_ci_tests: src.retrieval.dispatching.container_factory.ContainerFactory,
@@ -151,7 +149,6 @@ def test_container_lifecycle_ci(
 @pytest.mark.complete
 def test_container_lifecycle_complete(
     wrap_test_with_mainlock: None,
-    download_sample_data: None,
     remove_temporary_retrieval_data: None,
     provide_config_template: src.types.Config,
     provide_container_factory_for_complete_tests: src.retrieval.dispatching.container_factory.ContainerFactory,
