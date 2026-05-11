@@ -4,7 +4,6 @@ import random
 import pytest
 import tum_esm_utils
 import src
-from ..fixtures import download_sample_data  # pyright: ignore[reportUnusedImport]
 
 _GROUND_PRESSURE_DIR = tum_esm_utils.files.rel_to_abs_path(
     "../../data/testing/inputs/data/ground-pressure"
@@ -25,7 +24,7 @@ def test_solar_noon_computation() -> None:
 
 @pytest.mark.order(3)
 @pytest.mark.quick
-def test_pressure_averaging(download_sample_data: None) -> None:
+def test_pressure_averaging() -> None:
     for filepath in [
         os.path.join(_GROUND_PRESSURE_DIR, "mc/ground-pressure-mc-2022-06-02.csv"),
         os.path.join(_GROUND_PRESSURE_DIR, "so/ground-pressure-so-2017-06-08.csv"),

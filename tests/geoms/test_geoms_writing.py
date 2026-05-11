@@ -3,7 +3,6 @@ import os
 import pytest
 import src
 import tum_esm_utils
-from ..fixtures import download_sample_data  # pyright: ignore[reportUnusedImport]
 
 PROJECT_DIR = tum_esm_utils.files.rel_to_abs_path("../..")
 INPUT_DATA_DIR = os.path.join(PROJECT_DIR, "data", "testing", "inputs")
@@ -100,7 +99,7 @@ GEOMS_METADATA = {
 
 @pytest.mark.order(3)
 @pytest.mark.quick
-def test_geoms_export(download_sample_data: None) -> None:
+def test_geoms_export() -> None:
     config = src.types.Config.model_validate(CONFIG)
     assert config.geoms is not None
 

@@ -5,7 +5,6 @@ import dotenv
 import em27_metadata
 import tum_esm_utils
 from ..fixtures import (
-    download_sample_data,  # pyright: ignore[reportUnusedImport]
     provide_config_template,  # pyright: ignore[reportUnusedImport]
     remove_temporary_retrieval_data,  # pyright: ignore[reportUnusedImport]
 )
@@ -61,7 +60,6 @@ def _check_retrieval_queue(
 @pytest.mark.order(3)
 @pytest.mark.quick
 def test_retrieval_queue(
-    download_sample_data: None,
     remove_temporary_retrieval_data: None,
     provide_config_template: types.Config,
 ) -> None:
