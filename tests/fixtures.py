@@ -35,7 +35,7 @@ def provide_config_template() -> Generator[src.types.Config, None, None]:
 @pytest.fixture(scope="function")
 def remove_temporary_retrieval_data() -> Generator[None, None, None]:
     # remove all output data before test
-    output_path = tum_esm_utils.files.rel_to_abs_path("../data/testing/container/outputs")
+    output_path = tum_esm_utils.files.rel_to_abs_path("../data/testing/outputs/individual-results")
     for f in os.listdir(output_path):
         p = os.path.join(output_path, f)
         if os.path.isdir(p):

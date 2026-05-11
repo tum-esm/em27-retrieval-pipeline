@@ -6,7 +6,7 @@ import tum_esm_utils
 import src
 
 _GROUND_PRESSURE_DIR = tum_esm_utils.files.rel_to_abs_path(
-    "../../data/testing/inputs/data/ground-pressure"
+    "../../example/data/inputs/ground-pressure"
 )
 
 
