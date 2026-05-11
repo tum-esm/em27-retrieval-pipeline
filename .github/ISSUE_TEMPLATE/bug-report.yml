@@ -1,0 +1,21 @@
+name: 🪲 Bug Report
+description: File a bug report
+title: "[Bug]: "
+labels: ["needs triage"]
+assignees:
+  - dostuffthatmatters
+body:
+  - type: input
+    attributes:
+      label: Operating System
+      description: Please note, that the pipeline is only targeted at Unix systems
+  - type: input
+    attributes:
+      label: EM27 Retrieval Pipeline Version
+      placeholder: x.y.z
+  - type: textarea
+    attributes:
+      label: Describe the Bug
+  - type: markdown
+    attributes:
+      value: "🐝 Thank you for reporting this bug!"
