@@ -51,3 +51,14 @@ jobs:
         env:
           GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: pytest -m "quick or ci" --capture=no --cov=src tests/
+
+      - name: Upload retrieval logs
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: retrieval-ci-debug-logs
+          path: |
+            data/logs/retrieval/
+            data/testing/outputs/individual-results/
+            data/containers/
+          if-no-files-found: ignore
