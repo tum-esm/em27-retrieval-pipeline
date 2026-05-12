@@ -58,19 +58,19 @@ bibliography: paper.bib
 
 # Summary
 
-The EM27/SUN [@Gisi2011;@Hase2016] is an FTIR spectrometer used to perform solar absorption measurements to derive column-averaged atmospheric concentrations of greenhouse gases (GHGs). In support of ESA, the COllaborative Carbon Column Observing Network (COCCON) [@Frey2019;@Alberti2021;@Herkommer2024] has been established to offer a framework for the operation and data analysis of the EM27/SUN, ensuring the generation of fiducial GHG observations. The process of estimating the column-averaged concentration of GHGs from the interferograms recorded by the EM27/SUN is called retrieval. The retrieval algorithm established in the COCCON community is PROFFAST [@Hase1999;@Sha2020;@Hase2023]. PROFFASTpylot [@Feld2024] is an interface around PROFFAST that significantly reduces the complexity of running PROFFAST retrievals.
+The EM27/SUN [@Gisi2011;@Hase2016] is a Fourier-transform infrared (FTIR) spectrometer used to perform solar absorption measurements to derive column-averaged atmospheric concentrations of greenhouse gases (GHGs). In support of the European Space Agency (ESA), the COllaborative Carbon Column Observing Network (COCCON) has been established to offer a framework for the operation and data analysis of the EM27/SUN, ensuring the generation of fiducial GHG observations [@Frey2019;@Alberti2021;@Herkommer2024]. The process of estimating the column-averaged concentration of GHGs from the interferograms recorded by the EM27/SUN is called retrieval. The retrieval algorithm established in the COCCON community is PROFFAST [@Hase1999;@Sha2020;@Hase2023]. PROFFASTpylot [@Feld2024] is an interface around PROFFAST that significantly reduces the complexity of running its retrievals.
 
 ![Modules of the EM27 Retrieval Pipeline.\label{fig:architecture}](architecture.png){width="75%"}
 
 \vspace{-3mm}
 
-The Munich Urban Carbon Column network (MUCCnet) consists of 5 EM27/SUN spectrometers deployed in and around Munich, Germany [@Heinle2018;@Dietrich2021;@Aigner2023]. Due to its autonomous operation since 2019, our research group generates a significant amount of EM27/SUN data. Processing this data in an automated and scalable way required us to extend the functionality of the PROFFASTpylot. Under the hood, we use the PROFFASTpylot to ensure consistency with the COCCON community.
+The Munich Urban Carbon Column network (MUCCnet) consists of 5 EM27/SUN spectrometers deployed in and around Munich, Germany [@Heinle2018;@Dietrich2021;@Aigner2023]. Due to its autonomous operation since 2019, our research group generates a significant amount of EM27/SUN data. Processing this data in an automated and scalable way required us to extend the functionality of the PROFFASTpylot. Under the hood, we use the PROFFASTpylot to ensure consistency with the COCCON community. \autoref{fig:architecture} shows the current building blocks of the EM27 Retrieval Pipeline. 
 
 # State of the Field
 
 The EM27 Retrieval Pipeline is complementary to the PROFFASTpylot [@Feld2024]. In general, the more EM27/SUN measurement data one has to retrieve, the more benefits come from the higher degree of automation the pipeline offers. While not implementing 100% of the flexibility the PROFFASTpylot provides, this pipeline is flexible enough to be used by any EM27/SUN setup, adhering to COCCON processing standards. Since the EM27 Retrieval Pipeline is an automation layer on top of the underlying retrieval algorithm, it is algorithm-agnostic and could be extended to support GFIT [@Connor2016;@Zeng2021] or other algorithms.
 
-GGG2014/GGG2020 [@Wunch2015;@Laughner2024] is the data processing suite of the Total Carbon Column Observing Network (TCCON) [@tccon]. It is built around the GFIT retrieval algorithm and offers a similar degree of automation as the PROFFASTpylot. Since the TCCON instruments are significantly larger and more complex to deploy than the EM27/SUN, the GGG processing suite does not explicitly account for frequent instrument redeployments.
+GGG2014/GGG2020 [@Wunch2015;@Laughner2024] is the data processing suite of the Total Carbon Column Observing Network (TCCON) [@tccon]. It is built around the GFIT retrieval algorithm [@Zeng2021] and offers a similar degree of automation as the PROFFASTpylot. Since the TCCON instruments are significantly larger and more complex to deploy than the EM27/SUN, the GGG processing suite does not explicitly account for frequent instrument redeployments.
 
 # Statement of Need
 
@@ -91,18 +91,18 @@ We made the following architectural decisions to achieve this higher degree of a
 - **Parallelization and Containerization:** While the PROFFASTpylot parallelizes the individual steps of PROFFAST, the pipeline parallelizes the whole retrieval process by running one isolated retrieval job per instrument per day. Every result folder maintains the structure of an individual PROFFASTpylot run, but also contains all configuration files required to reproduce it.
 - **Algorithm Support:** While each tagged release of the PROFFASTpylot supports a specific range of PROFFAST versions, the EM27 Retrieval Pipeline keeps support for all implemented retrieval algorithms and versions.
 - **Caching/Implicit Scheduling:** Users do not have to define an explicit queue of jobs, but instead define a date range and a list of sensors. The downloading/retrieval/bundling will decide which jobs to run, i.e., only run the jobs where no output exists yet.
-- **Testing:** The codebase is statically typed and checked with strict MyPy [@mypy] and Pyright [@pyright], and includes unit- and end-to-end tests (using PyTest [@pytest]) covering all major functions and retrieval scenarios.
+- **Testing:** The codebase is statically typed and checked with strict MyPy [@mypy] and Pyright [@pyright], and includes unit- and end-to-end tests using Pytest [@pytest] covering all major functions and retrieval scenarios.
 
 Furthermore, the pipeline adds features required to produce long-term EM27/SUN datasets:
 
-- **A fully automated interface to obtain Ginput data:** It automates requests for atmospheric profiles in the GGG2014 or GGG2020 format from a Ginput server [@Laughner2021;@Laughner2023;@tcconwiki].
+- **A fully automated interface to obtain Ginput data:** It automates requests for atmospheric profiles in the GGG2014 [@Wunch2015] or GGG2020 [@Laughner2023;@Laughner2024] format from a Ginput server [@Laughner2021;@tcconwiki].
 - **Bundling of retrieval results:** The raw retrieval outputs can be distributed over thousands of folders. The bundling routine merges these outputs into one file per sensor/retrieval algorithm/atmospheric profile, suitable for distribution.
 
-\autoref{fig:architecture} shows the current building blocks of the EM27 Retrieval Pipeline. For the full feature set of the pipeline, please refer to its GitHub repository at [github.com/tum-esm/em27-retrieval-pipeline](https://github.com/tum-esm/em27-retrieval-pipeline) and documentation. For example, starting with version 1.8, the pipeline extracts important parameters from the given OPUS files using the OPUS-file reader of the `tum-esm-utils` library [@tumesmutils].
+For the full feature set of the pipeline, please refer to its GitHub repository at [github.com/tum-esm/em27-retrieval-pipeline](https://github.com/tum-esm/em27-retrieval-pipeline) and documentation. For example, starting with version 1.8, the pipeline extracts important parameters from the given OPUS files using the OPUS-file reader of the `tum-esm-utils` library [@tumesmutils].
 
 # Research Impact Statement
 
-The pipeline was first established in 2021 [@Rimann2022] and has been used for our entire EM27/SUN dataset since 2022 [@Luther2023;@Klappenbach2024;@Chen2024;@Tang2024;@Loew2025;@Stauber2025;@Chen2025ICUC]. Multiple journal publications using MUCCnet for inverse modeling are currently in preparation. The data generated by MUCCnet and the EM27 Retrieval Pipeline has been published to the ICOS Carbon Portal [@Makowski2023CarbonPortal;@Makowski2024CarbonPortal] and the EVDC Portal [@Loew2025EVDC;@Chen2025EVDCOCOPF10;@Chen2025EVDCOCOPF22] and is a cruicial data input for the GHG modeling approaches developed with the grants listed below.
+The pipeline was first established in 2021 [@Rimann2022] and has been used since 2022 to process our entire EM27/SUN dataset [@Luther2023;@Klappenbach2024;@Chen2024;@Tang2024;@Loew2025;@Stauber2025;@Chen2025ICUC]. The data generated by MUCCnet and the EM27 Retrieval Pipeline has been published to the ICOS Carbon Portal [@Makowski2023CarbonPortal;@Makowski2024CarbonPortal] and the EVDC Portal [@Loew2025EVDC;@Chen2025EVDCOCOPF10;@Chen2025EVDCOCOPF22] and is a cruicial data input for the GHG modeling approaches developed with the grants listed below.
 
 # AI Usage Disclosure
 
