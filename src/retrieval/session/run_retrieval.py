@@ -120,3 +120,8 @@ def _create_mock_outputs(session: types.RetrievalSession) -> None:
         os.makedirs(p, exist_ok=True)
         with open(os.path.join(p, "dummyfile"), "w") as f:
             f.write("...")
+
+    opus_file_stats_path = os.path.join(session.ctn.container_path, "opus_file_stats.csv")
+    if not os.path.isfile(opus_file_stats_path):
+        with open(opus_file_stats_path, "w") as f:
+            f.write("opus_filename,retrieval_filename,checksum")

@@ -89,5 +89,7 @@ def run(config: types.Config, session: types.RetrievalSession, test_mode: bool =
         logger.info("Finished")
     except Exception as e:
         logger.exception(e, label="Moving outputs failed")
+        if test_mode:
+            raise
 
     _last_will()
