@@ -27,11 +27,6 @@ jobs:
       - name: Install dependencies
         run: pip install ".[dev]"
       
-      # Run all tests for python 3.11
-      - name: Install retrieval dependencies
-        if: ${{ matrix.python_version == '3.11' }}
-        run: apt update && apt install -y unzip gfortran
-      
       - name: Load cached sample data and proffast code
         uses: actions/cache@v4
         with:
