@@ -21,11 +21,24 @@ jobs:
         uses: actions/checkout@v4
         with:
           lfs: true
+      - name: Pull Git LFS files
+        run: |
+          git lfs install
+          git lfs pull
+          git lfs ls-files
+
       - name: Set up Python ${{ matrix.python_version }}
         uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python_version }}
           cache: "pip"
+      
+      - name: Install system dependencies
+        if: ${{ matrix.python_version == '3.11' }}
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gfortran unzip
+
       - name: Install dependencies
         run: pip install ".[dev]"
       
