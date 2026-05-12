@@ -4,6 +4,10 @@ label: Installation
 ---
 import { Aside } from '@astrojs/starlight/components';
 
+**System requirements**
+
+We can only guarantee that the pipeline works on Unix-systems. You need Python3.11+ installed on your system as well as `unzip` and `gfortran`.
+
 **Get the code**
 
 1. Clone the [repository](https://github.com/tum-esm/automated-retrieval-pipeline) or download the source code of a [specific release](https://github.com/tum-esm/em27-retrieval-pipeline/releases).
@@ -19,7 +23,7 @@ We recommend using [PDM](https://pdm-project.org/) - a Python package manager - 
 
 **Configure it on your system**
 
-5. Install System Dependencies: e.g. `sudo apt install unzip gfortran`
+5. Install system dependencies: e.g. `sudo apt install unzip gfortran`
 6. Use the `config/config.template.json` to create a `config.json` file.
 7. Set up the metadata locally or remotely (see [metadata guide](/guides/metadata))
 
