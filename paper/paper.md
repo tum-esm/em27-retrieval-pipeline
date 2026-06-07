@@ -60,11 +60,9 @@ bibliography: paper.bib
 
 The EM27/SUN [@Gisi2011;@Hase2016] is a Fourier-transform infrared (FTIR) spectrometer used to perform solar absorption measurements to derive column-averaged atmospheric concentrations of greenhouse gases (GHGs). In support of the European Space Agency (ESA), the COllaborative Carbon Column Observing Network (COCCON) has been established to offer a framework for the operation and data analysis of the EM27/SUN, ensuring the generation of fiducial GHG observations [@Frey2019;@Alberti2021;@Herkommer2024]. The process of estimating the column-averaged concentration of GHGs from the interferograms recorded by the EM27/SUN is called retrieval. The retrieval algorithm established in the COCCON community is PROFFAST [@Hase1999;@Sha2020;@Hase2023]. PROFFASTpylot [@Feld2024] is an interface around PROFFAST that significantly reduces the complexity of running its retrievals.
 
-![Modules of the EM27 Retrieval Pipeline.\label{fig:architecture}](architecture.png){width="75%"}
+The Munich Urban Carbon Column network (MUCCnet) consists of 5 EM27/SUN spectrometers deployed in and around Munich, Germany [@Heinle2018;@Dietrich2021;@Aigner2023]. Due to its autonomous operation since 2019, our research group generates a significant amount of EM27/SUN data. Processing this data in an automated and scalable way required us to extend the functionality of the PROFFASTpylot. Under the hood, we use the PROFFASTpylot to ensure consistency with the COCCON community. \autoref{fig:architecture} shows the current building blocks of the EM27 Retrieval Pipeline covering all stages from raw data to bundled retrieval results.
 
-\vspace{-3mm}
-
-The Munich Urban Carbon Column network (MUCCnet) consists of 5 EM27/SUN spectrometers deployed in and around Munich, Germany [@Heinle2018;@Dietrich2021;@Aigner2023]. Due to its autonomous operation since 2019, our research group generates a significant amount of EM27/SUN data. Processing this data in an automated and scalable way required us to extend the functionality of the PROFFASTpylot. Under the hood, we use the PROFFASTpylot to ensure consistency with the COCCON community. \autoref{fig:architecture} shows the current building blocks of the EM27 Retrieval Pipeline. 
+![Modules of the EM27 Retrieval Pipeline. Red marks components of the EM27 Retrieval Pipeline, yellow marks input data, blue marks output data.\label{fig:architecture}](erp-architecture.pdf){width="100%"}
 
 # State of the Field
 
