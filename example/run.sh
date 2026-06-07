@@ -1,15 +1,18 @@
 #!/bin/bash
 
+# Stop on the first error
 set -e errexit
-export ERP_CONFIG_DIR="$(dirname $(realpath $0))/config"
 
-# i.e. cd .../example && bash run.sh
+# Check if the script is being run from the correct directory
 if [ "$(pwd)" != "$(dirname $(realpath $0))" ]; then
     echo "Please run this script from the directory where it is located: $(dirname $(realpath $0))"
     exit 1
 fi
 
-# 0. Clean up old results
+# Preparation: Define directory where to find the config files
+export ERP_CONFIG_DIR="$(dirname $(realpath $0))/config"
+
+# Preparation: Clean up old results
 rm -rf data/outputs/individual/proffast-2.4
 rm -rf data/outputs/geoms/*.h5
 rm -rf data/outputs/bundles/*.csv
