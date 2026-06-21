@@ -103,7 +103,7 @@ patch = ["subprocess"]
 concurrency = ["multiprocessing"]
 
 [tool.coverage.report]
-exclude_also = ["raise", "except "]
+exclude_also = ["raise", "except", "continue"]
 
 [tool.ruff.lint]
 exclude = [

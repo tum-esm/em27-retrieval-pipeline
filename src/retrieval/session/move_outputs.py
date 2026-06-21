@@ -176,8 +176,9 @@ def run(
         dumped_config = config.model_copy(deep=True)
         assert dumped_config.retrieval is not None
         if dumped_config.general.metadata is not None:
-            if dumped_config.general.metadata.access_token is not None:  # pragma: no cover
-                dumped_config.general.metadata.access_token = "REDACTED"
+            dumped_config.general.metadata.access_token = (
+                "REDACTED" if (dumped_config.general.metadata.access_token is not None) else None
+            )
         about = types.AboutRetrieval(
             automationVersion=utils.functions.get_pipeline_version(),
             automationCommitSha=tum_esm_utils.shell.get_commit_sha(),
