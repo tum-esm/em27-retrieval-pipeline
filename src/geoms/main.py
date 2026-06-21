@@ -58,8 +58,8 @@ def generate_geoms_file(
         sensor_id = about_json["session"]["ctx"]["sensor_id"]
         serial_number = int(about_json["session"]["ctx"]["serial_number"])
         location = em27_metadata.types.LocationMetadata.model_validate(about_json["session"]["ctx"]["location"])
-        from_dt = datetime.datetime.fromisoformat(about_json["session"]["ctx"]["from_datetime"]).astimezone(datetime.timezone.utc)
-        to_dt = datetime.datetime.fromisoformat(about_json["session"]["ctx"]["to_datetime"]).astimezone(datetime.timezone.utc)
+        from_dt = datetime.datetime.fromisoformat(about_json["session"]["ctx"]["from_datetime"]).replace(tzinfo=datetime.timezone.utc)
+        to_dt = datetime.datetime.fromisoformat(about_json["session"]["ctx"]["to_datetime"]).replace(tzinfo=datetime.timezone.utc)
     else:
         sensor_id = about_json["session"]["sensor_id"]
         serial_number = int(about_json["session"]["serial_number"])
@@ -69,7 +69,7 @@ def generate_geoms_file(
         to_dt = datetime.datetime.combine(date, datetime.time(23, 59, 59), tzinfo=datetime.timezone.utc)
     
     assert sensor_id is not None, "Sensor ID could not be determined"
-    assert from_dt.date() == to_dt.date(), "Something is wrong"
+    assert from_dt.date() == to_dt.date(), f"Something is wrong"
 
     # determine calibration factors
     from_dt_calibration_factors_index = calibration_factors.get_index(sensor_id, from_dt)
