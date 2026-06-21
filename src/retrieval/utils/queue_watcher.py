@@ -7,8 +7,8 @@ import rich.columns
 import rich.console
 import rich.live
 import rich.panel
-import rich.table
 import rich.spinner
+import rich.table
 import tum_esm_utils
 
 from .retrieval_status import RetrievalStatusList

@@ -7,10 +7,11 @@ if "POLARS_MAX_THREADS" not in os.environ:
 import ftplib
 import io
 import sys
-import tqdm
+
 import click
 import em27_metadata
 import pydantic
+import tqdm
 import tum_esm_utils
 
 _RETRIEVAL_ENTRYPOINT = tum_esm_utils.files.rel_to_abs_path("src", "retrieval", "main.py")

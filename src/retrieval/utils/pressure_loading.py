@@ -1,7 +1,9 @@
-from typing import Optional
 import datetime
 import os
+from typing import Optional
+
 import polars as pl
+
 from src import types, utils
 
 

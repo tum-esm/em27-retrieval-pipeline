@@ -1,8 +1,9 @@
-import re
-from typing import Optional
-import shutil
 import os
+import re
+import shutil
 import sys
+from typing import Optional
+
 import click.core
 import em27_metadata
 import tum_esm_utils

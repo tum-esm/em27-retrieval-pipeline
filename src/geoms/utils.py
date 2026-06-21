@@ -7,16 +7,18 @@ Karlsruhe Institut of Technology (KIT)."""
 
 import datetime
 import glob
+import math
 import os
 import re
 from typing import Any, Optional
+
 import numpy as np
-import math
 import pandas as pd
 import polars as pl
 import tum_esm_utils
-from src import bundle
+
 import src
+from src import bundle
 
 
 def geoms_times_to_datetime(times: list[float]) -> list[datetime.datetime]:
@@ -79,13 +81,13 @@ def load_comb_invparms_df(
         df = df.with_columns(
             pl.col("ch1_fwd_dc_mean").add(pl.col("ch1_bwd_dc_mean")).mul(0.5).abs() \
                 .ge(geoms_config.dc_min_xco2).alias("xco2_dc_valid"),
-                
+
             pl.col("ch1_fwd_dc_mean").add(pl.col("ch1_bwd_dc_mean")).mul(0.5).abs() \
                 .ge(geoms_config.dc_min_xch4).alias("xch4_dc_valid"),
-                
+
             pl.col("ch1_fwd_dc_mean").add(pl.col("ch1_bwd_dc_mean")).mul(0.5).abs() \
                 .ge(geoms_config.dc_min_xh2o).alias("xh2o_dc_valid"),
-                
+
             pl.col("ch2_fwd_dc_mean").add(pl.col("ch2_bwd_dc_mean")).mul(0.5).abs() \
                 .ge(geoms_config.dc_min_xco).alias("xco_dc_valid"),
         )
