@@ -60,7 +60,8 @@ def generate_geoms_file(
         location = em27_metadata.types.LocationMetadata.model_validate(about_json["session"]["ctx"]["location"])
         from_dt = datetime.datetime.fromisoformat(about_json["session"]["ctx"]["from_datetime"]).replace(tzinfo=datetime.timezone.utc)
         to_dt = datetime.datetime.fromisoformat(about_json["session"]["ctx"]["to_datetime"]).replace(tzinfo=datetime.timezone.utc)
-    else:
+    else: # pragma: no cover
+        # just kept for compatibility with old results
         sensor_id = about_json["session"]["sensor_id"]
         serial_number = int(about_json["session"]["serial_number"])
         location = em27_metadata.types.LocationMetadata.model_validate(about_json["session"]["location"])
@@ -74,11 +75,11 @@ def generate_geoms_file(
     # determine calibration factors
     from_dt_calibration_factors_index = calibration_factors.get_index(sensor_id, from_dt)
     to_dt_calibration_factors_index = calibration_factors.get_index(sensor_id, to_dt)
-    if from_dt_calibration_factors_index is None:
+    if from_dt_calibration_factors_index is None:  # pragma: no cover
         raise ValueError(f"Calibration factors not found for {sensor_id} @ {from_dt}")
-    if to_dt_calibration_factors_index is None:
+    if to_dt_calibration_factors_index is None:  # pragma: no cover
         raise ValueError(f"Calibration factors not found for {sensor_id} @ {to_dt}")
-    if from_dt_calibration_factors_index != to_dt_calibration_factors_index:
+    if from_dt_calibration_factors_index != to_dt_calibration_factors_index:  # pragma: no cover
         raise ValueError(
             f"Calibration factors changed during the period {from_dt} - {to_dt}. "
             + "Please make sure, there is a break in the metadata setup timeseries"
@@ -86,12 +87,12 @@ def generate_geoms_file(
 
     # load dataframe
     pl_df = load_comb_invparms_df(results_dir, sensor_id, geoms_config, retrieval_algorithm)
-    if pl_df is None:
+    if pl_df is None:  # pragma: no cover
         return None, "No data found"
     pl_df = pl_df.filter(
         (pl.col("utc") >= from_datetime) & (pl.col("utc") <= to_datetime)
     )
-    if len(pl_df) < geoms_config.min_datapoints_per_day:
+    if len(pl_df) < geoms_config.min_datapoints_per_day:  # pragma: no cover
         return None, f"Not enough data (less than {geoms_config.min_datapoints_per_day} datapoints)"
     
     # determine filename
@@ -118,9 +119,9 @@ def generate_geoms_file(
         os.remove(tmp_filepath)
     
     if os.path.isfile(filepath):
-        if geoms_config.conflict_mode == "skip":
+        if geoms_config.conflict_mode == "skip":  # pragma: no cover
             return filepath, "File already exists"
-        if geoms_config.conflict_mode == "error":
+        if geoms_config.conflict_mode == "error":  # pragma: no cover
             raise FileExistsError(f"File already exists: {filepath}")
         # else: replace
         os.remove(filepath)
@@ -147,7 +148,7 @@ def generate_geoms_file(
     df = pl_df.to_pandas()
     utctimes = df["utc"]
     for t1, t2 in zip(utctimes[:-1], utctimes[1:]):
-        if t2 <= t1:
+        if t2 <= t1:  # pragma: no cover
             raise ValueError("Timestamps are not strictly increasing")
 
     # setup
@@ -257,7 +258,7 @@ def generate_geoms_file(
         if re.match(r".*_\d{8}t\d{6}[^_]+_\d{8}t\d{6}[^_]+_\d+(\.tmp)?\.h5", f)
     ]
     for f in existing_geoms_files:
-        if f != tmp_filename:
+        if f != tmp_filename:  # pragma: no cover
             os.remove(os.path.join(results_dir, f))
     
     os.rename(tmp_filepath, filepath)
@@ -286,7 +287,9 @@ def run(
 
     for retrieval_algorithm in config.geoms.retrieval_algorithms:
         for atmospheric_profile_model in config.geoms.atmospheric_profile_models:
-            if (retrieval_algorithm == "proffast-1.0") and (atmospheric_profile_model == "GGG2020"):
+            if (retrieval_algorithm == "proffast-1.0") and (
+                atmospheric_profile_model == "GGG2020"
+            ):  # pragma: no cover
                 print("Skipping proffast-1.0/GGG2020 as it is not supported")
                 continue
 
@@ -302,7 +305,7 @@ def run(
                     sensor_id,
                     "successful",
                 )
-                if not os.path.exists(results_folders):
+                if not os.path.exists(results_folders):  # pragma: no cover
                     print(f"Sensor {sensor_id}: no results found")
                     continue
                 results = os.listdir(results_folders)

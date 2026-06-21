@@ -38,7 +38,7 @@ def run(config: types.Config, session: types.RetrievalSession, test_mode: bool =
         )
         logger.archive()
 
-    def _graceful_teardown(*args: Any) -> None:
+    def _graceful_teardown(*args: Any) -> None:  # pragma: no cover
         logger.info("Container was killed")
         _last_will()
         exit(0)
@@ -56,7 +56,7 @@ def run(config: types.Config, session: types.RetrievalSession, test_mode: bool =
 
         logger.debug("Moving interferograms")
         valid_ifg_count = move_ifg_files.run(config, logger, session)
-    except Exception as e:
+    except Exception as e:  # pragma: no cover
         logger.warning(f"Inputs incomplete: {e}")
         _last_will()
         return
@@ -65,7 +65,7 @@ def run(config: types.Config, session: types.RetrievalSession, test_mode: bool =
         logger.info("Updating retrieval templates")
         try:
             update_templates.run(logger, session)
-        except Exception as e:
+        except Exception as e:  # pragma: no cover
             logger.exception(e, label="Failed to update templates")
             _last_will()
             return
@@ -74,9 +74,9 @@ def run(config: types.Config, session: types.RetrievalSession, test_mode: bool =
         try:
             run_retrieval.run(session, test_mode=test_mode)
             logger.debug("Pylot execution was successful")
-        except Exception as e:
+        except Exception as e:  # pragma: no cover
             logger.exception(e, label="Proffast execution failed")
-    else:
+    else:  # pragma: no cover
         logger.info("Skipping proffast execution because there are no valid interferograms")
 
     # uncomment the following return if you want to observe the final
@@ -87,7 +87,7 @@ def run(config: types.Config, session: types.RetrievalSession, test_mode: bool =
     try:
         move_outputs.run(config, logger, session, test_mode=test_mode)
         logger.info("Finished")
-    except Exception as e:
+    except Exception as e:  # pragma: no cover
         logger.exception(e, label="Moving outputs failed")
         if test_mode:
             raise

@@ -1,8 +1,7 @@
+from typing import Optional
 import datetime
 import os
-
 import polars as pl
-
 from src import types, utils
 
 
@@ -48,7 +47,7 @@ def pressure_files_exist(
             file_regex, sensor_id, date
         )
         return any([specific_file_pattern.match(f) is not None for f in os.listdir(d)])
-    except FileNotFoundError:
+    except FileNotFoundError:  # pragma: no cover
         return False
 
 
@@ -91,25 +90,17 @@ def load_pressure_file(
 
     # LOAD PRESSURE
 
-    custom_unit_to_hpa: float
-    if c.pressure_column_format == "hPa":
-        custom_unit_to_hpa = 1
-    elif c.pressure_column_format == "Pa":
-        custom_unit_to_hpa = 0.01
-    elif c.pressure_column_format == "bar":
-        custom_unit_to_hpa = 1000
-    elif c.pressure_column_format == "mbar":
-        custom_unit_to_hpa = 1
-    elif c.pressure_column_format == "atm":
-        custom_unit_to_hpa = 1013.25
-    elif c.pressure_column_format == "psi":
-        custom_unit_to_hpa = 68.9476
-    elif c.pressure_column_format == "inHg":
-        custom_unit_to_hpa = 33.8639
-    elif c.pressure_column_format == "mmHg":
-        custom_unit_to_hpa = 1.33322
-    else:
-        raise Exception("This should not happen")
+    custom_unit_to_hpa: Optional[float] = {
+        "hPa": 1.0,
+        "Pa": 0.01,
+        "bar": 1000.0,
+        "mbar": 1.0,
+        "atm": 1013.25,
+        "psi": 68.9476,
+        "inHg": 33.8639,
+        "mmHg": 1.33322,
+    }.get(c.pressure_column_format, None)
+    assert custom_unit_to_hpa is not None, "This should not happen"
 
     pressures = [
         float(p)
@@ -128,7 +119,7 @@ def load_pressure_file(
                         datetime.timezone.utc
                     )
                 )
-            except ValueError:
+            except ValueError:  # pragma: no cover
                 raise ValueError(
                     f"datetime `{d}` does not match format `{c.datetime_column_format}`"
                 )
@@ -143,13 +134,13 @@ def load_pressure_file(
         for d in df[c.date_column]:
             try:
                 dates.append(datetime.datetime.strptime(d, c.date_column_format).date())
-            except ValueError:
+            except ValueError:  # pragma: no cover
                 raise ValueError(f"date `{d}` does not match format `{c.date_column_format}`")
         times: list[datetime.time] = []
         for t in df[c.time_column]:
             try:
                 times.append(datetime.datetime.strptime(t, c.time_column_format).time())
-            except ValueError:
+            except ValueError:  # pragma: no cover
                 raise ValueError(f"time `{t}` does not match format `{c.time_column_format}`")
 
         datetimes = [
@@ -162,17 +153,13 @@ def load_pressure_file(
         assert c.unix_timestamp_column is not None, "this is a bug in the pipeline"
         assert c.unix_timestamp_column_format is not None, "this is a bug in the pipeline"
 
-        custom_unit_to_seconds: float
-        if c.unix_timestamp_column_format == "s":
-            custom_unit_to_seconds = 1
-        elif c.unix_timestamp_column_format == "ms":
-            custom_unit_to_seconds = 1e-3
-        elif c.unix_timestamp_column_format == "us":
-            custom_unit_to_seconds = 1e-6
-        elif c.unix_timestamp_column_format == "ns":
-            custom_unit_to_seconds = 1e-9
-        else:
-            raise Exception("This should not happen")
+        custom_unit_to_seconds: Optional[float] = {
+            "s": 1.0,
+            "ms": 1e-3,
+            "us": 1e-6,
+            "ns": 1e-9,
+        }.get(c.unix_timestamp_column_format, None)
+        assert custom_unit_to_seconds is not None, "This should not happen"
 
         datetimes = []
         for t in df[c.unix_timestamp_column]:

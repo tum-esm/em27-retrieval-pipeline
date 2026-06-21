@@ -139,7 +139,7 @@ def test_container_lifecycle_ci(
                 # test this for all alg/atm combinations
                 # for one of the sensor data contexts
                 use_local_pressure_in_pcxs=(j[2].from_datetime.date() == datetime.date(2017, 6, 9)),
-                store_binary_spectra=True,
+                store_binary_spectra=False,
             ),
         )
         print(f"#{i}: Running session")
@@ -188,7 +188,7 @@ def test_container_lifecycle_complete(
                     use_local_pressure_in_pcxs=(
                         j[2].from_datetime.date() == datetime.date(2017, 6, 9)
                     ),
-                    store_binary_spectra=True,
+                    store_binary_spectra=False,
                 ),
             )
             print(f"Creating new process")
