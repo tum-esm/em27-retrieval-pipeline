@@ -25,9 +25,9 @@ exports a report of the data present on the configured system
 
 **Description:**  
 
-Start the retrieval as a background process. Prevents spawning
-multiple processes. The logs and the current processing queue from
-this process can be found at `data/logs/retrieval`.
+Start the retrieval as a background process. Prevents spawning multiple
+processes. The logs and the current processing queue from this process can
+be found at `data/logs/retrieval`.
 
 **Options:**
 
@@ -42,8 +42,8 @@ this process can be found at `data/logs/retrieval`.
 
 **Description:**  
 
-Run the retrieval. Blocking. The logs and the current processing
-queue from this process can be found at `data/logs/retrieval`.
+Run the retrieval. Blocking. The logs and the current processing queue from
+this process can be found at `data/logs/retrieval`.
 
 **Options:**
 
@@ -58,8 +58,8 @@ queue from this process can be found at `data/logs/retrieval`.
 
 **Description:**  
 
-Checks whether the retrieval background process is running. The logs
-and the current processing queue from this process can be found at
+Checks whether the retrieval background process is running. The logs and the
+current processing queue from this process can be found at
 `data/logs/retrieval`.
 
 **Options:**
@@ -80,12 +80,11 @@ Opens an active watch window for the retrieval background process.
 **Options:**
 
 
-`--cluster-mode ` Watch the retrieval process when the retrieval is
-                running on a cluster. In this mode the watcher does
-                not care whether it find an active retrieval process
-                on the current node, but only looks at the queue.
-                This means it can not detect when the pipeline has
-                stopped (e.g. due to a SLURM timeout).
+`--cluster-mode ` Watch the retrieval process when the retrieval is running on
+                a cluster. In this mode the watcher does not care whether it
+                find an active retrieval process on the current node, but
+                only looks at the queue. This means it can not detect when
+                the pipeline has stopped (e.g. due to a SLURM timeout).
 
 `--help `         Show this message and exit.
 
@@ -97,8 +96,8 @@ Opens an active watch window for the retrieval background process.
 
 **Description:**  
 
-Stop the retrieval background process. The logs and the current
-processing queue from this process can be found at `logs/retrieval`.
+Stop the retrieval background process. The logs and the current processing
+queue from this process can be found at `logs/retrieval`.
 
 **Options:**
 
@@ -113,9 +112,8 @@ processing queue from this process can be found at `logs/retrieval`.
 
 **Description:**  
 
-Downloads all retrieval algorithms into the local container
-factories. Can be used if you don't want to run the pipeline but
-download all algorithms.
+Downloads all retrieval algorithms into the local container factories. Can
+be used if you don't want to run the pipeline but download all algorithms.
 
 **Options:**
 
@@ -130,10 +128,10 @@ download all algorithms.
 
 **Description:**  
 
-Run the profiles download script. This will check, which profiles are
-not yet present locally, request and download them from the
-`ccycle.gps.caltech.edu` FTP server. The logs from this process can
-be found at `logs/profiles`.
+Run the profiles download script. This will check, which profiles are not
+yet present locally, request and download them from the
+`ccycle.gps.caltech.edu` FTP server. The logs from this process can be found
+at `logs/profiles`.
 
 **Options:**
 
@@ -148,10 +146,10 @@ be found at `logs/profiles`.
 
 **Description:**  
 
-Request ginput status. This will upload a file
-`upload/ginput_status.txt` to the `ccycle.gps.caltech.edu` FTP server
-containing the configured email address. You will receive an email
-with the ginput status which normally takes less than two minutes.
+Request ginput status. This will upload a file `upload/ginput_status.txt` to
+the `ccycle.gps.caltech.edu` FTP server containing the configured email
+address. You will receive an email with the ginput status which normally
+takes less than two minutes.
 
 **Options:**
 
@@ -168,8 +166,8 @@ with the ginput status which normally takes less than two minutes.
 
 Migrate the storage location of the atmospheric profiles to the new
 directory structure introduced in the pipeline version 1.7.0. See
-https://github.com/tum-esm/em27-retrieval-pipeline/issues/127 for
-more details.
+https://github.com/tum-esm/em27-retrieval-pipeline/issues/127 for more
+details.
 
 **Options:**
 

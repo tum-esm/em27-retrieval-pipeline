@@ -15,8 +15,13 @@ def compute_solar_noon_time(
     lon: float,
     date: datetime.date,
 ) -> datetime.datetime:
-    start_time = datetime.datetime.combine(date, datetime.time.min, tzinfo=datetime.timezone.utc)
-    end_time = start_time + datetime.timedelta(days=1)
+    expected_noon = datetime.datetime.combine(
+        date,
+        datetime.time(hour=12),
+        tzinfo=datetime.timezone.utc,
+    ) - datetime.timedelta(hours=lon / 15)
+    start_time = expected_noon - datetime.timedelta(hours=12)
+    end_time = expected_noon + datetime.timedelta(hours=12)
     timescale = skyfield.api.load.timescale()  # pyright: ignore[reportUnknownMemberType]
     ephemeris: Any = skyfield.iokit.Loader(tum_esm_utils.files.rel_to_abs_path("../../../data"))(  # pyright: ignore[reportUnknownVariableType]
         "de421.bsp"
@@ -36,9 +41,20 @@ def compute_solar_noon_time(
     )
 
     # Select transits instead of antitransits.
-    t = times[events == 1][0].astimezone(datetime.timezone.utc)  # type: ignore
-    assert isinstance(t, datetime.datetime)
-    return t
+    transits: list[datetime.datetime] = times[events == 1]  # type: ignore
+    if len(transits) == 0:  # type: ignore
+        raise RuntimeError(f"Could not compute solar noon for {date=}, {lat=}, {lon=}")
+
+    transit_datetimes: list[datetime.datetime] = [
+        transit.astimezone(datetime.timezone.utc)  # type: ignore
+        for transit in transits  # type: ignore
+    ]
+    solar_noon = min(
+        transit_datetimes,
+        key=lambda transit: abs(transit - expected_noon),
+    )
+    assert isinstance(solar_noon, datetime.datetime)
+    return solar_noon
 
 
 def compute_mean_pressure_around_noon(
