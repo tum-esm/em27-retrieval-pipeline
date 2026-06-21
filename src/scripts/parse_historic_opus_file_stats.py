@@ -9,7 +9,7 @@ sys.path.append(tum_esm_utils.files.rel_to_abs_path("../.."))
 
 from src import utils
 
-# TODO: set these paths
+# SET THESE PATHS TO YOUR LOCAL PATHS
 IFG_PATH = tum_esm_utils.files.rel_to_abs_path("../../example/data/inputs/interferograms")
 RESULTS_PATH = tum_esm_utils.files.rel_to_abs_path("../../data/testing/inputs/individual-results")
 
@@ -38,19 +38,17 @@ if __name__ == "__main__":
             if not os.path.isdir(d1):
                 continue
             for sensor_id in sorted(os.listdir(d1)):
-                if (allowed_sensor_ids is not None) and (
-                    sensor_id not in allowed_sensor_ids
-                ):  # pragma: no cover
+                if (allowed_sensor_ids is not None) and (sensor_id not in allowed_sensor_ids):
                     continue
                 d2 = os.path.join(d1, sensor_id, "successful")
-                if not os.path.isdir(d2):  # pragma: no cover
+                if not os.path.isdir(d2):
                     continue
                 print(f"Processing results in {d2}")
 
                 progress = tqdm.tqdm(sorted(os.listdir(d2), reverse=True))
                 for results_dir in progress:
                     results_path = os.path.join(d2, results_dir)
-                    if not os.path.isdir(results_path):  # pragma: no cover
+                    if not os.path.isdir(results_path):
                         continue
 
                     progress.set_description(f"{results_dir}")
@@ -58,7 +56,7 @@ if __name__ == "__main__":
                     if os.path.exists(os.path.join(results_path, "opus_file_stats.csv")):
                         if force:
                             os.remove(os.path.join(results_path, "opus_file_stats.csv"))
-                        else:  # pragma: no cover
+                        else:
                             continue
 
                     about = tum_esm_utils.files.load_json_file(
@@ -165,7 +163,7 @@ if __name__ == "__main__":
                                 values[i] = opus_file.channel_parameters[0].instrument.get(
                                     var, None
                                 )
-                        except:  # pragma: no cover
+                        except:
                             pass
                         instrument_values.append(values)
 
