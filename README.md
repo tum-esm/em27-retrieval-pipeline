@@ -79,4 +79,4 @@ You can look into the API Reference pages for an exact schema definition and exp
 
 We are happy to include any feature that is useful for the COCCON community. We are also open to expand the pipeline to other retrieval algorithms or spectrometers.
 
-If you have issues or feature requests, please open an [issue on GitHub](https://github.com/tum-esm/em27-retrieval-pipeline/issues) or ask [Moritz Oliveira Makowski (moritz.makowski@tum.de)](mailto:moritz.makowski@tum.de). Please read the [contributors guidelines](https://github.com/tum-esm/em27-retrieval-pipeline/blob/main/CONTRIBUTING.md) and to the [code of conduct](https://github.com/tum-esm/em27-retrieval-pipeline/blob/main/CODE_OF_CONDUCT.md) first.
+If you have issues or feature requests, please open an [issue on GitHub](https://github.com/tum-esm/em27-retrieval-pipeline/issues) or ask [Moritz Oliveira Makowski (moritz.makowski@tum.de)](mailto:moritz.makowski@tum.de). Please read the [contributors guidelines](https://github.com/tum-esm/em27-retrieval-pipeline/blob/main/CONTRIBUTING.md) and the [code of conduct](https://github.com/tum-esm/em27-retrieval-pipeline/blob/main/CODE_OF_CONDUCT.md) first.
