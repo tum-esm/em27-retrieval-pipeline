@@ -183,7 +183,7 @@ def load_results_directory(
                             except ValueError:
                                 value = None
                             data[i].append(value)
-                else:  # pragma: no cover
+                else:
                     raise Exception("This should not happen")
         else:  # pragma: no cover
             print(f"Could not find preprocessing log file at {preprocessing_log_path}")
@@ -286,7 +286,7 @@ def load_results_directory(
                     f"job{i + 1:02d}_scl",
                 ]
                 for col in expected_cols:
-                    if col not in newdf.columns:  # pragma: no cover
+                    if col not in newdf.columns:
                         raise ValueError(
                             f"Could not find expected column '{col}' in retrieval diagnostics file {invparms_filepath}"
                         )

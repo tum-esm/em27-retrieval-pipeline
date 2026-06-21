@@ -23,9 +23,9 @@ if __name__ == "__main__":
     if force and (allowed_sensor_ids is not None) and (len(allowed_sensor_ids) == 1):
         allowed_sensor_ids = None
 
-    if not os.path.exists(IFG_PATH):  # pragma: no cover
+    if not os.path.exists(IFG_PATH):
         raise FileNotFoundError(f"IFG_PATH does not exist: {IFG_PATH}")
-    if not os.path.exists(RESULTS_PATH):  # pragma: no cover
+    if not os.path.exists(RESULTS_PATH):
         raise FileNotFoundError(f"RESULTS_PATH does not exist: {RESULTS_PATH}")
 
     retrieval_algorithms = set(
@@ -66,7 +66,7 @@ if __name__ == "__main__":
                     )
                     try:
                         ifg_file_regex = about["config"]["retrieval"]["general"]["ifg_file_regex"]
-                    except KeyError:  # pragma: no cover
+                    except KeyError:
                         progress.write(
                             f"Skipping {results_dir} because 'ifg_file_regex' is not defined in 'about.json'."
                         )
@@ -77,7 +77,7 @@ if __name__ == "__main__":
                     date = datetime.datetime.strptime(date_string, "%Y%m%d").date()
                     try:
                         opus_filenames = os.listdir(ifg_dir)
-                    except FileNotFoundError:  # pragma: no cover
+                    except FileNotFoundError:
                         progress.write(
                             f"Skipping {results_dir} because the ifg dir does not exists ({ifg_dir})."
                         )

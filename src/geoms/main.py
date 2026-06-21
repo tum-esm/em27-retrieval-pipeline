@@ -75,11 +75,11 @@ def generate_geoms_file(
     # determine calibration factors
     from_dt_calibration_factors_index = calibration_factors.get_index(sensor_id, from_dt)
     to_dt_calibration_factors_index = calibration_factors.get_index(sensor_id, to_dt)
-    if from_dt_calibration_factors_index is None:  # pragma: no cover
+    if from_dt_calibration_factors_index is None:
         raise ValueError(f"Calibration factors not found for {sensor_id} @ {from_dt}")
-    if to_dt_calibration_factors_index is None:  # pragma: no cover
+    if to_dt_calibration_factors_index is None:
         raise ValueError(f"Calibration factors not found for {sensor_id} @ {to_dt}")
-    if from_dt_calibration_factors_index != to_dt_calibration_factors_index:  # pragma: no cover
+    if from_dt_calibration_factors_index != to_dt_calibration_factors_index:
         raise ValueError(
             f"Calibration factors changed during the period {from_dt} - {to_dt}. "
             + "Please make sure, there is a break in the metadata setup timeseries"
@@ -121,7 +121,7 @@ def generate_geoms_file(
     if os.path.isfile(filepath):
         if geoms_config.conflict_mode == "skip":  # pragma: no cover
             return filepath, "File already exists"
-        if geoms_config.conflict_mode == "error":  # pragma: no cover
+        if geoms_config.conflict_mode == "error":
             raise FileExistsError(f"File already exists: {filepath}")
         # else: replace
         os.remove(filepath)
@@ -148,7 +148,7 @@ def generate_geoms_file(
     df = pl_df.to_pandas()
     utctimes = df["utc"]
     for t1, t2 in zip(utctimes[:-1], utctimes[1:]):
-        if t2 <= t1:  # pragma: no cover
+        if t2 <= t1:
             raise ValueError("Timestamps are not strictly increasing")
 
     # setup
@@ -365,7 +365,7 @@ def run(
                     )
 
 
-if __name__ == "__main__":  # pragma: no cover
+if __name__ == "__main__":
     geoms_metadata = src.types.GEOMSMetadata.load(template=True)
     calibration_factors = src.types.CalibrationFactorsList.load(template=True)
     geoms_config = src.types.Config.load(

@@ -152,7 +152,7 @@ class ContainerFactory:
             shutil.rmtree(container.data_output_path)
             self.containers.remove(container)
             self.label_generator.free(container_id)
-        except IndexError:  # pragma: no cover
+        except IndexError:
             raise ValueError(f'no container with id "{container_id}"')
 
     def remove_all_containers(self, include_unknown: bool = False) -> None:
