@@ -104,16 +104,16 @@ def test_bundling() -> None:
                 csv_path = os.path.join(BUNDLE_OUTPUT_DIR, f"{filename}.csv")
                 assert os.path.exists(csv_path), f"Expected file {csv_path} does not exist."
                 csv_df = pl.read_csv(csv_path)
-                with pl.Config(tbl_cols=-1):
-                    print(csv_df)
+                # with pl.Config(tbl_cols=-1):
+                #     print(csv_df)
                 assert len(csv_df) >= min_row_counts[sensor_id], \
                     f"Expected at least {min_row_counts[sensor_id]} rows in {csv_path}, got {len(csv_df)}."
 
                 parquet_path = os.path.join(BUNDLE_OUTPUT_DIR, f"{filename}.parquet")
                 assert os.path.exists(parquet_path), f"Expected file {parquet_path} does not exist."
                 parquet_df = pl.read_parquet(parquet_path)
-                with pl.Config(tbl_cols=-1):
-                    print(parquet_df)
+                # with pl.Config(tbl_cols=-1):
+                #     print(parquet_df)
                 assert len(parquet_df) >= min_row_counts[sensor_id], \
                     f"Expected at least {min_row_counts[sensor_id]} rows in {parquet_path}, got {len(parquet_df)}."
 
@@ -130,7 +130,7 @@ def test_bundling() -> None:
                 df = parquet_df.drop_nulls().drop_nans()
                 assert len(df) == len(parquet_df), f"Expected no nulls or NaNs in the DataFrame"
 
-                print(df.columns)
+                # print(df.columns)
 
                 # check whether DC timeseries is there
                 if retrieval_algorithm in ["proffast-2.4", "proffast-2.4.1"]:
