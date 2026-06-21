@@ -128,6 +128,10 @@ ignore = [
     "E501",
     # import not at the top
     "E402",
+    # Do not use bare `except`
+    "E722",
+    #Blank line contains whitespace
+    "W293",
 ]
 
 [[tool.mypy.overrides]]

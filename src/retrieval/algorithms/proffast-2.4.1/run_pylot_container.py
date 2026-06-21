@@ -11,7 +11,6 @@ import importlib
 import os
 import sys
 
-
 if __name__ == "__main__":
     assert len(sys.argv) == 4, (
         "wrong number of arguments provided to run.py. Example"

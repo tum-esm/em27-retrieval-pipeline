@@ -1,7 +1,8 @@
-from typing import Optional
-import sys
 import datetime
 import os
+import sys
+from typing import Optional
+
 import tqdm
 import tum_esm_utils
 
