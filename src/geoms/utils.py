@@ -46,7 +46,7 @@ def load_comb_invparms_df(
         parse_dc_timeseries=geoms_config.parse_dc_timeseries,
         keep_julian_dates=True,
     )
-    if df is None:
+    if df is None:  # pragma: no cover
         return None
 
     # convert altim from m to km

@@ -56,7 +56,7 @@ def run(config: types.Config, session: types.RetrievalSession, test_mode: bool =
 
         logger.debug("Moving interferograms")
         valid_ifg_count = move_ifg_files.run(config, logger, session)
-    except Exception as e:  # pragma: no cover
+    except Exception as e:
         logger.warning(f"Inputs incomplete: {e}")
         _last_will()
         return
@@ -65,7 +65,7 @@ def run(config: types.Config, session: types.RetrievalSession, test_mode: bool =
         logger.info("Updating retrieval templates")
         try:
             update_templates.run(logger, session)
-        except Exception as e:  # pragma: no cover
+        except Exception as e:
             logger.exception(e, label="Failed to update templates")
             _last_will()
             return
@@ -74,7 +74,7 @@ def run(config: types.Config, session: types.RetrievalSession, test_mode: bool =
         try:
             run_retrieval.run(session, test_mode=test_mode)
             logger.debug("Pylot execution was successful")
-        except Exception as e:  # pragma: no cover
+        except Exception as e:
             logger.exception(e, label="Proffast execution failed")
     else:  # pragma: no cover
         logger.info("Skipping proffast execution because there are no valid interferograms")
@@ -87,7 +87,7 @@ def run(config: types.Config, session: types.RetrievalSession, test_mode: bool =
     try:
         move_outputs.run(config, logger, session, test_mode=test_mode)
         logger.info("Finished")
-    except Exception as e:  # pragma: no cover
+    except Exception as e:
         logger.exception(e, label="Moving outputs failed")
         if test_mode:
             raise

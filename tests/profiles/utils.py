@@ -5,7 +5,8 @@ import src
 
 TEST_LOCATIONS = [
     src.profiles.generate_queries.ProfilesQueryLocation(lat=lat, lon=lon)
-    for lat in range(-90, 90, 5) for lon in range(-180, 180, 5)
+    for lat in range(-90, 90, 5)
+    for lon in range(-180, 180, 5)
 ]
 TEST_DATES = tum_esm_utils.timing.date_range(
     datetime.date(2018, 1, 1),

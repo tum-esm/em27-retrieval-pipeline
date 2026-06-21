@@ -75,9 +75,7 @@ SENSOR_DATA_CONTEXTS = [
 @pytest.fixture(scope="session")
 def provide_container_factory_for_ci_tests(
     provide_config_template: src.types.Config,
-) -> Generator[
-    src.retrieval.dispatching.container_factory.ContainerFactory, None, None
-]:  # pragma: no cover
+) -> Generator[src.retrieval.dispatching.container_factory.ContainerFactory, None, None]:
     logger = src.retrieval.utils.logger.Logger(
         "pytest",
         write_to_file=False,
@@ -91,9 +89,7 @@ def provide_container_factory_for_ci_tests(
 @pytest.fixture(scope="session")
 def provide_container_factory_for_complete_tests(
     provide_config_template: src.types.Config,
-) -> Generator[
-    src.retrieval.dispatching.container_factory.ContainerFactory, None, None
-]:  # pragma: no cover
+) -> Generator[src.retrieval.dispatching.container_factory.ContainerFactory, None, None]:
     logger = src.retrieval.utils.logger.Logger(
         "pytest",
         write_to_file=False,
@@ -106,7 +102,7 @@ def provide_container_factory_for_complete_tests(
 
 @pytest.mark.order(3)
 @pytest.mark.quick
-def test_sdc_covers_the_full_day() -> None:  # pragma: no cover
+def test_sdc_covers_the_full_day() -> None:
     for sdc in SENSOR_DATA_CONTEXTS:
         assert src.utils.functions.sdc_covers_the_full_day(sdc)
 
@@ -119,7 +115,7 @@ def test_container_lifecycle_ci(
     remove_temporary_retrieval_data: None,
     provide_config_template: src.types.Config,
     provide_container_factory_for_ci_tests: src.retrieval.dispatching.container_factory.ContainerFactory,
-) -> None:  # pragma: no cover
+) -> None:
     config = provide_config_template
     container_factory = provide_container_factory_for_ci_tests
 
@@ -156,7 +152,7 @@ def test_container_lifecycle_complete(
     remove_temporary_retrieval_data: None,
     provide_config_template: src.types.Config,
     provide_container_factory_for_complete_tests: src.retrieval.dispatching.container_factory.ContainerFactory,
-) -> None:  # pragma: no cover
+) -> None:
     config = provide_config_template
     container_factory = provide_container_factory_for_complete_tests
 
@@ -234,7 +230,7 @@ def test_container_lifecycle_complete(
 
 def run_session(
     session: src.types.RetrievalSession, config: src.types.Config, only_run_mock_retrieval: bool
-) -> None:  # pragma: no cover
+) -> None:
     src.retrieval.session.process_session.run(
         config,
         session,
@@ -253,7 +249,7 @@ def _generate_job_list() -> list[
         src.types.AtmosphericProfileModel,
         em27_metadata.types.SensorDataContext,
     ]
-]:  # pragma: no cover
+]:
     src.retrieval.utils.retrieval_status.RetrievalStatusList.reset()
 
     pending_jobs: list[
@@ -287,7 +283,7 @@ def _generate_job_list() -> list[
     return pending_jobs
 
 
-def _point_config_to_test_data(config: src.types.Config) -> None:  # pragma: no cover
+def _point_config_to_test_data(config: src.types.Config) -> None:
     config.general.data.ground_pressure.path.root = os.path.join(
         PROJECT_DIR, "example", "data", "inputs", "ground-pressure"
     )
@@ -316,7 +312,7 @@ def _assert_output_correctness(
     retrieval_algorithm: src.types.RetrievalAlgorithm,
     atmospheric_profile_model: src.types.AtmosphericProfileModel,
     sensor_data_context: em27_metadata.types.SensorDataContext,
-) -> None:  # pragma: no cover
+) -> None:
     date_string = sensor_data_context.from_datetime.strftime("%Y%m%d")
     out_path = os.path.join(
         PROJECT_DIR,

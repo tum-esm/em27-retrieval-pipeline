@@ -47,7 +47,7 @@ def pressure_files_exist(
             file_regex, sensor_id, date
         )
         return any([specific_file_pattern.match(f) is not None for f in os.listdir(d)])
-    except FileNotFoundError:  # pragma: no cover
+    except FileNotFoundError:
         return False
 
 
@@ -119,7 +119,7 @@ def load_pressure_file(
                         datetime.timezone.utc
                     )
                 )
-            except ValueError:  # pragma: no cover
+            except ValueError:
                 raise ValueError(
                     f"datetime `{d}` does not match format `{c.datetime_column_format}`"
                 )
@@ -134,13 +134,13 @@ def load_pressure_file(
         for d in df[c.date_column]:
             try:
                 dates.append(datetime.datetime.strptime(d, c.date_column_format).date())
-            except ValueError:  # pragma: no cover
+            except ValueError:
                 raise ValueError(f"date `{d}` does not match format `{c.date_column_format}`")
         times: list[datetime.time] = []
         for t in df[c.time_column]:
             try:
                 times.append(datetime.datetime.strptime(t, c.time_column_format).time())
-            except ValueError:  # pragma: no cover
+            except ValueError:
                 raise ValueError(f"time `{t}` does not match format `{c.time_column_format}`")
 
         datetimes = [

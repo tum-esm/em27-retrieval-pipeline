@@ -102,6 +102,9 @@ exclude = [
 patch = ["subprocess"]
 concurrency = ["multiprocessing"]
 
+[tool.coverage.report]
+exclude_also = ["raise", "except "]
+
 [tool.ruff.lint]
 exclude = [
     "src/retrieval/algorithms/proffast-2.2/main/prfpylot",

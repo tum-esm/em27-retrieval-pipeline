@@ -87,7 +87,7 @@ def run() -> None:
                 access_token=config.general.metadata.access_token,
             )
             print("Successfully fetched metadata from GitHub")
-    except Exception as e:  # pragma: no cover
+    except Exception as e:
         main_logger.exception(e, "Error while loading local metadata")
         main_logger.archive()
         raise e
