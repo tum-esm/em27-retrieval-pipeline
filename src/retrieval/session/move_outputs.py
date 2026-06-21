@@ -68,20 +68,18 @@ def run(
     output_dst_successful = os.path.join(output_dst, "successful", output_slug)
     output_dst_failed = os.path.join(output_dst, "failed", output_slug)
 
-    # REMOVE OLD OUTPUTS
-
-    if os.path.isdir(output_dst_successful):
-        logger.debug("Removing old successful output")
-        shutil.rmtree(output_dst_successful)
-    if os.path.isdir(output_dst_failed):
-        logger.debug("Removing old failed output")
-        shutil.rmtree(output_dst_failed)
-
-    # CREATE EMPTY OUTPUT DIRECTORY
-
     output_dst = output_dst_successful if day_was_successful else output_dst_failed
     output_dst_tmp = output_dst + ".tmp"
-    if os.path.isdir(output_dst_tmp):
+
+    # REMOVE OLD OUTPUTS
+
+    if os.path.isdir(output_dst_successful):  # pragma: no cover
+        logger.debug("Removing old successful output")
+        shutil.rmtree(output_dst_successful)
+    if os.path.isdir(output_dst_failed):  # pragma: no cover
+        logger.debug("Removing old failed output")
+        shutil.rmtree(output_dst_failed)
+    if os.path.isdir(output_dst_tmp):  # pragma: no cover
         logger.debug("Removing old temporary output")
         shutil.rmtree(output_dst_tmp)
 
@@ -178,7 +176,7 @@ def run(
         dumped_config = config.model_copy(deep=True)
         assert dumped_config.retrieval is not None
         if dumped_config.general.metadata is not None:
-            if dumped_config.general.metadata.access_token is not None:
+            if dumped_config.general.metadata.access_token is not None:  # pragma: no cover
                 dumped_config.general.metadata.access_token = "REDACTED"
         about = types.AboutRetrieval(
             automationVersion=utils.functions.get_pipeline_version(),

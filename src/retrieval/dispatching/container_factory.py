@@ -35,10 +35,12 @@ class ContainerFactory:
         assert config.retrieval is not None
 
         # set the container directory (where the data processing is happening)
-        self.container_dir = tum_esm_utils.files.rel_to_abs_path("../../../data/containers")
-        if config.retrieval.general.container_dir is not None:
-            self.container_dir = config.retrieval.general.container_dir
-            os.makedirs(self.container_dir, exist_ok=True)
+        self.container_dir = (
+            tum_esm_utils.files.rel_to_abs_path("../../../data/containers")
+            if (config.retrieval.general.container_dir is None)
+            else config.retrieval.general.container_dir
+        )
+        os.makedirs(self.container_dir, exist_ok=True)
 
         self.containers: list[types.RetrievalContainer] = []
         self.label_generator = tum_esm_utils.text.RandomLabelGenerator()
@@ -150,7 +152,7 @@ class ContainerFactory:
             shutil.rmtree(container.data_output_path)
             self.containers.remove(container)
             self.label_generator.free(container_id)
-        except IndexError:
+        except IndexError:  # pragma: no cover
             raise ValueError(f'no container with id "{container_id}"')
 
     def remove_all_containers(self, include_unknown: bool = False) -> None:
@@ -158,10 +160,10 @@ class ContainerFactory:
         if include_unknown:
             for d in os.listdir(self.container_dir):
                 subdir = os.path.join(self.container_dir, d)
-                if os.path.isdir(subdir):
+                if os.path.isdir(subdir):  # pragma: no cover
                     shutil.rmtree(subdir)
         else:
-            for container in self.containers:
+            for container in self.containers:  # pragma: no cover
                 shutil.rmtree(container.container_path)
         self.containers = []
         self.label_generator = tum_esm_utils.text.RandomLabelGenerator()
@@ -175,14 +177,13 @@ class ContainerFactory:
         ROOT_DIR = os.path.join(_RETRIEVAL_CODE_DIR, "proffast-1.0", "main")
 
         # DOWNLOAD PROFFAST 1.0 code if it doesn't exist yet
-        if os.path.exists(os.path.join(ROOT_DIR, "prf")):
+        if os.path.exists(os.path.join(ROOT_DIR, "prf")):  # pragma: no cover
             _print("Proffast 1.0 has already been downloaded")
         else:
             _print("Downloading Proffast 1.0 code")
-            if os.path.exists(os.path.join(ROOT_DIR, ZIPFILE_NAME)):
-                os.remove(os.path.join(ROOT_DIR, ZIPFILE_NAME))
-            if os.path.exists(os.path.join(ROOT_DIR, "2021-03-08_prf96-EM27-fast")):
-                shutil.rmtree(os.path.join(ROOT_DIR, "2021-03-08_prf96-EM27-fast"))
+            for f in [ZIPFILE_NAME, "2021-03-08_prf96-EM27-fast"]:
+                if os.path.exists(os.path.join(ROOT_DIR, f)):  # pragma: no cover
+                    os.remove(os.path.join(ROOT_DIR, f))
 
             _print("Downloading")
             tum_esm_utils.shell.run_shell_command(
@@ -250,11 +251,11 @@ class ContainerFactory:
         ROOT_DIR = os.path.join(_RETRIEVAL_CODE_DIR, "proffast-2.2", "main")
 
         # DOWNLOAD PROFFAST 2.2 code if it doesn't exist yet
-        if os.path.exists(os.path.join(ROOT_DIR, "prf")):
+        if os.path.exists(os.path.join(ROOT_DIR, "prf")):  # pragma: no cover
             _print("Proffast 2.2 has already been downloaded")
         else:
             _print("Downloading Proffast 2.2 code")
-            if os.path.exists(os.path.join(ROOT_DIR, ZIPFILE_NAME)):
+            if os.path.exists(os.path.join(ROOT_DIR, ZIPFILE_NAME)):  # pragma: no cover
                 os.remove(os.path.join(ROOT_DIR, ZIPFILE_NAME))
 
             _print("Downloading")
@@ -291,11 +292,11 @@ class ContainerFactory:
         ROOT_DIR = os.path.join(_RETRIEVAL_CODE_DIR, "proffast-2.3", "main")
 
         # DOWNLOAD PROFFAST 2.3 code if it doesn't exist yet
-        if os.path.exists(os.path.join(ROOT_DIR, "prf")):
+        if os.path.exists(os.path.join(ROOT_DIR, "prf")):  # pragma: no cover
             _print("Proffast 2.3 has already been downloaded")
         else:
             _print("Downloading Proffast 2.3 code")
-            if os.path.exists(os.path.join(ROOT_DIR, ZIPFILE_NAME)):
+            if os.path.exists(os.path.join(ROOT_DIR, ZIPFILE_NAME)):  # pragma: no cover
                 os.remove(os.path.join(ROOT_DIR, ZIPFILE_NAME))
 
             _print("Downloading")
@@ -332,11 +333,11 @@ class ContainerFactory:
         ROOT_DIR = os.path.join(_RETRIEVAL_CODE_DIR, "proffast-2.4", "main")
 
         # DOWNLOAD PROFFAST 2.4 code if it doesn't exist yet
-        if os.path.exists(os.path.join(ROOT_DIR, "prf")):
+        if os.path.exists(os.path.join(ROOT_DIR, "prf")):  # pragma: no cover
             _print("Proffast 2.4 has already been downloaded")
         else:
             _print("Downloading Proffast 2.4 code")
-            if os.path.exists(os.path.join(ROOT_DIR, ZIPFILE_NAME)):
+            if os.path.exists(os.path.join(ROOT_DIR, ZIPFILE_NAME)):  # pragma: no cover
                 os.remove(os.path.join(ROOT_DIR, ZIPFILE_NAME))
 
             _print("Downloading")

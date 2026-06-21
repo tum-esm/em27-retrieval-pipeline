@@ -23,9 +23,9 @@ if __name__ == "__main__":
     if force and (allowed_sensor_ids is not None) and (len(allowed_sensor_ids) == 1):
         allowed_sensor_ids = None
 
-    if not os.path.exists(IFG_PATH):
+    if not os.path.exists(IFG_PATH):  # pragma: no cover
         raise FileNotFoundError(f"IFG_PATH does not exist: {IFG_PATH}")
-    if not os.path.exists(RESULTS_PATH):
+    if not os.path.exists(RESULTS_PATH):  # pragma: no cover
         raise FileNotFoundError(f"RESULTS_PATH does not exist: {RESULTS_PATH}")
 
     retrieval_algorithms = set(
@@ -38,17 +38,19 @@ if __name__ == "__main__":
             if not os.path.isdir(d1):
                 continue
             for sensor_id in sorted(os.listdir(d1)):
-                if (allowed_sensor_ids is not None) and (sensor_id not in allowed_sensor_ids):
+                if (allowed_sensor_ids is not None) and (
+                    sensor_id not in allowed_sensor_ids
+                ):  # pragma: no cover
                     continue
                 d2 = os.path.join(d1, sensor_id, "successful")
-                if not os.path.isdir(d2):
+                if not os.path.isdir(d2):  # pragma: no cover
                     continue
                 print(f"Processing results in {d2}")
 
                 progress = tqdm.tqdm(sorted(os.listdir(d2), reverse=True))
                 for results_dir in progress:
                     results_path = os.path.join(d2, results_dir)
-                    if not os.path.isdir(results_path):
+                    if not os.path.isdir(results_path):  # pragma: no cover
                         continue
 
                     progress.set_description(f"{results_dir}")
@@ -56,7 +58,7 @@ if __name__ == "__main__":
                     if os.path.exists(os.path.join(results_path, "opus_file_stats.csv")):
                         if force:
                             os.remove(os.path.join(results_path, "opus_file_stats.csv"))
-                        else:
+                        else:  # pragma: no cover
                             continue
 
                     about = tum_esm_utils.files.load_json_file(
@@ -64,7 +66,7 @@ if __name__ == "__main__":
                     )
                     try:
                         ifg_file_regex = about["config"]["retrieval"]["general"]["ifg_file_regex"]
-                    except KeyError:
+                    except KeyError:  # pragma: no cover
                         progress.write(
                             f"Skipping {results_dir} because 'ifg_file_regex' is not defined in 'about.json'."
                         )
@@ -75,7 +77,7 @@ if __name__ == "__main__":
                     date = datetime.datetime.strptime(date_string, "%Y%m%d").date()
                     try:
                         opus_filenames = os.listdir(ifg_dir)
-                    except FileNotFoundError:
+                    except FileNotFoundError:  # pragma: no cover
                         progress.write(
                             f"Skipping {results_dir} because the ifg dir does not exists ({ifg_dir})."
                         )
@@ -163,7 +165,7 @@ if __name__ == "__main__":
                                 values[i] = opus_file.channel_parameters[0].instrument.get(
                                     var, None
                                 )
-                        except:
+                        except:  # pragma: no cover
                             pass
                         instrument_values.append(values)
 

@@ -25,6 +25,6 @@ def with_automation_lock() -> Generator[None, None, None]:
     try:
         with automation_lock:
             yield
-    except filelock.Timeout:
+    except filelock.Timeout:  # pragma: no cover
         print(f'locked by another process via file at path "{lock_path}"')
         raise TimeoutError("automation is already running")

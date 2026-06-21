@@ -20,7 +20,7 @@ if __name__ == "__main__":
 
     container_dir, container_id, pylot_config_path = sys.argv[1:]
     container_path = os.path.join(
-       container_dir,
+        container_dir,
         f"retrieval-container-{container_id}",
     )
     assert os.path.isdir(container_path), "container does not exist"
