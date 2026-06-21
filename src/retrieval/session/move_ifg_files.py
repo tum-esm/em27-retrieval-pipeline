@@ -1,6 +1,5 @@
 import json
 import os
-import subprocess
 from typing import Optional
 
 import tum_esm_utils

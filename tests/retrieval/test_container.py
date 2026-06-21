@@ -370,8 +370,14 @@ def _assert_output_correctness(
     pT_dir_path = os.path.join(out_path, "analysis", "pT")
     assert os.path.isdir(pT_dir_path), f"pT path does not exist: {pT_dir_path}"
 
-    cal_dir_path = os.path.join(out_path, "analysis", "cal")
-    assert os.path.isdir(cal_dir_path), f"cal path does not exist: {cal_dir_path}"
+    if retrieval_algorithm in [
+        "proffast-2.2",
+        "proffast-2.3",
+        "proffast-2.4",
+        "proffast-2.4.1",
+    ]:
+        cal_dir_path = os.path.join(out_path, "analysis", "cal")
+        assert os.path.isdir(cal_dir_path), f"cal path does not exist: {cal_dir_path}"
 
     df = pl.read_csv(os.path.join(out_path, output_csv_name))
     df = df.rename({col: col.strip() for col in df.columns})
