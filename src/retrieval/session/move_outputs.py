@@ -135,10 +135,11 @@ def run(
                 "proffast-2.4.1",
             ]:
                 os.makedirs(os.path.join(output_dst_tmp, "analysis", "cal"))
-                shutil.copyfile(
-                    os.path.join(analysis_dir, "cal", "logfile.dat"),
-                    os.path.join(output_dst_tmp, "analysis", "cal", "logfile.dat"),
-                )
+                if os.path.isfile(os.path.join(analysis_dir, "cal", "logfile.dat")):
+                    shutil.copyfile(
+                        os.path.join(analysis_dir, "cal", "logfile.dat"),
+                        os.path.join(output_dst_tmp, "analysis", "cal", "logfile.dat"),
+                    )
 
         # STORE OPUS FILE STATS
 
