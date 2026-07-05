@@ -2,15 +2,16 @@
 title: Installing the Pipeline
 label: Installation
 ---
-import { Aside } from '@astrojs/starlight/components';
+
+import { Aside } from "@astrojs/starlight/components";
 
 **System requirements**
 
 We can only guarantee that the pipeline works on Unix-systems. You need Python3.11+ installed on your system as well as `unzip` and `gfortran`.
 
-**Get the code**
+**Install the pipeline**
 
-1. Clone the [repository](https://github.com/tum-esm/automated-retrieval-pipeline) or download the source code of a [specific release](https://github.com/tum-esm/em27-retrieval-pipeline/releases).
+1. Clone the [repository](https://github.com/tum-esm/em27-retrieval-pipeline) or download the source code of a [specific release](https://github.com/tum-esm/em27-retrieval-pipeline/releases).
 2. Create a virtual environment using `python3.11 -m venv .venv`
 3. Always activate the virtual environment using `source .venv/bin/activate`
 4. Install the dependencies using `pip install ".[dev]"` or `pdm sync --with=dev`
