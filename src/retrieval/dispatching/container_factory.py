@@ -171,7 +171,7 @@ class ContainerFactory:
     def init_proffast10_code(_print: Callable[[str], None], fast_compilation: bool = False) -> None:
         """Initialize the Proffast 1.0 code"""
 
-        KIT_BASE_URL = "https://www.imk-asf.kit.edu/downloads/Coccon-SW/"
+        KIT_BASE_URL = "https://www.coccon.kit.edu/downloads/Coccon-SW/"
         ZIPFILE_NAME = "2021-03-08_prf96-EM27-fast.zip"
         ROOT_DIR = os.path.join(_RETRIEVAL_CODE_DIR, "proffast-1.0", "main")
 
@@ -242,10 +242,10 @@ class ContainerFactory:
         """Initialize the Proffast 2.2 and pylot 1.1 code.
 
         It will download the Proffast 2.2 code from the KIT website
-        (https://www.imk-asf.kit.edu/downloads/Coccon-SW/PROFFASTv2.2.zip)
+        (https://www.coccon.kit.edu/downloads/Coccon-SW/PROFFASTv2.2.zip)
         and copy it to the directory `src/prfpylot/main/prf`."""
 
-        KIT_BASE_URL = "https://www.imk-asf.kit.edu/downloads/Coccon-SW/"
+        KIT_BASE_URL = "https://www.coccon.kit.edu/downloads/Coccon-SW/"
         ZIPFILE_NAME = "PROFFASTv2.2.zip"
         ROOT_DIR = os.path.join(_RETRIEVAL_CODE_DIR, "proffast-2.2", "main")
 
@@ -283,10 +283,10 @@ class ContainerFactory:
         """Initialize the Proffast 2.3 and pylot 1.2 code.
 
         It will download the Proffast 2.3 code from the KIT website
-        (https://www.imk-asf.kit.edu/downloads/Coccon-SW/PROFFASTv2.3.zip)
+        (https://www.coccon.kit.edu/downloads/Coccon-SW/PROFFASTv2.3.zip)
         and copy it to the directory `src/prfpylot/main/prf`."""
 
-        KIT_BASE_URL = "https://www.imk-asf.kit.edu/downloads/Coccon-SW/"
+        KIT_BASE_URL = "https://www.coccon.kit.edu/downloads/Coccon-SW/"
         ZIPFILE_NAME = "PROFFASTv2.3.zip"
         ROOT_DIR = os.path.join(_RETRIEVAL_CODE_DIR, "proffast-2.3", "main")
 
@@ -324,10 +324,10 @@ class ContainerFactory:
         """Initialize the Proffast 2.4 and pylot 1.3 code.
 
         It will download the Proffast 2.4 code from the KIT website
-        (https://www.imk-asf.kit.edu/downloads/Coccon-SW/PROFFASTv2.4.zip)
+        (https://www.coccon.kit.edu/downloads/Coccon-SW/PROFFASTv2.4.zip)
         and copy it to the directory `src/prfpylot/main/prf`."""
 
-        KIT_BASE_URL = "https://www.imk-asf.kit.edu/downloads/Coccon-SW/"
+        KIT_BASE_URL = "https://www.coccon.kit.edu/downloads/Coccon-SW/"
         ZIPFILE_NAME = "PROFFASTv2.4.zip"
         ROOT_DIR = os.path.join(_RETRIEVAL_CODE_DIR, "proffast-2.4", "main")
 
@@ -383,10 +383,10 @@ class ContainerFactory:
         """Initialize the Proffast 2.4.1 and pylot 2.4.1-0 code.
 
         It will download the Proffast 2.4.1 code from the KIT website
-        (https://www.imk-asf.kit.edu/downloads/Coccon-SW/PROFFASTv2.4.zip)
+        (https://www.coccon.kit.edu/downloads/Coccon-SW/PROFFASTv2.4.zip)
         and copy it to the directory `src/prfpylot/main/prf`."""
 
-        KIT_BASE_URL = "https://www.imk-asf.kit.edu/downloads/Coccon-SW/"
+        KIT_BASE_URL = "https://www.coccon.kit.edu/downloads/Coccon-SW/"
         ZIPFILE_NAME = "PROFFASTv2.4.1.zip"
         ROOT_DIR = os.path.join(_RETRIEVAL_CODE_DIR, "proffast-2.4.1", "main")
 
