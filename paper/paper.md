@@ -78,7 +78,7 @@ The EM27/SUN is widely used to achieve these GHG flux estimations [@Hase2015;@Kl
 
 \autoref{fig:data} shows the XCO2 timeseries of the MUCCnet instruments since September 2019. Running the retrievals for various instrument deployments and keeping track of all deployments over time requires an organizational system that this pipeline provides. To enable a large number of long-term observations with EM27/SUN spectrometers, such as the upcoming sensor networks of COCCON-Spain [@cocconspain] and GEMINI-UK [@geminiuk], an improvement in automation is crucial. The EM27 Retrieval Pipeline addresses this.
 
-![XCO2 of the MUCCnet instruments from 2019-09-01 to 2025-11-01\label{fig:data}](bundle-v3.1_20190901_20251101-joss-1m.png){width="100%"}
+![XCO2 retrievals from 2019-09-01 to 2025-11-01 for the five MUCCnet instruments (ma to me) and the KIT traveling reference (kc). The upper panel shows when each EM27/SUN instrument has been recording as part of which measurement campaign. The lower panel shows the corresponding one-minute mean XCO2 retrieval results.\label{fig:data}](bundle-v3.1_20190901_20251101-joss-1m.png){width="100%"}
 
 # Software Design
 
