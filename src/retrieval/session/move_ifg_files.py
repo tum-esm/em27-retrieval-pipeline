@@ -1,6 +1,5 @@
 import json
 import os
-import subprocess
 from typing import Optional
 
 import tum_esm_utils
@@ -114,12 +113,19 @@ def run(
 
     if session.job_settings.use_ifg_corruption_filter:
         logger.info("Using ifg corruption filter")
+
         try:
             corruption_result = tum_esm_utils.em27.detect_corrupt_opus_files(
                 ifg_directory=dst_date_path
             )
-        except subprocess.CalledProcessError:
-            raise AssertionError("corrupt-files-detection has failed during execution")
+        except Exception:
+            try:
+                corruption_result = tum_esm_utils.em27.detect_corrupt_opus_files(
+                    ifg_directory=dst_date_path,
+                    force_recompile=True,
+                )
+            except Exception:
+                raise AssertionError("corrupt-files-detection has failed during execution")
 
         if len(corruption_result) == 0:
             logger.info("No corrupt files found")

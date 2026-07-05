@@ -1,0 +1,11 @@
+individual/*
+!individual/.gitkeep
+
+geoms/*
+!geoms/.gitkeep
+
+bundles/*
+!bundles/.gitkeep
+
+reports/*
+!reports/.gitkeep

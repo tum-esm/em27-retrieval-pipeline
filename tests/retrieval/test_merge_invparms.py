@@ -5,7 +5,7 @@ import tum_esm_utils
 import src
 
 _PROJECT_DIR = tum_esm_utils.files.get_parent_dir_path(__file__, current_depth=3)
-_TESTDATA_PATH = os.path.join(_PROJECT_DIR, "data/testing/inputs/raw_invparms")
+_TESTDATA_PATH = os.path.join(_PROJECT_DIR, "data/testing/inputs/raw-invparms")
 
 
 @pytest.mark.order(3)

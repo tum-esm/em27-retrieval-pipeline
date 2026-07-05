@@ -5,31 +5,33 @@ which is licensed under the GNU General Public License version 3. The authors of
 original code are Lena Feld, Benedikt Herkommer, Darko Dubravica affiliated with the
 Karlsruhe Institut of Technology (KIT)."""
 
-from typing import Literal, Optional
 import datetime
 import os
 import re
+import sys
+from typing import Literal, Optional
+
 import em27_metadata
-import polars as pl
-import numpy as np
 import h5py  # pyright: ignore[reportMissingTypeStubs]
+import numpy as np
+import polars as pl
 import tqdm
 import tum_esm_utils
-import sys
 
 sys.path.append(tum_esm_utils.files.rel_to_abs_path("../../.."))
 
 import src
+
+from .geoms_api import GEOMSAPI  # type: ignore
 from .utils import (
-    load_comb_invparms_df,
-    get_ils_form_preprocess_inp,
-    load_pt_file,
-    load_vmr_file,
-    load_interpolated_column_sensitivity_file,
     calculate_column_uncertainty,
     geoms_times_to_datetime,
+    get_ils_form_preprocess_inp,
+    load_comb_invparms_df,
+    load_interpolated_column_sensitivity_file,
+    load_pt_file,
+    load_vmr_file,
 )
-from .geoms_api import GEOMSAPI  # type: ignore
 
 
 # fmt: off
@@ -44,30 +46,31 @@ def generate_geoms_file(
     atmospheric_profile_model: src.types.AtmosphericProfileModel,
 ) -> tuple[Optional[str], str]:
     """Generate a GEOMS file within a given results directory.
-    
+        
     Returns: filepath and status message."""
-    
+
     about_json = tum_esm_utils.files.load_json_file(os.path.join(results_dir, "about.json"))
-    
+
     sensor_id: Optional[str] = None
     serial_number: Optional[int] = None
     location: Optional[em27_metadata.types.LocationMetadata] = None
     date: Optional[datetime.date] = None
-    
+
     if "ctx" in about_json["session"]:
         sensor_id = about_json["session"]["ctx"]["sensor_id"]
         serial_number = int(about_json["session"]["ctx"]["serial_number"])
         location = em27_metadata.types.LocationMetadata.model_validate(about_json["session"]["ctx"]["location"])
-        from_dt = datetime.datetime.fromisoformat(about_json["session"]["ctx"]["from_datetime"]).astimezone(datetime.timezone.utc)
-        to_dt = datetime.datetime.fromisoformat(about_json["session"]["ctx"]["to_datetime"]).astimezone(datetime.timezone.utc)
-    else:
+        from_dt = datetime.datetime.fromisoformat(about_json["session"]["ctx"]["from_datetime"]).replace(tzinfo=datetime.timezone.utc)
+        to_dt = datetime.datetime.fromisoformat(about_json["session"]["ctx"]["to_datetime"]).replace(tzinfo=datetime.timezone.utc)
+    else: # pragma: no cover
+        # just kept for compatibility with old results
         sensor_id = about_json["session"]["sensor_id"]
         serial_number = int(about_json["session"]["serial_number"])
         location = em27_metadata.types.LocationMetadata.model_validate(about_json["session"]["location"])
         date = datetime.date.fromisoformat(about_json["session"]["date"])
         from_dt = datetime.datetime.combine(date, datetime.time(0, 0, 0), tzinfo=datetime.timezone.utc)
         to_dt = datetime.datetime.combine(date, datetime.time(23, 59, 59), tzinfo=datetime.timezone.utc)
-    
+
     assert sensor_id is not None, "Sensor ID could not be determined"
     assert from_dt.date() == to_dt.date(), "Something is wrong"
 
@@ -86,14 +89,14 @@ def generate_geoms_file(
 
     # load dataframe
     pl_df = load_comb_invparms_df(results_dir, sensor_id, geoms_config, retrieval_algorithm)
-    if pl_df is None:
+    if pl_df is None:  # pragma: no cover
         return None, "No data found"
     pl_df = pl_df.filter(
         (pl.col("utc") >= from_datetime) & (pl.col("utc") <= to_datetime)
     )
-    if len(pl_df) < geoms_config.min_datapoints_per_day:
+    if len(pl_df) < geoms_config.min_datapoints_per_day:  # pragma: no cover
         return None, f"Not enough data (less than {geoms_config.min_datapoints_per_day} datapoints)"
-    
+
     # determine filename
     start_stop_times = geoms_times_to_datetime([
         np.round((pl_df["JulianDate"].min() - 2451544.5) * 86400.0),  # type: ignore# type: ignore
@@ -101,7 +104,7 @@ def generate_geoms_file(
     ])
     data_from_dt: datetime.datetime = start_stop_times[0]
     data_to_dt: datetime.datetime = start_stop_times[1]
-    
+
     geoms_location = geoms_metadata.locations[location.location_id]
     data_source = f"{geoms_metadata.general.network}_{geoms_metadata.general.affiliation}{serial_number:03d}"
     filename = (
@@ -116,15 +119,15 @@ def generate_geoms_file(
     tmp_filepath = os.path.join(results_dir, tmp_filename)
     if os.path.isfile(tmp_filepath):
         os.remove(tmp_filepath)
-    
+
     if os.path.isfile(filepath):
-        if geoms_config.conflict_mode == "skip":
+        if geoms_config.conflict_mode == "skip":  # pragma: no cover
             return filepath, "File already exists"
         if geoms_config.conflict_mode == "error":
             raise FileExistsError(f"File already exists: {filepath}")
         # else: replace
         os.remove(filepath)
-    
+
     # apply calibration factors
     cal = calibration_factors.root[to_dt_calibration_factors_index]
     pl_df = pl_df.with_columns(
@@ -141,7 +144,7 @@ def generate_geoms_file(
     ils_data = get_ils_form_preprocess_inp(results_dir, from_dt.date())
     interpolated_column_sensitivity = load_interpolated_column_sensitivity_file(results_dir, from_dt.date(), sensor_id, pl_df["sza"].to_numpy())
     df_with_uncertainties = calculate_column_uncertainty(pl_df)
-    
+
     # open hdf file, the writing functions only work with pandas (not polars)
     hdf_file = h5py.File(tmp_filepath, "w")
     df = pl_df.to_pandas()
@@ -192,7 +195,7 @@ def generate_geoms_file(
         "FILE_DOI":          geoms_metadata.file.doi,
         "FILE_META_VERSION": geoms_metadata.file.meta_version,
         "FILE_NAME":         filename,
-        
+
         # data
         "DATA_DISCIPLINE":   geoms_metadata.data.discipline,
         "DATA_GROUP":        geoms_metadata.data.group,
@@ -202,7 +205,7 @@ def generate_geoms_file(
         "DATA_SOURCE":       data_source,
         "DATA_LOCATION":     geoms_location,
         "DATA_PROCESSOR":    f"PROFFAST Version {retrieval_algorithm.split('-')[-1]}",
-        
+
         # contact
         "PI_NAME":        geoms_metadata.principle_investigator.name,
         "PI_EMAIL":       geoms_metadata.principle_investigator.email,
@@ -217,19 +220,19 @@ def generate_geoms_file(
         "DS_AFFILIATION": geoms_metadata.data_submitter.affiliation,
         "DS_ADDRESS":     geoms_metadata.data_submitter.address
     }
-    
+
     # Darko asked to put "2.4.1" whenever we export 2.4 GEOMS files, because the PROFFASTpylot 2.4.0 had
     # a bug where the AVK were not copied correctly. The data is otherwise identical.
     if metadata["DATA_PROCESSOR"] == "PROFFAST Version 2.4":
         metadata["DATA_PROCESSOR"] = "PROFFAST Version 2.4.1"
-    
+
     # write metadata
-    
+
     variables: list[str] = hdf_file.keys() # pyright: ignore[reportAssignmentType]
     for key, value in metadata.items():
         hdf_file.attrs[key] = np.bytes_(value)
     hdf_file.attrs["DATA_VARIABLES"] = np.bytes_(";".join(variables))
-    
+
     hdf_file.attrs["DATA_DESCRIPTION"] = np.bytes_((
         f"EM27/SUN (SN{serial_number:03d}) measurements from {location.location_id} " +
         f"({location.details}, {location.lat} N {location.lon} E {location.alt} m)"
@@ -249,17 +252,17 @@ def generate_geoms_file(
     hdf_file.attrs["FILE_GENERATION_DATE"] = np.bytes_(
         datetime.datetime.now().strftime("%Y%m%dT%H%M%SZ")
     )
-    
+
     hdf_file.close()
-    
+
     existing_geoms_files = [
         f for f in os.listdir(results_dir)
         if re.match(r".*_\d{8}t\d{6}[^_]+_\d{8}t\d{6}[^_]+_\d+(\.tmp)?\.h5", f)
     ]
     for f in existing_geoms_files:
-        if f != tmp_filename:
+        if f != tmp_filename:  # pragma: no cover
             os.remove(os.path.join(results_dir, f))
-    
+
     os.rename(tmp_filepath, filepath)
     return filepath, "File generated"
 
@@ -286,7 +289,9 @@ def run(
 
     for retrieval_algorithm in config.geoms.retrieval_algorithms:
         for atmospheric_profile_model in config.geoms.atmospheric_profile_models:
-            if (retrieval_algorithm == "proffast-1.0") and (atmospheric_profile_model == "GGG2020"):
+            if (retrieval_algorithm == "proffast-1.0") and (
+                atmospheric_profile_model == "GGG2020"
+            ):  # pragma: no cover
                 print("Skipping proffast-1.0/GGG2020 as it is not supported")
                 continue
 
@@ -302,7 +307,7 @@ def run(
                     sensor_id,
                     "successful",
                 )
-                if not os.path.exists(results_folders):
+                if not os.path.exists(results_folders):  # pragma: no cover
                     print(f"Sensor {sensor_id}: no results found")
                     continue
                 results = os.listdir(results_folders)

@@ -13,7 +13,7 @@ def upload_requests(
     queries: list[types.DownloadQuery],
     ftp: ftplib.FTP,
     atmospheric_profile_model: types.AtmosphericProfileModel,
-) -> None:
+) -> None:  # pragma: no cover
     """Requests Ginput data by uploading a '.txt' to 'ccycle.gps.caltech.edu'.
     Attempts until upload successful or config.upload_timeout is exceeded.
     Sleeps config.upload_sleep seconds in between each attempt. Returns

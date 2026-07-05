@@ -31,9 +31,9 @@ title: "🌋 EM27 Retrieval Pipeline: Automated EM27/SUN Data Processing"
   </a>
 </div>
 
-We retrieve a lot of EM27/SUN data, produced mainly by [MUCCnet (Dietrich et al., 2021)](https://doi.org/10.5194/amt-14-1111-2021), and have used this pipeline since end of 2021.
+We retrieve a lot of EM27/SUN data, due to running [MUCCnet (Dietrich et al., 2021)](https://doi.org/10.5194/amt-14-1111-2021) in an automated setup, and have used this pipeline since end of 2021.
 
-This codebase provides an automated data pipeline for [Proffast 1 and 2.X](https://www.imk-asf.kit.edu/english/3225.php). Under the hood, it uses the [Proffast Pylot](https://gitlab.eudat.eu/coccon-kit/proffastpylot.git) to interact with Proffast 2 and an in-house connector to interact with Proffast 1. Whenever using this pipeline for Proffast retrievals, please make sure to also cite [Proffast](https://www.imk-asf.kit.edu/english/3225.php) and the [Proffast Pylot](https://gitlab.eudat.eu/coccon-kit/proffastpylot) (for Proffast 2.X retrievals).
+This codebase provides an automated data pipeline for [Proffast 1 and 2.X](https://www.coccon.kit.edu/). Under the hood, it uses the [Proffast Pylot](https://github.com/coccon/proffastpylot) to interact with Proffast 2 and an in-house connector to interact with Proffast 1. Whenever using this pipeline for Proffast retrievals, please make sure to also cite Proffast and the Proffast Pylot (for Proffast 2.X retrievals).
 
 📚 Read the documentation at [em27-retrieval-pipeline.netlify.app](https://em27-retrieval-pipeline.netlify.app).<br/>
 💾 Get the source code at [github.com/tum-esm/em27-retrieval-pipeline](https://github.com/tum-esm/em27-retrieval-pipeline).<br/>
@@ -54,46 +54,57 @@ We decided to include a copy of the Python codebase of the Proffast Pylot inside
 
 The pipeline consists of three building blocks that are required to retrieve EM27 data:
 
-| Task                                                                                 | <p className='whitespace-nowrap'>Script Entrypoint <span className='text-transparent'>aaaaaaaaaaaaa</span></p> |
-| ------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------- |
-| 1. Downloading vertical profiles from the Caltech FTP server                         | `python cli.py profiles run`                                                                                   |
-| 2. Running the retrieval to generate the averaged column concentrations              | `python cli.py retrieval start`                                                                                |
-| 3. Bundle all retrieval results into one file per sensor/retrieval alg./atm. profile | `python cli.py bundle run`                                                                                     |
+1. Downloading vertical profiles from the Caltech FTP server:<br/>
+   `python cli.py profiles run`
+2. Running the retrieval to generate the averaged column concentrations:<br/>
+   `python cli.py retrieval start`
+3. Bundle all retrieval results into one file per sensor/retrieval alg./atm. profile:<br/>
+   `python cli.py bundle run`
 
-<br />
-
-**The data flow from input to merged outputs:**
+The data flow from input to merged outputs:
 
 <img
-  src="/images/architecture.png"
+  src="images/architecture.png"
   alt="Architecture of the EM27 Retrieval Pipeline"
   width={3033}
   height={2166}
   className="my-8 max-w-lg mx-auto w-full p-2 md:p-4 bg-white rounded"
 />
 
-<br />
+## Features
 
-**The pipeline offers:**
+**Easy configuration of using a validated `config.json` (and metadata files):** By "validated", we mean that before the processing starts, the config files content will be parsed and validated against a JSON schema. This way, you can be sure that the pipeline will not fail due to a misconfiguration, and you will immediately get precise error messages.
 
-- **Easy configuration of using a validated `config.json` (and metadata files):** By "validated", we mean that before the processing starts, the config files content will be parsed and validated against a JSON schema. This way, you can be sure that the pipeline will not fail due to a misconfiguration, and you will immediately get precise error messages.
-- **Opinionated management of station metadata:** We manage our EM27 metadata using JSON files instead of database tables, which has several benefits mentioned in the [metadata repository](https://github.com/tum-esm/em27-metadata)
-- **Filtering of interferogram files that Proffast cannot process:** When some interferograms are corrupted, Proffast will fail during preprocessing for whole days of data even when only a few out of thousands of interferograms are bad. The pipeline filters out these interferograms and only passes the valid ones to Proffast. A standalone version of this filtering functionality is included in our [utility library](https://tum-esm-utils.netlify.app/api-reference#tum_esm_utilsinterferograms)
-- **Parallelization of the Proffast Pylot execution:** The Pylot already provides parallelization. However, we decided to isolate the approach of the Pylot more and run the retrieval execution for each station and date individually inside a containerized environment. This way, errors during the retrieval don't affect separate days/stations, and we have separated outputs and logs.
-- **Fully automated interface to obtain Ginput Data:** The atmospheric profiles downloader of this pipeline automates the request for GGG2014 and GGG2020 data (supporting standard sites) from `ftp://ccycle.gps.caltech.edu`. The manual instructions can be found [here](https://tccon-wiki.caltech.edu/Main/ObtainingGinputData).
-- **Comprehensive logs and output data management:** It will store failed and succeeded containers. The output is the same as with the Pylot but also contains all config files the pipeline used to run this container and logs generated by the container.
-- **Bundling of retrieval results:** The raw retrieval outputs will be distributed over hundres or thousands of folders and files. The bundling script of this pipeline will merge these outputs into one file per station, retrieval algorithm, and atmospheric profile. This way, you can easily access the data for further processing. ([Read about it here](/guides/directories#bundles)).
-- **Documentation and complete API reference:** hosted at [em27-retrieval-pipeline.netlify.app](https://em27-retrieval-pipeline.netlify.app/)
+**Opinionated management of station metadata:** We manage our EM27 metadata using JSON files instead of database tables, which has several benefits mentioned in the [metadata repository](https://github.com/tum-esm/em27-metadata)
+
+**Filtering of interferogram files that Proffast cannot process:** When some interferograms are corrupted, Proffast will fail during preprocessing for whole days of data even when only a few out of thousands of interferograms are bad. The pipeline filters out these interferograms and only passes the valid ones to Proffast. A standalone version of this filtering functionality is included in our [utility library](/api-reference#tum_esm_utilsinterferograms)
+
+**Parallelization of the Proffast Pylot execution:** The Pylot already provides parallelization. However, we decided to isolate the approach of the Pylot more and run the retrieval execution for each station and date individually inside a containerized environment. This way, errors during the retrieval don't affect separate days/stations, and we have separated outputs and logs.
+
+**Fully automated interface to obtain Ginput Data:** The atmospheric profiles downloader of this pipeline automates the request for GGG2014 and GGG2020 data (supporting standard sites) from `ftp://ccycle.gps.caltech.edu`. The manual instructions can be found [here](https://tccon-wiki.caltech.edu/Main/ObtainingGinputData).
+
+**Comprehensive logs and output data management:** It will store failed and succeeded containers. The output is the same as with the Pylot but also contains all config files the pipeline used to run this container and logs generated by the container.
+
+**Bundling of retrieval results:** The raw retrieval outputs will be distributed over hundreds or thousands of folders and files. The bundling script of this pipeline will merge these outputs into one file per station, retrieval algorithm, and atmospheric profile. This way, you can easily access the data for further processing. ([Read about it here](/guides/directories#bundles)).
+
+**Documentation and complete API reference:** hosted at [em27-retrieval-pipeline.netlify.app](https://em27-retrieval-pipeline.netlify.app/)
 
 ## Getting Started
 
-To fully understand the pipeline, you should read the following sections:
+To fully understand the pipeline, you should read the following sections of the documentation:
 
 1. The [configuration section](/guides/configuration) explains how the pipeline uses a `config.json` file to read the parameters of your environment.
 2. The [directories section](/guides/directories) explains how the input directories should be structured and how the pipeline structures its outputs.
 3. The [metadata section](/guides/metadata) explains what the metadata the pipeline requires is structured and how to connect it to the pipeline.
-4. The [usage section](/guides/usage) explains how to run the pipeline.
+4. The [installation section](/guides/installation) explains how to install the pipeline.
+5. The [usage section](/guides/usage) explains how to run the pipeline.
+
+The `example` directory of this repository contains a fully working example of the different steps of the pipeline.
 
 You can look into the API Reference pages for an exact schema definition and explanation of every parameter. You can also use this documentation's search function (top right) to find what you are looking for.
 
-If you have issues or feature requests, please open an [issue on GitHub](https://github.com/tum-esm/em27-retrieval-pipeline/issues) or ask [Moritz Oliveira Makowski (moritz.makowski@tum.de)](mailto:moritz.makowski@tum.de).
+## Contributing
+
+We are happy to include any feature that is useful for the COCCON community. We are also open to expand the pipeline to other retrieval algorithms or spectrometers.
+
+If you have issues or feature requests, please open an [issue on GitHub](https://github.com/tum-esm/em27-retrieval-pipeline/issues) or ask [Moritz Oliveira Makowski (moritz.makowski@tum.de)](mailto:moritz.makowski@tum.de). Please read the [contributors guidelines](https://github.com/tum-esm/em27-retrieval-pipeline/blob/main/CONTRIBUTING.md) and the [code of conduct](https://github.com/tum-esm/em27-retrieval-pipeline/blob/main/CODE_OF_CONDUCT.md) first.

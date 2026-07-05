@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import datetime
 import os
-from typing import Literal, Optional
+from typing import Any, Literal, Optional
 
 import dotenv
 import pydantic
@@ -124,6 +124,15 @@ class GroundPressureConfig(pydantic.BaseModel):
         )
     )
 
+    # before the validation, if the path is relative, make it absolute based on the cwd
+    @pydantic.model_validator(mode="before")
+    def _make_path_absolute(cls, values: Any) -> Any:
+        path = values.get("path")
+        if isinstance(path, str):
+            if not os.path.isabs(path):
+                values["path"] = os.path.abspath(path)
+        return values
+
     # validate -> you can only set either date AND time OR unix_timestamp
     @pydantic.model_validator(mode="after")
     def _check_datetime_columns(self) -> GroundPressureConfig:
@@ -176,6 +185,16 @@ class DataConfig(pydantic.BaseModel):
     results: tum_esm_utils.validators.StrictDirectoryPath = pydantic.Field(
         ..., description="directory path to results"
     )
+
+    # before the validation, if the path is relative, make it absolute based on the cwd
+    @pydantic.model_validator(mode="before")
+    def _make_path_absolute(cls, values: Any) -> Any:
+        for key in ["atmospheric_profiles", "interferograms", "results"]:
+            path = values.get(key)
+            if isinstance(path, str):
+                if not os.path.isabs(path):
+                    values[key] = os.path.abspath(path)
+        return values
 
 
 class ProfilesServerConfig(pydantic.BaseModel):

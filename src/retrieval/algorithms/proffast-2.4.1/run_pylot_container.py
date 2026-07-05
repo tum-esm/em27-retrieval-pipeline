@@ -11,7 +11,6 @@ import importlib
 import os
 import sys
 
-
 if __name__ == "__main__":
     assert len(sys.argv) == 4, (
         "wrong number of arguments provided to run.py. Example"
@@ -20,7 +19,7 @@ if __name__ == "__main__":
 
     container_dir, container_id, pylot_config_path = sys.argv[1:]
     container_path = os.path.join(
-       container_dir,
+        container_dir,
         f"retrieval-container-{container_id}",
     )
     assert os.path.isdir(container_path), "container does not exist"

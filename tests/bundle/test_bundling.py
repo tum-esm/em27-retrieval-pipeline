@@ -5,12 +5,12 @@ import src
 import tum_esm_utils
 import em27_metadata
 import polars as pl
-from ..fixtures import download_sample_data  # pyright: ignore[reportUnusedImport]
 
 PROJECT_DIR = tum_esm_utils.files.rel_to_abs_path("../..")
-INPUT_DATA_DIR = os.path.join(PROJECT_DIR, "data", "testing", "inputs")
-METADATA_DIR = os.path.join(INPUT_DATA_DIR, "metadata")
-BUNDLE_OUTPUT_DIR = os.path.join(PROJECT_DIR, "data", "testing", "bundle", "outputs")
+EXAMPLE_DIR = os.path.join(PROJECT_DIR, "example")
+TEST_DATA_DIR = os.path.join(PROJECT_DIR, "data", "testing")
+BUNDLE_INPUT_DIR = os.path.join(TEST_DATA_DIR, "inputs", "individual-results")
+BUNDLE_OUTPUT_DIR = os.path.join(TEST_DATA_DIR, "outputs", "bundles")
 
 CONFIG = {
     "version": "1.10",
@@ -18,7 +18,7 @@ CONFIG = {
         "metadata": None,
         "data": {
             "ground_pressure": {
-                "path": os.path.join(INPUT_DATA_DIR, "data", "ground-pressure"),
+                "path": os.path.join(EXAMPLE_DIR, "data", "inputs", "ground-pressure"),
                 "file_regex": "^$(SENSOR_ID)$(DATE).*\\.csv$",
                 "separator": ",",
                 "pressure_column": "pressure",
@@ -28,9 +28,11 @@ CONFIG = {
                 "time_column": "UTCtime_____",
                 "time_column_format": "%H:%M:%S",
             },
-            "atmospheric_profiles": os.path.join(INPUT_DATA_DIR, "data", "atmospheric-profiles"),
-            "interferograms": os.path.join(INPUT_DATA_DIR, "data", "interferograms"),
-            "results": os.path.join(INPUT_DATA_DIR, "results"),
+            "atmospheric_profiles": os.path.join(
+                EXAMPLE_DIR, "data", "inputs", "atmospheric-profiles"
+            ),
+            "interferograms": os.path.join(EXAMPLE_DIR, "data", "inputs", "interferograms"),
+            "results": BUNDLE_INPUT_DIR,
         },
     },
     "profiles": None,
@@ -59,7 +61,7 @@ CONFIG = {
 
 @pytest.mark.order(3)
 @pytest.mark.quick
-def test_bundling(download_sample_data: None) -> None:
+def test_bundling() -> None:
     # Remove all files in the output
     for f in tum_esm_utils.files.list_directory(
         BUNDLE_OUTPUT_DIR, include_directories=False, ignore=[".gitkeep"]
@@ -72,10 +74,10 @@ def test_bundling(download_sample_data: None) -> None:
     src.bundle.main.run(
         config=config,
         em27_metadata_interface=em27_metadata.loader.load_from_local_files(
-            locations_path=os.path.join(METADATA_DIR, "locations.json"),
-            sensors_path=os.path.join(METADATA_DIR, "sensors.json"),
-            campaigns_path=os.path.join(METADATA_DIR, "campaigns.json"),
-            events_path=os.path.join(METADATA_DIR, "events.json"),
+            locations_path=os.path.join(EXAMPLE_DIR, "config", "locations.json"),
+            sensors_path=os.path.join(EXAMPLE_DIR, "config", "sensors.json"),
+            campaigns_path=os.path.join(EXAMPLE_DIR, "config", "campaigns.json"),
+            events_path=os.path.join(EXAMPLE_DIR, "config", "events.json"),
         ),
     )
 
@@ -102,16 +104,16 @@ def test_bundling(download_sample_data: None) -> None:
                 csv_path = os.path.join(BUNDLE_OUTPUT_DIR, f"{filename}.csv")
                 assert os.path.exists(csv_path), f"Expected file {csv_path} does not exist."
                 csv_df = pl.read_csv(csv_path)
-                with pl.Config(tbl_cols=-1):
-                    print(csv_df)
+                # with pl.Config(tbl_cols=-1):
+                #     print(csv_df)
                 assert len(csv_df) >= min_row_counts[sensor_id], \
                     f"Expected at least {min_row_counts[sensor_id]} rows in {csv_path}, got {len(csv_df)}."
 
                 parquet_path = os.path.join(BUNDLE_OUTPUT_DIR, f"{filename}.parquet")
                 assert os.path.exists(parquet_path), f"Expected file {parquet_path} does not exist."
                 parquet_df = pl.read_parquet(parquet_path)
-                with pl.Config(tbl_cols=-1):
-                    print(parquet_df)
+                # with pl.Config(tbl_cols=-1):
+                #     print(parquet_df)
                 assert len(parquet_df) >= min_row_counts[sensor_id], \
                     f"Expected at least {min_row_counts[sensor_id]} rows in {parquet_path}, got {len(parquet_df)}."
 
@@ -128,7 +130,7 @@ def test_bundling(download_sample_data: None) -> None:
                 df = parquet_df.drop_nulls().drop_nans()
                 assert len(df) == len(parquet_df), f"Expected no nulls or NaNs in the DataFrame"
 
-                print(df.columns)
+                # print(df.columns)
 
                 # check whether DC timeseries is there
                 if retrieval_algorithm in ["proffast-2.4", "proffast-2.4.1"]:

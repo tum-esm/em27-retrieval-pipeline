@@ -7,10 +7,11 @@ if "POLARS_MAX_THREADS" not in os.environ:
 import ftplib
 import io
 import sys
-import tqdm
+
 import click
 import em27_metadata
 import pydantic
+import tqdm
 import tum_esm_utils
 
 _RETRIEVAL_ENTRYPOINT = tum_esm_utils.files.rel_to_abs_path("src", "retrieval", "main.py")
@@ -40,8 +41,8 @@ def _check_config_validity() -> None:
 
 @retrieval_command_group.command(
     name="start",
-    short_help="Start Retrieval Process",
-    help="Start the retrieval as a background process. Prevents spawning multiple processes. The logs and the current processing queue from this process can be found at `logs/retrieval`.",
+    short_help="Start Retrieval Process in the Background",
+    help="Start the retrieval as a background process. Prevents spawning multiple processes. The logs and the current processing queue from this process can be found at `data/logs/retrieval`.",
 )
 def start() -> None:
     _check_config_validity()
@@ -52,9 +53,25 @@ def start() -> None:
 
 
 @retrieval_command_group.command(
+    name="run",
+    short_help="Start Retrieval Process in the Foreground",
+    help="Run the retrieval. Blocking. The logs and the current processing queue from this process can be found at `data/logs/retrieval`.",
+)
+def run() -> None:
+    import src
+
+    with src.utils.semaphores.with_automation_lock():
+        click.echo("Starting retrieval process in the foreground. Press Ctrl+C to stop.")
+        click.echo(
+            "The logs and the current processing queue from this process can be found at `data/logs/retrieval`."
+        )
+        src.retrieval.main.run()
+
+
+@retrieval_command_group.command(
     name="is-running",
     short_help="Check If Retrieval Is Running",
-    help="Checks whether the retrieval background process is running. The logs and the current processing queue from this process can be found at `logs/retrieval`.",
+    help="Checks whether the retrieval background process is running. The logs and the current processing queue from this process can be found at `data/logs/retrieval`.",
 )
 def is_running() -> None:
     # no config check because this does not require a config

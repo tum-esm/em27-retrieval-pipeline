@@ -75,11 +75,12 @@ distribution = false
 filterwarnings = ["ignore::UserWarning"]
 markers = [
     "integration: can only be run on a configured system",
+    "metadata: can only be run on a configured system, only tests the connection to the metadata",
     "quick: can be run in a CI environment, < 30 seconds, everything except running actual retrievals",
     "ci: can be run in a CI environment, ~ 1 - 2 min, runs the complete tests but without running the actual retrieval algorithms",
     "complete: can be run in a CI environment, ~ 3 - 10 minutes, runs three sample days from different instruments and locations for every retrieval algorithm and every atmospheric profile",
 ]
-addopts = "--exitfirst --verbose --durations=0 --no-header"
+addopts = "--exitfirst --verbose --durations=0 --no-header --cov=src"
 
 [tool.mypy]
 strict = true
@@ -96,6 +97,13 @@ exclude = [
     "src/retrieval/algorithms/proffast-2.4.1/main/prfpylot",
     "dev",
 ]
+
+[tool.coverage.run]
+patch = ["subprocess"]
+concurrency = ["multiprocessing"]
+
+[tool.coverage.report]
+exclude_also = ["raise", "except", "continue"]
 
 [tool.ruff.lint]
 exclude = [
@@ -120,6 +128,10 @@ ignore = [
     "E501",
     # import not at the top
     "E402",
+    # Do not use bare `except`
+    "E722",
+    #Blank line contains whitespace
+    "W293",
 ]
 
 [[tool.mypy.overrides]]

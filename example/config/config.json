@@ -1,0 +1,64 @@
+{
+  "version": "1.10",
+  "general": {
+    "metadata": null,
+    "data": {
+      "ground_pressure": {
+        "path": "data/inputs/ground-pressure",
+        "file_regex": "^ground-pressure-$(SENSOR_ID)-$(YYYY)-$(MM)-$(DD).csv$",
+        "separator": ",",
+        "pressure_column": "pressure",
+        "pressure_column_format": "hPa",
+        "date_column": "utc-date",
+        "date_column_format": "%Y-%m-%d",
+        "time_column": "utc-time",
+        "time_column_format": "%H:%M:%S"
+      },
+      "atmospheric_profiles": "data/inputs/atmospheric-profiles",
+      "interferograms": "data/inputs/interferograms",
+      "results": "data/outputs/individual"
+    }
+  },
+  "profiles": null,
+  "retrieval": {
+    "general": {
+      "max_process_count": 8,
+      "ifg_file_regex": "^$(SENSOR_ID)$(DATE).*\\.\\d+$"
+    },
+    "jobs": [
+      {
+        "retrieval_algorithm": "proffast-2.4",
+        "atmospheric_profile_model": "GGG2020",
+        "sensor_ids": ["so", "mc"],
+        "from_date": "2017-01-01",
+        "to_date": "2022-12-31"
+      }
+    ]
+  },
+  "bundles": [
+    {
+      "dst_dir": "data/outputs/bundles",
+      "output_formats": ["csv", "parquet"],
+      "from_datetime": "2017-01-01T00:00:00Z",
+      "to_datetime": "2022-12-31T23:59:59Z",
+      "sensor_ids": ["so", "mc"],
+      "retrieval_algorithms": ["proffast-2.4"],
+      "atmospheric_profile_models": ["GGG2020"],
+      "parse_dc_timeseries": true,
+      "parse_retrieval_diagnostics": true
+    }
+  ],
+  "geoms": {
+    "sensor_ids": ["so", "mc"],
+    "retrieval_algorithms": ["proffast-2.4"],
+    "atmospheric_profile_models": ["GGG2020"],
+    "from_datetime": "2017-01-01T00:00:00Z",
+    "to_datetime": "2022-12-31T23:59:59Z",
+    "parse_dc_timeseries": true,
+    "max_sza": 80,
+    "min_xair": 0.98,
+    "max_xair": 1.02,
+    "conflict_mode": "replace",
+    "min_datapoints_per_day": 5
+  }
+}

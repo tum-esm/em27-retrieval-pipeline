@@ -38,7 +38,7 @@ def run(config: types.Config, session: types.RetrievalSession, test_mode: bool =
         )
         logger.archive()
 
-    def _graceful_teardown(*args: Any) -> None:
+    def _graceful_teardown(*args: Any) -> None:  # pragma: no cover
         logger.info("Container was killed")
         _last_will()
         exit(0)
@@ -76,7 +76,7 @@ def run(config: types.Config, session: types.RetrievalSession, test_mode: bool =
             logger.debug("Pylot execution was successful")
         except Exception as e:
             logger.exception(e, label="Proffast execution failed")
-    else:
+    else:  # pragma: no cover
         logger.info("Skipping proffast execution because there are no valid interferograms")
 
     # uncomment the following return if you want to observe the final
@@ -89,5 +89,7 @@ def run(config: types.Config, session: types.RetrievalSession, test_mode: bool =
         logger.info("Finished")
     except Exception as e:
         logger.exception(e, label="Moving outputs failed")
+        if test_mode:
+            raise
 
     _last_will()

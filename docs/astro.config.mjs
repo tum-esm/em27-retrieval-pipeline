@@ -45,6 +45,10 @@ export default defineConfig({
               link: "/guides/metadata",
             },
             {
+              label: "Installation",
+              link: "/guides/installation",
+            },
+            {
               label: "Usage",
               link: "/guides/usage",
             },

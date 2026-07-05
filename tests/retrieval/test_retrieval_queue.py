@@ -5,7 +5,6 @@ import dotenv
 import em27_metadata
 import tum_esm_utils
 from ..fixtures import (
-    download_sample_data,  # pyright: ignore[reportUnusedImport]
     provide_config_template,  # pyright: ignore[reportUnusedImport]
     remove_temporary_retrieval_data,  # pyright: ignore[reportUnusedImport]
 )
@@ -61,7 +60,6 @@ def _check_retrieval_queue(
 @pytest.mark.order(3)
 @pytest.mark.quick
 def test_retrieval_queue(
-    download_sample_data: None,
     remove_temporary_retrieval_data: None,
     provide_config_template: types.Config,
 ) -> None:
@@ -72,7 +70,7 @@ def test_retrieval_queue(
 
     # target config at test data
     config.general.data.ground_pressure.path.root = os.path.join(
-        PROJECT_DIR, "data", "testing", "inputs", "data", "ground-pressure"
+        PROJECT_DIR, "example", "data", "inputs", "ground-pressure"
     )
     config.general.data.ground_pressure.pressure_column = "BaroYoung"
     config.general.data.ground_pressure.pressure_column_format = "hPa"
@@ -85,13 +83,13 @@ def test_retrieval_queue(
     config.general.data.ground_pressure.time_column_format = "%H:%M:%S"
 
     config.general.data.interferograms.root = os.path.join(
-        PROJECT_DIR, "data", "testing", "inputs", "data", "interferograms"
+        PROJECT_DIR, "example", "data", "inputs", "interferograms"
     )
     config.general.data.atmospheric_profiles.root = os.path.join(
-        PROJECT_DIR, "data", "testing", "inputs", "data", "atmospheric-profiles"
+        PROJECT_DIR, "example", "data", "inputs", "atmospheric-profiles"
     )
     config.general.data.results.root = os.path.join(
-        PROJECT_DIR, "data", "testing", "container", "outputs"
+        PROJECT_DIR, "data", "testing", "outputs", "individual-results"
     )
 
     # test case 1

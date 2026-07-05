@@ -1,8 +1,10 @@
-from typing import Any, Optional
 import datetime
 import os
+from typing import Any, Optional
+
 import polars as pl
 import tum_esm_utils
+
 import src
 
 
@@ -164,32 +166,28 @@ def load_results_directory(
                 if retrieval_algorithm == "proffast-2.4":
                     # 10 parts for normal preprocess6
                     # 16 parts
-                    if len(parts) != 26:
-                        continue
-
-                    spectrums.append(f"{parts[6]}_{parts[8]}SN.BIN")
-                    for i in range(16):
-                        try:
-                            value = float(parts[i + 10])
-                        except ValueError:
-                            value = None
-                        data[i].append(value)
+                    if len(parts) == 26:
+                        spectrums.append(f"{parts[6]}_{parts[8]}SN.BIN")
+                        for i in range(16):
+                            try:
+                                value = float(parts[i + 10])
+                            except ValueError:
+                                value = None
+                            data[i].append(value)
                 elif retrieval_algorithm == "proffast-2.4.1":
                     # 20 parts for normal preprocess6
                     # 16 parts
-                    if len(parts) != 36:
-                        continue
-
-                    spectrums.append(f"{parts[6]}_{parts[8]}SN.BIN")
-                    for i in range(16):
-                        try:
-                            value = float(parts[i + 20])
-                        except ValueError:
-                            value = None
-                        data[i].append(value)
+                    if len(parts) == 36:
+                        spectrums.append(f"{parts[6]}_{parts[8]}SN.BIN")
+                        for i in range(16):
+                            try:
+                                value = float(parts[i + 20])
+                            except ValueError:
+                                value = None
+                            data[i].append(value)
                 else:
                     raise Exception("This should not happen")
-        else:
+        else:  # pragma: no cover
             print(f"Could not find preprocessing log file at {preprocessing_log_path}")
 
         preprocessing_df = pl.DataFrame(
@@ -319,18 +317,16 @@ def load_results_directory(
 
     # 6. PARSE OPUS FILE STATS
 
-    opus_file_stats_df: pl.DataFrame
+    opus_file_stats_df = pl.DataFrame(
+        {"opus_filename": [], "retrieval_filename": []},
+        schema={"opus_filename": pl.Utf8, "retrieval_filename": pl.Utf8},
+    )
     if os.path.isfile(os.path.join(d, "opus_file_stats.csv")):
         opus_file_stats_df = pl.read_csv(
             os.path.join(d, "opus_file_stats.csv"),
             has_header=True,
             separator=",",
             schema_overrides={"opus_filename": pl.Utf8, "retrieval_filename": pl.Utf8},
-        )
-    else:
-        opus_file_stats_df = pl.DataFrame(
-            {"opus_filename": [], "retrieval_filename": []},
-            schema={"opus_filename": pl.Utf8, "retrieval_filename": pl.Utf8},
         )
 
     # 7. PARSE SPECTRA FILENAMES

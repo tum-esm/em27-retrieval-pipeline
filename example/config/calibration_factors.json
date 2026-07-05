@@ -1,0 +1,4 @@
+[
+  { "sensor_id": "so", "valid_from_datetime": "2017-01-01T00:00:00Z", "valid_to_datetime": "2022-12-31T23:59:59Z", "xco2": 1.0000, "xch4": 1.0000, "xco": 1.0000, "xh2o": 1.0000 },
+  { "sensor_id": "mc", "valid_from_datetime": "2017-01-01T00:00:00Z", "valid_to_datetime": "2022-12-31T23:59:59Z", "xco2": 1.0000, "xch4": 1.0000, "xco": 1.0000, "xh2o": 1.0000 }
+]

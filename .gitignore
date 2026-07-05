@@ -24,6 +24,7 @@ data/**/*.yml
 data/**/*.inp
 data/**/*.dat
 data/**/*.spc
+*.BIN
 
 data/containers/*
 !data/containers/.gitkeep

@@ -1,5 +1,7 @@
 from __future__ import annotations
+
 import os
+
 import dotenv
 import pydantic
 import tum_esm_utils

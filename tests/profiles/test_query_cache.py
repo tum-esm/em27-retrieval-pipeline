@@ -59,7 +59,7 @@ def test_query_cache(keep_query_cache: None) -> None:
             lon=30,
             from_date=datetime.date(2014, 4, 1),
             to_date=datetime.date(2014, 4, 5),
-        )
+        ),
     ]:
         cache.add_query("GGG2020", q)
     assert len(cache.get_active_queries("GGG2014")) == 2

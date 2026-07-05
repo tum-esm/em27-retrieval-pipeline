@@ -31,7 +31,7 @@ class ProfilesQueryLocation(pydantic.BaseModel):
 def list_downloaded_data(
     config: types.Config,
     atmospheric_profile_model: types.AtmosphericProfileModel,
-) -> dict[ProfilesQueryLocation, set[datetime.date]]:
+) -> dict[ProfilesQueryLocation, set[datetime.date]]:  # pragma: no cover
     assert config.profiles is not None
     assert config.profiles.scope is not None
     downloaded_data: dict[ProfilesQueryLocation, set[datetime.date]] = {}
@@ -109,7 +109,7 @@ def list_downloaded_data(
 def list_desired_data(
     config: types.Config,
     em27_metadata_interface: em27_metadata.interfaces.EM27MetadataInterface,
-) -> dict[ProfilesQueryLocation, set[datetime.date]]:
+) -> dict[ProfilesQueryLocation, set[datetime.date]]:  # pragma: no cover
     assert config.profiles is not None
     assert config.profiles.scope is not None
     requested_data: dict[ProfilesQueryLocation, set[datetime.date]] = {}
@@ -130,7 +130,7 @@ def list_desired_data(
         query_location = ProfilesQueryLocation(lat=round(location.lat), lon=round(location.lon))
         if query_location not in requested_data.keys():
             requested_data[query_location] = set()
-        
+
         cropped_to_date = min(
             config.profiles.scope.to_date,
             (datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(hours=36)).date(),
@@ -181,7 +181,7 @@ def list_desired_data(
 def compute_missing_data(
     desired_data: dict[ProfilesQueryLocation, set[datetime.date]],
     downloaded_data: dict[ProfilesQueryLocation, set[datetime.date]],
-) -> dict[ProfilesQueryLocation, set[datetime.date]]:
+) -> dict[ProfilesQueryLocation, set[datetime.date]]:  # pragma: no cover
     missing_data: dict[ProfilesQueryLocation, set[datetime.date]] = {}
 
     for location in desired_data.keys():
@@ -198,7 +198,7 @@ def compute_missing_data(
 def remove_already_requested_data(
     missing_data: dict[ProfilesQueryLocation, set[datetime.date]],
     atmospheric_profile_model: types.AtmosphericProfileModel,
-) -> dict[ProfilesQueryLocation, set[datetime.date]]:
+) -> dict[ProfilesQueryLocation, set[datetime.date]]:  # pragma: no cover
     cache = DownloadQueryCache.load()
     active_queries = cache.get_active_queries(atmospheric_profile_model)
     for location in list(missing_data.keys()):
@@ -217,7 +217,7 @@ def remove_already_requested_data(
 def remove_std_site_data(
     config: types.Config,
     missing_data: dict[ProfilesQueryLocation, set[datetime.date]],
-) -> dict[ProfilesQueryLocation, set[datetime.date]]:
+) -> dict[ProfilesQueryLocation, set[datetime.date]]:  # pragma: no cover
     assert config.profiles is not None
     filtered_data: dict[ProfilesQueryLocation, set[datetime.date]] = copy.deepcopy(missing_data)
     for std_site_config in config.profiles.GGG2020_standard_sites:
@@ -237,7 +237,9 @@ def remove_std_site_data(
     return filtered_data
 
 
-def compute_time_periods(missing_data: set[datetime.date]) -> list[ProfilesQueryTimePeriod]:
+def compute_time_periods(
+    missing_data: set[datetime.date],
+) -> list[ProfilesQueryTimePeriod]:  # pragma: no cover
     mondays = set([d - datetime.timedelta(days=d.weekday()) for d in missing_data])
     time_periods: list[ProfilesQueryTimePeriod] = []
     for d in mondays:
@@ -252,7 +254,7 @@ def generate_download_queries(
     config: types.Config,
     atmospheric_profile_model: types.AtmosphericProfileModel,
     em27_metadata_interface: Optional[em27_metadata.interfaces.EM27MetadataInterface] = None,
-) -> list[types.DownloadQuery]:
+) -> list[types.DownloadQuery]:  # pragma: no cover
     """Returns a list of `DownloadQuery` objects for which the
     data has not been downloaded yet. Example:
 

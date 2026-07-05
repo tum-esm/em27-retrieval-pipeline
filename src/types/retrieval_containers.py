@@ -5,7 +5,7 @@ import em27_metadata
 import pydantic
 import tum_esm_utils
 
-from .config import RetrievalJobSettingsConfig, RetrievalConfig, GeneralConfig
+from .config import GeneralConfig, RetrievalConfig, RetrievalJobSettingsConfig
 
 
 class RetrievalContainerBase(pydantic.BaseModel):

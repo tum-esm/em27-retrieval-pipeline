@@ -118,5 +118,11 @@ def _create_mock_outputs(session: types.RetrievalSession) -> None:
         os.path.join(session.ctn.container_path, "prf", "wrk_fast"),
     ]:
         os.makedirs(p, exist_ok=True)
-        with open(os.path.join(p, "dummyfile"), "w") as f:
-            f.write("...")
+        tum_esm_utils.files.dump_file(os.path.join(p, "dummyfile"), "...")
+    tum_esm_utils.files.dump_file(os.path.join(analysis_dir, "cal", "logfile.dat"), "...")
+
+    opus_file_stats_path = os.path.join(session.ctn.container_path, "opus_file_stats.csv")
+    if not os.path.isfile(opus_file_stats_path):
+        tum_esm_utils.files.dump_file(
+            opus_file_stats_path, "opus_filename,retrieval_filename,checksum"
+        )

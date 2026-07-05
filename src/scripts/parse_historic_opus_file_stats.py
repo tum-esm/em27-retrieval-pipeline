@@ -1,7 +1,8 @@
-from typing import Optional
-import sys
 import datetime
 import os
+import sys
+from typing import Optional
+
 import tqdm
 import tum_esm_utils
 
@@ -9,9 +10,9 @@ sys.path.append(tum_esm_utils.files.rel_to_abs_path("../.."))
 
 from src import utils
 
-# TODO: set these paths
-IFG_PATH = tum_esm_utils.files.rel_to_abs_path("../../data/testing/inputs/data/interferograms")
-RESULTS_PATH = tum_esm_utils.files.rel_to_abs_path("../../data/testing/inputs/results")
+# SET THESE PATHS TO YOUR LOCAL PATHS
+IFG_PATH = tum_esm_utils.files.rel_to_abs_path("../../example/data/inputs/interferograms")
+RESULTS_PATH = tum_esm_utils.files.rel_to_abs_path("../../data/testing/inputs/individual-results")
 
 if __name__ == "__main__":
     # call as "s.py allowedsid1 allowedsid2 ..."
