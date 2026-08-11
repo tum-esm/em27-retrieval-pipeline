@@ -239,7 +239,7 @@ class ContainerFactory:
 
     @staticmethod
     def init_proffast22_code(_print: Callable[[str], None], fast_compilation: bool = False) -> None:
-        """Initialize the Proffast 2.2 and pylot 1.1 code.
+        """Initialize the Proffast 2.2 and Pylot 1.1 code.
 
         It will download the Proffast 2.2 code from the KIT website
         (https://www.coccon.kit.edu/downloads/Coccon-SW/PROFFASTv2.2.zip)
@@ -280,7 +280,7 @@ class ContainerFactory:
 
     @staticmethod
     def init_proffast23_code(_print: Callable[[str], None], fast_compilation: bool = False) -> None:
-        """Initialize the Proffast 2.3 and pylot 1.2 code.
+        """Initialize the Proffast 2.3 and Pylot 1.2 code.
 
         It will download the Proffast 2.3 code from the KIT website
         (https://www.coccon.kit.edu/downloads/Coccon-SW/PROFFASTv2.3.zip)
@@ -321,7 +321,7 @@ class ContainerFactory:
 
     @staticmethod
     def init_proffast24_code(_print: Callable[[str], None], fast_compilation: bool = False) -> None:
-        """Initialize the Proffast 2.4 and pylot 1.3 code.
+        """Initialize the Proffast 2.4 and Pylot 1.3 code.
 
         It will download the Proffast 2.4 code from the KIT website
         (https://www.coccon.kit.edu/downloads/Coccon-SW/PROFFASTv2.4.zip)
@@ -380,7 +380,7 @@ class ContainerFactory:
     def init_proffast241_code(
         _print: Callable[[str], None], fast_compilation: bool = False
     ) -> None:
-        """Initialize the Proffast 2.4.1 and pylot 2.4.1-0 code.
+        """Initialize the Proffast and Pylot 2.4.1 code.
 
         It will download the Proffast 2.4.1 code from the KIT website
         (https://www.coccon.kit.edu/downloads/Coccon-SW/PROFFASTv2.4.zip)
