@@ -11,6 +11,7 @@ fi
 
 # Preparation: Define directory where to find the config files
 export ERP_CONFIG_DIR="$(dirname $(realpath $0))/config"
+export ERP_LOGS_DIR="$(dirname $(realpath $0))/data/logs"
 
 # Preparation: Clean up old results
 rm -rf data/outputs/individual/proffast-2.4

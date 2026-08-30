@@ -433,7 +433,9 @@ For example our MUCCnet campaign config looks like this:
 
 ### Logs
 
-The logs are stored within the directory of the pipeline at `data/logs`:
+The logs are stored in `data/logs` by default. Set `ERP_LOGS_DIR` to use another
+existing base directory; the pipeline creates its `retrieval` and
+`retrieval/archive` directories automatically:
 
 <FileSystemTree
 schema={{

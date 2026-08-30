@@ -7,7 +7,12 @@ from typing import Literal, Optional
 import tum_esm_utils
 
 _PROJECT_DIR = tum_esm_utils.files.get_parent_dir_path(__file__, current_depth=4)
-_LOGS_DIR = os.path.join(_PROJECT_DIR, "data", "logs", "retrieval")
+_DEFAULT_LOGS_DIR = os.path.join(_PROJECT_DIR, "data", "logs")
+
+
+def _get_retrieval_logs_dir() -> str:
+    logs_dir = os.getenv("ERP_LOGS_DIR", _DEFAULT_LOGS_DIR)
+    return os.path.join(logs_dir, "retrieval")
 
 # I am not using the logging-library because the proffast-pylot
 # also uses that and figuring out how to not make these two
@@ -26,9 +31,12 @@ class Logger:
     ) -> None:
         self.container_id = container_id
         self.logfile_name = f"{logfile_time}_{self.container_id}.log"
-        self.logfile_path = os.path.join(_LOGS_DIR, self.logfile_name)
+        self.retrieval_logs_dir = _get_retrieval_logs_dir()
+        self.logfile_path = os.path.join(self.retrieval_logs_dir, self.logfile_name)
         self.write_to_file = write_to_file
         self.print_to_console = print_to_console
+
+        os.makedirs(os.path.join(self.retrieval_logs_dir, "archive"), exist_ok=True)
 
     def _log(
         self,
@@ -99,13 +107,14 @@ class Logger:
 
     def archive(self) -> None:
         """move the used log file into the archive"""
+        archive_dir = os.path.join(
+            self.retrieval_logs_dir,
+            "archive",
+            "main" if self.container_id == "main" else "containers",
+        )
+        os.makedirs(archive_dir, exist_ok=True)
         shutil.copyfile(
             self.logfile_path,
-            os.path.join(
-                _LOGS_DIR,
-                "archive",
-                "main" if self.container_id == "main" else "containers",
-                self.logfile_name,
-            ),
+            os.path.join(archive_dir, self.logfile_name),
         )
         os.remove(self.logfile_path)

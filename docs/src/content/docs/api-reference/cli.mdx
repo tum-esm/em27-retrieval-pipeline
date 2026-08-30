@@ -27,7 +27,7 @@ exports a report of the data present on the configured system
 
 Start the retrieval as a background process. Prevents spawning multiple
 processes. The logs and the current processing queue from this process can
-be found at `data/logs/retrieval`.
+be found at `$ERP_LOGS_DIR/retrieval` (default: `data/logs/retrieval`).
 
 **Options:**
 
@@ -43,7 +43,8 @@ be found at `data/logs/retrieval`.
 **Description:**  
 
 Run the retrieval. Blocking. The logs and the current processing queue from
-this process can be found at `data/logs/retrieval`.
+this process can be found at `$ERP_LOGS_DIR/retrieval` (default:
+`data/logs/retrieval`).
 
 **Options:**
 
@@ -60,7 +61,7 @@ this process can be found at `data/logs/retrieval`.
 
 Checks whether the retrieval background process is running. The logs and the
 current processing queue from this process can be found at
-`data/logs/retrieval`.
+`$ERP_LOGS_DIR/retrieval` (default: `data/logs/retrieval`).
 
 **Options:**
 
@@ -97,7 +98,8 @@ Opens an active watch window for the retrieval background process.
 **Description:**  
 
 Stop the retrieval background process. The logs and the current processing
-queue from this process can be found at `logs/retrieval`.
+queue from this process can be found at `$ERP_LOGS_DIR/retrieval` (default:
+`data/logs/retrieval`).
 
 **Options:**
 
