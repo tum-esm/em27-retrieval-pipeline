@@ -19,17 +19,25 @@ rm -rf data/outputs/bundles/*.csv
 rm -rf data/outputs/bundles/*.parquet
 rm -rf data/outputs/reports/*.csv
 
-# 1. Run the retrieval
+# 1. Running quick tests
+echo "Running quick tests"
+pytest ../tests -m "quick"
+
+# 2. Running integration tests
+echo "Running integration tests"
+pytest ../tests -m integration
+
+# 3. Run the retrieval
 echo "Running retrieval"
 python ../cli.py retrieval run
 
-# 2. Run the GEOMS export
+# 4. Run the GEOMS export
 python ../cli.py geoms run
 cp data/outputs/individual/*/*/*/successful/*/groundbased_ftir.*.h5 data/outputs/geoms
 
-# 3. Run the bundle export
+# 5. Run the bundle export
 python ../cli.py bundle run
 
-# 4. Data report
+# 6. Data report
 python ../cli.py data-report
 cp ../data/reports/mc.csv ../data/reports/so.csv data/outputs/reports
