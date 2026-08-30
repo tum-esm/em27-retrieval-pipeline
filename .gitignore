@@ -3,7 +3,6 @@ hidden/
 *.out
 config/*.json
 !config/config.template.json
-.vscode
 *.parquet
 .pdm-python
 *.lock

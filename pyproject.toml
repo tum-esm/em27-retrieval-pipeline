@@ -155,5 +155,8 @@ exclude = [
     "dev",
     "docs",
     "build",
+    "**/node_modules",
+    "**/__pycache__",
+    "**/.*"
 ]
 strict = ["src", "tests", "run.py", "cli.py"]

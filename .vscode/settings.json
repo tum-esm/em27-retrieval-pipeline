@@ -1,0 +1,13 @@
+{
+    "evenBetterToml.formatter.arrayAutoExpand": true,
+    "evenBetterToml.formatter.arrayAutoCollapse": false,
+    "evenBetterToml.formatter.arrayTrailingComma": true,
+    "evenBetterToml.formatter.columnWidth": 100,
+    "evenBetterToml.formatter.inlineTableExpand": true,
+    "evenBetterToml.formatter.compactArrays": false,
+    "evenBetterToml.formatter.compactInlineTables": false,
+    "evenBetterToml.formatter.compactEntries": false,
+    "[toml]": {
+        "editor.formatOnSave": false
+    }
+}
