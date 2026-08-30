@@ -7,7 +7,7 @@ config/*.json
 *.parquet
 .pdm-python
 *.lock
-!pdm.lock
+!uv.lock
 de421.bsp
 de421.bsp.download
 dev
@@ -334,7 +334,7 @@ ipython_config.py
 #   pdm stores project-wide configurations in .pdm.toml, but it is recommended to not include it
 #   in version control.
 #   https://pdm.fming.dev/#use-with-ide
-.pdm.toml
+#.pdm.toml
 
 # PEP 582; used by e.g. github.com/David-OConnor/pyflow and github.com/pdm-project/pdm
 __pypackages__/

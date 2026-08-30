@@ -66,9 +66,6 @@ dev = [
     "pyright>=1.1.407",
 ]
 
-[tool.pdm]
-distribution = false
-
 # using pytest markers from the `pytest-order` library, we run the
 # quick tests before the retrieval tests to fail fast
 [tool.pytest.ini_options]

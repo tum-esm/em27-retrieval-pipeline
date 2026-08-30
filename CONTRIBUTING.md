@@ -25,7 +25,7 @@ The pipeline targets Unix systems and requires Python 3.11 or newer, `unzip`, an
 3. Install the development dependencies (we use PDM, but might switch to UV soon):
 
    ```bash
-   pdm sync --with=dev
+   uv sync --extra=dev
    ```
 
 4. Create a branch for your change:
