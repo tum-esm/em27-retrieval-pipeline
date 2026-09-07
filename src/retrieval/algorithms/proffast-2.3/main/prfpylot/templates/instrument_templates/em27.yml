@@ -13,7 +13,7 @@ semi_fov: 2.36e-3
 # 20 for 125HR: 16.2 cm MPD
 mpow_fft: 17
 
-# The preprocesser can handle recordings with two interferograms.
+# The preprocessor can handle recordings with two interferograms.
 # If this is the case, select True. Otherwise select false.
 # True/False
 dual_ifg_recording: True
