@@ -5,7 +5,7 @@ import em27_metadata
 import pydantic
 import tum_esm_utils
 
-from .config import GeneralConfig, RetrievalConfig, RetrievalJobSettingsConfig
+from .config import RetrievalSubConfigs, DataConfig, MetadataConfig, RetrievalConfig
 
 
 class RetrievalContainerBase(pydantic.BaseModel):
@@ -82,7 +82,7 @@ class Proffast1RetrievalSession(pydantic.BaseModel):
 
     retrieval_algorithm: Literal["proffast-1.0"] = "proffast-1.0"
     atmospheric_profile_model: Literal["GGG2014"] = "GGG2014"
-    job_settings: RetrievalJobSettingsConfig
+    job_config: RetrievalSubConfigs.Job
     ctx: em27_metadata.types.SensorDataContext
     ctn: Proffast10Container
 
@@ -93,7 +93,7 @@ class Proffast2RetrievalSession(pydantic.BaseModel):
 
     retrieval_algorithm: Literal["proffast-2.2", "proffast-2.3", "proffast-2.4", "proffast-2.4.1"]
     atmospheric_profile_model: Literal["GGG2014", "GGG2020"]
-    job_settings: RetrievalJobSettingsConfig
+    job_config: RetrievalSubConfigs.Job
     ctx: em27_metadata.types.SensorDataContext
     ctn: Proffast22Container | Proffast23Container | Proffast24Container | Proffast241Container
 
@@ -102,7 +102,8 @@ RetrievalSession = Proffast1RetrievalSession | Proffast2RetrievalSession
 
 
 class AboutRetrievalConfig(pydantic.BaseModel):
-    general: GeneralConfig
+    data: DataConfig
+    metadata: MetadataConfig
     retrieval: RetrievalConfig
 
 

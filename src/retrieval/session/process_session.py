@@ -33,7 +33,7 @@ def run(config: types.Config, session: types.RetrievalSession, test_mode: bool =
             session.atmospheric_profile_model,
             session.ctx.sensor_id,
             session.ctx.from_datetime,
-            session.job_settings.output_suffix,
+            session.job_config.output_suffix,
             process_end_time=datetime.datetime.now(tz=datetime.timezone.utc),
         )
         logger.archive()

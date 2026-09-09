@@ -10,7 +10,7 @@ def run(
     session: types.RetrievalSession,
 ) -> None:
     pcxs_pressure_value: float = 9999.9
-    if session.job_settings.use_local_pressure_in_pcxs:
+    if session.job_config.use_local_pressure_in_pcxs:
         logger.info("Computing mean pressure around solarnoon")
         solar_noon_datetime = retrieval.utils.pressure_averaging.compute_solar_noon_time(
             session.ctx.location.lat, session.ctx.location.lon, session.ctx.from_datetime.date()
@@ -18,10 +18,10 @@ def run(
         logger.debug(f"Solar noon time: {solar_noon_datetime.time()} (UTC)")
         date_string = session.ctx.from_datetime.date().strftime("%Y%m%d")
 
-        pressure_calibration_factor = session.job_settings.pressure_calibration_factors.get(
+        pressure_calibration_factor = session.job_config.pressure_calibration_factors.get(
             session.ctx.sensor_id, 1.0
         )
-        pressure_calibration_offset = session.job_settings.pressure_calibration_offsets.get(
+        pressure_calibration_offset = session.job_config.pressure_calibration_offsets.get(
             session.ctx.sensor_id, 0.0
         )
         pcxs_pressure_value = (
@@ -39,13 +39,13 @@ def run(
         )
 
     replacements = {
-        "DC_MIN_THRESHOLD": str(session.job_settings.dc_min_threshold),
-        "DC_VAR_THRESHOLD": str(session.job_settings.dc_var_threshold),
+        "DC_MIN_THRESHOLD": str(session.job_config.dc_min_threshold),
+        "DC_VAR_THRESHOLD": str(session.job_config.dc_var_threshold),
         "MEAN_PRESSURE_AT_NOON": str(pcxs_pressure_value),
     }
-    if session.ctx.sensor_id in session.job_settings.custom_ils:
+    if session.ctx.sensor_id in session.job_config.custom_ils:
         logger.info("Using custom ILS values")
-        ils = session.job_settings.custom_ils[session.ctx.sensor_id]
+        ils = session.job_config.custom_ils[session.ctx.sensor_id]
         replacements["ILS_Channel1"] = f"{ils.channel1_me} {ils.channel1_pe}"
         replacements["ILS_Channel2"] = f"{ils.channel2_me} {ils.channel2_pe}"
 

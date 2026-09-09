@@ -10,19 +10,19 @@ from src import profiles, types
 
 def run() -> None:  # pragma: no cover
     config = types.Config.load()
-    assert config.profiles is not None, "No profiles config found"
+    assert config.ggg_profiles_downloader is not None, "No profiles config found"
 
     for variant in ["GGG2014", "GGG2020"]:
         os.makedirs(
-            os.path.join(config.general.data.atmospheric_profiles.root, variant), exist_ok=True
+            os.path.join(config.data.atmospheric_profiles.path.root, variant), exist_ok=True
         )
 
     try:
-        if len(config.profiles.GGG2020_standard_sites) > 0:
+        if len(config.ggg_profiles_downloader.ggg2020_standard_sites) > 0:
             print("Downloading standard site data")
             with ftplib.FTP(
                 host="ccycle.gps.caltech.edu",
-                passwd=config.profiles.server.email,
+                passwd=config.ggg_profiles_downloader.server.email,
                 user="anonymous",
                 timeout=60,
             ) as ftp:
@@ -31,16 +31,16 @@ def run() -> None:  # pragma: no cover
         else:
             print("No standard site data to download")
 
-        if config.profiles.scope is None:
+        if config.ggg_profiles_downloader.scope is None:
             print("No scope defined, skipping on-demand data download")
             return
 
-        for profile_model in config.profiles.scope.models:
+        for profile_model in config.ggg_profiles_downloader.scope.models:
             print(f"Downloading on-demand {profile_model} data")
 
             with ftplib.FTP(
                 host="ccycle.gps.caltech.edu",
-                passwd=config.profiles.server.email,
+                passwd=config.ggg_profiles_downloader.server.email,
                 user="anonymous",
                 timeout=60,
             ) as ftp:
@@ -73,7 +73,8 @@ def run() -> None:  # pragma: no cover
                     still_running_query_count = len(cache.get_active_queries(profile_model))
 
                 open_query_count = (
-                    config.profiles.server.max_parallel_requests - still_running_query_count
+                    config.ggg_profiles_downloader.server.max_parallel_requests
+                    - still_running_query_count
                 )
 
                 print(f"{still_running_query_count} queries are still running")
@@ -81,7 +82,7 @@ def run() -> None:  # pragma: no cover
                     print(
                         "No open slots for new queries "
                         + "(config.profiles.server.max_parallel_requests = "
-                        + f"{config.profiles.server.max_parallel_requests})"
+                        + f"{config.ggg_profiles_downloader.server.max_parallel_requests})"
                     )
                     continue
                 else:

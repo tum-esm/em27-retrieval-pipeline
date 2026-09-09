@@ -56,11 +56,11 @@ def run(
     if not utils.functions.sdc_covers_the_full_day(session.ctx):
         output_slug += session.ctx.from_datetime.strftime("_%H%M%S")
         output_slug += session.ctx.to_datetime.strftime("_%H%M%S")
-    if session.job_settings.output_suffix is not None:
-        output_slug += f"_{session.job_settings.output_suffix}"
+    if session.job_config.output_suffix is not None:
+        output_slug += f"_{session.job_config.output_suffix}"
 
     output_dst = os.path.join(
-        config.general.data.results.root,
+        config.data.results.path.root,
         session.retrieval_algorithm,
         session.atmospheric_profile_model,
         session.ctx.sensor_id,
@@ -122,7 +122,7 @@ def run(
 
         # (OPTIONAL) STORE BINARY SPECTRA
 
-        if session.job_settings.store_binary_spectra:
+        if session.job_config.store_binary_spectra:
             shutil.copytree(
                 os.path.join(analysis_dir, "cal"),
                 os.path.join(output_dst_tmp, "analysis", "cal"),
@@ -176,16 +176,16 @@ def run(
         now = datetime.datetime.now(datetime.timezone.utc)
         dumped_config = config.model_copy(deep=True)
         assert dumped_config.retrieval is not None
-        if dumped_config.general.metadata is not None:
-            dumped_config.general.metadata.access_token = (
-                "REDACTED" if (dumped_config.general.metadata.access_token is not None) else None
-            )
+        dumped_config.metadata.github_access_token = (
+            "REDACTED" if (dumped_config.metadata.github_access_token is not None) else None
+        )
         about = types.AboutRetrieval(
             automationVersion=utils.functions.get_pipeline_version(),
             automationCommitSha=tum_esm_utils.shell.get_commit_sha(),
             generationTime=now.strftime("%Y-%m-%dT%H:%M:%S%z"),
             config=types.AboutRetrievalConfig(
-                general=dumped_config.general,
+                data=dumped_config.data,
+                metadata=dumped_config.metadata,
                 retrieval=dumped_config.retrieval,
             ),
             session=session,

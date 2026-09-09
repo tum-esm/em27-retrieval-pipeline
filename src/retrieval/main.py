@@ -75,16 +75,20 @@ def run() -> None:
     main_logger.info("Established graceful teardown hook")
 
     # load metadata interface
+    # TODO: refactor metadata loading
     try:
         em27_metadata_interface = utils.metadata.load_local_em27_metadata_interface()
         if em27_metadata_interface is not None:
             print("Found local metadata")
         else:  # pragma: no cover
             print("Did not find local metadata -> fetching metadata from GitHub")
-            assert config.general.metadata is not None, "Remote metadata not configured"
+            assert config.metadata.source == "github", "Remote metadata not configured"
+            assert config.metadata.github_repository is not None, (
+                "This should have been caught earlier"
+            )
             em27_metadata_interface = em27_metadata.load_from_github(
-                github_repository=config.general.metadata.github_repository,
-                access_token=config.general.metadata.access_token,
+                github_repository=config.metadata.github_repository,
+                access_token=config.metadata.github_access_token,
             )
             print("Successfully fetched metadata from GitHub")
     except Exception as e:
@@ -96,7 +100,8 @@ def run() -> None:
     retrieval.utils.retrieval_status.RetrievalStatusList.reset()
     job_queue = retrieval.utils.job_queue.RetrievalJobQueue()
 
-    for job_index, job in enumerate(config.retrieval.jobs):
+    for job_index in sorted(config.retrieval.jobs.keys()):
+        job = config.retrieval.jobs[job_index]
         main_logger.info(
             f"Generating retrieval queue for job {job_index + 1}: {job.model_dump_json(indent=4)}"
         )
@@ -106,16 +111,14 @@ def run() -> None:
         main_logger.info(f"Found {len(retrieval_sdcs)} items for job {job_index + 1}")
         for sdc in retrieval_sdcs:
             job_queue.push(
-                job.retrieval_algorithm,
-                job.atmospheric_profile_model,
                 sdc,
-                job.settings,
+                job,
             )
         retrieval.utils.retrieval_status.RetrievalStatusList.add_items(
             retrieval_sdcs,
             retrieval_algorithm=job.retrieval_algorithm,
             atmospheric_profile_model=job.atmospheric_profile_model,
-            output_suffix=job.settings.output_suffix,
+            output_suffix=job.output_suffix,
         )
     main_logger.info(f"Generated retrieval queue with {len(job_queue)} items")
     main_logger.horizontal_line(variant="=")
@@ -136,9 +139,7 @@ def run() -> None:
                 new_session = retrieval.session.create_session.run(
                     container_factory,
                     next_retrieval_job.sensor_data_context,
-                    next_retrieval_job.retrieval_algorithm,
-                    next_retrieval_job.atmospheric_profile_model,
-                    next_retrieval_job.job_settings,
+                    next_retrieval_job.job_config,
                 )
                 new_process = multiprocessing.get_context("spawn").Process(
                     target=retrieval.session.process_session.run,

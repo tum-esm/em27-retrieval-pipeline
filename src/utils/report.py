@@ -72,9 +72,9 @@ def _count_ground_pressure_datapoints(
     date: datetime.date,
 ) -> int:
     _, file_pattern = replace_regex_placeholders(
-        config.general.data.ground_pressure.file_regex, sensor_id, date
+        config.data.ground_pressure.file_regex, sensor_id, date
     )
-    d = os.path.join(config.general.data.ground_pressure.path.root, sensor_id)
+    d = os.path.join(config.data.ground_pressure.path.root, sensor_id)
     all_files = os.listdir(d)
     matching_files = [f for f in all_files if file_pattern.match(f) is not None]
     line_count = 0
@@ -111,7 +111,7 @@ def _check_retrieval_output(
         ).strftime("_%H%M%S")
 
     success_path = os.path.join(
-        config.general.data.results.root,
+        config.data.results.path.root,
         retrieval_algorithm,
         atmospheric_model,
         sdc.sensor_id,
@@ -119,7 +119,7 @@ def _check_retrieval_output(
         output_folder_slug,
     )
     failed_path = os.path.join(
-        config.general.data.results.root,
+        config.data.results.path.root,
         retrieval_algorithm,
         atmospheric_model,
         sdc.sensor_id,
@@ -190,7 +190,7 @@ def export_data_report(
                     location_ids.append(sdc.location.location_id)
                     interferograms.append(
                         _count_ifg_datapoints(
-                            config.general.data.interferograms.root,
+                            config.data.interferograms.path.root,
                             sensor.sensor_id,
                             date,
                         )
@@ -204,7 +204,7 @@ def export_data_report(
                     )
                     ggg2014_profiles.append(
                         _ggg2014_profiles_exists(
-                            config.general.data.atmospheric_profiles.root,
+                            config.data.atmospheric_profiles.path.root,
                             sdc.location.lat,
                             sdc.location.lon,
                             date,
@@ -212,7 +212,7 @@ def export_data_report(
                     )
                     ggg2020_profiles.append(
                         _ggg2020_profiles_exists(
-                            config.general.data.atmospheric_profiles.root,
+                            config.data.atmospheric_profiles.path.root,
                             sdc.location.lat,
                             sdc.location.lon,
                             date,

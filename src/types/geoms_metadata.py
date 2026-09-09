@@ -9,7 +9,7 @@ import pydantic
 import tum_esm_utils
 
 
-class GEOMSMetadataConfigs:
+class GEOMSMetadataFields:
     class General(pydantic.BaseModel):
         network: str = pydantic.Field(
             ...,
@@ -99,8 +99,6 @@ class GEOMSMetadataConfigs:
             examples=["Theresienstr. 90;D-80333 Munich;GERMANY"],
         )
 
-
-class GEOMSCalibrationFactorsConfigs:
     class CalibrationFactors(pydantic.BaseModel):
         model_config = pydantic.ConfigDict(arbitrary_types_allowed=True)
 
@@ -123,8 +121,8 @@ class GEOMSCalibrationFactorsConfigs:
         @staticmethod
         @pydantic.field_validator("root", mode="after")
         def validate_times(
-            v: GEOMSCalibrationFactorsConfigs.CalibrationFactors,
-        ) -> GEOMSCalibrationFactorsConfigs.CalibrationFactors:
+            v: GEOMSMetadataFields.CalibrationFactors,
+        ) -> GEOMSMetadataFields.CalibrationFactors:
             if v.valid_from_datetime >= v.valid_to_datetime:
                 raise ValueError(
                     f"valid_from_datetime {v.valid_from_datetime} should be less than valid_to_datetime {v.valid_to_datetime}"
@@ -132,13 +130,13 @@ class GEOMSCalibrationFactorsConfigs:
             return v
 
     class CalibrationFactorsList(pydantic.RootModel[list[CalibrationFactors]]):
-        root: list[GEOMSCalibrationFactorsConfigs.CalibrationFactors]
+        root: list[GEOMSMetadataFields.CalibrationFactors]
 
         @staticmethod
         @pydantic.field_validator("root", mode="after")
         def validate_sensor_ids(
-            vs: GEOMSCalibrationFactorsConfigs.CalibrationFactorsList,
-        ) -> GEOMSCalibrationFactorsConfigs.CalibrationFactorsList:
+            vs: GEOMSMetadataFields.CalibrationFactorsList,
+        ) -> GEOMSMetadataFields.CalibrationFactorsList:
             sensor_ids = set([v.sensor_id for v in vs.root])
             for sensor_id in sensor_ids:
                 sensor_values = sorted(
@@ -166,27 +164,23 @@ class GEOMSCalibrationFactorsConfigs:
                 return None
 
 
-class GEOMSMetadataConfig(pydantic.BaseModel):
-    general: GEOMSMetadataConfigs.General
-    data: GEOMSMetadataConfigs.Data
-    file: GEOMSMetadataConfigs.File
-    principle_investigator: GEOMSMetadataConfigs.Contact
-    data_originator: GEOMSMetadataConfigs.Contact
-    data_submitter: GEOMSMetadataConfigs.Contact
+class GEOMSMetadata(pydantic.BaseModel):
+    general: GEOMSMetadataFields.General
+    data: GEOMSMetadataFields.Data
+    file: GEOMSMetadataFields.File
+    principle_investigator: GEOMSMetadataFields.Contact
+    data_originator: GEOMSMetadataFields.Contact
+    data_submitter: GEOMSMetadataFields.Contact
     locations: dict[str, str] = pydantic.Field(
         ..., description="Maps your locations id to the corresponding EVDC location id"
     )
-
-
-class GEOMSConfig(pydantic.BaseModel):
-    metadata: GEOMSMetadataConfig
-    calibration_factors: GEOMSCalibrationFactorsConfigs.CalibrationFactorsList
+    calibration_factors: GEOMSMetadataFields.CalibrationFactorsList
 
     # TODO: support loading old format
 
     @staticmethod
-    def load(template: bool = False) -> GEOMSConfig:
-        """Load the EVDC metadata from `<config_dir>/geoms_metadata.json`."""
+    def load(template: bool = False) -> GEOMSMetadata:
+        """Load the EVDC metadata from `<config_dir>/geoms_metadata.toml`."""
 
         erp_config_dir = tum_esm_utils.files.rel_to_abs_path("../../config")
         if not template:
@@ -195,6 +189,6 @@ class GEOMSConfig(pydantic.BaseModel):
                 dotenv.load_dotenv(env_path)
             erp_config_dir = os.getenv("ERP_CONFIG_DIR", erp_config_dir)
         filepath = os.path.join(
-            erp_config_dir, f"geoms_config{'.template' if template else ''}.toml"
+            erp_config_dir, f"geoms_metadata{'.template' if template else ''}.toml"
         )
-        return GEOMSConfig.model_validate_json(tum_esm_utils.files.load_file(filepath))
+        return GEOMSMetadata.model_validate_json(tum_esm_utils.files.load_file(filepath))

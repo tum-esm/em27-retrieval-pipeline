@@ -12,9 +12,9 @@ from src import profiles, types, utils
 
 def list_requested_data(
     config: types.Config,
-    std_site_config: types.config.ProfilesGGG2020StandardSitesItemConfig,
+    std_site_config: types.GGGProfilesDownloaderSubConfigs.GGG2020StandardSitesItem,
 ) -> set[datetime.date]:  # pragma: no cover
-    assert config.profiles is not None
+    assert config.ggg_profiles_downloader is not None
     from_date = std_site_config.from_date
     to_date = min(
         std_site_config.to_date,
@@ -28,14 +28,14 @@ def list_requested_data(
 
 def list_downloaded_data(
     config: types.Config,
-    std_site_config: types.config.ProfilesGGG2020StandardSitesItemConfig,
+    std_site_config: types.GGGProfilesDownloaderSubConfigs.GGG2020StandardSitesItem,
 ) -> set[datetime.date]:  # pragma: no cover
-    assert config.profiles is not None
+    assert config.ggg_profiles_downloader is not None
     downloaded_data: set[datetime.date] = set()
 
     cs = utils.text.get_coordinates_slug(lat=std_site_config.lat, lon=std_site_config.lon)
     r = re.compile(r"^\d{8,10}_" + cs + r"\.(map|mod|vmr)$")
-    profile_root_dir = os.path.join(config.general.data.atmospheric_profiles.root, "GGG2020")
+    profile_root_dir = os.path.join(config.data.atmospheric_profiles.path.root, "GGG2020")
     filenames: set[str] = set([f for f in os.listdir(profile_root_dir) if r.match(f)])
     years = set([f"{y:04d}" for y in range(1950, 2500)]).union(set(os.listdir(profile_root_dir)))
     for y in years:
@@ -83,13 +83,13 @@ def download_data(
     config: types.Config,
     ftp: ftplib.FTP,
 ) -> None:  # pragma: no cover
-    assert config.profiles is not None
+    assert config.ggg_profiles_downloader is not None
     with rich.progress.Progress() as progress:
         task = progress.add_task(
             description="Processing standard sites",
-            total=len(config.profiles.GGG2020_standard_sites),
+            total=len(config.ggg_profiles_downloader.ggg2020_standard_sites),
         )
-        for std_site_config in config.profiles.GGG2020_standard_sites:
+        for std_site_config in config.ggg_profiles_downloader.ggg2020_standard_sites:
             progress.print(f"Processing {std_site_config.model_dump_json(indent=4)}")
             requested_data = list_requested_data(config, std_site_config)
             downloaded_data = list_downloaded_data(config, std_site_config)

@@ -11,7 +11,7 @@ def run(
     session: types.RetrievalSession,
 ) -> None:
     date_string = session.ctx.from_datetime.strftime("%Y%m%d")
-    c = config.general.data.ground_pressure
+    c = config.data.ground_pressure
     d = os.path.join(c.path.root, session.ctx.pressure_data_source)
     assert os.path.exists(d), f"directory {d} does not exist"
 
@@ -54,10 +54,10 @@ def run(
     assert len(df) > 0, "no ground pressure records found for the current day"
 
     # determine calibration factors
-    pressure_calibration_factor = session.job_settings.pressure_calibration_factors.get(
+    pressure_calibration_factor = session.job_config.pressure_calibration_factors.get(
         session.ctx.sensor_id, 1.0
     )
-    pressure_calibration_offset = session.job_settings.pressure_calibration_offsets.get(
+    pressure_calibration_offset = session.job_config.pressure_calibration_offsets.get(
         session.ctx.sensor_id, 0.0
     )
 

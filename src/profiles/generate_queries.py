@@ -32,12 +32,12 @@ def list_downloaded_data(
     config: types.Config,
     atmospheric_profile_model: types.AtmosphericProfileModel,
 ) -> dict[ProfilesQueryLocation, set[datetime.date]]:  # pragma: no cover
-    assert config.profiles is not None
-    assert config.profiles.scope is not None
+    assert config.ggg_profiles_downloader is not None
+    assert config.ggg_profiles_downloader.scope is not None
     downloaded_data: dict[ProfilesQueryLocation, set[datetime.date]] = {}
 
     profile_root_dir = os.path.join(
-        config.general.data.atmospheric_profiles.root, atmospheric_profile_model
+        config.data.atmospheric_profiles.path.root, atmospheric_profile_model
     )
 
     r = re.compile(r"^\d{8,10}_\d{2}(N|S)\d{3}(E|W)\.(map|mod|vmr)$")
@@ -66,7 +66,10 @@ def list_downloaded_data(
                 )
                 for f in filenames
             ]
-            if ((config.profiles.scope.from_date <= d) and (d <= config.profiles.scope.to_date))
+            if (
+                (config.ggg_profiles_downloader.scope.from_date <= d)
+                and (d <= config.ggg_profiles_downloader.scope.to_date)
+            )
         ]
     )
     locations: set[ProfilesQueryLocation] = set(
@@ -110,11 +113,11 @@ def list_desired_data(
     config: types.Config,
     em27_metadata_interface: em27_metadata.interfaces.EM27MetadataInterface,
 ) -> dict[ProfilesQueryLocation, set[datetime.date]]:  # pragma: no cover
-    assert config.profiles is not None
-    assert config.profiles.scope is not None
+    assert config.ggg_profiles_downloader is not None
+    assert config.ggg_profiles_downloader.scope is not None
     requested_data: dict[ProfilesQueryLocation, set[datetime.date]] = {}
 
-    for location_id in config.profiles.scope.force_download_locations:
+    for location_id in config.ggg_profiles_downloader.scope.force_download_locations:
         try:
             location = next(
                 filter(
@@ -132,13 +135,13 @@ def list_desired_data(
             requested_data[query_location] = set()
 
         cropped_to_date = min(
-            config.profiles.scope.to_date,
+            config.ggg_profiles_downloader.scope.to_date,
             (datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(hours=36)).date(),
         )
-        if config.profiles.scope.from_date <= cropped_to_date:
+        if config.ggg_profiles_downloader.scope.from_date <= cropped_to_date:
             requested_data[query_location].update(
                 tum_esm_utils.timing.date_range(
-                    from_date=config.profiles.scope.from_date,
+                    from_date=config.ggg_profiles_downloader.scope.from_date,
                     to_date=cropped_to_date,
                 )
             )
@@ -160,11 +163,11 @@ def list_desired_data(
                 requested_data[query_location] = set()
 
             from_date = max(
-                config.profiles.scope.from_date,
+                config.ggg_profiles_downloader.scope.from_date,
                 sensor_setup.from_datetime.date(),
             )
             to_date = min(
-                config.profiles.scope.to_date,
+                config.ggg_profiles_downloader.scope.to_date,
                 sensor_setup.to_datetime.date(),
                 (
                     datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(hours=36)
@@ -218,9 +221,9 @@ def remove_std_site_data(
     config: types.Config,
     missing_data: dict[ProfilesQueryLocation, set[datetime.date]],
 ) -> dict[ProfilesQueryLocation, set[datetime.date]]:  # pragma: no cover
-    assert config.profiles is not None
+    assert config.ggg_profiles_downloader is not None
     filtered_data: dict[ProfilesQueryLocation, set[datetime.date]] = copy.deepcopy(missing_data)
-    for std_site_config in config.profiles.GGG2020_standard_sites:
+    for std_site_config in config.ggg_profiles_downloader.ggg2020_standard_sites:
         location = ProfilesQueryLocation(
             lat=round(std_site_config.lat),
             lon=round(std_site_config.lon),
@@ -265,18 +268,22 @@ def generate_download_queries(
     ]
     ```"""
 
-    assert config.profiles is not None
+    assert config.ggg_profiles_downloader is not None
 
+    # TODO: refactor metadata loading
     if em27_metadata_interface is None:
         em27_metadata_interface = utils.metadata.load_local_em27_metadata_interface()
         if em27_metadata_interface is not None:
             print("Found local metadata")
         else:
             print("Did not find local metadata -> fetching metadata from GitHub")
-            assert config.general.metadata is not None, "Remote metadata not configured"
+            assert config.metadata.source == "github", "This should have been caught earlier"
+            assert config.metadata.github_repository is not None, (
+                "This should have been caught earlier"
+            )
             em27_metadata_interface = em27_metadata.load_from_github(
-                github_repository=config.general.metadata.github_repository,
-                access_token=config.general.metadata.access_token,
+                github_repository=config.metadata.github_repository,
+                access_token=config.metadata.github_access_token,
             )
             print("Successfully fetched metadata from GitHub")
 

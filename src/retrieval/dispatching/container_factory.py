@@ -24,7 +24,7 @@ class ContainerFactory:
         config: types.Config,
         logger: "retrieval.utils.logger.Logger",
         mode: Literal["normal", "ci-tests", "complete-tests"] = "normal",
-    ):
+    ) -> None:
         """Initialize the factory.
 
         The `__init__` function will download the Proffast 2.2 code
@@ -46,7 +46,10 @@ class ContainerFactory:
         self.label_generator = tum_esm_utils.text.RandomLabelGenerator()
 
         assert self.config.retrieval is not None
-        retrieval_algorithms = [job.retrieval_algorithm for job in self.config.retrieval.jobs]
+        retrieval_algorithms = [
+            self.config.retrieval.jobs[i].retrieval_algorithm
+            for i in sorted(self.config.retrieval.jobs.keys())
+        ]
 
         if mode != "normal":
             self.logger.info(

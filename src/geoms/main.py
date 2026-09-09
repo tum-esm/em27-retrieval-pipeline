@@ -37,9 +37,8 @@ from .utils import (
 # fmt: off
 def generate_geoms_file(
     results_dir: str,
-    geoms_metadata: src.types.GEOMSMetadata,
-    calibration_factors: src.types.CalibrationFactorsList,
     geoms_config: src.types.GEOMSConfig,
+    geoms_metadata: src.types.GEOMSMetadata,
     from_datetime: datetime.datetime,
     to_datetime: datetime.datetime,
     retrieval_algorithm: src.types.RetrievalAlgorithm,
@@ -75,8 +74,8 @@ def generate_geoms_file(
     assert from_dt.date() == to_dt.date(), "Something is wrong"
 
     # determine calibration factors
-    from_dt_calibration_factors_index = calibration_factors.get_index(sensor_id, from_dt)
-    to_dt_calibration_factors_index = calibration_factors.get_index(sensor_id, to_dt)
+    from_dt_calibration_factors_index = geoms_metadata.calibration_factors.get_index(sensor_id, from_dt)
+    to_dt_calibration_factors_index = geoms_metadata.calibration_factors.get_index(sensor_id, to_dt)
     if from_dt_calibration_factors_index is None:
         raise ValueError(f"Calibration factors not found for {sensor_id} @ {from_dt}")
     if to_dt_calibration_factors_index is None:
@@ -129,7 +128,7 @@ def generate_geoms_file(
         os.remove(filepath)
 
     # apply calibration factors
-    cal = calibration_factors.root[to_dt_calibration_factors_index]
+    cal = geoms_metadata.calibration_factors.root[to_dt_calibration_factors_index]
     pl_df = pl_df.with_columns(
         pl.col("XCO2").mul(cal.xco2).alias("XCO2"),
         pl.col("XCH4").mul(cal.xch4).alias("XCH4"),
@@ -272,7 +271,6 @@ def generate_geoms_file(
 def run(
     config: Optional[src.types.Config] = None,
     geoms_metadata: Optional[src.types.GEOMSMetadata] = None,
-    calibration_factors: Optional[src.types.CalibrationFactorsList] = None,
 ) -> None:
     if config is None:
         print("Loading configuration")
@@ -283,104 +281,83 @@ def run(
         print("Loading geoms metadata")
         geoms_metadata = src.types.GEOMSMetadata.load()
 
-    if calibration_factors is None:
-        print("Loading calibration factors")
-        calibration_factors = src.types.CalibrationFactorsList.load()
-
-    for retrieval_algorithm in config.geoms.retrieval_algorithms:
-        for atmospheric_profile_model in config.geoms.atmospheric_profile_models:
-            if (retrieval_algorithm == "proffast-1.0") and (
-                atmospheric_profile_model == "GGG2020"
-            ):  # pragma: no cover
-                print("Skipping proffast-1.0/GGG2020 as it is not supported")
-                continue
-
-            print(f"Processing {retrieval_algorithm}/{atmospheric_profile_model}")
-
-            for _, sensor_id in enumerate(config.geoms.sensor_ids):
-                print(f'Processing sensor id "{sensor_id}"')
-
-                results_folders = os.path.join(
-                    config.general.data.results.root,
-                    retrieval_algorithm,
-                    atmospheric_profile_model,
-                    sensor_id,
-                    "successful",
-                )
-                if not os.path.exists(results_folders):  # pragma: no cover
-                    print(f"Sensor {sensor_id}: no results found")
+    for geoms_config in config.geoms:
+        for retrieval_algorithm in geoms_config.retrieval_algorithms:
+            for atmospheric_profile_model in geoms_config.atmospheric_profile_models:
+                if (retrieval_algorithm == "proffast-1.0") and (
+                    atmospheric_profile_model == "GGG2020"
+                ):  # pragma: no cover
+                    print("Skipping proffast-1.0/GGG2020 as it is not supported")
                     continue
-                results = os.listdir(results_folders)
-                results = [
-                    result
-                    for result in results
-                    if os.path.isdir(os.path.join(results_folders, result))
-                    and re.match(r"^\d{8}(_\d{8}_\d{8})?(_.+)?$", result)
-                ]
-                print(f"Sensor {sensor_id}: found {len(results)} results in total")
-                results_within_time_range: list[str] = []
-                for result in results:
-                    date = datetime.datetime.strptime(result[:8], "%Y%m%d")
-                    from_dt = datetime.datetime.combine(
-                        date, datetime.time(0, 0, 0), tzinfo=datetime.timezone.utc
-                    )
-                    to_dt = datetime.datetime.combine(
-                        date, datetime.time(23, 59, 59), tzinfo=datetime.timezone.utc
-                    )
-                    if len(result) > 8:
-                        from_time = datetime.datetime.strptime(result.split("_")[1], "%H%M%S")
-                        to_time = datetime.datetime.strptime(result.split("_")[2], "%H%M%S")
-                        from_dt = from_dt.replace(
-                            hour=from_time.hour, minute=from_time.minute, second=from_time.second
-                        )
-                        to_dt = to_dt.replace(
-                            hour=to_time.hour, minute=to_time.minute, second=to_time.second
-                        )
 
-                    if (from_dt <= config.geoms.to_datetime) and (
-                        to_dt >= config.geoms.from_datetime
-                    ):
-                        results_within_time_range.append(result)
+                print(f"Processing {retrieval_algorithm}/{atmospheric_profile_model}")
 
-                print(
-                    f"Sensor {sensor_id}: found {len(results_within_time_range)} results within the time range"
-                )
+                for _, sensor_id in enumerate(geoms_config.sensor_ids):
+                    print(f'Processing sensor id "{sensor_id}"')
 
-                progress = tqdm.tqdm(
-                    sorted(results_within_time_range), dynamic_ncols=True, desc="..."
-                )
-                for result in progress:
-                    progress.desc = f"{sensor_id}/{result}"
-                    filepath, status_message = generate_geoms_file(
-                        os.path.join(results_folders, result),
-                        geoms_metadata,
-                        calibration_factors,
-                        config.geoms,
-                        config.geoms.from_datetime,
-                        config.geoms.to_datetime,
+                    results_folders = os.path.join(
+                        config.data.results.path.root,
                         retrieval_algorithm,
                         atmospheric_profile_model,
+                        sensor_id,
+                        "successful",
                     )
-                    progress.write(
-                        f"  {sensor_id}/{result}: {status_message}"
-                        + (f" ({filepath})" if filepath else "")
+                    if not os.path.exists(results_folders):  # pragma: no cover
+                        print(f"Sensor {sensor_id}: no results found")
+                        continue
+                    results = os.listdir(results_folders)
+                    results = [
+                        result
+                        for result in results
+                        if os.path.isdir(os.path.join(results_folders, result))
+                        and re.match(r"^\d{8}(_\d{8}_\d{8})?(_.+)?$", result)
+                    ]
+                    print(f"Sensor {sensor_id}: found {len(results)} results in total")
+                    results_within_time_range: list[str] = []
+                    for result in results:
+                        date = datetime.datetime.strptime(result[:8], "%Y%m%d")
+                        from_dt = datetime.datetime.combine(
+                            date, datetime.time(0, 0, 0), tzinfo=datetime.timezone.utc
+                        )
+                        to_dt = datetime.datetime.combine(
+                            date, datetime.time(23, 59, 59), tzinfo=datetime.timezone.utc
+                        )
+                        if len(result) > 8:
+                            from_time = datetime.datetime.strptime(result.split("_")[1], "%H%M%S")
+                            to_time = datetime.datetime.strptime(result.split("_")[2], "%H%M%S")
+                            from_dt = from_dt.replace(
+                                hour=from_time.hour,
+                                minute=from_time.minute,
+                                second=from_time.second,
+                            )
+                            to_dt = to_dt.replace(
+                                hour=to_time.hour, minute=to_time.minute, second=to_time.second
+                            )
+
+                        if (from_dt <= geoms_config.to_datetime) and (
+                            to_dt >= geoms_config.from_datetime
+                        ):
+                            results_within_time_range.append(result)
+
+                    print(
+                        f"Sensor {sensor_id}: found {len(results_within_time_range)} results within the time range"
                     )
 
-
-if __name__ == "__main__":
-    geoms_metadata = src.types.GEOMSMetadata.load(template=True)
-    calibration_factors = src.types.CalibrationFactorsList.load(template=True)
-    geoms_config = src.types.Config.load(
-        "/home/moritz-makowski/documents/em27/em27-retrieval-pipeline/config/config.template.json"
-    ).geoms
-    assert geoms_config is not None
-    generate_geoms_file(
-        results_dir="/data/01/retrieval-archive/v3/proffast-2.4/GGG2020/ma/successful/20241021",
-        geoms_metadata=geoms_metadata,
-        calibration_factors=calibration_factors,
-        geoms_config=geoms_config,
-        from_datetime=datetime.datetime(2024, 10, 20, 0, 0, 0),
-        to_datetime=datetime.datetime(2024, 10, 23, 23, 59, 59),
-        retrieval_algorithm="proffast-2.4",
-        atmospheric_profile_model="GGG2020",
-    )
+                    progress = tqdm.tqdm(
+                        sorted(results_within_time_range), dynamic_ncols=True, desc="..."
+                    )
+                    for result in progress:
+                        progress.desc = f"{sensor_id}/{result}"
+                        filepath, status_message = generate_geoms_file(
+                            os.path.join(results_folders, result),
+                            geoms_config,
+                            geoms_metadata,
+                            geoms_config.from_datetime,
+                            geoms_config.to_datetime,
+                            retrieval_algorithm,
+                            atmospheric_profile_model,
+                        )
+                        progress.write(
+                            f"  {sensor_id}/{result}: {status_message}"
+                            + (f" ({filepath})" if filepath else "")
+                        )

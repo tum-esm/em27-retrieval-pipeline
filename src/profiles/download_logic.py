@@ -82,7 +82,7 @@ def extract_archive(
 ) -> None:  # pragma: no cover
     """Extracts, renames and stores archive members."""
 
-    dst_path = f"{config.general.data.atmospheric_profiles.root}/{atmospheric_profile_model}"
+    dst_path = f"{config.data.atmospheric_profiles.path.root}/{atmospheric_profile_model}"
     with tarfile.open(fileobj=archive) as tar:
         for member in tar:
             name = member.name

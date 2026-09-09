@@ -26,16 +26,20 @@ def run(
     assert config.bundles is not None, "no bundle targets found"
     assert len(config.bundles) > 0, "no bundle targets found"
 
+    # TODO: refactor metadata loading
     if em27_metadata_interface is None:
         em27_metadata_interface = utils.metadata.load_local_em27_metadata_interface()
         if em27_metadata_interface is not None:
             print("Found local metadata")
         else:  # pragma: no cover
             print("Did not find local metadata -> fetching metadata from GitHub")
-            assert config.general.metadata is not None, "Remote metadata not configured"
+            assert config.metadata == "github", "Remote metadata not configured"
+            assert config.metadata.github_repository is not None, (
+                "This should have been caught earlier"
+            )
             em27_metadata_interface = em27_metadata.load_from_github(
-                github_repository=config.general.metadata.github_repository,
-                access_token=config.general.metadata.access_token,
+                github_repository=config.metadata.github_repository,
+                access_token=config.metadata.github_access_token,
             )
             print("Successfully fetched metadata from GitHub")
 
@@ -55,7 +59,7 @@ def run(
                     dfs: list[pl.DataFrame] = []
 
                     d = os.path.join(
-                        config.general.data.results.root,
+                        config.data.results.path.root,
                         retrieval_algorithm,
                         atmospheric_profile_model,
                         sensor_id,

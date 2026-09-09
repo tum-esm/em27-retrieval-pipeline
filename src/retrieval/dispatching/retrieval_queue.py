@@ -29,7 +29,7 @@ def generate_retrieval_queue(
     config: types.Config,
     logger: "retrieval.utils.logger.Logger",
     em27_metadata_interface: em27_metadata.EM27MetadataInterface,
-    retrieval_job_config: types.RetrievalJobConfig,
+    retrieval_job_config: types.RetrievalSubConfigs.Job,
 ) -> list[em27_metadata.types.SensorDataContext]:
     assert config.retrieval is not None, "Config must have a retrieval section"
 
@@ -120,7 +120,7 @@ def generate_retrieval_queue(
         dates_without_interferograms: set[datetime.date] = set()
         for date in dates_with_location:
             ifg_path = os.path.join(
-                config.general.data.interferograms.root, sensor.sensor_id, date.strftime("%Y%m%d")
+                config.data.interferograms.path.root, sensor.sensor_id, date.strftime("%Y%m%d")
             )
             if os.path.isdir(ifg_path):
                 dates_with_interferograms.add(date)
@@ -137,7 +137,7 @@ def generate_retrieval_queue(
         dates_with_locked_interferograms: set[datetime.date] = set()
         for date in dates_with_interferograms:
             ifg_path = os.path.join(
-                config.general.data.interferograms.root, sensor.sensor_id, date.strftime("%Y%m%d")
+                config.data.interferograms.path.root, sensor.sensor_id, date.strftime("%Y%m%d")
             )
             assert os.path.isdir(ifg_path)
             do_not_touch_indicator_file = os.path.join(ifg_path, ".do-not-touch")
@@ -175,7 +175,7 @@ def generate_retrieval_queue(
 
         unprocessed_sensor_data_contexts: list[em27_metadata.types.SensorDataContext] = []
         results_dir = os.path.join(
-            config.general.data.results.root,
+            config.data.results.path.root,
             retrieval_job_config.retrieval_algorithm,
             retrieval_job_config.atmospheric_profile_model,
             sensor.sensor_id,
@@ -185,8 +185,8 @@ def generate_retrieval_queue(
             if not utils.functions.sdc_covers_the_full_day(sdc):
                 output_folder += sdc.from_datetime.strftime("_%H%M%S")
                 output_folder += sdc.to_datetime.strftime("_%H%M%S")
-            if retrieval_job_config.settings.output_suffix is not None:
-                output_folder += f"_{retrieval_job_config.settings.output_suffix}"
+            if retrieval_job_config.output_suffix is not None:
+                output_folder += f"_{retrieval_job_config.output_suffix}"
             success_dir = os.path.join(results_dir, "successful", output_folder)
             failure_dir = os.path.join(results_dir, "failed", output_folder)
             if not os.path.isdir(success_dir) and not os.path.isdir(failure_dir):
@@ -206,9 +206,9 @@ def generate_retrieval_queue(
         ] = []
         for sdc in unprocessed_sensor_data_contexts:
             pressure_file_exists = retrieval.utils.pressure_loading.pressure_files_exist(
-                config.general.data.ground_pressure.path.root,
+                config.data.ground_pressure.path.root,
                 sdc.pressure_data_source,
-                config.general.data.ground_pressure.file_regex,
+                config.data.ground_pressure.file_regex,
                 sdc.from_datetime.date(),
             )
             if pressure_file_exists:
@@ -233,7 +233,7 @@ def generate_retrieval_queue(
         ] = []
         for sdc in unprocessed_sensor_data_contexts_with_ground_pressure_files:
             profiles_dir = os.path.join(
-                config.general.data.atmospheric_profiles.root,
+                config.data.atmospheric_profiles.path.root,
                 retrieval_job_config.atmospheric_profile_model,
             )
             cd = utils.text.get_coordinates_slug(

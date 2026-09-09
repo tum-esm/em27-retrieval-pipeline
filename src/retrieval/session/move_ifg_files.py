@@ -25,12 +25,12 @@ def run(
     # FIND ALL FILENAMES OF INTERFEROGRAMS
 
     ifg_src_directory = os.path.join(
-        config.general.data.interferograms.root,
+        config.data.interferograms.path.root,
         session.ctx.sensor_id,
         session.ctx.from_datetime.strftime("%Y%m%d"),
     )
     _, ifg_file_pattern = utils.text.replace_regex_placeholders(
-        config.retrieval.general.ifg_file_regex,
+        config.data.interferograms.ifg_file_regex,
         session.ctx.sensor_id,
         session.ctx.from_datetime.date(),
     )
@@ -48,7 +48,7 @@ def run(
         session.atmospheric_profile_model,
         session.ctx.sensor_id,
         session.ctx.from_datetime,
-        session.job_settings.output_suffix,
+        session.job_config.output_suffix,
         ifg_count=len(ifg_filenames),
     )
 
@@ -111,7 +111,7 @@ def run(
 
     # OPTIONALLY EXCLUDE CORRUPT INTERFEROGRAM FILES
 
-    if session.job_settings.use_ifg_corruption_filter:
+    if session.job_config.use_ifg_corruption_filter:
         logger.info("Using ifg corruption filter")
 
         try:

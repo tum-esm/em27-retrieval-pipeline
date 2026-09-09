@@ -14,6 +14,7 @@ def _get_retrieval_logs_dir() -> str:
     logs_dir = os.getenv("ERP_LOGS_DIR", _DEFAULT_LOGS_DIR)
     return os.path.join(logs_dir, "retrieval")
 
+
 # I am not using the logging-library because the proffast-pylot
 # also uses that and figuring out how to not make these two
 # interfere is not worth it

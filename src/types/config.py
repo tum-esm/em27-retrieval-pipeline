@@ -43,7 +43,7 @@ class MetadataConfig(pydantic.BaseModel):
         return self
 
 
-class DataConfigs:
+class DataSubConfigs:
     class AtmosphericProfiles(pydantic.BaseModel):
         """Where to find the atmospheric profile files."""
 
@@ -166,7 +166,7 @@ class DataConfigs:
 
         # validate -> you can only set either date AND time OR unix_timestamp
         @pydantic.model_validator(mode="after")
-        def _check_datetime_columns(self) -> DataConfigs.GroundPressure:
+        def _check_datetime_columns(self) -> DataSubConfigs.GroundPressure:
             required = {
                 "datetime_column": [],
                 "date_column": ["time_column"],
@@ -244,13 +244,13 @@ class DataConfig(pydantic.BaseModel):
 
     model_config = pydantic.ConfigDict(extra="forbid")
 
-    atmospheric_profiles: DataConfigs.AtmosphericProfiles = pydantic.Field(...)
-    ground_pressure: DataConfigs.GroundPressure = pydantic.Field(...)
-    interferograms: DataConfigs.Interferograms = pydantic.Field(...)
-    results: DataConfigs.Results = pydantic.Field(...)
+    atmospheric_profiles: DataSubConfigs.AtmosphericProfiles = pydantic.Field(...)
+    ground_pressure: DataSubConfigs.GroundPressure = pydantic.Field(...)
+    interferograms: DataSubConfigs.Interferograms = pydantic.Field(...)
+    results: DataSubConfigs.Results = pydantic.Field(...)
 
 
-class GGGProfilesDownloaderConfigs:
+class GGGProfilesDownloaderSubConfigs:
     class Server(pydantic.BaseModel):
         """Settings for accessing the ccycle ftp server. Besides the
         `email` field, these can be left as default in most cases."""
@@ -290,7 +290,7 @@ class GGGProfilesDownloaderConfigs:
         )
 
         @pydantic.model_validator(mode="after")
-        def check_date_order(self) -> GGGProfilesDownloaderConfigs.Scope:
+        def check_date_order(self) -> GGGProfilesDownloaderSubConfigs.Scope:
             if self.from_date > self.to_date:
                 raise ValueError("from_date must be before to_date")
             return self
@@ -323,7 +323,7 @@ class GGGProfilesDownloaderConfigs:
         )
 
         @pydantic.model_validator(mode="after")
-        def check_date_order(self) -> GGGProfilesDownloaderConfigs.GGG2020StandardSitesItem:
+        def check_date_order(self) -> GGGProfilesDownloaderSubConfigs.GGG2020StandardSitesItem:
             if self.from_date > self.to_date:
                 raise ValueError("from_date must be before to_date")
             return self
@@ -334,12 +334,12 @@ class GGGProfilesDownloaderConfig(pydantic.BaseModel):
 
     model_config = pydantic.ConfigDict(extra="forbid")
 
-    server: GGGProfilesDownloaderConfigs.Server
-    scope: Optional[GGGProfilesDownloaderConfigs.Scope] = pydantic.Field(
+    server: GGGProfilesDownloaderSubConfigs.Server
+    scope: Optional[GGGProfilesDownloaderSubConfigs.Scope] = pydantic.Field(
         default=None,
         description="Scope of the vertical profiles to request from the ccycle ftp server. If set to `null`, the script will not request any vertical profiles besides the configured standard sites.",
     )
-    ggg2020_standard_sites: list[GGGProfilesDownloaderConfigs.GGG2020StandardSitesItem] = (
+    ggg2020_standard_sites: list[GGGProfilesDownloaderSubConfigs.GGG2020StandardSitesItem] = (
         pydantic.Field(
             ...,
             description="List of standard sites to request from the ccycle ftp server. The requests for these standard sites are done before any other requests so that data available for these is not rerequested for other sensors. See https://tccon-wiki.caltech.edu/Main/ObtainingGinputData#Requesting_to_be_added_as_a_standard_site for more information.",
@@ -347,7 +347,7 @@ class GGGProfilesDownloaderConfig(pydantic.BaseModel):
     )
 
 
-class RetrievalConfigs:
+class RetrievalSubConfigs:
     class General(pydantic.BaseModel):
         model_config = pydantic.ConfigDict(extra="forbid")
 
@@ -423,7 +423,7 @@ class RetrievalConfigs:
             default=True,
             description="Whether to use the ifg corruption filter. This filter is a program based on `preprocess4` and is part of the `tum-esm-utils` library: https://tum-esm-utils.netlify.app/api-reference#tum_esm_utilsinterferograms. If activated, we will only pass the interferograms to the retrieval algorithm that pass the filter - i.e. that won't cause it to crash.",
         )
-        custom_ils: dict[str, RetrievalConfigs.JobCustomILS] = pydantic.Field(
+        custom_ils: dict[str, RetrievalSubConfigs.JobCustomILS] = pydantic.Field(
             default={},
             description="Maps sensor IDs to ILS correction values. If not set, the pipeline will use the values published inside the Proffast Pylot codebase (https://gitlab.eudat.eu/coccon-kit/proffastpylot/-/blob/master/prfpylot/ILSList.csv?ref_type=heads).",
         )
@@ -443,7 +443,7 @@ class RetrievalConfigs:
         )
 
         @pydantic.model_validator(mode="after")
-        def check_model_integrity(self) -> RetrievalConfigs.Job:
+        def check_model_integrity(self) -> RetrievalSubConfigs.Job:
             if self.from_date > self.to_date:
                 raise ValueError("from_date must be before to_date")
             if (
@@ -459,8 +459,8 @@ class RetrievalConfig(pydantic.BaseModel):
 
     model_config = pydantic.ConfigDict(extra="forbid")
 
-    general: RetrievalConfigs.General
-    jobs: dict[int, RetrievalConfigs.Job] = pydantic.Field(
+    general: RetrievalSubConfigs.General
+    jobs: dict[int, RetrievalSubConfigs.Job] = pydantic.Field(
         ...,
         description="List of retrievals to run. The list will be processed sequentially.",
     )

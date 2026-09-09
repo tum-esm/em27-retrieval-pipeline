@@ -54,7 +54,7 @@ def pressure_files_exist(
 
 
 def load_pressure_file(
-    ground_pressure_config: types.config.GroundPressureConfig,
+    ground_pressure_config: types.DataSubConfigs.GroundPressure,
     filepath: str,
 ) -> pl.DataFrame:
     c = ground_pressure_config

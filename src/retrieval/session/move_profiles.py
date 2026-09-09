@@ -33,12 +33,12 @@ def run(
     try:
         for src, dst in files_to_copy:
             src_path_1 = os.path.join(
-                config.general.data.atmospheric_profiles.root,
+                config.data.atmospheric_profiles.path.root,
                 session.atmospheric_profile_model,
                 src,
             )
             src_path_2 = os.path.join(
-                config.general.data.atmospheric_profiles.root,
+                config.data.atmospheric_profiles.path.root,
                 session.atmospheric_profile_model,
                 src[:4],
                 src[4:6],

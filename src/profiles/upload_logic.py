@@ -19,7 +19,7 @@ def upload_requests(
     Sleeps config.upload_sleep seconds in between each attempt. Returns
     whether successful and time.time() - upload_start."""
 
-    assert config.profiles is not None, "this is a bug in the code"
+    assert config.ggg_profiles_downloader is not None, "this is a bug in the code"
 
     cache = profiles.cache.DownloadQueryCache.load()
 
@@ -48,7 +48,7 @@ def upload_requests(
                         to_date,
                         str(query.lat),
                         str(query.lon),
-                        config.profiles.server.email,
+                        config.ggg_profiles_downloader.server.email,
                     )
                 ).encode("utf-8")
             ) as file_:
