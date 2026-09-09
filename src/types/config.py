@@ -11,6 +11,11 @@ import tum_esm_utils
 from .basic_types import AtmosphericProfileModel, RetrievalAlgorithm
 
 
+# TODO: refactor metadata source logic
+# TODO: add automatic loading from old config
+# TODO: add automatic loading from old metadata
+
+
 class MetadataConfig(pydantic.BaseModel):
     """How and where to get the metadata from."""
 
@@ -455,7 +460,7 @@ class RetrievalConfig(pydantic.BaseModel):
     model_config = pydantic.ConfigDict(extra="forbid")
 
     general: RetrievalConfigs.General
-    jobs: list[RetrievalConfigs.Job] = pydantic.Field(
+    jobs: dict[int, RetrievalConfigs.Job] = pydantic.Field(
         ...,
         description="List of retrievals to run. The list will be processed sequentially.",
     )

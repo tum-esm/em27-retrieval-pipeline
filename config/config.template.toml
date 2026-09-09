@@ -3,20 +3,14 @@ version = "1.11"
 
 # METADATA
 
-# TODO: Add "metadata.source" field to make it clear which to choose
-
 [metadata]
+source = "local"
 github_repository = "tum-esm/em27-metadata-storage"
 
 # DATA
 
-[data]
-atmospheric_profiles_path = "path-to-atmospheric-profiles"
-results_path = "path-to-results-directory"
-
-[data.interferograms]
-path = "path-to-interferogram-directory"
-ifg_file_regex = "^$(SENSOR_ID)$(DATE).*\\.\\d+$"
+[data.atmospheric_profiles]
+path = "path-to-atmospheric-profiles"
 
 [data.ground_pressure]
 path = "path-to-ground-pressure-data"
@@ -29,7 +23,14 @@ date_column_format = "%Y-%m-%d"
 time_column = "UTCtime_____"
 time_column_format = "%H:%M:%S"
 
-# GGG ATMOSPHERIC PROFILES DOWNLOADER
+[data.interferograms]
+path = "path-to-interferogram-directory"
+ifg_file_regex = "^$(SENSOR_ID)$(DATE).*\\.\\d+$"
+
+[data.results]
+path = "path-to-results-directory"
+
+# GGG PROFILES DOWNLOADER
 
 [ggg_profiles_downloader.server]
 email = "...@..."
@@ -41,7 +42,8 @@ to_date = "2022-01-05"
 models = ["GGG2014", "GGG2020"]
 force_download_locations = ["TUM_I"]
 
-[ggg_profiles_downloader.GGG2020_standard_sites.mu]
+[[ggg_profiles_downloader.ggg2020_standard_sites]]
+identifier = "mu"
 lat = 48.151
 lon = 11.569
 from_date = "2019-01-01"
@@ -59,19 +61,23 @@ atmospheric_profile_model = "GGG2014"
 sensor_ids = ["ma", "mb", "mc", "md", "me"]
 from_date = "2019-01-01"
 to_date = "2022-12-31"
-
-[retrieval.jobs.0.settings]
 store_binary_spectra = true
 dc_min_threshold = 0.05
 dc_var_threshold = 0.1
 use_local_pressure_in_pcxs = true
 use_ifg_corruption_filter = false
 
-[retrieval.jobs.0.settings.custom_ils.ma]
+[retrieval.jobs.0.custom_ils.ma]
 channel1_me = 0.9892
 channel1_pe = -0.001082
 channel2_me = 0.9892
 channel2_pe = -0.001082
+
+[retrieval.jobs.0.custom_ils.mb]
+channel1_me = 0.9893
+channel1_pe = -0.001083
+channel2_me = 0.9893
+channel2_pe = -0.001083
 
 [retrieval.jobs.1]
 retrieval_algorithm = "proffast-2.4"
@@ -82,7 +88,7 @@ to_date = "2099-12-31"
 
 # BUNDLE GENERATOR
 
-[bundles.0]
+[[bundles]]
 dst_dir = "directory-to-write-the-bundles-to"
 output_formats = ["csv", "parquet"]
 from_datetime = "2022-01-01T00:00:00Z"
@@ -95,7 +101,7 @@ parse_retrieval_diagnostics = true
 
 # GEOMS GENERATOR
 
-[geoms]
+[[geoms]]
 sensor_ids = ["ma", "mb", "mc", "md", "me"]
 retrieval_algorithms = ["proffast-1.0", "proffast-2.4"]
 atmospheric_profile_models = ["GGG2014", "GGG2020"]
