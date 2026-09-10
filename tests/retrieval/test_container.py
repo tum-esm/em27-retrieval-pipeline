@@ -28,14 +28,14 @@ SENSOR_DATA_CONTEXTS = [
             details="Sodankyla",
             lon=26.630,
             lat=67.366,
-            alt=181.0,
+            alt_asl=181.0,
         ),
         location=src.em27_metadata.types.LocationMetadata(
             location_id="SOD",
             details="Sodankyla",
             lon=26.630,
             lat=67.366,
-            alt=181.0,
+            alt_asl=181.0,
         ),
     )
     for date in [
@@ -55,14 +55,14 @@ SENSOR_DATA_CONTEXTS = [
             details="Zentralfriedhof",
             lon=16.438481,
             lat=48.147699,
-            alt=180.0,
+            alt_asl=180.0,
         ),
         location=src.em27_metadata.types.LocationMetadata(
             location_id="ZEN",
             details="Zentralfriedhof",
             lon=16.438481,
             lat=48.147699,
-            alt=180.0,
+            alt_asl=180.0,
         ),
     )
     for date in [

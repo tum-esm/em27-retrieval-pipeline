@@ -12,14 +12,14 @@ def test_getter_function() -> None:
                 details="description of location 1",
                 lon=10.5,
                 lat=48.1,
-                alt=500,
+                alt_asl=500,
             ),
             src.em27_metadata.types.LocationMetadata(
                 location_id="lid2",
                 details="description of location 2",
                 lon=11.3,
                 lat=48.0,
-                alt=600,
+                alt_asl=600,
             ),
         ]
     )

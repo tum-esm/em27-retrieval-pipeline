@@ -23,7 +23,7 @@ em27_metadata_interface = em27_metadata.interfaces.EM27MetadataInterface(
                 details="Sodankyla",
                 lon=26.630,
                 lat=67.366,
-                alt=181.0,
+                alt_asl=181.0,
             )
         ]
     ),

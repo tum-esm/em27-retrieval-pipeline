@@ -12,13 +12,13 @@ def test_list_requested_data(provide_config_template: src.types.Config) -> None:
         locations=src.em27_metadata.types.LocationMetadataList(
             root=[
                 src.em27_metadata.types.LocationMetadata(
-                    location_id="l1", details="l1 details", lat=1, lon=2, alt=0
+                    location_id="l1", details="l1 details", lat=1, lon=2, alt_asl=0
                 ),
                 src.em27_metadata.types.LocationMetadata(
-                    location_id="l2", details="l2 details", lat=1, lon=3, alt=0
+                    location_id="l2", details="l2 details", lat=1, lon=3, alt_asl=0
                 ),
                 src.em27_metadata.types.LocationMetadata(
-                    location_id="l3", details="l3 details", lat=2, lon=3, alt=0
+                    location_id="l3", details="l3 details", lat=2, lon=3, alt_asl=0
                 ),
             ]
         ),

@@ -16,13 +16,9 @@ def load_local_em27_metadata_interface(
     if os.path.isfile(toml_path):
         return em27_metadata.loader.load_from_local_files(config_directory=config_dir)
 
-    locations_path = os.path.join(config_dir, "locations.json")
-    sensors_path = os.path.join(config_dir, "sensors.json")
-    campaigns_path = os.path.join(config_dir, "campaigns.json")
-    events_path = os.path.join(config_dir, "events.json")
     file_existence = [
-        os.path.isfile(locations_path),
-        os.path.isfile(sensors_path),
+        os.path.isfile(os.path.join(config_dir, "locations.json")),
+        os.path.isfile(os.path.join(config_dir, "sensors.json")),
     ]
     if any(file_existence):
         if not all(file_existence):
