@@ -1,2 +1,5 @@
 *.json
+*.toml
 !*.template.json
+!*.template.toml
+!old_templates/*.json
