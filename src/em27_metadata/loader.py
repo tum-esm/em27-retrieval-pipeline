@@ -111,10 +111,11 @@ def load_from_github(
 
 
 def load_from_local_files(
-    locations_path: str,
-    sensors_path: str,
+    locations_path: Optional[str] = None,
+    sensors_path: Optional[str] = None,
     campaigns_path: Optional[str] = None,
     events_path: Optional[str] = None,
+    config_directory: Optional[str] = None,
 ) -> em27_metadata_interfaces.EM27MetadataInterface:
     """Loads an EM27MetadataInterface from local files.
 
@@ -133,21 +134,79 @@ def load_from_local_files(
         pydantic.ValidationError:       If a file is not in a valid format.
     """
 
-    with open(locations_path) as f:
-        locations = em27_metadata_types.LocationMetadataList.model_validate_json(f.read())
+    # the metadata starting at pipeline v1.11 is stored in a single TOML file: em27_metadata.toml
+    if config_directory is not None:
+        # try to load the em27_metadata.toml file from the config directory
+        p = os.path.join(config_directory, "em27_metadata.toml")
+        if os.path.isfile(p):
+            em27_metadata_object = em27_metadata_types.EM27MetadataObject.model_validate(
+                tum_esm_utils.files.load_toml_file(p)
+            )
+            return em27_metadata_interfaces.EM27MetadataInterface(
+                locations=em27_metadata_object.locations,
+                sensors=em27_metadata_object.sensors,
+                campaigns=em27_metadata_object.campaigns,
+                events=em27_metadata_object.events,
+            )
 
-    with open(sensors_path) as f:
-        sensors = em27_metadata_types.SensorMetadataList.model_validate_json(f.read())
+    # the metadata until pipeline v1.10 was stored in separate JSON files:
+    # - locations.json
+    # - sensors.json
+    # - campaigns.json
+    # - events.json
+
+    if config_directory is not None:
+        assert locations_path is None, (
+            "locations_path should not be provided when config_directory is provided"
+        )
+        assert sensors_path is None, (
+            "sensors_path should not be provided when config_directory is provided"
+        )
+        assert campaigns_path is None, (
+            "campaigns_path should not be provided when config_directory is provided"
+        )
+        assert events_path is None, (
+            "events_path should not be provided when config_directory is provided"
+        )
+        locations_path = os.path.join(config_directory, "locations.json")
+        sensors_path = os.path.join(config_directory, "sensors.json")
+        campaigns_path = os.path.join(config_directory, "campaigns.json")
+        events_path = os.path.join(config_directory, "events.json")
+    else:
+        # same logic as before -> locations and sensors path must be provided, campaigns and events are optional
+        assert locations_path is not None, (
+            "locations_path must be provided when config_directory is not provided"
+        )
+        assert sensors_path is not None, (
+            "sensors_path must be provided when config_directory is not provided"
+        )
+        if campaigns_path is None:
+            campaigns_path = os.path.join(os.path.dirname(locations_path), "campaigns.json")
+        if events_path is None:
+            events_path = os.path.join(os.path.dirname(locations_path), "events.json")
+
+    locations = em27_metadata_types.LocationMetadataList.model_validate_json(
+        tum_esm_utils.files.load_file(locations_path)
+    )
+    sensors = em27_metadata_types.SensorMetadataList.model_validate_json(
+        tum_esm_utils.files.load_file(sensors_path)
+    )
 
     campaigns = em27_metadata_types.CampaignMetadataList(root=[])
-    if campaigns_path is not None:
-        with open(campaigns_path) as f:
-            campaigns = em27_metadata_types.CampaignMetadataList.model_validate_json(f.read())
+    try:
+        campaigns = em27_metadata_types.CampaignMetadataList.model_validate_json(
+            tum_esm_utils.files.load_file(campaigns_path)
+        )
+    except FileNotFoundError:
+        pass
 
     events = em27_metadata_types.EventMetadataList(root=[])
-    if events_path is not None:
-        with open(events_path) as f:
-            events = em27_metadata_types.EventMetadataList.model_validate_json(f.read())
+    try:
+        events = em27_metadata_types.EventMetadataList.model_validate_json(
+            tum_esm_utils.files.load_file(events_path)
+        )
+    except FileNotFoundError:
+        pass
 
     return em27_metadata_interfaces.EM27MetadataInterface(
         locations=locations,
