@@ -1,10 +1,9 @@
 import os
 from typing import Literal, Optional
-
-import em27_metadata
 import pydantic
 import tum_esm_utils
 
+from ..em27_metadata import types as em27_metadata_types
 from .config import RetrievalSubConfigs, DataConfig, MetadataConfig, RetrievalConfig
 
 
@@ -83,7 +82,7 @@ class Proffast1RetrievalSession(pydantic.BaseModel):
     retrieval_algorithm: Literal["proffast-1.0"] = "proffast-1.0"
     atmospheric_profile_model: Literal["GGG2014"] = "GGG2014"
     job_config: RetrievalSubConfigs.Job
-    ctx: em27_metadata.types.SensorDataContext
+    ctx: em27_metadata_types.SensorDataContext
     ctn: Proffast10Container
 
 
@@ -94,7 +93,7 @@ class Proffast2RetrievalSession(pydantic.BaseModel):
     retrieval_algorithm: Literal["proffast-2.2", "proffast-2.3", "proffast-2.4", "proffast-2.4.1"]
     atmospheric_profile_model: Literal["GGG2014", "GGG2020"]
     job_config: RetrievalSubConfigs.Job
-    ctx: em27_metadata.types.SensorDataContext
+    ctx: em27_metadata_types.SensorDataContext
     ctn: Proffast22Container | Proffast23Container | Proffast24Container | Proffast241Container
 
 

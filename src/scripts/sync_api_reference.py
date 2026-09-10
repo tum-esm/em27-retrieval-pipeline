@@ -5,7 +5,6 @@ import sys
 from typing import Optional
 
 import click.core
-import em27_metadata
 import tum_esm_utils
 
 _PROJECT_DIR = tum_esm_utils.files.rel_to_abs_path("../..")
@@ -77,19 +76,19 @@ tum_esm_utils.files.dump_json_file(
 )
 tum_esm_utils.files.dump_json_file(
     f"{_DOCS_DIR}/src/assets/locations.schema.json",
-    em27_metadata.types.LocationMetadataList.model_json_schema(mode="validation"),
+    src.em27_metadata.types.LocationMetadataList.model_json_schema(mode="validation"),
 )
 tum_esm_utils.files.dump_json_file(
     f"{_DOCS_DIR}/src/assets/sensors.schema.json",
-    em27_metadata.types.SensorMetadataList.model_json_schema(mode="validation"),
+    src.em27_metadata.types.SensorMetadataList.model_json_schema(mode="validation"),
 )
 tum_esm_utils.files.dump_json_file(
     f"{_DOCS_DIR}/src/assets/campaigns.schema.json",
-    em27_metadata.types.CampaignMetadataList.model_json_schema(mode="validation"),
+    src.em27_metadata.types.CampaignMetadataList.model_json_schema(mode="validation"),
 )
 tum_esm_utils.files.dump_json_file(
     f"{_DOCS_DIR}/src/assets/events.schema.json",
-    em27_metadata.types.EventMetadataList.model_json_schema(mode="validation"),
+    src.em27_metadata.types.EventMetadataList.model_json_schema(mode="validation"),
 )
 tum_esm_utils.files.dump_json_file(
     f"{_DOCS_DIR}/src/assets/geoms-metadata.schema.json",
@@ -112,7 +111,7 @@ shutil.copyfile(
     f"{_PROJECT_DIR}/config/calibration_factors.template.json",
     f"{_DOCS_DIR}/src/assets/calibration-factors.example.json",
 )
-example_metadata = em27_metadata.load_from_example_data()
+example_metadata = src.em27_metadata.load_from_example_data()
 tum_esm_utils.files.dump_file(
     f"{_DOCS_DIR}/src/assets/locations.example.json",
     example_metadata.locations.model_dump_json(indent=4),

@@ -4,13 +4,12 @@ import re
 import sys
 from typing import Optional
 
-import em27_metadata
 import polars as pl
 import tqdm
 import tum_esm_utils
 
 sys.path.append(tum_esm_utils.files.rel_to_abs_path("../.."))
-from src import types, utils
+from src import types, utils, em27_metadata
 
 from .load_results import load_results_directory
 

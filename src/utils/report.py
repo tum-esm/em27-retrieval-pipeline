@@ -2,13 +2,12 @@ import datetime
 import os
 from typing import Literal
 
-import em27_metadata
 import polars as pl
 import rich.console
 import rich.progress
 import tum_esm_utils
 
-from src import types
+from src import types, em27_metadata
 
 from .functions import sdc_covers_the_full_day
 from .text import get_coordinates_slug, replace_regex_placeholders

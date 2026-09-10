@@ -1,7 +1,8 @@
 from typing import Optional
 import os
 import requests
-import em27_metadata
+from . import interfaces as em27_metadata_interfaces
+from . import types as em27_metadata_types
 
 
 def _request_github_file(
@@ -40,7 +41,7 @@ def _request_github_file(
 def load_from_github(
     github_repository: str,
     access_token: Optional[str] = None,
-) -> em27_metadata.interfaces.EM27MetadataInterface:
+) -> em27_metadata_interfaces.EM27MetadataInterface:
     """Loads an EM27MetadataInterface from GitHub
 
     Args:
@@ -59,7 +60,7 @@ def load_from_github(
         pydantic.ValidationError:       If the response is not in a valid format.
     """
 
-    locations = em27_metadata.types.LocationMetadataList.model_validate_json(
+    locations = em27_metadata_types.LocationMetadataList.model_validate_json(
         _request_github_file(
             github_repository=github_repository,
             filepath=f"data/locations.json",
@@ -67,7 +68,7 @@ def load_from_github(
         )
     )
 
-    sensors = em27_metadata.types.SensorMetadataList.model_validate_json(
+    sensors = em27_metadata_types.SensorMetadataList.model_validate_json(
         _request_github_file(
             github_repository=github_repository,
             filepath=f"data/sensors.json",
@@ -75,7 +76,7 @@ def load_from_github(
         )
     )
 
-    campaigns = em27_metadata.types.CampaignMetadataList.model_validate_json(
+    campaigns = em27_metadata_types.CampaignMetadataList.model_validate_json(
         _request_github_file(
             github_repository=github_repository,
             filepath=f"data/campaigns.json",
@@ -83,9 +84,9 @@ def load_from_github(
         )
     )
 
-    events = em27_metadata.types.EventMetadataList(root=[])
+    events = em27_metadata_types.EventMetadataList(root=[])
     try:
-        events = em27_metadata.types.EventMetadataList.model_validate_json(
+        events = em27_metadata_types.EventMetadataList.model_validate_json(
             _request_github_file(
                 github_repository=github_repository,
                 filepath=f"data/events.json",
@@ -95,7 +96,7 @@ def load_from_github(
     except requests.exceptions.HTTPError:
         pass
 
-    return em27_metadata.interfaces.EM27MetadataInterface(
+    return em27_metadata_interfaces.EM27MetadataInterface(
         locations=locations,
         sensors=sensors,
         campaigns=campaigns,
@@ -108,7 +109,7 @@ def load_from_local_files(
     sensors_path: str,
     campaigns_path: Optional[str] = None,
     events_path: Optional[str] = None,
-) -> em27_metadata.interfaces.EM27MetadataInterface:
+) -> em27_metadata_interfaces.EM27MetadataInterface:
     """Loads an EM27MetadataInterface from local files.
 
     Args:
@@ -127,22 +128,22 @@ def load_from_local_files(
     """
 
     with open(locations_path) as f:
-        locations = em27_metadata.types.LocationMetadataList.model_validate_json(f.read())
+        locations = em27_metadata_types.LocationMetadataList.model_validate_json(f.read())
 
     with open(sensors_path) as f:
-        sensors = em27_metadata.types.SensorMetadataList.model_validate_json(f.read())
+        sensors = em27_metadata_types.SensorMetadataList.model_validate_json(f.read())
 
-    campaigns = em27_metadata.types.CampaignMetadataList(root=[])
+    campaigns = em27_metadata_types.CampaignMetadataList(root=[])
     if campaigns_path is not None:
         with open(campaigns_path) as f:
-            campaigns = em27_metadata.types.CampaignMetadataList.model_validate_json(f.read())
+            campaigns = em27_metadata_types.CampaignMetadataList.model_validate_json(f.read())
 
-    events = em27_metadata.types.EventMetadataList(root=[])
+    events = em27_metadata_types.EventMetadataList(root=[])
     if events_path is not None:
         with open(events_path) as f:
-            events = em27_metadata.types.EventMetadataList.model_validate_json(f.read())
+            events = em27_metadata_types.EventMetadataList.model_validate_json(f.read())
 
-    return em27_metadata.interfaces.EM27MetadataInterface(
+    return em27_metadata_interfaces.EM27MetadataInterface(
         locations=locations,
         sensors=sensors,
         campaigns=campaigns,
@@ -150,7 +151,7 @@ def load_from_local_files(
     )
 
 
-def load_from_example_data() -> em27_metadata.interfaces.EM27MetadataInterface:
+def load_from_example_data() -> em27_metadata_interfaces.EM27MetadataInterface:
     _SAMPLE_DATA_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "sample_data")
     return load_from_local_files(
         locations_path=os.path.join(_SAMPLE_DATA_DIR, "locations.json"),

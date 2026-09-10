@@ -6,11 +6,10 @@ import os
 import re
 from typing import Optional
 
-import em27_metadata
 import pydantic
 import tum_esm_utils
 
-from src import types, utils
+from src import types, utils, em27_metadata
 
 from .cache import DownloadQueryCache
 

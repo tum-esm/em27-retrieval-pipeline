@@ -1,16 +1,16 @@
 import datetime
 from typing import Optional
-import em27_metadata
 import tum_esm_utils
+from . import types as em27_metadata_types
 
 
 class EM27MetadataInterface:
     def __init__(
         self,
-        locations: em27_metadata.types.LocationMetadataList,
-        sensors: em27_metadata.types.SensorMetadataList,
-        campaigns: em27_metadata.types.CampaignMetadataList,
-        events: em27_metadata.types.EventMetadataList = em27_metadata.types.EventMetadataList(
+        locations: em27_metadata_types.LocationMetadataList,
+        sensors: em27_metadata_types.SensorMetadataList,
+        campaigns: em27_metadata_types.CampaignMetadataList,
+        events: em27_metadata_types.EventMetadataList = em27_metadata_types.EventMetadataList(
             root=[]
         ),
     ):
@@ -70,7 +70,7 @@ class EM27MetadataInterface:
         sensor_id: str,
         from_datetime: datetime.datetime,
         to_datetime: datetime.datetime,
-    ) -> list[em27_metadata.types.SensorDataContext]:
+    ) -> list[em27_metadata_types.SensorDataContext]:
         """For a given `sensor_id`, return the list of metadata contexts between
         `from_datetime` and `to_datetime`.
 
@@ -100,7 +100,7 @@ class EM27MetadataInterface:
 
         # find all relevant setups
 
-        merged_setups: list[em27_metadata.types.SetupsListItem] = []
+        merged_setups: list[em27_metadata_types.SetupsListItem] = []
         for setup in sensor.setups:
             try:
                 assert len(merged_setups) > 0
@@ -111,7 +111,7 @@ class EM27MetadataInterface:
             except AssertionError:
                 merged_setups.append(setup.model_copy(deep=True))
 
-        relevant_setups: list[em27_metadata.types.SetupsListItem] = []
+        relevant_setups: list[em27_metadata_types.SetupsListItem] = []
         for setup in merged_setups:
             if (
                 tum_esm_utils.timing.datetime_span_intersection(
@@ -147,7 +147,7 @@ class EM27MetadataInterface:
 
         # create sensor data contexts
 
-        sensor_data_contexts: list[em27_metadata.types.SensorDataContext] = []
+        sensor_data_contexts: list[em27_metadata_types.SensorDataContext] = []
         for setup in relevant_setups:
             if setup.from_datetime >= setup.to_datetime:
                 continue
@@ -158,7 +158,7 @@ class EM27MetadataInterface:
                     self.locations.root,
                 )
             )
-            atmospheric_profile_location: em27_metadata.types.LocationMetadata
+            atmospheric_profile_location: em27_metadata_types.LocationMetadata
             if setup.value.atmospheric_profile_location_id is not None:
                 atmospheric_profile_location = next(
                     filter(
@@ -170,7 +170,7 @@ class EM27MetadataInterface:
                 atmospheric_profile_location = location
 
             sensor_data_contexts.append(
-                em27_metadata.types.SensorDataContext(
+                em27_metadata_types.SensorDataContext(
                     sensor_id=sensor.sensor_id,
                     serial_number=sensor.serial_number,
                     from_datetime=setup.from_datetime,
@@ -195,10 +195,10 @@ class EM27MetadataInterface:
     ) -> list[
         Optional[
             tuple[
-                em27_metadata.types.LocationMetadata,
+                em27_metadata_types.LocationMetadata,
                 float,
                 str,
-                em27_metadata.types.LocationMetadata,
+                em27_metadata_types.LocationMetadata,
             ]
         ]
     ]:
@@ -215,10 +215,10 @@ class EM27MetadataInterface:
         out: list[
             Optional[
                 tuple[
-                    em27_metadata.types.LocationMetadata,
+                    em27_metadata_types.LocationMetadata,
                     float,
                     str,
-                    em27_metadata.types.LocationMetadata,
+                    em27_metadata_types.LocationMetadata,
                 ]
             ]
         ] = []
@@ -248,7 +248,7 @@ class EM27MetadataInterface:
                     self.locations.root,
                 )
             )
-            atmospheric_profile_location: em27_metadata.types.LocationMetadata
+            atmospheric_profile_location: em27_metadata_types.LocationMetadata
             if setup.value.atmospheric_profile_location_id is not None:
                 atmospheric_profile_location = next(
                     filter(
@@ -277,7 +277,7 @@ class EM27MetadataInterface:
         sensor_id: str,
         from_datetime: datetime.datetime,
         to_datetime: datetime.datetime,
-    ) -> list[em27_metadata.types.EventMetadata]:
+    ) -> list[em27_metadata_types.EventMetadata]:
         """For a given `sensor_id`, return the list of events between
         `from_datetime` and `to_datetime`.
 
@@ -287,7 +287,7 @@ class EM27MetadataInterface:
             to_datetime:    The end of the requested time period.
         """
 
-        events: list[em27_metadata.types.EventMetadata] = []
+        events: list[em27_metadata_types.EventMetadata] = []
         for event in self.events.root:
             if sensor_id in event.sensor_ids:
                 if (

@@ -1,11 +1,9 @@
 import datetime
 import os
 from typing import Any, Optional
-
-import em27_metadata
 import tum_esm_utils
 
-from src import retrieval, types, utils
+from src import retrieval, types, utils, em27_metadata
 
 
 # pprint outputs didn't look so great

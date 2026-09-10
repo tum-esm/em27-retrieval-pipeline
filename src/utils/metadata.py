@@ -1,9 +1,6 @@
 import os
 from typing import Optional
-
-import em27_metadata
-
-from src import types
+from src import types, em27_metadata
 
 
 def load_local_em27_metadata_interface(

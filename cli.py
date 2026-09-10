@@ -9,7 +9,6 @@ import io
 import sys
 
 import click
-import em27_metadata
 import pydantic
 import tqdm
 import tum_esm_utils
@@ -276,7 +275,7 @@ def print_data_report() -> None:
         print("Did not find local metadata -> fetching metadata from GitHub")
         assert config.metadata.source == "github", "Remote metadata source is not selected"
         assert config.metadata.github_repository is not None, "This should not happen"
-        em27_metadata_interface = em27_metadata.load_from_github(
+        em27_metadata_interface = src.em27_metadata.load_from_github(
             github_repository=config.metadata.github_repository,
             access_token=config.metadata.github_access_token,
         )

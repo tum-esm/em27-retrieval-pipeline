@@ -1,10 +1,10 @@
 import datetime
 import os
 from typing import Any, Optional
-
-import em27_metadata
 import polars as pl
 import tum_esm_utils
+
+from ..em27_metadata import types as em27_metadata_types
 
 try:
     import tomllib  # type: ignore
@@ -13,7 +13,7 @@ except ImportError:
 
 
 def sdc_covers_the_full_day(
-    sdc: em27_metadata.types.SensorDataContext,
+    sdc: em27_metadata_types.SensorDataContext,
 ) -> bool:
     return (
         sdc.from_datetime.time().replace(microsecond=0) == datetime.time.min.replace(microsecond=0)

@@ -11,7 +11,6 @@ import re
 import sys
 from typing import Literal, Optional
 
-import em27_metadata
 import h5py  # pyright: ignore[reportMissingTypeStubs]
 import numpy as np
 import polars as pl
@@ -50,20 +49,20 @@ def generate_geoms_file(
 
     sensor_id: Optional[str] = None
     serial_number: Optional[int] = None
-    location: Optional[em27_metadata.types.LocationMetadata] = None
+    location: Optional[src.em27_metadata.types.LocationMetadata] = None
     date: Optional[datetime.date] = None
 
     if "ctx" in about_json["session"]:
         sensor_id = about_json["session"]["ctx"]["sensor_id"]
         serial_number = int(about_json["session"]["ctx"]["serial_number"])
-        location = em27_metadata.types.LocationMetadata.model_validate(about_json["session"]["ctx"]["location"])
+        location = src.em27_metadata.types.LocationMetadata.model_validate(about_json["session"]["ctx"]["location"])
         from_dt = datetime.datetime.fromisoformat(about_json["session"]["ctx"]["from_datetime"]).replace(tzinfo=datetime.timezone.utc)
         to_dt = datetime.datetime.fromisoformat(about_json["session"]["ctx"]["to_datetime"]).replace(tzinfo=datetime.timezone.utc)
     else: # pragma: no cover
         # just kept for compatibility with old results
         sensor_id = about_json["session"]["sensor_id"]
         serial_number = int(about_json["session"]["serial_number"])
-        location = em27_metadata.types.LocationMetadata.model_validate(about_json["session"]["location"])
+        location = src.em27_metadata.types.LocationMetadata.model_validate(about_json["session"]["location"])
         date = datetime.date.fromisoformat(about_json["session"]["date"])
         from_dt = datetime.datetime.combine(date, datetime.time(0, 0, 0), tzinfo=datetime.timezone.utc)
         to_dt = datetime.datetime.combine(date, datetime.time(23, 59, 59), tzinfo=datetime.timezone.utc)

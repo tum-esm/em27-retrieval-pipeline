@@ -3,12 +3,11 @@ import datetime
 import os
 from typing import Generator, Optional
 
-import em27_metadata
 import filelock
 import pydantic
 import tum_esm_utils
 
-from src import types
+from src import types, em27_metadata
 
 _PROJECT_DIR = tum_esm_utils.files.get_parent_dir_path(__file__, current_depth=4)
 _ACTIVE_PROCESS_LIST = os.path.join(_PROJECT_DIR, "data", "logs", "active-processes.json")
