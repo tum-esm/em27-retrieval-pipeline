@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Literal, Optional
 import tum_esm_utils
 import tomllib
 import os
@@ -136,6 +136,19 @@ def load_from_local_files(
 
     # the metadata starting at pipeline v1.11 is stored in a single TOML file: em27_metadata.toml
     if config_directory is not None:
+        assert locations_path is None, (
+            "locations_path should not be provided when config_directory is provided"
+        )
+        assert sensors_path is None, (
+            "sensors_path should not be provided when config_directory is provided"
+        )
+        assert campaigns_path is None, (
+            "campaigns_path should not be provided when config_directory is provided"
+        )
+        assert events_path is None, (
+            "events_path should not be provided when config_directory is provided"
+        )
+
         # try to load the em27_metadata.toml file from the config directory
         p = os.path.join(config_directory, "em27_metadata.toml")
         if os.path.isfile(p):
@@ -156,18 +169,6 @@ def load_from_local_files(
     # - events.json
 
     if config_directory is not None:
-        assert locations_path is None, (
-            "locations_path should not be provided when config_directory is provided"
-        )
-        assert sensors_path is None, (
-            "sensors_path should not be provided when config_directory is provided"
-        )
-        assert campaigns_path is None, (
-            "campaigns_path should not be provided when config_directory is provided"
-        )
-        assert events_path is None, (
-            "events_path should not be provided when config_directory is provided"
-        )
         locations_path = os.path.join(config_directory, "locations.json")
         sensors_path = os.path.join(config_directory, "sensors.json")
         campaigns_path = os.path.join(config_directory, "campaigns.json")
@@ -216,11 +217,27 @@ def load_from_local_files(
     )
 
 
-def load_from_example_data() -> em27_metadata_interfaces.EM27MetadataInterface:
+def load_from_example_data(
+    variant: Literal["toml", "json", "fallbacktest1", "fallbacktest2"] = "toml",
+) -> em27_metadata_interfaces.EM27MetadataInterface:
     _SAMPLE_DATA_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "sample_data")
-    return load_from_local_files(
-        locations_path=os.path.join(_SAMPLE_DATA_DIR, "locations.json"),
-        sensors_path=os.path.join(_SAMPLE_DATA_DIR, "sensors.json"),
-        campaigns_path=os.path.join(_SAMPLE_DATA_DIR, "campaigns.json"),
-        events_path=os.path.join(_SAMPLE_DATA_DIR, "events.json"),
-    )
+    if variant == "toml":
+        return load_from_local_files(
+            config_directory=os.path.join(_SAMPLE_DATA_DIR, "toml"),
+        )
+    elif variant == "json":
+        return load_from_local_files(
+            locations_path=os.path.join(_SAMPLE_DATA_DIR, "json", "locations.json"),
+            sensors_path=os.path.join(_SAMPLE_DATA_DIR, "json", "sensors.json"),
+            campaigns_path=os.path.join(_SAMPLE_DATA_DIR, "json", "campaigns.json"),
+            events_path=os.path.join(_SAMPLE_DATA_DIR, "json", "events.json"),
+        )
+    elif variant == "fallbacktest1":
+        return load_from_local_files(
+            locations_path=os.path.join(_SAMPLE_DATA_DIR, "json", "locations.json"),
+            sensors_path=os.path.join(_SAMPLE_DATA_DIR, "json", "sensors.json"),
+        )
+    elif variant == "fallbacktest2":
+        return load_from_local_files(
+            config_directory=os.path.join(_SAMPLE_DATA_DIR, "json"),
+        )
