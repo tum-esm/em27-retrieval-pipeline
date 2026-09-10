@@ -2,14 +2,13 @@ import datetime
 import os
 import pytest
 import dotenv
-import em27_metadata
 import tum_esm_utils
 from ..fixtures import (
     provide_config_template,  # pyright: ignore[reportUnusedImport]
     remove_temporary_retrieval_data,  # pyright: ignore[reportUnusedImport]
 )
 
-from src import types, retrieval
+from src import types, retrieval, em27_metadata
 from src.retrieval.dispatching.retrieval_queue import generate_retrieval_queue
 
 dir = os.path.dirname
@@ -69,26 +68,26 @@ def test_retrieval_queue(
     config.retrieval.general.queue_verbosity = "verbose"
 
     # target config at test data
-    config.general.data.ground_pressure.path.root = os.path.join(
+    config.data.ground_pressure.path.root = os.path.join(
         PROJECT_DIR, "example", "data", "inputs", "ground-pressure"
     )
-    config.general.data.ground_pressure.pressure_column = "BaroYoung"
-    config.general.data.ground_pressure.pressure_column_format = "hPa"
-    config.general.data.ground_pressure.file_regex = (
+    config.data.ground_pressure.pressure_column = "BaroYoung"
+    config.data.ground_pressure.pressure_column_format = "hPa"
+    config.data.ground_pressure.file_regex = (
         "^ground-pressure-$(SENSOR_ID)-$(YYYY)-$(MM)-$(DD).csv$"
     )
-    config.general.data.ground_pressure.date_column = "utc-date"
-    config.general.data.ground_pressure.date_column_format = "%Y-%m-%d"
-    config.general.data.ground_pressure.time_column = "utc-time"
-    config.general.data.ground_pressure.time_column_format = "%H:%M:%S"
+    config.data.ground_pressure.date_column = "utc-date"
+    config.data.ground_pressure.date_column_format = "%Y-%m-%d"
+    config.data.ground_pressure.time_column = "utc-time"
+    config.data.ground_pressure.time_column_format = "%H:%M:%S"
 
-    config.general.data.interferograms.root = os.path.join(
+    config.data.interferograms.path.root = os.path.join(
         PROJECT_DIR, "example", "data", "inputs", "interferograms"
     )
-    config.general.data.atmospheric_profiles.root = os.path.join(
+    config.data.atmospheric_profiles.path.root = os.path.join(
         PROJECT_DIR, "example", "data", "inputs", "atmospheric-profiles"
     )
-    config.general.data.results.root = os.path.join(
+    config.data.results.path.root = os.path.join(
         PROJECT_DIR, "data", "testing", "outputs", "individual-results"
     )
 
@@ -97,7 +96,7 @@ def test_retrieval_queue(
         config,
         logger,
         em27_metadata_interface=em27_metadata_interface,
-        retrieval_job_config=types.RetrievalJobConfig(
+        retrieval_job_config=types.RetrievalSubConfigs.Job(
             retrieval_algorithm="proffast-2.2",
             atmospheric_profile_model="GGG2014",
             sensor_ids=["so"],
@@ -117,7 +116,7 @@ def test_retrieval_queue(
         config,
         logger,
         em27_metadata_interface=em27_metadata_interface,
-        retrieval_job_config=types.RetrievalJobConfig(
+        retrieval_job_config=types.RetrievalSubConfigs.Job(
             retrieval_algorithm="proffast-2.2",
             atmospheric_profile_model="GGG2014",
             sensor_ids=["so"],
@@ -138,7 +137,7 @@ def test_retrieval_queue(
         config,
         logger,
         em27_metadata_interface=em27_metadata_interface,
-        retrieval_job_config=types.RetrievalJobConfig(
+        retrieval_job_config=types.RetrievalSubConfigs.Job(
             retrieval_algorithm="proffast-2.2",
             atmospheric_profile_model="GGG2014",
             sensor_ids=["so"],
@@ -156,7 +155,7 @@ def test_retrieval_queue(
         config,
         logger,
         em27_metadata_interface=em27_metadata_interface,
-        retrieval_job_config=types.RetrievalJobConfig(
+        retrieval_job_config=types.RetrievalSubConfigs.Job(
             retrieval_algorithm="proffast-2.2",
             atmospheric_profile_model="GGG2014",
             sensor_ids=["so"],
@@ -174,7 +173,7 @@ def test_retrieval_queue(
         config,
         logger,
         em27_metadata_interface=em27_metadata_interface,
-        retrieval_job_config=types.RetrievalJobConfig(
+        retrieval_job_config=types.RetrievalSubConfigs.Job(
             retrieval_algorithm="proffast-2.2",
             atmospheric_profile_model="GGG2014",
             sensor_ids=["so"],

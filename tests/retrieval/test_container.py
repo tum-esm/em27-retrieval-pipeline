@@ -3,7 +3,6 @@ import datetime
 import os
 import time
 import pytest
-import em27_metadata
 import tum_esm_utils
 import multiprocessing
 import src
@@ -17,21 +16,21 @@ from tests.fixtures import (
 PROJECT_DIR = tum_esm_utils.files.get_parent_dir_path(__file__, current_depth=3)
 
 SENSOR_DATA_CONTEXTS = [
-    em27_metadata.types.SensorDataContext(
+    src.em27_metadata.types.SensorDataContext(
         sensor_id="so",
         serial_number=39,
         from_datetime=datetime.datetime.combine(date, datetime.time.min),
         to_datetime=datetime.datetime.combine(date, datetime.time.max),
         utc_offset=0,
         pressure_data_source="so",
-        atmospheric_profile_location=em27_metadata.types.LocationMetadata(
+        atmospheric_profile_location=src.em27_metadata.types.LocationMetadata(
             location_id="SOD",
             details="Sodankyla",
             lon=26.630,
             lat=67.366,
             alt=181.0,
         ),
-        location=em27_metadata.types.LocationMetadata(
+        location=src.em27_metadata.types.LocationMetadata(
             location_id="SOD",
             details="Sodankyla",
             lon=26.630,
@@ -44,21 +43,21 @@ SENSOR_DATA_CONTEXTS = [
         datetime.date(2017, 6, 9),
     ]
 ] + [
-    em27_metadata.types.SensorDataContext(
+    src.em27_metadata.types.SensorDataContext(
         sensor_id="mc",
         serial_number=115,
         from_datetime=datetime.datetime.combine(date, datetime.time.min),
         to_datetime=datetime.datetime.combine(date, datetime.time.max),
         utc_offset=0,
         pressure_data_source="mc",
-        atmospheric_profile_location=em27_metadata.types.LocationMetadata(
+        atmospheric_profile_location=src.em27_metadata.types.LocationMetadata(
             location_id="ZEN",
             details="Zentralfriedhof",
             lon=16.438481,
             lat=48.147699,
             alt=180.0,
         ),
-        location=em27_metadata.types.LocationMetadata(
+        location=src.em27_metadata.types.LocationMetadata(
             location_id="ZEN",
             details="Zentralfriedhof",
             lon=16.438481,
@@ -129,11 +128,12 @@ def test_container_lifecycle_ci(
         session = src.retrieval.session.create_session.run(
             container_factory,
             j[2],
-            retrieval_algorithm=j[0],
-            atmospheric_profile_model=j[1],
-            job_settings=src.types.config.RetrievalJobSettingsConfig(
-                # test this for all alg/atm combinations
-                # for one of the sensor data contexts
+            job_config=src.types.config.RetrievalSubConfigs.Job(
+                retrieval_algorithm=j[0],
+                atmospheric_profile_model=j[1],
+                sensor_ids=[j[2].sensor_id],
+                from_date=j[2].from_datetime.date(),
+                # test this for all alg/atm combinations for one of the sensor data contexts
                 use_local_pressure_in_pcxs=(j[2].from_datetime.date() == datetime.date(2017, 6, 9)),
                 store_binary_spectra=False,
             ),
@@ -176,11 +176,12 @@ def test_container_lifecycle_complete(
             session = src.retrieval.session.create_session.run(
                 container_factory,
                 j[2],
-                retrieval_algorithm=j[0],
-                atmospheric_profile_model=j[1],
-                job_settings=src.types.config.RetrievalJobSettingsConfig(
-                    # test this for all alg/atm combinations
-                    # for one of the sensor data contexts
+                job_config=src.types.config.RetrievalSubConfigs.Job(
+                    retrieval_algorithm=j[0],
+                    atmospheric_profile_model=j[1],
+                    sensor_ids=[j[2].sensor_id],
+                    from_date=j[2].from_datetime.date(),
+                    # test this for all alg/atm combinations for one of the sensor data contexts
                     use_local_pressure_in_pcxs=(
                         j[2].from_datetime.date() == datetime.date(2017, 6, 9)
                     ),
@@ -247,7 +248,7 @@ def _generate_job_list() -> list[
     tuple[
         src.types.RetrievalAlgorithm,
         src.types.AtmosphericProfileModel,
-        em27_metadata.types.SensorDataContext,
+        src.em27_metadata.types.SensorDataContext,
     ]
 ]:
     src.retrieval.utils.retrieval_status.RetrievalStatusList.reset()
@@ -256,7 +257,7 @@ def _generate_job_list() -> list[
         tuple[
             src.types.RetrievalAlgorithm,
             src.types.AtmosphericProfileModel,
-            em27_metadata.types.SensorDataContext,
+            src.em27_metadata.types.SensorDataContext,
         ]
     ] = []
 
@@ -284,26 +285,26 @@ def _generate_job_list() -> list[
 
 
 def _point_config_to_test_data(config: src.types.Config) -> None:
-    config.general.data.ground_pressure.path.root = os.path.join(
+    config.data.ground_pressure.path.root = os.path.join(
         PROJECT_DIR, "example", "data", "inputs", "ground-pressure"
     )
-    config.general.data.ground_pressure.file_regex = (
+    config.data.ground_pressure.file_regex = (
         "^ground-pressure-$(SENSOR_ID)-$(YYYY)-$(MM)-$(DD).csv$"
     )
-    config.general.data.ground_pressure.date_column = "utc-date"
-    config.general.data.ground_pressure.date_column_format = "%Y-%m-%d"
-    config.general.data.ground_pressure.time_column = "utc-time"
-    config.general.data.ground_pressure.time_column_format = "%H:%M:%S"
-    config.general.data.ground_pressure.pressure_column = "pressure"
-    config.general.data.ground_pressure.pressure_column_format = "hPa"
+    config.data.ground_pressure.date_column = "utc-date"
+    config.data.ground_pressure.date_column_format = "%Y-%m-%d"
+    config.data.ground_pressure.time_column = "utc-time"
+    config.data.ground_pressure.time_column_format = "%H:%M:%S"
+    config.data.ground_pressure.pressure_column = "pressure"
+    config.data.ground_pressure.pressure_column_format = "hPa"
 
-    config.general.data.interferograms.root = os.path.join(
+    config.data.interferograms.path.root = os.path.join(
         PROJECT_DIR, "example", "data", "inputs", "interferograms"
     )
-    config.general.data.atmospheric_profiles.root = os.path.join(
+    config.data.atmospheric_profiles.path.root = os.path.join(
         PROJECT_DIR, "example", "data", "inputs", "atmospheric-profiles"
     )
-    config.general.data.results.root = os.path.join(
+    config.data.results.path.root = os.path.join(
         PROJECT_DIR, "data", "testing", "outputs", "individual-results"
     )
 
@@ -311,7 +312,7 @@ def _point_config_to_test_data(config: src.types.Config) -> None:
 def _assert_output_correctness(
     retrieval_algorithm: src.types.RetrievalAlgorithm,
     atmospheric_profile_model: src.types.AtmosphericProfileModel,
-    sensor_data_context: em27_metadata.types.SensorDataContext,
+    sensor_data_context: src.em27_metadata.types.SensorDataContext,
 ) -> None:
     date_string = sensor_data_context.from_datetime.strftime("%Y%m%d")
     out_path = os.path.join(

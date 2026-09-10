@@ -3,7 +3,6 @@ import os
 import pytest
 import src
 import tum_esm_utils
-import em27_metadata
 import polars as pl
 
 PROJECT_DIR = tum_esm_utils.files.rel_to_abs_path("../..")
@@ -13,31 +12,30 @@ BUNDLE_INPUT_DIR = os.path.join(TEST_DATA_DIR, "inputs", "individual-results")
 BUNDLE_OUTPUT_DIR = os.path.join(TEST_DATA_DIR, "outputs", "bundles")
 
 CONFIG = {
-    "version": "1.10",
-    "general": {
-        "metadata": None,
-        "data": {
-            "ground_pressure": {
-                "path": os.path.join(EXAMPLE_DIR, "data", "inputs", "ground-pressure"),
-                "file_regex": "^$(SENSOR_ID)$(DATE).*\\.csv$",
-                "separator": ",",
-                "pressure_column": "pressure",
-                "pressure_column_format": "hPa",
-                "date_column": "UTCdate_____",
-                "date_column_format": "%Y-%m-%d",
-                "time_column": "UTCtime_____",
-                "time_column_format": "%H:%M:%S",
-            },
-            "atmospheric_profiles": os.path.join(
-                EXAMPLE_DIR, "data", "inputs", "atmospheric-profiles"
-            ),
-            "interferograms": os.path.join(EXAMPLE_DIR, "data", "inputs", "interferograms"),
-            "results": BUNDLE_INPUT_DIR,
+    "version": "1.11",
+    "data": {
+        "ground_pressure": {
+            "path": os.path.join(EXAMPLE_DIR, "data", "inputs", "ground-pressure"),
+            "file_regex": "^$(SENSOR_ID)$(DATE).*\\.csv$",
+            "separator": ",",
+            "pressure_column": "pressure",
+            "pressure_column_format": "hPa",
+            "date_column": "UTCdate_____",
+            "date_column_format": "%Y-%m-%d",
+            "time_column": "UTCtime_____",
+            "time_column_format": "%H:%M:%S",
+        },
+        "atmospheric_profiles": {
+            "path": os.path.join(EXAMPLE_DIR, "data", "inputs", "atmospheric-profiles"),
+        },
+        "interferograms": {
+            "path": os.path.join(EXAMPLE_DIR, "data", "inputs", "interferograms"),
+        },
+        "results": {
+            "path": BUNDLE_INPUT_DIR,
         },
     },
-    "profiles": None,
-    "retrieval": None,
-    "bundles": [
+    "bundle_exports": [
         {
             "dst_dir": BUNDLE_OUTPUT_DIR,
             "output_formats": ["csv", "parquet"],
@@ -69,24 +67,21 @@ def test_bundling() -> None:
         os.remove(os.path.join(BUNDLE_OUTPUT_DIR, f))
 
     config = src.types.Config.model_validate(CONFIG)
-    assert config.bundles is not None
+    assert config.bundle_exports is not None
 
     src.bundle_exporter.main.run(
         config=config,
-        em27_metadata_interface=em27_metadata.loader.load_from_local_files(
-            locations_path=os.path.join(EXAMPLE_DIR, "config", "locations.json"),
-            sensors_path=os.path.join(EXAMPLE_DIR, "config", "sensors.json"),
-            campaigns_path=os.path.join(EXAMPLE_DIR, "config", "campaigns.json"),
-            events_path=os.path.join(EXAMPLE_DIR, "config", "events.json"),
+        em27_metadata_interface=src.em27_metadata.loader.load_from_local_files(
+            config_directory=os.path.join(EXAMPLE_DIR, "config"),
         ),
     )
 
-    bundle = config.bundles[0]
+    bundle_export_config = config.bundle_exports[0]
     min_row_counts = {"mc": 8, "so": 15}
 
-    for sensor_id in bundle.sensor_ids:
-        for retrieval_algorithm in bundle.retrieval_algorithms:
-            for atmospheric_profile_model in bundle.atmospheric_profile_models:
+    for sensor_id in bundle_export_config.sensor_ids:
+        for retrieval_algorithm in bundle_export_config.retrieval_algorithms:
+            for atmospheric_profile_model in bundle_export_config.atmospheric_profile_models:
                 if retrieval_algorithm == "proffast-1.0" and atmospheric_profile_model == "GGG2020":
                     continue
 
@@ -96,8 +91,8 @@ def test_bundling() -> None:
                         sensor_id,
                         retrieval_algorithm,
                         atmospheric_profile_model,
-                        bundle.from_datetime.strftime("%Y%m%d"),
-                        bundle.to_datetime.strftime("%Y%m%d"),
+                        bundle_export_config.from_datetime.strftime("%Y%m%d"),
+                        bundle_export_config.to_datetime.strftime("%Y%m%d"),
                     ]
                 )
                 # fmt: off

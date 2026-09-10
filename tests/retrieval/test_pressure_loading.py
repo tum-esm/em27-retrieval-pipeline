@@ -207,7 +207,7 @@ def test_pressure_file_loading() -> None:
 
                 # 1. given date and time
 
-                c1 = types.config.GroundPressureConfig(
+                c1 = types.config.DataSubConfigs.GroundPressure(
                     **base_config,
                     date_column=date_column_name,
                     date_column_format="%Y-%m-%d",
@@ -225,7 +225,7 @@ def test_pressure_file_loading() -> None:
 
                 # 2. given datetime
 
-                c2 = types.config.GroundPressureConfig(
+                c2 = types.config.DataSubConfigs.GroundPressure(
                     **base_config,
                     datetime_column=datetime_column_name,
                     datetime_column_format="%Y-%m-%dT%H:%M:%S",
@@ -238,7 +238,7 @@ def test_pressure_file_loading() -> None:
 
                 # 3. given timestamp
 
-                c3 = types.config.GroundPressureConfig(
+                c3 = types.config.DataSubConfigs.GroundPressure(
                     **base_config,
                     unix_timestamp_column=timestamp_column_name,
                     unix_timestamp_column_format="s",

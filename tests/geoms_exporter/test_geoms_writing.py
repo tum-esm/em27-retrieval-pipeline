@@ -1,4 +1,3 @@
-import datetime
 import os
 import pytest
 import src
@@ -9,49 +8,43 @@ EXAMPLE_DIR = os.path.join(PROJECT_DIR, "example")
 RESULTS_DIR = os.path.join(PROJECT_DIR, "data", "testing", "inputs", "individual-results")
 
 CONFIG = {
-    "version": "1.10",
-    "general": {
-        "metadata": None,
-        "data": {
-            "ground_pressure": {
-                "path": os.path.join(EXAMPLE_DIR, "data", "inputs", "ground-pressure"),
-                "file_regex": "^$(SENSOR_ID)$(DATE).*\\.csv$",
-                "separator": ",",
-                "pressure_column": "pressure",
-                "pressure_column_format": "hPa",
-                "date_column": "UTCdate_____",
-                "date_column_format": "%Y-%m-%d",
-                "time_column": "UTCtime_____",
-                "time_column_format": "%H:%M:%S",
-            },
-            "atmospheric_profiles": os.path.join(
-                EXAMPLE_DIR, "data", "inputs", "atmospheric-profiles"
-            ),
-            "interferograms": os.path.join(EXAMPLE_DIR, "data", "inputs", "interferograms"),
-            "results": RESULTS_DIR,
+    "version": "1.11",
+    "data": {
+        "ground_pressure": {
+            "path": os.path.join(EXAMPLE_DIR, "data", "inputs", "ground-pressure"),
+            "file_regex": "^$(SENSOR_ID)$(DATE).*\\.csv$",
+            "separator": ",",
+            "pressure_column": "pressure",
+            "pressure_column_format": "hPa",
+            "date_column": "UTCdate_____",
+            "date_column_format": "%Y-%m-%d",
+            "time_column": "UTCtime_____",
+            "time_column_format": "%H:%M:%S",
         },
+        "atmospheric_profiles": os.path.join(EXAMPLE_DIR, "data", "inputs", "atmospheric-profiles"),
+        "interferograms": os.path.join(EXAMPLE_DIR, "data", "inputs", "interferograms"),
+        "results": RESULTS_DIR,
     },
-    "profiles": None,
-    "retrieval": None,
-    "bundles": None,
-    "geoms": {
-        "sensor_ids": ["so", "mc"],
-        "retrieval_algorithms": [
-            "proffast-2.2",
-            "proffast-2.3",
-            "proffast-2.4",
-            "proffast-2.4.1",
-        ],
-        "atmospheric_profile_models": ["GGG2014", "GGG2020"],
-        "from_datetime": "2017-01-01T00:00:00+0000",
-        "to_datetime": "2024-12-31T23:59:59+0000",
-        "parse_dc_timeseries": True,
-        "max_sza": 80,
-        "min_xair": 0.98,
-        "max_xair": 1.02,
-        "conflict_mode": "replace",
-        "min_datapoints_per_day": 9,
-    },
+    "geoms_exports": [
+        {
+            "sensor_ids": ["so", "mc"],
+            "retrieval_algorithms": [
+                "proffast-2.2",
+                "proffast-2.3",
+                "proffast-2.4",
+                "proffast-2.4.1",
+            ],
+            "atmospheric_profile_models": ["GGG2014", "GGG2020"],
+            "from_datetime": "2017-01-01T00:00:00+0000",
+            "to_datetime": "2024-12-31T23:59:59+0000",
+            "parse_dc_timeseries": True,
+            "max_sza": 80,
+            "min_xair": 0.98,
+            "max_xair": 1.02,
+            "conflict_mode": "replace",
+            "min_datapoints_per_day": 9,
+        }
+    ],
 }
 
 GEOMS_METADATA = {
@@ -95,6 +88,26 @@ GEOMS_METADATA = {
         "SOD": "SODANKYLA",
         "ZEN": "VIENNA.ZENTRALFRIEDHOF",
     },
+    "calibration_factors": [
+        {
+            "sensor_id": "so",
+            "valid_from_datetime": "2016-01-01T00:00:00+0000",
+            "valid_to_datetime": "2026-01-01T00:00:00+0000",
+            "xco2": 1.0,
+            "xch4": 1.0,
+            "xh2o": 1.0,
+            "xco": 1.0,
+        },
+        {
+            "sensor_id": "mc",
+            "valid_from_datetime": "2016-01-01T00:00:00+0000",
+            "valid_to_datetime": "2026-01-01T00:00:00+0000",
+            "xco2": 1.0,
+            "xch4": 1.0,
+            "xh2o": 1.0,
+            "xco": 1.0,
+        },
+    ],
 }
 
 
@@ -102,13 +115,14 @@ GEOMS_METADATA = {
 @pytest.mark.quick
 def test_geoms_export() -> None:
     config = src.types.Config.model_validate(CONFIG)
-    assert config.geoms is not None
+    assert len(config.geoms_exports) > 0
 
+    geoms_export_config = config.geoms_exports[0]
     geoms_metadata = src.types.GEOMSMetadata.model_validate(GEOMS_METADATA)
 
-    for retrieval_algorithm in config.geoms.retrieval_algorithms:
-        for atmospheric_profile_model in config.geoms.atmospheric_profile_models:
-            for sensor_id in config.geoms.sensor_ids:
+    for retrieval_algorithm in geoms_export_config.retrieval_algorithms:
+        for atmospheric_profile_model in geoms_export_config.atmospheric_profile_models:
+            for sensor_id in geoms_export_config.sensor_ids:
                 if (retrieval_algorithm == "proffast-2.4.1") and (sensor_id == "mc"):
                     # FIXME: proffast-2.4.1 fails for these interferograms due to the additional filters introduced
                     continue
@@ -133,33 +147,11 @@ def test_geoms_export() -> None:
     src.geoms_exporter.main.run(
         config=config,
         geoms_metadata=geoms_metadata,
-        calibration_factors=src.types.CalibrationFactorsList(
-            root=[
-                src.types.CalibrationFactors(
-                    sensor_id="so",
-                    valid_from_datetime=datetime.datetime(2016, 1, 1, tzinfo=datetime.timezone.utc),
-                    valid_to_datetime=datetime.datetime(2026, 1, 1, tzinfo=datetime.timezone.utc),
-                    xco2=1.0,
-                    xch4=1.0,
-                    xh2o=1.0,
-                    xco=1.0,
-                ),
-                src.types.CalibrationFactors(
-                    sensor_id="mc",
-                    valid_from_datetime=datetime.datetime(2016, 1, 1, tzinfo=datetime.timezone.utc),
-                    valid_to_datetime=datetime.datetime(2026, 1, 1, tzinfo=datetime.timezone.utc),
-                    xco2=1.0,
-                    xch4=1.0,
-                    xh2o=1.0,
-                    xco=1.0,
-                ),
-            ]
-        ),
     )
 
-    for retrieval_algorithm in config.geoms.retrieval_algorithms:
-        for atmospheric_profile_model in config.geoms.atmospheric_profile_models:
-            for sensor_id in config.geoms.sensor_ids:
+    for retrieval_algorithm in geoms_export_config.retrieval_algorithms:
+        for atmospheric_profile_model in geoms_export_config.atmospheric_profile_models:
+            for sensor_id in geoms_export_config.sensor_ids:
                 if (retrieval_algorithm == "proffast-2.4.1") and (sensor_id == "mc"):
                     # FIXME: proffast-2.4.1 fails for these interferograms due to the additional filters introduced
                     continue

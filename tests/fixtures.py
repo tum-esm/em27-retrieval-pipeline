@@ -22,11 +22,11 @@ def provide_config_template() -> Generator[src.types.Config, None, None]:
         os.path.join(_PROJECT_DIR, "config", "config.template.json"),
         ignore_path_existence=True,
     )
-    config.general.data.ground_pressure.path.root = "/tmp"
-    config.general.data.atmospheric_profiles.root = "/tmp"
-    config.general.data.interferograms.root = "/tmp"
-    config.general.data.results.root = "/tmp"
-    config.bundles = []
+    config.data.ground_pressure.path.root = "/tmp"
+    config.data.atmospheric_profiles.path.root = "/tmp"
+    config.data.interferograms.path.root = "/tmp"
+    config.data.results.path.root = "/tmp"
+    config.bundle_exports = []
     config.profiles.scope.force_download_locations = []  # type: ignore
 
     yield config

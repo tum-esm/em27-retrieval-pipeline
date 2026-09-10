@@ -8,11 +8,11 @@ import src
 @pytest.mark.integration
 def test_profiles_connection() -> None:
     config = src.types.Config.load()
-    if config.profiles is None:
+    if config.ggg_profiles_downloader is None:
         return
     with ftplib.FTP(
         host="ccycle.gps.caltech.edu",
-        passwd=config.profiles.server.email,
+        passwd=config.ggg_profiles_downloader.server.email,
         user="anonymous",
         timeout=60,
     ) as ftp:

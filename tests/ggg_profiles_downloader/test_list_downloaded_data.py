@@ -15,10 +15,10 @@ def test_list_downloaded_data(provide_config_template: src.types.Config) -> None
     random_dates = generate_random_dates(n=2000)
     cs = {l: src.utils.text.get_coordinates_slug(l.lat, l.lon) for l in random_locations}
     config = provide_config_template.model_copy(deep=True)
-    assert config.profiles is not None
-    assert config.profiles.scope is not None
-    config.profiles.scope.from_date = min(random_dates)
-    config.profiles.scope.to_date = max(random_dates)
+    assert config.ggg_profiles_downloader is not None
+    assert config.ggg_profiles_downloader.scope is not None
+    config.ggg_profiles_downloader.scope.from_date = min(random_dates)
+    config.ggg_profiles_downloader.scope.to_date = max(random_dates)
     for _ in range(5):
         downloaded_data = {
             l: set(random.sample(random_dates, 30)) for l in random.sample(random_locations, 5)
@@ -40,7 +40,7 @@ def test_list_downloaded_data(provide_config_template: src.types.Config) -> None
         }
         for model, filenames in model_filenames.items():
             with tempfile.TemporaryDirectory() as tmpdir:
-                config.general.data.atmospheric_profiles.root = tmpdir
+                config.data.atmospheric_profiles.path.root = tmpdir
                 os.mkdir(os.path.join(tmpdir, model))
                 for filename in filenames:
                     with open(os.path.join(tmpdir, model, filename), "w"):
