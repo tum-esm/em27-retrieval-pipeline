@@ -1,41 +1,9 @@
 from typing import Optional
+import tum_esm_utils
+import tomllib
 import os
-import requests
 from . import interfaces as em27_metadata_interfaces
 from . import types as em27_metadata_types
-
-
-def _request_github_file(
-    github_repository: str,
-    filepath: str,
-    access_token: Optional[str] = None,
-) -> str:
-    """Sends a request and returns the content of the response,
-    as a string.
-
-    Args:
-        github_repository:  The repository to load the metadata from, e.g. passing
-                            "em27/em27-metadata" would mean that the repository is
-                            hosted at `github.com/em27/em27-metadata`.
-        filepath:           The path to the file to load, e.g. "data/locations.json".
-        access_token:       The access token to use for the request. This is only
-                            required if the GitHub repository is private. You can
-                            read about these tokens at https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens.
-
-    Raises:
-        requests.exceptions.HTTPError:  If the request to GitHub fails.
-    """
-
-    url = f"https://raw.githubusercontent.com/{github_repository}/main/{filepath}"
-    headers = {
-        "Accept": "application/text",
-        "X-GitHub-Api-Version": "2022-11-28",
-    }
-    if access_token is not None:
-        headers["Authorization"] = f"token {access_token}"
-    response = requests.get(url, headers=headers, timeout=10)
-    response.raise_for_status()
-    return response.text
 
 
 def load_from_github(
@@ -60,26 +28,54 @@ def load_from_github(
         pydantic.ValidationError:       If the response is not in a valid format.
     """
 
+    # the metadata starting at pipeline v1.11 is stored in a single TOML file: em27_metadata.toml
+
+    em27_metadata_object_string: Optional[str] = None
+    try:
+        em27_metadata_object_string = tum_esm_utils.code.request_github_file(
+            repository=github_repository,
+            filepath="em27_metadata.toml",
+            access_token=access_token,
+        )
+    except Exception:
+        pass
+    if em27_metadata_object_string is not None:
+        em27_metadata_object = em27_metadata_types.EM27MetadataObject.model_validate(
+            tomllib.loads(em27_metadata_object_string)
+        )
+        return em27_metadata_interfaces.EM27MetadataInterface(
+            locations=em27_metadata_object.locations,
+            sensors=em27_metadata_object.sensors,
+            campaigns=em27_metadata_object.campaigns,
+            events=em27_metadata_object.events,
+        )
+
+    # the metadata until pipeline v1.10 was stored in separate JSON files:
+    # - data/locations.json
+    # - data/sensors.json
+    # - data/campaigns.json
+    # - data/events.json
+
     locations = em27_metadata_types.LocationMetadataList.model_validate_json(
-        _request_github_file(
-            github_repository=github_repository,
-            filepath=f"data/locations.json",
+        tum_esm_utils.code.request_github_file(
+            repository=github_repository,
+            filepath="data/locations.json",
             access_token=access_token,
         )
     )
 
     sensors = em27_metadata_types.SensorMetadataList.model_validate_json(
-        _request_github_file(
-            github_repository=github_repository,
-            filepath=f"data/sensors.json",
+        tum_esm_utils.code.request_github_file(
+            repository=github_repository,
+            filepath="data/sensors.json",
             access_token=access_token,
         )
     )
 
     campaigns = em27_metadata_types.CampaignMetadataList.model_validate_json(
-        _request_github_file(
-            github_repository=github_repository,
-            filepath=f"data/campaigns.json",
+        tum_esm_utils.code.request_github_file(
+            repository=github_repository,
+            filepath="data/campaigns.json",
             access_token=access_token,
         )
     )
@@ -87,13 +83,13 @@ def load_from_github(
     events = em27_metadata_types.EventMetadataList(root=[])
     try:
         events = em27_metadata_types.EventMetadataList.model_validate_json(
-            _request_github_file(
-                github_repository=github_repository,
-                filepath=f"data/events.json",
+            tum_esm_utils.code.request_github_file(
+                repository=github_repository,
+                filepath="data/events.json",
                 access_token=access_token,
             )
         )
-    except requests.exceptions.HTTPError:
+    except Exception:
         pass
 
     return em27_metadata_interfaces.EM27MetadataInterface(

@@ -142,7 +142,7 @@ class SensorMetadata(pydantic.BaseModel):
         deprecated=(
             "This field has been deprecated. Every Research group has their "
             + "own strategy of calibrating their data, hence, we don't want to "
-            + "propose any standard with this. Also it calibration is more "
+            + "propose any standard with this. Also, EM27/SUN calibration is more "
             + "complex than just multiplying a factor to the data."
         ),
         exclude=True,
@@ -224,6 +224,13 @@ class EventMetadata(TimeSeriesElement):
 
 class EventMetadataList(pydantic.RootModel[list[EventMetadata]]):
     root: list[EventMetadata]
+
+
+class EM27MetadataObject(pydantic.BaseModel):
+    sensors: SensorMetadataList
+    locations: LocationMetadataList
+    campaigns: CampaignMetadataList
+    events: EventMetadataList = pydantic.Field(default=EventMetadataList(root=[]))
 
 
 class SensorDataContext(pydantic.BaseModel):
