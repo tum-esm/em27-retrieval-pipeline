@@ -613,7 +613,7 @@ class OldConfig(pydantic.BaseModel):
 # GEOMS METADATA
 
 
-class GEOMSGeneralMetadata(pydantic.BaseModel):
+class _GEOMSGeneralMetadata(pydantic.BaseModel):
     network: str = pydantic.Field(
         ...,
         description="Used in the filename of the HDF5 file",
@@ -631,7 +631,7 @@ class GEOMSGeneralMetadata(pydantic.BaseModel):
     )
 
 
-class GEOMSDataMetadata(pydantic.BaseModel):
+class _GEOMSDataMetadata(pydantic.BaseModel):
     discipline: str = pydantic.Field(
         ...,
         description="The value of the HDF5 attribute `DATA_DISCIPLINE`",
@@ -659,7 +659,7 @@ class GEOMSDataMetadata(pydantic.BaseModel):
     )
 
 
-class GEOMSFileMetadata(pydantic.BaseModel):
+class _GEOMSFileMetadata(pydantic.BaseModel):
     doi: str = pydantic.Field(
         ...,
         description="The value of the HDF5 attribute `FILE_DOI`",
@@ -681,7 +681,7 @@ class GEOMSFileMetadata(pydantic.BaseModel):
     )
 
 
-class GEOMSContactlMetadata(pydantic.BaseModel):
+class _GEOMSContactlMetadata(pydantic.BaseModel):
     name: str = pydantic.Field(
         ...,
         description="The value of the HDF5 attribute `PI_NAME`/`DO_NAME`/`DS_NAME`",
@@ -706,37 +706,22 @@ class GEOMSContactlMetadata(pydantic.BaseModel):
     )
 
 
-class GEOMSMetadata(pydantic.BaseModel):
-    general: GEOMSGeneralMetadata
-    data: GEOMSDataMetadata
-    file: GEOMSFileMetadata
-    principle_investigator: GEOMSContactlMetadata
-    data_originator: GEOMSContactlMetadata
-    data_submitter: GEOMSContactlMetadata
+class OldGEOMSMetadata(pydantic.BaseModel):
+    general: _GEOMSGeneralMetadata
+    data: _GEOMSDataMetadata
+    file: _GEOMSFileMetadata
+    principle_investigator: _GEOMSContactlMetadata
+    data_originator: _GEOMSContactlMetadata
+    data_submitter: _GEOMSContactlMetadata
     locations: dict[str, str] = pydantic.Field(
         ..., description="Maps your locations id to the corresponding EVDC location id"
     )
-
-    @staticmethod
-    def load(template: bool = False) -> GEOMSMetadata:
-        """Load the EVDC metadata from `<config_dir>/geoms_metadata.json`."""
-
-        erp_config_dir = tum_esm_utils.files.rel_to_abs_path("../../config")
-        if not template:
-            env_path = os.path.join(tum_esm_utils.files.rel_to_abs_path("../../config"), ".env")
-            if os.path.isfile(env_path):
-                dotenv.load_dotenv(env_path)
-            erp_config_dir = os.getenv("ERP_CONFIG_DIR", erp_config_dir)
-        filepath = os.path.join(
-            erp_config_dir, f"geoms_metadata{'.template' if template else ''}.json"
-        )
-        return GEOMSMetadata.model_validate_json(tum_esm_utils.files.load_file(filepath))
 
 
 # CALIBRATION FACTORS
 
 
-class CalibrationFactors(pydantic.BaseModel):
+class _CalibrationFactors(pydantic.BaseModel):
     model_config = pydantic.ConfigDict(arbitrary_types_allowed=True)
 
     sensor_id: str
@@ -757,7 +742,7 @@ class CalibrationFactors(pydantic.BaseModel):
 
     @staticmethod
     @pydantic.field_validator("root", mode="after")
-    def validate_times(v: CalibrationFactors) -> CalibrationFactors:
+    def validate_times(v: _CalibrationFactors) -> _CalibrationFactors:
         if v.valid_from_datetime >= v.valid_to_datetime:
             raise ValueError(
                 f"valid_from_datetime {v.valid_from_datetime} should be less than valid_to_datetime {v.valid_to_datetime}"
@@ -765,12 +750,12 @@ class CalibrationFactors(pydantic.BaseModel):
         return v
 
 
-class CalibrationFactorsList(pydantic.RootModel[list[CalibrationFactors]]):
-    root: list[CalibrationFactors]
+class OldCalibrationFactorsList(pydantic.RootModel[list[_CalibrationFactors]]):
+    root: list[_CalibrationFactors]
 
     @staticmethod
     @pydantic.field_validator("root", mode="after")
-    def validate_sensor_ids(vs: CalibrationFactorsList) -> CalibrationFactorsList:
+    def validate_sensor_ids(vs: OldCalibrationFactorsList) -> OldCalibrationFactorsList:
         sensor_ids = set([v.sensor_id for v in vs.root])
         for sensor_id in sensor_ids:
             sensor_values = sorted(
@@ -783,31 +768,3 @@ class CalibrationFactorsList(pydantic.RootModel[list[CalibrationFactors]]):
                         f"Overlapping calibration factors for sensor {sensor_id}: {v1.valid_to_datetime} > {v2.valid_from_datetime}"
                     )
         return vs
-
-    @staticmethod
-    def load(template: bool = False) -> CalibrationFactorsList:
-        """Load the calibration factors from `<config_dir>/calibration_factors.json`."""
-
-        erp_config_dir = tum_esm_utils.files.rel_to_abs_path("../../config")
-        if not template:
-            env_path = os.path.join(tum_esm_utils.files.rel_to_abs_path("../../config"), ".env")
-            if os.path.isfile(env_path):
-                dotenv.load_dotenv(env_path)
-            erp_config_dir = os.getenv("ERP_CONFIG_DIR", erp_config_dir)
-        filepath = os.path.join(
-            erp_config_dir, f"calibration_factors{'.template' if template else ''}.json"
-        )
-        return CalibrationFactorsList.model_validate_json(tum_esm_utils.files.load_file(filepath))
-
-    def get_index(self, sensor_id: str, datetime: datetime.datetime) -> Optional[int]:
-        """Get the calibration factors for the specified sensor."""
-        try:
-            return next(
-                i
-                for i, v in enumerate(self.root)
-                if v.sensor_id == sensor_id
-                and v.valid_from_datetime <= datetime
-                and v.valid_to_datetime >= datetime
-            )
-        except StopIteration:
-            return None

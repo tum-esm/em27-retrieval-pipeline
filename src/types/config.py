@@ -12,7 +12,6 @@ from .basic_types import AtmosphericProfileModel, RetrievalAlgorithm
 from .old_schemas import OldConfig
 
 # TODO: refactor metadata source logic
-# TODO: add automatic loading from old metadata
 
 
 class MetadataConfig(pydantic.BaseModel):

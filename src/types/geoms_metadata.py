@@ -7,6 +7,7 @@ from typing import Optional
 import dotenv
 import pydantic
 import tum_esm_utils
+from .old_schemas import OldGEOMSMetadata, OldCalibrationFactorsList
 
 
 class GEOMSMetadataFields:
@@ -176,8 +177,6 @@ class GEOMSMetadata(pydantic.BaseModel):
     )
     calibration_factors: GEOMSMetadataFields.CalibrationFactorsList
 
-    # TODO: support loading old format
-
     @staticmethod
     def load(template: bool = False) -> GEOMSMetadata:
         """Load the EVDC metadata from `<config_dir>/geoms_metadata.toml`."""
@@ -191,4 +190,33 @@ class GEOMSMetadata(pydantic.BaseModel):
         filepath = os.path.join(
             erp_config_dir, f"geoms_metadata{'.template' if template else ''}.toml"
         )
-        return GEOMSMetadata.model_validate_json(tum_esm_utils.files.load_file(filepath))
+
+        if os.path.isfile(filepath):
+            return GEOMSMetadata.model_validate_json(tum_esm_utils.files.load_file(filepath))
+
+        geoms_metadata_path = os.path.join(erp_config_dir, "geoms_metadata.json")
+        calibration_factors_path = os.path.join(erp_config_dir, "calibration_factors.json")
+        if not os.path.isfile(geoms_metadata_path):
+            raise FileNotFoundError(
+                f"Did not find {filepath}. Also did not find old format at {geoms_metadata_path}."
+            )
+        if not os.path.isfile(calibration_factors_path):
+            raise FileNotFoundError(
+                f"Did not find {filepath}. Also did not find old format at {calibration_factors_path}."
+            )
+
+        old_metadata = OldGEOMSMetadata.model_validate_json(
+            tum_esm_utils.files.load_file(geoms_metadata_path)
+        )
+        old_calibration_factors = OldCalibrationFactorsList.model_validate_json(
+            tum_esm_utils.files.load_file(calibration_factors_path)
+        )
+
+        new_geoms_metadata = GEOMSMetadata.model_validate(
+            {
+                **old_metadata.model_dump(),
+                "calibration_factors": old_calibration_factors.root,
+            }
+        )
+        tum_esm_utils.files.dump_toml_file(filepath, new_geoms_metadata.model_dump(mode="json"))
+        return new_geoms_metadata
