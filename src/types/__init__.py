@@ -1,11 +1,11 @@
 from .basic_types import AtmosphericProfileModel as AtmosphericProfileModel
 from .basic_types import RetrievalAlgorithm as RetrievalAlgorithm
-from .config import BundleTargetConfig as BundleTargetConfig
 from .config import Config as Config
 from .config import DataSubConfigs as DataSubConfigs
-from .config import RetrievalSubConfigs as RetrievalSubConfigs
 from .config import GGGProfilesDownloaderSubConfigs as GGGProfilesDownloaderSubConfigs
-from .config import GEOMSConfig as GEOMSConfig
+from .config import RetrievalSubConfigs as RetrievalSubConfigs
+from .config import BundleExportConfig as BundleExportConfig
+from .config import GEOMSExportConfig as GEOMSExportConfig
 from .download_query import DownloadQuery as DownloadQuery
 from .geoms_metadata import GEOMSMetadataFields as GEOMSMetadataFields
 from .geoms_metadata import GEOMSMetadata as GEOMSMetadata

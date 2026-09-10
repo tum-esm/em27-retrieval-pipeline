@@ -38,14 +38,14 @@ def datetimes_to_geoms_times(times: list[datetime.datetime]) -> list[float]:
 def load_comb_invparms_df(
     results_folder: str,
     sensor_id: str,
-    geoms_config: src.types.GEOMSConfig,
+    geoms_export_config: src.types.GEOMSExportConfig,
     retrieval_algorithm: src.types.RetrievalAlgorithm,
 ) -> Optional[pl.DataFrame]:
     df = bundle.load_results.load_results_directory(
         results_folder,
         sensor_id,
         retrieval_algorithm=retrieval_algorithm,
-        parse_dc_timeseries=geoms_config.parse_dc_timeseries,
+        parse_dc_timeseries=geoms_export_config.parse_dc_timeseries,
         keep_julian_dates=True,
     )
     if df is None:  # pragma: no cover
@@ -70,7 +70,7 @@ def load_comb_invparms_df(
         )
 
     # filter based on DC amplitude
-    if geoms_config.parse_dc_timeseries and (
+    if geoms_export_config.parse_dc_timeseries and (
         retrieval_algorithm
         not in [
             "proffast-2.2",
@@ -80,16 +80,16 @@ def load_comb_invparms_df(
         # fmt: off
         df = df.with_columns(
             pl.col("ch1_fwd_dc_mean").add(pl.col("ch1_bwd_dc_mean")).mul(0.5).abs() \
-                .ge(geoms_config.dc_min_xco2).alias("xco2_dc_valid"),
+                .ge(geoms_export_config.dc_min_xco2).alias("xco2_dc_valid"),
 
             pl.col("ch1_fwd_dc_mean").add(pl.col("ch1_bwd_dc_mean")).mul(0.5).abs() \
-                .ge(geoms_config.dc_min_xch4).alias("xch4_dc_valid"),
+                .ge(geoms_export_config.dc_min_xch4).alias("xch4_dc_valid"),
 
             pl.col("ch1_fwd_dc_mean").add(pl.col("ch1_bwd_dc_mean")).mul(0.5).abs() \
-                .ge(geoms_config.dc_min_xh2o).alias("xh2o_dc_valid"),
+                .ge(geoms_export_config.dc_min_xh2o).alias("xh2o_dc_valid"),
 
             pl.col("ch2_fwd_dc_mean").add(pl.col("ch2_bwd_dc_mean")).mul(0.5).abs() \
-                .ge(geoms_config.dc_min_xco).alias("xco_dc_valid"),
+                .ge(geoms_export_config.dc_min_xco).alias("xco_dc_valid"),
         )
         # fmt: on
         df = df.with_columns(
@@ -111,12 +111,12 @@ def load_comb_invparms_df(
         )
 
     # filter based on SZA and XAIR
-    if geoms_config.max_sza is not None:
-        df = df.filter(pl.col("sza").le(geoms_config.max_sza))
-    if geoms_config.min_xair is not None:
-        df = df.filter(pl.col("XAIR").ge(geoms_config.min_xair))
-    if geoms_config.max_xair is not None:
-        df = df.filter(pl.col("XAIR").le(geoms_config.max_xair))
+    if geoms_export_config.max_sza is not None:
+        df = df.filter(pl.col("sza").le(geoms_export_config.max_sza))
+    if geoms_export_config.min_xair is not None:
+        df = df.filter(pl.col("XAIR").ge(geoms_export_config.min_xair))
+    if geoms_export_config.max_xair is not None:
+        df = df.filter(pl.col("XAIR").le(geoms_export_config.max_xair))
 
     return df
 

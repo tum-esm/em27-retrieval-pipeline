@@ -23,8 +23,8 @@ def run(
         print("Loading configuration")
         config = types.Config.load()
 
-    assert config.bundles is not None, "no bundle targets found"
-    assert len(config.bundles) > 0, "no bundle targets found"
+    assert config.bundle_exports is not None, "no bundle targets found"
+    assert len(config.bundle_exports) > 0, "no bundle targets found"
 
     # TODO: refactor metadata loading
     if em27_metadata_interface is None:
@@ -43,19 +43,19 @@ def run(
             )
             print("Successfully fetched metadata from GitHub")
 
-    for i, bundle_target in enumerate(config.bundles):
-        print(f"Processing bundle target #{i + 1}")
-        print(f"Bundle target: {bundle_target.model_dump_json(indent=4)}")
+    for i, bundle_export_config in enumerate(config.bundle_exports):
+        print(f"Processing bundle export #{i + 1}")
+        print(f"Bundle export config: {bundle_export_config.model_dump_json(indent=4)}")
 
-        for retrieval_algorithm in bundle_target.retrieval_algorithms:
-            for atmospheric_profile_model in bundle_target.atmospheric_profile_models:
+        for retrieval_algorithm in bundle_export_config.retrieval_algorithms:
+            for atmospheric_profile_model in bundle_export_config.atmospheric_profile_models:
                 if (retrieval_algorithm == "proffast-1.0") and (
                     atmospheric_profile_model == "GGG2020"
                 ):
                     print("Skipping proffast-1.0/GGG2020 as it is not supported")
                     continue
                 print(f"Processing {retrieval_algorithm}/{atmospheric_profile_model}")
-                for sensor_id in bundle_target.sensor_ids:
+                for sensor_id in bundle_export_config.sensor_ids:
                     dfs: list[pl.DataFrame] = []
 
                     d = os.path.join(
@@ -80,7 +80,7 @@ def run(
                     ]
                     print(f"    Found {len(all_results)} results directories")
 
-                    if bundle_target.retrieval_job_output_suffix is None:
+                    if bundle_export_config.retrieval_job_output_suffix is None:
                         matching_results = [
                             r for r in all_results if results_pattern_without_suffix.match(r)
                         ]
@@ -92,7 +92,7 @@ def run(
                             r
                             for r in all_results
                             if results_pattern_with_suffix.match(r)
-                            and r.endswith(bundle_target.retrieval_job_output_suffix)
+                            and r.endswith(bundle_export_config.retrieval_job_output_suffix)
                         ]
                         print(
                             f"    Found {len(matching_results)} results directories matching the output suffix"
@@ -104,12 +104,12 @@ def run(
                             for r in matching_results
                             if (
                                 (
-                                    bundle_target.from_datetime.date()
+                                    bundle_export_config.from_datetime.date()
                                     <= datetime.datetime.strptime(r[:8], "%Y%m%d").date()
                                 )
                                 and (
                                     datetime.datetime.strptime(r[:8], "%Y%m%d").date()
-                                    <= bundle_target.to_datetime.date()
+                                    <= bundle_export_config.to_datetime.date()
                                 )
                             )
                         ]
@@ -126,9 +126,9 @@ def run(
                             os.path.join(d, result),
                             sensor_id,
                             retrieval_algorithm,
-                            parse_dc_timeseries=bundle_target.parse_dc_timeseries,
-                            parse_retrieval_diagnostics=bundle_target.parse_retrieval_diagnostics,
-                            retrieval_job_output_suffix=bundle_target.retrieval_job_output_suffix,
+                            parse_dc_timeseries=bundle_export_config.parse_dc_timeseries,
+                            parse_retrieval_diagnostics=bundle_export_config.parse_retrieval_diagnostics,
+                            retrieval_job_output_suffix=bundle_export_config.retrieval_job_output_suffix,
                         )
                         if df is not None:
                             dfs.append(df)
@@ -174,18 +174,18 @@ def run(
                         pl.Series("event_data_quality_flag", matching_event_flags),
                     )
 
-                    name = f"em27-retrieval-bundle-{sensor_id}-{retrieval_algorithm}-{atmospheric_profile_model}-{bundle_target.from_datetime.strftime('%Y%m%d')}-{bundle_target.to_datetime.strftime('%Y%m%d')}"
-                    if bundle_target.bundle_suffix is not None:
-                        name += f"-{bundle_target.bundle_suffix}"
+                    name = f"em27-retrieval-bundle-{sensor_id}-{retrieval_algorithm}-{atmospheric_profile_model}-{bundle_export_config.from_datetime.strftime('%Y%m%d')}-{bundle_export_config.to_datetime.strftime('%Y%m%d')}"
+                    if bundle_export_config.bundle_suffix is not None:
+                        name += f"-{bundle_export_config.bundle_suffix}"
 
                     print(f"    Combined dataset has {len(combined_df)} rows")
 
-                    if "csv" in bundle_target.output_formats:
-                        path = os.path.join(bundle_target.dst_dir.root, name + ".csv")
+                    if "csv" in bundle_export_config.output_formats:
+                        path = os.path.join(bundle_export_config.dst_dir.root, name + ".csv")
                         combined_df.write_csv(path)
                         print(f"    Wrote CSV file to {path}")
 
-                    if "parquet" in bundle_target.output_formats:
-                        path = os.path.join(bundle_target.dst_dir.root, name + ".parquet")
+                    if "parquet" in bundle_export_config.output_formats:
+                        path = os.path.join(bundle_export_config.dst_dir.root, name + ".parquet")
                         combined_df.write_parquet(path)
                         print(f"    Wrote Parquet file to {path}")

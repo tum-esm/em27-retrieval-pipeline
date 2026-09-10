@@ -37,10 +37,8 @@ from .utils import (
 # fmt: off
 def generate_geoms_file(
     results_dir: str,
-    geoms_config: src.types.GEOMSConfig,
+    geoms_export_config: src.types.GEOMSExportConfig,
     geoms_metadata: src.types.GEOMSMetadata,
-    from_datetime: datetime.datetime,
-    to_datetime: datetime.datetime,
     retrieval_algorithm: src.types.RetrievalAlgorithm,
     atmospheric_profile_model: src.types.AtmosphericProfileModel,
 ) -> tuple[Optional[str], str]:
@@ -87,14 +85,14 @@ def generate_geoms_file(
         )
 
     # load dataframe
-    pl_df = load_comb_invparms_df(results_dir, sensor_id, geoms_config, retrieval_algorithm)
+    pl_df = load_comb_invparms_df(results_dir, sensor_id, geoms_export_config, retrieval_algorithm)
     if pl_df is None:  # pragma: no cover
         return None, "No data found"
     pl_df = pl_df.filter(
-        (pl.col("utc") >= from_datetime) & (pl.col("utc") <= to_datetime)
+        (pl.col("utc") >= geoms_export_config.from_datetime) & (pl.col("utc") <= geoms_export_config.to_datetime)
     )
-    if len(pl_df) < geoms_config.min_datapoints_per_day:  # pragma: no cover
-        return None, f"Not enough data (less than {geoms_config.min_datapoints_per_day} datapoints)"
+    if len(pl_df) < geoms_export_config.min_datapoints_per_day:  # pragma: no cover
+        return None, f"Not enough data (less than {geoms_export_config.min_datapoints_per_day} datapoints)"
 
     # determine filename
     start_stop_times = geoms_times_to_datetime([
@@ -120,9 +118,9 @@ def generate_geoms_file(
         os.remove(tmp_filepath)
 
     if os.path.isfile(filepath):
-        if geoms_config.conflict_mode == "skip":  # pragma: no cover
+        if geoms_export_config.conflict_mode == "skip":  # pragma: no cover
             return filepath, "File already exists"
-        if geoms_config.conflict_mode == "error":
+        if geoms_export_config.conflict_mode == "error":
             raise FileExistsError(f"File already exists: {filepath}")
         # else: replace
         os.remove(filepath)
@@ -275,15 +273,15 @@ def run(
     if config is None:
         print("Loading configuration")
         config = src.types.Config.load()
-    assert config.geoms is not None, "no geoms config found"
+    assert len(config.geoms_exports) > 0, "no geoms config found"
 
     if geoms_metadata is None:
         print("Loading geoms metadata")
         geoms_metadata = src.types.GEOMSMetadata.load()
 
-    for geoms_config in config.geoms:
-        for retrieval_algorithm in geoms_config.retrieval_algorithms:
-            for atmospheric_profile_model in geoms_config.atmospheric_profile_models:
+    for geoms_export_config in config.geoms_exports:
+        for retrieval_algorithm in geoms_export_config.retrieval_algorithms:
+            for atmospheric_profile_model in geoms_export_config.atmospheric_profile_models:
                 if (retrieval_algorithm == "proffast-1.0") and (
                     atmospheric_profile_model == "GGG2020"
                 ):  # pragma: no cover
@@ -292,7 +290,7 @@ def run(
 
                 print(f"Processing {retrieval_algorithm}/{atmospheric_profile_model}")
 
-                for _, sensor_id in enumerate(geoms_config.sensor_ids):
+                for _, sensor_id in enumerate(geoms_export_config.sensor_ids):
                     print(f'Processing sensor id "{sensor_id}"')
 
                     results_folders = os.path.join(
@@ -334,8 +332,8 @@ def run(
                                 hour=to_time.hour, minute=to_time.minute, second=to_time.second
                             )
 
-                        if (from_dt <= geoms_config.to_datetime) and (
-                            to_dt >= geoms_config.from_datetime
+                        if (from_dt <= geoms_export_config.to_datetime) and (
+                            to_dt >= geoms_export_config.from_datetime
                         ):
                             results_within_time_range.append(result)
 
@@ -350,10 +348,8 @@ def run(
                         progress.desc = f"{sensor_id}/{result}"
                         filepath, status_message = generate_geoms_file(
                             os.path.join(results_folders, result),
-                            geoms_config,
+                            geoms_export_config,
                             geoms_metadata,
-                            geoms_config.from_datetime,
-                            geoms_config.to_datetime,
                             retrieval_algorithm,
                             atmospheric_profile_model,
                         )

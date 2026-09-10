@@ -466,7 +466,7 @@ class RetrievalConfig(pydantic.BaseModel):
     )
 
 
-class BundleTargetConfig(pydantic.BaseModel):
+class BundleExportConfig(pydantic.BaseModel):
     """There will be one file per sensor id and atmospheric profile and retrieval algorithm combination.
 
     The final name looks like `em27-retrieval-bundle-$SENSOR_ID-$RETRIEVAL_ALGORITHM-$ATMOSPHERIC_PROFILE-$FROM_DATE-$TO_DATE$BUNDLE_SUFFIX.$OUTPUT_FORMAT`, e.g.`em27-retrieval-bundle-ma-GGG2020-proffast-2.4-20150801-20240523-v2.1.csv`. The bundle suffix is optional and can be used to distinguish between different
@@ -517,7 +517,7 @@ class BundleTargetConfig(pydantic.BaseModel):
     )
 
 
-class GEOMSConfig(pydantic.BaseModel):
+class GEOMSExportConfig(pydantic.BaseModel):
     sensor_ids: list[str] = pydantic.Field(
         ..., description="The sensor ids for which to generate the GEOMS outputs"
     )
@@ -596,8 +596,8 @@ class Config(pydantic.BaseModel):
     data: DataConfig
     ggg_profiles_downloader: Optional[GGGProfilesDownloaderConfig] = None
     retrieval: Optional[RetrievalConfig] = None
-    bundles: list[BundleTargetConfig] = []
-    geoms: list[GEOMSConfig] = []
+    bundle_exports: list[BundleExportConfig] = []
+    geoms_exports: list[GEOMSExportConfig] = []
 
     @staticmethod
     def get_config_dir() -> str:

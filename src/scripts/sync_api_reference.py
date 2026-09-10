@@ -92,8 +92,8 @@ tum_esm_utils.files.dump_json_file(
     em27_metadata.types.EventMetadataList.model_json_schema(mode="validation"),
 )
 tum_esm_utils.files.dump_json_file(
-    f"{_DOCS_DIR}/src/assets/geoms-config.schema.json",
-    src.types.GEOMSConfig.model_json_schema(mode="validation"),
+    f"{_DOCS_DIR}/src/assets/geoms-metadata.schema.json",
+    src.types.GEOMSMetadata.model_json_schema(mode="validation"),
 )
 
 # ---------------------------------------------------------

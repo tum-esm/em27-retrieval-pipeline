@@ -88,7 +88,7 @@ to_date = "2099-12-31"
 
 # BUNDLE GENERATOR
 
-[[bundles]]
+[[bundle_exports]]
 dst_dir = "directory-to-write-the-bundles-to"
 output_formats = ["csv", "parquet"]
 from_datetime = "2022-01-01T00:00:00Z"
@@ -101,7 +101,7 @@ parse_retrieval_diagnostics = true
 
 # GEOMS GENERATOR
 
-[[geoms]]
+[[geoms_exports]]
 sensor_ids = ["ma", "mb", "mc", "md", "me"]
 retrieval_algorithms = ["proffast-1.0", "proffast-2.4"]
 atmospheric_profile_models = ["GGG2014", "GGG2020"]
