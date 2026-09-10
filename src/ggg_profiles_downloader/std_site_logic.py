@@ -7,7 +7,7 @@ import re
 import rich.progress
 import tum_esm_utils
 
-from src import profiles, types, utils
+from src import ggg_profiles_downloader, types, utils
 
 
 def list_requested_data(
@@ -126,7 +126,7 @@ def download_data(
                                 archive.write,
                             )
                             archive.seek(0)
-                            profiles.download_logic.extract_archive(
+                            ggg_profiles_downloader.download_logic.extract_archive(
                                 config=config,
                                 archive=archive,
                                 lat=std_site_config.lat,

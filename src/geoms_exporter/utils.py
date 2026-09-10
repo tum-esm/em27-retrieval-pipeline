@@ -18,7 +18,7 @@ import polars as pl
 import tum_esm_utils
 
 import src
-from src import bundle
+from src import bundle_exporter
 
 
 def geoms_times_to_datetime(times: list[float]) -> list[datetime.datetime]:
@@ -41,7 +41,7 @@ def load_comb_invparms_df(
     geoms_export_config: src.types.GEOMSExportConfig,
     retrieval_algorithm: src.types.RetrievalAlgorithm,
 ) -> Optional[pl.DataFrame]:
-    df = bundle.load_results.load_results_directory(
+    df = bundle_exporter.load_results.load_results_directory(
         results_folder,
         sensor_id,
         retrieval_algorithm=retrieval_algorithm,

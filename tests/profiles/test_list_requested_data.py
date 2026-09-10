@@ -67,19 +67,19 @@ def test_list_requested_data(provide_config_template: src.types.Config) -> None:
         campaigns=em27_metadata.types.CampaignMetadataList(root=[]),
     )
     expected_data = {
-        src.profiles.generate_queries.ProfilesQueryLocation(lat=1, lon=2): set(
+        src.ggg_profiles_downloader.generate_queries.ProfilesQueryLocation(lat=1, lon=2): set(
             tum_esm_utils.timing.date_range(
                 datetime.date(2000, 1, 1),
                 datetime.date(2000, 3, 1),
             )
         ),
-        src.profiles.generate_queries.ProfilesQueryLocation(lat=1, lon=3): set(
+        src.ggg_profiles_downloader.generate_queries.ProfilesQueryLocation(lat=1, lon=3): set(
             tum_esm_utils.timing.date_range(
                 datetime.date(2000, 5, 4),
                 datetime.date(2000, 5, 8),
             )
         ),
-        src.profiles.generate_queries.ProfilesQueryLocation(lat=2, lon=3): set(
+        src.ggg_profiles_downloader.generate_queries.ProfilesQueryLocation(lat=2, lon=3): set(
             tum_esm_utils.timing.date_range(
                 datetime.date(2000, 3, 1),
                 datetime.date(2000, 5, 1),
@@ -92,7 +92,7 @@ def test_list_requested_data(provide_config_template: src.types.Config) -> None:
     config.profiles.scope.from_date = datetime.date(2000, 1, 1)
     config.profiles.scope.to_date = datetime.date(2000, 5, 8)
 
-    actual_data = src.profiles.generate_queries.list_desired_data(config, metadata)
+    actual_data = src.ggg_profiles_downloader.generate_queries.list_desired_data(config, metadata)
     assert actual_data.keys() == expected_data.keys()
     for k in actual_data.keys():
         assert actual_data[k] == expected_data[k]

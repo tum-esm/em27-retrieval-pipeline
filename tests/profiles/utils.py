@@ -4,7 +4,7 @@ import tum_esm_utils
 import src
 
 TEST_LOCATIONS = [
-    src.profiles.generate_queries.ProfilesQueryLocation(lat=lat, lon=lon)
+    src.ggg_profiles_downloader.generate_queries.ProfilesQueryLocation(lat=lat, lon=lon)
     for lat in range(-90, 90, 5)
     for lon in range(-180, 180, 5)
 ]
@@ -14,7 +14,9 @@ TEST_DATES = tum_esm_utils.timing.date_range(
 )
 
 
-def generate_random_locations(n: int) -> list[src.profiles.generate_queries.ProfilesQueryLocation]:
+def generate_random_locations(
+    n: int,
+) -> list[src.ggg_profiles_downloader.generate_queries.ProfilesQueryLocation]:
     assert n <= len(TEST_LOCATIONS)
     return random.sample(TEST_LOCATIONS, n)
 

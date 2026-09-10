@@ -158,7 +158,7 @@ def run_profiles_download() -> None:
 
     import src  # import here so that the CLI is more reactive
 
-    src.profiles.main.run()
+    src.ggg_profiles_downloader.main.run()
 
 
 @profiles_command_group.command(
@@ -172,16 +172,18 @@ def request_ginput_status() -> None:
     import src  # import here so that the CLI is more reactive
 
     config = src.types.Config.load()
-    assert config.profiles is not None, "No profiles config found"
+    assert config.ggg_profiles_downloader is not None, "No profiles config found"
     with ftplib.FTP(
         host="ccycle.gps.caltech.edu",
-        passwd=config.profiles.server.email,
+        passwd=config.ggg_profiles_downloader.server.email,
         user="anonymous",
         timeout=60,
     ) as ftp:
-        with io.BytesIO(config.profiles.server.email.encode("utf-8")) as f:
+        with io.BytesIO(config.ggg_profiles_downloader.server.email.encode("utf-8")) as f:
             ftp.storbinary("STOR upload/ginput_status.txt", f)
-    click.echo(f"Requested ginput status for email address {config.profiles.server.email}")
+    click.echo(
+        f"Requested ginput status for email address {config.ggg_profiles_downloader.server.email}"
+    )
 
 
 @profiles_command_group.command(
@@ -195,7 +197,7 @@ def migrate_storage_location() -> None:
     import src  # import here so that the CLI is more reactive
 
     config = src.types.Config.load()
-    profiles_dir = config.general.data.atmospheric_profiles.root
+    profiles_dir = config.data.atmospheric_profiles.path.root
     click.echo(f"Migrating atmospheric profiles from {profiles_dir} to {profiles_dir}/YYYY/MM")
 
     for model in ["GGG2014", "GGG2020"]:
@@ -232,7 +234,7 @@ def run_bundle() -> None:
 
     import src  # import here so that the CLI is more reactive
 
-    src.bundle.main.run()
+    src.bundle_exporter.main.run()
 
 
 @geoms_command_group.command(
@@ -245,7 +247,7 @@ def run_geoms() -> None:
 
     import src  # import here so that the CLI is more reactive
 
-    src.geoms.main.run()
+    src.geoms_exporter.main.run()
 
 
 @cli.command(
@@ -265,22 +267,22 @@ def print_data_report() -> None:
     config = src.types.Config.load()
 
     # load metadata interface
+    # TODO: refactor metadata loading
     console.print("Loading metadata")
     em27_metadata_interface = src.utils.metadata.load_local_em27_metadata_interface()
     if em27_metadata_interface is not None:
         print("Found local metadata")
     else:
         print("Did not find local metadata -> fetching metadata from GitHub")
-        assert config.general.metadata is not None, "Remote metadata not configured"
+        assert config.metadata.source == "github", "Remote metadata source is not selected"
+        assert config.metadata.github_repository is not None, "This should not happen"
         em27_metadata_interface = em27_metadata.load_from_github(
-            github_repository=config.general.metadata.github_repository,
-            access_token=config.general.metadata.access_token,
+            github_repository=config.metadata.github_repository,
+            access_token=config.metadata.github_access_token,
         )
         print("Successfully fetched metadata from GitHub")
 
-    console.print(
-        "Printing report for the data paths: " + config.general.data.model_dump_json(indent=4)
-    )
+    console.print("Printing report for the data paths: " + config.data.model_dump_json(indent=4))
     try:
         src.utils.report.export_data_report(
             config=config,

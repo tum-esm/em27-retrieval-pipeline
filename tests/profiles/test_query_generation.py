@@ -18,7 +18,7 @@ def test_compute_missing_data() -> None:
         requested_data = {
             l: set(random.sample(random_dates, 300)) for l in random.sample(random_locations, 15)
         }
-        missing_data = src.profiles.generate_queries.compute_missing_data(
+        missing_data = src.ggg_profiles_downloader.generate_queries.compute_missing_data(
             requested_data, downloaded_data
         )
         for l in requested_data.keys():
@@ -48,7 +48,7 @@ def test_time_period_generation() -> None:
             )
         )
         time_periods = sorted(
-            src.profiles.generate_queries.compute_time_periods(required_dates),
+            src.ggg_profiles_downloader.generate_queries.compute_time_periods(required_dates),
             key=lambda tp: tp.from_date,
         )
         for tp1, tp2 in zip(time_periods[:-1], time_periods[1:]):

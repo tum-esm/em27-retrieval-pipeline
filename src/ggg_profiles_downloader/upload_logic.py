@@ -5,7 +5,7 @@ import time
 
 import rich.progress
 
-from src import profiles, types
+from src import ggg_profiles_downloader, types
 
 
 def upload_requests(
@@ -21,7 +21,7 @@ def upload_requests(
 
     assert config.ggg_profiles_downloader is not None, "this is a bug in the code"
 
-    cache = profiles.cache.DownloadQueryCache.load()
+    cache = ggg_profiles_downloader.cache.DownloadQueryCache.load()
 
     with rich.progress.Progress() as progress:
         for query in progress.track(queries, description="Requesting ..."):

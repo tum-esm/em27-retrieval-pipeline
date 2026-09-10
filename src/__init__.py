@@ -1,6 +1,6 @@
-from . import bundle as bundle
-from . import geoms as geoms
-from . import profiles as profiles
+from . import bundle_exporter as bundle_exporter
+from . import geoms_exporter as geoms_exporter
+from . import ggg_profiles_downloader as ggg_profiles_downloader
 from . import retrieval as retrieval
 from . import types as types
 from . import utils as utils

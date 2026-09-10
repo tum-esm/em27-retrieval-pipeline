@@ -45,7 +45,9 @@ def test_list_downloaded_data(provide_config_template: src.types.Config) -> None
                 for filename in filenames:
                     with open(os.path.join(tmpdir, model, filename), "w"):
                         pass
-                downloaded = src.profiles.generate_queries.list_downloaded_data(config, model)
+                downloaded = src.ggg_profiles_downloader.generate_queries.list_downloaded_data(
+                    config, model
+                )
                 assert downloaded.keys() == downloaded_data.keys()
                 for l in downloaded_data.keys():
                     assert downloaded[l] == downloaded_data[l]

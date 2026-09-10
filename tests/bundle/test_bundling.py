@@ -71,7 +71,7 @@ def test_bundling() -> None:
     config = src.types.Config.model_validate(CONFIG)
     assert config.bundles is not None
 
-    src.bundle.main.run(
+    src.bundle_exporter.main.run(
         config=config,
         em27_metadata_interface=em27_metadata.loader.load_from_local_files(
             locations_path=os.path.join(EXAMPLE_DIR, "config", "locations.json"),

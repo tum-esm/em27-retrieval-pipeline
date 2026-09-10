@@ -130,7 +130,7 @@ def test_geoms_export() -> None:
                     for filename in filenames:
                         os.remove(os.path.join(date_dir, filename))
 
-    src.geoms.main.run(
+    src.geoms_exporter.main.run(
         config=config,
         geoms_metadata=geoms_metadata,
         calibration_factors=src.types.CalibrationFactorsList(

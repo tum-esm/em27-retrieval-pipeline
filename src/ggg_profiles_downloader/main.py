@@ -5,7 +5,7 @@ import sys
 import tum_esm_utils
 
 sys.path.append(tum_esm_utils.files.rel_to_abs_path("../.."))
-from src import profiles, types
+from src import ggg_profiles_downloader, types
 
 
 def run() -> None:  # pragma: no cover
@@ -27,7 +27,7 @@ def run() -> None:  # pragma: no cover
                 timeout=60,
             ) as ftp:
                 print("Connected to FTP server")
-                profiles.std_site_logic.download_data(config, ftp)
+                ggg_profiles_downloader.std_site_logic.download_data(config, ftp)
         else:
             print("No standard site data to download")
 
@@ -45,13 +45,13 @@ def run() -> None:  # pragma: no cover
                 timeout=60,
             ) as ftp:
                 print("Connected to FTP server")
-                cache = profiles.cache.DownloadQueryCache.load()
+                cache = ggg_profiles_downloader.cache.DownloadQueryCache.load()
                 running_queries = cache.get_active_queries(profile_model)
                 print(f"Found {len(running_queries)} already requested queries")
                 still_running_query_count = len(running_queries)
                 if len(running_queries) > 0:
                     print(f"Trying to download {len(running_queries)} queries")
-                    fulfilled_queries = profiles.download_logic.download_data(
+                    fulfilled_queries = ggg_profiles_downloader.download_logic.download_data(
                         config, running_queries, ftp, profile_model
                     )
                     print(f"Successfully downloaded {len(fulfilled_queries)} queries")
@@ -89,8 +89,10 @@ def run() -> None:  # pragma: no cover
                     print(f"{open_query_count} open slots for new queries")
 
                 # Generate daily sensor sets
-                outstanding_download_queries = profiles.generate_queries.generate_download_queries(
-                    config, profile_model
+                outstanding_download_queries = (
+                    ggg_profiles_downloader.generate_queries.generate_download_queries(
+                        config, profile_model
+                    )
                 )
 
                 if len(outstanding_download_queries) == 0:
@@ -100,7 +102,7 @@ def run() -> None:  # pragma: no cover
                 # queries might not be in cache anymore but still
                 # downloadable from the server
                 print(f"Trying to download {len(outstanding_download_queries)} queries")
-                fulfilled_queries = profiles.download_logic.download_data(
+                fulfilled_queries = ggg_profiles_downloader.download_logic.download_data(
                     config, outstanding_download_queries, ftp, profile_model
                 )
                 outstanding_download_queries = sorted(
@@ -121,7 +123,7 @@ def run() -> None:  # pragma: no cover
 
                 query_count = min(open_query_count, len(new_download_queries))
                 print(f"Requesting {query_count} out of {len(new_download_queries)} queries")
-                profiles.upload_logic.upload_requests(
+                ggg_profiles_downloader.upload_logic.upload_requests(
                     config, new_download_queries[:query_count], ftp, profile_model
                 )
                 print(

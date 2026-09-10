@@ -6,7 +6,7 @@ import src
 
 @pytest.fixture
 def keep_query_cache() -> Generator[None, None, None]:
-    cache = src.profiles.cache.DownloadQueryCache.load()
+    cache = src.ggg_profiles_downloader.cache.DownloadQueryCache.load()
     yield
     cache.dump()
 
@@ -14,10 +14,10 @@ def keep_query_cache() -> Generator[None, None, None]:
 @pytest.mark.order(3)
 @pytest.mark.quick
 def test_query_cache(keep_query_cache: None) -> None:
-    cache = src.profiles.cache.DownloadQueryCache(root=[])
+    cache = src.ggg_profiles_downloader.cache.DownloadQueryCache(root=[])
     cache.dump()
 
-    cache = src.profiles.cache.DownloadQueryCache.load()
+    cache = src.ggg_profiles_downloader.cache.DownloadQueryCache.load()
     assert len(cache.root) == 0
 
     # GGG2014
