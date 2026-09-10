@@ -209,8 +209,8 @@ class GEOMSMetadata(pydantic.BaseModel):
 
         new_geoms_metadata = GEOMSMetadata.model_validate(
             {
-                **old_metadata.model_dump(),
-                "calibration_factors": old_calibration_factors.root,
+                **old_metadata.model_dump(mode="json"),
+                "calibration_factors": old_calibration_factors.model_dump(mode="json"),
             }
         )
         tmp_filepath = filepath.removesuffix(".toml") + ".tmp.toml"

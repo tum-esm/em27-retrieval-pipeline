@@ -685,23 +685,28 @@ class Config(pydantic.BaseModel):
                     ),
                 ),
                 data=DataConfig(
-                    atmospheric_profiles=DataSubConfigs.AtmosphericProfiles(
-                        path=old_config_object.general.data.atmospheric_profiles
-                    ),
-                    ground_pressure=DataSubConfigs.GroundPressure.model_validate(
-                        old_config_object.general.data.ground_pressure.model_dump(),
+                    atmospheric_profiles=DataSubConfigs.AtmosphericProfiles.model_validate(
+                        {"path": old_config_object.general.data.atmospheric_profiles.root},
                         context={"ignore-path-existence": ignore_path_existence},
                     ),
-                    interferograms=DataSubConfigs.Interferograms(
-                        path=old_config_object.general.data.interferograms,
-                        ifg_file_regex=(
-                            old_config_object.retrieval.general.ifg_file_regex
-                            if (old_config_object.retrieval is not None)
-                            else ".*"
-                        ),
+                    ground_pressure=DataSubConfigs.GroundPressure.model_validate(
+                        old_config_object.general.data.ground_pressure.model_dump(mode="json"),
+                        context={"ignore-path-existence": ignore_path_existence},
                     ),
-                    results=DataSubConfigs.Results(
-                        path=old_config_object.general.data.results,
+                    interferograms=DataSubConfigs.Interferograms.model_validate(
+                        {
+                            "path": old_config_object.general.data.interferograms.root,
+                            "ifg_file_regex": (
+                                old_config_object.retrieval.general.ifg_file_regex
+                                if (old_config_object.retrieval is not None)
+                                else ".*"
+                            ),
+                        },
+                        context={"ignore-path-existence": ignore_path_existence},
+                    ),
+                    results=DataSubConfigs.Results.model_validate(
+                        {"path": old_config_object.general.data.results.root},
+                        context={"ignore-path-existence": ignore_path_existence},
                     ),
                 ),
                 ggg_profiles_downloader=(
@@ -736,7 +741,7 @@ class Config(pydantic.BaseModel):
                 bundle_exports=(
                     [
                         BundleExportConfig.model_validate(
-                            export.model_dump(),
+                            export.model_dump(mode="json"),
                             context={"ignore-path-existence": ignore_path_existence},
                         )
                         for export in old_config_object.bundles
