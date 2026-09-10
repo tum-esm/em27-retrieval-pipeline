@@ -1,0 +1,32 @@
+---
+title: Configuration migration
+---
+
+Starting with pipeline version 1.11, the configuration files use TOML instead of JSON. TOML makes the files easier to read and document, and the refactor allowed us to combine related settings into fewer files.
+
+The following files changed:
+
+| Until version 1.10 | Starting with version 1.11 |
+| --- | --- |
+| `config.json` | `config.toml` |
+| `geoms_metadata.json` and `calibration_factors.json` | `geoms_metadata.toml` |
+| `locations.json`, `sensors.json`, `campaigns.json`, and `events.json` | `em27_metadata.toml` |
+
+## Automatic migration
+
+The pipeline performs the migration automatically:
+
+1. If the new TOML file exists, the pipeline loads it and ignores the corresponding JSON files.
+2. If the TOML file is missing but the old JSON files exist, the pipeline loads and validates the JSON files using the old schema.
+3. It converts the configuration and writes the new TOML file using an atomic file replacement.
+4. The current run continues with the converted configuration. Future runs load the TOML file directly.
+
+The old JSON files are not deleted. The configuration directory must be writable so that the converted TOML file can be created.
+
+## EM27 metadata compatibility
+
+The pipeline continues to support EM27 metadata in the old JSON format. The underlying metadata structure is unchanged: the old representation stored locations, sensors, campaigns, and events in separate JSON files, while the TOML representation combines those sections in one `em27_metadata.toml` file.
+
+This fallback also applies to metadata loaded from GitHub. The pipeline first looks for `em27_metadata.toml` and otherwise loads the old JSON files from the repository. Remote JSON metadata is converted in memory but is not written back to the GitHub repository. The provided GitHub action will print out the converted TOML metadata to the console (in GitHub Actions logs) so that you can copy it into your repository if you want to keep the new format.
+
+You therefore do not need to migrate any existing version 1.10 setup manually before upgrading to version 1.11.

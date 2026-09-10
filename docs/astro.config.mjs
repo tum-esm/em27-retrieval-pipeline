@@ -37,6 +37,10 @@ export default defineConfig({
               link: "/guides/configuration",
             },
             {
+              label: "Configuration migration",
+              link: "/guides/configuration-migration",
+            },
+            {
               label: "Directories",
               link: "/guides/directories",
             },
