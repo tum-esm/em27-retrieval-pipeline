@@ -116,6 +116,7 @@ def load_from_local_files(
     campaigns_path: Optional[str] = None,
     events_path: Optional[str] = None,
     config_directory: Optional[str] = None,
+    template: bool = False,
 ) -> em27_metadata_interfaces.EM27MetadataInterface:
     """Loads an EM27MetadataInterface from local files.
 
@@ -150,7 +151,7 @@ def load_from_local_files(
         )
 
         # try to load the em27_metadata.toml file from the config directory
-        p = os.path.join(config_directory, "em27_metadata.toml")
+        p = os.path.join(config_directory, f"em27_metadata.{'template.' if template else ''}toml")
         if os.path.isfile(p):
             em27_metadata_object = em27_metadata_types.EM27MetadataObject.model_validate(
                 tum_esm_utils.files.load_toml_file(p)

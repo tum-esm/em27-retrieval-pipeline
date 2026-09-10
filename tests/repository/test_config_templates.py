@@ -22,7 +22,7 @@ def test_config_template() -> None:
 @pytest.mark.quick
 def test_em27_metadata_template() -> None:
     src.em27_metadata.load_from_local_files(
-        config_directory=tum_esm_utils.files.rel_to_abs_path("../../config")
+        config_directory=tum_esm_utils.files.rel_to_abs_path("../../config"), template=True
     )
 
 

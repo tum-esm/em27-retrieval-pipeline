@@ -32,7 +32,7 @@ def run(
             print("Found local metadata")
         else:  # pragma: no cover
             print("Did not find local metadata -> fetching metadata from GitHub")
-            assert config.metadata == "github", "Remote metadata not configured"
+            assert config.metadata.source == "github", "Remote metadata not configured"
             assert config.metadata.github_repository is not None, (
                 "This should have been caught earlier"
             )
