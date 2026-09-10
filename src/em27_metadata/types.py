@@ -229,7 +229,7 @@ class EventMetadataList(pydantic.RootModel[list[EventMetadata]]):
 class EM27MetadataObject(pydantic.BaseModel):
     sensors: SensorMetadataList
     locations: LocationMetadataList
-    campaigns: CampaignMetadataList
+    campaigns: CampaignMetadataList = pydantic.Field(default=CampaignMetadataList(root=[]))
     events: EventMetadataList = pydantic.Field(default=EventMetadataList(root=[]))
 
 

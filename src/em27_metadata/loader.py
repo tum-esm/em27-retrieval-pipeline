@@ -28,7 +28,7 @@ def load_from_github(
         pydantic.ValidationError:       If the response is not in a valid format.
     """
 
-    # the metadata starting at pipeline v1.11 is stored in a single TOML file: em27_metadata.toml
+    # the metadata starting at pipeline v1.11 is stored in a single TOML file: em27_metadata.toml (now it is no longer expected to be in the data/ subdirectory)
 
     em27_metadata_object_string: Optional[str] = None
     try:
@@ -39,6 +39,16 @@ def load_from_github(
         )
     except Exception:
         pass
+    # keep the old path in case people forget to put it in the root directory of the repository
+    if em27_metadata_object_string is None:
+        try:
+            em27_metadata_object_string = tum_esm_utils.code.request_github_file(
+                repository=github_repository,
+                filepath="data/em27_metadata.toml",
+                access_token=access_token,
+            )
+        except Exception:
+            pass
     if em27_metadata_object_string is not None:
         em27_metadata_object = em27_metadata_types.EM27MetadataObject.model_validate(
             tomllib.loads(em27_metadata_object_string)
@@ -51,10 +61,10 @@ def load_from_github(
         )
 
     # the metadata until pipeline v1.10 was stored in separate JSON files:
-    # - data/locations.json
-    # - data/sensors.json
-    # - data/campaigns.json
-    # - data/events.json
+    # - locations.json
+    # - sensors.json
+    # - campaigns.json
+    # - events.json
 
     locations = em27_metadata_types.LocationMetadataList.model_validate_json(
         tum_esm_utils.code.request_github_file(

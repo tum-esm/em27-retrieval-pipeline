@@ -9,11 +9,13 @@ class EM27MetadataInterface:
         self,
         locations: em27_metadata_types.LocationMetadataList,
         sensors: em27_metadata_types.SensorMetadataList,
-        campaigns: em27_metadata_types.CampaignMetadataList,
+        campaigns: em27_metadata_types.CampaignMetadataList = em27_metadata_types.CampaignMetadataList(
+            root=[]
+        ),
         events: em27_metadata_types.EventMetadataList = em27_metadata_types.EventMetadataList(
             root=[]
         ),
-    ):
+    ) -> None:
         """Create a new EM27MetadataInterface object.
 
         During the instantiation, the integrity of the metadata is checked by
