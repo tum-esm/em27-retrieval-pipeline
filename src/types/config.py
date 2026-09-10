@@ -9,10 +9,9 @@ import pydantic
 import tum_esm_utils
 
 from .basic_types import AtmosphericProfileModel, RetrievalAlgorithm
-
+from .old_schemas import OldConfig
 
 # TODO: refactor metadata source logic
-# TODO: add automatic loading from old config
 # TODO: add automatic loading from old metadata
 
 
@@ -631,9 +630,126 @@ class Config(pydantic.BaseModel):
         if path is None:
             path = Config.get_config_path()
 
-        # TODO: if config.toml does not exist, but config.json exists, load and translate
+        toml_path: str = path
+        json_path: str = path
+        if path.endswith(".json"):
+            toml_path = path[:-5] + ".toml"
+        elif path.endswith(".toml"):
+            json_path = path[:-5] + ".json"
 
-        return Config.model_validate(
-            tum_esm_utils.files.load_toml_file(path),
-            context={"ignore-path-existence": ignore_path_existence},
-        )
+        if (not os.path.isfile(toml_path)) and (not os.path.isfile(json_path)):
+            raise FileNotFoundError(
+                f"Config file not found at {toml_path} or {json_path}. Please create a TOML config file at {toml_path} or put a JSON config file compatible with pipeline version 1.0 - 1.10 at {json_path}."
+            )
+
+        config_object: Config
+        if os.path.isfile(toml_path):
+            config_object = Config.model_validate(
+                tum_esm_utils.files.load_toml_file(toml_path),
+                context={"ignore-path-existence": ignore_path_existence},
+            )
+        else:
+            old_config_object = OldConfig.load(
+                json_path, ignore_path_existence=ignore_path_existence
+            )
+            config_object = Config(
+                version="1.11",
+                metadata=MetadataConfig(
+                    source="local"
+                    if any(
+                        [
+                            os.path.isfile(p)
+                            for p in [
+                                "/".join(json_path.split("/")[:-1]) + "/locations.json",
+                                "/".join(json_path.split("/")[:-1]) + "/sensors.json",
+                                "/".join(json_path.split("/")[:-1]) + "/campaigns.json",
+                                "/".join(json_path.split("/")[:-1]) + "/events.json",
+                            ]
+                        ]
+                    )
+                    else "github",
+                    github_repository=(
+                        old_config_object.general.metadata.github_repository
+                        if (old_config_object.general.metadata is not None)
+                        else None
+                    ),
+                    github_access_token=(
+                        old_config_object.general.metadata.access_token
+                        if (old_config_object.general.metadata is not None)
+                        else None
+                    ),
+                ),
+                data=DataConfig(
+                    atmospheric_profiles=DataSubConfigs.AtmosphericProfiles(
+                        path=old_config_object.general.data.atmospheric_profiles
+                    ),
+                    ground_pressure=DataSubConfigs.GroundPressure.model_validate(
+                        old_config_object.general.data.ground_pressure.model_dump(),
+                        context={"ignore-path-existence": ignore_path_existence},
+                    ),
+                    interferograms=DataSubConfigs.Interferograms(
+                        path=old_config_object.general.data.interferograms,
+                        ifg_file_regex=(
+                            old_config_object.retrieval.general.ifg_file_regex
+                            if (old_config_object.retrieval is not None)
+                            else ".*"
+                        ),
+                    ),
+                    results=DataSubConfigs.Results(
+                        path=old_config_object.general.data.results,
+                    ),
+                ),
+                ggg_profiles_downloader=(
+                    GGGProfilesDownloaderConfig.model_validate(
+                        old_config_object.profiles.model_dump(),
+                        context={"ignore-path-existence": ignore_path_existence},
+                    )
+                    if (old_config_object.profiles is not None)
+                    else None
+                ),
+                retrieval=(
+                    RetrievalConfig(
+                        general=RetrievalSubConfigs.General(
+                            max_process_count=old_config_object.retrieval.general.max_process_count,
+                            queue_verbosity=old_config_object.retrieval.general.queue_verbosity,
+                            container_dir=old_config_object.retrieval.general.container_dir,
+                        ),
+                        jobs={
+                            i: RetrievalSubConfigs.Job.model_validate(
+                                {
+                                    **job.model_dump(exclude={"settings"}),
+                                    **job.settings.model_dump(),
+                                },
+                                context={"ignore-path-existence": ignore_path_existence},
+                            )
+                            for i, job in enumerate(old_config_object.retrieval.jobs)
+                        },
+                    )
+                    if (old_config_object.retrieval is not None)
+                    else None
+                ),
+                bundle_exports=(
+                    [
+                        BundleExportConfig.model_validate(
+                            export.model_dump(),
+                            context={"ignore-path-existence": ignore_path_existence},
+                        )
+                        for export in old_config_object.bundles
+                    ]
+                    if (old_config_object.bundles is not None)
+                    else []
+                ),
+                geoms_exports=(
+                    [
+                        GEOMSExportConfig.model_validate(
+                            old_config_object.geoms.model_dump(),
+                            context={"ignore-path-existence": ignore_path_existence},
+                        )
+                    ]
+                    if (old_config_object.geoms is not None)
+                    else []
+                ),
+            )
+            tum_esm_utils.files.dump_toml_file(toml_path, config_object.model_dump(mode="json"))
+
+        return config_object
