@@ -61,7 +61,24 @@ def test_em27_metadata_template() -> None:
     )
 
 
-# TODO: test whether loading the old em27 metadata works
+@pytest.mark.order(2)
+@pytest.mark.quick
+def test_automatic_em27_metadata_conversion() -> None:
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        _copy_old_templates(
+            tmp_dir,
+            ["locations.json", "sensors.json", "campaigns.json", "events.json"],
+        )
+
+        src.em27_metadata.load_from_local_files(config_directory=tmp_dir)
+
+        converted_metadata = tum_esm_utils.files.load_toml_file(
+            os.path.join(tmp_dir, "em27_metadata.toml")
+        )
+        expected_metadata = tum_esm_utils.files.load_toml_file(
+            os.path.join(_OLD_TEMPLATES_DIR, "em27_metadata.automatically_converted.toml")
+        )
+        assert converted_metadata == expected_metadata
 
 
 @pytest.mark.order(2)
