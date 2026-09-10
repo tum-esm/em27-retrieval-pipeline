@@ -231,7 +231,7 @@ def generate_geoms_file(
 
     hdf_file.attrs["DATA_DESCRIPTION"] = np.bytes_((
         f"EM27/SUN (SN{serial_number:03d}) measurements from {location.location_id} " +
-        f"({location.details}, {location.lat} N {location.lon} E {location.alt} m)"
+        f"({location.details}, {location.lat} N {location.lon} E {location.alt_asl} m)"
     ).encode("ascii", errors="ignore").decode("ascii"))
     hdf_file.attrs["DATA_MODIFICATIONS"] = np.bytes_(
         "ILS parms applied: "

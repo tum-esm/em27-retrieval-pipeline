@@ -30,7 +30,7 @@ def _write_template_file(
         "CONTAINER_PATH": session.ctn.container_path,
         "LAT": str(session.ctx.location.lat),
         "LON": str(session.ctx.location.lon),
-        "ALT": str(session.ctx.location.alt / 1000),
+        "ALT": str(session.ctx.location.alt_asl / 1000),
         "CHANNEL1_ME": str(ils_params.channel1_me),
         "CHANNEL1_PE": str(ils_params.channel1_pe),
         "CHANNEL2_ME": str(ils_params.channel2_me),

@@ -581,7 +581,9 @@ class OldConfig(pydantic.BaseModel):
         env_path = os.path.join(tum_esm_utils.files.rel_to_abs_path("../../config"), ".env")
         if os.path.isfile(env_path):
             dotenv.load_dotenv(env_path)
-        return os.getenv("ERP_CONFIG_DIR", tum_esm_utils.files.rel_to_abs_path("../../config"))
+        return os.path.abspath(
+            os.getenv("ERP_CONFIG_DIR", tum_esm_utils.files.rel_to_abs_path("../../config"))
+        )
 
     @staticmethod
     def get_config_path() -> str:
@@ -603,6 +605,7 @@ class OldConfig(pydantic.BaseModel):
 
         if path is None:
             path = OldConfig.get_config_path()
+        path = os.path.abspath(path)
 
         return OldConfig.model_validate_json(
             tum_esm_utils.files.load_file(path),
@@ -740,26 +743,24 @@ class _CalibrationFactors(pydantic.BaseModel):
         ..., description="Calibration factor for water vapor: xh2o_cal = xh2o_raw * factor"
     )
 
-    @staticmethod
-    @pydantic.field_validator("root", mode="after")
-    def validate_times(v: _CalibrationFactors) -> _CalibrationFactors:
-        if v.valid_from_datetime >= v.valid_to_datetime:
+    @pydantic.model_validator(mode="after")
+    def validate_times(self) -> _CalibrationFactors:
+        if self.valid_from_datetime >= self.valid_to_datetime:
             raise ValueError(
-                f"valid_from_datetime {v.valid_from_datetime} should be less than valid_to_datetime {v.valid_to_datetime}"
+                f"valid_from_datetime {self.valid_from_datetime} should be less than valid_to_datetime {self.valid_to_datetime}"
             )
-        return v
+        return self
 
 
 class OldCalibrationFactorsList(pydantic.RootModel[list[_CalibrationFactors]]):
     root: list[_CalibrationFactors]
 
-    @staticmethod
-    @pydantic.field_validator("root", mode="after")
-    def validate_sensor_ids(vs: OldCalibrationFactorsList) -> OldCalibrationFactorsList:
-        sensor_ids = set([v.sensor_id for v in vs.root])
+    @pydantic.model_validator(mode="after")
+    def validate_sensor_ids(self) -> OldCalibrationFactorsList:
+        sensor_ids = {v.sensor_id for v in self.root}
         for sensor_id in sensor_ids:
             sensor_values = sorted(
-                [v for v in vs.root if v.sensor_id == sensor_id],
+                [v for v in self.root if v.sensor_id == sensor_id],
                 key=lambda x: x.valid_from_datetime,
             )
             for v1, v2 in zip(sensor_values[:-1], sensor_values[1:]):
@@ -767,4 +768,4 @@ class OldCalibrationFactorsList(pydantic.RootModel[list[_CalibrationFactors]]):
                     raise ValueError(
                         f"Overlapping calibration factors for sensor {sensor_id}: {v1.valid_to_datetime} > {v2.valid_from_datetime}"
                     )
-        return vs
+        return self

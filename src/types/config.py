@@ -340,6 +340,9 @@ class GGGProfilesDownloaderConfig(pydantic.BaseModel):
     ggg2020_standard_sites: list[GGGProfilesDownloaderSubConfigs.GGG2020StandardSitesItem] = (
         pydantic.Field(
             ...,
+            validation_alias=pydantic.AliasChoices(
+                "ggg2020_standard_sites", "GGG2020_standard_sites"
+            ),
             description="List of standard sites to request from the ccycle ftp server. The requests for these standard sites are done before any other requests so that data available for these is not rerequested for other sensors. See https://tccon-wiki.caltech.edu/Main/ObtainingGinputData#Requesting_to_be_added_as_a_standard_site for more information.",
         )
     )
@@ -606,7 +609,9 @@ class Config(pydantic.BaseModel):
         env_path = os.path.join(tum_esm_utils.files.rel_to_abs_path("../../config"), ".env")
         if os.path.isfile(env_path):
             dotenv.load_dotenv(env_path)
-        return os.getenv("ERP_CONFIG_DIR", tum_esm_utils.files.rel_to_abs_path("../../config"))
+        return os.path.abspath(
+            os.getenv("ERP_CONFIG_DIR", tum_esm_utils.files.rel_to_abs_path("../../config"))
+        )
 
     @staticmethod
     def get_config_path() -> str:
@@ -628,6 +633,7 @@ class Config(pydantic.BaseModel):
 
         if path is None:
             path = Config.get_config_path()
+        path = os.path.abspath(path)
 
         toml_path: str = path
         json_path: str = path
@@ -659,10 +665,10 @@ class Config(pydantic.BaseModel):
                         [
                             os.path.isfile(p)
                             for p in [
-                                "/".join(json_path.split("/")[:-1]) + "/locations.json",
-                                "/".join(json_path.split("/")[:-1]) + "/sensors.json",
-                                "/".join(json_path.split("/")[:-1]) + "/campaigns.json",
-                                "/".join(json_path.split("/")[:-1]) + "/events.json",
+                                os.path.join(os.path.dirname(json_path), "locations.json"),
+                                os.path.join(os.path.dirname(json_path), "sensors.json"),
+                                os.path.join(os.path.dirname(json_path), "campaigns.json"),
+                                os.path.join(os.path.dirname(json_path), "events.json"),
                             ]
                         ]
                     )
@@ -749,6 +755,10 @@ class Config(pydantic.BaseModel):
                     else []
                 ),
             )
-            tum_esm_utils.files.dump_toml_file(toml_path, config_object.model_dump(mode="json"))
+            tmp_toml_path = toml_path.removesuffix(".toml") + ".tmp.toml"
+            tum_esm_utils.files.dump_toml_file(
+                tmp_toml_path, config_object.model_dump(mode="json", exclude_none=True)
+            )
+            os.replace(tmp_toml_path, toml_path)
 
         return config_object

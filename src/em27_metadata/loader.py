@@ -135,7 +135,19 @@ def load_from_local_files(
         pydantic.ValidationError:       If a file is not in a valid format.
     """
 
+    if config_directory is not None:
+        config_directory = os.path.abspath(config_directory)
+    if locations_path is not None:
+        locations_path = os.path.abspath(locations_path)
+    if sensors_path is not None:
+        sensors_path = os.path.abspath(sensors_path)
+    if campaigns_path is not None:
+        campaigns_path = os.path.abspath(campaigns_path)
+    if events_path is not None:
+        events_path = os.path.abspath(events_path)
+
     # the metadata starting at pipeline v1.11 is stored in a single TOML file: em27_metadata.toml
+    toml_path: Optional[str] = None
     if config_directory is not None:
         assert locations_path is None, (
             "locations_path should not be provided when config_directory is provided"
@@ -151,10 +163,12 @@ def load_from_local_files(
         )
 
         # try to load the em27_metadata.toml file from the config directory
-        p = os.path.join(config_directory, f"em27_metadata.{'template.' if template else ''}toml")
-        if os.path.isfile(p):
+        toml_path = os.path.join(
+            config_directory, f"em27_metadata.{'template.' if template else ''}toml"
+        )
+        if os.path.isfile(toml_path):
             em27_metadata_object = em27_metadata_types.EM27MetadataObject.model_validate(
-                tum_esm_utils.files.load_toml_file(p)
+                tum_esm_utils.files.load_toml_file(toml_path)
             )
             return em27_metadata_interfaces.EM27MetadataInterface(
                 locations=em27_metadata_object.locations,
@@ -210,12 +224,28 @@ def load_from_local_files(
     except FileNotFoundError:
         pass
 
-    return em27_metadata_interfaces.EM27MetadataInterface(
+    em27_metadata_interface = em27_metadata_interfaces.EM27MetadataInterface(
         locations=locations,
         sensors=sensors,
         campaigns=campaigns,
         events=events,
     )
+
+    if (toml_path is not None) and (not os.path.isfile(toml_path)):
+        em27_metadata_object = em27_metadata_types.EM27MetadataObject(
+            locations=locations,
+            sensors=sensors,
+            campaigns=campaigns,
+            events=events,
+        )
+        tmp_toml_path = toml_path.removesuffix(".toml") + ".tmp.toml"
+        tum_esm_utils.files.dump_toml_file(
+            tmp_toml_path,
+            em27_metadata_object.model_dump(mode="json", exclude_none=True),
+        )
+        os.replace(tmp_toml_path, toml_path)
+
+    return em27_metadata_interface
 
 
 def load_from_example_data(

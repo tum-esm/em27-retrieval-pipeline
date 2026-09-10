@@ -26,7 +26,7 @@ def _generate_pylot2_config(session: types.Proffast2RetrievalSession) -> None:
                 "SENSOR_ID": session.ctx.sensor_id,
                 "COORDINATES_LAT": str(round(session.ctx.location.lat, 6)),
                 "COORDINATES_LON": str(round(session.ctx.location.lon, 6)),
-                "COORDINATES_ALT": str(round(session.ctx.location.alt / 1000.0, 6)),
+                "COORDINATES_ALT": str(round(session.ctx.location.alt_asl / 1000.0, 6)),
                 "UTC_OFFSET": str(round(session.ctx.utc_offset, 9)),
                 "CONTAINER_ID": session.ctn.container_id,
                 "CONTAINER_PATH": session.ctn.container_path,

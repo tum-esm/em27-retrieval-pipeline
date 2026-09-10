@@ -45,8 +45,8 @@ class TimeSeriesElement(pydantic.BaseModel):
         return self
 
     @pydantic.field_serializer("from_datetime", "to_datetime")
-    def t_serializer(self, dt: datetime.date, _info: Any) -> str:
-        return dt.strftime("%Y-%m-%dT%H:%M:%S+00:00")
+    def t_serializer(self, dt: datetime.datetime, _info: Any) -> str:
+        return dt.strftime("%Y-%m-%dT%H:%M:%S%z")
 
 
 class Setup(pydantic.BaseModel):
@@ -96,7 +96,12 @@ class LocationMetadata(pydantic.BaseModel):
     details: str = pydantic.Field("", min_length=0)
     lon: float = pydantic.Field(..., ge=-180, le=180)
     lat: float = pydantic.Field(..., ge=-90, le=90)
-    alt: float = pydantic.Field(..., ge=-20, le=10000)
+    alt_asl: float = pydantic.Field(
+        ...,
+        ge=-20,
+        le=10000,
+        validation_alias=pydantic.AliasChoices("alt_asl", "alt"),
+    )
 
 
 class LocationMetadataList(pydantic.RootModel[list[LocationMetadata]]):
@@ -256,5 +261,5 @@ class SensorDataContext(pydantic.BaseModel):
     atmospheric_profile_location: LocationMetadata
 
     @pydantic.field_serializer("from_datetime", "to_datetime")
-    def t_serializer(self, dt: datetime.date, _info: Any) -> str:
+    def t_serializer(self, dt: datetime.datetime, _info: Any) -> str:
         return dt.strftime("%Y-%m-%dT%H:%M:%S%z")

@@ -119,29 +119,23 @@ class GEOMSMetadataFields:
             ..., description="Calibration factor for water vapor: xh2o_cal = xh2o_raw * factor"
         )
 
-        @staticmethod
-        @pydantic.field_validator("root", mode="after")
-        def validate_times(
-            v: GEOMSMetadataFields.CalibrationFactors,
-        ) -> GEOMSMetadataFields.CalibrationFactors:
-            if v.valid_from_datetime >= v.valid_to_datetime:
+        @pydantic.model_validator(mode="after")
+        def validate_times(self) -> GEOMSMetadataFields.CalibrationFactors:
+            if self.valid_from_datetime >= self.valid_to_datetime:
                 raise ValueError(
-                    f"valid_from_datetime {v.valid_from_datetime} should be less than valid_to_datetime {v.valid_to_datetime}"
+                    f"valid_from_datetime {self.valid_from_datetime} should be less than valid_to_datetime {self.valid_to_datetime}"
                 )
-            return v
+            return self
 
     class CalibrationFactorsList(pydantic.RootModel[list[CalibrationFactors]]):
         root: list[GEOMSMetadataFields.CalibrationFactors]
 
-        @staticmethod
-        @pydantic.field_validator("root", mode="after")
-        def validate_sensor_ids(
-            vs: GEOMSMetadataFields.CalibrationFactorsList,
-        ) -> GEOMSMetadataFields.CalibrationFactorsList:
-            sensor_ids = set([v.sensor_id for v in vs.root])
+        @pydantic.model_validator(mode="after")
+        def validate_sensor_ids(self) -> GEOMSMetadataFields.CalibrationFactorsList:
+            sensor_ids = {v.sensor_id for v in self.root}
             for sensor_id in sensor_ids:
                 sensor_values = sorted(
-                    [v for v in vs.root if v.sensor_id == sensor_id],
+                    [v for v in self.root if v.sensor_id == sensor_id],
                     key=lambda x: x.valid_from_datetime,
                 )
                 for v1, v2 in zip(sensor_values[:-1], sensor_values[1:]):
@@ -149,7 +143,7 @@ class GEOMSMetadataFields:
                         raise ValueError(
                             f"Overlapping calibration factors for sensor {sensor_id}: {v1.valid_to_datetime} > {v2.valid_from_datetime}"
                         )
-            return vs
+            return self
 
         def get_index(self, sensor_id: str, datetime: datetime.datetime) -> Optional[int]:
             """Get the calibration factors for the specified sensor."""
@@ -187,12 +181,13 @@ class GEOMSMetadata(pydantic.BaseModel):
             if os.path.isfile(env_path):
                 dotenv.load_dotenv(env_path)
             erp_config_dir = os.getenv("ERP_CONFIG_DIR", erp_config_dir)
+        erp_config_dir = os.path.abspath(erp_config_dir)
         filepath = os.path.join(
             erp_config_dir, f"geoms_metadata{'.template' if template else ''}.toml"
         )
 
         if os.path.isfile(filepath):
-            return GEOMSMetadata.model_validate_json(tum_esm_utils.files.load_file(filepath))
+            return GEOMSMetadata.model_validate(tum_esm_utils.files.load_toml_file(filepath))
 
         geoms_metadata_path = os.path.join(erp_config_dir, "geoms_metadata.json")
         calibration_factors_path = os.path.join(erp_config_dir, "calibration_factors.json")
@@ -218,5 +213,9 @@ class GEOMSMetadata(pydantic.BaseModel):
                 "calibration_factors": old_calibration_factors.root,
             }
         )
-        tum_esm_utils.files.dump_toml_file(filepath, new_geoms_metadata.model_dump(mode="json"))
+        tmp_filepath = filepath.removesuffix(".toml") + ".tmp.toml"
+        tum_esm_utils.files.dump_toml_file(
+            tmp_filepath, new_geoms_metadata.model_dump(mode="json", exclude_none=True)
+        )
+        os.replace(tmp_filepath, filepath)
         return new_geoms_metadata
