@@ -3,3 +3,4 @@
 !*.template.json
 !*.template.toml
 !old_templates/*.json
+!old_templates/*.automatically_converted.toml
