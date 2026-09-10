@@ -1,0 +1,16 @@
+[
+  {
+    "location_id": "lid1",
+    "details": "description of location 1",
+    "lon": 10.5,
+    "lat": 48.1,
+    "alt": 500
+  },
+  {
+    "location_id": "lid2",
+    "details": "description of location 2",
+    "lon": 11.3,
+    "lat": 48.0,
+    "alt": 600
+  }
+]

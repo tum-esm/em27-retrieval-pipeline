@@ -1,0 +1,16 @@
+[
+  {
+    "sensor_ids": ["sid1", "sid2"],
+    "from_datetime": "2024-06-24T10:30:00+0000",
+    "to_datetime": "2024-06-24T11:29:59+0000",
+    "description": "Mirror Change - Sensors have to be recalibrated",
+    "data_is_usable": false
+  },
+  {
+    "sensor_ids": ["sid1"],
+    "from_datetime": "2025-08-24T10:30:00+0000",
+    "to_datetime": "2025-08-24T17:29:59+0000",
+    "description": "ILS Measurements",
+    "data_is_usable": false
+  }
+]

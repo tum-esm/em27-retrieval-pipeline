@@ -1,0 +1,9 @@
+[
+  {
+    "campaign_id": "cid1",
+    "from_datetime": "2019-09-13T00:00:00+0000",
+    "to_datetime": "2100-01-01T23:59:59+0000",
+    "sensor_ids": ["sid1", "sid2"],
+    "location_ids": ["lid1", "lid2"]
+  }
+]
