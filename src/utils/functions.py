@@ -2,15 +2,10 @@ import datetime
 import os
 from typing import Any, Optional
 import polars as pl
+import tomli
 import tum_esm_utils
 
 from ..em27_metadata import types as em27_metadata_types
-
-try:
-    import tomllib  # type: ignore
-except ImportError:
-    import tomli as tomllib  # type: ignore
-
 
 def sdc_covers_the_full_day(
     sdc: em27_metadata_types.SensorDataContext,
@@ -27,7 +22,7 @@ def get_pipeline_version() -> str:
 
     with open(tum_esm_utils.files.rel_to_abs_path("../../pyproject.toml"), "rb") as f:
         try:
-            v: Any = tomllib.load(f)["project"]["version"]  # pyright: ignore[reportUnknownVariableType, reportUnknownMemberType]
+            v: Any = tomli.load(f)["project"]["version"]  # pyright: ignore[reportUnknownVariableType, reportUnknownMemberType]
             assert isinstance(v, str)
             return v
         except (KeyError, AssertionError):

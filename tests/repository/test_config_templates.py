@@ -3,6 +3,7 @@ import shutil
 import tempfile
 
 import pytest
+import tomli
 import tum_esm_utils
 import src
 
@@ -13,6 +14,23 @@ _OLD_TEMPLATES_DIR = tum_esm_utils.files.rel_to_abs_path("../../config/old_templ
 def _copy_old_templates(tmp_dir: str, filenames: list[str]) -> None:
     for filename in filenames:
         shutil.copy(os.path.join(_OLD_TEMPLATES_DIR, filename), os.path.join(tmp_dir, filename))
+
+
+def _load_toml_file(filepath: str) -> dict[str, object]:
+    with open(filepath, "rb") as file:
+        return tomli.load(file)
+
+
+@pytest.mark.quick
+def test_tomli_supports_multiline_inline_tables() -> None:
+    assert tomli.loads(
+        """custom_ils = {
+    ma = {
+        channel1_me = 0.9892,
+    },
+}
+"""
+    ) == {"custom_ils": {"ma": {"channel1_me": 0.9892}}}
 
 
 @pytest.mark.order(2)
@@ -41,11 +59,11 @@ def test_automatic_config_conversion() -> None:
         )
 
         converted_config = src.types.Config.model_validate(
-            tum_esm_utils.files.load_toml_file(os.path.join(tmp_dir, "config.toml")),
+            _load_toml_file(os.path.join(tmp_dir, "config.toml")),
             context={"ignore-path-existence": True},
         )
         expected_config = src.types.Config.model_validate(
-            tum_esm_utils.files.load_toml_file(
+            _load_toml_file(
                 os.path.join(_OLD_TEMPLATES_DIR, "config.automatically_converted.toml")
             ),
             context={"ignore-path-existence": True},
@@ -72,10 +90,10 @@ def test_automatic_em27_metadata_conversion() -> None:
 
         src.em27_metadata.load_from_local_files(config_directory=tmp_dir)
 
-        converted_metadata = tum_esm_utils.files.load_toml_file(
+        converted_metadata = _load_toml_file(
             os.path.join(tmp_dir, "em27_metadata.toml")
         )
-        expected_metadata = tum_esm_utils.files.load_toml_file(
+        expected_metadata = _load_toml_file(
             os.path.join(_OLD_TEMPLATES_DIR, "em27_metadata.automatically_converted.toml")
         )
         assert converted_metadata == expected_metadata
@@ -96,10 +114,10 @@ def test_automatic_geoms_metadata_conversion(monkeypatch: pytest.MonkeyPatch) ->
 
         src.types.GEOMSMetadata.load()
 
-        converted_metadata = tum_esm_utils.files.load_toml_file(
+        converted_metadata = _load_toml_file(
             os.path.join(tmp_dir, "geoms_metadata.toml")
         )
-        expected_metadata = tum_esm_utils.files.load_toml_file(
+        expected_metadata = _load_toml_file(
             os.path.join(_OLD_TEMPLATES_DIR, "geoms_metadata.automatically_converted.toml")
         )
         assert converted_metadata == expected_metadata

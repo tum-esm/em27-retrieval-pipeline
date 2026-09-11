@@ -1,7 +1,8 @@
-from typing import Literal, Optional
-import tum_esm_utils
-import tomllib
 import os
+from typing import Literal, Optional
+
+import tomli
+import tum_esm_utils
 from . import interfaces as em27_metadata_interfaces
 from . import types as em27_metadata_types
 
@@ -51,7 +52,7 @@ def load_from_github(
             pass
     if em27_metadata_object_string is not None:
         em27_metadata_object = em27_metadata_types.EM27MetadataObject.model_validate(
-            tomllib.loads(em27_metadata_object_string)
+            tomli.loads(em27_metadata_object_string)
         )
         return em27_metadata_interfaces.EM27MetadataInterface(
             locations=em27_metadata_object.locations,
@@ -167,8 +168,10 @@ def load_from_local_files(
             config_directory, f"em27_metadata.{'template.' if template else ''}toml"
         )
         if os.path.isfile(toml_path):
+            with open(toml_path, "rb") as file:
+                toml_data = tomli.load(file)
             em27_metadata_object = em27_metadata_types.EM27MetadataObject.model_validate(
-                tum_esm_utils.files.load_toml_file(toml_path)
+                toml_data
             )
             return em27_metadata_interfaces.EM27MetadataInterface(
                 locations=em27_metadata_object.locations,

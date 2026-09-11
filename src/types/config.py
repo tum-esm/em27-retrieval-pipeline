@@ -6,6 +6,7 @@ from typing import Any, Literal, Optional
 
 import dotenv
 import pydantic
+import tomli
 import tum_esm_utils
 
 from .basic_types import AtmosphericProfileModel, RetrievalAlgorithm
@@ -649,8 +650,10 @@ class Config(pydantic.BaseModel):
 
         config_object: Config
         if os.path.isfile(toml_path):
+            with open(toml_path, "rb") as file:
+                toml_data = tomli.load(file)
             config_object = Config.model_validate(
-                tum_esm_utils.files.load_toml_file(toml_path),
+                toml_data,
                 context={"ignore-path-existence": ignore_path_existence},
             )
         else:

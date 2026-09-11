@@ -6,6 +6,7 @@ from typing import Optional
 
 import dotenv
 import pydantic
+import tomli
 import tum_esm_utils
 from .old_schemas import OldGEOMSMetadata, OldCalibrationFactorsList
 
@@ -187,7 +188,8 @@ class GEOMSMetadata(pydantic.BaseModel):
         )
 
         if os.path.isfile(filepath):
-            return GEOMSMetadata.model_validate(tum_esm_utils.files.load_toml_file(filepath))
+            with open(filepath, "rb") as file:
+                return GEOMSMetadata.model_validate(tomli.load(file))
 
         geoms_metadata_path = os.path.join(erp_config_dir, "geoms_metadata.json")
         calibration_factors_path = os.path.join(erp_config_dir, "calibration_factors.json")
