@@ -1,0 +1,38 @@
+---
+title: config.toml
+---
+
+import JSONSchemaRenderer from "../../../components/JSONSchemaRenderer.tsx";
+import Schema from "../../../assets/config.schema.json";
+import Template from "../../../assets/config.template.toml?raw";
+import { Code } from "@astrojs/starlight/components";
+
+The `config.toml` file contains all information on how the EM27 Retrieval Pipeline should run. The key `version` specifies the version of the EM27 Retrieval Pipeline that this config file is compatible with. This is an example config. Below it you can find all possible configuration options supported by RETRO's latest version.
+
+<Code code={Template.trim()} lang="toml" />
+
+---
+
+## Input / Output
+
+---
+
+### config.metadata
+
+<div className="text-sm p-3 bg-slate-100 text-slate-950 dark:bg-slate-800 dark:text-slate-50 rounded-lg whitespace-pre-wrap">
+  <span className="font-semibold mr-1">Contains:</span>{" "}
+  {Schema.$defs.MetadataConfig.description}
+</div>
+
+<JSONSchemaRenderer schema={Schema} path="properties.metadata" />
+
+---
+
+### config.data.atmospheric_profiles
+
+<div className="text-sm p-3 bg-slate-100 text-slate-950 dark:bg-slate-800 dark:text-slate-50 rounded-lg whitespace-pre-wrap">
+  <span className="font-semibold mr-1">Contains:</span>{" "}
+  {Schema.$defs.AtmosphericProfiles.description}
+</div>
+
+<JSONSchemaRenderer schema={Schema} path="$defs.AtmosphericProfiles" />

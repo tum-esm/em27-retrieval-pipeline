@@ -76,6 +76,10 @@ export default defineConfig({
           collapsed: false,
           items: [
             {
+              label: "Configuration",
+              link: "/reference/config",
+            },
+            {
               label: "Command Line Interface",
               link: "/reference/cli",
             },

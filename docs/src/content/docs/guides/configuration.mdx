@@ -4,7 +4,7 @@ title: Configuration
 
 import { Aside } from '@astrojs/starlight/components';
 import { Code } from "@astrojs/starlight/components";
-import ConfigExample from "../../../assets/config.example.json?raw";
+import ConfigTemplate from "../../../assets/config.template.toml?raw";
 
 ## Configuration file
 
@@ -20,6 +20,6 @@ The full schema specification and description of each parameter can be found [in
 
 Template:
 
-<Code code={ConfigExample} lang="json" />
+<Code code={ConfigTemplate} lang="toml" />
 
 The [next section](/guides/directories) describes how the directories for the data sources (interferograms, ground pressure, atmospheric profiles), the outputs of this pipeline (retrieval results, bundles, logs), and the internal directories (containers, etc.) are structured.
