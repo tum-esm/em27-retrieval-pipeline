@@ -6,7 +6,7 @@ import tum_esm_utils
 @pytest.mark.order(3)
 @pytest.mark.quick
 def test_ils_parameter_sync() -> None:
-    url = "https://gitlab.eudat.eu/coccon-kit/proffastpylot/-/raw/master/prfpylot/ILSList.csv?ref_type=heads"
+    url = "https://raw.githubusercontent.com/coccon/proffastpylot/refs/heads/main/prfpylot/ILSList.csv"
     r = requests.get(url)
     assert r.status_code == 200
     remote_file_content = r.text.strip("\n\t ")

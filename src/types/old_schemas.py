@@ -342,7 +342,7 @@ class _RetrievalJobSettingsConfig(pydantic.BaseModel):
     )
     custom_ils: dict[str, _RetrievalJobSettingsILSConfig] = pydantic.Field(
         default={},
-        description="Maps sensor IDS to ILS correction values. If not set, the pipeline will use the values published inside the Proffast Pylot codebase (https://gitlab.eudat.eu/coccon-kit/proffastpylot/-/blob/master/prfpylot/ILSList.csv?ref_type=heads).",
+        description="Maps sensor IDS to ILS correction values. If not set, the pipeline will use the values published inside the Proffast Pylot codebase (https://github.com/coccon/proffastpylot).",
     )
     output_suffix: Optional[str] = pydantic.Field(
         default=None,
