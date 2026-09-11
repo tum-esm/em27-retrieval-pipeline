@@ -6,7 +6,7 @@ We retrieve a lot of EM27/SUN data, due to running [MUCCnet (Dietrich et al., 20
 
 This codebase provides an automated data pipeline for [Proffast 1 and 2.X](https://www.coccon.kit.edu/). Under the hood, it uses the [Proffast Pylot](https://github.com/coccon/proffastpylot) to interact with Proffast 2 and an in-house connector to interact with Proffast 1. Whenever using this pipeline for Proffast retrievals, please make sure to also cite Proffast and the Proffast Pylot (for Proffast 2.X retrievals).
 
-📚 Read the documentation at [em27-retrieval-pipeline.netlify.app](https://em27-retrieval-pipeline.netlify.app).<br/>
+📚 Read the documentation at [em27-retrieval-pipeline.netlify.app](https://tum-esm.github.io/em27-retrieval-pipeline).<br/>
 💾 Get the source code at [github.com/tum-esm/em27-retrieval-pipeline](https://github.com/tum-esm/em27-retrieval-pipeline).<br/>
 🐝 Report Issues or discuss enhancements using [issues on GitHub](https://github.com/tum-esm/em27-retrieval-pipeline/issues).
 
@@ -58,17 +58,17 @@ The data flow from input to merged outputs:
 
 **Bundling of retrieval results:** The raw retrieval outputs will be distributed over hundreds or thousands of folders and files. The bundling script of this pipeline will merge these outputs into one file per station, retrieval algorithm, and atmospheric profile. This way, you can easily access the data for further processing. ([Read about it here](/guides/directories#bundles)).
 
-**Documentation and complete API reference:** hosted at [em27-retrieval-pipeline.netlify.app](https://em27-retrieval-pipeline.netlify.app/)
+**Documentation and complete API reference:** hosted at [em27-retrieval-pipeline.netlify.app](https://tum-esm.github.io/em27-retrieval-pipeline/)
 
 ## Getting Started
 
 To fully understand the pipeline, you should read the following sections of the documentation:
 
-1. The [configuration section](https://em27-retrieval-pipeline.netlify.app/guides/configuration) explains how the pipeline uses a `config.json` file to read the parameters of your environment.
-2. The [directories section](https://em27-retrieval-pipeline.netlify.app/guides/directories) explains how the input directories should be structured and how the pipeline structures its outputs.
-3. The [metadata section](https://em27-retrieval-pipeline.netlify.app/guides/metadata) explains what the metadata the pipeline requires is structured and how to connect it to the pipeline.
-4. The [installation section](https://em27-retrieval-pipeline.netlify.app/guides/installation) explains how to install the pipeline.
-5. The [usage section](https://em27-retrieval-pipeline.netlify.app/guides/usage) explains how to run the pipeline.
+1. The [configuration section](https://tum-esm.github.io/em27-retrieval-pipeline/guides/configuration) explains how the pipeline uses a `config.json` file to read the parameters of your environment.
+2. The [directories section](https://tum-esm.github.io/em27-retrieval-pipeline/guides/directories) explains how the input directories should be structured and how the pipeline structures its outputs.
+3. The [metadata section](https://tum-esm.github.io/em27-retrieval-pipeline/guides/metadata) explains what the metadata the pipeline requires is structured and how to connect it to the pipeline.
+4. The [installation section](https://tum-esm.github.io/em27-retrieval-pipeline/guides/installation) explains how to install the pipeline.
+5. The [usage section](https://tum-esm.github.io/em27-retrieval-pipeline/guides/usage) explains how to run the pipeline.
 
 The `example` directory of this repository contains a fully working example of the different steps of the pipeline.
 

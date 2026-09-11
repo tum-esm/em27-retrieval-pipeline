@@ -47,7 +47,7 @@ license = { text = "GPL-3.0" }
 
 [project.urls]
 repository = "https://github.com/tum-esm/em27-retrieval-pipeline"
-documentation = "https://em27-retrieval-pipeline.netlify.app"
+documentation = "https://tum-esm.github.io/em27-retrieval-pipeline"
 
 [project.optional-dependencies]
 dev = [

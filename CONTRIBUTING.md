@@ -34,7 +34,7 @@ The pipeline targets Unix systems and requires Python 3.11 or newer, `unzip`, an
    git switch -c dev-...
    ```
 
-See the [installation guide](https://em27-retrieval-pipeline.netlify.app/guides/installation)
+See the [installation guide](https://tum-esm.github.io/em27-retrieval-pipeline/guides/installation)
 for the full system configuration.
 
 ## Making Changes
@@ -74,7 +74,7 @@ longer. Run them when changing retrieval-related behavior:
 pytest -m complete tests/
 ```
 
-Some integration and complete tests require a configured system and test data. See the [test guide](https://em27-retrieval-pipeline.netlify.app/guides/tests) for details.
+Some integration and complete tests require a configured system and test data. See the [test guide](https://tum-esm.github.io/em27-retrieval-pipeline/guides/tests) for details.
 
 ## Pull Requests
 

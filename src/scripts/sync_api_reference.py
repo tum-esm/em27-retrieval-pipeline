@@ -141,7 +141,7 @@ b = (
     tum_esm_utils.files.load_file(os.path.join(_PROJECT_DIR, "README.md"))
     .split("We retrieve a lot of ")[1]
     .replace("docs/public/images/", "images/")
-    .replace("https://em27-retrieval-pipeline.netlify.app/guides", "/guides")
+    .replace("https://tum-esm.github.io/em27-retrieval-pipeline/guides", "/guides")
     .replace("https://tum-esm-utils.netlify.app/api-reference", "/api-reference")
 )
 
