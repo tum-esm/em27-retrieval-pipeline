@@ -1,10 +1,145 @@
+/*
+
+:root {
+  --sl-font: "Inter", sans-serif;
+  --sl-text-h1: 2rem;
+  --sl-text-h2: 1.4rem;
+  --sl-text-h3: 1.2rem;
+}
+
+.pagination-links {
+  @apply text-sm;
+
+  a {
+    @apply shadow-none;
+    background-color: none;
+    @apply p-2;
+  }
+  .link-title {
+    @apply text-lg;
+  }
+}
+
+.site-title {
+  @apply text-slate-900 dark:text-slate-100;
+}
+
+code {
+  @apply !bg-slate-100 dark:!bg-slate-800 !border !border-slate-300 dark:!border-slate-700 !rounded-md;
+}
+
+.expressive-code {
+  pre,
+  code {
+    @apply !bg-slate-100 dark:!bg-slate-800 !text-xs;
+  }
+
+  pre {
+    @apply !rounded-lg;
+    border-top-width: 1px !important;
+  }
+
+  figcaption {
+    @apply !hidden;
+  }
+}
+
+figure.is-terminal {
+  @apply !ring-1 !ring-slate-300 !rounded-md dark:!ring-slate-700;
+  pre {
+    @apply !border-none;
+  }
+}
+
+p {
+  @apply text-justify;
+}
+*/
+
 @layer base, starlight, theme, components, utilities;
 
 @import "@astrojs/starlight-tailwind";
 @import "tailwindcss/theme.css" layer(theme);
 @import "tailwindcss/utilities.css" layer(utilities);
 
-/* Dark mode colors. */
+:root {
+  /* heading sizes */
+  --sl-text-h1: var(--sl-text-4xl);
+  --sl-text-h2: var(--sl-text-2xl);
+  --sl-text-h3: var(--sl-text-xl);
+  --sl-text-h4: var(--sl-text-lg);
+  --sl-text-h5: var(--sl-text-base);
+}
+
+@theme {
+  /* fonts */
+  --font-sans: "Rubik";
+  --font-mono: "IBM Plex Mono";
+
+  --color-persian-red-50: #fef2f2;
+  --color-persian-red-100: #fde3e3;
+  --color-persian-red-200: #fdcbcb;
+  --color-persian-red-300: #faa7a7;
+  --color-persian-red-400: #f57474;
+  --color-persian-red-500: #eb4848;
+  --color-persian-red-600: #d62828;
+  --color-persian-red-700: #b52020;
+  --color-persian-red-800: #961e1e;
+  --color-persian-red-900: #7c2020;
+  --color-persian-red-950: #430c0c;
+
+  --color-beige-50: #fbf9ef;
+  --color-beige-100: #f6f2e0;
+  --color-beige-200: #e4d8a3;
+  --color-beige-300: #d6c173;
+  --color-beige-400: #cdad52;
+  --color-beige-500: #c3943d;
+  --color-beige-600: #ac7633;
+  --color-beige-700: #8f5a2e;
+  --color-beige-800: #76482a;
+  --color-beige-900: #613c26;
+  --color-beige-950: #371f11;
+
+  --color-nile-blue-50: #eef9ff;
+  --color-nile-blue-100: #dcf3ff;
+  --color-nile-blue-200: #b2e9ff;
+  --color-nile-blue-300: #6dd8ff;
+  --color-nile-blue-400: #20c8ff;
+  --color-nile-blue-500: #00bfff;
+  --color-nile-blue-600: #00a0df;
+  --color-nile-blue-700: #007fb4;
+  --color-nile-blue-800: #006a95;
+  --color-nile-blue-900: #00547a;
+  --color-nile-blue-950: #003652;
+
+  /* accent colors */
+  --color-accent-50: var(--color-persian-red-50);
+  --color-accent-100: var(--color-persian-red-100);
+  --color-accent-200: var(--color-persian-red-200);
+  --color-accent-300: var(--color-persian-red-300);
+  --color-accent-400: var(--color-persian-red-400);
+  --color-accent-500: var(--color-persian-red-500);
+  --color-accent-600: var(--color-persian-red-600);
+  --color-accent-700: var(--color-persian-red-700);
+  --color-accent-800: var(--color-persian-red-800);
+  --color-accent-900: var(--color-persian-red-900);
+  --color-accent-950: var(--color-persian-red-950);
+
+  /* grayscale colors */
+  --color-gray-50: var(--color-slate-50);
+  --color-gray-100: var(--color-slate-100);
+  --color-gray-200: var(--color-slate-200);
+  --color-gray-300: var(--color-slate-300);
+  --color-gray-400: var(--color-slate-400);
+  --color-gray-500: var(--color-slate-500);
+  --color-gray-600: var(--color-slate-600);
+  --color-gray-700: var(--color-slate-700);
+  --color-gray-800: var(--color-slate-800);
+  --color-gray-900: var(--color-slate-900);
+  --color-gray-950: var(--color-slate-950);
+}
+
+/*
 :root {
   --sl-color-accent-low: #00273d;
   --sl-color-accent: #0071a7;
@@ -34,7 +169,6 @@
     @apply text-white;
   }
 }
-/* Light mode colors. */
 :root[data-theme="light"] {
   --sl-color-accent-low: #b0deff;
   --sl-color-accent: #0073aa;
@@ -58,28 +192,7 @@
   .social-icons a {
     @apply text-slate-950;
   }
-}
-
-@theme {
-  /*
-	Configure your Tailwind theme that will be used by Starlight.
-	https://starlight.astro.build/guides/css-and-tailwind/#styling-starlight-with-tailwind
-	*/
-  /* Generated accent color palettes. */
-  --color-accent-200: #92d1fe;
-  --color-accent-600: #0073aa;
-  --color-accent-900: #003653;
-  --color-accent-950: #00273d;
-  /* Generated gray color palettes. */
-  --color-gray-100: #f3f7f9;
-  --color-gray-200: #e7eff2;
-  --color-gray-300: #bac4c8;
-  --color-gray-400: #7b8f96;
-  --color-gray-500: #495c62;
-  --color-gray-700: #2a3b41;
-  --color-gray-800: #182a2f;
-  --color-gray-900: #121a1c;
-}
+}*/
 
 /*
 Add additional Tailwind styles to this file:
@@ -134,22 +247,24 @@ figure.is-terminal {
 */
 
 code {
-  @apply !bg-slate-100 !px-1.5 !py-1 !rounded-sm dark:!bg-slate-800;
+  @apply bg-slate-100! px-1.5! py-1! rounded-sm! dark:bg-slate-800!;
 }
 
 .expressive-code {
   figcaption {
-    @apply !hidden;
+    @apply hidden!;
   }
 
   pre {
-    @apply !border !border-slate-300 dark:!border-slate-600 !rounded-md;
+    @apply border-0 rounded-lg bg-slate-100 py-3 dark:bg-slate-800;
   }
 }
 
 .expressive-code,
 .expressive-code pre,
 .expressive-code code {
+  @apply text-xs;
+
   /* Hide scrollbar for Webkit browsers */
   &::-webkit-scrollbar {
     display: none;
@@ -175,7 +290,7 @@ aside[aria-label="Note"] {
   @apply border-green-300 dark:border-green-700;
 
   code {
-    @apply !bg-green-200 dark:!bg-green-900;
+    @apply bg-green-200! dark:bg-green-900!;
   }
 }
 
@@ -193,7 +308,7 @@ aside[aria-label="Note"] {
 }
 
 .sidebar-content li a[aria-current="page"] {
-  @apply bg-blue-200 text-blue-950 dark:bg-blue-400 dark:text-blue-950;
+  @apply bg-beige-100 text-beige-950 dark:bg-slate-900 dark:text-slate-50;
 }
 
 .sidebar-content li {
@@ -211,5 +326,25 @@ aside[aria-label="Note"] {
 .title-wrapper {
   img {
     @apply p-1.5;
+  }
+}
+
+hr {
+  @apply w-[calc(200%+12rem)] h-px bg-slate-200 dark:bg-slate-800 mt-8 -ml-[100%];
+}
+
+@media (min-width: 72rem) {
+  hr {
+    @apply w-[calc(200%+1.5rem)]!;
+  }
+}
+
+.site-title {
+  @apply text-[#1e293b] dark:text-white text-xl;
+  font-family: "Rubik";
+
+  img {
+    height: calc(var(--sl-nav-height) * 0.52);
+    margin-right: -0.5rem;
   }
 }
