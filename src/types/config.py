@@ -329,7 +329,7 @@ class GGGProfilesDownloaderSubConfigs:
 
 
 class GGGProfilesDownloaderConfig(pydantic.BaseModel):
-    """Settings for downloading vertical profiles from the ccycle ftp server. If `null`, the vertical profiles script will stop and log a warning"""
+    """Settings for downloading vertical profiles from the ccycle FTP server."""
 
     model_config = pydantic.ConfigDict(extra="forbid")
 
@@ -351,6 +351,8 @@ class GGGProfilesDownloaderConfig(pydantic.BaseModel):
 
 class RetrievalSubConfigs:
     class General(pydantic.BaseModel):
+        """Settings applied to all retrieval jobs."""
+
         model_config = pydantic.ConfigDict(extra="forbid")
 
         max_process_count: int = pydantic.Field(
@@ -428,6 +430,22 @@ class RetrievalSubConfigs:
         custom_ils: dict[str, RetrievalSubConfigs.JobCustomILS] = pydantic.Field(
             default={},
             description="Maps sensor IDs to ILS correction values. If not set, the pipeline will use the values published inside the Proffast Pylot codebase (https://github.com/coccon/proffastpylot).",
+            examples=[
+                {
+                    "ma": {
+                        "channel1_me": 0.9892,
+                        "channel1_pe": -0.001082,
+                        "channel2_me": 0.9892,
+                        "channel2_pe": -0.001082,
+                    },
+                    "mb": {
+                        "channel1_me": 0.9893,
+                        "channel1_pe": -0.001083,
+                        "channel2_me": 0.9893,
+                        "channel2_pe": -0.001083,
+                    },
+                }
+            ],
         )
         output_suffix: Optional[str] = pydantic.Field(
             default=None,
@@ -457,7 +475,7 @@ class RetrievalSubConfigs:
 
 
 class RetrievalConfig(pydantic.BaseModel):
-    """Settings for automated proffast processing. If `null`, the automated proffast script will stop and log a warning"""
+    """Settings for automated proffast processing. It contains general settings applied to every retrieval job and a list of retrieval jobs to run."""
 
     model_config = pydantic.ConfigDict(extra="forbid")
 
@@ -471,8 +489,7 @@ class RetrievalConfig(pydantic.BaseModel):
 class BundleExportConfig(pydantic.BaseModel):
     """There will be one file per sensor id and atmospheric profile and retrieval algorithm combination.
 
-    The final name looks like `em27-retrieval-bundle-$SENSOR_ID-$RETRIEVAL_ALGORITHM-$ATMOSPHERIC_PROFILE-$FROM_DATE-$TO_DATE$BUNDLE_SUFFIX.$OUTPUT_FORMAT`, e.g.`em27-retrieval-bundle-ma-GGG2020-proffast-2.4-20150801-20240523-v2.1.csv`. The bundle suffix is optional and can be used to distinguish between different
-    internal datasets."""
+    The final name looks like `em27-retrieval-bundle-$SENSOR_ID-$RETRIEVAL_ALGORITHM-$ATMOSPHERIC_PROFILE-$FROM_DATE-$TO_DATE$BUNDLE_SUFFIX.$OUTPUT_FORMAT`, e.g.`em27-retrieval-bundle-ma-GGG2020-proffast-2.4-20150801-20240523-v2.1.csv`. The bundle suffix is optional and can be used to distinguish between different internal datasets."""
 
     model_config = pydantic.ConfigDict(extra="forbid")
 
@@ -520,6 +537,8 @@ class BundleExportConfig(pydantic.BaseModel):
 
 
 class GEOMSExportConfig(pydantic.BaseModel):
+    """There will be one file per retrieval output directory and the h5 files will be stored in the individual output directories of the results folders. Most code of this exporter originates from the GEOMS export code of the PROFFAST Pylot, but we adapted it to fit the output of this pipeline."""
+
     sensor_ids: list[str] = pydantic.Field(
         ..., description="The sensor ids for which to generate the GEOMS outputs"
     )

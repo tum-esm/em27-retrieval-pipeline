@@ -15,9 +15,13 @@ The `config.toml` file contains all information on how the EM27 Retrieval Pipeli
 
 ## Input / Output
 
+<div className="text-sm p-3 bg-slate-100 text-slate-950 dark:bg-slate-800 dark:text-slate-50 rounded-lg whitespace-pre-wrap">
+  Definition on which metadata to use, where to find input data and where to store output data.
+</div>
+
 ---
 
-### config.metadata
+### metadata
 
 <div className="text-sm p-3 bg-slate-100 text-slate-950 dark:bg-slate-800 dark:text-slate-50 rounded-lg whitespace-pre-wrap">
   <span className="font-semibold mr-1">Contains:</span>{" "}
@@ -28,7 +32,7 @@ The `config.toml` file contains all information on how the EM27 Retrieval Pipeli
 
 ---
 
-### config.data.atmospheric_profiles
+### data.atmospheric_profiles
 
 <div className="text-sm p-3 bg-slate-100 text-slate-950 dark:bg-slate-800 dark:text-slate-50 rounded-lg whitespace-pre-wrap">
   <span className="font-semibold mr-1">Contains:</span>{" "}
@@ -36,3 +40,144 @@ The `config.toml` file contains all information on how the EM27 Retrieval Pipeli
 </div>
 
 <JSONSchemaRenderer schema={Schema} path="$defs.AtmosphericProfiles" />
+
+---
+
+### data.ground_pressure
+
+<div className="text-sm p-3 bg-slate-100 text-slate-950 dark:bg-slate-800 dark:text-slate-50 rounded-lg whitespace-pre-wrap">
+  <span className="font-semibold mr-1">Contains:</span>{" "}
+  {Schema.$defs.GroundPressure.description}
+</div>
+
+<JSONSchemaRenderer schema={Schema} path="$defs.GroundPressure" />
+
+
+---
+
+### data.interferograms
+
+<div className="text-sm p-3 bg-slate-100 text-slate-950 dark:bg-slate-800 dark:text-slate-50 rounded-lg whitespace-pre-wrap">
+  <span className="font-semibold mr-1">Contains:</span>{" "}
+  {Schema.$defs.Interferograms.description}
+</div>
+
+<JSONSchemaRenderer schema={Schema} path="$defs.Interferograms" />
+
+
+---
+
+### data.results
+
+<div className="text-sm p-3 bg-slate-100 text-slate-950 dark:bg-slate-800 dark:text-slate-50 rounded-lg whitespace-pre-wrap">
+  <span className="font-semibold mr-1">Contains:</span>{" "}
+  {Schema.$defs.Results.description}
+</div>
+
+<JSONSchemaRenderer schema={Schema} path="$defs.Results" />
+
+---
+
+## GGG Profiles Downloader
+
+<div className="text-sm p-3 bg-slate-100 text-slate-950 dark:bg-slate-800 dark:text-slate-50 rounded-lg whitespace-pre-wrap">
+  {Schema.$defs.GGGProfilesDownloaderConfig.description}
+</div>
+
+---
+
+### ggg_profiles_downloader.server
+
+<div className="text-sm p-3 bg-slate-100 text-slate-950 dark:bg-slate-800 dark:text-slate-50 rounded-lg whitespace-pre-wrap">
+  <span className="font-semibold mr-1">Contains:</span>{" "}
+  {Schema.$defs.Server.description}
+</div>
+
+<JSONSchemaRenderer schema={Schema} path="$defs.Server" />
+
+---
+
+
+### ggg_profiles_downloader.scope
+
+<div className="text-sm p-3 bg-slate-100 text-slate-950 dark:bg-slate-800 dark:text-slate-50 rounded-lg whitespace-pre-wrap">
+  <span className="font-semibold mr-1">Contains:</span>{" "}
+  {Schema.$defs.Scope.description}
+</div>
+
+<JSONSchemaRenderer schema={Schema} path="$defs.Scope" />
+
+---
+
+
+### ggg_profiles_downloader.ggg2020_standard_sites
+
+<div className="text-sm p-3 bg-slate-100 text-slate-950 dark:bg-slate-800 dark:text-slate-50 rounded-lg whitespace-pre-wrap">
+  <span className="font-semibold mr-1">Contains:</span>{" "}
+  {Schema.$defs.GGG2020StandardSitesItem.description}
+</div>
+
+<JSONSchemaRenderer schema={Schema} path="$defs.GGG2020StandardSitesItem" />
+
+---
+
+## Retrieval
+
+<div className="text-sm p-3 bg-slate-100 text-slate-950 dark:bg-slate-800 dark:text-slate-50 rounded-lg whitespace-pre-wrap">
+  {Schema.$defs.RetrievalConfig.description}
+</div>
+
+---
+
+### retrieval.general
+
+<div className="text-sm p-3 bg-slate-100 text-slate-950 dark:bg-slate-800 dark:text-slate-50 rounded-lg whitespace-pre-wrap">
+  <span className="font-semibold mr-1">Contains:</span>{" "}
+  {Schema.$defs.General.description}
+</div>
+
+<JSONSchemaRenderer schema={Schema} path="$defs.General" />
+
+---
+
+### retrieval.jobs.i
+
+<div className="text-sm p-3 bg-slate-100 text-slate-950 dark:bg-slate-800 dark:text-slate-50 rounded-lg whitespace-pre-wrap">
+  <span className="font-semibold mr-1">Contains:</span>{" "}
+  {Schema.$defs.Job.description}
+</div>
+
+<JSONSchemaRenderer schema={Schema} path="$defs.Job" />
+
+---
+
+## Exports
+
+<div className="text-sm p-3 bg-slate-100 text-slate-950 dark:bg-slate-800 dark:text-slate-50 rounded-lg whitespace-pre-wrap">
+  The pipeline can bundle a set of retrieval results into GEOMS files (one file per sensor and day) or into bundle files (one file per sensor). You can define a list of bundle/geoms targets to be generated. It uses the metadata and data paths defined in the input/output section above.
+</div>
+
+---
+
+
+### bundle_exports[i]
+
+<div className="text-sm p-3 bg-slate-100 text-slate-950 dark:bg-slate-800 dark:text-slate-50 rounded-lg whitespace-pre-wrap">
+  <span className="font-semibold mr-1">Contains:</span>{" "}
+  {Schema.$defs.BundleExportConfig.description}
+</div>
+
+<JSONSchemaRenderer schema={Schema} path="$defs.BundleExportConfig" />
+
+---
+
+### geoms_exports[i]
+
+<div className="text-sm p-3 bg-slate-100 text-slate-950 dark:bg-slate-800 dark:text-slate-50 rounded-lg whitespace-pre-wrap">
+  <span className="font-semibold mr-1">Contains:</span>{" "}
+  {Schema.$defs.GEOMSExportConfig.description}
+</div>
+
+<JSONSchemaRenderer schema={Schema} path="$defs.GEOMSExportConfig" />
+
+---
