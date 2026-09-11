@@ -1,6 +1,7 @@
 {
     "$defs": {
         "CampaignMetadata": {
+            "description": "Can be used to group measurements together, e.g. \"Hamburg Campaign\". The campaigns will be included in the dataset bundles in the column `campaign_ids`.",
             "properties": {
                 "from_datetime": {
                     "title": "From Datetime",
@@ -52,6 +53,7 @@
             "type": "array"
         },
         "EventMetadata": {
+            "description": "Can be used to mark special events during measurements, e.g. \"Testing New Solar Tracker\". You can mark that the data during an event should not be used in downstream tasks. The dataset bundles will include the columns `event_description` and `event_data_quality_flag` (0 = good data, 1 = should not be used because of an event).",
             "properties": {
                 "from_datetime": {
                     "title": "From Datetime",
@@ -100,6 +102,7 @@
             "type": "array"
         },
         "LocationMetadata": {
+            "description": "Definition of a measurement location at which an EM27/SUN was positioned.",
             "properties": {
                 "location_id": {
                     "description": "Your internal location ID identifying a specific location. Allowed values: letters, numbers, dashes, underscores.",
@@ -151,7 +154,7 @@
             "type": "array"
         },
         "SensorMetadata": {
-            "description": "Metadata for a single sensor.",
+            "description": "Metadata for a single sensor. Where has an EM27/SUN instrument been deployed over the years? Which UTC offsets did it record data in? For each deployment, should we use the atmospheric profiles from a different location or the pressure data from a different source?",
             "properties": {
                 "sensor_id": {
                     "description": "Your internal sensor ID identifying a specific EM27/SUN (system). Allowed characters: letters, numbers, dashes, underscores.",

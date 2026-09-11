@@ -83,6 +83,8 @@ class SetupsListItem(TimeSeriesElement):
 
 
 class LocationMetadata(pydantic.BaseModel):
+    """Definition of a measurement location at which an EM27/SUN was positioned."""
+
     location_id: str = pydantic.Field(
         ...,
         min_length=1,
@@ -120,7 +122,7 @@ class LocationMetadataList(pydantic.RootModel[list[LocationMetadata]]):
 
 
 class SensorMetadata(pydantic.BaseModel):
-    """Metadata for a single sensor."""
+    """Metadata for a single sensor. Where has an EM27/SUN instrument been deployed over the years? Which UTC offsets did it record data in? For each deployment, should we use the atmospheric profiles from a different location or the pressure data from a different source?"""
 
     model_config = pydantic.ConfigDict(arbitrary_types_allowed=True)
     sensor_id: str = pydantic.Field(
@@ -181,6 +183,8 @@ class SensorMetadataList(pydantic.RootModel[list[SensorMetadata]]):
 
 
 class CampaignMetadata(TimeSeriesElement):
+    """Can be used to group measurements together, e.g. "Hamburg Campaign". The campaigns will be included in the dataset bundles in the column `campaign_ids`."""
+
     campaign_id: str = pydantic.Field(
         ...,
         min_length=1,
@@ -211,6 +215,8 @@ class CampaignMetadataList(pydantic.RootModel[list[CampaignMetadata]]):
 
 
 class EventMetadata(TimeSeriesElement):
+    """Can be used to mark special events during measurements, e.g. "Testing New Solar Tracker". You can mark that the data during an event should not be used in downstream tasks. The dataset bundles will include the columns `event_description` and `event_data_quality_flag` (0 = good data, 1 = should not be used because of an event)."""
+
     sensor_ids: list[str] = pydantic.Field(
         ...,
         min_length=1,
