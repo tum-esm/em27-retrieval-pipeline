@@ -197,7 +197,7 @@ b = (
     .split("We retrieve a lot of ")[1]
     .replace("docs/public/images/", "images/")
     .replace("https://tum-esm.github.io/em27-retrieval-pipeline/guides", "/guides")
-    .replace("https://tum-esm.github.io/em27-retrieval-pipeline/api-reference", "/api-reference")
+    .replace("https://tum-esm.github.io/em27-retrieval-pipeline/reference", "/reference")
 )
 
 tum_esm_utils.files.dump_file(
@@ -253,7 +253,7 @@ def recursive_help(
     return output
 
 
-print("Exporting CLI reference to docs/src/content/api-reference/cli.mdx")
-with open(f"{PROJECT_DIR}/docs/src/content/docs/api-reference/cli.mdx", "w") as f:
+print("Exporting CLI reference to docs/src/content/reference/cli.mdx")
+with open(f"{PROJECT_DIR}/docs/src/content/docs/reference/cli.mdx", "w") as f:
     f.write("---\ntitle: CLI Reference\n---\n\n")
     f.write(recursive_help(cli.cli))

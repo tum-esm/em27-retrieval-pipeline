@@ -74,8 +74,8 @@ standard for exchanging ground-based total-column concentration data. It uses th
 and enforces a specific structure for the data (see [guidelines from EVDC](https://evdc.esa.int/documentation/geoms/)).
 
 This pipeline can generate GEOMS compliant HDF5 files for the entire retrieval output. For that it requires the files `calibration_factors.json`
-and `geoms_metadata.json` to be present in the configuration directory. You can use the [example files and the API reference](/api-reference/geoms-configuration)
-to create your own files. You need to add a section `geoms` to the [general `config.json` file ](/api-reference/configuration) defining
+and `geoms_metadata.json` to be present in the configuration directory. You can use the [example files and the API reference](/reference/geoms-configuration)
+to create your own files. You need to add a section `geoms` to the [general `config.json` file ](/reference/configuration) defining
 the scope for which you want to generate GEOMS files.
 
 As always, the pipeline will tell you if any of your configuration files are invalid. Create the GEOMS files using the following command:

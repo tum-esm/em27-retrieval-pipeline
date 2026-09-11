@@ -76,20 +76,8 @@ export default defineConfig({
           collapsed: false,
           items: [
             {
-              label: "Metadata",
-              link: "/api-reference/metadata",
-            },
-            {
-              label: "Configuration",
-              link: "/api-reference/configuration",
-            },
-            {
-              label: "GEOMS Configuration",
-              link: "/api-reference/geoms-configuration",
-            },
-            {
               label: "Command Line Interface",
-              link: "/api-reference/cli",
+              link: "/reference/cli",
             },
           ],
         },

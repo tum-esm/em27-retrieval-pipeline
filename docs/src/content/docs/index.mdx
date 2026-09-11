@@ -77,7 +77,7 @@ The data flow from input to merged outputs:
 
 **Opinionated management of station metadata:** We manage our EM27 metadata using JSON files instead of database tables, which has several benefits mentioned in the [metadata repository](https://github.com/tum-esm/em27-metadata)
 
-**Filtering of interferogram files that Proffast cannot process:** When some interferograms are corrupted, Proffast will fail during preprocessing for whole days of data even when only a few out of thousands of interferograms are bad. The pipeline filters out these interferograms and only passes the valid ones to Proffast. A standalone version of this filtering functionality is included in our [utility library](/api-reference#tum_esm_utilsinterferograms)
+**Filtering of interferogram files that Proffast cannot process:** When some interferograms are corrupted, Proffast will fail during preprocessing for whole days of data even when only a few out of thousands of interferograms are bad. The pipeline filters out these interferograms and only passes the valid ones to Proffast. A standalone version of this filtering functionality is included in our [utility library](https://tum-esm-utils.netlify.app/api-reference#tum_esm_utilsinterferograms)
 
 **Parallelization of the Proffast Pylot execution:** The Pylot already provides parallelization. However, we decided to isolate the approach of the Pylot more and run the retrieval execution for each station and date individually inside a containerized environment. This way, errors during the retrieval don't affect separate days/stations, and we have separated outputs and logs.
 
