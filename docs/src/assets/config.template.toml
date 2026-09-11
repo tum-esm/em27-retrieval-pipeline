@@ -1,0 +1,114 @@
+
+version = "1.11"
+
+# METADATA
+
+[metadata]
+source = "local"
+github_repository = "tum-esm/em27-metadata-storage"
+
+# DATA
+
+[data.atmospheric_profiles]
+path = "path-to-atmospheric-profiles"
+
+[data.ground_pressure]
+path = "path-to-ground-pressure-data"
+file_regex = "^ground-pressure-$(SENSOR_ID)-$(YYYY)-$(MM)-$(DD).csv$"
+separator = ","
+pressure_column = "pressure"
+pressure_column_format = "hPa"
+date_column = "UTCdate_____"
+date_column_format = "%Y-%m-%d"
+time_column = "UTCtime_____"
+time_column_format = "%H:%M:%S"
+
+[data.interferograms]
+path = "path-to-interferogram-directory"
+ifg_file_regex = "^$(SENSOR_ID)$(DATE).*\\.\\d+$"
+
+[data.results]
+path = "path-to-results-directory"
+
+# GGG PROFILES DOWNLOADER
+
+[ggg_profiles_downloader.server]
+email = "...@..."
+max_parallel_requests = 25
+
+[ggg_profiles_downloader.scope]
+from_date = "2022-01-01"
+to_date = "2022-01-05"
+models = ["GGG2014", "GGG2020"]
+force_download_locations = ["TUM_I"]
+
+[[ggg_profiles_downloader.ggg2020_standard_sites]]
+identifier = "mu"
+lat = 48.151
+lon = 11.569
+from_date = "2019-01-01"
+to_date = "2099-12-31"
+
+# RETRIEVAL
+
+[retrieval.general]
+max_process_count = 9
+queue_verbosity = "compact"
+
+[retrieval.jobs.0]
+retrieval_algorithm = "proffast-1.0"
+atmospheric_profile_model = "GGG2014"
+sensor_ids = ["ma", "mb", "mc", "md", "me"]
+from_date = "2019-01-01"
+to_date = "2022-12-31"
+store_binary_spectra = true
+dc_min_threshold = 0.05
+dc_var_threshold = 0.1
+use_local_pressure_in_pcxs = true
+use_ifg_corruption_filter = false
+
+[retrieval.jobs.0.custom_ils.ma]
+channel1_me = 0.9892
+channel1_pe = -0.001082
+channel2_me = 0.9892
+channel2_pe = -0.001082
+
+[retrieval.jobs.0.custom_ils.mb]
+channel1_me = 0.9893
+channel1_pe = -0.001083
+channel2_me = 0.9893
+channel2_pe = -0.001083
+
+[retrieval.jobs.1]
+retrieval_algorithm = "proffast-2.4"
+atmospheric_profile_model = "GGG2020"
+sensor_ids = ["ma", "mb", "mc", "md", "me"]
+from_date = "2019-01-01"
+to_date = "2099-12-31"
+
+# BUNDLE GENERATOR
+
+[[bundle_exports]]
+dst_dir = "directory-to-write-the-bundles-to"
+output_formats = ["csv", "parquet"]
+from_datetime = "2022-01-01T00:00:00Z"
+to_datetime = "2022-12-31T23:59:59Z"
+retrieval_algorithms = ["proffast-1.0", "proffast-2.4"]
+atmospheric_profile_models = ["GGG2014", "GGG2020"]
+sensor_ids = ["ma", "mb", "mc", "md", "me"]
+parse_dc_timeseries = true
+parse_retrieval_diagnostics = true
+
+# GEOMS GENERATOR
+
+[[geoms_exports]]
+sensor_ids = ["ma", "mb", "mc", "md", "me"]
+retrieval_algorithms = ["proffast-1.0", "proffast-2.4"]
+atmospheric_profile_models = ["GGG2014", "GGG2020"]
+from_datetime = "2022-01-01T00:00:00Z"
+to_datetime = "2022-12-31T23:59:59Z"
+parse_dc_timeseries = false
+max_sza = 80
+min_xair = 0.98
+max_xair = 1.02
+conflict_mode = "replace"

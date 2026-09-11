@@ -1,6 +1,62 @@
 {
     "$defs": {
-        "GEOMSContactlMetadata": {
+        "CalibrationFactors": {
+            "properties": {
+                "sensor_id": {
+                    "title": "Sensor Id",
+                    "type": "string"
+                },
+                "valid_from_datetime": {
+                    "format": "date-time",
+                    "title": "Valid From Datetime",
+                    "type": "string"
+                },
+                "valid_to_datetime": {
+                    "format": "date-time",
+                    "title": "Valid To Datetime",
+                    "type": "string"
+                },
+                "xco2": {
+                    "description": "Calibration factor for carbon dioxide: xco2_cal = xco2_raw * factor",
+                    "title": "Xco2",
+                    "type": "number"
+                },
+                "xch4": {
+                    "description": "Calibration factor for methane: xch4_cal = xch4_raw * factor",
+                    "title": "Xch4",
+                    "type": "number"
+                },
+                "xco": {
+                    "description": "Calibration factor for carbon monoxide: xco_cal = xco_raw * factor",
+                    "title": "Xco",
+                    "type": "number"
+                },
+                "xh2o": {
+                    "description": "Calibration factor for water vapor: xh2o_cal = xh2o_raw * factor",
+                    "title": "Xh2O",
+                    "type": "number"
+                }
+            },
+            "required": [
+                "sensor_id",
+                "valid_from_datetime",
+                "valid_to_datetime",
+                "xco2",
+                "xch4",
+                "xco",
+                "xh2o"
+            ],
+            "title": "CalibrationFactors",
+            "type": "object"
+        },
+        "CalibrationFactorsList": {
+            "items": {
+                "$ref": "#/$defs/CalibrationFactors"
+            },
+            "title": "CalibrationFactorsList",
+            "type": "array"
+        },
+        "Contact": {
             "properties": {
                 "name": {
                     "description": "The value of the HDF5 attribute `PI_NAME`/`DO_NAME`/`DS_NAME`",
@@ -41,10 +97,10 @@
                 "affiliation",
                 "address"
             ],
-            "title": "GEOMSContactlMetadata",
+            "title": "Contact",
             "type": "object"
         },
-        "GEOMSDataMetadata": {
+        "Data": {
             "properties": {
                 "discipline": {
                     "description": "The value of the HDF5 attribute `DATA_DISCIPLINE`",
@@ -94,10 +150,10 @@
                 "quality",
                 "template"
             ],
-            "title": "GEOMSDataMetadata",
+            "title": "Data",
             "type": "object"
         },
-        "GEOMSFileMetadata": {
+        "File": {
             "properties": {
                 "doi": {
                     "description": "The value of the HDF5 attribute `FILE_DOI`",
@@ -135,10 +191,10 @@
                 "access",
                 "project_id"
             ],
-            "title": "GEOMSFileMetadata",
+            "title": "File",
             "type": "object"
         },
-        "GEOMSGeneralMetadata": {
+        "General": {
             "properties": {
                 "network": {
                     "description": "Used in the filename of the HDF5 file",
@@ -171,28 +227,28 @@
                 "affiliation",
                 "pressure_sensor_name"
             ],
-            "title": "GEOMSGeneralMetadata",
+            "title": "General",
             "type": "object"
         }
     },
     "properties": {
         "general": {
-            "$ref": "#/$defs/GEOMSGeneralMetadata"
+            "$ref": "#/$defs/General"
         },
         "data": {
-            "$ref": "#/$defs/GEOMSDataMetadata"
+            "$ref": "#/$defs/Data"
         },
         "file": {
-            "$ref": "#/$defs/GEOMSFileMetadata"
+            "$ref": "#/$defs/File"
         },
         "principle_investigator": {
-            "$ref": "#/$defs/GEOMSContactlMetadata"
+            "$ref": "#/$defs/Contact"
         },
         "data_originator": {
-            "$ref": "#/$defs/GEOMSContactlMetadata"
+            "$ref": "#/$defs/Contact"
         },
         "data_submitter": {
-            "$ref": "#/$defs/GEOMSContactlMetadata"
+            "$ref": "#/$defs/Contact"
         },
         "locations": {
             "additionalProperties": {
@@ -201,6 +257,9 @@
             "description": "Maps your locations id to the corresponding EVDC location id",
             "title": "Locations",
             "type": "object"
+        },
+        "calibration_factors": {
+            "$ref": "#/$defs/CalibrationFactorsList"
         }
     },
     "required": [
@@ -210,7 +269,8 @@
         "principle_investigator",
         "data_originator",
         "data_submitter",
-        "locations"
+        "locations",
+        "calibration_factors"
     ],
     "title": "GEOMSMetadata",
     "type": "object"

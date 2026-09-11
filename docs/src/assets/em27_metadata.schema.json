@@ -1,0 +1,278 @@
+{
+    "$defs": {
+        "CampaignMetadata": {
+            "properties": {
+                "from_datetime": {
+                    "title": "From Datetime",
+                    "type": "string"
+                },
+                "to_datetime": {
+                    "title": "To Datetime",
+                    "type": "string"
+                },
+                "campaign_id": {
+                    "description": "Your internal sensor ID identifying a specific campaign. Allowed values: letters, numbers, dashes, underscores.",
+                    "maxLength": 128,
+                    "minLength": 1,
+                    "pattern": "^[a-zA-Z0-9_-]+$",
+                    "title": "Campaign Id",
+                    "type": "string"
+                },
+                "sensor_ids": {
+                    "items": {
+                        "type": "string"
+                    },
+                    "title": "Sensor Ids",
+                    "type": "array"
+                },
+                "location_ids": {
+                    "items": {
+                        "type": "string"
+                    },
+                    "title": "Location Ids",
+                    "type": "array"
+                }
+            },
+            "required": [
+                "from_datetime",
+                "to_datetime",
+                "campaign_id",
+                "sensor_ids",
+                "location_ids"
+            ],
+            "title": "CampaignMetadata",
+            "type": "object"
+        },
+        "CampaignMetadataList": {
+            "default": [],
+            "items": {
+                "$ref": "#/$defs/CampaignMetadata"
+            },
+            "title": "CampaignMetadataList",
+            "type": "array"
+        },
+        "EventMetadata": {
+            "properties": {
+                "from_datetime": {
+                    "title": "From Datetime",
+                    "type": "string"
+                },
+                "to_datetime": {
+                    "title": "To Datetime",
+                    "type": "string"
+                },
+                "sensor_ids": {
+                    "description": "List of sensor IDs involved in the event",
+                    "items": {
+                        "type": "string"
+                    },
+                    "minItems": 1,
+                    "title": "Sensor Ids",
+                    "type": "array"
+                },
+                "description": {
+                    "description": "Description of the event",
+                    "minLength": 1,
+                    "title": "Description",
+                    "type": "string"
+                },
+                "data_is_usable": {
+                    "description": "Indicates if the data recorded during the event is usable for downstream analysis",
+                    "title": "Data Is Usable",
+                    "type": "boolean"
+                }
+            },
+            "required": [
+                "from_datetime",
+                "to_datetime",
+                "sensor_ids",
+                "description",
+                "data_is_usable"
+            ],
+            "title": "EventMetadata",
+            "type": "object"
+        },
+        "EventMetadataList": {
+            "items": {
+                "$ref": "#/$defs/EventMetadata"
+            },
+            "title": "EventMetadataList",
+            "type": "array"
+        },
+        "LocationMetadata": {
+            "properties": {
+                "location_id": {
+                    "description": "Your internal location ID identifying a specific location. Allowed values: letters, numbers, dashes, underscores.",
+                    "maxLength": 128,
+                    "minLength": 1,
+                    "pattern": "^[a-zA-Z0-9_-]+$",
+                    "title": "Location Id",
+                    "type": "string"
+                },
+                "details": {
+                    "default": "",
+                    "minLength": 0,
+                    "title": "Details",
+                    "type": "string"
+                },
+                "lon": {
+                    "maximum": 180,
+                    "minimum": -180,
+                    "title": "Lon",
+                    "type": "number"
+                },
+                "lat": {
+                    "maximum": 90,
+                    "minimum": -90,
+                    "title": "Lat",
+                    "type": "number"
+                },
+                "alt_asl": {
+                    "maximum": 10000,
+                    "minimum": -20,
+                    "title": "Alt Asl",
+                    "type": "number"
+                }
+            },
+            "required": [
+                "location_id",
+                "lon",
+                "lat",
+                "alt_asl"
+            ],
+            "title": "LocationMetadata",
+            "type": "object"
+        },
+        "LocationMetadataList": {
+            "items": {
+                "$ref": "#/$defs/LocationMetadata"
+            },
+            "title": "LocationMetadataList",
+            "type": "array"
+        },
+        "SensorMetadata": {
+            "description": "Metadata for a single sensor.",
+            "properties": {
+                "sensor_id": {
+                    "description": "Your internal sensor ID identifying a specific EM27/SUN (system). Allowed characters: letters, numbers, dashes, underscores.",
+                    "maxLength": 128,
+                    "minLength": 1,
+                    "pattern": "^[a-zA-Z0-9_-]+$",
+                    "title": "Sensor Id",
+                    "type": "string"
+                },
+                "serial_number": {
+                    "description": "Serial number of the EM27/SUN",
+                    "minimum": 1,
+                    "title": "Serial Number",
+                    "type": "integer"
+                },
+                "setups": {
+                    "items": {
+                        "$ref": "#/$defs/SetupsListItem"
+                    },
+                    "minItems": 0,
+                    "title": "Setups",
+                    "type": "array"
+                }
+            },
+            "required": [
+                "sensor_id",
+                "serial_number",
+                "setups"
+            ],
+            "title": "SensorMetadata",
+            "type": "object"
+        },
+        "SensorMetadataList": {
+            "items": {
+                "$ref": "#/$defs/SensorMetadata"
+            },
+            "title": "SensorMetadataList",
+            "type": "array"
+        },
+        "Setup": {
+            "properties": {
+                "location_id": {
+                    "description": "Location ID referring to a location named in `locations.json`",
+                    "minLength": 1,
+                    "title": "Location Id",
+                    "type": "string"
+                },
+                "pressure_data_source": {
+                    "default": null,
+                    "description": "Pressure data source, if not set, using the pressure of the sensor",
+                    "title": "Pressure Data Source",
+                    "minLength": 1,
+                    "type": "string",
+                    "nullable": true
+                },
+                "utc_offset": {
+                    "default": 0,
+                    "description": "UTC offset of the location, if not set, using an offset of 0",
+                    "exclusiveMaximum": 12,
+                    "exclusiveMinimum": -12,
+                    "title": "Utc Offset",
+                    "type": "number"
+                },
+                "atmospheric_profile_location_id": {
+                    "default": null,
+                    "description": "Location ID referring to a location named in `locations.json`. This location's coordinates are used for the atmospheric profiles in the retrieval.",
+                    "title": "Atmospheric Profile Location Id",
+                    "minLength": 1,
+                    "type": "string",
+                    "nullable": true
+                }
+            },
+            "required": [
+                "location_id"
+            ],
+            "title": "Setup",
+            "type": "object"
+        },
+        "SetupsListItem": {
+            "description": "An element in the `sensor.setups` list",
+            "properties": {
+                "from_datetime": {
+                    "title": "From Datetime",
+                    "type": "string"
+                },
+                "to_datetime": {
+                    "title": "To Datetime",
+                    "type": "string"
+                },
+                "value": {
+                    "$ref": "#/$defs/Setup"
+                }
+            },
+            "required": [
+                "from_datetime",
+                "to_datetime",
+                "value"
+            ],
+            "title": "SetupsListItem",
+            "type": "object"
+        }
+    },
+    "properties": {
+        "sensors": {
+            "$ref": "#/$defs/SensorMetadataList"
+        },
+        "locations": {
+            "$ref": "#/$defs/LocationMetadataList"
+        },
+        "campaigns": {
+            "$ref": "#/$defs/CampaignMetadataList"
+        },
+        "events": {
+            "$ref": "#/$defs/EventMetadataList",
+            "default": []
+        }
+    },
+    "required": [
+        "sensors",
+        "locations"
+    ],
+    "title": "EM27MetadataObject",
+    "type": "object"
+}
