@@ -2,9 +2,8 @@
 title: Directories
 ---
 
-import { Aside } from '@astrojs/starlight/components';
+import { Aside } from "@astrojs/starlight/components";
 import FileSystemTree from "../../../components/FileSystemTree.tsx";
-
 
 The pipeline and none of the retrieval algorithms manipulate any data in the directories `config.general.data.ground_pressure.path`, `config.general.data.atmospheric_profiles`, and `config.general.data.interferograms`. The retrieval only writes to `config.general.data.results`.
 
@@ -38,8 +37,8 @@ Point the `config.general.data.interferograms` variable to the directory your in
               { type: "file", title: "ma20210101.ifg.001" },
               { type: "file", title: "ma20210101.ifg.002" },
               { type: "file", title: "ma20210101.ifg.003" },
-              { type: "file", title: "..." }
-            ]
+              { type: "file", title: "..." },
+            ],
           },
           {
             type: "directory",
@@ -48,10 +47,10 @@ Point the `config.general.data.interferograms` variable to the directory your in
               { type: "file", title: "ma20210102.ifg.001" },
               { type: "file", title: "ma20210102.ifg.002" },
               { type: "file", title: "ma20210102.ifg.003" },
-              { type: "file", title: "..." }
-            ]
-          }
-        ]
+              { type: "file", title: "..." },
+            ],
+          },
+        ],
       },
       {
         type: "directory",
@@ -60,25 +59,25 @@ Point the `config.general.data.interferograms` variable to the directory your in
           {
             type: "directory",
             title: "20220101",
-            items: []
+            items: [],
           },
           {
             type: "directory",
             title: "...",
-            items: []
-          }
-        ]
+            items: [],
+          },
+        ],
       },
       {
         type: "directory",
         title: "...",
-        items: []
-      }
-    ]
+        items: [],
+      },
+    ],
   }}
 />
 
-In this example, `ma`, `mb`, and so on are the "sensor ids" used by us (see the [next section about metadata](/guides/metadata)).
+In this example, `ma`, `mb`, and so on are the "sensor ids" used by us (see the [next section about metadata](/em27-retrieval-pipeline/guides/metadata)).
 
 You must set the `config.retrieval.general.ifg_file_regex` value to a regex matching your files. In the example above, we can use `^$(SENSOR_ID)$(DATE).*ifg.\\d+$`.
 
@@ -87,30 +86,31 @@ You must set the `config.retrieval.general.ifg_file_regex` value to a regex matc
 Point the `config.general.data.ground_pressure.path` variable to the directory where you store your local meteorological files, i.e. your ground pressure logs.
 
 <FileSystemTree
-schema={{
-  type: "directory",
-  title: "<config.general.data.ground_pressure.path>",
-  items: [
-    {
-      type: "directory",
-      title: "ma",
-      items: [
-        { type: "file", title: "ground-pressure-ma-2021-01-01.csv" },
-        { type: "file", title: "ground-pressure-ma-2021-01-02.csv" },
-        { type: "file", title: "..." }
-      ]
-    },
-    {
-      type: "directory",
-      title: "mb",
-      items: [
-        { type: "file", title: "ground-pressure-mb-2021-01-01.csv" },
-        { type: "file", title: "..." }
-      ]
-    },
-    { type: "directory", title: "...", items: [] }
-  ]
-}}/>
+  schema={{
+    type: "directory",
+    title: "<config.general.data.ground_pressure.path>",
+    items: [
+      {
+        type: "directory",
+        title: "ma",
+        items: [
+          { type: "file", title: "ground-pressure-ma-2021-01-01.csv" },
+          { type: "file", title: "ground-pressure-ma-2021-01-02.csv" },
+          { type: "file", title: "..." },
+        ],
+      },
+      {
+        type: "directory",
+        title: "mb",
+        items: [
+          { type: "file", title: "ground-pressure-mb-2021-01-01.csv" },
+          { type: "file", title: "..." },
+        ],
+      },
+      { type: "directory", title: "...", items: [] },
+    ],
+  }}
+/>
 
 You can fully specify the naming schema of these pressure files. For example, the example above matches the following naming schema: `^ground-pressure-$(SENSOR_ID)-$(YYYY)-$(MM)-$(DD).csv$`. When looking for ground pressure files for a certain sensor id and date, the pipeline will replace the placeholders with the actual values. Available placeholders are `$(SENSOR_ID)`, `$(YYYY)`, `$(YY)`, `$(MM)`, and `$(DD)`.
 
@@ -210,38 +210,39 @@ pressure,unix-timestamp
 Point the `config.general.data.atmospheric_profiles` variable to the directory you want to store the atmospheric profiles.
 
 <FileSystemTree
-schema={{
-  type: "directory",
-  title: "<config.general.data.atmospheric_profiles>",
-  items: [
-    {
-      type: "directory",
-      title: "GGG2014",
-      items: [
-        { type: "file", title: "20210101_48N011E.map" },
-        { type: "file", title: "20210101_48N011E.mod" },
-        { type: "file", title: "20210101_48N012E.map" },
-        { type: "file", title: "20210101_48N012E.mod" },
-        { type: "file", title: "20210102_48N011E.map" },
-        { type: "file", title: "..." }
-      ]
-    },
-    {
-      type: "directory",
-      title: "GGG2020",
-      items: [
-        { type: "file", title: "2021010100_48N011E.map" },
-        { type: "file", title: "2021010100_48N011E.mod" },
-        { type: "file", title: "2021010100_48N011E.vmr" },
-        { type: "file", title: "2021010100_48N012E.map" },
-        { type: "file", title: "2021010100_48N012E.mod" },
-        { type: "file", title: "2021010100_48N012E.vmr" },
-        { type: "file", title: "2021010103_48N011E.map" },
-        { type: "file", title: "..."}
-      ]
-    }
-  ]
-}}/>
+  schema={{
+    type: "directory",
+    title: "<config.general.data.atmospheric_profiles>",
+    items: [
+      {
+        type: "directory",
+        title: "GGG2014",
+        items: [
+          { type: "file", title: "20210101_48N011E.map" },
+          { type: "file", title: "20210101_48N011E.mod" },
+          { type: "file", title: "20210101_48N012E.map" },
+          { type: "file", title: "20210101_48N012E.mod" },
+          { type: "file", title: "20210102_48N011E.map" },
+          { type: "file", title: "..." },
+        ],
+      },
+      {
+        type: "directory",
+        title: "GGG2020",
+        items: [
+          { type: "file", title: "2021010100_48N011E.map" },
+          { type: "file", title: "2021010100_48N011E.mod" },
+          { type: "file", title: "2021010100_48N011E.vmr" },
+          { type: "file", title: "2021010100_48N012E.map" },
+          { type: "file", title: "2021010100_48N012E.mod" },
+          { type: "file", title: "2021010100_48N012E.vmr" },
+          { type: "file", title: "2021010103_48N011E.map" },
+          { type: "file", title: "..." },
+        ],
+      },
+    ],
+  }}
+/>
 
 <Aside type="note">
 
@@ -254,95 +255,113 @@ Since this pipeline includes a fully automated downloader for this data, you can
 The pipeline populates the results directory in the following way:
 
 <FileSystemTree
-schema={{
-  type: "directory",
-  title: "<config.general.data.results>",
-  items: [
-    {
-      type: "directory",
-      title: "proffast-2.3",
-      items: [
-        {
-          type: "directory",
-          title: "GGG2020",
-          items: [
-            {
-              type: "directory",
-              title: "ma",
-              items: [
-                {
-                  type: "directory",
-                  title: "failed",
-                  items: []
-                },
-                {
-                  type: "directory",
-                  title: "successful",
-                  items: [
-                    {
-                      type: "directory",
-                      title: "20210101",
-                      items: [
-                        { type: "directory", title: "input_files", items: [     
-                          { type: "file", title: "invers20ma_210101_a.inp" },
-                          { type: "file", title: "pcxs20ma_210101.inp" },
-                          { type: "file", title: "preprocess5ma_210101.inp" }
-                        ]},
-                        {
-                          type: "directory",
-                          title: "logfiles",
-                          items: [
-                            { type: "file", title: "container.log" },
-                            { type: "file", title: "inv_output.log" },
-                            { type: "file", title: "pcxs_output.log" },
-                            { type: "file", title: "preprocess_output.log" },
-                            { type: "file", title: "pylot_38218.log" }
-                          ]
-                        },
-                        { type: "file", title: "comb_invparms_ma_SN061_210101-210101.csv" },
-                        { type: "file", title: "opus_file_stats.csv" },
-                        { type: "file", title: "about.json" },
-                        { type: "file", title: "pylot_config.yml" },
-                        { type: "file", title: "pylot_log_format.yml" },
-                        { type: "file", title: "... (more files depending on retrieval algorithm)" }
-                      ]
-                    }
-                  ]
-                }
-              ]
-            },
-            {
-              type: "directory",
-              title: "mb",
-              items: [
-                {
-                  type: "directory",
-                  title: "failed",
-                  items: []
-                },
-                {
-                  type: "directory",      
-                  title: "successful",
-                  items: []
-                }
-              ]
-            }
-          ]
-        },
-        {
-          type: "directory",
-          title: "GGG2014",
-          items: []
-        },
-        {
-          type: "directory",    
-          title: "...",
-          items: []
-        }
-      ]
-    }
-  ]
-}}/>
+  schema={{
+    type: "directory",
+    title: "<config.general.data.results>",
+    items: [
+      {
+        type: "directory",
+        title: "proffast-2.3",
+        items: [
+          {
+            type: "directory",
+            title: "GGG2020",
+            items: [
+              {
+                type: "directory",
+                title: "ma",
+                items: [
+                  {
+                    type: "directory",
+                    title: "failed",
+                    items: [],
+                  },
+                  {
+                    type: "directory",
+                    title: "successful",
+                    items: [
+                      {
+                        type: "directory",
+                        title: "20210101",
+                        items: [
+                          {
+                            type: "directory",
+                            title: "input_files",
+                            items: [
+                              {
+                                type: "file",
+                                title: "invers20ma_210101_a.inp",
+                              },
+                              { type: "file", title: "pcxs20ma_210101.inp" },
+                              {
+                                type: "file",
+                                title: "preprocess5ma_210101.inp",
+                              },
+                            ],
+                          },
+                          {
+                            type: "directory",
+                            title: "logfiles",
+                            items: [
+                              { type: "file", title: "container.log" },
+                              { type: "file", title: "inv_output.log" },
+                              { type: "file", title: "pcxs_output.log" },
+                              { type: "file", title: "preprocess_output.log" },
+                              { type: "file", title: "pylot_38218.log" },
+                            ],
+                          },
+                          {
+                            type: "file",
+                            title: "comb_invparms_ma_SN061_210101-210101.csv",
+                          },
+                          { type: "file", title: "opus_file_stats.csv" },
+                          { type: "file", title: "about.json" },
+                          { type: "file", title: "pylot_config.yml" },
+                          { type: "file", title: "pylot_log_format.yml" },
+                          {
+                            type: "file",
+                            title:
+                              "... (more files depending on retrieval algorithm)",
+                          },
+                        ],
+                      },
+                    ],
+                  },
+                ],
+              },
+              {
+                type: "directory",
+                title: "mb",
+                items: [
+                  {
+                    type: "directory",
+                    title: "failed",
+                    items: [],
+                  },
+                  {
+                    type: "directory",
+                    title: "successful",
+                    items: [],
+                  },
+                ],
+              },
+            ],
+          },
+          {
+            type: "directory",
+            title: "GGG2014",
+            items: [],
+          },
+          {
+            type: "directory",
+            title: "...",
+            items: [],
+          },
+        ],
+      },
+    ],
+  }}
+/>
 
 The `about.json` file in each successful retrieval directory contains all information required to reproduce the respective retrieval results. The structure of the directories in `failed/` and `successful/` is the same - the outputs are moved to `successful/` if the retrieval has produced a final CSV file and to `failed` otherwise.
 
@@ -365,20 +384,53 @@ With `config.bundles`, you can specify a list of bundles to produce from the raw
 ... the following bundles will be generated in the output directory `/some/path/where/the/bundle_should/be/written/to`:
 
 <FileSystemTree
-schema={{
-  type: "directory",
-  title: "/some/path/where/the/bundle_should_be/written/to",
-  items: [
-    { type: "file", title: "em27-retrieval-bundle-ma-proffast-2.2-GGG2020-20240510-20240709.csv" },
-    { type: "file", title: "em27-retrieval-bundle-ma-proffast-2.2-GGG2020-20240510-20240709.parquet" },
-    { type: "file", title: "em27-retrieval-bundle-ma-proffast-2.4-GGG2020-20240510-20240709.csv" },
-    { type: "file", title: "em27-retrieval-bundle-ma-proffast-2.4-GGG2020-20240510-20240709.parquet" },
-    { type: "file", title: "em27-retrieval-bundle-mb-proffast-2.2-GGG2020-20240510-20240709.csv" },
-    { type: "file", title: "em27-retrieval-bundle-mb-proffast-2.2-GGG2020-20240510-20240709.parquet" },
-    { type: "file", title: "em27-retrieval-bundle-mb-proffast-2.4-GGG2020-20240510-20240709.csv" },
-    { type: "file", title: "em27-retrieval-bundle-mb-proffast-2.4-GGG2020-20240510-20240709.parquet" }
-  ]
-}}/>
+  schema={{
+    type: "directory",
+    title: "/some/path/where/the/bundle_should_be/written/to",
+    items: [
+      {
+        type: "file",
+        title:
+          "em27-retrieval-bundle-ma-proffast-2.2-GGG2020-20240510-20240709.csv",
+      },
+      {
+        type: "file",
+        title:
+          "em27-retrieval-bundle-ma-proffast-2.2-GGG2020-20240510-20240709.parquet",
+      },
+      {
+        type: "file",
+        title:
+          "em27-retrieval-bundle-ma-proffast-2.4-GGG2020-20240510-20240709.csv",
+      },
+      {
+        type: "file",
+        title:
+          "em27-retrieval-bundle-ma-proffast-2.4-GGG2020-20240510-20240709.parquet",
+      },
+      {
+        type: "file",
+        title:
+          "em27-retrieval-bundle-mb-proffast-2.2-GGG2020-20240510-20240709.csv",
+      },
+      {
+        type: "file",
+        title:
+          "em27-retrieval-bundle-mb-proffast-2.2-GGG2020-20240510-20240709.parquet",
+      },
+      {
+        type: "file",
+        title:
+          "em27-retrieval-bundle-mb-proffast-2.4-GGG2020-20240510-20240709.csv",
+      },
+      {
+        type: "file",
+        title:
+          "em27-retrieval-bundle-mb-proffast-2.4-GGG2020-20240510-20240709.parquet",
+      },
+    ],
+  }}
+/>
 
 The output files will include all data from the `<config.general.data.results>` path that matches the time period. The CSV and Parquet files contain the same data - just in two different tabular formats. They keep all columns from the raw retrieval algorithm but add four more columns `utc`, `retrieval_time`, `location_id` and `campaign_ids`:
 
@@ -438,30 +490,50 @@ existing base directory; the pipeline creates its `retrieval` and
 `retrieval/archive` directories automatically:
 
 <FileSystemTree
-schema={{
-  type: "directory",
-  title: "data/logs",
-  items: [
-    {
-      type: "directory",
-      title: "retrieval",
-      items: [
-        { type: "file", title: "20240106-23-54_main.log", description: "Log file a fill retrieval run." },
-        { type: "file", title: "20240106-22-55_generous-easley.log", description: "Log file of an individual container." },
-        { type: "file", title: "20240106-23-10_eloquent-oppenheimer.log", description: "Log file of an individual container." },
-        {
-          type: "directory",
-          title: "archive",
-          items: [
-            { type: "directory", title: "container", description:"old container logs" },
-            { type: "directory", title: "main", description: "old main logs" }
-          ]
-        }
-      ]
-    }
-  ]
-}}/>
-
+  schema={{
+    type: "directory",
+    title: "data/logs",
+    items: [
+      {
+        type: "directory",
+        title: "retrieval",
+        items: [
+          {
+            type: "file",
+            title: "20240106-23-54_main.log",
+            description: "Log file a fill retrieval run.",
+          },
+          {
+            type: "file",
+            title: "20240106-22-55_generous-easley.log",
+            description: "Log file of an individual container.",
+          },
+          {
+            type: "file",
+            title: "20240106-23-10_eloquent-oppenheimer.log",
+            description: "Log file of an individual container.",
+          },
+          {
+            type: "directory",
+            title: "archive",
+            items: [
+              {
+                type: "directory",
+                title: "container",
+                description: "old container logs",
+              },
+              {
+                type: "directory",
+                title: "main",
+                description: "old main logs",
+              },
+            ],
+          },
+        ],
+      },
+    ],
+  }}
+/>
 
 The files are either from containers (`startingdate-startingtime_containername.log`) or from the main process (`startingdate-startingtime_main.log`), which orchestrates the containers.
 

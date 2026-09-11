@@ -2,7 +2,7 @@
 title: Configuration
 ---
 
-import { Aside } from '@astrojs/starlight/components';
+import { Aside } from "@astrojs/starlight/components";
 import { Code } from "@astrojs/starlight/components";
 import ConfigTemplate from "../../../assets/config.template.toml?raw";
 
@@ -10,11 +10,11 @@ import ConfigTemplate from "../../../assets/config.template.toml?raw";
 
 The `config/config.json` file configures all steps of the pipeline. You can use the `config/config.template.json` file as a template to create your own configuration file.
 
-For setting up alternate locations for the `config.json` file, see the [metadata section](/guides/metadata).
+For setting up alternate locations for the `config.json` file, see the [metadata section](/em27-retrieval-pipeline/guides/metadata).
 
 <Aside type="note">
 
-The full schema specification and description of each parameter can be found [in the API Reference section](/reference/configuration).
+The full schema specification and description of each parameter can be found [in the API Reference section](/em27-retrieval-pipeline/reference/configuration).
 
 </Aside>
 
@@ -22,4 +22,4 @@ Template:
 
 <Code code={ConfigTemplate} lang="toml" />
 
-The [next section](/guides/directories) describes how the directories for the data sources (interferograms, ground pressure, atmospheric profiles), the outputs of this pipeline (retrieval results, bundles, logs), and the internal directories (containers, etc.) are structured.
+The [next section](/em27-retrieval-pipeline/guides/directories) describes how the directories for the data sources (interferograms, ground pressure, atmospheric profiles), the outputs of this pipeline (retrieval results, bundles, logs), and the internal directories (containers, etc.) are structured.

@@ -196,8 +196,18 @@ b = (
     tum_esm_utils.files.load_file(f"{PROJECT_DIR}/README.md")
     .split("We retrieve a lot of ")[1]
     .replace("docs/public/images/", "images/")
-    .replace("https://tum-esm.github.io/em27-retrieval-pipeline/guides", "/guides")
-    .replace("https://tum-esm.github.io/em27-retrieval-pipeline/reference", "/reference")
+    .replace(
+        "https://tum-esm.github.io/em27-retrieval-pipeline/guides",
+        "/em27-retrieval-pipeline/guides",
+    )
+    .replace(
+        "https://tum-esm.github.io/em27-retrieval-pipeline/reference",
+        "/em27-retrieval-pipeline/reference",
+    )
+    .replace(
+        'src="images/',
+        'src="/em27-retrieval-pipeline/images/',
+    )
 )
 
 tum_esm_utils.files.dump_file(
