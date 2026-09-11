@@ -1,5 +1,6 @@
 // @ts-check
 import { defineConfig } from "astro/config";
+import { unified } from "@astrojs/markdown-remark";
 import starlight from "@astrojs/starlight";
 import tailwindcss from "@tailwindcss/vite";
 import mdx from "@astrojs/mdx";
@@ -9,6 +10,8 @@ import rehypeMathjax from "rehype-mathjax";
 
 // https://astro.build/config
 export default defineConfig({
+  site: "https://tum-esm.github.io",
+  base: "/em27-retrieval-pipeline",
   integrations: [
     starlight({
       title: "EM27 Retrieval Pipeline",
@@ -16,9 +19,11 @@ export default defineConfig({
         light: "./src/assets/logo.svg",
         dark: "./src/assets/logo-dark.svg",
       },
-      social: {
-        github: "https://github.com/tum-esm/em27-retrieval-pipeline",
-      },
+      social: [{
+        icon: "github",
+        label: "GitHub",
+        href: "https://github.com/tum-esm/em27-retrieval-pipeline",
+      }],
       editLink: {
         baseUrl:
           "https://github.com/tum-esm/em27-retrieval-pipeline/edit/main/",
@@ -90,6 +95,7 @@ export default defineConfig({
         },
       ],
       customCss: [
+        "./src/styles/global.css",
         "@fontsource/inter/300.css",
         "@fontsource/inter/300-italic.css",
         "@fontsource/inter/400.css",
@@ -100,15 +106,26 @@ export default defineConfig({
         "@fontsource/inter/600-italic.css",
         "@fontsource/inter/700.css",
         "@fontsource/inter/700-italic.css",
-        "./src/styles/global.css",
+        "@fontsource/rubik/300.css",
+        "@fontsource/rubik/300-italic.css",
+        "@fontsource/rubik/400.css",
+        "@fontsource/rubik/400-italic.css",
+        "@fontsource/rubik/500.css",
+        "@fontsource/rubik/500-italic.css",
+        "@fontsource/rubik/600.css",
+        "@fontsource/rubik/600-italic.css",
+        "@fontsource/rubik/700.css",
+        "@fontsource/rubik/700-italic.css",
       ],
     }),
     react(),
     mdx(),
   ],
   markdown: {
-    remarkPlugins: [remarkMath],
-    rehypePlugins: [rehypeMathjax],
+    processor: unified({
+      remarkPlugins: [remarkMath],
+      rehypePlugins: [rehypeMathjax],
+    }),
   },
   vite: {
     plugins: [tailwindcss()],
