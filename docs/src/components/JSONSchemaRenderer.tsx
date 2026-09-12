@@ -440,9 +440,17 @@ async function Schema(props: {
   }
 }
 
-export default function JSONSchemaRenderer(props: {
+export default async function JSONSchemaRenderer(props: {
   schema: AnySchema;
   path?: string;
 }) {
-  return <ShallowSchema schema={props.schema} path={props.path} />;
+  try {
+    return await ShallowSchema({ schema: props.schema, path: props.path });
+  } catch (error) {
+    console.warn("Could not render JSON schema", error);
+    if (import.meta.env.PROD) {
+      throw error;
+    }
+    return "could not render";
+  }
 }
