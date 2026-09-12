@@ -11,11 +11,12 @@ LOCATIONS_PATH = os.path.join(CONFIG_DIR, "locations.json")
 SENSORS_PATH = os.path.join(CONFIG_DIR, "sensors.json")
 CAMPAIGNS_PATH = os.path.join(CONFIG_DIR, "campaigns.json")
 EVENTS_PATH = os.path.join(CONFIG_DIR, "events.json")
+EM27_METADATA_PATH = os.path.join(CONFIG_DIR, "em27_metadata.toml")
 
 
 @pytest.fixture(scope="function")
 def store_local_metadata_during_test() -> Generator[None, None, None]:
-    paths = [LOCATIONS_PATH, SENSORS_PATH, CAMPAIGNS_PATH]
+    paths = [LOCATIONS_PATH, SENSORS_PATH, CAMPAIGNS_PATH, EVENTS_PATH, EM27_METADATA_PATH]
     for path in paths:
         assert not os.path.isfile(path + ".tmp"), (
             "Temporary file already exists at: '" + path + ".tmp'"

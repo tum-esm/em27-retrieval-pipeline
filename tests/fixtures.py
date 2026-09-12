@@ -27,7 +27,7 @@ def provide_config_template() -> Generator[src.types.Config, None, None]:
     config.data.interferograms.path.root = "/tmp"
     config.data.results.path.root = "/tmp"
     config.bundle_exports = []
-    config.profiles.scope.force_download_locations = []  # type: ignore
+    config.ggg_profiles_downloader.scope.force_download_locations = []  # type: ignore
 
     yield config
 

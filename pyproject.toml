@@ -1,6 +1,6 @@
 [project]
 name = "em27-retrieval-pipeline"
-version = "1.10.0"
+version = "1.11.0"
 description = "automated EM27/SUN data processing"
 authors = [
     { name = "Moritz Oliveira Makowski", email = "moritz.makowski@tum.de" },
@@ -15,7 +15,7 @@ dependencies = [
     "tum-esm-utils[opus]>=2.11.3",
     "tomli>=2.4.0",
     "python-dotenv>=1.0.1",
-    "skyfield>=1.49",              # used by the retrieval
+    "skyfield>=1.55",              # used by the retrieval
     "rich>=13.9.4",                # used by export and profiles download
     "click>=8.1.7",                # used by CLI
     "scipy>=1.14.1",               # used by export (interpolation)
@@ -68,7 +68,10 @@ dev = [
 # using pytest markers from the `pytest-order` library, we run the
 # quick tests before the retrieval tests to fail fast
 [tool.pytest.ini_options]
-filterwarnings = ["ignore::UserWarning"]
+filterwarnings = [
+    "ignore::UserWarning",
+    "ignore:Setting the dtype on a NumPy array has been deprecated in NumPy 2\\.5\\.:DeprecationWarning:skyfield\\.searchlib",
+]
 markers = [
     "integration: can only be run on a configured system",
     "metadata: can only be run on a configured system, only tests the connection to the metadata",
@@ -160,3 +163,8 @@ exclude = [
     "**/.*"
 ]
 strict = ["src", "tests", "run.py", "cli.py"]
+
+[dependency-groups]
+dev = [
+    "pytest-cov>=7.1.0",
+]

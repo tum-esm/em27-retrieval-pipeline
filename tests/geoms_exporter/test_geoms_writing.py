@@ -9,6 +9,9 @@ RESULTS_DIR = os.path.join(PROJECT_DIR, "data", "testing", "inputs", "individual
 
 CONFIG = {
     "version": "1.11",
+    "metadata": {
+        "source": "local",
+    },
     "data": {
         "ground_pressure": {
             "path": os.path.join(EXAMPLE_DIR, "data", "inputs", "ground-pressure"),
@@ -21,9 +24,16 @@ CONFIG = {
             "time_column": "UTCtime_____",
             "time_column_format": "%H:%M:%S",
         },
-        "atmospheric_profiles": os.path.join(EXAMPLE_DIR, "data", "inputs", "atmospheric-profiles"),
-        "interferograms": os.path.join(EXAMPLE_DIR, "data", "inputs", "interferograms"),
-        "results": RESULTS_DIR,
+        "atmospheric_profiles": {
+            "path": os.path.join(EXAMPLE_DIR, "data", "inputs", "atmospheric-profiles")
+        },
+        "interferograms": {
+            "path": os.path.join(EXAMPLE_DIR, "data", "inputs", "interferograms"),
+            "ifg_file_regex": ".*",
+        },
+        "results": {
+            "path": RESULTS_DIR,
+        },
     },
     "geoms_exports": [
         {

@@ -1,4 +1,4 @@
-import json
+import tomli
 import os
 import pytest
 import tum_esm_utils
@@ -14,6 +14,6 @@ def test_version_numbers() -> None:
         assert third_line.startswith("version = ")
         pyproject_version = ".".join(third_line.strip('"version = ').split(".")[:2])
 
-    with open(os.path.join(PROJECT_DIR, "config", "config.template.json"), "r") as f:
-        template_config_version = json.load(f)["version"]
+    with open(os.path.join(PROJECT_DIR, "config", "config.template.toml"), "rb") as f:
+        template_config_version = tomli.load(f)["version"]
     assert template_config_version == pyproject_version

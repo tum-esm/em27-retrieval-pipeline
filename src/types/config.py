@@ -165,9 +165,9 @@ class DataSubConfigs:
         # before the validation, if the path is relative, make it absolute based on the cwd
         @pydantic.model_validator(mode="before")
         def _make_path_absolute(cls, values: Any) -> Any:
-            assert isinstance(values["path"], str)
-            if not os.path.isabs(values["path"]):
-                values["path"] = os.path.abspath(values["path"])
+            if isinstance(values["path"], str):
+                if not os.path.isabs(values["path"]):
+                    values["path"] = os.path.abspath(values["path"])
             return values
 
         # validate -> you can only set either date AND time OR unix_timestamp

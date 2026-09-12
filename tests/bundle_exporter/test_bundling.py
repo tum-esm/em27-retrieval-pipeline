@@ -13,6 +13,9 @@ BUNDLE_OUTPUT_DIR = os.path.join(TEST_DATA_DIR, "outputs", "bundles")
 
 CONFIG = {
     "version": "1.11",
+    "metadata": {
+        "source": "local",
+    },
     "data": {
         "ground_pressure": {
             "path": os.path.join(EXAMPLE_DIR, "data", "inputs", "ground-pressure"),
@@ -30,6 +33,7 @@ CONFIG = {
         },
         "interferograms": {
             "path": os.path.join(EXAMPLE_DIR, "data", "inputs", "interferograms"),
+            "ifg_file_regex": ".*",
         },
         "results": {
             "path": BUNDLE_INPUT_DIR,
@@ -91,8 +95,8 @@ def test_bundling() -> None:
                         sensor_id,
                         retrieval_algorithm,
                         atmospheric_profile_model,
-                        bundle_export_config.from_datetime.strftime("%Y%m%d"),
-                        bundle_export_config.to_datetime.strftime("%Y%m%d"),
+                        bundle_export_config.from_datetime_parsed.strftime("%Y%m%d"),
+                        bundle_export_config.to_datetime_parsed.strftime("%Y%m%d"),
                     ]
                 )
                 # fmt: off
