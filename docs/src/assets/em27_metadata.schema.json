@@ -56,6 +56,60 @@
             "title": "CampaignMetadataList",
             "type": "array"
         },
+        "Deployment": {
+            "description": "A sensor deployment that applies during a specific time range.",
+            "properties": {
+                "from_datetime": {
+                    "description": "Datetime in format `YYYY-MM-DDTHH:MM:SSZ` or `YYYY-MM-DDTHH:MM:SS[+-]HHMM`.",
+                    "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:Z|[+-]\\d{4})$",
+                    "title": "From Datetime",
+                    "type": "string"
+                },
+                "to_datetime": {
+                    "description": "Datetime in format `YYYY-MM-DDTHH:MM:SSZ` or `YYYY-MM-DDTHH:MM:SS[+-]HHMM`.",
+                    "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:Z|[+-]\\d{4})$",
+                    "title": "To Datetime",
+                    "type": "string"
+                },
+                "location_id": {
+                    "description": "Location ID referring to a location named in `locations.json`",
+                    "minLength": 1,
+                    "title": "Location Id",
+                    "type": "string"
+                },
+                "pressure_data_source": {
+                    "default": null,
+                    "description": "Pressure data source, if not set, using the pressure of the sensor",
+                    "title": "Pressure Data Source",
+                    "minLength": 1,
+                    "type": "string",
+                    "nullable": true
+                },
+                "utc_offset": {
+                    "default": 0,
+                    "description": "UTC offset of the location, if not set, using an offset of 0",
+                    "exclusiveMaximum": 12,
+                    "exclusiveMinimum": -12,
+                    "title": "Utc Offset",
+                    "type": "number"
+                },
+                "atmospheric_profile_location_id": {
+                    "default": null,
+                    "description": "Location ID referring to a location named in `locations.json`. This location's coordinates are used for the atmospheric profiles in the retrieval.",
+                    "title": "Atmospheric Profile Location Id",
+                    "minLength": 1,
+                    "type": "string",
+                    "nullable": true
+                }
+            },
+            "required": [
+                "from_datetime",
+                "to_datetime",
+                "location_id"
+            ],
+            "title": "Deployment",
+            "type": "object"
+        },
         "EventMetadata": {
             "description": "Can be used to mark special events during measurements, e.g. \"Testing New Solar Tracker\". You can mark that the data during an event should not be used in downstream tasks. The dataset bundles will include the columns `event_description` and `event_data_quality_flag` (0 = good data, 1 = should not be used because of an event).",
             "properties": {
@@ -178,19 +232,19 @@
                     "title": "Serial Number",
                     "type": "integer"
                 },
-                "setups": {
+                "deployments": {
                     "items": {
-                        "$ref": "#/$defs/SetupsListItem"
+                        "$ref": "#/$defs/Deployment"
                     },
                     "minItems": 0,
-                    "title": "Setups",
+                    "title": "Deployments",
                     "type": "array"
                 }
             },
             "required": [
                 "sensor_id",
                 "serial_number",
-                "setups"
+                "deployments"
             ],
             "title": "SensorMetadata",
             "type": "object"
@@ -201,72 +255,6 @@
             },
             "title": "SensorMetadataList",
             "type": "array"
-        },
-        "Setup": {
-            "properties": {
-                "location_id": {
-                    "description": "Location ID referring to a location named in `locations.json`",
-                    "minLength": 1,
-                    "title": "Location Id",
-                    "type": "string"
-                },
-                "pressure_data_source": {
-                    "default": null,
-                    "description": "Pressure data source, if not set, using the pressure of the sensor",
-                    "title": "Pressure Data Source",
-                    "minLength": 1,
-                    "type": "string",
-                    "nullable": true
-                },
-                "utc_offset": {
-                    "default": 0,
-                    "description": "UTC offset of the location, if not set, using an offset of 0",
-                    "exclusiveMaximum": 12,
-                    "exclusiveMinimum": -12,
-                    "title": "Utc Offset",
-                    "type": "number"
-                },
-                "atmospheric_profile_location_id": {
-                    "default": null,
-                    "description": "Location ID referring to a location named in `locations.json`. This location's coordinates are used for the atmospheric profiles in the retrieval.",
-                    "title": "Atmospheric Profile Location Id",
-                    "minLength": 1,
-                    "type": "string",
-                    "nullable": true
-                }
-            },
-            "required": [
-                "location_id"
-            ],
-            "title": "Setup",
-            "type": "object"
-        },
-        "SetupsListItem": {
-            "description": "An element in the `sensor.setups` list",
-            "properties": {
-                "from_datetime": {
-                    "description": "Datetime in format `YYYY-MM-DDTHH:MM:SSZ` or `YYYY-MM-DDTHH:MM:SS[+-]HHMM`.",
-                    "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:Z|[+-]\\d{4})$",
-                    "title": "From Datetime",
-                    "type": "string"
-                },
-                "to_datetime": {
-                    "description": "Datetime in format `YYYY-MM-DDTHH:MM:SSZ` or `YYYY-MM-DDTHH:MM:SS[+-]HHMM`.",
-                    "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:Z|[+-]\\d{4})$",
-                    "title": "To Datetime",
-                    "type": "string"
-                },
-                "value": {
-                    "$ref": "#/$defs/Setup"
-                }
-            },
-            "required": [
-                "from_datetime",
-                "to_datetime",
-                "value"
-            ],
-            "title": "SetupsListItem",
-            "type": "object"
         }
     },
     "properties": {
