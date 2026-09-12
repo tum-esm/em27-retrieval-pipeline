@@ -83,11 +83,11 @@ def generate_retrieval_queue(
 
         logger.info("  Parsing metadata for location data")
         dates_with_location: set[datetime.date] = set()
-        for sensor_setup in sensor.setups:
+        for deployment in sensor.deployments:
             overlap = tum_esm_utils.timing.datetime_span_intersection(
                 (
-                    sensor_setup.from_datetime_parsed,
-                    sensor_setup.to_datetime_parsed,
+                    deployment.from_datetime_parsed,
+                    deployment.to_datetime_parsed,
                 ),
                 (
                     datetime.datetime.combine(

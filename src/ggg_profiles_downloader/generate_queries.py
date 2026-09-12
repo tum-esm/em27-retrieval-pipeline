@@ -146,10 +146,10 @@ def list_desired_data(
             )
 
     for sensor in em27_metadata_interface.sensors.root:
-        for sensor_setup in sensor.setups:
-            atmospheric_profile_location_id = sensor_setup.value.location_id
-            if sensor_setup.value.atmospheric_profile_location_id is not None:
-                atmospheric_profile_location_id = sensor_setup.value.atmospheric_profile_location_id
+        for deployment in sensor.deployments:
+            atmospheric_profile_location_id = deployment.location_id
+            if deployment.atmospheric_profile_location_id is not None:
+                atmospheric_profile_location_id = deployment.atmospheric_profile_location_id
             location = next(
                 filter(
                     lambda _l: _l.location_id == atmospheric_profile_location_id,
@@ -163,11 +163,11 @@ def list_desired_data(
 
             from_date = max(
                 config.ggg_profiles_downloader.scope.from_date_parsed,
-                sensor_setup.from_datetime_parsed.date(),
+                deployment.from_datetime_parsed.date(),
             )
             to_date = min(
                 config.ggg_profiles_downloader.scope.to_date_parsed,
-                sensor_setup.to_datetime_parsed.date(),
+                deployment.to_datetime_parsed.date(),
                 (
                     datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(hours=36)
                 ).date(),

@@ -32,11 +32,11 @@ em27_metadata_interface = em27_metadata.interfaces.EM27MetadataInterface(
             em27_metadata.types.SensorMetadata(
                 sensor_id="so",
                 serial_number=1,
-                setups=[
-                    em27_metadata.types.SetupsListItem(
+                deployments=[
+                    em27_metadata.types.Deployment(
                         from_datetime="2017-01-01T00:00:00+0000",  # pyright: ignore[reportArgumentType]
                         to_datetime="2017-12-31T23:59:59+0000",  # pyright: ignore[reportArgumentType]
-                        value=em27_metadata.types.Setup(location_id="SOD"),
+                        location_id="SOD",
                     )
                 ],
             )

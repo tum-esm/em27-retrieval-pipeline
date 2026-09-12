@@ -27,37 +27,37 @@ def test_list_requested_data(provide_config_template: src.types.Config) -> None:
                 src.em27_metadata.types.SensorMetadata(
                     sensor_id="s1",
                     serial_number=1,
-                    setups=[
-                        src.em27_metadata.types.SetupsListItem(
+                    deployments=[
+                        src.em27_metadata.types.Deployment(
                             from_datetime="2000-01-01T00:00:00+0000",  # pyright: ignore[reportArgumentType]
                             to_datetime="2000-03-01T11:59:59+0000",  # pyright: ignore[reportArgumentType]
-                            value=src.em27_metadata.types.Setup(location_id="l1"),
+                            location_id="l1",
                         ),
-                        src.em27_metadata.types.SetupsListItem(
+                        src.em27_metadata.types.Deployment(
                             from_datetime="2000-03-01T12:00:00+0000",  # pyright: ignore[reportArgumentType]
                             to_datetime="2000-05-01T23:59:59+0000",  # pyright: ignore[reportArgumentType]
-                            value=src.em27_metadata.types.Setup(location_id="l3"),
+                            location_id="l3",
                         ),
-                        src.em27_metadata.types.SetupsListItem(
+                        src.em27_metadata.types.Deployment(
                             from_datetime="2000-05-04T12:00:00+0000",  # pyright: ignore[reportArgumentType]
                             to_datetime="2000-05-07T23:59:59+0000",  # pyright: ignore[reportArgumentType]
-                            value=src.em27_metadata.types.Setup(location_id="l2"),
+                            location_id="l2",
                         ),
                     ],
                 ),
                 src.em27_metadata.types.SensorMetadata(
                     sensor_id="s2",
                     serial_number=2,
-                    setups=[
-                        src.em27_metadata.types.SetupsListItem(
+                    deployments=[
+                        src.em27_metadata.types.Deployment(
                             from_datetime="2000-01-07T00:00:00+0000",  # pyright: ignore[reportArgumentType]
                             to_datetime="2000-02-23T23:59:59+0000",  # pyright: ignore[reportArgumentType]
-                            value=src.em27_metadata.types.Setup(location_id="l1"),
+                            location_id="l1",
                         ),
-                        src.em27_metadata.types.SetupsListItem(
+                        src.em27_metadata.types.Deployment(
                             from_datetime="2000-05-05T12:00:00+0000",  # pyright: ignore[reportArgumentType]
                             to_datetime="2000-05-08T23:59:59+0000",  # pyright: ignore[reportArgumentType]
-                            value=src.em27_metadata.types.Setup(location_id="l2"),
+                            location_id="l2",
                         ),
                     ],
                 ),

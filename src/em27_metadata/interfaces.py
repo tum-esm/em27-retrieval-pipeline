@@ -50,9 +50,9 @@ class EM27MetadataInterface:
 
         # reference existence in sensors.json
         for s1 in sensors.root:
-            for l1 in s1.setups:
-                assert l1.value.location_id in locations.location_ids, (
-                    f"unknown location id {l1.value.location_id}"
+            for l1 in s1.deployments:
+                assert l1.location_id in locations.location_ids, (
+                    f"unknown location id {l1.location_id}"
                 )
 
         # reference existence in campaigns.json
@@ -76,8 +76,8 @@ class EM27MetadataInterface:
         """For a given `sensor_id`, return the list of metadata contexts between
         `from_datetime` and `to_datetime`.
 
-        Each "context" is a time period where the setup is constant. For example,
-        when requesting a full 24 hour day, and the setup changed at noon, the
+        Each "context" is a time period where the deployment is constant. For example,
+        when requesting a full 24 hour day, and the deployment changed at noon, the
         returned list will contain two items: One context until noon, and one
         context after noon.
 
@@ -100,81 +100,86 @@ class EM27MetadataInterface:
         if from_datetime > to_datetime:
             raise ValueError(f"from_datetime ({from_datetime}) > to_datetime ({to_datetime})")
 
-        # find all relevant setups
+        # find all relevant deployments
 
-        setup_spans: list[
+        deployment_spans: list[
             tuple[
-                em27_metadata_types.SetupsListItem,
+                em27_metadata_types.Deployment,
                 datetime.datetime,
                 datetime.datetime,
             ]
         ] = []
-        for setup in sensor.setups:
-            setup_span = (
-                setup,
-                setup.from_datetime_parsed,
-                setup.to_datetime_parsed,
+        for deployment in sensor.deployments:
+            deployment_span = (
+                deployment,
+                deployment.from_datetime_parsed,
+                deployment.to_datetime_parsed,
             )
-            if len(setup_spans) > 0:
-                last_setup, last_from_datetime, last_to_datetime = setup_spans[-1]
+            if len(deployment_spans) > 0:
+                last_deployment, last_from_datetime, last_to_datetime = deployment_spans[-1]
                 if (
-                    (setup_span[1] - last_to_datetime).total_seconds() == 1
-                    and last_setup.value == setup.value
+                    (deployment_span[1] - last_to_datetime).total_seconds() == 1
+                    and last_deployment.model_dump(exclude={"from_datetime", "to_datetime"})
+                    == deployment.model_dump(exclude={"from_datetime", "to_datetime"})
                 ):
-                    setup_spans[-1] = (last_setup, last_from_datetime, setup_span[2])
+                    deployment_spans[-1] = (
+                        last_deployment,
+                        last_from_datetime,
+                        deployment_span[2],
+                    )
                     continue
-            setup_spans.append(setup_span)
+            deployment_spans.append(deployment_span)
 
-        relevant_setups = [
+        relevant_deployments = [
             (
-                setup,
-                setup_from_datetime.astimezone(datetime.timezone.utc),
-                setup_to_datetime.astimezone(datetime.timezone.utc),
+                deployment,
+                deployment_from_datetime.astimezone(datetime.timezone.utc),
+                deployment_to_datetime.astimezone(datetime.timezone.utc),
             )
-            for setup, setup_from_datetime, setup_to_datetime in setup_spans
+            for deployment, deployment_from_datetime, deployment_to_datetime in deployment_spans
             if tum_esm_utils.timing.datetime_span_intersection(
                 (from_datetime, to_datetime),
-                (setup_from_datetime, setup_to_datetime),
+                (deployment_from_datetime, deployment_to_datetime),
             )
             is not None
         ]
 
-        for s1, s2 in zip(relevant_setups[:-1], relevant_setups[1:]):
+        for s1, s2 in zip(relevant_deployments[:-1], relevant_deployments[1:]):
             assert s1[2] < s2[1], (
-                f"this should not happen, overlapping setups: {s1} and {s2}"
+                f"this should not happen, overlapping deployments: {s1} and {s2}"
             )
 
-        if len(relevant_setups) == 0:
+        if len(relevant_deployments) == 0:
             return []
 
-        # crop setups list to requested time period
+        # crop deployments list to requested time period
 
-        first_setup, first_from_datetime, first_to_datetime = relevant_setups[0]
+        first_deployment, first_from_datetime, first_to_datetime = relevant_deployments[0]
         if first_from_datetime < from_datetime:
-            relevant_setups[0] = (first_setup, from_datetime, first_to_datetime)
+            relevant_deployments[0] = (first_deployment, from_datetime, first_to_datetime)
 
-        last_setup, last_from_datetime, last_to_datetime = relevant_setups[-1]
+        last_deployment, last_from_datetime, last_to_datetime = relevant_deployments[-1]
         if last_to_datetime > to_datetime:
-            relevant_setups[-1] = (last_setup, last_from_datetime, to_datetime)
+            relevant_deployments[-1] = (last_deployment, last_from_datetime, to_datetime)
 
         # create sensor data contexts
 
         sensor_data_contexts: list[em27_metadata_types.SensorDataContext] = []
-        for setup, setup_from_datetime, setup_to_datetime in relevant_setups:
-            if setup_from_datetime >= setup_to_datetime:
+        for deployment, deployment_from_datetime, deployment_to_datetime in relevant_deployments:
+            if deployment_from_datetime >= deployment_to_datetime:
                 continue
 
             location = next(
                 filter(
-                    lambda l: l.location_id == setup.value.location_id,
+                    lambda l: l.location_id == deployment.location_id,
                     self.locations.root,
                 )
             )
             atmospheric_profile_location: em27_metadata_types.LocationMetadata
-            if setup.value.atmospheric_profile_location_id is not None:
+            if deployment.atmospheric_profile_location_id is not None:
                 atmospheric_profile_location = next(
                     filter(
-                        lambda l: l.location_id == setup.value.atmospheric_profile_location_id,
+                        lambda l: l.location_id == deployment.atmospheric_profile_location_id,
                         self.locations.root,
                     )
                 )
@@ -185,13 +190,13 @@ class EM27MetadataInterface:
                 em27_metadata_types.SensorDataContext(
                     sensor_id=sensor.sensor_id,
                     serial_number=sensor.serial_number,
-                    from_datetime=setup_from_datetime,
-                    to_datetime=setup_to_datetime,
+                    from_datetime=deployment_from_datetime,
+                    to_datetime=deployment_to_datetime,
                     location=location,
-                    utc_offset=setup.value.utc_offset,
+                    utc_offset=deployment.utc_offset,
                     pressure_data_source=(
-                        setup.value.pressure_data_source
-                        if setup.value.pressure_data_source
+                        deployment.pressure_data_source
+                        if deployment.pressure_data_source
                         else sensor.sensor_id
                     ),
                     atmospheric_profile_location=atmospheric_profile_location,
@@ -235,36 +240,36 @@ class EM27MetadataInterface:
             ]
         ] = []
 
-        current_setup_index = 0
+        current_deployment_index = 0
         for i, dt in enumerate(datetimes):
-            # skip all setups smaller than the current datetime
-            while dt > sensor.setups[current_setup_index].to_datetime_parsed:
-                current_setup_index += 1
-                if current_setup_index >= len(sensor.setups):
+            # skip all deployments smaller than the current datetime
+            while dt > sensor.deployments[current_deployment_index].to_datetime_parsed:
+                current_deployment_index += 1
+                if current_deployment_index >= len(sensor.deployments):
                     break
 
-            # add nones if the current datetime is larger than the last setup
-            if current_setup_index >= len(sensor.setups):
+            # add nones if the current datetime is larger than the last deployment
+            if current_deployment_index >= len(sensor.deployments):
                 out.extend([None] * (len(datetimes) - i))
                 break
 
-            # add none if the current datetime is smaller than the next setup
-            if dt < sensor.setups[current_setup_index].from_datetime_parsed:
+            # add none if the current datetime is smaller than the next deployment
+            if dt < sensor.deployments[current_deployment_index].from_datetime_parsed:
                 out.append(None)
                 continue
 
-            setup = sensor.setups[current_setup_index]
+            deployment = sensor.deployments[current_deployment_index]
             location = next(
                 filter(
-                    lambda l: l.location_id == setup.value.location_id,
+                    lambda l: l.location_id == deployment.location_id,
                     self.locations.root,
                 )
             )
             atmospheric_profile_location: em27_metadata_types.LocationMetadata
-            if setup.value.atmospheric_profile_location_id is not None:
+            if deployment.atmospheric_profile_location_id is not None:
                 atmospheric_profile_location = next(
                     filter(
-                        lambda l: l.location_id == setup.value.atmospheric_profile_location_id,
+                        lambda l: l.location_id == deployment.atmospheric_profile_location_id,
                         self.locations.root,
                     )
                 )
@@ -274,9 +279,9 @@ class EM27MetadataInterface:
             out.append(
                 (
                     location,
-                    setup.value.utc_offset,
-                    setup.value.pressure_data_source
-                    if setup.value.pressure_data_source
+                    deployment.utc_offset,
+                    deployment.pressure_data_source
+                    if deployment.pressure_data_source
                     else sensor.sensor_id,
                     atmospheric_profile_location,
                 )

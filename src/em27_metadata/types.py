@@ -2,14 +2,19 @@ from __future__ import annotations
 
 import datetime
 import re
-from typing import Any, Optional
+from typing import Any, Optional, TypeGuard, cast
 
 import pydantic
 
 
-_DATETIME_STRING_PATTERN = (
-    r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:Z|[+-]\d{4})$"
-)
+_DATETIME_STRING_PATTERN = r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:Z|[+-]\d{4})$"
+
+
+def _is_string_keyed_dict(value: object) -> TypeGuard[dict[str, object]]:
+    if not isinstance(value, dict):
+        return False
+    object_dict = cast(dict[object, object], value)
+    return all(isinstance(key, str) for key in object_dict)
 
 
 class TimeSeriesElement(pydantic.BaseModel):
@@ -30,9 +35,7 @@ class TimeSeriesElement(pydantic.BaseModel):
 
     @staticmethod
     def matches_datetime_regex(v: str) -> bool:
-        return (
-            re.match(_DATETIME_STRING_PATTERN, v) is not None
-        )
+        return re.match(_DATETIME_STRING_PATTERN, v) is not None
 
     @property
     def from_datetime_parsed(self) -> datetime.datetime:
@@ -55,7 +58,26 @@ class TimeSeriesElement(pydantic.BaseModel):
         return self
 
 
-class Setup(pydantic.BaseModel):
+class Deployment(TimeSeriesElement):
+    """A sensor deployment that applies during a specific time range."""
+
+    @pydantic.model_validator(mode="before")
+    @classmethod
+    def flatten_legacy_value(cls, data: object) -> object:
+        """Accept the former ``{from_dt, to_dt, value: {...}}`` shape."""
+        if not _is_string_keyed_dict(data):
+            return data
+
+        legacy_value: object = data.get("value", data.get("v"))
+        if isinstance(legacy_value, pydantic.BaseModel):
+            legacy_value = legacy_value.model_dump()
+        if not _is_string_keyed_dict(legacy_value):
+            return data
+
+        flattened: dict[str, object] = dict(legacy_value)
+        flattened.update({key: value for key, value in data.items() if key not in {"value", "v"}})
+        return flattened
+
     location_id: str = pydantic.Field(
         ...,
         min_length=1,
@@ -81,11 +103,15 @@ class Setup(pydantic.BaseModel):
         validation_alias=pydantic.AliasChoices("atmospheric_profile_location_id", "profile_lid"),
     )
 
+    @property
+    def value(self) -> Deployment:
+        """Return this deployment for compatibility with the former nested model."""
+        return self
 
-class SetupsListItem(TimeSeriesElement):
-    """An element in the `sensor.setups` list"""
 
-    value: Setup = pydantic.Field(..., validation_alias=pydantic.AliasChoices("value", "v"))
+# Backwards-compatible imports for users of the former class names.
+Setup = Deployment
+SetupsListItem = Deployment
 
 
 class LocationMetadata(pydantic.BaseModel):
@@ -146,9 +172,10 @@ class SensorMetadata(pydantic.BaseModel):
         ge=1,
         description="Serial number of the EM27/SUN",
     )
-    setups: list[SetupsListItem] = pydantic.Field(
+    deployments: list[Deployment] = pydantic.Field(
         ...,
         min_length=0,
+        validation_alias=pydantic.AliasChoices("deployments", "setups"),
     )
     calibration_factors: list[Any] = pydantic.Field(
         default=[],
@@ -164,13 +191,20 @@ class SensorMetadata(pydantic.BaseModel):
     @pydantic.model_validator(mode="after")
     def check_timeseries_integrity(self: SensorMetadata) -> SensorMetadata:
         times: list[datetime.datetime] = []
-        for s in self.setups:
-            times.append(s.from_datetime_parsed)
-            times.append(s.to_datetime_parsed)
+        for deployment in self.deployments:
+            times.append(deployment.from_datetime_parsed)
+            times.append(deployment.to_datetime_parsed)
         for t1, t2 in zip(times[:-1], times[1:]):
             if t2 <= t1:
-                raise ValueError(f"Setups timeseries are overlapping or unsorted: {t1} > {t2}")
+                raise ValueError(
+                    f"Deployments timeseries are overlapping or unsorted: {t1} > {t2}"
+                )
         return self
+
+    @property
+    def setups(self) -> list[Deployment]:
+        """Return deployments for compatibility with the former field name."""
+        return self.deployments
 
 
 class SensorMetadataList(pydantic.RootModel[list[SensorMetadata]]):
