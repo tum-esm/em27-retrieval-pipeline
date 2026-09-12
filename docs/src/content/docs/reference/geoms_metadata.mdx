@@ -1,0 +1,65 @@
+---
+title: geoms_metadata.toml
+---
+
+import JSONSchemaRenderer from "../../../components/JSONSchemaRenderer.tsx";
+import Schema from "../../../assets/geoms_metadata.schema.json";
+import Template from "../../../assets/geoms_metadata.template.toml?raw";
+import { Code } from "@astrojs/starlight/components";
+
+The `geoms_metadata.toml` file contains all information on how the Pipeline should generate GEOMS files: which metadata to put in (authors, etc.) and which calibration factors to use. Example
+
+<Code code={Template.trim()} lang="toml" />
+
+---
+
+## Metadata
+
+---
+
+### general
+
+<JSONSchemaRenderer schema={Schema} path="properties.general" />
+
+---
+
+### data
+
+<JSONSchemaRenderer schema={Schema} path="$defs.Data" />
+
+---
+
+### file
+
+<JSONSchemaRenderer schema={Schema} path="$defs.File" />
+
+---
+
+### principle_investigator / data_originator / data_submitter
+
+<JSONSchemaRenderer schema={Schema} path="$defs.Contact" />
+
+---
+
+### locations
+
+<div className="text-sm p-3 bg-slate-100 text-slate-950 dark:bg-slate-800 dark:text-slate-50 rounded-lg whitespace-pre-wrap">
+  <span className="font-semibold mr-1">Contains:</span>{" "}
+  {Schema.properties.locations.description}
+</div>
+
+---
+
+## Calibration Factors
+
+<div className="text-sm p-3 bg-slate-100 text-slate-950 dark:bg-slate-800 dark:text-slate-50 rounded-lg whitespace-pre-wrap">
+  A list of calibration factor definitions to be applied to the data.
+</div>
+
+---
+
+### calibration_factors[i]
+
+<JSONSchemaRenderer schema={Schema} path="$defs.CalibrationFactors" />
+
+---

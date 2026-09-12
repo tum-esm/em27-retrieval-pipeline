@@ -19,11 +19,13 @@ export default defineConfig({
         light: "./src/assets/logo.svg",
         dark: "./src/assets/logo-dark.svg",
       },
-      social: [{
-        icon: "github",
-        label: "GitHub",
-        href: "https://github.com/tum-esm/em27-retrieval-pipeline",
-      }],
+      social: [
+        {
+          icon: "github",
+          label: "GitHub",
+          href: "https://github.com/tum-esm/em27-retrieval-pipeline",
+        },
+      ],
       editLink: {
         baseUrl:
           "https://github.com/tum-esm/em27-retrieval-pipeline/edit/main/",
@@ -78,6 +80,10 @@ export default defineConfig({
             {
               label: "Configuration",
               link: "/reference/config",
+            },
+            {
+              label: "GEOMS Metadata",
+              link: "/reference/geoms_metadata",
             },
             {
               label: "Command Line Interface",
