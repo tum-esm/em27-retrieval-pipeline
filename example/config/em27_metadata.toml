@@ -1,0 +1,70 @@
+# LOCATIONS
+
+[[locations]]
+location_id = "SOD"
+details = "Sodankyla"
+lon = 26.63
+lat = 67.366
+alt_asl = 181.0
+
+[[locations]]
+location_id = "ZEN"
+details = "Zentralfriedhof"
+lon = 16.438481
+lat = 48.147699
+alt_asl = 180.0
+
+# SENSORS
+
+[[sensors]]
+sensor_id = "so"
+serial_number = 39
+setups = [
+    {from_datetime = "2017-06-08T00:00:00+0000", to_datetime = "2017-06-09T23:59:59+0000", value = {location_id = "SOD", utc_offset = 0.0}},
+]
+
+[[sensors]]
+sensor_id = "mc"
+serial_number = 115
+setups = [
+    {from_datetime = "2022-06-02T00:00:00+0000", to_datetime = "2022-06-02T23:59:59+0000", value = {location_id = "ZEN", utc_offset = 0.0}},
+]
+
+# CAMPAIGNS
+
+[[campaigns]]
+from_datetime = "2001-01-01T00:00:00+0000"
+to_datetime = "2024-12-31T23:59:59+0000"
+campaign_id = "both"
+sensor_ids = [ "so", "mc" ]
+location_ids = [ "SOD", "ZEN" ]
+
+[[campaigns]]
+from_datetime = "2001-01-01T00:00:00+0000"
+to_datetime = "2024-12-31T23:59:59+0000"
+campaign_id = "only-so"
+sensor_ids = [ "so" ]
+location_ids = [ "SOD", "ZEN" ]
+
+[[campaigns]]
+from_datetime = "2001-01-01T00:00:00+0000"
+to_datetime = "2024-12-31T23:59:59+0000"
+campaign_id = "only-mc"
+sensor_ids = [ "so", "mc" ]
+location_ids = [ "ZEN" ]
+
+[[campaigns]]
+from_datetime = "2024-01-01T00:00:00+0000"
+to_datetime = "2024-12-31T23:59:59+0000"
+campaign_id = "none"
+sensor_ids = [ "so", "mc" ]
+location_ids = [ "SOD", "ZEN" ]
+
+# EVENTS
+
+[[events]]
+from_datetime = "2017-06-08T00:00:00+0000"
+to_datetime = "2017-06-08T23:59:59+0000"
+sensor_ids = [ "so" ]
+description = "test event"
+data_is_usable = false
