@@ -103,12 +103,12 @@ def run(
                             for r in matching_results
                             if (
                                 (
-                                    bundle_export_config.from_datetime.date()
+                                    bundle_export_config.from_datetime_parsed.date()
                                     <= datetime.datetime.strptime(r[:8], "%Y%m%d").date()
                                 )
                                 and (
                                     datetime.datetime.strptime(r[:8], "%Y%m%d").date()
-                                    <= bundle_export_config.to_datetime.date()
+                                    <= bundle_export_config.to_datetime_parsed.date()
                                 )
                             )
                         ]
@@ -144,7 +144,7 @@ def run(
                             continue
                         for i in range(len(combined_df)):
                             if (location_ids[i] in c.location_ids) and (
-                                c.from_datetime <= utcs[i] <= c.to_datetime
+                                c.from_datetime_parsed <= utcs[i] <= c.to_datetime_parsed
                             ):
                                 matching_campaign_ids[i] += f"+{c.campaign_id}"
                     matching_campaign_ids = [s.lstrip("+") for s in matching_campaign_ids]
@@ -161,7 +161,7 @@ def run(
                         if sensor_id not in e.sensor_ids:
                             continue
                         for i in range(len(combined_df)):
-                            if e.from_datetime <= utcs[i] <= e.to_datetime:
+                            if e.from_datetime_parsed <= utcs[i] <= e.to_datetime_parsed:
                                 matching_event_descriptions[i] += f"; {e.description}"
                                 if not e.data_is_usable:
                                     matching_event_flags[i] = 1
@@ -173,7 +173,7 @@ def run(
                         pl.Series("event_data_quality_flag", matching_event_flags),
                     )
 
-                    name = f"em27-retrieval-bundle-{sensor_id}-{retrieval_algorithm}-{atmospheric_profile_model}-{bundle_export_config.from_datetime.strftime('%Y%m%d')}-{bundle_export_config.to_datetime.strftime('%Y%m%d')}"
+                    name = f"em27-retrieval-bundle-{sensor_id}-{retrieval_algorithm}-{atmospheric_profile_model}-{bundle_export_config.from_datetime_parsed.strftime('%Y%m%d')}-{bundle_export_config.to_datetime_parsed.strftime('%Y%m%d')}"
                     if bundle_export_config.bundle_suffix is not None:
                         name += f"-{bundle_export_config.bundle_suffix}"
 

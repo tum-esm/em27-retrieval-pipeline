@@ -156,8 +156,8 @@ def export_data_report(
         console.print(f"determining sensor data contexts for sensor {sensor.sensor_id}")
         sdcs = em27_metadata_interface.get(
             sensor_id=sensor.sensor_id,
-            from_datetime=sensor.setups[0].from_datetime,
-            to_datetime=sensor.setups[-1].to_datetime,
+            from_datetime=sensor.setups[0].from_datetime_parsed,
+            to_datetime=sensor.setups[-1].to_datetime_parsed,
         )
         with rich.progress.Progress() as progress:
             task = progress.add_task("parsing all sensor data contexts", total=len(sdcs))

@@ -102,38 +102,46 @@ class EM27MetadataInterface:
 
         # find all relevant setups
 
-        merged_setups: list[em27_metadata_types.SetupsListItem] = []
+        setup_spans: list[
+            tuple[
+                em27_metadata_types.SetupsListItem,
+                datetime.datetime,
+                datetime.datetime,
+            ]
+        ] = []
         for setup in sensor.setups:
-            try:
-                assert len(merged_setups) > 0
-                last_setup = merged_setups[-1]
-                assert (setup.from_datetime - last_setup.to_datetime).total_seconds() == 1
-                assert last_setup.value == setup.value
-                merged_setups[-1].to_datetime = setup.to_datetime
-            except AssertionError:
-                merged_setups.append(setup.model_copy(deep=True))
+            setup_span = (
+                setup,
+                setup.from_datetime_parsed,
+                setup.to_datetime_parsed,
+            )
+            if len(setup_spans) > 0:
+                last_setup, last_from_datetime, last_to_datetime = setup_spans[-1]
+                if (
+                    (setup_span[1] - last_to_datetime).total_seconds() == 1
+                    and last_setup.value == setup.value
+                ):
+                    setup_spans[-1] = (last_setup, last_from_datetime, setup_span[2])
+                    continue
+            setup_spans.append(setup_span)
 
-        relevant_setups: list[em27_metadata_types.SetupsListItem] = []
-        for setup in merged_setups:
-            if (
-                tum_esm_utils.timing.datetime_span_intersection(
-                    (from_datetime, to_datetime), (setup.from_datetime, setup.to_datetime)
-                )
-                is not None
-            ):
-                relevant_setups.append(setup.model_copy(deep=True))
+        relevant_setups = [
+            (
+                setup,
+                setup_from_datetime.astimezone(datetime.timezone.utc),
+                setup_to_datetime.astimezone(datetime.timezone.utc),
+            )
+            for setup, setup_from_datetime, setup_to_datetime in setup_spans
+            if tum_esm_utils.timing.datetime_span_intersection(
+                (from_datetime, to_datetime),
+                (setup_from_datetime, setup_to_datetime),
+            )
+            is not None
+        ]
 
         for s1, s2 in zip(relevant_setups[:-1], relevant_setups[1:]):
-            assert s1.to_datetime < s2.from_datetime, (
+            assert s1[2] < s2[1], (
                 f"this should not happen, overlapping setups: {s1} and {s2}"
-            )
-
-        for i in range(len(relevant_setups)):
-            relevant_setups[i].from_datetime = relevant_setups[i].from_datetime.astimezone(
-                datetime.timezone.utc
-            )
-            relevant_setups[i].to_datetime = relevant_setups[i].to_datetime.astimezone(
-                datetime.timezone.utc
             )
 
         if len(relevant_setups) == 0:
@@ -141,17 +149,19 @@ class EM27MetadataInterface:
 
         # crop setups list to requested time period
 
-        if relevant_setups[0].from_datetime < from_datetime:
-            relevant_setups[0].from_datetime = from_datetime
+        first_setup, first_from_datetime, first_to_datetime = relevant_setups[0]
+        if first_from_datetime < from_datetime:
+            relevant_setups[0] = (first_setup, from_datetime, first_to_datetime)
 
-        if relevant_setups[-1].to_datetime > to_datetime:
-            relevant_setups[-1].to_datetime = to_datetime
+        last_setup, last_from_datetime, last_to_datetime = relevant_setups[-1]
+        if last_to_datetime > to_datetime:
+            relevant_setups[-1] = (last_setup, last_from_datetime, to_datetime)
 
         # create sensor data contexts
 
         sensor_data_contexts: list[em27_metadata_types.SensorDataContext] = []
-        for setup in relevant_setups:
-            if setup.from_datetime >= setup.to_datetime:
+        for setup, setup_from_datetime, setup_to_datetime in relevant_setups:
+            if setup_from_datetime >= setup_to_datetime:
                 continue
 
             location = next(
@@ -175,8 +185,8 @@ class EM27MetadataInterface:
                 em27_metadata_types.SensorDataContext(
                     sensor_id=sensor.sensor_id,
                     serial_number=sensor.serial_number,
-                    from_datetime=setup.from_datetime,
-                    to_datetime=setup.to_datetime,
+                    from_datetime=setup_from_datetime,
+                    to_datetime=setup_to_datetime,
                     location=location,
                     utc_offset=setup.value.utc_offset,
                     pressure_data_source=(
@@ -228,7 +238,7 @@ class EM27MetadataInterface:
         current_setup_index = 0
         for i, dt in enumerate(datetimes):
             # skip all setups smaller than the current datetime
-            while dt > sensor.setups[current_setup_index].to_datetime:
+            while dt > sensor.setups[current_setup_index].to_datetime_parsed:
                 current_setup_index += 1
                 if current_setup_index >= len(sensor.setups):
                     break
@@ -239,7 +249,7 @@ class EM27MetadataInterface:
                 break
 
             # add none if the current datetime is smaller than the next setup
-            if dt < sensor.setups[current_setup_index].from_datetime:
+            if dt < sensor.setups[current_setup_index].from_datetime_parsed:
                 out.append(None)
                 continue
 
@@ -294,7 +304,8 @@ class EM27MetadataInterface:
             if sensor_id in event.sensor_ids:
                 if (
                     tum_esm_utils.timing.datetime_span_intersection(
-                        (from_datetime, to_datetime), (event.from_datetime, event.to_datetime)
+                        (from_datetime, to_datetime),
+                        (event.from_datetime_parsed, event.to_datetime_parsed),
                     )
                     is not None
                 ):

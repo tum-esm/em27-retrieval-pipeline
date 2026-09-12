@@ -9,7 +9,14 @@ import pydantic
 import tomli
 import tum_esm_utils
 
-from .basic_types import AtmosphericProfileModel, RetrievalAlgorithm
+from .basic_types import (
+    DATE_STRING_PATTERN,
+    UTC_DATETIME_STRING_PATTERN,
+    AtmosphericProfileModel,
+    RetrievalAlgorithm,
+    parse_date_string,
+    parse_datetime_string,
+)
 from .old_schemas import OldConfig
 
 # TODO: refactor metadata source logic
@@ -271,12 +278,14 @@ class GGGProfilesDownloaderSubConfigs:
     class Scope(pydantic.BaseModel):
         model_config = pydantic.ConfigDict(extra="forbid")
 
-        from_date: datetime.date = pydantic.Field(
-            datetime.date(1900, 1, 1),
+        from_date: str = pydantic.Field(
+            "1900-01-01",
+            pattern=DATE_STRING_PATTERN,
             description="Date in format `YYYY-MM-DD` from which to request vertical profile data.",
         )
-        to_date: datetime.date = pydantic.Field(
-            datetime.date(2100, 1, 1),
+        to_date: str = pydantic.Field(
+            "2100-01-01",
+            pattern=DATE_STRING_PATTERN,
             description="Date in format `YYYY-MM-DD` until which to request vertical profile data.",
         )
         models: list[AtmosphericProfileModel] = pydantic.Field(
@@ -284,15 +293,23 @@ class GGGProfilesDownloaderSubConfigs:
             description="list of data types to request from the ccycle ftp server.",
         )
         force_download_locations: list[str] = pydantic.Field(
-            [],
+            default=[],
             description="List of locations to force download data for. These will be downloaded even at times where no instrument in the metadata is located there.",
         )
 
         @pydantic.model_validator(mode="after")
         def check_date_order(self) -> GGGProfilesDownloaderSubConfigs.Scope:
-            if self.from_date > self.to_date:
+            if self.from_date_parsed > self.to_date_parsed:
                 raise ValueError("from_date must be before to_date")
             return self
+
+        @property
+        def from_date_parsed(self) -> datetime.date:
+            return parse_date_string(self.from_date)
+
+        @property
+        def to_date_parsed(self) -> datetime.date:
+            return parse_date_string(self.to_date)
 
     class GGG2020StandardSitesItem(pydantic.BaseModel):
         model_config = pydantic.ConfigDict(extra="forbid")
@@ -312,20 +329,32 @@ class GGGProfilesDownloaderSubConfigs:
             ge=-180,
             le=180,
         )
-        from_date: datetime.date = pydantic.Field(
+        from_date: str = pydantic.Field(
             ...,
+            pattern=DATE_STRING_PATTERN,
             description="Date in format `YYYY-MM-DD` from which this standard site is active.",
         )
-        to_date: datetime.date = pydantic.Field(
-            default_factory=lambda: datetime.date.today() - datetime.timedelta(days=1),
+        to_date: str = pydantic.Field(
+            default_factory=lambda: (datetime.date.today() - datetime.timedelta(days=1)).strftime(
+                "%Y-%m-%d"
+            ),
+            pattern=DATE_STRING_PATTERN,
             description="Date in format `YYYY-MM-DD` until which this standard site is active. Default is yesterday.",
         )
 
         @pydantic.model_validator(mode="after")
         def check_date_order(self) -> GGGProfilesDownloaderSubConfigs.GGG2020StandardSitesItem:
-            if self.from_date > self.to_date:
+            if self.from_date_parsed > self.to_date_parsed:
                 raise ValueError("from_date must be before to_date")
             return self
+
+        @property
+        def from_date_parsed(self) -> datetime.date:
+            return parse_date_string(self.from_date)
+
+        @property
+        def to_date_parsed(self) -> datetime.date:
+            return parse_date_string(self.to_date)
 
 
 class GGGProfilesDownloaderConfig(pydantic.BaseModel):
@@ -393,12 +422,16 @@ class RetrievalSubConfigs:
         sensor_ids: list[str] = pydantic.Field(
             ..., min_length=1, description="Sensor ids to consider in the retrieval."
         )
-        from_date: datetime.date = pydantic.Field(
+        from_date: str = pydantic.Field(
             ...,
+            pattern=DATE_STRING_PATTERN,
             description="Date string in format `YYYY-MM-DD` from which to consider data in the storage directory.",
         )
-        to_date: datetime.date = pydantic.Field(
-            default_factory=lambda: datetime.date.today() - datetime.timedelta(days=1),
+        to_date: str = pydantic.Field(
+            default_factory=lambda: (datetime.date.today() - datetime.timedelta(days=1)).strftime(
+                "%Y-%m-%d"
+            ),
+            pattern=DATE_STRING_PATTERN,
             description="Date string in format `YYYY-MM-DD` until which to consider data in the storage directory. Default is yesterday.",
         )
 
@@ -464,7 +497,7 @@ class RetrievalSubConfigs:
 
         @pydantic.model_validator(mode="after")
         def check_model_integrity(self) -> RetrievalSubConfigs.Job:
-            if self.from_date > self.to_date:
+            if self.from_date_parsed > self.to_date_parsed:
                 raise ValueError("from_date must be before to_date")
             if (
                 self.retrieval_algorithm == "proffast-1.0"
@@ -472,6 +505,14 @@ class RetrievalSubConfigs:
             ):
                 raise ValueError("proffast-1.0 does not support GGG2020 profiles")
             return self
+
+        @property
+        def from_date_parsed(self) -> datetime.date:
+            return parse_date_string(self.from_date)
+
+        @property
+        def to_date_parsed(self) -> datetime.date:
+            return parse_date_string(self.to_date)
 
 
 class RetrievalConfig(pydantic.BaseModel):
@@ -501,11 +542,15 @@ class BundleExportConfig(pydantic.BaseModel):
         ...,
         description="List of output formats to write the merged output files in.",
     )
-    from_datetime: datetime.datetime = pydantic.Field(
-        ..., description="Date in format `YYYY-MM-DDTHH:MM:SS` from which to bundle data"
+    from_datetime: str = pydantic.Field(
+        ...,
+        pattern=UTC_DATETIME_STRING_PATTERN,
+        description="UTC datetime in format `YYYY-MM-DDTHH:MM:SSZ` or `YYYY-MM-DDTHH:MM:SS+0000` from which to bundle data",
     )
-    to_datetime: datetime.datetime = pydantic.Field(
-        ..., description="Date in format `YYYY-MM-DDTHH:MM:SS` to which to bundle data"
+    to_datetime: str = pydantic.Field(
+        ...,
+        pattern=UTC_DATETIME_STRING_PATTERN,
+        description="UTC datetime in format `YYYY-MM-DDTHH:MM:SSZ` or `YYYY-MM-DDTHH:MM:SS+0000` to which to bundle data",
     )
     retrieval_algorithms: list[RetrievalAlgorithm] = pydantic.Field(
         ..., description="The retrieval algorithms for which to bundle the outputs"
@@ -535,6 +580,20 @@ class BundleExportConfig(pydantic.BaseModel):
         description="Whether to parse the retrieval diagnostics from the results directories - `niter`, `rms`, and `scl` for each retrieval job.",
     )
 
+    @property
+    def from_datetime_parsed(self) -> datetime.datetime:
+        return parse_datetime_string(self.from_datetime)
+
+    @property
+    def to_datetime_parsed(self) -> datetime.datetime:
+        return parse_datetime_string(self.to_datetime)
+
+    @pydantic.model_validator(mode="after")
+    def check_datetime_order(self) -> BundleExportConfig:
+        if self.from_datetime_parsed > self.to_datetime_parsed:
+            raise ValueError("from_datetime must be before to_datetime")
+        return self
+
 
 class GEOMSExportConfig(pydantic.BaseModel):
     """There will be one file per retrieval output directory and the h5 files will be stored in the individual output directories of the results folders. Most code of this exporter originates from the GEOMS export code of the PROFFAST Pylot, but we adapted it to fit the output of this pipeline."""
@@ -548,11 +607,15 @@ class GEOMSExportConfig(pydantic.BaseModel):
     atmospheric_profile_models: list[AtmosphericProfileModel] = pydantic.Field(
         ..., description="The atmospheric profile models for which to generate the GEOMS outputs"
     )
-    from_datetime: datetime.datetime = pydantic.Field(
-        ..., description="Date in format `YYYY-MM-DDTHH:MM:SS` from which to generate GEOMS data"
+    from_datetime: str = pydantic.Field(
+        ...,
+        pattern=UTC_DATETIME_STRING_PATTERN,
+        description="UTC datetime in format `YYYY-MM-DDTHH:MM:SSZ` or `YYYY-MM-DDTHH:MM:SS+0000` from which to generate GEOMS data",
     )
-    to_datetime: datetime.datetime = pydantic.Field(
-        ..., description="Date in format `YYYY-MM-DDTHH:MM:SS` to which to generate GEOMS data"
+    to_datetime: str = pydantic.Field(
+        ...,
+        pattern=UTC_DATETIME_STRING_PATTERN,
+        description="UTC datetime in format `YYYY-MM-DDTHH:MM:SSZ` or `YYYY-MM-DDTHH:MM:SS+0000` to which to generate GEOMS data",
     )
     parse_dc_timeseries: bool = pydantic.Field(
         default=False,
@@ -595,13 +658,28 @@ class GEOMSExportConfig(pydantic.BaseModel):
         description="Maximum XAIR required to consider in the GEOMS outputs. If not set, it will consider all XAIR values.",
     )
     conflict_mode: Literal["error", "skip", "replace"] = pydantic.Field(
-        "replace", description="What to do if an output file already exist."
+        default="replace",
+        description="What to do if an output file already exist.",
     )
     min_datapoints_per_day: int = pydantic.Field(
         default=11,
         ge=1,
         description="Minimum number of data points per day required to generate a GEOMS file for that day. If not enough data points are available, no GEOMS file will be generated for that day.",
     )
+
+    @property
+    def from_datetime_parsed(self) -> datetime.datetime:
+        return parse_datetime_string(self.from_datetime)
+
+    @property
+    def to_datetime_parsed(self) -> datetime.datetime:
+        return parse_datetime_string(self.to_datetime)
+
+    @pydantic.model_validator(mode="after")
+    def check_datetime_order(self) -> GEOMSExportConfig:
+        if self.from_datetime_parsed > self.to_datetime_parsed:
+            raise ValueError("from_datetime must be before to_datetime")
+        return self
 
 
 class Config(pydantic.BaseModel):
@@ -733,7 +811,7 @@ class Config(pydantic.BaseModel):
                 ),
                 ggg_profiles_downloader=(
                     GGGProfilesDownloaderConfig.model_validate(
-                        old_config_object.profiles.model_dump(),
+                        old_config_object.profiles.model_dump(mode="json"),
                         context={"ignore-path-existence": ignore_path_existence},
                     )
                     if (old_config_object.profiles is not None)
@@ -749,8 +827,8 @@ class Config(pydantic.BaseModel):
                         jobs={
                             i: RetrievalSubConfigs.Job.model_validate(
                                 {
-                                    **job.model_dump(exclude={"settings"}),
-                                    **job.settings.model_dump(),
+                                    **job.model_dump(mode="json", exclude={"settings"}),
+                                    **job.settings.model_dump(mode="json"),
                                 },
                                 context={"ignore-path-existence": ignore_path_existence},
                             )
@@ -774,7 +852,7 @@ class Config(pydantic.BaseModel):
                 geoms_exports=(
                     [
                         GEOMSExportConfig.model_validate(
-                            old_config_object.geoms.model_dump(),
+                            old_config_object.geoms.model_dump(mode="json"),
                             context={"ignore-path-existence": ignore_path_existence},
                         )
                     ]

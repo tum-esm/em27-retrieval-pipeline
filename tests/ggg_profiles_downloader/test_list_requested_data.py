@@ -88,8 +88,8 @@ def test_list_requested_data(provide_config_template: src.types.Config) -> None:
     config = provide_config_template.model_copy(deep=True)
     assert config.ggg_profiles_downloader is not None
     assert config.ggg_profiles_downloader.scope is not None
-    config.ggg_profiles_downloader.scope.from_date = datetime.date(2000, 1, 1)
-    config.ggg_profiles_downloader.scope.to_date = datetime.date(2000, 5, 8)
+    config.ggg_profiles_downloader.scope.from_date = "2000-01-01"
+    config.ggg_profiles_downloader.scope.to_date = "2000-05-08"
 
     actual_data = src.ggg_profiles_downloader.generate_queries.list_desired_data(config, metadata)
     assert actual_data.keys() == expected_data.keys()

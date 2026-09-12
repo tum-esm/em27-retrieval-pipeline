@@ -1,52 +1,58 @@
 from __future__ import annotations
-from typing import Any, Optional
+
 import datetime
 import re
+from typing import Any, Optional
+
 import pydantic
+
+
+_DATETIME_STRING_PATTERN = (
+    r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:Z|[+-]\d{4})$"
+)
 
 
 class TimeSeriesElement(pydantic.BaseModel):
     model_config = pydantic.ConfigDict(arbitrary_types_allowed=True)
 
-    from_datetime: datetime.datetime = pydantic.Field(
-        ..., validation_alias=pydantic.AliasChoices("from_datetime", "from_dt")
+    from_datetime: str = pydantic.Field(
+        ...,
+        pattern=_DATETIME_STRING_PATTERN,
+        description="Datetime in format `YYYY-MM-DDTHH:MM:SSZ` or `YYYY-MM-DDTHH:MM:SS[+-]HHMM`.",
+        validation_alias=pydantic.AliasChoices("from_datetime", "from_dt"),
     )
-    to_datetime: datetime.datetime = pydantic.Field(
-        ..., validation_alias=pydantic.AliasChoices("to_datetime", "to_dt")
+    to_datetime: str = pydantic.Field(
+        ...,
+        pattern=_DATETIME_STRING_PATTERN,
+        description="Datetime in format `YYYY-MM-DDTHH:MM:SSZ` or `YYYY-MM-DDTHH:MM:SS[+-]HHMM`.",
+        validation_alias=pydantic.AliasChoices("to_datetime", "to_dt"),
     )
-
-    @pydantic.field_validator("from_datetime", "to_datetime", mode="before")
-    def datetime_string_validator(cls, v: str | datetime.datetime) -> datetime.datetime:
-        if isinstance(v, datetime.datetime):
-            return v
-        assert isinstance(v, str), "must be a string"
-        assert TimeSeriesElement.matches_datetime_regex(v), (
-            "must match the pattern YYYY-MM-DDTHH:MM:SS+HHMM"
-        )
-        return datetime.datetime.strptime(v, "%Y-%m-%dT%H:%M:%S%z")
 
     @staticmethod
     def matches_datetime_regex(v: str) -> bool:
         return (
-            re.match(r"^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})([\+\-])(\d{4})$", v)
-            is not None
+            re.match(_DATETIME_STRING_PATTERN, v) is not None
         )
+
+    @property
+    def from_datetime_parsed(self) -> datetime.datetime:
+        return datetime.datetime.strptime(self.from_datetime, "%Y-%m-%dT%H:%M:%S%z")
+
+    @property
+    def to_datetime_parsed(self) -> datetime.datetime:
+        return datetime.datetime.strptime(self.to_datetime, "%Y-%m-%dT%H:%M:%S%z")
 
     @pydantic.model_validator(mode="after")
     def model_validator(self) -> TimeSeriesElement:
-        if self.from_datetime > self.to_datetime:
+        if self.from_datetime_parsed > self.to_datetime_parsed:
             raise ValueError(
                 f"from_datetime ({self.from_datetime}) > to_datetime ({self.to_datetime})"
             )
-        if self.from_datetime.second != 0:
+        if self.from_datetime_parsed.second != 0:
             raise ValueError("from_datetime must be at the beginning of a minute (second=0)")
-        if self.to_datetime.second != 59:
+        if self.to_datetime_parsed.second != 59:
             raise ValueError("to_datetime must be at the end of a minute (second=59)")
         return self
-
-    @pydantic.field_serializer("from_datetime", "to_datetime")
-    def t_serializer(self, dt: datetime.datetime, _info: Any) -> str:
-        return dt.strftime("%Y-%m-%dT%H:%M:%S%z")
 
 
 class Setup(pydantic.BaseModel):
@@ -159,8 +165,8 @@ class SensorMetadata(pydantic.BaseModel):
     def check_timeseries_integrity(self: SensorMetadata) -> SensorMetadata:
         times: list[datetime.datetime] = []
         for s in self.setups:
-            times.append(s.from_datetime)
-            times.append(s.to_datetime)
+            times.append(s.from_datetime_parsed)
+            times.append(s.to_datetime_parsed)
         for t1, t2 in zip(times[:-1], times[1:]):
             if t2 <= t1:
                 raise ValueError(f"Setups timeseries are overlapping or unsorted: {t1} > {t2}")

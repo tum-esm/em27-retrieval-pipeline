@@ -1,4 +1,3 @@
-import datetime
 from src.em27_metadata.types import Setup, SetupsListItem
 
 
@@ -48,13 +47,13 @@ def test_validation_alias() -> None:
     assert "profile_lid" not in d
 
     sli1 = SetupsListItem(
-        from_datetime=datetime.datetime(2021, 1, 1),
-        to_datetime=datetime.datetime(2021, 1, 2, 23, 59, 59),
+        from_datetime="2021-01-01T00:00:00Z",
+        to_datetime="2021-01-02T23:59:59Z",
         value=s1,
     )
     sli2 = SetupsListItem(
-        from_dt=datetime.datetime(2021, 1, 1),  # pyright: ignore[reportCallIssue]
-        to_dt=datetime.datetime(2021, 1, 2, 23, 59, 59),  # pyright: ignore[reportCallIssue]
+        from_dt="2021-01-01T00:00:00Z",  # pyright: ignore[reportCallIssue]
+        to_dt="2021-01-02T23:59:59Z",  # pyright: ignore[reportCallIssue]
         v=s2,  # pyright: ignore[reportCallIssue]
     )
     assert sli1 == sli2

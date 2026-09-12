@@ -86,17 +86,17 @@ def generate_retrieval_queue(
         for sensor_setup in sensor.setups:
             overlap = tum_esm_utils.timing.datetime_span_intersection(
                 (
-                    sensor_setup.from_datetime,
-                    sensor_setup.to_datetime,
+                    sensor_setup.from_datetime_parsed,
+                    sensor_setup.to_datetime_parsed,
                 ),
                 (
                     datetime.datetime.combine(
-                        retrieval_job_config.from_date,
+                        retrieval_job_config.from_date_parsed,
                         datetime.time.min,
                         tzinfo=datetime.timezone.utc,
                     ),
                     datetime.datetime.combine(
-                        retrieval_job_config.to_date,
+                        retrieval_job_config.to_date_parsed,
                         datetime.time.max,
                         tzinfo=datetime.timezone.utc,
                     ),

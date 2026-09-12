@@ -15,9 +15,9 @@ def list_requested_data(
     std_site_config: types.GGGProfilesDownloaderSubConfigs.GGG2020StandardSitesItem,
 ) -> set[datetime.date]:  # pragma: no cover
     assert config.ggg_profiles_downloader is not None
-    from_date = std_site_config.from_date
+    from_date = std_site_config.from_date_parsed
     to_date = min(
-        std_site_config.to_date,
+        std_site_config.to_date_parsed,
         (datetime.datetime.now(tz=datetime.timezone.utc) - datetime.timedelta(hours=25)).date(),
     )
     if from_date > to_date:
@@ -55,7 +55,10 @@ def list_downloaded_data(
                 )
                 for f in filenames
             ]
-            if ((std_site_config.from_date <= d) and (d <= std_site_config.to_date))
+            if (
+                (std_site_config.from_date_parsed <= d)
+                and (d <= std_site_config.to_date_parsed)
+            )
         ]
     )
 

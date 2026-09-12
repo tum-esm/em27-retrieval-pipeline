@@ -100,8 +100,8 @@ def test_retrieval_queue(
             retrieval_algorithm="proffast-2.2",
             atmospheric_profile_model="GGG2014",
             sensor_ids=["so"],
-            from_date=datetime.date(2017, 6, 9),
-            to_date=datetime.date(2017, 6, 10),
+            from_date="2017-06-09",
+            to_date="2017-06-10",
         ),
     )
     _check_retrieval_queue(
@@ -120,8 +120,8 @@ def test_retrieval_queue(
             retrieval_algorithm="proffast-2.2",
             atmospheric_profile_model="GGG2014",
             sensor_ids=["so"],
-            from_date=datetime.date(2017, 6, 1),
-            to_date=datetime.date(2017, 6, 10),
+            from_date="2017-06-01",
+            to_date="2017-06-10",
         ),
     )
     _check_retrieval_queue(
@@ -141,8 +141,8 @@ def test_retrieval_queue(
             retrieval_algorithm="proffast-2.2",
             atmospheric_profile_model="GGG2014",
             sensor_ids=["so"],
-            from_date=datetime.date(2017, 6, 1),
-            to_date=datetime.date(2017, 6, 8),
+            from_date="2017-06-01",
+            to_date="2017-06-08",
         ),
     )
     _check_retrieval_queue(
@@ -159,8 +159,8 @@ def test_retrieval_queue(
             retrieval_algorithm="proffast-2.2",
             atmospheric_profile_model="GGG2014",
             sensor_ids=["so"],
-            from_date=datetime.date(2017, 6, 8),
-            to_date=datetime.date(2017, 6, 8),
+            from_date="2017-06-08",
+            to_date="2017-06-08",
         ),
     )
     _check_retrieval_queue(
@@ -177,8 +177,8 @@ def test_retrieval_queue(
             retrieval_algorithm="proffast-2.2",
             atmospheric_profile_model="GGG2014",
             sensor_ids=["so"],
-            from_date=datetime.date(2017, 6, 1),
-            to_date=datetime.date(2017, 6, 7),
+            from_date="2017-06-01",
+            to_date="2017-06-07",
         ),
     )
     _check_retrieval_queue(

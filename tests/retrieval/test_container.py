@@ -132,7 +132,7 @@ def test_container_lifecycle_ci(
                 retrieval_algorithm=j[0],
                 atmospheric_profile_model=j[1],
                 sensor_ids=[j[2].sensor_id],
-                from_date=j[2].from_datetime.date(),
+                from_date=j[2].from_datetime.strftime("%Y-%m-%d"),
                 # test this for all alg/atm combinations for one of the sensor data contexts
                 use_local_pressure_in_pcxs=(j[2].from_datetime.date() == datetime.date(2017, 6, 9)),
                 store_binary_spectra=False,
@@ -180,7 +180,7 @@ def test_container_lifecycle_complete(
                     retrieval_algorithm=j[0],
                     atmospheric_profile_model=j[1],
                     sensor_ids=[j[2].sensor_id],
-                    from_date=j[2].from_datetime.date(),
+                    from_date=j[2].from_datetime.strftime("%Y-%m-%d"),
                     # test this for all alg/atm combinations for one of the sensor data contexts
                     use_local_pressure_in_pcxs=(
                         j[2].from_datetime.date() == datetime.date(2017, 6, 9)

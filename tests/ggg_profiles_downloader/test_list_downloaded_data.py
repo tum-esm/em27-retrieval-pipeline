@@ -17,8 +17,8 @@ def test_list_downloaded_data(provide_config_template: src.types.Config) -> None
     config = provide_config_template.model_copy(deep=True)
     assert config.ggg_profiles_downloader is not None
     assert config.ggg_profiles_downloader.scope is not None
-    config.ggg_profiles_downloader.scope.from_date = min(random_dates)
-    config.ggg_profiles_downloader.scope.to_date = max(random_dates)
+    config.ggg_profiles_downloader.scope.from_date = min(random_dates).strftime("%Y-%m-%d")
+    config.ggg_profiles_downloader.scope.to_date = max(random_dates).strftime("%Y-%m-%d")
     for _ in range(5):
         downloaded_data = {
             l: set(random.sample(random_dates, 30)) for l in random.sample(random_locations, 5)

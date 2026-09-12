@@ -88,7 +88,8 @@ def generate_geoms_file(
     if pl_df is None:  # pragma: no cover
         return None, "No data found"
     pl_df = pl_df.filter(
-        (pl.col("utc") >= geoms_export_config.from_datetime) & (pl.col("utc") <= geoms_export_config.to_datetime)
+        (pl.col("utc") >= geoms_export_config.from_datetime_parsed)
+        & (pl.col("utc") <= geoms_export_config.to_datetime_parsed)
     )
     if len(pl_df) < geoms_export_config.min_datapoints_per_day:  # pragma: no cover
         return None, f"Not enough data (less than {geoms_export_config.min_datapoints_per_day} datapoints)"
@@ -331,8 +332,8 @@ def run(
                                 hour=to_time.hour, minute=to_time.minute, second=to_time.second
                             )
 
-                        if (from_dt <= geoms_export_config.to_datetime) and (
-                            to_dt >= geoms_export_config.from_datetime
+                        if (from_dt <= geoms_export_config.to_datetime_parsed) and (
+                            to_dt >= geoms_export_config.from_datetime_parsed
                         ):
                             results_within_time_range.append(result)
 

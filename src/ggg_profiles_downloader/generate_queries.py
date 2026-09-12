@@ -66,8 +66,8 @@ def list_downloaded_data(
                 for f in filenames
             ]
             if (
-                (config.ggg_profiles_downloader.scope.from_date <= d)
-                and (d <= config.ggg_profiles_downloader.scope.to_date)
+                (config.ggg_profiles_downloader.scope.from_date_parsed <= d)
+                and (d <= config.ggg_profiles_downloader.scope.to_date_parsed)
             )
         ]
     )
@@ -134,13 +134,13 @@ def list_desired_data(
             requested_data[query_location] = set()
 
         cropped_to_date = min(
-            config.ggg_profiles_downloader.scope.to_date,
+            config.ggg_profiles_downloader.scope.to_date_parsed,
             (datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(hours=36)).date(),
         )
-        if config.ggg_profiles_downloader.scope.from_date <= cropped_to_date:
+        if config.ggg_profiles_downloader.scope.from_date_parsed <= cropped_to_date:
             requested_data[query_location].update(
                 tum_esm_utils.timing.date_range(
-                    from_date=config.ggg_profiles_downloader.scope.from_date,
+                    from_date=config.ggg_profiles_downloader.scope.from_date_parsed,
                     to_date=cropped_to_date,
                 )
             )
@@ -162,12 +162,12 @@ def list_desired_data(
                 requested_data[query_location] = set()
 
             from_date = max(
-                config.ggg_profiles_downloader.scope.from_date,
-                sensor_setup.from_datetime.date(),
+                config.ggg_profiles_downloader.scope.from_date_parsed,
+                sensor_setup.from_datetime_parsed.date(),
             )
             to_date = min(
-                config.ggg_profiles_downloader.scope.to_date,
-                sensor_setup.to_datetime.date(),
+                config.ggg_profiles_downloader.scope.to_date_parsed,
+                sensor_setup.to_datetime_parsed.date(),
                 (
                     datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(hours=36)
                 ).date(),
@@ -230,8 +230,8 @@ def remove_std_site_data(
         if location in filtered_data.keys():
             filtered_data[location].difference_update(
                 tum_esm_utils.timing.date_range(
-                    from_date=std_site_config.from_date,
-                    to_date=std_site_config.to_date,
+                    from_date=std_site_config.from_date_parsed,
+                    to_date=std_site_config.to_date_parsed,
                 )
             )
             if len(filtered_data[location]) == 0:

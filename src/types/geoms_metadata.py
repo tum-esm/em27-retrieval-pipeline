@@ -8,6 +8,8 @@ import dotenv
 import pydantic
 import tomli
 import tum_esm_utils
+
+from .basic_types import UTC_DATETIME_STRING_PATTERN, parse_datetime_string
 from .old_schemas import OldGEOMSMetadata, OldCalibrationFactorsList
 
 
@@ -105,8 +107,16 @@ class GEOMSMetadataFields:
         model_config = pydantic.ConfigDict(arbitrary_types_allowed=True)
 
         sensor_id: str
-        valid_from_datetime: datetime.datetime = pydantic.Field(...)
-        valid_to_datetime: datetime.datetime = pydantic.Field(...)
+        valid_from_datetime: str = pydantic.Field(
+            ...,
+            pattern=UTC_DATETIME_STRING_PATTERN,
+            description="UTC datetime in format `YYYY-MM-DDTHH:MM:SSZ` or `YYYY-MM-DDTHH:MM:SS+0000`.",
+        )
+        valid_to_datetime: str = pydantic.Field(
+            ...,
+            pattern=UTC_DATETIME_STRING_PATTERN,
+            description="UTC datetime in format `YYYY-MM-DDTHH:MM:SSZ` or `YYYY-MM-DDTHH:MM:SS+0000`.",
+        )
         xco2: float = pydantic.Field(
             ..., description="Calibration factor for carbon dioxide: xco2_cal = xco2_raw * factor"
         )
@@ -122,11 +132,19 @@ class GEOMSMetadataFields:
 
         @pydantic.model_validator(mode="after")
         def validate_times(self) -> GEOMSMetadataFields.CalibrationFactors:
-            if self.valid_from_datetime >= self.valid_to_datetime:
+            if self.valid_from_datetime_parsed >= self.valid_to_datetime_parsed:
                 raise ValueError(
                     f"valid_from_datetime {self.valid_from_datetime} should be less than valid_to_datetime {self.valid_to_datetime}"
                 )
             return self
+
+        @property
+        def valid_from_datetime_parsed(self) -> datetime.datetime:
+            return parse_datetime_string(self.valid_from_datetime)
+
+        @property
+        def valid_to_datetime_parsed(self) -> datetime.datetime:
+            return parse_datetime_string(self.valid_to_datetime)
 
     class CalibrationFactorsList(pydantic.RootModel[list[CalibrationFactors]]):
         root: list[GEOMSMetadataFields.CalibrationFactors]
@@ -137,10 +155,10 @@ class GEOMSMetadataFields:
             for sensor_id in sensor_ids:
                 sensor_values = sorted(
                     [v for v in self.root if v.sensor_id == sensor_id],
-                    key=lambda x: x.valid_from_datetime,
+                    key=lambda x: x.valid_from_datetime_parsed,
                 )
                 for v1, v2 in zip(sensor_values[:-1], sensor_values[1:]):
-                    if v1.valid_to_datetime > v2.valid_from_datetime:
+                    if v1.valid_to_datetime_parsed > v2.valid_from_datetime_parsed:
                         raise ValueError(
                             f"Overlapping calibration factors for sensor {sensor_id}: {v1.valid_to_datetime} > {v2.valid_from_datetime}"
                         )
@@ -153,8 +171,8 @@ class GEOMSMetadataFields:
                     i
                     for i, v in enumerate(self.root)
                     if v.sensor_id == sensor_id
-                    and v.valid_from_datetime <= datetime
-                    and v.valid_to_datetime >= datetime
+                    and v.valid_from_datetime_parsed <= datetime
+                    and v.valid_to_datetime_parsed >= datetime
                 )
             except StopIteration:
                 return None
