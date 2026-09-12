@@ -35,14 +35,14 @@
                     "type": "array"
                 },
                 "from_datetime": {
-                    "description": "Date in format `YYYY-MM-DDTHH:MM:SS` from which to bundle data",
-                    "format": "date-time",
+                    "description": "UTC datetime in format `YYYY-MM-DDTHH:MM:SSZ` or `YYYY-MM-DDTHH:MM:SS+0000` from which to bundle data",
+                    "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:Z|\\+0000)$",
                     "title": "From Datetime",
                     "type": "string"
                 },
                 "to_datetime": {
-                    "description": "Date in format `YYYY-MM-DDTHH:MM:SS` to which to bundle data",
-                    "format": "date-time",
+                    "description": "UTC datetime in format `YYYY-MM-DDTHH:MM:SSZ` or `YYYY-MM-DDTHH:MM:SS+0000` to which to bundle data",
+                    "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:Z|\\+0000)$",
                     "title": "To Datetime",
                     "type": "string"
                 },
@@ -193,14 +193,14 @@
                     "type": "array"
                 },
                 "from_datetime": {
-                    "description": "Date in format `YYYY-MM-DDTHH:MM:SS` from which to generate GEOMS data",
-                    "format": "date-time",
+                    "description": "UTC datetime in format `YYYY-MM-DDTHH:MM:SSZ` or `YYYY-MM-DDTHH:MM:SS+0000` from which to generate GEOMS data",
+                    "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:Z|\\+0000)$",
                     "title": "From Datetime",
                     "type": "string"
                 },
                 "to_datetime": {
-                    "description": "Date in format `YYYY-MM-DDTHH:MM:SS` to which to generate GEOMS data",
-                    "format": "date-time",
+                    "description": "UTC datetime in format `YYYY-MM-DDTHH:MM:SSZ` or `YYYY-MM-DDTHH:MM:SS+0000` to which to generate GEOMS data",
+                    "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:Z|\\+0000)$",
                     "title": "To Datetime",
                     "type": "string"
                 },
@@ -321,13 +321,13 @@
                 },
                 "from_date": {
                     "description": "Date in format `YYYY-MM-DD` from which this standard site is active.",
-                    "format": "date",
+                    "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
                     "title": "From Date",
                     "type": "string"
                 },
                 "to_date": {
                     "description": "Date in format `YYYY-MM-DD` until which this standard site is active. Default is yesterday.",
-                    "format": "date",
+                    "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
                     "title": "To Date",
                     "type": "string"
                 }
@@ -643,13 +643,13 @@
                 },
                 "from_date": {
                     "description": "Date string in format `YYYY-MM-DD` from which to consider data in the storage directory.",
-                    "format": "date",
+                    "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
                     "title": "From Date",
                     "type": "string"
                 },
                 "to_date": {
                     "description": "Date string in format `YYYY-MM-DD` until which to consider data in the storage directory. Default is yesterday.",
-                    "format": "date",
+                    "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
                     "title": "To Date",
                     "type": "string"
                 },
@@ -865,14 +865,14 @@
                 "from_date": {
                     "default": "1900-01-01",
                     "description": "Date in format `YYYY-MM-DD` from which to request vertical profile data.",
-                    "format": "date",
+                    "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
                     "title": "From Date",
                     "type": "string"
                 },
                 "to_date": {
                     "default": "2100-01-01",
                     "description": "Date in format `YYYY-MM-DD` until which to request vertical profile data.",
-                    "format": "date",
+                    "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
                     "title": "To Date",
                     "type": "string"
                 },

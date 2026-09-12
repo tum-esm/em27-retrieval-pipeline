@@ -4,10 +4,14 @@
             "description": "Can be used to group measurements together, e.g. \"Hamburg Campaign\". The campaigns will be included in the dataset bundles in the column `campaign_ids`.",
             "properties": {
                 "from_datetime": {
+                    "description": "Datetime in format `YYYY-MM-DDTHH:MM:SSZ` or `YYYY-MM-DDTHH:MM:SS[+-]HHMM`.",
+                    "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:Z|[+-]\\d{4})$",
                     "title": "From Datetime",
                     "type": "string"
                 },
                 "to_datetime": {
+                    "description": "Datetime in format `YYYY-MM-DDTHH:MM:SSZ` or `YYYY-MM-DDTHH:MM:SS[+-]HHMM`.",
+                    "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:Z|[+-]\\d{4})$",
                     "title": "To Datetime",
                     "type": "string"
                 },
@@ -56,10 +60,14 @@
             "description": "Can be used to mark special events during measurements, e.g. \"Testing New Solar Tracker\". You can mark that the data during an event should not be used in downstream tasks. The dataset bundles will include the columns `event_description` and `event_data_quality_flag` (0 = good data, 1 = should not be used because of an event).",
             "properties": {
                 "from_datetime": {
+                    "description": "Datetime in format `YYYY-MM-DDTHH:MM:SSZ` or `YYYY-MM-DDTHH:MM:SS[+-]HHMM`.",
+                    "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:Z|[+-]\\d{4})$",
                     "title": "From Datetime",
                     "type": "string"
                 },
                 "to_datetime": {
+                    "description": "Datetime in format `YYYY-MM-DDTHH:MM:SSZ` or `YYYY-MM-DDTHH:MM:SS[+-]HHMM`.",
+                    "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:Z|[+-]\\d{4})$",
                     "title": "To Datetime",
                     "type": "string"
                 },
@@ -237,10 +245,14 @@
             "description": "An element in the `sensor.setups` list",
             "properties": {
                 "from_datetime": {
+                    "description": "Datetime in format `YYYY-MM-DDTHH:MM:SSZ` or `YYYY-MM-DDTHH:MM:SS[+-]HHMM`.",
+                    "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:Z|[+-]\\d{4})$",
                     "title": "From Datetime",
                     "type": "string"
                 },
                 "to_datetime": {
+                    "description": "Datetime in format `YYYY-MM-DDTHH:MM:SSZ` or `YYYY-MM-DDTHH:MM:SS[+-]HHMM`.",
+                    "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:Z|[+-]\\d{4})$",
                     "title": "To Datetime",
                     "type": "string"
                 },

@@ -50,3 +50,18 @@ def test_time_series_element() -> None:
     assert actual_dt_seconds == expected_dt_seconds, (
         f"dt_seconds: {actual_dt_seconds} (actual) != {expected_dt_seconds} (expected)"
     )
+
+
+@pytest.mark.em27_metadata_library
+def test_time_series_element_rejects_non_string_and_invalid_datetimes() -> None:
+    with pytest.raises(pydantic.ValidationError):
+        src.em27_metadata.types.TimeSeriesElement(
+            from_datetime=datetime.datetime(2016, 10, 1),  # pyright: ignore[reportArgumentType]
+            to_datetime="2016-10-01T23:59:59Z",
+        )
+
+    with pytest.raises(pydantic.ValidationError):
+        src.em27_metadata.types.TimeSeriesElement(
+            from_datetime="2016-02-30T00:00:00Z",
+            to_datetime="2016-03-01T23:59:59Z",
+        )

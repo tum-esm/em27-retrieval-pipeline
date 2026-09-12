@@ -7,12 +7,14 @@
                     "type": "string"
                 },
                 "valid_from_datetime": {
-                    "format": "date-time",
+                    "description": "UTC datetime in format `YYYY-MM-DDTHH:MM:SSZ` or `YYYY-MM-DDTHH:MM:SS+0000`.",
+                    "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:Z|\\+0000)$",
                     "title": "Valid From Datetime",
                     "type": "string"
                 },
                 "valid_to_datetime": {
-                    "format": "date-time",
+                    "description": "UTC datetime in format `YYYY-MM-DDTHH:MM:SSZ` or `YYYY-MM-DDTHH:MM:SS+0000`.",
+                    "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:Z|\\+0000)$",
                     "title": "Valid To Datetime",
                     "type": "string"
                 },
