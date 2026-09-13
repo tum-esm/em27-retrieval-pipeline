@@ -269,22 +269,14 @@ def generate_download_queries(
 
     assert config.ggg_profiles_downloader is not None
 
-    # TODO: refactor metadata loading
     if em27_metadata_interface is None:
-        em27_metadata_interface = utils.metadata.load_local_em27_metadata_interface()
-        if em27_metadata_interface is not None:
-            print("Found local metadata")
-        else:
-            print("Did not find local metadata -> fetching metadata from GitHub")
-            assert config.metadata.source == "github", "This should have been caught earlier"
-            assert config.metadata.github_repository is not None, (
-                "This should have been caught earlier"
-            )
-            em27_metadata_interface = em27_metadata.load_from_github(
-                github_repository=config.metadata.github_repository,
-                access_token=config.metadata.github_access_token,
-            )
-            print("Successfully fetched metadata from GitHub")
+        em27_metadata_interface = em27_metadata.load_from_config(
+            source=config.metadata.source,
+            github_repository=config.metadata.github_repository,
+            github_access_token=config.metadata.github_access_token,
+            config_directory=types.Config.get_config_dir(),
+            log=print,
+        )
 
     missing_data = compute_missing_data(
         desired_data=list_desired_data(

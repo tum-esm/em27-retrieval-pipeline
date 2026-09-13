@@ -310,21 +310,13 @@ def print_data_report() -> None:
     console.print("Loading config")
     config = src.types.Config.load()
 
-    # load metadata interface
-    # TODO: refactor metadata loading
-    console.print("Loading metadata")
-    em27_metadata_interface = src.utils.metadata.load_local_em27_metadata_interface()
-    if em27_metadata_interface is not None:
-        print("Found local metadata")
-    else:
-        print("Did not find local metadata -> fetching metadata from GitHub")
-        assert config.metadata.source == "github", "Remote metadata source is not selected"
-        assert config.metadata.github_repository is not None, "This should not happen"
-        em27_metadata_interface = src.em27_metadata.load_from_github(
-            github_repository=config.metadata.github_repository,
-            access_token=config.metadata.github_access_token,
-        )
-        print("Successfully fetched metadata from GitHub")
+    em27_metadata_interface = src.em27_metadata.load_from_config(
+        source=config.metadata.source,
+        github_repository=config.metadata.github_repository,
+        github_access_token=config.metadata.github_access_token,
+        config_directory=src.types.Config.get_config_dir(),
+        log=console.print,
+    )
 
     console.print("Printing report for the data paths: " + config.data.model_dump_json(indent=4))
     try:

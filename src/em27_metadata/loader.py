@@ -1,11 +1,53 @@
 import os
-from typing import Literal, Optional
+from typing import Callable, Literal, Optional
 
 import tomli
 import tum_esm_utils
 
 from . import interfaces as em27_metadata_interfaces
 from . import types as em27_metadata_types
+
+
+def load_from_config(
+    source: Literal["local", "github"],
+    github_repository: Optional[str],
+    github_access_token: Optional[str],
+    config_directory: str,
+    log: Optional[Callable[[str], None]] = None,
+) -> em27_metadata_interfaces.EM27MetadataInterface:
+    """Load metadata from the configured local or GitHub source.
+
+    Args:
+        source: Where to load the metadata from.
+        github_repository: GitHub repository in ``owner/repository`` format.
+        github_access_token: Optional token for a private GitHub repository.
+        log: Optional function receiving progress messages.
+        config_directory: Directory containing local metadata files.
+    """
+
+    if source == "local":
+        if log is not None:
+            log(f"Loading metadata from local directory: {config_directory}")
+        metadata = load_from_local_files(config_directory=config_directory)
+        if log is not None:
+            log("Successfully loaded local metadata")
+        return metadata
+
+    elif source == "github":
+        if github_repository is None:
+            raise ValueError("github_repository is required when metadata source is 'github'")
+
+        if log is not None:
+            log(f"Loading metadata from GitHub repository: {github_repository}")
+        metadata = load_from_github(
+            github_repository=github_repository,
+            access_token=github_access_token,
+        )
+        if log is not None:
+            log("Successfully loaded metadata from GitHub")
+        return metadata
+
+    raise ValueError(f"Unknown metadata source: {source}")
 
 
 def load_from_github(

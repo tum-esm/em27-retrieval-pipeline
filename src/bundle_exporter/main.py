@@ -9,7 +9,7 @@ import tqdm
 import tum_esm_utils
 
 sys.path.append(tum_esm_utils.files.rel_to_abs_path("../.."))
-from src import em27_metadata, types, utils
+from src import em27_metadata, types
 
 from .load_results import load_results_directory
 
@@ -25,22 +25,14 @@ def run(
     assert config.bundle_exports is not None, "no bundle targets found"
     assert len(config.bundle_exports) > 0, "no bundle targets found"
 
-    # TODO: refactor metadata loading
     if em27_metadata_interface is None:
-        em27_metadata_interface = utils.metadata.load_local_em27_metadata_interface()
-        if em27_metadata_interface is not None:
-            print("Found local metadata")
-        else:  # pragma: no cover
-            print("Did not find local metadata -> fetching metadata from GitHub")
-            assert config.metadata.source == "github", "Remote metadata not configured"
-            assert config.metadata.github_repository is not None, (
-                "This should have been caught earlier"
-            )
-            em27_metadata_interface = em27_metadata.load_from_github(
-                github_repository=config.metadata.github_repository,
-                access_token=config.metadata.github_access_token,
-            )
-            print("Successfully fetched metadata from GitHub")
+        em27_metadata_interface = em27_metadata.load_from_config(
+            source=config.metadata.source,
+            github_repository=config.metadata.github_repository,
+            github_access_token=config.metadata.github_access_token,
+            config_directory=types.Config.get_config_dir(),
+            log=print,
+        )
 
     for i, bundle_export_config in enumerate(config.bundle_exports):
         print(f"Processing bundle export #{i + 1}")

@@ -73,25 +73,16 @@ def run() -> None:
     signal.signal(signal.SIGTERM, _graceful_teardown)
     main_logger.info("Established graceful teardown hook")
 
-    # load metadata interface
-    # TODO: refactor metadata loading
     try:
-        em27_metadata_interface = utils.metadata.load_local_em27_metadata_interface()
-        if em27_metadata_interface is not None:
-            print("Found local metadata")
-        else:  # pragma: no cover
-            print("Did not find local metadata -> fetching metadata from GitHub")
-            assert config.metadata.source == "github", "Remote metadata not configured"
-            assert config.metadata.github_repository is not None, (
-                "This should have been caught earlier"
-            )
-            em27_metadata_interface = em27_metadata.load_from_github(
-                github_repository=config.metadata.github_repository,
-                access_token=config.metadata.github_access_token,
-            )
-            print("Successfully fetched metadata from GitHub")
+        em27_metadata_interface = em27_metadata.load_from_config(
+            source=config.metadata.source,
+            github_repository=config.metadata.github_repository,
+            github_access_token=config.metadata.github_access_token,
+            config_directory=types.Config.get_config_dir(),
+            log=main_logger.info,
+        )
     except Exception as e:
-        main_logger.exception(e, "Error while loading local metadata")
+        main_logger.exception(e, "Error while loading metadata")
         main_logger.archive()
         raise e
 
