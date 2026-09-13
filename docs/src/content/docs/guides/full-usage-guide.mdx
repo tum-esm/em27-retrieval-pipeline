@@ -1,9 +1,8 @@
 ---
-title: Using the Pipeline
-label: Usage
+title: Full Usage Guide
 ---
 
-import { Aside } from '@astrojs/starlight/components';
+import { Aside } from "@astrojs/starlight/components";
 
 ## Downloading Atmospheric Profiles
 
@@ -27,6 +26,8 @@ Run the following to request the current queue status of your account:
 ```bash
 python cli.py profiles request-ginput-status
 ```
+
+---
 
 ## Running Retrievals
 
@@ -59,6 +60,8 @@ Terminate the ongoing retrievals using the following command:
 python cli.py retrieval stop
 ```
 
+---
+
 ## Bundling All Retrieval Outputs
 
 Bundle all the retrieval outputs using the following command:
@@ -66,6 +69,10 @@ Bundle all the retrieval outputs using the following command:
 ```bash
 python cli.py bundle run
 ```
+
+You can specify multiple entries in the bundle exports config section and the script will run the bundling for all of them.
+
+---
 
 ## Generating GEOMS compliant HDF5 files
 
@@ -117,6 +124,8 @@ Please make sure to not only cite this pipeline, but also the Proffast Pylot whe
 
 </Aside>
 
+---
+
 ## Generate a Data Report
 
 You can generate a report about the data on your system using the following command:
@@ -145,6 +154,8 @@ from_datetime,to_datetime,location_id,interferograms,ground_pressure,ggg2014_pro
 
 The numbers in the columns "interferograms" and "ground_pressure" are the number of interferograms
 and the number of ground_pressure lines for the respective day.
+
+---
 
 ## Running the Retrieval in a Computing Cluster
 

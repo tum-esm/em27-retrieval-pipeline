@@ -1,5 +1,5 @@
 ---
-title: Miscellaneous
+title: FAQ
 ---
 
 ## How does the Pipeline determine which days to process?
@@ -182,3 +182,11 @@ The list below was blatantly stolen from the TCCON wiki (https://tccon-wiki.calt
 | DXU                       | X Units                                                                   |
 | DAT                       | Date of Measurement                                                       |
 | TIM                       | Time of Measurement                                                       |
+
+## How to use a custom configuration or logs directory
+
+If not specified otherwise, the pipeline will look the configuration and metadata files in the `config/` directory of the repository. However, you can also specify an alternative configuration directory by setting the environment variable `ERP_CONFIG_DIR`.
+
+In the same way, logs are written to the `logs/` directory of the repository by default. You can specify an alternative logs directory by setting the environment variable `ERP_LOGS_DIR`.
+
+The pipeline will automatically load a `config/.env` file if present.
