@@ -9,6 +9,7 @@ import pydantic
 import tomli
 import tum_esm_utils
 
+from ..utils import toml as toml_utils
 from .basic_types import UTC_DATETIME_STRING_PATTERN, parse_datetime_string
 from .old_schemas import OldCalibrationFactorsList, OldGEOMSMetadata
 
@@ -250,8 +251,12 @@ class GEOMSMetadata(pydantic.BaseModel):
             }
         )
         tmp_filepath = filepath.removesuffix(".toml") + ".tmp.toml"
-        tum_esm_utils.files.dump_toml_file(
-            tmp_filepath, new_geoms_metadata.model_dump(mode="json", exclude_none=True)
+        toml_utils.dump_pretty_toml_file(
+            filepath=tmp_filepath,
+            data=new_geoms_metadata.model_dump(mode="json", exclude_none=True),
+            template_filepath=tum_esm_utils.files.rel_to_abs_path(
+                "../../config/geoms_metadata.template.toml"
+            ),
         )
         os.replace(tmp_filepath, filepath)
         return new_geoms_metadata

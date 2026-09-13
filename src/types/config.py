@@ -9,6 +9,7 @@ import pydantic
 import tomli
 import tum_esm_utils
 
+from ..utils import toml as toml_utils
 from .basic_types import (
     DATE_STRING_PATTERN,
     UTC_DATETIME_STRING_PATTERN,
@@ -865,8 +866,15 @@ class Config(pydantic.BaseModel):
                 ),
             )
             tmp_toml_path = toml_path.removesuffix(".toml") + ".tmp.toml"
-            tum_esm_utils.files.dump_toml_file(
-                tmp_toml_path, config_object.model_dump(mode="json", exclude_none=True)
+            toml_utils.dump_pretty_toml_file(
+                filepath=tmp_toml_path,
+                data=config_object.model_dump(mode="json", exclude_none=True),
+                template_filepath=tum_esm_utils.files.rel_to_abs_path(
+                    "../../config/config.template.toml"
+                ),
+                inline_all_lists=True,
+                omit_empty_tables=True,
+                omittable_empty_root_arrays=("bundle_exports", "geoms_exports"),
             )
             os.replace(tmp_toml_path, toml_path)
 

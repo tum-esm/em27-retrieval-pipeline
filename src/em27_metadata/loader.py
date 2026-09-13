@@ -4,6 +4,7 @@ from typing import Callable, Literal, Optional
 import tomli
 import tum_esm_utils
 
+from ..utils import toml as toml_utils
 from . import interfaces as em27_metadata_interfaces
 from . import types as em27_metadata_types
 
@@ -283,9 +284,15 @@ def load_from_local_files(
             events=events,
         )
         tmp_toml_path = toml_path.removesuffix(".toml") + ".tmp.toml"
-        tum_esm_utils.files.dump_toml_file(
-            tmp_toml_path,
-            em27_metadata_object.model_dump(mode="json", exclude_none=True),
+        toml_utils.dump_pretty_toml_file(
+            filepath=tmp_toml_path,
+            data=em27_metadata_object.model_dump(mode="json", exclude_none=True),
+            template_filepath=tum_esm_utils.files.rel_to_abs_path(
+                "../../config/em27_metadata.template.toml"
+            ),
+            inline_sensor_deployments=True,
+            inline_metadata_id_lists=True,
+            omittable_empty_root_arrays=("campaigns", "events"),
         )
         os.replace(tmp_toml_path, toml_path)
 

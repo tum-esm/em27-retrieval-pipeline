@@ -59,9 +59,15 @@ def fetch_remote_metadata() -> None:
         campaigns=metadata.campaigns,
         events=metadata.events,
     )
-    tum_esm_utils.files.dump_toml_file(
-        metadata_path,
-        metadata_object.model_dump(mode="json", exclude_none=True),
+    src.utils.toml.dump_pretty_toml_file(
+        filepath=metadata_path,
+        data=metadata_object.model_dump(mode="json", exclude_none=True),
+        template_filepath=os.path.join(
+            os.path.dirname(__file__), "config", "em27_metadata.template.toml"
+        ),
+        inline_sensor_deployments=True,
+        inline_metadata_id_lists=True,
+        omittable_empty_root_arrays=("campaigns", "events"),
     )
     click.echo(f"Remote metadata written to {metadata_path}")
 

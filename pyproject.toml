@@ -14,6 +14,7 @@ dependencies = [
     "pydantic>=2.10.2",
     "tum-esm-utils[opus]>=2.11.3",
     "tomli>=2.4.0",
+    "tomli-w>=1.2.0",
     "python-dotenv>=1.0.1",
     "skyfield>=1.55",              # used by the retrieval
     "rich>=13.9.4",                # used by export and profiles download
