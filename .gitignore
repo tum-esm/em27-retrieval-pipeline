@@ -14,6 +14,7 @@ dev
 .env
 !.env.example
 dist
+src/em27_metadata/sample_data/json/*.toml
 
 data/**/*.map
 data/**/*.mod

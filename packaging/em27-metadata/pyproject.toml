@@ -34,4 +34,7 @@ build-backend = "uv_build"
 [tool.uv.build-backend]
 module-name = "em27_metadata"
 module-root = ""
-source-exclude = ["em27_metadata/sample_data/.prettierrc"]
+source-exclude = [
+    "em27_metadata/sample_data/.prettierrc",
+    "em27_metadata/sample_data/json/em27_metadata.toml",
+]
