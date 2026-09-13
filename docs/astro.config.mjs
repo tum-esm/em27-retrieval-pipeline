@@ -79,11 +79,11 @@ export default defineConfig({
             },
             {
               label: "em27_metadata.toml",
-              link: "/reference/em27_metadata",
+              link: "/reference/em27-metadata",
             },
             {
               label: "geoms_metadata.toml",
-              link: "/reference/geoms_metadata",
+              link: "/reference/geoms-metadata",
             },
             {
               label: "Command Line Interface",
@@ -97,19 +97,19 @@ export default defineConfig({
           items: [
             {
               label: "Contributing",
-              link: "/other/contributing",
+              link: "/developer-guides/contributing",
             },
             {
               label: "Internal Data Directories",
-              link: "/other/internal-data-directories",
+              link: "/developer-guides/internal-data-directories",
             },
             {
               label: "Tests",
-              link: "/other/tests",
+              link: "/developer-guides/tests",
             },
             {
               label: "EM27 Metadata Tests",
-              link: "/other/em27-metadata-tests",
+              link: "/developer-guides/em27-metadata-tests",
             },
           ],
         },

@@ -15,4 +15,4 @@ contexts = metadata.get(
 )
 ```
 
-The loader supports the current `em27_metadata.toml` schema and the former `locations.json`, `sensors.json`, `campaigns.json`, and `events.json` layout. See the [metadata documentation](https://tum-esm.github.io/em27-retrieval-pipeline/guides/metadata) for configuration details.
+The loader supports the current `em27_metadata.toml` schema and the former `locations.json`, `sensors.json`, `campaigns.json`, and `events.json` layout. See the [metadata documentation](https://tum-esm.github.io/em27-retrieval-pipeline/guides/em27-metadata) for configuration details.

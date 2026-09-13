@@ -10,33 +10,6 @@ Please follow the [Code of Conduct](CODE_OF_CONDUCT.md) in all project interacti
 - Open an issue before starting a substantial change so its scope and approach can be discussed.
 - Small fixes and documentation improvements can be submitted directly as a pull request.
 
-## Development Setup
-
-The pipeline targets Unix systems and requires Python 3.11 or newer, `unzip`, and `gfortran`.
-
-1. Fork and clone the repository.
-2. Create and activate a virtual environment:
-
-   ```bash
-   python3.11 -m venv .venv
-   source .venv/bin/activate
-   ```
-
-3. Install the development dependencies (we use PDM, but might switch to UV soon):
-
-   ```bash
-   uv sync --extra=dev
-   ```
-
-4. Create a branch for your change:
-
-   ```bash
-   git switch -c dev-...
-   ```
-
-See the [installation guide](https://tum-esm.github.io/em27-retrieval-pipeline/guides/installation)
-for the full system configuration.
-
 ## Making Changes
 
 - Keep changes focused and consistent with the existing code.
@@ -60,8 +33,7 @@ For most changes, run the lightweight test suite:
 pytest -m quick tests/
 ```
 
-Run the CI-level tests when retrieval behavior, dispatching, file handling, or
-other pipeline workflows change:
+Run the CI-level tests when retrieval behavior, dispatching, file handling, or other pipeline workflows change:
 
 ```bash
 pytest -m "quick or ci" tests/
@@ -84,4 +56,3 @@ When opening a pull request:
 - Link related issues.
 - Highlight user-facing or breaking changes.
 - Include documentation updates where needed.
-

@@ -1,12 +1,12 @@
 # 🌋 EM27 Retrieval Pipeline: Automated EM27/SUN Data Processing
 
-<img alt="GitHub License" src="https://img.shields.io/github/license/tum-esm/em27-retrieval-pipeline?style=flat&label=License&labelColor=%230f172a&color=%23fef08a&cacheSeconds=60" className="inline p-0 m-px mt-4"/> <img alt="GitHub Tag" src="https://img.shields.io/github/v/tag/tum-esm/em27-retrieval-pipeline?sort=semver&style=flat&label=Latest%20Pipeline%20Version&color=%23fef08a&cacheSeconds=60&labelColor=%230f172a" className="inline p-0 m-px mt-4"/> <br/> <img alt="Static Badge" src="https://img.shields.io/badge/Proffast%201.0%20%7C%202.2%20%7C%202.3%20%7C%202.4-whydoineedthis?style=flat&label=Retrieval%20Algorithms&labelColor=%230f172a&color=%2399f6e4&cacheSeconds=60" className="inline p-0 m-px "/> <br/> <img alt="Static Badge" src="https://img.shields.io/badge/GGG2014%20%7C%20GGG2020%20-%20whydoineedthis?style=flat&label=Atmospheric%20Profile%20Models&labelColor=%230f172a&color=%2399f6e4&cacheSeconds=60" className="inline p-0 m-px "/> <br/> [<img alt="Static Badge" src="https://img.shields.io/badge/DOI-10.5281/zenodo.14284968-%23bae6fd?labelColor=%230f172a"/>](https://doi.org/10.5281/zenodo.14284968)
+<img alt="GitHub License" src="https://img.shields.io/github/license/tum-esm/em27-retrieval-pipeline?style=flat&label=License&labelColor=%230f172a&color=%23fef08a&cacheSeconds=60" className="inline p-0 m-px mt-4"/> <img alt="GitHub Tag" src="https://img.shields.io/github/v/tag/tum-esm/em27-retrieval-pipeline?sort=semver&style=flat&label=Latest%20Pipeline%20Version&color=%23fef08a&cacheSeconds=60&labelColor=%230f172a" className="inline p-0 m-px mt-4"/> <br/> <img alt="Static Badge" src="https://img.shields.io/badge/Proffast%201.0%20%7C%202.2%20%7C%202.3%20%7C%202.4%20%7C%202.4.1-whydoineedthis?style=flat&label=Retrieval%20Algorithms&labelColor=%230f172a&color=%2399f6e4&cacheSeconds=60" className="inline p-0 m-px "/> <br/> <img alt="Static Badge" src="https://img.shields.io/badge/GGG2014%20%7C%20GGG2020%20-%20whydoineedthis?style=flat&label=Atmospheric%20Profile%20Models&labelColor=%230f172a&color=%2399f6e4&cacheSeconds=60" className="inline p-0 m-px "/> <br/> [<img alt="Static Badge" src="https://img.shields.io/badge/DOI-10.5281/zenodo.14284968-%23bae6fd?labelColor=%230f172a"/>](https://doi.org/10.5281/zenodo.14284968)
 
 We retrieve a lot of EM27/SUN data, due to running [MUCCnet (Dietrich et al., 2021)](https://doi.org/10.5194/amt-14-1111-2021) in an automated setup, and have used this pipeline since end of 2021.
 
 This codebase provides an automated data pipeline for [Proffast 1 and 2.X](https://www.coccon.kit.edu/). Under the hood, it uses the [Proffast Pylot](https://github.com/coccon/proffastpylot) to interact with Proffast 2 and an in-house connector to interact with Proffast 1. Whenever using this pipeline for Proffast retrievals, please make sure to also cite Proffast and the Proffast Pylot (for Proffast 2.X retrievals).
 
-📚 Read the documentation at [em27-retrieval-pipeline.netlify.app](https://tum-esm.github.io/em27-retrieval-pipeline).<br/>
+📚 Read the documentation at [tum-esm.github.io/em27-retrieval-pipeline](https://tum-esm.github.io/em27-retrieval-pipeline).<br/>
 💾 Get the source code at [github.com/tum-esm/em27-retrieval-pipeline](https://github.com/tum-esm/em27-retrieval-pipeline).<br/>
 🐝 Report Issues or discuss enhancements using [issues on GitHub](https://github.com/tum-esm/em27-retrieval-pipeline/issues).
 
@@ -48,7 +48,7 @@ Please visit the [Quick Start Guide](https://tum-esm.github.io/em27-retrieval-pi
 
 **Easy configuration of using a validated `config.toml` (and metadata files):** By "validated", we mean that before the processing starts, the config files content will be parsed and validated against a TOML schema. This way, you can be sure that the pipeline will not fail due to a misconfiguration, and you will immediately get precise error messages.
 
-**Opinionated management of station metadata:** We manage our EM27 metadata using JSON files instead of database tables, which has several benefits mentioned in the [metadata repository](https://github.com/tum-esm/em27-metadata)
+**Opinionated management of station metadata:** We manage our EM27 metadata using TOML files, described [here](https://tum-esm.github.io/em27-retrieval-pipeline/guides/em27-metadata) and with a full schema reference [here](https://tum-esm.github.io/em27-retrieval-pipeline/reference/em27-metadata)
 
 **Filtering of interferogram files that Proffast cannot process:** When some interferograms are corrupted, Proffast will fail during preprocessing for whole days of data even when only a few out of thousands of interferograms are bad. The pipeline filters out these interferograms and only passes the valid ones to Proffast. A standalone version of this filtering functionality is included in our [utility library](https://tum-esm-utils.netlify.app/api-reference#tum_esm_utilsinterferograms)
 
@@ -58,9 +58,9 @@ Please visit the [Quick Start Guide](https://tum-esm.github.io/em27-retrieval-pi
 
 **Comprehensive logs and output data management:** It will store failed and succeeded containers. The output is the same as with the Pylot but also contains all config files the pipeline used to run this container and logs generated by the container.
 
-**Bundling of retrieval results:** The raw retrieval outputs will be distributed over hundreds or thousands of folders and files. The bundling script of this pipeline will merge these outputs into one file per station, retrieval algorithm, and atmospheric profile. This way, you can easily access the data for further processing. ([Read about it here](/guides/directories#bundles)).
+**Bundling of retrieval results:** The raw retrieval outputs will be distributed over hundreds or thousands of folders and files. The bundling script of this pipeline will merge these outputs into one file per station, retrieval algorithm, and atmospheric profile. This way, you can easily access the data for further processing. ([Read about it here](/guides/data-directories#bundles)).
 
-**Documentation and complete API reference:** hosted at [em27-retrieval-pipeline.netlify.app](https://tum-esm.github.io/em27-retrieval-pipeline/)
+**Documentation and complete API reference:** hosted at [tum-esm.github.io/em27-retrieval-pipeline](https://tum-esm.github.io/em27-retrieval-pipeline/)
 
 ## Contributing
 

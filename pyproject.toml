@@ -6,7 +6,7 @@ authors = [
     { name = "Moritz Oliveira Makowski", email = "moritz.makowski@tum.de" },
     { name = "Marlon Müller" },
     { name = "Andreas Luther" },
-    { name = "Vyas Giridhard" },
+    { name = "Vyas Giridharan" },
     { name = "Catherine Fait" },
 ]
 dependencies = [
@@ -43,7 +43,7 @@ classifiers = [
 ]
 requires-python = ">=3.11,<3.15"
 readme = "README.md"
-license = { text = "GPL-3.0" }
+license = { text = "GPL-3.0-or-later" }
 
 [project.urls]
 repository = "https://github.com/tum-esm/em27-retrieval-pipeline"
