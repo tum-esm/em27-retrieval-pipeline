@@ -804,7 +804,7 @@
             "description": "How and where to get the metadata from.",
             "properties": {
                 "source": {
-                    "description": "Where to source the metadata from. If `local`, it will use `config/metadata.toml`. If `github`, it will download the metadata from the GitHub repository specified in the `github_repository` field.",
+                    "description": "Where to source the metadata from. If `local`, it will use `config/em27_metadata.toml`. If `github`, it will download the metadata from the GitHub repository specified in the `github_repository` field.",
                     "enum": [
                         "local",
                         "github"

@@ -19,8 +19,6 @@ from .basic_types import (
 )
 from .old_schemas import OldConfig
 
-# TODO: refactor metadata source logic
-
 
 class MetadataConfig(pydantic.BaseModel):
     """How and where to get the metadata from."""
@@ -29,7 +27,7 @@ class MetadataConfig(pydantic.BaseModel):
 
     source: Literal["local", "github"] = pydantic.Field(
         ...,
-        description="Where to source the metadata from. If `local`, it will use `config/metadata.toml`. If `github`, it will download the metadata from the GitHub repository specified in the `github_repository` field.",
+        description="Where to source the metadata from. If `local`, it will use `config/em27_metadata.toml`. If `github`, it will download the metadata from the GitHub repository specified in the `github_repository` field.",
     )
     github_repository: Optional[str] = pydantic.Field(
         default=None,

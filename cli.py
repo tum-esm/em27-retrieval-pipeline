@@ -189,6 +189,7 @@ def download_algorithms() -> None:
     src.retrieval.dispatching.container_factory.ContainerFactory.init_proffast22_code(click.echo)
     src.retrieval.dispatching.container_factory.ContainerFactory.init_proffast23_code(click.echo)
     src.retrieval.dispatching.container_factory.ContainerFactory.init_proffast24_code(click.echo)
+    src.retrieval.dispatching.container_factory.ContainerFactory.init_proffast241_code(click.echo)
 
 
 @ggg_profiles_downloader_command_group.command(

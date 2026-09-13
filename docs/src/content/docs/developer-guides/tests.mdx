@@ -39,7 +39,7 @@ The tests are ordered the following way - the fast tests should run first to get
 
 ## Retrieval Tests
 
-When running the `ci` or `complete` tests, the test suite will download some sample data to `data/testing/container/inputs`. After the tests have run successfully, the directory `data/testing/container/outputs` will be fully populated with the results of any retrieval algorithm using any atmospheric profiles.
+The `ci` and `complete` tests use the sample interferograms, pressure data, and atmospheric profiles under `example/data/inputs`. Generated retrieval results are written to `data/testing/outputs/individual-results`.
 
 <Aside type="tip">
 
