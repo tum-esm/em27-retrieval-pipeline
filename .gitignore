@@ -10,6 +10,9 @@ config/*.json
 de421.bsp
 de421.bsp.download
 dev
+.ruff_cache
+.env
+!.env.example
 
 data/**/*.map
 data/**/*.mod

@@ -2,9 +2,9 @@
 
 set -euo pipefail
 
-repository_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
-package_config_dir="${repository_dir}/packaging/em27-metadata"
-output_dir="${1:-${repository_dir}/dist/em27-metadata}"
+package_config_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+repository_dir="$(cd "${package_config_dir}/../.." && pwd)"
+output_dir="${1:-${repository_dir}/packaging/dist}"
 staging_dir="$(mktemp -d)"
 
 cleanup() {

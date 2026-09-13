@@ -14,7 +14,6 @@ dependencies = [
 requires-python = ">=3.10,<4.0"
 readme = "README.md"
 license = { text = "GPL-3.0" }
-license-files = ["LICENSE"]
 classifiers = [
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.10",
