@@ -15,9 +15,18 @@ import tum_esm_utils
 
 _RETRIEVAL_ENTRYPOINT = tum_esm_utils.files.rel_to_abs_path("src", "retrieval", "main.py")
 
-cli = click.Group(name="cli")
+
+class _CLIGroup(click.Group):
+    def get_command(self, ctx: click.Context, cmd_name: str) -> click.Command | None:
+        # Keep the pre-1.11 command working without advertising it in the CLI help.
+        if cmd_name == "profiles":
+            cmd_name = "ggg-profiles-downloader"
+        return super().get_command(ctx, cmd_name)
+
+
+cli = _CLIGroup(name="cli")
 retrieval_command_group = click.Group(name="retrieval")
-profiles_command_group = click.Group(name="profiles")
+ggg_profiles_downloader_command_group = click.Group(name="ggg-profiles-downloader")
 bundle_command_group = click.Group(name="bundle")
 geoms_command_group = click.Group(name="geoms")
 
@@ -182,7 +191,7 @@ def download_algorithms() -> None:
     src.retrieval.dispatching.container_factory.ContainerFactory.init_proffast24_code(click.echo)
 
 
-@profiles_command_group.command(
+@ggg_profiles_downloader_command_group.command(
     name="run",
     short_help="Run Atmospheric Profiles Download",
     help="Run the profiles download script. This will check, which profiles are not yet present locally, request and download them from the `ccycle.gps.caltech.edu` FTP server. The logs from this process can be found at `logs/profiles`.",
@@ -195,7 +204,7 @@ def run_profiles_download() -> None:
     src.ggg_profiles_downloader.main.run()
 
 
-@profiles_command_group.command(
+@ggg_profiles_downloader_command_group.command(
     name="request-ginput-status",
     short_help="Request Ginput Status",
     help="Request ginput status. This will upload a file `upload/ginput_status.txt` to the `ccycle.gps.caltech.edu` FTP server containing the configured email address. You will receive an email with the ginput status which normally takes less than two minutes.",
@@ -220,7 +229,7 @@ def request_ginput_status() -> None:
     )
 
 
-@profiles_command_group.command(
+@ggg_profiles_downloader_command_group.command(
     name="migrate-storage-location",
     short_help="Migrate Atmospheric Profiles Storage Location",
     help="Migrate the storage location of the atmospheric profiles to the new directory structure introduced in the pipeline version 1.7.0. See https://github.com/tum-esm/em27-retrieval-pipeline/issues/127 for more details.",
@@ -328,7 +337,7 @@ def print_data_report() -> None:
 
 
 cli.add_command(retrieval_command_group)
-cli.add_command(profiles_command_group)
+cli.add_command(ggg_profiles_downloader_command_group)
 cli.add_command(bundle_command_group)
 cli.add_command(geoms_command_group)
 

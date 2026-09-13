@@ -81,7 +81,7 @@ def run() -> None:  # pragma: no cover
                 if open_query_count <= 0:
                     print(
                         "No open slots for new queries "
-                        + "(config.profiles.server.max_parallel_requests = "
+                        + "(config.ggg_profiles_downloader.server.max_parallel_requests = "
                         + f"{config.ggg_profiles_downloader.server.max_parallel_requests})"
                     )
                     continue

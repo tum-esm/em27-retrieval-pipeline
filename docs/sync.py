@@ -2,8 +2,8 @@ import copy
 import re
 import shutil
 import sys
-from typing import Any
 import warnings
+from typing import Any
 
 import click
 import tum_esm_utils.files
@@ -277,10 +277,14 @@ def cli_reference(command: click.Group) -> str:
                     f"Nested command group {group_context.command_path} is not supported"
                 )
                 command_docs.append(command_help(grouped_command, group_context))
-            sections.append(
-                f"## {sub_command.name.capitalize() if sub_command.name is not None else 'Undefined'}\n\n---\n\n"
-                + "\n\n---\n\n".join(command_docs)
+            section_name = (
+                "GGG Profiles Downloader"
+                if sub_command.name == "ggg-profiles-downloader"
+                else sub_command.name.capitalize()
+                if sub_command.name is not None
+                else "Undefined"
             )
+            sections.append(f"## {section_name}\n\n---\n\n" + "\n\n---\n\n".join(command_docs))
             if sub_command.name is None:
                 warnings.warn(f"Command group {group_context.command_path} has no name")
         else:

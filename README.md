@@ -24,7 +24,7 @@ This pipeline does not intend to replace the Proffast Pylot by any means. It use
 The pipeline consists of three building blocks that are required to retrieve EM27 data:
 
 1. Downloading vertical profiles from the Caltech FTP server:<br/>
-   `python cli.py profiles run`
+   `python cli.py ggg_profiles_downloader run`
 2. Running the retrieval to generate the averaged column concentrations:<br/>
    `python cli.py retrieval start`
 3. Bundle all retrieval results into one file per sensor/retrieval alg./atm. profile:<br/>
