@@ -130,9 +130,7 @@ def _inline_sensor_deployments(toml: str) -> str:
     return "\n".join(output)
 
 
-def _inline_array_fields(
-    toml: str, field_names: Collection[str] | None = None
-) -> str:
+def _inline_array_fields(toml: str, field_names: Collection[str] | None = None) -> str:
     """Render selected multiline arrays as compact single-line arrays.
 
     Args:
@@ -157,10 +155,7 @@ def _inline_array_fields(
 
         closing_bracket_index = i + 1
         values: list[str] = []
-        while (
-            closing_bracket_index < len(lines)
-            and lines[closing_bracket_index].strip() != "]"
-        ):
+        while closing_bracket_index < len(lines) and lines[closing_bracket_index].strip() != "]":
             values.append(lines[closing_bracket_index].strip().removesuffix(","))
             closing_bracket_index += 1
         if closing_bracket_index == len(lines):
@@ -212,9 +207,7 @@ def dump_pretty_toml_file(
         template_data = cast(Mapping[str, object], tomli.load(file))
 
     output_data = (
-        cast(Mapping[str, object], _remove_empty_mappings(data))
-        if omit_empty_tables
-        else data
+        cast(Mapping[str, object], _remove_empty_mappings(data)) if omit_empty_tables else data
     )
     root_keys = [key for key in template_data if key in output_data]
     root_keys.extend(key for key in output_data if key not in root_keys)

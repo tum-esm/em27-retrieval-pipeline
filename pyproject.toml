@@ -35,7 +35,6 @@ dependencies = [
     "cftime>=1.6.4.post1",         # used by Proffast Pylot only
 ]
 classifiers = [
-    "License :: OSI Approved :: GNU General Public License (GPL)",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
