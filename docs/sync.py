@@ -3,7 +3,7 @@ import re
 import shutil
 import sys
 import copy
-from typing import Any, Optional
+from typing import Any
 import click
 import tum_esm_utils.files
 
@@ -222,48 +222,72 @@ tum_esm_utils.files.dump_file(
 # credits to https://stackoverflow.com/a/58018765/8255842
 
 
-def recursive_help(
-    command: click.Group | click.Command,
-    parent_context: Optional[click.core.Context] = None,
+def command_help(
+    command: click.Command,
+    parent_context: click.core.Context,
 ) -> str:
-    output: str = ""
     context = click.core.Context(command, info_name=command.name, parent=parent_context)
-    if isinstance(command, click.Group):
-        for sub_command in command.commands.values():
-            output += recursive_help(sub_command, parent_context=context)
-    else:
-        assert command.short_help is not None, (
-            f"Command {context.command_path} has no short help".format(command=command)
+    assert command.short_help is not None, (
+        f"Command {context.command_path} has no short help".format(command=command)
+    )
+    output = f"### {command.short_help}\n\n"
+    help_text = command.get_help(context)
+    # find all options (--help)
+    options: list[str] = re.findall(r"(\-\-\w[\w\-]+ )", help_text)
+    for option in options:
+        help_text = help_text.replace(option, f"\n`{option}`")
+    return output + help_text.replace(
+        "\n  ",
+        "\n",
+    ).replace(
+        "[OPTIONS]",
+        "",
+    ).replace(
+        f"Usage: {context.command_path} ",
+        f"**Usage:**\n\n`python cli.py {context.command_path[4:]} [OPTIONS]`\n\n**Description:**",
+    ).replace(
+        "Options:\n",
+        "**Options:**\n\n",
+    ).strip()
+
+
+def cli_reference(command: click.Group) -> str:
+    context = click.core.Context(command, info_name=command.name)
+    sections: list[str] = []
+    other_commands: list[click.Command] = []
+
+    for sub_command in command.commands.values():
+        if isinstance(sub_command, click.Group):
+            group_context = click.core.Context(
+                sub_command,
+                info_name=sub_command.name,
+                parent=context,
+            )
+            command_docs: list[str] = []
+            for grouped_command in sub_command.commands.values():
+                assert not isinstance(grouped_command, click.Group), (
+                    f"Nested command group {group_context.command_path} is not supported"
+                )
+                command_docs.append(command_help(grouped_command, group_context))
+            sections.append(
+                f"## {sub_command.name.capitalize()}\n\n---\n\n"
+                + "\n\n---\n\n".join(command_docs)
+            )
+        else:
+            other_commands.append(sub_command)
+
+    if other_commands:
+        sections.append(
+            "## Other\n\n---\n\n"
+            + "\n\n---\n\n".join(
+                command_help(other_command, context) for other_command in other_commands
+            )
         )
-        output += f"## {command.short_help}\n\n"
-        help_text = command.get_help(context)
-        # find all options (--help)
-        options: list[str] = re.findall(r"(\-\-\w[\w\-]+ )", help_text)
-        for option in options:
-            help_text = help_text.replace(option, f"\n`{option}`")
-        output += (
-            help_text.replace(
-                "\n  ",
-                "\n",
-            )
-            .replace(
-                "[OPTIONS]",
-                "",
-            )
-            .replace(
-                f"Usage: {context.command_path}",
-                f"**Usage:**\n\n`python cli.py {context.command_path[4:]} [OPTIONS]`\n\n**Description:** ",
-            )
-            .replace(
-                "Options:\n",
-                "**Options:**\n\n",
-            )
-            + "\n\n"
-        )
-    return output
+
+    return "\n\n---\n\n".join(sections) + "\n"
 
 
 print("Exporting CLI reference to docs/src/content/reference/cli.mdx")
 with open(f"{PROJECT_DIR}/docs/src/content/docs/reference/cli.mdx", "w") as f:
     f.write("---\ntitle: CLI Reference\n---\n\n")
-    f.write(recursive_help(cli.cli))
+    f.write(cli_reference(cli.cli))

@@ -2,43 +2,17 @@
 title: CLI Reference
 ---
 
-## Fetch Remote Metadata
+## Retrieval
 
-**Usage:**
+---
 
-`python cli.py fetch-remote-metadata [OPTIONS]`
-
-**Description:**  
-
-Fetch the configured GitHub metadata and store it in the config directory.
-
-**Options:**
-
-
-`--help ` Show this message and exit.
-
-## Export Data Report
-
-**Usage:**
-
-`python cli.py data-report [OPTIONS]`
-
-**Description:**  
-
-exports a report of the data present on the configured system
-
-**Options:**
-
-
-`--help ` Show this message and exit.
-
-## Start Retrieval Process in the Background
+### Start Retrieval Process in the Background
 
 **Usage:**
 
 `python cli.py retrieval start [OPTIONS]`
 
-**Description:**  
+**Description:**
 
 Start the retrieval as a background process. Prevents spawning multiple
 processes. The logs and the current processing queue from this process can
@@ -49,13 +23,15 @@ be found at `$ERP_LOGS_DIR/retrieval` (default: `data/logs/retrieval`).
 
 `--help ` Show this message and exit.
 
-## Start Retrieval Process in the Foreground
+---
+
+### Start Retrieval Process in the Foreground
 
 **Usage:**
 
 `python cli.py retrieval run [OPTIONS]`
 
-**Description:**  
+**Description:**
 
 Run the retrieval. Blocking. The logs and the current processing queue from
 this process can be found at `$ERP_LOGS_DIR/retrieval` (default:
@@ -66,13 +42,15 @@ this process can be found at `$ERP_LOGS_DIR/retrieval` (default:
 
 `--help ` Show this message and exit.
 
-## Check If Retrieval Is Running
+---
+
+### Check If Retrieval Is Running
 
 **Usage:**
 
 `python cli.py retrieval is-running [OPTIONS]`
 
-**Description:**  
+**Description:**
 
 Checks whether the retrieval background process is running. The logs and the
 current processing queue from this process can be found at
@@ -83,13 +61,15 @@ current processing queue from this process can be found at
 
 `--help ` Show this message and exit.
 
-## Watch Retrieval Process
+---
+
+### Watch Retrieval Process
 
 **Usage:**
 
 `python cli.py retrieval watch [OPTIONS]`
 
-**Description:**  
+**Description:**
 
 Opens an active watch window for the retrieval background process.
 
@@ -104,13 +84,15 @@ Opens an active watch window for the retrieval background process.
 
 `--help `         Show this message and exit.
 
-## Stop Retrieval Process
+---
+
+### Stop Retrieval Process
 
 **Usage:**
 
 `python cli.py retrieval stop [OPTIONS]`
 
-**Description:**  
+**Description:**
 
 Stop the retrieval background process. The logs and the current processing
 queue from this process can be found at `$ERP_LOGS_DIR/retrieval` (default:
@@ -121,13 +103,15 @@ queue from this process can be found at `$ERP_LOGS_DIR/retrieval` (default:
 
 `--help ` Show this message and exit.
 
-## Download Retrieval Algorithms
+---
+
+### Download Retrieval Algorithms
 
 **Usage:**
 
 `python cli.py retrieval download-algorithms [OPTIONS]`
 
-**Description:**  
+**Description:**
 
 Downloads all retrieval algorithms into the local container factories. Can
 be used if you don't want to run the pipeline but download all algorithms.
@@ -137,13 +121,19 @@ be used if you don't want to run the pipeline but download all algorithms.
 
 `--help ` Show this message and exit.
 
-## Run Atmospheric Profiles Download
+---
+
+## Profiles
+
+---
+
+### Run Atmospheric Profiles Download
 
 **Usage:**
 
 `python cli.py profiles run [OPTIONS]`
 
-**Description:**  
+**Description:**
 
 Run the profiles download script. This will check, which profiles are not
 yet present locally, request and download them from the
@@ -155,13 +145,15 @@ at `logs/profiles`.
 
 `--help ` Show this message and exit.
 
-## Request Ginput Status
+---
+
+### Request Ginput Status
 
 **Usage:**
 
 `python cli.py profiles request-ginput-status [OPTIONS]`
 
-**Description:**  
+**Description:**
 
 Request ginput status. This will upload a file `upload/ginput_status.txt` to
 the `ccycle.gps.caltech.edu` FTP server containing the configured email
@@ -173,13 +165,15 @@ takes less than two minutes.
 
 `--help ` Show this message and exit.
 
-## Migrate Atmospheric Profiles Storage Location
+---
+
+### Migrate Atmospheric Profiles Storage Location
 
 **Usage:**
 
 `python cli.py profiles migrate-storage-location [OPTIONS]`
 
-**Description:**  
+**Description:**
 
 Migrate the storage location of the atmospheric profiles to the new
 directory structure introduced in the pipeline version 1.7.0. See
@@ -191,13 +185,19 @@ details.
 
 `--help ` Show this message and exit.
 
-## Create Retrieval Dataset Bundle
+---
+
+## Bundle
+
+---
+
+### Create Retrieval Dataset Bundle
 
 **Usage:**
 
 `python cli.py bundle run [OPTIONS]`
 
-**Description:**  
+**Description:**
 
 Create a bundle of your entire retrieval dataset
 
@@ -206,13 +206,19 @@ Create a bundle of your entire retrieval dataset
 
 `--help ` Show this message and exit.
 
-## Create GEOMS Files
+---
+
+## Geoms
+
+---
+
+### Create GEOMS Files
 
 **Usage:**
 
 `python cli.py geoms run [OPTIONS]`
 
-**Description:**  
+**Description:**
 
 Create GEOMS files for your entire retrieval dataset
 
@@ -221,3 +227,40 @@ Create GEOMS files for your entire retrieval dataset
 
 `--help ` Show this message and exit.
 
+---
+
+## Other
+
+---
+
+### Fetch Remote Metadata
+
+**Usage:**
+
+`python cli.py fetch-remote-metadata [OPTIONS]`
+
+**Description:**
+
+Fetch the configured GitHub metadata and store it in the config directory.
+
+**Options:**
+
+
+`--help ` Show this message and exit.
+
+---
+
+### Export Data Report
+
+**Usage:**
+
+`python cli.py data-report [OPTIONS]`
+
+**Description:**
+
+exports a report of the data present on the configured system
+
+**Options:**
+
+
+`--help ` Show this message and exit.
