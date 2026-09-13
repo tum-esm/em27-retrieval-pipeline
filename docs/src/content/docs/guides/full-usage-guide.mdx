@@ -4,7 +4,7 @@ title: Full Usage Guide
 
 import { Aside } from "@astrojs/starlight/components";
 
-## Downloading Atmospheric Profiles with the GGG Profiles Downloader
+## Downloading GGG Profiles
 
 This pipeline automates the process of obtaining atmospheric profiles described in the [Ginput documentation](https://tccon-wiki.caltech.edu/Main/ObtainingGinputData). Configure the FTP email address under `ggg_profiles_downloader.server.email` and the requested date range, models, and locations under `ggg_profiles_downloader.scope`.
 
@@ -73,7 +73,7 @@ You can specify multiple `[[bundle_exports]]` entries in `config.toml`; the comm
 
 ---
 
-## Generating GEOMS compliant HDF5 files
+## Generating GEOMS-compliant HDF5 files
 
 The [Generic Earth Observation Metadata Standard (GEOMS)](https://en.wikipedia.org/wiki/Generic_Earth_Observation_Metadata_Standard) is a
 standard for exchanging ground-based total-column concentration data. It uses the [HDF5 file format](https://en.wikipedia.org/wiki/Hierarchical_Data_Format)
@@ -151,7 +151,7 @@ The `interferograms` and `ground_pressure` columns contain the number of interfe
 
 ---
 
-## Running the Retrieval in a Computing Cluster
+## Running the Retrieval on a Cluster
 
 You can of course run this pipeline on a computing cluster (e.g. SLURM-based).
 
