@@ -1,0 +1,126 @@
+---
+title: Quick Start
+---
+
+import { Aside } from "@astrojs/starlight/components";
+
+**1. Ensure system requirements**
+
+The pipeline was developed and is tested on Unix-based operating systems. You need to have the following dependencies installed on your system:
+
+- [Python 3.11 or later](https://www.python.org/)
+- [Git LFS](https://git-lfs.com/)
+- unzip
+- gfortran
+
+You can check whether they are installed using:
+
+```bash
+python3.11 --version
+git-lfs --version
+unzip --version
+gfortran --version
+```
+
+---
+
+**2. Clone the [repository](https://github.com/tum-esm/em27-retrieval-pipeline) or download the source code of a [specific release](https://github.com/tum-esm/em27-retrieval-pipeline/releases)**
+
+Using git clone (ssh):
+
+```bash
+git clone git@github.com:tum-esm/em27-retrieval-pipeline.git
+cd em27-retrieval-pipeline
+git switch --detach v1.11.0
+```
+
+... or git clone (https):
+
+```bash
+git clone https://github.com/tum-esm/em27-retrieval-pipeline.git
+cd em27-retrieval-pipeline
+git switch --detach v1.11.0
+```
+
+... or wget:
+
+```bash
+wget https://github.com/tum-esm/em27-retrieval-pipeline/archive/refs/tags/v1.11.0.tar.gz
+tar -xzf em27-retrieval-pipeline-1.11.0.tar.gz && rm em27-retrieval-pipeline-1.11.0.tar.gz
+cd em27-retrieval-pipeline-1.11.0
+```
+
+---
+
+**3. Create a virtual environment**
+
+```bash
+python3.11 -m venv .venv
+source .venv/bin/activate
+```
+
+You can of course use any other way to manage your Python environments.
+
+---
+
+**4. Install the dependencies using**
+
+Using pip:
+
+```bashp
+pip install ".[dev]"
+```
+
+... or [uv](https://docs.astral.sh/uv/):
+
+```bash
+uv sync --extra=dev
+```
+
+---
+
+**5. Explore the example directory and run it**
+
+Contents:
+
+- The `example/config` folder contains all configuration files required to run this example from raw interferograms to bundled retrieval outputs and GEOMS exports.
+- The `example/data/inputs` directory contains some EM27/SUN interferograms, pressure observations recorded next the EM27/SUN and atmospheric profiles at the observation locations. When running your own retrievals, you only need to bring the interferograms and the pressure observations - the atmospheric profiles can be downloaded automatically using the pipelines GGG Profiles Downloader.
+- The `example/data/outputs` directory will be empty after you clone the repository but will be filled with the different outputs after running the example.
+- The `example/data/logs` directory will be empty after you clone the repository but will contain the log files of the pipeline produced during the example run.
+
+Run it:
+
+```bash
+source .venv/bin/activate
+cd example
+bash run.sh
+```
+
+Have some patience on the retrieval process - the full example run should take around 2-5 minutes.
+
+---
+
+**6. Celebrate if the example run succeeded**
+
+```bash
+curl parrot.live
+```
+
+---
+
+Next steps to run your own retrievals:
+
+- The [Configuration Guide](/em27-retrieval-pipeline/guides/configuration) explains how to configure the pipeline.
+- The [EM27 Metadata Guide](/em27-retrieval-pipeline/guides/em27-metadata) explains how to create the required metadata files.
+- The [Data Directory Guide](/em27-retrieval-pipeline/guides/data-directory) explains how the different input and output directories used by the pipeline are structured.
+- The [Usage Guide](/em27-retrieval-pipeline/guides/usage) explains how to run each step of the pipeline.
+- The [FAQ](/em27-retrieval-pipeline/guides/faq) answers some frequently asked questions about the pipeline.
+
+The following sections contain a full API reference for the CLI and all configuration files used by the pipeline:
+
+- The [`config.toml` Reference](/em27-retrieval-pipeline/reference/config) is a full API reference of the `config.toml` file
+- The [`em27_metadata.toml` Reference](/em27-retrieval-pipeline/reference/em27_metadata) is a full API reference of the `em27_metadata.toml` file
+- The [`geoms_metadata.toml` Reference](/em27-retrieval-pipeline/reference/geoms_metadata) is a full API reference of the `geoms_metadata.toml` file
+- The [CLI Reference](/em27-retrieval-pipeline/reference/cli) lists all available commands of the pipeline's CLI
+
+You can use this documentation's search function (top navigation bar) to find what you are looking for, open an [issue on GitHub](https://github.com/tum-esm/em27-retrieval-pipeline/issues) or ask [Moritz Oliveira Makowski (moritz.makowski@tum.de)](mailto:moritz.makowski@tum.de) if you are stuck on something.
