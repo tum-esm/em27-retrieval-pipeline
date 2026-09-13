@@ -6,11 +6,9 @@ import { Aside } from "@astrojs/starlight/components";
 import { Code } from "@astrojs/starlight/components";
 import ConfigTemplate from "../../../assets/config.template.toml?raw";
 
-## Configuration file
+The `config/config.toml` file configures all steps of the pipeline. You can use the `config/config.template.toml` file as a template to create your own configuration file. The only parts in this file that are required are the `version` number, the `metadata` and `data` sections. The `ggg_profiles_downloader`, `retrieval`, `bundle_exports` and `geoms_exports` sections can be omitted if you don't use these parts of the pipeline.
 
-The `config/config.json` file configures all steps of the pipeline. You can use the `config/config.template.json` file as a template to create your own configuration file.
-
-For setting up alternate locations for the `config.json` file, see the [metadata section](/em27-retrieval-pipeline/guides/metadata).
+The next sections will describe how to define the [**metadata**](/guides/em27-metadata), the **data** (input and output file paths), and how to use the **ggg_profiles_downloader**, **retrieval**, **bundle_exports** and **geoms_exports** features.
 
 <Aside type="note">
 
@@ -18,8 +16,24 @@ The full schema specification and description of each parameter can be found [in
 
 </Aside>
 
-Template:
+**Template:**
 
 <Code code={ConfigTemplate} lang="toml" />
 
-The [next section](/em27-retrieval-pipeline/guides/directories) describes how the directories for the data sources (interferograms, ground pressure, atmospheric profiles), the outputs of this pipeline (retrieval results, bundles, logs), and the internal directories (containers, etc.) are structured.
+Whenever calling the pipelines CLI, it will validate the integrity of your local `config.toml` file and output a message if your system is not correctly configured:
+
+<img
+  src="/em27-retrieval-pipeline/images/cli-config-validation.png"
+  alt="CLI Config Validation"
+  width={1867}
+  height={281}
+  className="mt-2 w-full mx-auto block rounded-md bg-[#0C1621] p-2 dark:ring dark:ring-slate-700"
+/>
+
+<Aside type="note">
+
+If you upgrading from a pipeline version \<1.11.0 to a version \>=1.11.0, you will notice that we changed all configuration files from a JSON format to a TOML format with the release 1.11.0.
+
+A full explanation on this change can be found in the the [Configuration Migration Guide](/em27-retrieval-pipeline/guides/configuration-migration).
+
+</Aside>
