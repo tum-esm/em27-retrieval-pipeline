@@ -104,7 +104,7 @@ The pipeline was first established in 2021 [@Rimann2022] and has been used since
 
 # AI Usage Disclosure
 
-GitHub Copilot was used for single line code-completions, but not to write any complete functions or modules. All code was reviewed and tested by human developers.
+GitHub Copilot was used for single line code-completions. Starting with pipeline version 1.11, OpenAI's Codex agent was used to make focused edits, write small utility functions, and find bugs. No generative AI model did any architectural decisions for this project. All code was reviewed and tested by human developers.
 
 # Acknowledgement of Financial Support
 
