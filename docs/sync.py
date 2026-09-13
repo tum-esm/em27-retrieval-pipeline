@@ -3,6 +3,7 @@ import re
 import shutil
 import sys
 from typing import Any
+import warnings
 
 import click
 import tum_esm_utils.files
@@ -277,8 +278,11 @@ def cli_reference(command: click.Group) -> str:
                 )
                 command_docs.append(command_help(grouped_command, group_context))
             sections.append(
-                f"## {sub_command.name.capitalize()}\n\n---\n\n" + "\n\n---\n\n".join(command_docs)
+                f"## {sub_command.name.capitalize() if sub_command.name is not None else 'Undefined'}\n\n---\n\n"
+                + "\n\n---\n\n".join(command_docs)
             )
+            if sub_command.name is None:
+                warnings.warn(f"Command group {group_context.command_path} has no name")
         else:
             other_commands.append(sub_command)
 

@@ -63,6 +63,7 @@ dev = [
     "ruff>=0.8.1",
     "pandas-stubs>=2.2.3.241126",
     "pyright>=1.1.407",
+    "types-pyyaml>=6.0.12.20260906",
 ]
 
 # using pytest markers from the `pytest-order` library, we run the
@@ -101,9 +102,11 @@ exclude = [
 [tool.coverage.run]
 patch = ["subprocess"]
 concurrency = ["multiprocessing"]
+omit = ["data/containers/*"]
 
 [tool.coverage.report]
 exclude_also = ["raise", "except", "continue"]
+omit = ["data/containers/*"]
 
 [tool.ruff.lint]
 exclude = [
@@ -165,8 +168,3 @@ exclude = [
     "**/.*"
 ]
 strict = ["src", "tests", "run.py", "cli.py"]
-
-[dependency-groups]
-dev = [
-    "pytest-cov>=7.1.0",
-]
