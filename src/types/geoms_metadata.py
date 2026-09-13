@@ -106,28 +106,43 @@ class GEOMSMetadataFields:
     class CalibrationFactors(pydantic.BaseModel):
         model_config = pydantic.ConfigDict(arbitrary_types_allowed=True)
 
-        sensor_id: str
+        sensor_id: str = pydantic.Field(
+            ...,
+            description="The sensor id of the sensor for which the calibration factors are valid.",
+        )
         valid_from_datetime: str = pydantic.Field(
             ...,
             pattern=UTC_DATETIME_STRING_PATTERN,
-            description="UTC datetime in format `YYYY-MM-DDTHH:MM:SSZ` or `YYYY-MM-DDTHH:MM:SS+0000`.",
+            description="UTC datetime in format `YYYY-MM-DDTHH:MM:SSZ` or `YYYY-MM-DDTHH:MM:SS+0000`. Non-UTC times are not allowed.",
         )
         valid_to_datetime: str = pydantic.Field(
             ...,
             pattern=UTC_DATETIME_STRING_PATTERN,
-            description="UTC datetime in format `YYYY-MM-DDTHH:MM:SSZ` or `YYYY-MM-DDTHH:MM:SS+0000`.",
+            description="UTC datetime in format `YYYY-MM-DDTHH:MM:SSZ` or `YYYY-MM-DDTHH:MM:SS+0000`. Non-UTC times are not allowed.",
         )
         xco2: float = pydantic.Field(
-            ..., description="Calibration factor for carbon dioxide: xco2_cal = xco2_raw * factor"
+            ...,
+            description="Calibration factor for carbon dioxide: xco2_cal = xco2_raw * factor",
+            ge=0.001,
+            le=1_000.0,
         )
         xch4: float = pydantic.Field(
-            ..., description="Calibration factor for methane: xch4_cal = xch4_raw * factor"
+            ...,
+            description="Calibration factor for methane: xch4_cal = xch4_raw * factor",
+            ge=0.001,
+            le=1_000.0,
         )
         xco: float = pydantic.Field(
-            ..., description="Calibration factor for carbon monoxide: xco_cal = xco_raw * factor"
+            ...,
+            description="Calibration factor for carbon monoxide: xco_cal = xco_raw * factor",
+            ge=0.001,
+            le=1_000.0,
         )
         xh2o: float = pydantic.Field(
-            ..., description="Calibration factor for water vapor: xh2o_cal = xh2o_raw * factor"
+            ...,
+            description="Calibration factor for water vapor: xh2o_cal = xh2o_raw * factor",
+            ge=0.001,
+            le=1_000.0,
         )
 
         @pydantic.model_validator(mode="after")
@@ -186,7 +201,8 @@ class GEOMSMetadata(pydantic.BaseModel):
     data_originator: GEOMSMetadataFields.Contact
     data_submitter: GEOMSMetadataFields.Contact
     locations: dict[str, str] = pydantic.Field(
-        ..., description="Maps your locations id to the corresponding EVDC location id"
+        ...,
+        description="Maps your locations id to the corresponding EVDC location id. It is just an object of strings to strings.",
     )
     calibration_factors: GEOMSMetadataFields.CalibrationFactorsList
 

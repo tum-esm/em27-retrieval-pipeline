@@ -12,13 +12,27 @@ The next sections will describe how to define the [**metadata**](/guides/em27-me
 
 <Aside type="note">
 
-The full schema specification and description of each parameter can be found [in the API Reference section](/em27-retrieval-pipeline/reference/configuration).
+The full schema specification and description of each parameter can be found [in the API Reference section](/em27-retrieval-pipeline/reference/config).
 
 </Aside>
 
-**Template:**
+<Aside type="note">
+
+If you upgrading from a pipeline version \<1.11.0 to a version \>=1.11.0, you will notice that we changed all configuration files from a JSON format to a TOML format with the release 1.11.0.
+
+A full explanation on this change can be found in the the [Config Migration Guide](/em27-retrieval-pipeline/guides/config-migration).
+
+</Aside>
+
+---
+
+## Template
 
 <Code code={ConfigTemplate} lang="toml" />
+
+---
+
+## Validation
 
 Whenever calling the pipelines CLI, it will validate the integrity of your local `config.toml` file and output a message if your system is not correctly configured:
 
@@ -29,11 +43,3 @@ Whenever calling the pipelines CLI, it will validate the integrity of your local
   height={281}
   className="mt-2 w-full mx-auto block rounded-md bg-[#0C1621] p-2 dark:ring dark:ring-slate-700"
 />
-
-<Aside type="note">
-
-If you upgrading from a pipeline version \<1.11.0 to a version \>=1.11.0, you will notice that we changed all configuration files from a JSON format to a TOML format with the release 1.11.0.
-
-A full explanation on this change can be found in the the [Configuration Migration Guide](/em27-retrieval-pipeline/guides/configuration-migration).
-
-</Aside>

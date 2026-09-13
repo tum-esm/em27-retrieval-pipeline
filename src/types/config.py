@@ -50,22 +50,6 @@ class MetadataConfig(pydantic.BaseModel):
 
 
 class DataSubConfigs:
-    class AtmosphericProfiles(pydantic.BaseModel):
-        """Where to find the atmospheric profile files."""
-
-        path: tum_esm_utils.validators.StrictDirectoryPath = pydantic.Field(
-            ...,
-            description="Directory path to atmospheric profile files.",
-        )
-
-        # before the validation, if the path is relative, make it absolute based on the cwd
-        @pydantic.model_validator(mode="before")
-        def _make_path_absolute(cls, values: Any) -> Any:
-            assert isinstance(values["path"], str)
-            if not os.path.isabs(values["path"]):
-                values["path"] = os.path.abspath(values["path"])
-            return values
-
     class GroundPressure(pydantic.BaseModel):
         """Format of the ground pressure files. We support any text file that stores one data point per row and separates the columns with a comma, space, or tab, i.e. CSV, TSV, or space-separated files. Using the `file_regex` field, you specify which files to consider for a given sensor id and date.
 
@@ -80,7 +64,7 @@ class DataSubConfigs:
         # where to find the files
         path: tum_esm_utils.validators.StrictDirectoryPath = pydantic.Field(
             ...,
-            description="Directory path to ground pressure files.",
+            description="Directory path to ground pressure files. You should use absolute paths, but if you need relative paths, then this is relative to the caller of the CLI or the pipeline's entrypoint.",
         )
 
         # how to find and parse the files
@@ -208,7 +192,7 @@ class DataSubConfigs:
 
         path: tum_esm_utils.validators.StrictDirectoryPath = pydantic.Field(
             ...,
-            description="Directory path to atmospheric profile files.",
+            description="Directory path to atmospheric profile files. You should use absolute paths, but if you need relative paths, then this is relative to the caller of the CLI or the pipeline's entrypoint.",
         )
         ifg_file_regex: str = pydantic.Field(
             ...,
@@ -228,12 +212,28 @@ class DataSubConfigs:
                 values["path"] = os.path.abspath(values["path"])
             return values
 
+    class AtmosphericProfiles(pydantic.BaseModel):
+        """Where to find the atmospheric profile files."""
+
+        path: tum_esm_utils.validators.StrictDirectoryPath = pydantic.Field(
+            ...,
+            description="Directory path to atmospheric profile files. You should use absolute paths, but if you need relative paths, then this is relative to the caller of the CLI or the pipeline's entrypoint.",
+        )
+
+        # before the validation, if the path is relative, make it absolute based on the cwd
+        @pydantic.model_validator(mode="before")
+        def _make_path_absolute(cls, values: Any) -> Any:
+            assert isinstance(values["path"], str)
+            if not os.path.isabs(values["path"]):
+                values["path"] = os.path.abspath(values["path"])
+            return values
+
     class Results(pydantic.BaseModel):
         """Where to find the results."""
 
         path: tum_esm_utils.validators.StrictDirectoryPath = pydantic.Field(
             ...,
-            description="Directory path to atmospheric profile files.",
+            description="Directory path to atmospheric profile files. You should use absolute paths, but if you need relative paths, then this is relative to the caller of the CLI or the pipeline's entrypoint.",
         )
 
         # before the validation, if the path is relative, make it absolute based on the cwd
@@ -269,13 +269,15 @@ class GGGProfilesDownloaderSubConfigs:
             description="Email address to use to log in to the ccycle ftp server.",
         )
         max_parallel_requests: int = pydantic.Field(
-            ...,
+            default=25,
             ge=1,
             le=200,
             description="Maximum number of requests to put in the queue on the ccycle server at the same time. Only when a request is finished, a new one can enter the queue.",
         )
 
     class Scope(pydantic.BaseModel):
+        """From when to when to request the vertical profile data and which models to request. It use the em27 metadata to determine which sensors are located at which locations and request all profiles for these locations in the period specified in this scope."""
+
         model_config = pydantic.ConfigDict(extra="forbid")
 
         from_date: str = pydantic.Field(
@@ -294,7 +296,7 @@ class GGGProfilesDownloaderSubConfigs:
         )
         force_download_locations: list[str] = pydantic.Field(
             default=[],
-            description="List of locations to force download data for. These will be downloaded even at times where no instrument in the metadata is located there.",
+            description="List of locations to force-download data for. These will be downloaded even at times where no instrument in the metadata is located there.",
         )
 
         @pydantic.model_validator(mode="after")
@@ -312,6 +314,8 @@ class GGGProfilesDownloaderSubConfigs:
             return parse_date_string(self.to_date)
 
     class GGG2020StandardSitesItem(pydantic.BaseModel):
+        """A list item of the `ggg2020_standard_sites` list describing for which standard site to download data for."""
+
         model_config = pydantic.ConfigDict(extra="forbid")
 
         identifier: str = pydantic.Field(
@@ -536,11 +540,12 @@ class BundleExportConfig(pydantic.BaseModel):
 
     dst_dir: tum_esm_utils.validators.StrictDirectoryPath = pydantic.Field(
         ...,
-        description="Directory to write the bundeled outputs to.",
+        description="Directory to write the bundeled outputs to. You should use absolute paths, but if you need relative paths, then this is relative to the caller of the CLI or the pipeline's entrypoint.",
     )
     output_formats: list[Literal["csv", "parquet"]] = pydantic.Field(
         ...,
-        description="List of output formats to write the merged output files in.",
+        description="List of output formats to write the merged output files in. Allowed values are `csv` and `parquet`.",
+        examples=[["csv"], ["parquet"], ["csv", "parquet"]],
     )
     from_datetime: str = pydantic.Field(
         ...,

@@ -4,7 +4,7 @@ title: Quick Start
 
 import { Aside } from "@astrojs/starlight/components";
 
-**1. Ensure system requirements**
+## 1. Ensure system requirements
 
 The pipeline was developed and is tested on Unix-based operating systems. You need to have the following dependencies installed on your system:
 
@@ -24,7 +24,9 @@ gfortran --version
 
 ---
 
-**2. Clone the [repository](https://github.com/tum-esm/em27-retrieval-pipeline) or download the source code of a [specific release](https://github.com/tum-esm/em27-retrieval-pipeline/releases)**
+## 2. Clone or download the pipeline's code
+
+Links: [repository](https://github.com/tum-esm/em27-retrieval-pipeline) | [all releases](https://github.com/tum-esm/em27-retrieval-pipeline/releases)
 
 Using git clone (ssh):
 
@@ -52,7 +54,7 @@ cd em27-retrieval-pipeline-1.11.0
 
 ---
 
-**3. Create a virtual environment**
+## 3. Create a virtual environment
 
 ```bash
 python3.11 -m venv .venv
@@ -63,11 +65,11 @@ You can of course use any other way to manage your Python environments.
 
 ---
 
-**4. Install the dependencies using**
+## 4. Install the dependencies using
 
 Using pip:
 
-```bashp
+```bash
 pip install ".[dev]"
 ```
 
@@ -79,7 +81,7 @@ uv sync --extra=dev
 
 ---
 
-**5. Explore the example directory and run it**
+## 5. Explore and run the example
 
 Contents:
 
@@ -100,13 +102,7 @@ Have some patience on the retrieval process - the full example run should take a
 
 ---
 
-**6. Celebrate if the example run succeeded**
-
-```bash
-curl parrot.live
-```
-
----
+## 6. Run your own retrievals
 
 Next steps to run your own retrievals:
 

@@ -5,7 +5,7 @@
             "properties": {
                 "path": {
                     "$ref": "#/$defs/StrictDirectoryPath",
-                    "description": "Directory path to atmospheric profile files."
+                    "description": "Directory path to atmospheric profile files. You should use absolute paths, but if you need relative paths, then this is relative to the caller of the CLI or the pipeline's entrypoint."
                 }
             },
             "required": [
@@ -20,10 +20,22 @@
             "properties": {
                 "dst_dir": {
                     "$ref": "#/$defs/StrictDirectoryPath",
-                    "description": "Directory to write the bundeled outputs to."
+                    "description": "Directory to write the bundeled outputs to. You should use absolute paths, but if you need relative paths, then this is relative to the caller of the CLI or the pipeline's entrypoint."
                 },
                 "output_formats": {
-                    "description": "List of output formats to write the merged output files in.",
+                    "description": "List of output formats to write the merged output files in. Allowed values are `csv` and `parquet`.",
+                    "examples": [
+                        [
+                            "csv"
+                        ],
+                        [
+                            "parquet"
+                        ],
+                        [
+                            "csv",
+                            "parquet"
+                        ]
+                    ],
                     "items": {
                         "enum": [
                             "csv",
@@ -300,6 +312,7 @@
         },
         "GGG2020StandardSitesItem": {
             "additionalProperties": false,
+            "description": "A list item of the `ggg2020_standard_sites` list describing for which standard site to download data for.",
             "properties": {
                 "identifier": {
                     "description": "Identifier of the standard site used on the ginput server.",
@@ -411,7 +424,7 @@
             "properties": {
                 "path": {
                     "$ref": "#/$defs/StrictDirectoryPath",
-                    "description": "Directory path to ground pressure files."
+                    "description": "Directory path to ground pressure files. You should use absolute paths, but if you need relative paths, then this is relative to the caller of the CLI or the pipeline's entrypoint."
                 },
                 "file_regex": {
                     "description": "A regex string to match the ground pressure file names. In this string, you can use the placeholders `$(SENSOR_ID)`, `$(YYYY)`, `$(YY)`, `$(MM)`, and `$(DD)` to make this regex target a certain station and date. The placeholder `$(DATE)` is a shortcut for `$(YYYY)$(MM)$(DD)`.",
@@ -587,7 +600,7 @@
             "properties": {
                 "path": {
                     "$ref": "#/$defs/StrictDirectoryPath",
-                    "description": "Directory path to atmospheric profile files."
+                    "description": "Directory path to atmospheric profile files. You should use absolute paths, but if you need relative paths, then this is relative to the caller of the CLI or the pipeline's entrypoint."
                 },
                 "ifg_file_regex": {
                     "description": "A regex string to match the ifg file names. In this string, `$(SENSOR_ID)`, `$(YYYY)`, `$(YY)`, `$(MM)`, and `$(DD)` are placeholders to target a certain station and date. The placeholder `$(DATE)` is a shortcut for `$(YYYY)$(MM)$(DD)`. They don't have to be used - you can also run the retrieval on any file it finds in the directory using `.*`",
@@ -827,7 +840,7 @@
             "properties": {
                 "path": {
                     "$ref": "#/$defs/StrictDirectoryPath",
-                    "description": "Directory path to atmospheric profile files."
+                    "description": "Directory path to atmospheric profile files. You should use absolute paths, but if you need relative paths, then this is relative to the caller of the CLI or the pipeline's entrypoint."
                 }
             },
             "required": [
@@ -861,6 +874,7 @@
         },
         "Scope": {
             "additionalProperties": false,
+            "description": "From when to when to request the vertical profile data and which models to request. It use the em27 metadata to determine which sensors are located at which locations and request all profiles for these locations in the period specified in this scope.",
             "properties": {
                 "from_date": {
                     "default": "1900-01-01",
@@ -890,7 +904,7 @@
                 },
                 "force_download_locations": {
                     "default": [],
-                    "description": "List of locations to force download data for. These will be downloaded even at times where no instrument in the metadata is located there.",
+                    "description": "List of locations to force-download data for. These will be downloaded even at times where no instrument in the metadata is located there.",
                     "items": {
                         "type": "string"
                     },
@@ -915,6 +929,7 @@
                     "type": "string"
                 },
                 "max_parallel_requests": {
+                    "default": 25,
                     "description": "Maximum number of requests to put in the queue on the ccycle server at the same time. Only when a request is finished, a new one can enter the queue.",
                     "maximum": 200,
                     "minimum": 1,
@@ -923,8 +938,7 @@
                 }
             },
             "required": [
-                "email",
-                "max_parallel_requests"
+                "email"
             ],
             "title": "Server",
             "type": "object"

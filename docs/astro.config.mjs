@@ -60,12 +60,30 @@ export default defineConfig({
               link: "/guides/full-usage-guide",
             },
             {
-              label: "Configuration Migration",
-              link: "/guides/configuration-migration",
+              label: "Config Migration",
+              link: "/guides/config-migration",
             },
             {
               label: "FAQ",
               link: "/guides/faq",
+            },
+          ],
+        },
+        {
+          label: "API Reference",
+          collapsed: false,
+          items: [
+            {
+              label: "Config",
+              link: "/reference/config",
+            },
+            {
+              label: "GEOMS Metadata",
+              link: "/reference/geoms_metadata",
+            },
+            {
+              label: "Command Line Interface",
+              link: "/reference/cli",
             },
           ],
         },
@@ -88,24 +106,6 @@ export default defineConfig({
             {
               label: "EM27 Metadata Tests",
               link: "/other/em27-metadata-tests",
-            },
-          ],
-        },
-        {
-          label: "API Reference",
-          collapsed: false,
-          items: [
-            {
-              label: "Configuration",
-              link: "/reference/config",
-            },
-            {
-              label: "GEOMS Metadata",
-              link: "/reference/geoms_metadata",
-            },
-            {
-              label: "Command Line Interface",
-              link: "/reference/cli",
             },
           ],
         },

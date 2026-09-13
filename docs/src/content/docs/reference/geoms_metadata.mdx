@@ -7,7 +7,11 @@ import Schema from "../../../assets/geoms_metadata.schema.json";
 import Template from "../../../assets/geoms_metadata.template.toml?raw";
 import { Code } from "@astrojs/starlight/components";
 
-The `geoms_metadata.toml` file contains all information on how the Pipeline should generate GEOMS files: which metadata to put in (authors, etc.) and which calibration factors to use. Example
+The `geoms_metadata.toml` file contains all information on how the Pipeline should generate GEOMS files: which metadata to put in (authors, etc.) and which calibration factors to use.
+
+---
+
+## Example
 
 <Code code={Template.trim()} lang="toml" />
 
@@ -35,9 +39,29 @@ The `geoms_metadata.toml` file contains all information on how the Pipeline shou
 
 ---
 
-### principle_investigator / data_originator / data_submitter
+### principle_investigator
 
 <JSONSchemaRenderer schema={Schema} path="$defs.Contact" />
+
+---
+
+### data_originator
+
+<div className="text-sm p-3 bg-slate-100 text-slate-950 dark:bg-slate-800 dark:text-slate-50 rounded-lg whitespace-pre-wrap">
+  <span className="font-italic">
+    Same schema as the `principle_investigator` field
+  </span>
+</div>
+
+---
+
+### data_submitter
+
+<div className="text-sm p-3 bg-slate-100 text-slate-950 dark:bg-slate-800 dark:text-slate-50 rounded-lg whitespace-pre-wrap">
+  <span className="font-italic">
+    Same schema as the `principle_investigator` field
+  </span>
+</div>
 
 ---
 
