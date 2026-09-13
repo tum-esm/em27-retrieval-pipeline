@@ -40,36 +40,54 @@ export default defineConfig({
           collapsed: false,
           items: [
             {
+              label: "Quick Start",
+              link: "/guides/quick-start",
+            },
+            {
               label: "Configuration",
               link: "/guides/configuration",
             },
             {
-              label: "Configuration migration",
+              label: "EM27 Metadata",
+              link: "/guides/em27-metadata",
+            },
+            {
+              label: "Data Directories",
+              link: "/guides/data-directories",
+            },
+            {
+              label: "Full Usage Guide",
+              link: "/guides/full-usage-guide",
+            },
+            {
+              label: "Configuration Migration",
               link: "/guides/configuration-migration",
             },
             {
-              label: "Directories",
-              link: "/guides/directories",
+              label: "FAQ",
+              link: "/guides/faq",
+            },
+          ],
+        },
+        {
+          label: "Developer Guides",
+          collapsed: true,
+          items: [
+            {
+              label: "Contributing",
+              link: "/other/contributing",
             },
             {
-              label: "Metadata",
-              link: "/guides/metadata",
+              label: "Internal Data Directories",
+              link: "/other/internal-data-directories",
             },
             {
-              label: "Installation",
-              link: "/guides/installation",
+              label: "Tests",
+              link: "/other/tests",
             },
             {
-              label: "Usage",
-              link: "/guides/usage",
-            },
-            {
-              label: "Test Suite",
-              link: "/guides/tests",
-            },
-            {
-              label: "Miscellaneous",
-              link: "/guides/miscellaneous",
+              label: "EM27 Metadata Tests",
+              link: "/other/em27-metadata-tests",
             },
           ],
         },

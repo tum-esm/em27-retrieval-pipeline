@@ -23,11 +23,11 @@ geoms_command_group = click.Group(name="geoms")
 
 
 @cli.command(
-    name="fetch-metadata",
+    name="fetch-remote-metadata",
     short_help="Fetch Remote Metadata",
     help="Fetch the configured GitHub metadata and store it in the config directory.",
 )
-def fetch_metadata() -> None:
+def fetch_remote_metadata() -> None:
     import src  # import here so that the CLI is more reactive
 
     config = src.types.Config.load()
