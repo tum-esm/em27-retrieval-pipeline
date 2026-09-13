@@ -59,7 +59,7 @@ def fetch_remote_metadata() -> None:
         campaigns=metadata.campaigns,
         events=metadata.events,
     )
-    src.utils.toml.dump_pretty_toml_file(
+    src.em27_metadata.toml.dump_pretty_toml_file(
         filepath=metadata_path,
         data=metadata_object.model_dump(mode="json", exclude_none=True),
         template_filepath=os.path.join(

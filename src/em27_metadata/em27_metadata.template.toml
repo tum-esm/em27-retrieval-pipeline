@@ -1,0 +1,15 @@
+# LOCATIONS
+
+locations = []
+
+# SENSORS
+
+sensors = []
+
+# CAMPAIGNS
+
+campaigns = []
+
+# EVENTS
+
+events = []

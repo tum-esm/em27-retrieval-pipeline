@@ -9,7 +9,7 @@ import pydantic
 import tomli
 import tum_esm_utils
 
-from ..utils import toml as toml_utils
+from ..em27_metadata import toml as toml_utils
 from .basic_types import (
     DATE_STRING_PATTERN,
     UTC_DATETIME_STRING_PATTERN,
