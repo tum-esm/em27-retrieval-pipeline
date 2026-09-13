@@ -130,8 +130,10 @@ ignore = [
     "E402",
     # Do not use bare `except`
     "E722",
-    #Blank line contains whitespace
+    # Blank line contains whitespace
     "W293",
+    # Ambiguous variable name
+    "E741"
 ]
 
 [[tool.mypy.overrides]]

@@ -1,10 +1,11 @@
 import os
 from typing import Literal, Optional
+
 import pydantic
 import tum_esm_utils
 
 from ..em27_metadata import types as em27_metadata_types
-from .config import RetrievalSubConfigs, DataConfig, MetadataConfig, RetrievalConfig
+from .config import DataConfig, MetadataConfig, RetrievalConfig, RetrievalSubConfigs
 
 
 class RetrievalContainerBase(pydantic.BaseModel):

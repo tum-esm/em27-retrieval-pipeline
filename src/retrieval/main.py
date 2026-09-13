@@ -5,10 +5,11 @@ import signal
 import sys
 import time
 from typing import Any
+
 import tum_esm_utils
 
 sys.path.append(tum_esm_utils.files.rel_to_abs_path("../.."))
-from src import retrieval, types, utils, em27_metadata
+from src import em27_metadata, retrieval, types, utils
 
 
 def run() -> None:

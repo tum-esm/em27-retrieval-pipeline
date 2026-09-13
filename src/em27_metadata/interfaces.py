@@ -1,6 +1,8 @@
 import datetime
 from typing import Optional
+
 import tum_esm_utils
+
 from . import types as em27_metadata_types
 
 

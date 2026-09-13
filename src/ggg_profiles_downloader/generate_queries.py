@@ -9,7 +9,7 @@ from typing import Optional
 import pydantic
 import tum_esm_utils
 
-from src import types, utils, em27_metadata
+from src import em27_metadata, types, utils
 
 from .cache import DownloadQueryCache
 

@@ -1,16 +1,16 @@
-import os
+import copy
 import re
 import shutil
 import sys
-import copy
 from typing import Any
+
 import click
 import tum_esm_utils.files
 
 sys.path.append(tum_esm_utils.files.rel_to_abs_path(".."))
 
-import src
 import cli
+import src
 
 PROJECT_DIR = tum_esm_utils.files.rel_to_abs_path("..")
 

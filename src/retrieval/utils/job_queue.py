@@ -1,6 +1,8 @@
 from typing import Optional
+
 import pydantic
-from src import types, em27_metadata
+
+from src import em27_metadata, types
 
 
 class RetrievalJob(pydantic.BaseModel):

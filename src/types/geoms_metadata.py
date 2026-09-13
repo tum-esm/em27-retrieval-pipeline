@@ -10,7 +10,7 @@ import tomli
 import tum_esm_utils
 
 from .basic_types import UTC_DATETIME_STRING_PATTERN, parse_datetime_string
-from .old_schemas import OldGEOMSMetadata, OldCalibrationFactorsList
+from .old_schemas import OldCalibrationFactorsList, OldGEOMSMetadata
 
 
 class GEOMSMetadataFields:

@@ -1,7 +1,6 @@
 import datetime
 from typing import Literal
 
-
 DATE_STRING_PATTERN = r"^\d{4}-\d{2}-\d{2}$"
 UTC_DATETIME_STRING_PATTERN = r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:Z|\+0000)$"
 

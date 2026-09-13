@@ -7,7 +7,7 @@ import rich.console
 import rich.progress
 import tum_esm_utils
 
-from src import types, em27_metadata
+from src import em27_metadata, types
 
 from .functions import sdc_covers_the_full_day
 from .text import get_coordinates_slug, replace_regex_placeholders

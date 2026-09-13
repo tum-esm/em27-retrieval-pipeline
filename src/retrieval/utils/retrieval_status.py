@@ -7,7 +7,7 @@ import filelock
 import pydantic
 import tum_esm_utils
 
-from src import types, em27_metadata
+from src import em27_metadata, types
 
 _PROJECT_DIR = tum_esm_utils.files.get_parent_dir_path(__file__, current_depth=4)
 _ACTIVE_PROCESS_LIST = os.path.join(_PROJECT_DIR, "data", "logs", "active-processes.json")

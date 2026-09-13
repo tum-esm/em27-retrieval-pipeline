@@ -1,8 +1,9 @@
 import datetime
 import os
+
 import tum_esm_utils
 
-from src import retrieval, types, em27_metadata
+from src import em27_metadata, retrieval, types
 
 _PROJECT_DIR = tum_esm_utils.files.get_parent_dir_path(__file__, current_depth=4)
 _RETRIEVAL_ALGORITHMS_DIR = os.path.join(_PROJECT_DIR, "src", "retrieval", "algorithms")

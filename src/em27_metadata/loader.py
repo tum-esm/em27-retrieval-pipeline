@@ -3,6 +3,7 @@ from typing import Literal, Optional
 
 import tomli
 import tum_esm_utils
+
 from . import interfaces as em27_metadata_interfaces
 from . import types as em27_metadata_types
 
