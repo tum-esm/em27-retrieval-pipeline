@@ -5,7 +5,6 @@ version = "1.11"
 
 [metadata]
 source = "local"
-github_repository = "tum-esm/em27-metadata-storage"
 
 # DATA
 

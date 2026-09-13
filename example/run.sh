@@ -19,6 +19,8 @@ rm -rf data/outputs/geoms/*.h5
 rm -rf data/outputs/bundles/*.csv
 rm -rf data/outputs/bundles/*.parquet
 rm -rf data/outputs/reports/*.csv
+rm -rf data/logs/retrieval/*.log
+rm -rf data/logs/retrieval/archive/*/*.log
 
 # 1. Running quick tests
 echo "Running quick tests"

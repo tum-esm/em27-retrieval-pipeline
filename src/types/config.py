@@ -774,6 +774,7 @@ class Config(pydantic.BaseModel):
                                 os.path.join(os.path.dirname(json_path), "sensors.json"),
                                 os.path.join(os.path.dirname(json_path), "campaigns.json"),
                                 os.path.join(os.path.dirname(json_path), "events.json"),
+                                os.path.join(os.path.dirname(json_path), "em27_metadata.toml"),
                             ]
                         ]
                     )
