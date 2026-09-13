@@ -1,6 +1,6 @@
 {
   "name": "docs",
-  "version": "1.11.0",
+  "version": "1.11.1",
   "dependencies": {
     "@apidevtools/json-schema-ref-parser": "^16.0.2",
     "@astrojs/markdown-remark": "^7.3.1",

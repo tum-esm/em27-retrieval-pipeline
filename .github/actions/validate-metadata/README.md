@@ -10,13 +10,13 @@ Legacy JSON metadata is also printed as equivalent TOML in the workflow log.
 ```yaml
 steps:
   - uses: actions/checkout@v4
-  - uses: tum-esm/em27-retrieval-pipeline/.github/actions/validate-metadata@v1.11.0
+  - uses: tum-esm/em27-retrieval-pipeline/.github/actions/validate-metadata@v1.11.1
 ```
 
 For metadata in a subdirectory, pass `metadata-directory`:
 
 ```yaml
-  - uses: tum-esm/em27-retrieval-pipeline/.github/actions/validate-metadata@v1.11.0
+  - uses: tum-esm/em27-retrieval-pipeline/.github/actions/validate-metadata@v1.11.1
     with:
       metadata-directory: path/to/metadata
 ```
