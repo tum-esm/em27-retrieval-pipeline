@@ -7,6 +7,7 @@ import tum_esm_utils
 
 from ..em27_metadata import types as em27_metadata_types
 
+
 def sdc_covers_the_full_day(
     sdc: em27_metadata_types.SensorDataContext,
 ) -> bool:

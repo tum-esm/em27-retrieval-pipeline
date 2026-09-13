@@ -118,10 +118,10 @@ class EM27MetadataInterface:
             if len(deployment_spans) > 0:
                 last_deployment, last_from_datetime, last_to_datetime = deployment_spans[-1]
                 if (
-                    (deployment_span[1] - last_to_datetime).total_seconds() == 1
-                    and last_deployment.model_dump(exclude={"from_datetime", "to_datetime"})
-                    == deployment.model_dump(exclude={"from_datetime", "to_datetime"})
-                ):
+                    deployment_span[1] - last_to_datetime
+                ).total_seconds() == 1 and last_deployment.model_dump(
+                    exclude={"from_datetime", "to_datetime"}
+                ) == deployment.model_dump(exclude={"from_datetime", "to_datetime"}):
                     deployment_spans[-1] = (
                         last_deployment,
                         last_from_datetime,
@@ -145,9 +145,7 @@ class EM27MetadataInterface:
         ]
 
         for s1, s2 in zip(relevant_deployments[:-1], relevant_deployments[1:]):
-            assert s1[2] < s2[1], (
-                f"this should not happen, overlapping deployments: {s1} and {s2}"
-            )
+            assert s1[2] < s2[1], f"this should not happen, overlapping deployments: {s1} and {s2}"
 
         if len(relevant_deployments) == 0:
             return []

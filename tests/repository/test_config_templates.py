@@ -54,9 +54,7 @@ def test_automatic_config_conversion() -> None:
             ["config.json", "locations.json", "sensors.json", "campaigns.json", "events.json"],
         )
 
-        src.types.Config.load(
-            path=os.path.join(tmp_dir, "config.json"), ignore_path_existence=True
-        )
+        src.types.Config.load(path=os.path.join(tmp_dir, "config.json"), ignore_path_existence=True)
 
         converted_config = src.types.Config.model_validate(
             _load_toml_file(os.path.join(tmp_dir, "config.toml")),
@@ -90,9 +88,7 @@ def test_automatic_em27_metadata_conversion() -> None:
 
         src.em27_metadata.load_from_local_files(config_directory=tmp_dir)
 
-        converted_metadata = _load_toml_file(
-            os.path.join(tmp_dir, "em27_metadata.toml")
-        )
+        converted_metadata = _load_toml_file(os.path.join(tmp_dir, "em27_metadata.toml"))
         expected_metadata = _load_toml_file(
             os.path.join(_OLD_TEMPLATES_DIR, "em27_metadata.automatically_converted.toml")
         )
@@ -114,9 +110,7 @@ def test_automatic_geoms_metadata_conversion(monkeypatch: pytest.MonkeyPatch) ->
 
         src.types.GEOMSMetadata.load()
 
-        converted_metadata = _load_toml_file(
-            os.path.join(tmp_dir, "geoms_metadata.toml")
-        )
+        converted_metadata = _load_toml_file(os.path.join(tmp_dir, "geoms_metadata.toml"))
         expected_metadata = _load_toml_file(
             os.path.join(_OLD_TEMPLATES_DIR, "geoms_metadata.automatically_converted.toml")
         )

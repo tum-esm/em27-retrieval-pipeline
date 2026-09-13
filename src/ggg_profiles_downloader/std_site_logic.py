@@ -55,10 +55,7 @@ def list_downloaded_data(
                 )
                 for f in filenames
             ]
-            if (
-                (std_site_config.from_date_parsed <= d)
-                and (d <= std_site_config.to_date_parsed)
-            )
+            if ((std_site_config.from_date_parsed <= d) and (d <= std_site_config.to_date_parsed))
         ]
     )
 

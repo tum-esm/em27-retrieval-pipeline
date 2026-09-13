@@ -236,19 +236,26 @@ def command_help(
     options: list[str] = re.findall(r"(\-\-\w[\w\-]+ )", help_text)
     for option in options:
         help_text = help_text.replace(option, f"\n`{option}`")
-    return output + help_text.replace(
-        "\n  ",
-        "\n",
-    ).replace(
-        "[OPTIONS]",
-        "",
-    ).replace(
-        f"Usage: {context.command_path} ",
-        f"**Usage:**\n\n`python cli.py {context.command_path[4:]} [OPTIONS]`\n\n**Description:**",
-    ).replace(
-        "Options:\n",
-        "**Options:**\n\n",
-    ).strip()
+    return (
+        output
+        + help_text.replace(
+            "\n  ",
+            "\n",
+        )
+        .replace(
+            "[OPTIONS]",
+            "",
+        )
+        .replace(
+            f"Usage: {context.command_path} ",
+            f"**Usage:**\n\n`python cli.py {context.command_path[4:]} [OPTIONS]`\n\n**Description:**",
+        )
+        .replace(
+            "Options:\n",
+            "**Options:**\n\n",
+        )
+        .strip()
+    )
 
 
 def cli_reference(command: click.Group) -> str:
@@ -270,8 +277,7 @@ def cli_reference(command: click.Group) -> str:
                 )
                 command_docs.append(command_help(grouped_command, group_context))
             sections.append(
-                f"## {sub_command.name.capitalize()}\n\n---\n\n"
-                + "\n\n---\n\n".join(command_docs)
+                f"## {sub_command.name.capitalize()}\n\n---\n\n" + "\n\n---\n\n".join(command_docs)
             )
         else:
             other_commands.append(sub_command)
