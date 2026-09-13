@@ -1,3 +1,5 @@
+import datetime
+
 from src.em27_metadata.types import Deployment, SensorMetadata, Setup, SetupsListItem
 
 
@@ -53,8 +55,8 @@ def test_validation_alias() -> None:
 def test_legacy_deployment_class_names_and_value_shape_are_supported() -> None:
     deployment = SetupsListItem.model_validate(
         {
-            "from_dt": "2021-01-01T00:00:00Z",
-            "to_dt": "2021-01-02T23:59:59Z",
+            "from_dt": "2021-01-01T00:00:00+00:00",
+            "to_dt": "2021-01-02T23:59:59+00:00",
             "value": {
                 "location_id": "1",
                 "pressure_data_source": "2",
@@ -69,6 +71,17 @@ def test_legacy_deployment_class_names_and_value_shape_are_supported() -> None:
     assert deployment.location_id == "1"
     assert deployment.value.location_id == "1"
     assert "value" not in deployment.model_dump()
+
+    setup = Setup(
+        from_datetime=datetime.datetime(2021, 1, 1),  # pyright: ignore[reportArgumentType]
+        to_datetime=datetime.datetime(  # pyright: ignore[reportArgumentType]
+            2021, 1, 2, 23, 59, 59, tzinfo=datetime.timezone.utc
+        ),
+        location_id="1",
+    )
+    assert isinstance(setup, Deployment)
+    assert setup.from_datetime == "2021-01-01T00:00:00+0000"
+    assert setup.to_datetime == "2021-01-02T23:59:59+0000"
 
 
 def test_sensor_metadata_deployments_are_backwards_compatible() -> None:

@@ -6,8 +6,8 @@ from typing import Any, Optional, TypeGuard, cast
 
 import pydantic
 
-
 _DATETIME_STRING_PATTERN = r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:Z|[+-]\d{4})$"
+_DATETIME_ADAPTER = pydantic.TypeAdapter(datetime.datetime)
 
 
 def _is_string_keyed_dict(value: object) -> TypeGuard[dict[str, object]]:
@@ -32,6 +32,25 @@ class TimeSeriesElement(pydantic.BaseModel):
         description="Datetime in format `YYYY-MM-DDTHH:MM:SSZ` or `YYYY-MM-DDTHH:MM:SS[+-]HHMM`.",
         validation_alias=pydantic.AliasChoices("to_datetime", "to_dt"),
     )
+
+    @pydantic.field_validator("from_datetime", "to_datetime", mode="before")
+    @classmethod
+    def normalize_legacy_datetime(cls, value: object) -> object:
+        if isinstance(value, datetime.datetime):
+            parsed = value
+        elif isinstance(value, str):
+            if cls.matches_datetime_regex(value):
+                return value
+            try:
+                parsed = _DATETIME_ADAPTER.validate_python(value)
+            except pydantic.ValidationError:
+                return value
+        else:
+            return value
+        if parsed.tzinfo is None:
+            # The former library serialized naive datetime values as UTC.
+            parsed = parsed.replace(tzinfo=datetime.timezone.utc)
+        return parsed.strftime("%Y-%m-%dT%H:%M:%S%z")
 
     @staticmethod
     def matches_datetime_regex(v: str) -> bool:
@@ -109,7 +128,7 @@ class Deployment(TimeSeriesElement):
         return self
 
 
-# Backwards-compatible imports for users of the former class names.
+# Former names parse directly into the canonical deployment model.
 Setup = Deployment
 SetupsListItem = Deployment
 
@@ -196,9 +215,7 @@ class SensorMetadata(pydantic.BaseModel):
             times.append(deployment.to_datetime_parsed)
         for t1, t2 in zip(times[:-1], times[1:]):
             if t2 <= t1:
-                raise ValueError(
-                    f"Deployments timeseries are overlapping or unsorted: {t1} > {t2}"
-                )
+                raise ValueError(f"Deployments timeseries are overlapping or unsorted: {t1} > {t2}")
         return self
 
     @property
