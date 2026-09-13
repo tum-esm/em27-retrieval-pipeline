@@ -1,15 +1,15 @@
 ---
-title: Directories
+title: Data Directories
 ---
 
 import { Aside } from "@astrojs/starlight/components";
 import FileSystemTree from "../../../components/FileSystemTree.tsx";
 
-The pipeline and none of the retrieval algorithms manipulate any data in the directories `config.general.data.ground_pressure.path`, `config.general.data.atmospheric_profiles`, and `config.general.data.interferograms`. The retrieval only writes to `config.general.data.results`.
+The pipeline and none of the retrieval algorithms manipulate any data stored in the directories `config.data.ground_pressure.path`, `config.data.atmospheric_profiles.path`, and `config.data.interferograms.path`. The retrieval only writes to `config.data.results.path`.
 
 <Aside type="note">
 
-We can ensure this pipeline doesn't modify any data from the input directories. We cannot guarantee this for the retrieval algorithms, but we are very confident about this and have never observed it on our systems.
+We can guarantee that this pipeline doesn't modify any data from the input directories. We cannot guarantee this for all of the underlying retrieval algorithms, but we are very confident about that they also don't manipulate any of the input data.
 
 However, if you want to ensure the retrieval cannot manipulate any of your interferograms or ground pressure files, you can create a read-only mount of the directories. Only point the pipeline to those read-only directories.
 
@@ -19,12 +19,12 @@ See https://askubuntu.com/a/243390.
 
 ### Interferograms
 
-Point the `config.general.data.interferograms` variable to the directory your interferograms are stored in.
+Point the `config.data.interferograms.path` variable to the directory your interferograms are stored in.
 
 <FileSystemTree
   schema={{
     type: "directory",
-    title: "<config.general.data.interferograms>",
+    title: "<config.data.interferograms.path>",
     items: [
       {
         type: "directory",
@@ -83,12 +83,12 @@ You must set the `config.retrieval.general.ifg_file_regex` value to a regex matc
 
 ### Ground Pressure Files
 
-Point the `config.general.data.ground_pressure.path` variable to the directory where you store your local meteorological files, i.e. your ground pressure logs.
+Point the `config.data.ground_pressure.path` variable to the directory where you store your local meteorological files, i.e. your ground pressure logs.
 
 <FileSystemTree
   schema={{
     type: "directory",
-    title: "<config.general.data.ground_pressure.path>",
+    title: "<config.data.ground_pressure.path>",
     items: [
       {
         type: "directory",
@@ -124,7 +124,7 @@ You can fully specify the naming schema of these pressure files. For example, th
 
 The second thing you need to specify is in which column to find the pressure and datetime data:
 
-- Pressure column: Pass the name of the column with `config.general.data.ground_pressure.pressure_column` and specify the unit (either `hPa` or `Pa`) with `config.general.data.ground_pressure.pressure_column_format`.
+- Pressure column: Pass the name of the column with `config.data.ground_pressure.pressure_column` and specify the unit (either `hPa` or `Pa`) with `config.data.ground_pressure.pressure_column_format`.
 - Datetime column: Pass exactly, one of the following
   - A datetime column containing both date and time information: `datetime_column` and `datetime_column_format`
   - One date column and one time column: `date_column`, `date_column_format`, `time_column`, and `time_column_format`
@@ -205,14 +205,16 @@ pressure,unix-timestamp
 997.06,1654128169
 ```
 
+---
+
 ### Atmospheric Profiles
 
-Point the `config.general.data.atmospheric_profiles` variable to the directory you want to store the atmospheric profiles.
+Point the `config.data.atmospheric_profiles.path` variable to the directory you want to store the atmospheric profiles.
 
 <FileSystemTree
   schema={{
     type: "directory",
-    title: "<config.general.data.atmospheric_profiles>",
+    title: "<config.data.atmospheric_profiles.path>",
     items: [
       {
         type: "directory",
@@ -250,6 +252,8 @@ Since this pipeline includes a fully automated downloader for this data, you can
 
 </Aside>
 
+---
+
 ### Results
 
 The pipeline populates the results directory in the following way:
@@ -257,7 +261,7 @@ The pipeline populates the results directory in the following way:
 <FileSystemTree
   schema={{
     type: "directory",
-    title: "<config.general.data.results>",
+    title: "<config.data.results.path>",
     items: [
       {
         type: "directory",
@@ -365,6 +369,8 @@ The pipeline populates the results directory in the following way:
 
 The `about.json` file in each successful retrieval directory contains all information required to reproduce the respective retrieval results. The structure of the directories in `failed/` and `successful/` is the same - the outputs are moved to `successful/` if the retrieval has produced a final CSV file and to `failed` otherwise.
 
+---
+
 ### Bundles
 
 With `config.bundles`, you can specify a list of bundles to produce from the raw retrieval results. The script will generate one bundle per sensor, retrieval algorithm, and atmospheric profile. For example, when using the following bundle config:
@@ -432,7 +438,7 @@ With `config.bundles`, you can specify a list of bundles to produce from the raw
   }}
 />
 
-The output files will include all data from the `<config.general.data.results>` path that matches the time period. The CSV and Parquet files contain the same data - just in two different tabular formats. They keep all columns from the raw retrieval algorithm but add four more columns `utc`, `retrieval_time`, `location_id` and `campaign_ids`:
+The output files will include all data from the `<config.data.results.path>` directory that matches the time period. The CSV and Parquet files contain the same data - just in two different tabular formats. They keep all columns from the raw retrieval algorithm but add four more columns `utc`, `retrieval_time`, `location_id` and `campaign_ids`:
 
 - `utc`: parsed from the `UTC`/`HHMMSS_ID` columns to have a consistent timestamp format
 - `retrieval_time`: the timestamp when the retrieval was finished
@@ -483,11 +489,11 @@ For example our MUCCnet campaign config looks like this:
 
 ... the dataframe filtered by the campaign ID `muccnet` will only contain dat that has been generated between 2019-09-13 and 2100-01-01 by the sensors `ma`, `mb`, `mc`, `md`, and `me` at the locations `TUM_I`, `FEL`, `GRAE`, `OBE`, `TAU`, `DLR_2`, and `DLR_3`.
 
+---
+
 ### Logs
 
-The logs are stored in `data/logs` by default. Set `ERP_LOGS_DIR` to use another
-existing base directory; the pipeline creates its `retrieval` and
-`retrieval/archive` directories automatically:
+The logs are stored in `data/logs` by default. Set `ERP_LOGS_DIR` to use another existing base directory; the pipeline creates its `retrieval` and `retrieval/archive` directories automatically:
 
 <FileSystemTree
   schema={{
@@ -536,15 +542,3 @@ existing base directory; the pipeline creates its `retrieval` and
 />
 
 The files are either from containers (`startingdate-startingtime_containername.log`) or from the main process (`startingdate-startingtime_main.log`), which orchestrates the containers.
-
-### Internal
-
-#### Containers
-
-The containers in which the retrieval is running are working on `data/containers`. Each container with a container name like `eloquent-oppenheimer` has three active directories: `data/containers/retrieval-container-$containername`, `data/containers/retrieval-container-$containername-input`, and `data/containers/retrieval-container-$containername-output`.
-
-You can change `data/containers` to some other path (maybe a high-speed local storage device) using `config.retrieval.general.container_dir`.
-
-#### Profiles Query Cache
-
-The profiles downloader uses the file `data/profiles_query_cache.json` to save the information on which profiles have already been requested. Profiles will only be re-requested if they have not been produced within 24 hours.
