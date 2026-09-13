@@ -1,8 +1,8 @@
 ---
-title: Automatic Test Suite
+title: Tests
 ---
 
-import { Aside } from '@astrojs/starlight/components';
+import { Aside } from "@astrojs/starlight/components";
 
 The pipeline comes with a suite of tests: They ensure the code is doing what it's supposed to and enable developers to change code confidently.
 
@@ -17,7 +17,7 @@ There are four test classes ([using pytest marks](https://docs.pytest.org/en/7.1
 
 The `ci` and `complete` tests download a sample dataset of three days (from two systems) and run all retrieval algorithms (Proffast 1 with GGG2014, Proffast 2.2 and 2.3 with GGG2014 and GGG2020). The `ci` does everything that `complete` does (spawning containers, moving files, etc.) but does not run the retrieval code itself. These two classes exist because the `complete` tests take 10-15 minutes on our 10-Core VM, whereas the `ci` tests can be run within 2-3 minutes in the GitHub CI environment on a 2-Core machine.
 
-You can run the different test classes with: 
+You can run the different test classes with:
 
 ```bash
 # one class

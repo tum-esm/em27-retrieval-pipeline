@@ -1,0 +1,34 @@
+---
+title: EM27 Metadata Tests
+---
+
+These are the integrity tests that are conducted on the metadata files whenever they are loaded or the GitHub actions workflow is triggered:
+
+**Locations:**
+
+- TOML format is valid
+- Values for `lat`/`lng`/`alt` are in a reasonable range
+
+**Sensors:**
+
+- TOML format is valid
+- All dates exist
+- Time periods are ordered ascendingly
+- No overlapping time periods
+- All location IDs were specified in the "locations" section
+
+**Campaigns:**
+
+- TOML format is valid
+- All dates exist
+- Start date before end date
+- No duplicate sensors/locations
+- All location IDs were specified in the "locations" section
+- All sensor IDs were specified in the "sensors" section
+
+**Events:**
+
+- TOML format is valid
+- All dates exist
+- Start date before end date
+- All sensor IDs were specified in the "sensors" section
