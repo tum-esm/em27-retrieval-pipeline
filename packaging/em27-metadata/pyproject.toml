@@ -1,0 +1,38 @@
+[project]
+name = "em27_metadata"
+version = "1.11.0"
+description = "Single source of truth for ESM's EM27 measurement logistics"
+authors = [
+    { name = "Moritz Makowski", email = "moritz.makowski@tum.de" },
+    { name = "Marlon Müller", email = "marlon.mueller@tum.de" },
+]
+dependencies = [
+    "pydantic>=2.12.3",
+    "tomli>=2.4.0",
+    "tum-esm-utils>=2.11.3",
+]
+requires-python = ">=3.10,<4.0"
+readme = "README.md"
+license = { text = "GPL-3.0" }
+license-files = ["LICENSE"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+]
+
+[project.urls]
+repository = "https://github.com/tum-esm/em27-retrieval-pipeline"
+documentation = "https://tum-esm.github.io/em27-retrieval-pipeline/"
+
+[build-system]
+requires = ["uv_build>=0.11.19,<0.12.0"]
+build-backend = "uv_build"
+
+[tool.uv.build-backend]
+module-name = "em27_metadata"
+module-root = ""
+source-exclude = ["em27_metadata/sample_data/.prettierrc"]
