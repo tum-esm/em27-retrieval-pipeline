@@ -1,0 +1,80 @@
+---
+title: em27_metadata.toml Reference
+---
+
+import JSONSchemaRenderer from "../../../components/JSONSchemaRenderer.tsx";
+import Schema from "../../../assets/em27_metadata.schema.json";
+import Template from "../../../assets/em27_metadata.template.toml?raw";
+import { Code } from "@astrojs/starlight/components";
+
+The `em27_metadata.toml` file describes the EM27/SUN instruments in a network, their measurement locations and deployments, and optional campaigns and events.
+
+**Example:**
+
+<Code code={Template.trim()} lang="toml" />
+
+---
+
+## Locations
+
+### locations[i]
+
+<div className="text-sm p-3 bg-slate-100 text-slate-950 dark:bg-slate-800 dark:text-slate-50 rounded-lg whitespace-pre-wrap">
+  {Schema.$defs.LocationMetadata.description}
+</div>
+
+<JSONSchemaRenderer schema={Schema} path="$defs.LocationMetadata" />
+
+---
+
+## Sensors
+
+---
+
+### sensors[i]
+
+<div className="text-sm p-3 bg-slate-100 text-slate-950 dark:bg-slate-800 dark:text-slate-50 rounded-lg whitespace-pre-wrap">
+  {Schema.$defs.SensorMetadata.description}
+</div>
+
+<JSONSchemaRenderer schema={Schema} path="$defs.SensorMetadata" />
+
+---
+
+### sensors[i].deployments[i]
+
+<div className="text-sm p-3 bg-slate-100 text-slate-950 dark:bg-slate-800 dark:text-slate-50 rounded-lg whitespace-pre-wrap">
+  {Schema.$defs.Deployment.description}
+</div>
+
+<JSONSchemaRenderer schema={Schema} path="$defs.Deployment" />
+
+---
+
+## Campaigns
+
+---
+
+### campaigns[i]
+
+<div className="text-sm p-3 bg-slate-100 text-slate-950 dark:bg-slate-800 dark:text-slate-50 rounded-lg whitespace-pre-wrap">
+  {Schema.$defs.CampaignMetadata.description}
+</div>
+
+<JSONSchemaRenderer schema={Schema} path="$defs.CampaignMetadata" />
+
+---
+
+## Events
+
+---
+
+### events[i]
+
+<div className="text-sm p-3 bg-slate-100 text-slate-950 dark:bg-slate-800 dark:text-slate-50 rounded-lg whitespace-pre-wrap">
+  {Schema.$defs.EventMetadata.description}
+</div>
+
+<JSONSchemaRenderer schema={Schema} path="$defs.EventMetadata" />
+
+---

@@ -24,16 +24,20 @@
                     "type": "string"
                 },
                 "sensor_ids": {
+                    "description": "List of sensor IDs involved in the campaign",
                     "items": {
                         "type": "string"
                     },
+                    "minItems": 1,
                     "title": "Sensor Ids",
                     "type": "array"
                 },
                 "location_ids": {
+                    "description": "List of location IDs involved in the campaign",
                     "items": {
                         "type": "string"
                     },
+                    "minItems": 1,
                     "title": "Location Ids",
                     "type": "array"
                 }
@@ -233,6 +237,7 @@
                     "type": "integer"
                 },
                 "deployments": {
+                    "description": "List of deployments of this EM27/SUN system over time.",
                     "items": {
                         "$ref": "#/$defs/Deployment"
                     },

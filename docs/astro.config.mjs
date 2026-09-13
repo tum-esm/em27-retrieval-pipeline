@@ -74,11 +74,15 @@ export default defineConfig({
           collapsed: false,
           items: [
             {
-              label: "Config",
+              label: "config.toml",
               link: "/reference/config",
             },
             {
-              label: "GEOMS Metadata",
+              label: "em27_metadata.toml",
+              link: "/reference/em27_metadata",
+            },
+            {
+              label: "geoms_metadata.toml",
               link: "/reference/geoms_metadata",
             },
             {

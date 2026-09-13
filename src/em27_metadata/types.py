@@ -200,6 +200,7 @@ class SensorMetadata(pydantic.BaseModel):
         ...,
         min_length=0,
         validation_alias=pydantic.AliasChoices("deployments", "setups"),
+        description="List of deployments of this EM27/SUN system over time.",
     )
     calibration_factors: list[Any] = pydantic.Field(
         default=[],
@@ -257,8 +258,16 @@ class CampaignMetadata(TimeSeriesElement):
             + "Allowed values: letters, numbers, dashes, underscores."
         ),
     )
-    sensor_ids: list[str]
-    location_ids: list[str]
+    sensor_ids: list[str] = pydantic.Field(
+        ...,
+        min_length=1,
+        description="List of sensor IDs involved in the campaign",
+    )
+    location_ids: list[str] = pydantic.Field(
+        ...,
+        min_length=1,
+        description="List of location IDs involved in the campaign",
+    )
 
 
 class CampaignMetadataList(pydantic.RootModel[list[CampaignMetadata]]):
