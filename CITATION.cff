@@ -2,7 +2,7 @@ title: EM27 Retrieval Pipeline
 abstract: Automated EM27 data processing
 authors:
   - affiliation: Technical University of Munich
-    family-names: Makowski
+    family-names: Oliveira Makowski
     given-names: Moritz
     orcid: 0000-0002-2948-2993
   - affiliation: Karlsruhe Institute of Technology
@@ -39,5 +39,5 @@ doi: 10.5281/zenodo.14284968
 license:
   - gpl-3.0-or-later
 type: software
-version: 1.10.0
-date-released: "2026-01-22"
+version: 1.11.0
+date-released: "2026-09-13"

@@ -13,6 +13,7 @@ dev
 .ruff_cache
 .env
 !.env.example
+dist
 
 data/**/*.map
 data/**/*.mod

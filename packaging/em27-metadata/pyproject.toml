@@ -3,7 +3,7 @@ name = "em27_metadata"
 version = "1.11.0"
 description = "Single source of truth for ESM's EM27 measurement logistics"
 authors = [
-    { name = "Moritz Makowski", email = "moritz.makowski@tum.de" },
+    { name = "Moritz Oliveira Makowski", email = "moritz.makowski@tum.de" },
     { name = "Marlon Müller", email = "marlon.mueller@tum.de" },
 ]
 dependencies = [

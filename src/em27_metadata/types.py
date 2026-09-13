@@ -156,6 +156,11 @@ class LocationMetadata(pydantic.BaseModel):
         validation_alias=pydantic.AliasChoices("alt_asl", "alt"),
     )
 
+    @property
+    def alt(self) -> float:
+        """Return altitude above sea level under the former field name."""
+        return self.alt_asl
+
 
 class LocationMetadataList(pydantic.RootModel[list[LocationMetadata]]):
     root: list[LocationMetadata]
