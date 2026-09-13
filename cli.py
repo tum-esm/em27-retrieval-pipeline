@@ -22,6 +22,41 @@ bundle_command_group = click.Group(name="bundle")
 geoms_command_group = click.Group(name="geoms")
 
 
+@cli.command(
+    name="fetch-metadata",
+    short_help="Fetch Remote Metadata",
+    help="Fetch the configured GitHub metadata and store it in the config directory.",
+)
+def fetch_metadata() -> None:
+    import src  # import here so that the CLI is more reactive
+
+    config = src.types.Config.load()
+    if config.metadata.source != "github":
+        raise click.ClickException('Metadata source must be set to "github"')
+
+    config_dir = src.types.Config.get_config_dir()
+    metadata_path = os.path.join(config_dir, "em27_metadata.toml")
+    if os.path.isfile(metadata_path):
+        raise click.ClickException(f"Local metadata file already exists at {metadata_path}")
+
+    assert config.metadata.github_repository is not None, "This should have been caught earlier"
+    metadata = src.em27_metadata.load_from_github(
+        github_repository=config.metadata.github_repository,
+        access_token=config.metadata.github_access_token,
+    )
+    metadata_object = src.em27_metadata.types.EM27MetadataObject(
+        locations=metadata.locations,
+        sensors=metadata.sensors,
+        campaigns=metadata.campaigns,
+        events=metadata.events,
+    )
+    tum_esm_utils.files.dump_toml_file(
+        metadata_path,
+        metadata_object.model_dump(mode="json", exclude_none=True),
+    )
+    click.echo(f"Remote metadata written to {metadata_path}")
+
+
 def _check_config_validity() -> None:
     import src
 
