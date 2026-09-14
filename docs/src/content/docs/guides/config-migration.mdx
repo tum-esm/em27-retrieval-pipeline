@@ -17,16 +17,18 @@ The following files changed:
 The pipeline performs the migration automatically:
 
 1. If the new TOML file exists, the pipeline loads it and ignores the corresponding JSON files.
-2. If the TOML file is missing but the old JSON files exist, the pipeline loads and validates the JSON files using the old schema. The pipeline converts the configuration to the new schema and writes the new TOML file to the same config directory.
+2. If the TOML file is missing but the old JSON files exist, the pipeline loads and validates the JSON files using the old schema. The pipeline converts the configuration to the new schema and writes it in TOML format to the same config directory.
 3. The next time when calling the pipeline, the TOML files will be used since they now exist.
 
 The old JSON files are not deleted. The configuration directory must be writable so that the converted TOML file can be created.
 
 ## EM27 metadata compatibility
 
-The pipeline continues to support EM27 metadata in the old JSON format. The underlying metadata structure is unchanged: the old representation stored locations, sensors, campaigns, and events in separate JSON files, while the TOML representation combines those sections in one `em27_metadata.toml` file. This fallback also applies to metadata loaded from GitHub. The pipeline first looks for `em27_metadata.toml` and otherwise loads the old JSON files from the repository. Remote JSON metadata is converted on the fly but is not written back to the GitHub repository.
+The pipeline continues to support EM27 metadata in the old JSON format. The underlying metadata structure remains mostly unchanged: the old representation stored locations, sensors, campaigns, and events in separate JSON files, while the TOML representation combines those sections in one `em27_metadata.toml` file.
 
-If you do want to migrate metadata stored on GitHub, you can run the following command which will pull the metadata configure in the `config.toml` file and store it in a local `em27_metadata.toml` file:
+The loading-fallback also applies to metadata loaded from GitHub. The pipeline first looks for `em27_metadata.toml` and otherwise loads the old JSON files from the repository. Remote JSON metadata is converted on the fly but is not written back to the GitHub repository.
+
+If you do want to migrate metadata stored on GitHub, you can run the following command which will pull the metadata configured in the `config.toml` file and store it in a local `em27_metadata.toml` file:
 
 ```bash
 python cli.py fetch-remote-metadata
