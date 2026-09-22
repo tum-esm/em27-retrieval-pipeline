@@ -9,5 +9,11 @@
     "evenBetterToml.formatter.compactEntries": false,
     "[toml]": {
         "editor.formatOnSave": false
+    },
+    "[FortranFreeForm,FortranFixedForm]": {
+        "editor.formatOnSave": false
+    },
+    "[FortranFixedForm]": {
+        "editor.formatOnSave": false
     }
 }
