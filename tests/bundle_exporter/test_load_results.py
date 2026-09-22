@@ -22,9 +22,12 @@ def test_load_proffast_242_preprocessing_log(tmp_path: Path) -> None:
 
     df = load_proffast_242_preprocessing_log(str(logfile_path))
 
-    assert df.shape == (1, 18)
+    assert df.shape == (1, 20)
     assert df["spectrum"].item() == "220602_051433SN.BIN"
     assert df["retrieval_filename"].item() == "220602SN.4"
     assert df["ch1_fwd_dc_mean"].dtype == pl.Float64
     assert df["ch1_fwd_dc_mean"].item() == -0.107083
     assert df["ch2_bwd_dc_var"].item() == 0.005286
+    assert df["NLC"].dtype == pl.Float64
+    assert df["NLC"].item() == 0.000947
+    assert df["NLC2"].item() == 0.0

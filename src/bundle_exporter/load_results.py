@@ -25,6 +25,7 @@ _PROFFAST_242_DC_COLUMNS: tuple[tuple[str, str], ...] = (
     ("ch2bw_max", "ch2_bwd_dc_max"),
     ("ch2bw_var", "ch2_bwd_dc_var"),
 )
+_PROFFAST_242_NLC_COLUMNS: tuple[str, str] = ("NLC", "NLC2")
 
 
 def load_proffast_242_preprocessing_log(path: str) -> pl.DataFrame:
@@ -39,6 +40,7 @@ def load_proffast_242_preprocessing_log(path: str) -> pl.DataFrame:
             pl.col(source).cast(pl.Float64, strict=False).alias(destination)
             for source, destination in _PROFFAST_242_DC_COLUMNS
         ],
+        *[pl.col(column).cast(pl.Float64, strict=False) for column in _PROFFAST_242_NLC_COLUMNS],
     )
 
 
@@ -197,7 +199,9 @@ def load_results_directory(
 
         if proffast_242_preprocessing_df is not None:
             preprocessing_df = proffast_242_preprocessing_df.select(
-                "spectrum", *[destination for _, destination in _PROFFAST_242_DC_COLUMNS]
+                "spectrum",
+                *[destination for _, destination in _PROFFAST_242_DC_COLUMNS],
+                *_PROFFAST_242_NLC_COLUMNS,
             )
         elif os.path.isfile(preprocessing_log_path):
             f = tum_esm_utils.files.load_file(preprocessing_log_path).strip(" \t\n")
