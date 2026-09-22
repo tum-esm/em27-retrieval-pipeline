@@ -332,12 +332,21 @@ def load_results_directory(
                 )
             newdf = newdf.with_columns(pl.col("spectrum").cast(pl.Utf8).str.strip_chars(" "))
 
+            diagnostic_columns = [
+                ("rms", pl.Float64),
+                ("scl", pl.Float64),
+                ("niter", pl.Int16),
+            ]
+            if retrieval_algorithm == "proffast-2.4.2":
+                diagnostic_columns.extend(
+                    [
+                        ("mea", pl.Float64),
+                        ("sop", pl.Float64),
+                    ]
+                )
+
             for i in range(len(job_gases)):
-                expected_cols = [
-                    f"job{i + 1:02d}_rms",
-                    f"job{i + 1:02d}_niter",
-                    f"job{i + 1:02d}_scl",
-                ]
+                expected_cols = [f"job{i + 1:02d}_{suffix}" for suffix, _ in diagnostic_columns]
                 for col in expected_cols:
                     if col not in newdf.columns:
                         raise ValueError(
@@ -352,11 +361,7 @@ def load_results_directory(
                     .alias(f"{job_gases[i][j]}_{suffix}")
                     for i in range(len(job_gases))
                     for j in range(len(job_gases[i]))
-                    for suffix, dtype in [
-                        ("rms", pl.Float64),
-                        ("scl", pl.Float64),
-                        ("niter", pl.Int16),
-                    ]
+                    for suffix, dtype in diagnostic_columns
                 ],
             )
             dflenbefore = len(df)

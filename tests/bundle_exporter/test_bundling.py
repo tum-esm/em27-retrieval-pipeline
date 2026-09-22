@@ -1,9 +1,11 @@
 import datetime
 import os
-import pytest
-import src
-import tum_esm_utils
+
 import polars as pl
+import pytest
+import tum_esm_utils
+
+import src
 
 PROJECT_DIR = tum_esm_utils.files.rel_to_abs_path("../..")
 EXAMPLE_DIR = os.path.join(PROJECT_DIR, "example")
@@ -128,7 +130,7 @@ def test_bundling() -> None:
                 assert len(campaigns) == 2, f"Expected 2 campaigns, got {len(campaigns)}."
 
                 df = parquet_df.drop_nulls().drop_nans()
-                assert len(df) == len(parquet_df), f"Expected no nulls or NaNs in the DataFrame"
+                assert len(df) == len(parquet_df), "Expected no nulls or NaNs in the DataFrame"
 
                 # print(df.columns)
 
@@ -151,8 +153,11 @@ def test_bundling() -> None:
                             raise Exception(f"Column {col} missing in DataFrame columns:")
 
                 # check whether retrieval diagnostics are there
+                diagnostic_suffixes = ["niter", "rms", "scl"]
+                if retrieval_algorithm == "proffast-2.4.2":
+                    diagnostic_suffixes.extend(["mea", "sop"])
                 for gas in ["CO2", "CH4", "H2O", "CO"]:
-                    for suffix in ["niter", "rms", "scl"]:
+                    for suffix in diagnostic_suffixes:
                         col = f"{gas}_{suffix}"
                         if col not in df.columns:
                             raise Exception(f"Column {col} missing in DataFrame columns:")
