@@ -263,11 +263,11 @@ def _generate_job_list() -> list[
 
     # start proffast 1.0 first because it takes the longest
     for alg in [
-        "proffast-1.0",
-        "proffast-2.2",
-        "proffast-2.3",
-        "proffast-2.4",
-        "proffast-2.4.1",
+        # "proffast-1.0",
+        # "proffast-2.2",
+        # "proffast-2.3",
+        # "proffast-2.4",
+        # "proffast-2.4.1",
         "proffast-2.4.2",
     ]:
         for atm in ["GGG2014", "GGG2020"]:
