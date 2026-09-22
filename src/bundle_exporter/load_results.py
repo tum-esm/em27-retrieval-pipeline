@@ -7,6 +7,40 @@ import tum_esm_utils
 
 import src
 
+_PROFFAST_242_DC_COLUMNS: tuple[tuple[str, str], ...] = (
+    ("ch1fw_mean", "ch1_fwd_dc_mean"),
+    ("ch1fw_min", "ch1_fwd_dc_min"),
+    ("ch1fw_max", "ch1_fwd_dc_max"),
+    ("ch1fw_var", "ch1_fwd_dc_var"),
+    ("ch1bw_mean", "ch1_bwd_dc_mean"),
+    ("ch1bw_min", "ch1_bwd_dc_min"),
+    ("ch1bw_max", "ch1_bwd_dc_max"),
+    ("ch1bw_var", "ch1_bwd_dc_var"),
+    ("ch2fw_mean", "ch2_fwd_dc_mean"),
+    ("ch2fw_min", "ch2_fwd_dc_min"),
+    ("ch2fw_max", "ch2_fwd_dc_max"),
+    ("ch2fw_var", "ch2_fwd_dc_var"),
+    ("ch2bw_mean", "ch2_bwd_dc_mean"),
+    ("ch2bw_min", "ch2_bwd_dc_min"),
+    ("ch2bw_max", "ch2_bwd_dc_max"),
+    ("ch2bw_var", "ch2_bwd_dc_var"),
+)
+
+
+def load_proffast_242_preprocessing_log(path: str) -> pl.DataFrame:
+    df = pl.read_csv(path, separator=",", infer_schema_length=0)
+    df = df.rename({column: column.strip() for column in df.columns})
+    df = df.with_columns(pl.all().str.strip_chars())
+
+    return df.select(
+        (pl.col("DATUTC") + "_" + pl.col("TIMLOC") + "SN.BIN").alias("spectrum"),
+        pl.col("measfile").str.split("/").list.last().alias("retrieval_filename"),
+        *[
+            pl.col(source).cast(pl.Float64, strict=False).alias(destination)
+            for source, destination in _PROFFAST_242_DC_COLUMNS
+        ],
+    )
+
 
 def load_results_directory(
     d: str,
@@ -147,6 +181,11 @@ def load_results_directory(
     if len(df) == 0:
         return None
 
+    preprocessing_log_path = os.path.join(d, "analysis", "cal", "logfile.dat")
+    proffast_242_preprocessing_df: Optional[pl.DataFrame] = None
+    if retrieval_algorithm == "proffast-2.4.2" and os.path.isfile(preprocessing_log_path):
+        proffast_242_preprocessing_df = load_proffast_242_preprocessing_log(preprocessing_log_path)
+
     # 4. PARSE DC TIMESERIES
 
     if parse_dc_timeseries and (
@@ -154,9 +193,13 @@ def load_results_directory(
     ):
         spectrums: list[str] = []
         data: list[list[Optional[float]]] = [[] for _ in range(16)]
+        preprocessing_df: Optional[pl.DataFrame] = None
 
-        preprocessing_log_path = os.path.join(d, "analysis", "cal", "logfile.dat")
-        if os.path.isfile(preprocessing_log_path):
+        if proffast_242_preprocessing_df is not None:
+            preprocessing_df = proffast_242_preprocessing_df.select(
+                "spectrum", *[destination for _, destination in _PROFFAST_242_DC_COLUMNS]
+            )
+        elif os.path.isfile(preprocessing_log_path):
             f = tum_esm_utils.files.load_file(preprocessing_log_path).strip(" \t\n")
             for line in f.split("\n"):
                 parts = line.replace("\t", " ").split(" ")
@@ -185,63 +228,52 @@ def load_results_directory(
                             except ValueError:
                                 value = None
                             data[i].append(value)
-                elif retrieval_algorithm == "proffast-2.4.2":
-                    # TODO: implement this once the proffast code is settled
-                    # 20 parts for normal preprocess6
-                    # 16 parts
-                    if len(parts) == 36:
-                        spectrums.append(f"{parts[6]}_{parts[8]}SN.BIN")
-                        for i in range(16):
-                            try:
-                                value = float(parts[i + 20])
-                            except ValueError:
-                                value = None
-                            data[i].append(value)
                 else:
                     raise Exception("This should not happen")
         else:  # pragma: no cover
             print(f"Could not find preprocessing log file at {preprocessing_log_path}")
 
-        preprocessing_df = pl.DataFrame(
-            {
-                "spectrum": spectrums,
-                "ch1_fwd_dc_mean": data[0],
-                "ch1_fwd_dc_min": data[1],
-                "ch1_fwd_dc_max": data[2],
-                "ch1_fwd_dc_var": data[3],
-                "ch1_bwd_dc_mean": data[4],
-                "ch1_bwd_dc_min": data[5],
-                "ch1_bwd_dc_max": data[6],
-                "ch1_bwd_dc_var": data[7],
-                "ch2_fwd_dc_mean": data[8],
-                "ch2_fwd_dc_min": data[9],
-                "ch2_fwd_dc_max": data[10],
-                "ch2_fwd_dc_var": data[11],
-                "ch2_bwd_dc_mean": data[12],
-                "ch2_bwd_dc_min": data[13],
-                "ch2_bwd_dc_max": data[14],
-                "ch2_bwd_dc_var": data[15],
-            },
-            schema_overrides={
-                "spectrum": pl.Utf8,
-                "ch1_fwd_dc_mean": pl.Float64,
-                "ch1_fwd_dc_min": pl.Float64,
-                "ch1_fwd_dc_max": pl.Float64,
-                "ch1_fwd_dc_var": pl.Float64,
-                "ch1_bwd_dc_mean": pl.Float64,
-                "ch1_bwd_dc_min": pl.Float64,
-                "ch1_bwd_dc_max": pl.Float64,
-                "ch1_bwd_dc_var": pl.Float64,
-                "ch2_fwd_dc_mean": pl.Float64,
-                "ch2_fwd_dc_min": pl.Float64,
-                "ch2_fwd_dc_max": pl.Float64,
-                "ch2_fwd_dc_var": pl.Float64,
-                "ch2_bwd_dc_mean": pl.Float64,
-                "ch2_bwd_dc_min": pl.Float64,
-                "ch2_bwd_dc_max": pl.Float64,
-                "ch2_bwd_dc_var": pl.Float64,
-            },
-        )
+        if preprocessing_df is None:
+            preprocessing_df = pl.DataFrame(
+                {
+                    "spectrum": spectrums,
+                    "ch1_fwd_dc_mean": data[0],
+                    "ch1_fwd_dc_min": data[1],
+                    "ch1_fwd_dc_max": data[2],
+                    "ch1_fwd_dc_var": data[3],
+                    "ch1_bwd_dc_mean": data[4],
+                    "ch1_bwd_dc_min": data[5],
+                    "ch1_bwd_dc_max": data[6],
+                    "ch1_bwd_dc_var": data[7],
+                    "ch2_fwd_dc_mean": data[8],
+                    "ch2_fwd_dc_min": data[9],
+                    "ch2_fwd_dc_max": data[10],
+                    "ch2_fwd_dc_var": data[11],
+                    "ch2_bwd_dc_mean": data[12],
+                    "ch2_bwd_dc_min": data[13],
+                    "ch2_bwd_dc_max": data[14],
+                    "ch2_bwd_dc_var": data[15],
+                },
+                schema_overrides={
+                    "spectrum": pl.Utf8,
+                    "ch1_fwd_dc_mean": pl.Float64,
+                    "ch1_fwd_dc_min": pl.Float64,
+                    "ch1_fwd_dc_max": pl.Float64,
+                    "ch1_fwd_dc_var": pl.Float64,
+                    "ch1_bwd_dc_mean": pl.Float64,
+                    "ch1_bwd_dc_min": pl.Float64,
+                    "ch1_bwd_dc_max": pl.Float64,
+                    "ch1_bwd_dc_var": pl.Float64,
+                    "ch2_fwd_dc_mean": pl.Float64,
+                    "ch2_fwd_dc_min": pl.Float64,
+                    "ch2_fwd_dc_max": pl.Float64,
+                    "ch2_fwd_dc_var": pl.Float64,
+                    "ch2_bwd_dc_mean": pl.Float64,
+                    "ch2_bwd_dc_min": pl.Float64,
+                    "ch2_bwd_dc_max": pl.Float64,
+                    "ch2_bwd_dc_var": pl.Float64,
+                },
+            )
 
         preprocessing_df = preprocessing_df.group_by("spectrum").agg(
             *[pl.col(c).mean() for c in preprocessing_df.columns if c != "spectrum"]
@@ -346,11 +378,15 @@ def load_results_directory(
 
     # 7. PARSE SPECTRA FILENAMES
 
-    if os.path.isfile(os.path.join(d, "analysis", "cal", "logfile.dat")):
+    if proffast_242_preprocessing_df is not None:
+        spectra_filename_maps = proffast_242_preprocessing_df.select(
+            "spectrum", "retrieval_filename"
+        )
+        df = df.join(spectra_filename_maps, on="spectrum", how="left")
+        df = df.join(opus_file_stats_df, on="retrieval_filename", how="left")
+    elif os.path.isfile(preprocessing_log_path):
         preprocess_logs_content = (
-            tum_esm_utils.files.load_file(os.path.join(d, "analysis", "cal", "logfile.dat"))
-            .replace("\t", " ")
-            .strip("\n ")
+            tum_esm_utils.files.load_file(preprocessing_log_path).replace("\t", " ").strip("\n ")
         )
         while "  " in preprocess_logs_content:
             preprocess_logs_content = preprocess_logs_content.replace("  ", " ")
