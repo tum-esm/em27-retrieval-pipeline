@@ -455,6 +455,27 @@ class ContainerFactory:
     ) -> None:
         ROOT_DIR = os.path.join(_RETRIEVAL_CODE_DIR, "proffast-2.4.2", "main")
 
+        _print("Copying the modified preprocess62.F90 source code")
+        ORIGINAL_SOURCE_FILE = os.path.join(
+            _RETRIEVAL_CODE_DIR,
+            "proffast-2.4.2",
+            "main",
+            "prf",
+            "source",
+            "preprocess",
+            "preprocess63.F90",
+        )
+        ADAPTED_SOURCE_FILE = os.path.join(
+            _RETRIEVAL_CODE_DIR,
+            "proffast-2.4.2",
+            "main",
+            "source",
+            "preprocess",
+            "preprocess63.F90",
+        )
+        os.remove(ORIGINAL_SOURCE_FILE)
+        shutil.copyfile(ADAPTED_SOURCE_FILE, ORIGINAL_SOURCE_FILE)
+
         _print("Compiling")
         tum_esm_utils.shell.run_shell_command(
             command="./install.sh -O0" if fast_compilation else "./install.sh",
