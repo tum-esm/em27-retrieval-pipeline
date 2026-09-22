@@ -185,6 +185,18 @@ def load_results_directory(
                             except ValueError:
                                 value = None
                             data[i].append(value)
+                elif retrieval_algorithm == "proffast-2.4.2":
+                    # TODO: implement this once the proffast code is settled
+                    # 20 parts for normal preprocess6
+                    # 16 parts
+                    if len(parts) == 36:
+                        spectrums.append(f"{parts[6]}_{parts[8]}SN.BIN")
+                        for i in range(16):
+                            try:
+                                value = float(parts[i + 20])
+                            except ValueError:
+                                value = None
+                            data[i].append(value)
                 else:
                     raise Exception("This should not happen")
         else:  # pragma: no cover
@@ -248,6 +260,7 @@ def load_results_directory(
             "proffast-2.3": [["H2O"], ["O2"], ["CO2"], ["CH4"], ["CO", "CH4_S5P"]],
             "proffast-2.4": [["H2O"], ["O2"], ["CO2"], ["CH4"], ["CO2_STR"], ["CO", "CH4_S5P"]],
             "proffast-2.4.1": [["H2O"], ["O2"], ["CO2"], ["CH4"], ["CO2_STR"], ["CO", "CH4_S5P"]],
+            "proffast-2.4.2": [["H2O"], ["O2"], ["CO2"], ["CH4"], ["CO2_STR"], ["CO", "CH4_S5P"]],
         }.get(retrieval_algorithm, [])
 
         if len(job_gases) > 0:
@@ -260,8 +273,10 @@ def load_results_directory(
                 invparms_filepath = os.path.join(
                     d, f"{sensor_id}{from_datetime.strftime('%y%m%d')}-invparms_a.dat"
                 )
-            elif (retrieval_algorithm == "proffast-2.4") or (
-                retrieval_algorithm == "proffast-2.4.1"
+            elif (
+                (retrieval_algorithm == "proffast-2.4")
+                or (retrieval_algorithm == "proffast-2.4.1")
+                or (retrieval_algorithm == "proffast-2.4.2")
             ):
                 invparms_filepath = os.path.join(
                     d,

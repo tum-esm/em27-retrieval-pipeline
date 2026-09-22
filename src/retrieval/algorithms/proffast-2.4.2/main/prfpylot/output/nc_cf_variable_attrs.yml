@@ -1,0 +1,188 @@
+# coordinates
+lat:
+  standard_name: latitude
+  long_name: latitude of the observation site
+  units: degrees_north
+  _FillValue: -900000.0
+lon:
+  standard_name: longitude
+  long_name: longitude of the observation site
+  units: degrees_east
+  _FillValue: -900000.0
+height:
+  standard_name: height
+  long_name: height of the observation site
+  units: m
+  axis: Z
+  _FillValue: -900000.0
+time:
+  standard_name: time
+  long_name: time of the observation
+  units: days since 1990-01-01 00:00:00
+  calendar: standard
+  _FillValue: -900000.0
+  axis: T
+time_prior:
+  standard_name: time
+  long_name: time of the prior information and averaging kernels
+  units: days since 1990-01-01 00:00:00
+  calendar: standard
+  axis: T
+  _FillValue: -900000.0
+height_prior:
+  standard_name: height
+  long_name: height of the prior information
+  units: m
+  axis: Z
+  _FillValue: -900000.0
+local_noon:
+  standard_name: time
+  long_name: time of the prior information and averaging kernels
+  comment: linking the time of the prior information to the observations
+  units: days since 1990-01-01 00:00:00
+  calendar: standard
+  coordinates: time
+  _FillValue: -900000.0
+serial_number:
+  long_name: Serial number of the Bruker EM27/SUN spectrometer
+  units: ""
+  _FillValue: -900000.0
+  coordinates: time
+sza_avk:
+  standard_name: solar_zenith_angle
+  long_name: solar zenith angle for averaging kernel dependency
+  units: degree
+  _FillValue: -900000.0
+
+# em27 variables
+spectrum:
+  long_name: filename of the observed spectrum
+  units: ""
+  _FillValue: -900000.0
+pres:
+  standard_name: air_pressure
+  units: Pa
+  coordinates: time
+  _FillValue: -900000.0
+temp:
+  standard_name: air_temperature
+  units: K
+  coordinates: time
+  _FillValue: -900000.0
+azimuth:
+  standard_name: solar_azimuth_angle
+  long_name: solar azimuth angle at observation
+  units: degree
+  coordinates: time
+  _FillValue: -900000.0
+sza:
+  standard_name: solar_zenith_angle
+  long_name: solar zenith angle at observation
+  units: degree
+  coordinates: time
+  _FillValue: -900000.0
+XCO2:
+  standard_name: dry_atmosphere_mole_fraction_of_carbon_dioxide
+  units: "1"
+  coordinates: time
+  _FillValue: -900000.0
+XCO2_STR:
+  standard_name: dry_atmosphere_mole_fraction_of_carbon_dioxide
+  comment: XCO2 retrieved in a spectral window with strong absorption
+  units: "1"
+  coordinates: time
+  _FillValue: -900000.0
+XCH4:
+  standard_name: dry_atmosphere_mole_fraction_of_methane
+  units: "1"
+  coordinates: time
+  _FillValue: -900000.0
+XCO:
+  long_name: dry_atmosphere_mole_fraction_of_carbon_monoxide
+  units: "1"
+  coordinates: time
+  _FillValue: -900000.0
+XH2O:
+  long_name: dry_atmosphere_mole_fraction_of_water_vapor
+  units: "1"
+  coordinates: time
+  _FillValue: -900000.0
+XAIR:
+  long_name: data quality parameter XAIR derived by PROFFAST
+  units: "1"
+  coordinates: time
+  _FillValue: -900000.0
+
+# vertical columns
+CO2:
+  long_name: atmosphere_mole_content_of_carbon_dioxide
+            retrieved vertical column of carbon dioxide
+  units: "mol m-2"
+  coordinates: time_prior
+  _FillValue: -900000.0
+CH4:
+  standard_name: atmosphere_mole_content_of_methane
+  long_name: retrieved vertical column of methane
+  units: "mol m-2"
+  coordinates: time_prior
+  _FillValue: -900000.0
+CO:
+  standard_name: atmosphere_mole_content_of_carbon_monoxide
+  long_name: retrieved vertical column of carbon monoxide
+  units: "mol m-2"
+  coordinates: time_prior
+  _FillValue: -900000.0
+H2O:
+  long_name: atmosphere_mole_content_of_water
+    retrieved vertical column of water vapor
+  units: "mol m-2"
+  coordinates: time_prior
+  _FillValue: -900000.0
+
+# averaging kernel variables
+XCO2_avk:
+  long_name: averaging kernel for carbon dioxide
+  units: "1"
+  coordinates: time_prior height_prior 
+  _FillValue: -900000.0
+XCH4_avk:
+  long_name: averaging kernel for methane
+  units: "1"
+  coordinates: time_prior height_prior 
+  _FillValue: -900000.0
+XCO_avk:
+  long_name: averaging kernel for carbon monoxide
+  units: "1"
+  coordinates: time_prior height_prior 
+  _FillValue: -900000.0
+XH2O_avk:
+  long_name: averaging kernel for water vapor
+  units: "1"
+  coordinates: time_prior height_prior 
+  _FillValue: -900000.0
+
+# prior information
+CO2_prior:
+  standard_name: mole_fraction_of_carbon_dioxide_in_air
+  long_name: prior information of carbon dioxide volume mixing ratios
+  units: "1"
+  coordinates: time_prior height_prior
+  _FillValue: -900000.0
+CH4_prior:
+  standard_name: mole_fraction_of_methane_in_air
+  long_name: prior information of methane volume mixing ratios
+  units: "1"
+  coordinates: time_prior height_prior
+  _FillValue: -900000.0
+CO_prior:
+  standard_name: mole_fraction_of_carbon_monoxide_in_air
+  long_name: prior information of carbon monoxide volume mixing ratios
+  units: "1"
+  coordinates: time_prior height_prior
+  _FillValue: -900000.0
+H2O_prior:
+  standard_name: mole_fraction_of_water_vapor_in_air
+  long_name: prior information of water vapor mole fraction
+  units: "1"
+  coordinates: time_prior height_prior
+  _FillValue: -900000.0

@@ -30,7 +30,14 @@ if __name__ == "__main__":
         raise FileNotFoundError(f"RESULTS_PATH does not exist: {RESULTS_PATH}")
 
     retrieval_algorithms = set(
-        ["proffast-1.0", "proffast-2.2", "proffast-2.3", "proffast-2.4", "proffast-2.4.1"]
+        [
+            "proffast-1.0",
+            "proffast-2.2",
+            "proffast-2.3",
+            "proffast-2.4",
+            "proffast-2.4.1",
+            "proffast-2.4.2",
+        ]
     ).intersection(set(os.listdir(RESULTS_PATH)))
 
     for retrieval_algorithm in retrieval_algorithms:

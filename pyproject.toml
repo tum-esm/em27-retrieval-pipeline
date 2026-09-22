@@ -96,6 +96,7 @@ exclude = [
     "src/retrieval/algorithms/proffast-2.3/main/prfpylot",
     "src/retrieval/algorithms/proffast-2.4/main/prfpylot",
     "src/retrieval/algorithms/proffast-2.4.1/main/prfpylot",
+    "src/retrieval/algorithms/proffast-2.4.2/main/prfpylot",
     "dev",
 ]
 
@@ -114,6 +115,7 @@ exclude = [
     "src/retrieval/algorithms/proffast-2.3/main/prfpylot",
     "src/retrieval/algorithms/proffast-2.4/main/prfpylot",
     "src/retrieval/algorithms/proffast-2.4.1/main/prfpylot",
+    "src/retrieval/algorithms/proffast-2.4.2/main/prfpylot",
     "tests/*",
     "dev",
 ]
@@ -160,6 +162,7 @@ exclude = [
     "src/retrieval/algorithms/proffast-2.3/main/prfpylot",
     "src/retrieval/algorithms/proffast-2.4/main/prfpylot",
     "src/retrieval/algorithms/proffast-2.4.1/main/prfpylot",
+    "src/retrieval/algorithms/proffast-2.4.2/main/prfpylot",
     "dev",
     "docs",
     "build",

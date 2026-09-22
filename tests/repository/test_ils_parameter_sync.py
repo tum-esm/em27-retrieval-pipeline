@@ -18,6 +18,7 @@ def test_ils_parameter_sync() -> None:
         "../../src/retrieval/algorithms/proffast-2.3/main/prfpylot/ILSList.csv",
         "../../src/retrieval/algorithms/proffast-2.4/main/prfpylot/ILSList.csv",
         "../../src/retrieval/algorithms/proffast-2.4.1/main/prfpylot/ILSList.csv",
+        "../../src/retrieval/algorithms/proffast-2.4.2/main/prfpylot/ILSList.csv",
     ]:
         with open(tum_esm_utils.files.rel_to_abs_path(local_path)) as f:
             local_file_content = f.read().strip("\n\t ")

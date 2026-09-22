@@ -80,6 +80,7 @@ def run(
         "proffast-2.3",
         "proffast-2.4",
         "proffast-2.4.1",
+        "proffast-2.4.2",
     ]:
         new_session = types.Proffast2RetrievalSession(
             retrieval_algorithm=job_config.retrieval_algorithm,

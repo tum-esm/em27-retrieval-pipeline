@@ -19,6 +19,7 @@ RetrievalAlgorithm = Literal[
     "proffast-2.3",
     "proffast-2.4",
     "proffast-2.4.1",
+    "proffast-2.4.2",
 ]
 AtmosphericProfileModel = Literal[
     "GGG2014",

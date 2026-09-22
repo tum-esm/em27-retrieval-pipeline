@@ -20,5 +20,6 @@ from .retrieval_containers import Proffast22Container as Proffast22Container
 from .retrieval_containers import Proffast23Container as Proffast23Container
 from .retrieval_containers import Proffast24Container as Proffast24Container
 from .retrieval_containers import Proffast241Container as Proffast241Container
+from .retrieval_containers import Proffast242Container as Proffast242Container
 from .retrieval_containers import RetrievalContainer as RetrievalContainer
 from .retrieval_containers import RetrievalSession as RetrievalSession

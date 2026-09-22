@@ -262,7 +262,14 @@ def _generate_job_list() -> list[
     ] = []
 
     # start proffast 1.0 first because it takes the longest
-    for alg in ["proffast-1.0", "proffast-2.2", "proffast-2.3", "proffast-2.4", "proffast-2.4.1"]:
+    for alg in [
+        "proffast-1.0",
+        "proffast-2.2",
+        "proffast-2.3",
+        "proffast-2.4",
+        "proffast-2.4.1",
+        "proffast-2.4.2",
+    ]:
         for atm in ["GGG2014", "GGG2020"]:
             if alg == "proffast-1.0" and atm == "GGG2020":
                 continue
@@ -341,7 +348,13 @@ def _assert_output_correctness(
                 "logfiles/invers10.log",
             ]
         )
-    elif retrieval_algorithm in ["proffast-2.2", "proffast-2.3", "proffast-2.4", "proffast-2.4.1"]:
+    elif retrieval_algorithm in [
+        "proffast-2.2",
+        "proffast-2.3",
+        "proffast-2.4",
+        "proffast-2.4.1",
+        "proffast-2.4.2",
+    ]:
         output_csv_name = (
             f"comb_invparms_{sensor_data_context.sensor_id}_"
             + f"SN{str(sensor_data_context.serial_number).zfill(3)}"
@@ -372,6 +385,7 @@ def _assert_output_correctness(
         "proffast-2.3",
         "proffast-2.4",
         "proffast-2.4.1",
+        "proffast-2.4.2",
     ]:
         cal_dir_path = os.path.join(out_path, "analysis", "cal")
         assert os.path.isdir(cal_dir_path), f"cal path does not exist: {cal_dir_path}"

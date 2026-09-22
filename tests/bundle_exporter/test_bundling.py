@@ -50,6 +50,7 @@ CONFIG = {
                 "proffast-2.3",
                 "proffast-2.4",
                 "proffast-2.4.1",
+                "proffast-2.4.2",
             ],
             "atmospheric_profile_models": ["GGG2014", "GGG2020"],
             "from_datetime": "2017-01-01T00:00:00+0000",
@@ -132,7 +133,7 @@ def test_bundling() -> None:
                 # print(df.columns)
 
                 # check whether DC timeseries is there
-                if retrieval_algorithm in ["proffast-2.4", "proffast-2.4.1"]:
+                if retrieval_algorithm in ["proffast-2.4", "proffast-2.4.1", "proffast-2.4.2"]:
                     for ch in ["ch1", "ch2"]:
                         for direction in ["fwd", "bwd"]:
                             for var in ["min", "max", "mean", "var"]:

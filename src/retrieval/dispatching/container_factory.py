@@ -70,6 +70,7 @@ class ContainerFactory:
             ("proffast-2.3", ContainerFactory.init_proffast23_code),
             ("proffast-2.4", ContainerFactory.init_proffast24_code),
             ("proffast-2.4.1", ContainerFactory.init_proffast241_code),
+            ("proffast-2.4.2", ContainerFactory.init_proffast242_code),
         ]:
             if (algorithm in retrieval_algorithms) or (mode != "normal"):
                 self.logger.info(f"Initializing {algorithm} ContainerFactory")
@@ -116,6 +117,11 @@ class ContainerFactory:
                 )
             case "proffast-2.4.1":
                 container = types.Proffast241Container(
+                    container_dir=self.container_dir,
+                    container_id=new_container_id,
+                )
+            case "proffast-2.4.2":
+                container = types.Proffast242Container(
                     container_dir=self.container_dir,
                     container_id=new_container_id,
                 )
@@ -442,3 +448,17 @@ class ContainerFactory:
         )
 
         _print("Proffast 2.4.1 is set up")
+
+    @staticmethod
+    def init_proffast242_code(
+        _print: Callable[[str], None], fast_compilation: bool = False
+    ) -> None:
+        ROOT_DIR = os.path.join(_RETRIEVAL_CODE_DIR, "proffast-2.4.2", "main")
+
+        _print("Compiling")
+        tum_esm_utils.shell.run_shell_command(
+            command="./install.sh -O0" if fast_compilation else "./install.sh",
+            working_directory=ROOT_DIR,
+        )
+
+        _print("Proffast 2.4.2 is set up")

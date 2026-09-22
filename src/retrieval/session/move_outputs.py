@@ -133,6 +133,7 @@ def run(
                 "proffast-2.3",
                 "proffast-2.4",
                 "proffast-2.4.1",
+                "proffast-2.4.2",
             ]:
                 os.makedirs(os.path.join(output_dst_tmp, "analysis", "cal"))
                 if os.path.isfile(os.path.join(analysis_dir, "cal", "logfile.dat")):
