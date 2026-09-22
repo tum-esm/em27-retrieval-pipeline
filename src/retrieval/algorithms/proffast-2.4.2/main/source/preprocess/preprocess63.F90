@@ -36,6 +36,10 @@ logical :: dateidadec,reftrmdec
 integer :: i,imeas,itest,iunit,iscan,narg,nifgeff,next_free_unit
 real :: dumnue,DCfwd,DCbwd,DCfwd2,DCbwd2,varfwd,varbwd,varfwd2,varbwd2,NLCfwd,NLCbwd,NLCfwd2,NLCbwd2 &
   ,norm,oobfwd,oobbwd,oobfwd2,oobbwd2
+real :: dc_ch1_fwd_mean,dc_ch1_fwd_min,dc_ch1_fwd_max,dc_ch1_fwd_var
+real :: dc_ch1_bwd_mean,dc_ch1_bwd_min,dc_ch1_bwd_max,dc_ch1_bwd_var
+real :: dc_ch2_fwd_mean,dc_ch2_fwd_min,dc_ch2_fwd_max,dc_ch2_fwd_var
+real :: dc_ch2_bwd_mean,dc_ch2_bwd_min,dc_ch2_bwd_max,dc_ch2_bwd_var
 character(len=300) :: inputdatei,logdatei,logdatei_test
 character(len=7) :: idchar,imeaschar
 character(len=4) :: argchar
@@ -234,14 +238,27 @@ close (iunit)
 ! Create header of output log file
 iunit = next_free_unit()
 open (iunit,file = logdatei,status = 'old',position = 'append')
-write (iunit,'(A7,A1,A12,A1,A12,3(A1,A9),6(A1,A6),2(A1,A8),4(A1,A8),3(A1,A6),A1,A8)') &
-  'imeas  ',',','errflag     ',',','errflag2    ',',','astrelev ',',','azimuth  ',',','UTh      ' &
-  ,',','cbfwd ',',','cbbwd ',',','cbfwd2',',','cbbwd2',',','DCraw ',',','DCraw2' &
-  ,',','varraw  ',',','varraw2 ',',','NLC     ',',','NLC2    ',',','oob     ',',','oob2    ' &
-  ,',','DATUTC',',','DATLOC',',','TIMLOC',',','measfile'
+call write_log_header(iunit)
 close (iunit)
 
 do imeas = 1,nmeas
+
+    dc_ch1_fwd_mean = 0.0
+    dc_ch1_fwd_min = 0.0
+    dc_ch1_fwd_max = 0.0
+    dc_ch1_fwd_var = 0.0
+    dc_ch1_bwd_mean = 0.0
+    dc_ch1_bwd_min = 0.0
+    dc_ch1_bwd_max = 0.0
+    dc_ch1_bwd_var = 0.0
+    dc_ch2_fwd_mean = 0.0
+    dc_ch2_fwd_min = 0.0
+    dc_ch2_fwd_max = 0.0
+    dc_ch2_fwd_var = 0.0
+    dc_ch2_bwd_mean = 0.0
+    dc_ch2_bwd_min = 0.0
+    dc_ch2_bwd_max = 0.0
+    dc_ch2_bwd_var = 0.0
 
     if (binoutpath(1:8) .eq. 'standard') then
         iscan = scan(measfile(imeas),pathstr,.true.)
@@ -250,6 +267,7 @@ do imeas = 1,nmeas
             logdatei = logdatei_test
             iunit = next_free_unit()
             open (iunit,file = logdatei,status = 'replace')
+            call write_log_header(iunit)
             close (iunit)
         end if
     end if
@@ -286,8 +304,12 @@ do imeas = 1,nmeas
     
     ! perform DC correction
     if (errflag(imeas) .eq. 0) then
-        call DCtoACifg(1,DCmin,DCvar,nifgeff,errflag(imeas),icbfwd(imeas),cbfwd(imeas),DCfwd,varfwd,NLCfwd,ifgfwd(1:nifgeff))
-        call DCtoACifg(1,DCmin,DCvar,nifgeff,errflag(imeas),icbbwd(imeas),cbbwd(imeas),DCbwd,varbwd,NLCbwd,ifgbwd(1:nifgeff))
+        call DCtoACifg(1,DCmin,DCvar,nifgeff,errflag(imeas),icbfwd(imeas),cbfwd(imeas) &
+          ,DCfwd,varfwd,NLCfwd,ifgfwd(1:nifgeff),dc_ch1_fwd_mean,dc_ch1_fwd_min,dc_ch1_fwd_max)
+        call DCtoACifg(1,DCmin,DCvar,nifgeff,errflag(imeas),icbbwd(imeas),cbbwd(imeas) &
+          ,DCbwd,varbwd,NLCbwd,ifgbwd(1:nifgeff),dc_ch1_bwd_mean,dc_ch1_bwd_min,dc_ch1_bwd_max)
+        if (dc_ch1_fwd_min .ne. 0.0) dc_ch1_fwd_var = dc_ch1_fwd_max / dc_ch1_fwd_min - 1.0
+        if (dc_ch1_bwd_min .ne. 0.0) dc_ch1_bwd_var = dc_ch1_bwd_max / dc_ch1_bwd_min - 1.0
         DCraw(imeas) = 0.5 * abs(DCfwd + DCbwd)
         varraw(imeas) = 0.5 * (varfwd + varbwd)
         NLC(imeas) = 0.5 * (NLCfwd + NLCbwd)
@@ -301,9 +323,11 @@ do imeas = 1,nmeas
 
         if (errflag_CO(imeas) .eq. 0 .and. bandselect .eq. 1) then
             call DCtoACifg(2,DCmin,DCvar,nifgeff,errflag_CO(imeas),icbfwd2(imeas),cbfwd2(imeas) &
-              ,DCfwd2,varfwd2,NLCfwd2,ifgfwd2(1:nifgeff))
+              ,DCfwd2,varfwd2,NLCfwd2,ifgfwd2(1:nifgeff),dc_ch2_fwd_mean,dc_ch2_fwd_min,dc_ch2_fwd_max)
             call DCtoACifg(2,DCmin,DCvar,nifgeff,errflag_CO(imeas),icbbwd2(imeas),cbbwd2(imeas) &
-              ,DCbwd2,varbwd2,NLCbwd2,ifgbwd2(1:nifgeff))
+              ,DCbwd2,varbwd2,NLCbwd2,ifgbwd2(1:nifgeff),dc_ch2_bwd_mean,dc_ch2_bwd_min,dc_ch2_bwd_max)
+            if (dc_ch2_fwd_min .ne. 0.0) dc_ch2_fwd_var = dc_ch2_fwd_max / dc_ch2_fwd_min - 1.0
+            if (dc_ch2_bwd_min .ne. 0.0) dc_ch2_bwd_var = dc_ch2_bwd_max / dc_ch2_bwd_min - 1.0
             DCraw2(imeas) = 0.5 * abs(DCfwd2 + DCbwd2)
             varraw2(imeas) = 0.5 * (varfwd2 + varbwd2)
             NLC2(imeas) = 0.5 * (NLCfwd2 + NLCbwd2)
@@ -512,11 +536,16 @@ do imeas = 1,nmeas
     iunit = next_free_unit()
     open (iunit,file = logdatei,status = 'old',position = 'append')
 
-    write (iunit,'(I7,A1,I12,A1,I12,A1,F9.5,A1,F9.4,A1,F9.4,6(A1,F6.4),2(A1,F8.6),4(A1,F8.6),3(A1,A6),A1,A)') &
+    write (iunit,'(I7,A1,I12,A1,I12,A1,F9.5,A1,F9.4,A1,F9.4,6(A1,F6.4),2(A1,F8.6),4(A1,F8.6),&
+      &3(A1,A6),A1,A,16(A1,F9.6))') &
       imeas,',',errflag(imeas),',',errflag_CO(imeas),',',astrelev(imeas),',',azimuth(imeas),',',UTh(imeas) &
       ,',',cbfwd(imeas),',',cbbwd(imeas),',',cbfwd2(imeas),',',cbbwd2(imeas),',',DCraw(imeas),',',DCraw2(imeas) &
       ,',',varraw(imeas),',',varraw2(imeas),',',NLC(imeas),',',NLC2(imeas),',',oob(imeas),',',oob2(imeas) &
-      ,',',YYMMDDUT(imeas),',',YYMMDDlocal(imeas),',',HHMMSSlocal(imeas),',',trim(measfile(imeas))
+      ,',',YYMMDDUT(imeas),',',YYMMDDlocal(imeas),',',HHMMSSlocal(imeas),',',trim(measfile(imeas)) &
+      ,',',dc_ch1_fwd_mean,',',dc_ch1_fwd_min,',',dc_ch1_fwd_max,',',dc_ch1_fwd_var &
+      ,',',dc_ch1_bwd_mean,',',dc_ch1_bwd_min,',',dc_ch1_bwd_max,',',dc_ch1_bwd_var &
+      ,',',dc_ch2_fwd_mean,',',dc_ch2_fwd_min,',',dc_ch2_fwd_max,',',dc_ch2_fwd_var &
+      ,',',dc_ch2_bwd_mean,',',dc_ch2_bwd_min,',',dc_ch2_bwd_max,',',dc_ch2_bwd_var
     close (iunit)
 end do
 
@@ -549,6 +578,28 @@ deallocate (icbfwd,icbbwd,icbfwd2,icbbwd2)
 deallocate (errflag,errflag_CO)
 
 end program preprocess63
+
+
+
+!====================================================================
+!  write_log_header
+!====================================================================
+subroutine write_log_header(iunit)
+
+implicit none
+
+integer,intent(in) :: iunit
+
+write (iunit,'(A)') &
+  'imeas  ,errflag     ,errflag2    ,astrelev ,azimuth  ,UTh      ,' // &
+  'cbfwd ,cbbwd ,cbfwd2,cbbwd2,DCraw ,DCraw2,varraw  ,varraw2 ,NLC     ,NLC2    ,oob     ,oob2    ,' // &
+  'DATUTC,DATLOC,TIMLOC,measfile,' // &
+  'ch1fw_mean,ch1fw_min,ch1fw_max,ch1fw_var,' // &
+  'ch1bw_mean,ch1bw_min,ch1bw_max,ch1bw_var,' // &
+  'ch2fw_mean,ch2fw_min,ch2fw_max,ch2fw_var,' // &
+  'ch2bw_mean,ch2bw_min,ch2bw_max,ch2bw_var'
+
+end subroutine write_log_header
 
 
 
@@ -1169,7 +1220,8 @@ end subroutine checkoutofband
 !====================================================================
 !  DCtoACifg: DC -> AC, find CB, optional: NLC
 !====================================================================
-subroutine DCtoACifg(ichan,DCmin,DCvar,nifg,errflag,icb,cbamp,mean,var,NLCval,ifg)
+subroutine DCtoACifg(ichan,DCmin,DCvar,nifg,errflag,icb,cbamp,mean,var,NLCval,ifg &
+  ,dc_mean_out,dc_min_out,dc_max_out)
 
 use glob_prepro63,only : maxifg,nphaspts,NLCdec
 
@@ -1186,6 +1238,7 @@ integer(8),intent(inout) :: errflag
 integer,intent(out) :: icb
 real,intent(out) :: cbamp,mean,var,NLCval
 real,dimension(maxifg),intent(inout) :: ifg
+real,intent(out) :: dc_mean_out,dc_min_out,dc_max_out
 
 integer :: i,ismooth,iiter,nfitdip
 real :: cbmean,kwcbmean,wert,werta,wertb,minwert,maxwert,suma,sumb,xein,yaus,yval,slope
@@ -1224,6 +1277,9 @@ do i = 2,nifg
 end do
 mean = mean / real(nifg)
 var = (maxwert - minwert + 1.0e-8) / (mean + 1.0e-8)
+dc_mean_out = mean
+dc_min_out = minwert
+dc_max_out = maxwert
 
 if (abs(mean) .lt. DCmin) then
     errflag = errflag + 10
