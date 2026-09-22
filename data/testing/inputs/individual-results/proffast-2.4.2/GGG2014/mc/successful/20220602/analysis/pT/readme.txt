@@ -1,0 +1,1 @@
+This folder is used by pcxs and invers to exchange files.

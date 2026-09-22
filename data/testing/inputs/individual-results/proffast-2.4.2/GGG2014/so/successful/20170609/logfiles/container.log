@@ -1,0 +1,201 @@
+20260922 22:58:19 - INFO - Starting session in container id objective-newton
+20260922 22:58:19 - INFO - Sensor so: from 2017-06-09 00:00:00 to 2017-06-09 23:59:59.999999
+20260922 22:58:19 - DEBUG - Session object: {
+    "retrieval_algorithm": "proffast-2.4.2",
+    "atmospheric_profile_model": "GGG2014",
+    "job_config": {
+        "retrieval_algorithm": "proffast-2.4.2",
+        "atmospheric_profile_model": "GGG2014",
+        "sensor_ids": [
+            "so"
+        ],
+        "from_date": "2017-06-09",
+        "to_date": "2026-09-21",
+        "store_binary_spectra": false,
+        "dc_min_threshold": 0.05,
+        "dc_var_threshold": 0.1,
+        "use_local_pressure_in_pcxs": true,
+        "use_ifg_corruption_filter": true,
+        "custom_ils": {},
+        "output_suffix": null,
+        "pressure_calibration_factors": {},
+        "pressure_calibration_offsets": {}
+    },
+    "ctx": {
+        "sensor_id": "so",
+        "serial_number": 39,
+        "from_datetime": "2017-06-09T00:00:00",
+        "to_datetime": "2017-06-09T23:59:59",
+        "location": {
+            "location_id": "SOD",
+            "details": "Sodankyla",
+            "lon": 26.63,
+            "lat": 67.366,
+            "alt_asl": 181.0
+        },
+        "utc_offset": 0.0,
+        "pressure_data_source": "so",
+        "atmospheric_profile_location": {
+            "location_id": "SOD",
+            "details": "Sodankyla",
+            "lon": 26.63,
+            "lat": 67.366,
+            "alt_asl": 181.0
+        }
+    },
+    "ctn": {
+        "container_dir": "/home/moritz-makowski/documents/em27/retrieval/dev/em27-retrieval-pipeline-joss/data/containers",
+        "container_id": "objective-newton"
+    }
+}
+20260922 22:58:19 - INFO - Established graceful teardown hook
+20260922 22:58:19 - DEBUG - Moving atmospheric profiles
+20260922 22:58:19 - DEBUG - Moving ground pressure files
+20260922 22:58:19 - DEBUG - Looking for files in /home/moritz-makowski/documents/em27/retrieval/dev/em27-retrieval-pipeline-joss/example/data/inputs/ground-pressure/so with regex ^ground-pressure-$(SENSOR_ID)-$(YYYY)-$(MM)-$(DD).csv$
+20260922 22:58:19 - DEBUG - Found 2 files in total
+20260922 22:58:19 - DEBUG - Found 2 files that match the regex
+20260922 22:58:19 - DEBUG - Found 1 files that match the regex on that date
+20260922 22:58:19 - DEBUG - Parsing file ground-pressure-so-2017-06-09.csv
+20260922 22:58:19 - DEBUG - Found 136 ground pressure records in total
+20260922 22:58:19 - DEBUG - Reduced to 136 records for the current day
+20260922 22:58:19 - DEBUG - Reduced to 136 records after binning in 1s intervals
+20260922 22:58:19 - DEBUG - Moving interferograms
+20260922 22:58:19 - DEBUG - used regex for ifg files: ^so20170609.*\.\d+$
+20260922 22:58:19 - DEBUG - 14 ifg files found in src directory (/home/moritz-makowski/documents/em27/retrieval/dev/em27-retrieval-pipeline-joss/example/data/inputs/interferograms/so/20170609)
+20260922 22:58:19 - INFO - Using ifg corruption filter
+20260922 22:58:19 - INFO - No corrupt files found
+20260922 22:58:19 - INFO - Updating retrieval templates
+20260922 22:58:19 - INFO - Computing mean pressure around solarnoon
+20260922 22:58:19 - DEBUG - Solar noon time: 10:12:44.487023 (UTC)
+20260922 22:58:19 - DEBUG - Found 136 pressure data points
+20260922 22:58:19 - DEBUG - Found 22 pressure data points around noon (+- 2h)
+20260922 22:58:19 - INFO - Writing values to templates: {'DC_MIN_THRESHOLD': '0.05', 'DC_VAR_THRESHOLD': '0.1', 'MEAN_PRESSURE_AT_NOON': '995.479'}
+20260922 22:58:19 - INFO - Running proffast
+20260922 22:59:28 - EXCEPTION - Proffast execution failed, tum_esm_utils.shell.CommandLineException: "command '/home/moritz-makowski/documents/em27/retrieval/dev/em27-retrieval-pipeline-joss/.venv/bin/python3 /home/moritz-makowski/documents/em27/retrieval/dev/em27-retrieval-pipeline-joss/src/retrieval/algorithms/proffast-2.4.2/run_pylot_container.py /home/moritz-makowski/documents/em27/retrieval/dev/em27-retrieval-pipeline-joss/data/containers objective-newton /home/moritz-makowski/documents/em27/retrieval/dev/em27-retrieval-pipeline-joss/data/containers/retrieval-container-objective-newton-inputs/pylot_config.yml' failed with exit code 1"
+--- details: -----------------
+stderr:
+/home/moritz-makowski/documents/em27/retrieval/dev/em27-retrieval-pipeline-joss/data/containers/retrieval-container-objective-newton/prfpylot/output/nc_cf_writer.py:351: SyntaxWarning: invalid escape sequence '\s'
+  path, sep="\s+",
+2026-09-22 22:58:20,019, DEBUG(prepare.py): Initialized logger with datetime 260922225820019132.
+2026-09-22 22:58:20,019, INFO(prepare.py): ++++ Welcome to PROFFASTpylot ++++
+Cite this software as
+
+Feld et al., (2024). PROFFASTpylot: Running PROFFAST with Python. Journal of Open Source Software, 9(96), 6481, https://doi.org/10.21105/joss.06481
+
+2026-09-22 22:58:20,019, DEBUG(prepare.py): Start reading input file...
+2026-09-22 22:58:20,022, DEBUG(prepare.py): mapfile_wetair_vmr was set to default value: None.
+2026-09-22 22:58:20,022, DEBUG(prepare.py): custom_mapfile was set to default value: None.
+2026-09-22 22:58:20,022, DEBUG(prepare.py): use_measured_pressure_for_pcxs was set to default value: False.
+2026-09-22 22:58:20,022, DEBUG(prepare.py): coord_file was set to default value: None.
+2026-09-22 22:58:20,022, DEBUG(prepare.py): note was set to default value: None.
+2026-09-22 22:58:20,022, DEBUG(prepare.py): delete_spc_files was set to default value: True.
+2026-09-22 22:58:20,022, DEBUG(prepare.py): ils_parameters was set to default value: None.
+2026-09-22 22:58:20,022, DEBUG(prepare.py): backup_results was set to default value: True.
+2026-09-22 22:58:20,022, DEBUG(prepare.py): igram_pattern was set to default value: *.*.
+2026-09-22 22:58:20,022, DEBUG(prepare.py): instrument_parameters was set to default value: em27.
+2026-09-22 22:58:20,022, DEBUG(prepare.py): coord_type_file was set to default value: None.
+2026-09-22 22:58:20,022, DEBUG(prepare.py): geomsgen_inputfile was set to default value: None.
+2026-09-22 22:58:20,024, DEBUG(prepare.py): Searching for all interferogram folders ...
+2026-09-22 22:58:20,025, DEBUG(prepare.py): The following dates were found at /home/moritz-makowski/documents/em27/retrieval/dev/em27-retrieval-pipeline-joss/data/containers/retrieval-container-objective-newton-inputs/ifg: 17-06-09
+2026-09-22 22:58:20,025, INFO(prepare.py): Run information:
+Retrieval for Instrument SN039 at so with time offset 0.0.
+The following dates will be processed:
+2017-06-09.
+
+2026-09-22 22:58:20,028, DEBUG(auxiliary.py): The parameter max_interpolation_time was set to the default value: 2.
+2026-09-22 22:58:21,396, DEBUG(prepare.py): Finished reading of input file.
+2026-09-22 22:58:21,397, DEBUG(filemover.py): Created the subdirs in the result folder.
+2026-09-22 22:58:21,397, DEBUG(filemover.py): Logfile was moved and relinked to the logger
+2026-09-22 22:58:21,397, DEBUG(pylot.py): Initialized the FileMover
+2026-09-22 22:58:21,471, INFO(pylot.py): Running preprocess with 1 task(s) ...
+2026-09-22 22:58:21,472, DEBUG(prepare.py): Generating preprocess inp file for 170609..
+2026-09-22 22:58:21,472, DEBUG(prepare.py): Load ILS parameters from file.
+2026-09-22 22:58:21,494, DEBUG(prepare.py): No interferogram was skipped because of its filesize at 2017-06-09.
+2026-09-22 22:58:26,551, DEBUG(pylot.py): ... Write logfile of preprocess ...
+2026-09-22 22:58:26,551, INFO(pylot.py): Finished preprocessing.
+
+2026-09-22 22:58:26,551, INFO(pylot.py): Running pcxs with 1 task(s) ...
+2026-09-22 22:58:26,552, DEBUG(pylot.py): Get localdate spectra...
+2026-09-22 22:58:26,569, WARNING(prepare.py): Detected GGG2014 map file, at day 2017-06-09. This is not recommended! PROFFASTpylot is calibrated using GGG2020 map files, please use GGG2014 only for comparison purposes!
+2026-09-22 22:58:26,569, DEBUG(prepare.py): Create pcxs input parameters ...
+2026-09-22 22:58:26,569, DEBUG(prepare.py): Generating pcxs24 inp file for 170609..
+2026-09-22 22:59:25,699, DEBUG(pylot.py): ... Write logfile of pcxs ...
+2026-09-22 22:59:25,699, INFO(pylot.py): Finished pcxs.
+
+2026-09-22 22:59:25,699, INFO(pylot.py): Running invers with 1 task(s) ...
+2026-09-22 22:59:25,699, DEBUG(auxiliary.py): Execute prepare_pressure_df()...
+2026-09-22 22:59:25,700, DEBUG(auxiliary.py): Read in file /home/moritz-makowski/documents/em27/retrieval/dev/em27-retrieval-pipeline-joss/data/containers/retrieval-container-objective-newton-inputs/log/ground-pressure-so-20170609.csv
+2026-09-22 22:59:25,717, DEBUG(auxiliary.py): Created pressure DataFrame:
+
+# start of self.p_df #
+      parsed_datetime  pressure
+0 2017-06-09 00:10:00    997.02
+1 2017-06-09 00:20:00    997.12
+2 2017-06-09 00:30:00    997.12
+3 2017-06-09 00:40:00    997.22
+4 2017-06-09 00:50:00    997.22
+
+2026-09-22 22:59:25,717, DEBUG(prepare.py): Generating invers28 inp file for 170609..
+2026-09-22 22:59:27,064, DEBUG(pylot.py): ... Write logfile of inv ...
+2026-09-22 22:59:27,064, DEBUG(pylot.py): Write ot ILS file.
+2026-09-22 22:59:27,069, INFO(pylot.py): Finished invers.
+
+2026-09-22 22:59:27,069, DEBUG(pylot.py): Moving results to final output folder ...
+/home/moritz-makowski/documents/em27/retrieval/dev/em27-retrieval-pipeline-joss/data/containers/retrieval-container-objective-newton/prfpylot/pylot.py:510: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["UTC"] = pd.to_datetime(
+/home/moritz-makowski/documents/em27/retrieval/dev/em27-retrieval-pipeline-joss/data/containers/retrieval-container-objective-newton/prfpylot/pylot.py:518: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["LocalTime"] = df["UTC"].dt.tz_convert(local_tz)
+2026-09-22 22:59:27,770, INFO(pylot.py): Removing temporary files ...
+2026-09-22 22:59:27,770, DEBUG(pylot.py): Handling pT and VMR files...
+2026-09-22 22:59:27,770, DEBUG(pylot.py): Deleting abscos.bin files ...
+2026-09-22 22:59:27,831, DEBUG(pylot.py): Moving input files ...
+2026-09-22 22:59:27,831, DEBUG(filemover.py): Copying the PROFFASTpylot input_file /home/moritz-makowski/documents/em27/retrieval/dev/em27-retrieval-pipeline-joss/data/containers/retrieval-container-objective-newton-inputs/pylot_config.yml to /home/moritz-makowski/documents/em27/retrieval/dev/em27-retrieval-pipeline-joss/data/containers/retrieval-container-objective-newton-outputs/so_SN039_170609-170609
+2026-09-22 22:59:27,831, INFO(pylot.py): Done.
+
+/home/moritz-makowski/documents/em27/retrieval/dev/em27-retrieval-pipeline-joss/data/containers/retrieval-container-objective-newton/prfpylot/output/nc_cf_writer.py:131: FutureWarning: dropping variables using `drop` is deprecated; use drop_vars.
+  ds = ds.drop(["LocalTime"])
+Traceback (most recent call last):
+  File "/home/moritz-makowski/documents/em27/retrieval/dev/em27-retrieval-pipeline-joss/src/retrieval/algorithms/proffast-2.4.2/run_pylot_container.py", line 34, in <module>
+    pylot.Pylot(pylot_config_path, logginglevel="debug").run(n_processes=1)
+  File "/home/moritz-makowski/documents/em27/retrieval/dev/em27-retrieval-pipeline-joss/data/containers/retrieval-container-objective-newton/prfpylot/pylot.py", line 72, in run
+    cf_writer.write_nc()
+  File "/home/moritz-makowski/documents/em27/retrieval/dev/em27-retrieval-pipeline-joss/data/containers/retrieval-container-objective-newton/prfpylot/output/nc_cf_writer.py", line 94, in write_nc
+    ds = self.create_dataset()
+         ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/moritz-makowski/documents/em27/retrieval/dev/em27-retrieval-pipeline-joss/data/containers/retrieval-container-objective-newton/prfpylot/output/nc_cf_writer.py", line 134, in create_dataset
+    ds = self.scale_columns(ds)
+         ^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/moritz-makowski/documents/em27/retrieval/dev/em27-retrieval-pipeline-joss/data/containers/retrieval-container-objective-newton/prfpylot/output/nc_cf_writer.py", line 164, in scale_columns
+    ds[key] *= scaling_factor
+  File "/home/moritz-makowski/documents/em27/retrieval/dev/em27-retrieval-pipeline-joss/.venv/lib/python3.12/site-packages/xarray/core/_typed_ops.py", line 778, in __imul__
+    return self._inplace_binary_op(other, operator.imul)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/moritz-makowski/documents/em27/retrieval/dev/em27-retrieval-pipeline-joss/.venv/lib/python3.12/site-packages/xarray/core/dataarray.py", line 4954, in _inplace_binary_op
+    f(self.variable, other_variable)
+  File "/home/moritz-makowski/documents/em27/retrieval/dev/em27-retrieval-pipeline-joss/.venv/lib/python3.12/site-packages/xarray/core/_typed_ops.py", line 1206, in __imul__
+    return self._inplace_binary_op(other, operator.imul)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/moritz-makowski/documents/em27/retrieval/dev/em27-retrieval-pipeline-joss/.venv/lib/python3.12/site-packages/xarray/core/variable.py", line 2479, in _inplace_binary_op
+    self.values = f(self_data, other_data)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^
+ValueError: output array is read-only
+/home/moritz-makowski/documents/em27/retrieval/dev/em27-retrieval-pipeline-joss/.venv/lib/python3.12/site-packages/coverage/control.py:967: CoverageWarning: No data was collected. (no-data-collected); see https://coverage.readthedocs.io/en/7.16.0/messages.html#warning-no-data-collected
+  self._warn("No data was collected.", slug="no-data-collected")
+stdout:
+executing in container_id "objective-newton" at container_path "/home/moritz-makowski/documents/em27/retrieval/dev/em27-retrieval-pipeline-joss/data/containers/retrieval-container-objective-newton" and pylot_config_path "/home/moritz-makowski/documents/em27/retrieval/dev/em27-retrieval-pipeline-joss/data/containers/retrieval-container-objective-newton-inputs/pylot_config.yml".
+--- traceback: ---------------
+Traceback (most recent call last):
+
+  File "/home/moritz-makowski/documents/em27/retrieval/dev/em27-retrieval-pipeline-joss/src/retrieval/session/process_session.py", line 75, in run
+    run_retrieval.run(session, test_mode=test_mode)
+
+  File "/home/moritz-makowski/documents/em27/retrieval/dev/em27-retrieval-pipeline-joss/src/retrieval/session/run_retrieval.py", line 28, in run
+    tum_esm_utils.shell.run_shell_command(
+
+  File "/home/moritz-makowski/documents/em27/retrieval/dev/em27-retrieval-pipeline-joss/.venv/lib/python3.12/site-packages/tum_esm_utils/shell.py", line 62, in run_shell_command
+    raise CommandLineException(
+
+tum_esm_utils.shell.CommandLineException: "command '/home/moritz-makowski/documents/em27/retrieval/dev/em27-retrieval-pipeline-joss/.venv/bin/python3 /home/moritz-makowski/documents/em27/retrieval/dev/em27-retrieval-pipeline-joss/src/retrieval/algorithms/proffast-2.4.2/run_pylot_container.py /home/moritz-makowski/documents/em27/retrieval/dev/em27-retrieval-pipeline-joss/data/containers objective-newton /home/moritz-makowski/documents/em27/retrieval/dev/em27-retrieval-pipeline-joss/data/containers/retrieval-container-objective-newton-inputs/pylot_config.yml' failed with exit code 1"
+------------------------------
+20260922 22:59:28 - INFO - Moving the outputs
+20260922 22:59:28 - DEBUG - Retrieval output csv exists

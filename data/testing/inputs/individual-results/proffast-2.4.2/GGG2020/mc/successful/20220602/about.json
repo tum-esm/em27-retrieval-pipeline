@@ -1,0 +1,153 @@
+{
+    "automationVersion": "1.11.1",
+    "automationCommitSha": "2a0e634",
+    "generationTime": "2026-09-22T22:59:27+0000",
+    "config": {
+        "data": {
+            "atmospheric_profiles": {
+                "path": "/home/moritz-makowski/documents/em27/retrieval/dev/em27-retrieval-pipeline-joss/example/data/inputs/atmospheric-profiles"
+            },
+            "ground_pressure": {
+                "path": "/home/moritz-makowski/documents/em27/retrieval/dev/em27-retrieval-pipeline-joss/example/data/inputs/ground-pressure",
+                "file_regex": "^ground-pressure-$(SENSOR_ID)-$(YYYY)-$(MM)-$(DD).csv$",
+                "separator": ",",
+                "datetime_column": null,
+                "datetime_column_format": null,
+                "date_column": "utc-date",
+                "date_column_format": "%Y-%m-%d",
+                "time_column": "utc-time",
+                "time_column_format": "%H:%M:%S",
+                "unix_timestamp_column": null,
+                "unix_timestamp_column_format": null,
+                "pressure_column": "pressure",
+                "pressure_column_format": "hPa"
+            },
+            "interferograms": {
+                "path": "/home/moritz-makowski/documents/em27/retrieval/dev/em27-retrieval-pipeline-joss/example/data/inputs/interferograms",
+                "ifg_file_regex": "^$(SENSOR_ID)$(DATE).*\\.\\d+$"
+            },
+            "results": {
+                "path": "/home/moritz-makowski/documents/em27/retrieval/dev/em27-retrieval-pipeline-joss/data/testing/outputs/individual-results"
+            }
+        },
+        "metadata": {
+            "source": "local",
+            "github_repository": null,
+            "github_access_token": null
+        },
+        "retrieval": {
+            "general": {
+                "max_process_count": 9,
+                "queue_verbosity": "compact",
+                "container_dir": null
+            },
+            "jobs": {
+                "0": {
+                    "retrieval_algorithm": "proffast-1.0",
+                    "atmospheric_profile_model": "GGG2014",
+                    "sensor_ids": [
+                        "ma",
+                        "mb",
+                        "mc",
+                        "md",
+                        "me"
+                    ],
+                    "from_date": "2019-01-01",
+                    "to_date": "2022-12-31",
+                    "store_binary_spectra": true,
+                    "dc_min_threshold": 0.05,
+                    "dc_var_threshold": 0.1,
+                    "use_local_pressure_in_pcxs": true,
+                    "use_ifg_corruption_filter": false,
+                    "custom_ils": {
+                        "ma": {
+                            "channel1_me": 0.9892,
+                            "channel1_pe": -0.001082,
+                            "channel2_me": 0.9892,
+                            "channel2_pe": -0.001082
+                        },
+                        "mb": {
+                            "channel1_me": 0.9893,
+                            "channel1_pe": -0.001083,
+                            "channel2_me": 0.9893,
+                            "channel2_pe": -0.001083
+                        }
+                    },
+                    "output_suffix": null,
+                    "pressure_calibration_factors": {},
+                    "pressure_calibration_offsets": {}
+                },
+                "1": {
+                    "retrieval_algorithm": "proffast-2.4",
+                    "atmospheric_profile_model": "GGG2020",
+                    "sensor_ids": [
+                        "ma",
+                        "mb",
+                        "mc",
+                        "md",
+                        "me"
+                    ],
+                    "from_date": "2019-01-01",
+                    "to_date": "2099-12-31",
+                    "store_binary_spectra": false,
+                    "dc_min_threshold": 0.05,
+                    "dc_var_threshold": 0.1,
+                    "use_local_pressure_in_pcxs": false,
+                    "use_ifg_corruption_filter": true,
+                    "custom_ils": {},
+                    "output_suffix": null,
+                    "pressure_calibration_factors": {},
+                    "pressure_calibration_offsets": {}
+                }
+            }
+        }
+    },
+    "session": {
+        "retrieval_algorithm": "proffast-2.4.2",
+        "atmospheric_profile_model": "GGG2020",
+        "job_config": {
+            "retrieval_algorithm": "proffast-2.4.2",
+            "atmospheric_profile_model": "GGG2020",
+            "sensor_ids": [
+                "mc"
+            ],
+            "from_date": "2022-06-02",
+            "to_date": "2026-09-21",
+            "store_binary_spectra": false,
+            "dc_min_threshold": 0.05,
+            "dc_var_threshold": 0.1,
+            "use_local_pressure_in_pcxs": false,
+            "use_ifg_corruption_filter": true,
+            "custom_ils": {},
+            "output_suffix": null,
+            "pressure_calibration_factors": {},
+            "pressure_calibration_offsets": {}
+        },
+        "ctx": {
+            "sensor_id": "mc",
+            "serial_number": 115,
+            "from_datetime": "2022-06-02T00:00:00",
+            "to_datetime": "2022-06-02T23:59:59",
+            "location": {
+                "location_id": "ZEN",
+                "details": "Zentralfriedhof",
+                "lon": 16.438481,
+                "lat": 48.147699,
+                "alt_asl": 180.0
+            },
+            "utc_offset": 0.0,
+            "pressure_data_source": "mc",
+            "atmospheric_profile_location": {
+                "location_id": "ZEN",
+                "details": "Zentralfriedhof",
+                "lon": 16.438481,
+                "lat": 48.147699,
+                "alt_asl": 180.0
+            }
+        },
+        "ctn": {
+            "container_dir": "/home/moritz-makowski/documents/em27/retrieval/dev/em27-retrieval-pipeline-joss/data/containers",
+            "container_id": "sharp-hawking"
+        }
+    }
+}
