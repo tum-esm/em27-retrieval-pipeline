@@ -15,6 +15,7 @@ dev
 !.env.example
 dist
 src/em27_metadata/sample_data/json/*.toml
+proffast-2.4.2
 
 data/**/*.map
 data/**/*.mod
