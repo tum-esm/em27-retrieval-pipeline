@@ -96,7 +96,7 @@ def generate_geoms_file(
 
     # determine filename
     start_stop_times = geoms_times_to_datetime([
-        np.round((pl_df["JulianDate"].min() - 2451544.5) * 86400.0),  # type: ignore# type: ignore
+        np.round((pl_df["JulianDate"].min() - 2451544.5) * 86400.0),  # type: ignore
         np.round((pl_df["JulianDate"].max() - 2451544.5) * 86400.0),  # type: ignore
     ])
     data_from_dt: datetime.datetime = start_stop_times[0]
