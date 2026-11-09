@@ -35,13 +35,13 @@
   url = {https://github.com/pytest-dev/pytest},
 }
 @software{tumesmutils,
-  author = {Makowski, Moritz and Klappenbach, Friedrich and Chen, Jia},
+  author = {Oliveira Makowski, Moritz and Klappenbach, Friedrich and Chen, Jia},
   doi = {10.5281/zenodo.14284949},
   license = {["gpl-3.0-or-later"]},
-  month = jan,
+  month = jun,
   title = {{TUM ESM Python Utilities}},
-  version = {2.6.0},
-  year = {2025}
+  version = {2.12.2},
+  year = {2026}
 }
 
 % proffast
@@ -75,12 +75,12 @@
 }
 @url{Hase2023,
   title = {{COCCON} {Data} {Processing}},
-  url = {https://www.coccon.kit.edu/english/3225.php},
+  url = {https://www.coccon.kit.edu/69.php},
   language = {en-gb},
-  urldate = {2023-05-16},
+  urldate = {2026-11-03},
   author = {Hase, Frank},
   month = may,
-  year = {2023},
+  year = {2026},
 }
 @article{Feld2024,
   title = {PROFFASTpylot: Running PROFFAST with Python},
@@ -127,18 +127,20 @@ spectra},
   month = oct,
   pages = {6483–6507}
 }
-@inproceedings{tccon,
-  author = {Toon, Geoffrey and Blavier, Jean-Francois and Washenfelder, Rebecca and Wunch, Debra and Keppel-Aleks, Gretchen and Wennberg, Paul and Connor, Brian and Sherlock, Vanessa and Griffith, David and Deutscher, Nick and Notholt, Justus},
-  booktitle = {Advances in Imaging},
-  journal = {Advances in Imaging},
-  keywords = {Atmospheric and oceanic optics ; Atmospheric composition; Instrumentation, measurement, and metrology; Remote sensing and sensors ; Atmospheric observation; Fourier transform spectroscopy; Mass spectrometry; Optical constants; Pressure measurement; Surface measurements},
-  pages = {JMA3},
-  publisher = {Optica Publishing Group},
-  title = {Total Column Carbon Observing Network (TCCON)},
-  year = {2009},
-  url = {https://opg.optica.org/abstract.cfm?URI=FTS-2009-JMA3},
-  doi = {10.1364/FTS.2009.JMA3},
-  abstract = {A network of ground-based, sun-viewing, near-IR, Fourier transform spectrometers has been established to accurately measure atmospheric greenhouse gases such as CO2, CO, N2O, and CH4.},
+@article{Wunch2011TotalCarbonColumn,
+  title = {The {{Total Carbon Column Observing Network}}},
+  author = {Wunch, Debra and Toon, Geoffrey C. and Blavier, Jean-Fran{\c c}ois L. and Washenfelder, Rebecca A. and Notholt, Justus and Connor, Brian J. and Griffith, David W. T. and Sherlock, Vanessa and Wennberg, Paul O.},
+  year = 2011,
+  month = may,
+  journal = {Philosophical Transactions of the Royal Society A: Mathematical, Physical and Engineering Sciences},
+  volume = {369},
+  number = {1943},
+  pages = {2087--2112},
+  issn = {1364-503X, 1471-2962},
+  doi = {10.1098/rsta.2010.0240},
+  url = {http://royalsocietypublishing.org/rsta/article/369/1943/2087-2112/114370},
+  urldate = {2026-06-03},
+  langid = {english}
 }
 @article{Laughner2024,
   title = {The Total Carbon Column Observing Network’s  GGG2020 data version},
@@ -154,10 +156,14 @@ spectra},
   month = may,
   pages = {2197–2260}
 }
-@article{Wunch2015,
-  title = {The Total Carbon Column Observing Network’s GGG2014 data version, Pasadena, California},
-  author = {Wunch, Debra and Toon, Geoffrey C. and Sherlock, Vanessa and Deutscher, Nicholas M. and Liu, C. and Feist, D. G. and Wennberg, Paul O.},
-  year = {2015},
+@book{Wunch2015,
+  title={Documentation for the 2014 TCCON Data Release},
+  doi={10.14291/TCCON.GGG2014.DOCUMENTATION.R0/1221662},
+  abstractNote={The Total Carbon Column Observing Network (TCCON) is a network of ground-based Fourier Transform Spectrometers that record direct solar absorption spectra of the atmosphere in the near-infrared. From these spectra, accurate and precise column-averaged abundances of atmospheric constituents including CO2, CH4, N2O, HF, CO, H2O, and HDO, are retrieved. This is documentation for the 2014 TCCON Data Release.}, institution={CaltechDATA},
+  author={Wunch, Debra and Toon, Geoffrey C and Sherlock, Vanessa and Deutscher, Nicholas M and Liu, Cate and Feist, Dietrich G and Wennberg, Paul O},
+  year={2015},
+  month=oct,
+  language={eng}
 }
 
 % em27
@@ -247,7 +253,7 @@ spectra},
 @misc{Laughner2021,
   doi = {10.22002/D1.1944},
   url = {https://data.caltech.edu/records/1944},
-  author = {Laughner, Joshua and Andrews, Arlyn and Roche, Sébastien and Kiel, Matthäus and Toon, Geoffrey},
+  author = {Laughner, Joshua L. and Andrews, Arlyn and Roche, Sébastien and Kiel, Matthäus and Toon, Geoffrey},
   keywords = {TCCON, GHG, prior},
   language = {en},
   title = {ginput v1.0.10: GGG2020 prior profile software},
@@ -371,7 +377,7 @@ Software},
   number = {12},
   journal = {Atmospheric Measurement Techniques},
   publisher = {Copernicus GmbH},
-  author = {Klappenbach,  F. and Bertleff,  M. and Kostinek,  J. and Hase,  F. and Blumenstock,  T. and Agusti-Panareda,  A. and Razinger,  M. and Butz,  A.},
+  author = {Klappenbach, Friedrich and Bertleff, Marco and Kostinek, Julian and Hase, Frank and Blumenstock, Thomas and Agusti-Panareda, Anna and Razinger, Miha and Butz, André},
   year = {2015},
   month = dec,
   pages = {5023–5038}
@@ -494,16 +500,6 @@ Software},
 }
 
 % datasets
-@misc{Makowski2023CarbonPortal,
-  doi = {10.18160/RKFP-D18C},
-  url = {https://doi.org/10.18160/RKFP-D18C},
-  author = {Makowski, Moritz and Chen, Jia and Luther, Andreas and Bettinelli, Juan and Li, Junwei and Kürzinger, Klaus},
-  keywords = {EM27/SUN, XCO2, XCO, Urban, MUCCnet, Munich, ICOS Cities PAUL, COCCON},
-  title = {ICOS Cities Total Column CO2/CO observations using EM27/SUN FTIR Spectrometers at 5 locations in Munich, Germany (2022-12-01 - 2023-11-30, Level 1)},
-  publisher = {ICOS ERIC -- Carbon Portal},
-  year = {2023},
-  copyright = {ICOS CCBY4 Data Licence}
-}
 @misc{Makowski2024CarbonPortal,
   doi = {10.18160/F19D-DN79},
   url = {https://doi.org/10.18160/F19D-DN79},
@@ -572,15 +568,19 @@ Software},
   year = {2023},
   month = apr 
 }
-@article{Klappenbach2024,
-  title = {Novel source localization method from observed peak emissions in time series using LPDM transfer functions},
-  url = {http://dx.doi.org/10.5194/egusphere-egu24-9044},
-  DOI = {10.5194/egusphere-egu24-9044},
-  publisher = {Copernicus GmbH},
-  author = {Klappenbach, Friedrich and Chen, Jia and Cohen, Ronald C. and Franklin, Jonathan and Jones, Taylor and Makowski, Moritz and Wofsy, Steven},
-  year = {2024},
-  month = apr 
+@misc{Klappenbach2026NovelMethodLocatea,
+  title = {Novel Method to Locate and Quantify Point-Source Methane Emissions Using Time Series of Ground-Based Column Observations},
+  author = {Klappenbach, Friedrich and Chen, Jia and Makowski, Moritz and Luther, Andreas and Cohen, Ronald C. and Franklin, Jonathan E. and Wofsy, Steven and Jones, Taylor},
+  year = 2026,
+  month = jan,
+  publisher = {{Gases/Remote Sensing/Data Processing and Information Retrieval}},
+  doi = {10.5194/egusphere-2026-204},
+  url = {https://egusphere.copernicus.org/preprints/2026/egusphere-2026-204/},
+  urldate = {2026-11-09},
+  archiveprefix = {Gases/Remote Sensing/Data Processing and Information Retrieval},
+  copyright = {https://creativecommons.org/licenses/by/4.0/}
 }
+
 @inproceedings{Chen2024,
 	author = {Chen, Jia and Makowski, Moritz and Klappenbach, Friedrich and Luther, Andreas and Balamurugan, Vigneshkumar and Stauber, Josef and Dietrich, Florian},
 	title = {Multi-Year Urban Total Column Network Observations – Challenges and Insights of Using MUCCnet for Emission Estimates},
