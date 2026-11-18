@@ -1,43 +1,91 @@
-title: EM27 Retrieval Pipeline
-abstract: Automated EM27 data processing
+title: "EM27 Retrieval Pipeline: Automated EM27/SUN Data Processing"
 authors:
   - affiliation: Technical University of Munich
     family-names: Oliveira Makowski
     given-names: Moritz
-    orcid: 0000-0002-2948-2993
+    orcid: "https://orcid.org/0000-0002-2948-2993"
   - affiliation: Karlsruhe Institute of Technology
     family-names: Hase
     given-names: Frank
   - affiliation: Technical University of Munich
     family-names: Klappenbach
     given-names: Friedrich
-    orcid: 0000-0001-9455-6496
+    orcid: "https://orcid.org/0000-0001-9455-6496"
   - affiliation: Technical University of Munich
     family-names: Luther
     given-names: Andreas
-    orcid: 0000-0001-6382-0899
+    orcid: "https://orcid.org/0000-0001-6382-0899"
   - affiliation: Karlsruhe Institute of Technology
     family-names: Feld
     given-names: Lena
-    orcid: 0009-0000-9955-7658
+    orcid: "https://orcid.org/0009-0000-9955-7658"
   - affiliation: Technical University of Munich
-    family-names: "M\xFCller"
+    family-names: Müller
     given-names: Marlon
-    orcid: 0009-0008-7689-0069
+    orcid: "https://orcid.org/0009-0008-7689-0069"
   - affiliation: Technical University of Munich
     family-names: Giridharan
     given-names: Vyas
+    orcid: "https://orcid.org/0009-0008-1728-9601"
   - affiliation: University of Helsinki
     family-names: Fait
     given-names: Catherine
   - affiliation: Technical University of Munich
     family-names: Chen
     given-names: Jia
-    orcid: 0000-0002-6350-6610
+    orcid: "https://orcid.org/0000-0002-6350-6610"
 cff-version: 1.2.0
-doi: 10.5281/zenodo.14284968
+doi: 10.5281/zenodo.24120854
 license:
   - gpl-3.0-or-later
 type: software
 version: 1.11.2
 date-released: "2026-11-10"
+contact:
+  - family-names: Oliveira Makowski
+    given-names: Moritz
+    orcid: "https://orcid.org/0000-0002-2948-2993"
+  - family-names: Chen
+    given-names: Jia
+    orcid: "https://orcid.org/0000-0002-6350-6610"
+message: If you use this software, please cite our article in the
+  Journal of Open Source Software.
+preferred-citation:
+  authors:
+    - family-names: Oliveira Makowski
+      given-names: Moritz
+      orcid: "https://orcid.org/0000-0002-2948-2993"
+    - family-names: Hase
+      given-names: Frank
+    - family-names: Klappenbach
+      given-names: Friedrich
+      orcid: "https://orcid.org/0000-0001-9455-6496"
+    - family-names: Luther
+      given-names: Andreas
+      orcid: "https://orcid.org/0000-0001-6382-0899"
+    - family-names: Feld
+      given-names: Lena
+      orcid: "https://orcid.org/0009-0000-9955-7658"
+    - family-names: Müller
+      given-names: Marlon
+      orcid: "https://orcid.org/0009-0008-7689-0069"
+    - family-names: Giridharan
+      given-names: Vyas
+      orcid: "https://orcid.org/0009-0008-1728-9601"
+    - family-names: Fait
+      given-names: Catherine
+    - family-names: Chen
+      given-names: Jia
+      orcid: "https://orcid.org/0000-0002-6350-6610"
+  date-published: 2026-11-18
+  doi: 10.21105/joss.10413
+  issn: 2475-9066
+  issue: 127
+  journal: Journal of Open Source Software
+  publisher:
+    name: Open Journals
+  start: 10413
+  title: "EM27 Retrieval Pipeline: Automated EM27/SUN Data Processing"
+  type: article
+  url: "https://joss.theoj.org/papers/10.21105/joss.10413"
+  volume: 11
