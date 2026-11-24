@@ -112,7 +112,7 @@ def run(
                     progress = tqdm.tqdm(timed_results, dynamic_ncols=True, desc="    ...")
                     for result in progress:
                         progress.desc = f"    {result}"
-                        progress.refresh()
+                        progress.refresh()  # type: ignore
                         df = load_results_directory(
                             os.path.join(d, result),
                             sensor_id,

@@ -1,6 +1,6 @@
 [project]
 name = "em27-retrieval-pipeline"
-version = "1.11.2"
+version = "1.11.3"
 description = "automated EM27/SUN data processing"
 authors = [
     { name = "Moritz Oliveira Makowski", email = "moritz.makowski@tum.de" },
@@ -161,6 +161,7 @@ exclude = [
     "src/retrieval/algorithms/proffast-2.3/main/prfpylot",
     "src/retrieval/algorithms/proffast-2.4/main/prfpylot",
     "src/retrieval/algorithms/proffast-2.4.1/main/prfpylot",
+    "src/retrieval/algorithms/proffast-2.4.2/main/prfpylot",
     "dev",
     "docs",
     "build",
