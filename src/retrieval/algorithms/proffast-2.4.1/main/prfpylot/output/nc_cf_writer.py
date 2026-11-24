@@ -31,12 +31,17 @@ import prfpylot
 from prfpylot.prepare import TimeHandler
 import yaml
 import inspect
+import logging
+from contextlib import suppress
+from uuid import uuid4
 
 
 class NcWriter(object):
     """
     Create netcdf files from PROFFAST output following the cf conventions.
     """
+
+    logger = logging.getLogger(__name__)
     cftime_unit = "days since 1990-01-01 00:00:00"
     cftime_calendar = "standard"
     sza = [
@@ -54,21 +59,20 @@ class NcWriter(object):
         1.315,
         1.373,
         1.43,
-        1.484]
+        1.484,
+    ]
 
     def __init__(self, path_results):
         self.path_results = path_results
-        self.path_raw_output_proffast = os.path.join(
-            path_results, "raw_output_proffast")
+        self.path_raw_output_proffast = os.path.join(path_results, "raw_output_proffast")
 
-        path_proffastpylot_parameters = os.path.join(
-            path_results, "proffastpylot_parameters.yml")
+        path_proffastpylot_parameters = os.path.join(path_results, "proffastpylot_parameters.yml")
         with open(path_proffastpylot_parameters, "r") as f:
             proffastpylot_parameters = yaml.safe_load(f)
 
         self.utc_offset = proffastpylot_parameters.get("utc_offset")
         if self.utc_offset is None:
-            self.utc_offset = 0.
+            self.utc_offset = 0.0
 
         self.site_name = proffastpylot_parameters["site_name"]
         self.instrument_number = proffastpylot_parameters["instrument_number"]
@@ -76,17 +80,11 @@ class NcWriter(object):
         self.df_invparms = self.get_comb_invparms()
         self.coords = self.get_coords()
 
-        self.time_handler = TimeHandler(
-            coords=self.coords, utc_offset=self.utc_offset)
+        self.time_handler = TimeHandler(coords=self.coords, utc_offset=self.utc_offset)
 
     def get_output_filename(self):
         time_str = self.get_time_str()
-        filename = "_".join([
-            "COCCON",
-            self.site_name,
-            self.instrument_number,
-            time_str+".nc"
-        ])
+        filename = "_".join(["COCCON", self.site_name, self.instrument_number, time_str + ".nc"])
         return filename
 
     def write_nc(self, path=None):
@@ -96,16 +94,32 @@ class NcWriter(object):
 
         filename = self.get_output_filename()
         if path is None:
-            path = os.path.join(
-                self.path_results,
-                filename)
+            path = os.path.join(self.path_results, filename)
+        attempt_prefix = os.path.join(
+            os.path.dirname(os.path.abspath(path)), f"netcdf-attempt-{uuid4().hex}"
+        )
+        primary_path = f"{attempt_prefix}-primary.nc"
+        output_path = primary_path
         try:
-            ds.to_netcdf(path)
-        except RuntimeError:
             try:
-                ds.to_netcdf(path, engine="scipy")
-            except ModuleNotFoundError:
-                self.logger.warning("Could not write netCDF output.")
+                ds.to_netcdf(output_path)
+            except RuntimeError:
+                # A failed HDF5 close can leave the original file open until shutdown.
+                output_path = f"{attempt_prefix}-scipy.nc"
+                try:
+                    ds.to_netcdf(output_path, engine="scipy")
+                except ModuleNotFoundError:
+                    self.logger.warning(
+                        "Could not write netCDF output. Attempt file prefix: %s", attempt_prefix
+                    )
+                    return
+            os.replace(output_path, path)
+        except Exception:
+            self.logger.error("NetCDF attempt file prefix: %s", attempt_prefix)
+            raise
+        if output_path != primary_path:
+            with suppress(FileNotFoundError):
+                os.unlink(primary_path)
 
     def create_dataset(self):
         """Combine all proffast output in one ds.
@@ -128,7 +142,7 @@ class NcWriter(object):
 
         # replace secondary time columns
         ds = self.add_local_noon_column(ds)
-        ds = ds.drop(["LocalTime"])
+        ds = ds.drop_vars(["LocalTime"])
 
         # scale to SI units
         ds = self.scale_columns(ds)
@@ -144,24 +158,24 @@ class NcWriter(object):
         """Apply scaling factors to match SI units."""
 
         scaling_factors = {
-            'XH2O': 1e-6,
-            'XAIR': 1,
-            'XCO2': 1e-6,
-            'XCH4': 1e-6,
-            'XCO': 1e-6,
-            'H2O_prior': 1e-6,
-            'CO2_prior': 1e-6,
-            'CH4_prior': 1e-6,
-            'CO_prior': 1e-6,
-            'gndP': 100,
+            "XH2O": 1e-6,
+            "XAIR": 1,
+            "XCO2": 1e-6,
+            "XCH4": 1e-6,
+            "XCO": 1e-6,
+            "H2O_prior": 1e-6,
+            "CO2_prior": 1e-6,
+            "CH4_prior": 1e-6,
+            "CO_prior": 1e-6,
+            "gndP": 100,
         }
 
         # convert number content to mole content
         c = PhysicsConstants()
-        for col in ['H2O', 'CO2', 'CH4', 'CO']:
-            scaling_factors[col] = 1/c.N_a
+        for col in ["H2O", "CO2", "CH4", "CO"]:
+            scaling_factors[col] = 1 / c.N_a
         for key, scaling_factor in scaling_factors.items():
-            ds[key] *= scaling_factor
+            ds[key] = ds[key] * scaling_factor
 
         return ds
 
@@ -202,10 +216,10 @@ class NcWriter(object):
         }
 
         cftime_data = cftime.date2num(
-                    [t.to_pydatetime() for t in self.df_invparms.index],
-                    units=self.cftime_unit,
-                    calendar=self.cftime_calendar,
-                )
+            [t.to_pydatetime() for t in self.df_invparms.index],
+            units=self.cftime_unit,
+            calendar=self.cftime_calendar,
+        )
         cftime_data
         ds = ds.rename_dims({"UTC": "time"})
         ds = ds.rename_vars({"UTC": "time"})
@@ -216,7 +230,8 @@ class NcWriter(object):
     def modify_spectrum(self, ds):
         """Convert spectrum column to cf compatible string type."""
         ds["spectrum"] = xr.DataArray(
-            ds["spectrum"].values.astype('|S20'), dims={"time": ds["time"]})
+            ds["spectrum"].values.astype("|S20"), dims={"time": ds["time"]}
+        )
         return ds
 
     def add_local_noon_column(self, ds):
@@ -231,29 +246,21 @@ class NcWriter(object):
             local_noon.append(ln)
 
         ds["local_noon"] = xr.DataArray(
-            cftime.date2num(
-                local_noon,
-                units=self.cftime_unit,
-                calendar=self.cftime_calendar),
-            dims={"time": ds["time"]})
+            cftime.date2num(local_noon, units=self.cftime_unit, calendar=self.cftime_calendar),
+            dims={"time": ds["time"]},
+        )
         return ds
 
     def get_files_colsens(self):
         """Return filelist with all colsens files."""
-        search_str = os.path.join(
-            self.path_raw_output_proffast,
-            "*colsens.dat"
-        )
+        search_str = os.path.join(self.path_raw_output_proffast, "*colsens.dat")
 
         files_colsens = sorted(glob(search_str))
         return files_colsens
 
     def get_files_prior(self):
         """Return filelist with all prior (VMR_fast_out.dat) files."""
-        search_str = os.path.join(
-            self.path_raw_output_proffast,
-            "*VMR_fast_out.dat"
-        )
+        search_str = os.path.join(self.path_raw_output_proffast, "*VMR_fast_out.dat")
         files_prior = sorted(glob(search_str))
         return files_prior
 
@@ -264,10 +271,8 @@ class NcWriter(object):
             self.logger.error("The invparms file could not be determined.")
             raise RuntimeError("The invparms file could not be determined.")
         df = pd.read_csv(
-            files[0],
-            skipinitialspace=True,
-            delimiter=",",
-            parse_dates=["UTC", "LocalTime"])
+            files[0], skipinitialspace=True, delimiter=",", parse_dates=["UTC", "LocalTime"]
+        )
 
         # select relevant columns
         cols = [
@@ -306,36 +311,23 @@ class NcWriter(object):
         6: "N2O", 7: "CO", 8: "O2", 9: "HF"
         """
 
-        names = [
-            'Index',
-            'Altitude',
-            'H2O',
-            'HDO',
-            'CO2',
-            'CH4',
-            'N2O',
-            'CO',
-            'O2',
-            'HF']
+        names = ["Index", "Altitude", "H2O", "HDO", "CO2", "CH4", "N2O", "CO", "O2", "HF"]
         df = pd.read_csv(
             path,
             header=None,
             skipinitialspace=True,
             usecols=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
             names=names,
-            sep=' ',
-            engine='python')
+            sep=" ",
+            engine="python",
+        )
 
         return df
 
     def get_colsens_for(self, path, species):
         """Return the column sensitivities for a given species."""
 
-        header = [
-            'alt',
-            'p',
-            *self.sza
-            ]
+        header = ["alt", "p", *self.sza]
 
         header_values_for_dfs = {
             "H2O": 3,
@@ -348,11 +340,13 @@ class NcWriter(object):
         }
 
         df = pd.read_csv(
-            path, sep="\s+",
+            path,
+            sep="\\s+",
             skip_blank_lines=True,
             header=header_values_for_dfs[species],
             names=header,
-            nrows=49)
+            nrows=49,
+        )
         return df
 
     def get_prior_time(self, cf=True):
@@ -362,15 +356,15 @@ class NcWriter(object):
         time_prior = []
         for file in files_colsens:
             filename = os.path.basename(file)
-            local_date = dt.datetime.strptime(
-                filename[-18:-12], "%y%m%d").date()
+            local_date = dt.datetime.strptime(filename[-18:-12], "%y%m%d").date()
             local_date_utc = self.time_handler.get_local_noon_utc(local_date)
             time_prior.append(local_date_utc)
         if cf is False:
             return time_prior
 
         time_prior_cf = cftime.date2num(
-            time_prior, units=self.cftime_unit, calendar=self.cftime_calendar)
+            time_prior, units=self.cftime_unit, calendar=self.cftime_calendar
+        )
         return time_prior_cf
 
     def get_avk_dims(self):
@@ -395,9 +389,7 @@ class NcWriter(object):
                 list_colsens.append(colsens_array)
 
             avk_dims = self.get_avk_dims()
-            ds["X"+species+"_avk"] = xr.DataArray(
-                np.array(list_colsens),
-                dims=avk_dims)
+            ds["X" + species + "_avk"] = xr.DataArray(np.array(list_colsens), dims=avk_dims)
         return ds
 
     def get_prior_dims(self):
@@ -417,10 +409,7 @@ class NcWriter(object):
     def add_prior(self, ds):
         """Add prior variables to dataset."""
         files_prior = self.get_files_prior()
-        dict_priors = {
-            k: [] for k
-            in ['H2O', 'CO2', 'CH4', 'CO']
-        }
+        dict_priors = {k: [] for k in ["H2O", "CO2", "CH4", "CO"]}
         for file in files_prior:
             df_prior = self.get_prior(file)
             for key in dict_priors.keys():
@@ -429,8 +418,7 @@ class NcWriter(object):
 
         prior_dims = self.get_prior_dims()
         for key, prior_array in dict_priors.items():
-            ds[key+"_prior"] = xr.DataArray(
-                prior_array, dims=prior_dims)
+            ds[key + "_prior"] = xr.DataArray(prior_array, dims=prior_dims)
 
         return ds
 
@@ -438,18 +426,17 @@ class NcWriter(object):
         name_dict = {
             "latdeg": "lat",
             "londeg": "lon",
-            'gndP': "pres",
-            'gndT': "temp",
-            'altim': "height",
-            'appSZA': "sza",
+            "gndP": "pres",
+            "gndT": "temp",
+            "altim": "height",
+            "appSZA": "sza",
         }
         ds = ds.rename_vars(name_dict)
         return ds
 
     def add_global_attrs(self, ds):
         prfpylot_path = os.path.dirname(inspect.getsourcefile(prfpylot))
-        path_global_atts = os.path.join(
-            prfpylot_path, "output", "nc_cf_global_attrs.yml")
+        path_global_atts = os.path.join(prfpylot_path, "output", "nc_cf_global_attrs.yml")
         with open(path_global_atts, "r") as f:
             global_attrs = yaml.safe_load(f)
         ds.attrs = global_attrs
@@ -457,8 +444,7 @@ class NcWriter(object):
 
     def add_variable_attrs(self, ds):
         prfpylot_path = os.path.dirname(inspect.getsourcefile(prfpylot))
-        path_var_atts = os.path.join(
-            prfpylot_path, "output", "nc_cf_variable_attrs.yml")
+        path_var_atts = os.path.join(prfpylot_path, "output", "nc_cf_variable_attrs.yml")
         with open(path_var_atts, "r") as f:
             var_attrs = yaml.safe_load(f)
 
@@ -470,4 +456,5 @@ class NcWriter(object):
 
 class PhysicsConstants(object):
     """Class to store Physics constants."""
+
     N_a = 6.02214076e23

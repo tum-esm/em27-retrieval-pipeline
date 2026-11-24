@@ -31,7 +31,7 @@ import yaml
 import copy
 
 
-class AuxiliaryHandler():
+class AuxiliaryHandler:
     """Parent class for reading, interpolating and averaging auxiliary data."""
 
     mandatory_options = [
@@ -40,19 +40,11 @@ class AuxiliaryHandler():
         "data_parameters",
     ]
 
-    default_options = {
-        "utc_offset": 0.0
-    }
+    default_options = {"utc_offset": 0.0}
 
     parsed_dtcol = "parsed_datetime"
 
-    def __init__(
-            self,
-            description_file,
-            data_path,
-            dates,
-            logger):
-
+    def __init__(self, description_file, data_path, dates, logger):
         self.dates = self.get_date_list(dates)
 
         self.logger = logger
@@ -67,14 +59,15 @@ class AuxiliaryHandler():
             if self.__dict__.get(option) is None:
                 self.__dict__[option] = default
                 self.logger.debug(
-                    f"The parameter {option} was set to the default "
-                    f"value: {default}.")
+                    f"The parameter {option} was set to the default value: {default}."
+                )
 
         for option in self.mandatory_options:
             if self.__dict__.get(option) is None:
                 self.logger.critical(
                     f"Mandatory parameter {option} not given in the "
-                    f"description file {description_file}!")
+                    f"description file {description_file}!"
+                )
                 sys.exit()
             else:
                 # fill defaults and check for missing values inside the dicts
@@ -83,14 +76,12 @@ class AuxiliaryHandler():
 
         self.cols_to_use = []
         for key in ["time_key", "date_key", "datetime_key"]:
-
             val = self.dataframe_parameters[key]
             if val != "":
                 self.cols_to_use.append(val)
 
         # to ensure the date-columns are read in as string format
-        self.dataframe_parameters["csv_kwargs"] = \
-            self._append_dtype_to_csv_kwargs()
+        self.dataframe_parameters["csv_kwargs"] = self._append_dtype_to_csv_kwargs()
 
     def get_date_list(self, dates):
         """Return extended, sorted deepcopy of date_list."""
@@ -131,22 +122,20 @@ class AuxiliaryHandler():
         for file in file_list:
             self.logger.debug(f"Read in file {file}")
             temp = pd.read_csv(
-                file,
-                usecols=self.cols_to_use,
-                **(self.dataframe_parameters["csv_kwargs"]))
+                file, usecols=self.cols_to_use, **(self.dataframe_parameters["csv_kwargs"])
+            )
             df = pd.concat([df, temp])
         return df
 
     def create_df_when_date_in_filename(self):
-        """Create dataframe if date information is only given in the file name.
-        """
+        """Create dataframe if date information is only given in the file name."""
         dataframes = []
         for date in self.dates:
             file_list = self._get_file_list([date])
             if len(file_list) == 0:
                 self.logger.warning(
-                    "No pressure file could be found "
-                    f"at {date.strftime('%Y-%m-%d')}")
+                    f"No pressure file could be found at {date.strftime('%Y-%m-%d')}"
+                )
             tmp = self.concat_files(file_list)
             tmp = self.parse_datetime_col(tmp, date)
             dataframes.append(tmp)
@@ -173,7 +162,8 @@ class AuxiliaryHandler():
         interpolated = np.interp(
             np.datetime64(utc_time, "ns"),
             df[time_key].astype("datetime64[ns]"),
-            df[data_key].values)
+            df[data_key].values,
+        )
 
         return interpolated
 
@@ -196,13 +186,12 @@ class AuxiliaryHandler():
         elif idx == len(x):
             closest_idx = len(x) - 1
         else:
-            closest_idx = idx if abs(x[idx] - x_i) < abs(x[idx - 1] - x_i) \
-                else idx - 1
+            closest_idx = idx if abs(x[idx] - x_i) < abs(x[idx - 1] - x_i) else idx - 1
 
         distance = abs(x[closest_idx] - x_i)
 
         # distance in seconds
-        distance = distance.astype('timedelta64[s]').astype(int)
+        distance = distance.astype("timedelta64[s]").astype(int)
 
         # compare to threshold
         threshold = self.max_interpolation_time * 3600
@@ -211,7 +200,8 @@ class AuxiliaryHandler():
                 f"Interpolation time for requested time {utc_time} "
                 "was larger than the threshold. Will skip the processing "
                 "of the spectra corresponding to this time. "
-                "(See next message!)")
+                "(See next message!)"
+            )
             return False
         else:
             return True
@@ -233,12 +223,9 @@ class AuxiliaryHandler():
         file_list = []
         for date in dates:
             filename = "".join(
-                    [params["basename"],
-                        date.strftime(params["time_format"]),
-                        params["ending"]]
-                )
-            path = os.path.join(
-                self.data_path, filename)
+                [params["basename"], date.strftime(params["time_format"]), params["ending"]]
+            )
+            path = os.path.join(self.data_path, filename)
             tmp_file_list = glob.glob(path)
             file_list.extend(tmp_file_list)
 
@@ -248,8 +235,7 @@ class AuxiliaryHandler():
         # warning in case of empty file list
         if len(dates) > 1 and len(file_list) == 0:
             # no pressure file is available
-            self.logger.warning(
-                "No pressure file could be found.")
+            self.logger.warning("No pressure file could be found.")
         return file_list
 
     def parse_datetime_col(self, df, date=None):
@@ -292,27 +278,27 @@ class AuxiliaryHandler():
                 # file.
                 # day is taken from call day
                 try:
-                    df[self.parsed_dtcol] = pd.to_datetime(
-                        df[time_key], format=time_fmt)
+                    df[self.parsed_dtcol] = pd.to_datetime(df[time_key], format=time_fmt)
                 except KeyError:
                     self.logger.critical(
-                        f"Could not access key {time_key} in pressure data."
-                        "Exit Program.")
+                        f"Could not access key {time_key} in pressure data.Exit Program."
+                    )
                     exit()
 
                 df[self.parsed_dtcol] = df[self.parsed_dtcol].apply(
-                    lambda x: x.replace(
-                        day=date.day, month=date.month, year=date.year))
+                    lambda x: x.replace(day=date.day, month=date.month, year=date.year)
+                )
             else:
                 # combine two columns to datetime
                 try:
                     df[self.parsed_dtcol] = pd.to_datetime(
-                        df[date_key] + df[time_key],
-                        format=date_fmt+time_fmt)
+                        df[date_key] + df[time_key], format=date_fmt + time_fmt
+                    )
                 except KeyError:
                     self.logger.critical(
                         f"Could not find key {date_key} or {time_key} in "
-                        f"pressure data for date {date}. Exit Program.")
+                        f"pressure data for date {date}. Exit Program."
+                    )
                     self.logger.debug(f"The dataframe is: {df}")
                     exit()
         else:
@@ -320,16 +306,17 @@ class AuxiliaryHandler():
             try:
                 if dt_fmt == "POSIX-timestamp":
                     df[self.parsed_dtcol] = df[dt_key].apply(
-                        lambda x: dt.datetime.utcfromtimestamp(np.float64(x)))
+                        lambda x: dt.datetime.utcfromtimestamp(np.float64(x))
+                    )
                 else:
-                    df[self.parsed_dtcol] = pd.to_datetime(
-                        df[dt_key], format=dt_fmt)
+                    df[self.parsed_dtcol] = pd.to_datetime(df[dt_key], format=dt_fmt)
             except KeyError:
                 self.logger.critical(
                     f"Could not find key {dt_key} in pressure data."
                     f"Pressure data are:\n{df}\n."
                     f"Pressure folder is: {self.data_path}\n"
-                    "Exit Program.")
+                    "Exit Program."
+                )
                 exit()
 
         # remove time zone information
@@ -354,7 +341,7 @@ class AuxiliaryHandler():
         defaults["data_parameters"] = {
             "max_pressure": 1500,
             "min_pressure": 500,
-            "default_value": "skip"
+            "default_value": "skip",
         }
         defaults["dataframe_parameters"] = {
             "pressure_key": "",
@@ -366,11 +353,7 @@ class AuxiliaryHandler():
             "datetime_fmt": "",
             "csv_kwargs": {},
         }
-        defaults["filename_parameters"] = {
-            "basename": "",
-            "time_format": "",
-            "ending": ""
-        }
+        defaults["filename_parameters"] = {"basename": "", "time_format": "", "ending": ""}
 
         d = self.__dict__[option]
         if option not in defaults.keys():
@@ -379,8 +362,8 @@ class AuxiliaryHandler():
             if d.get(k) is None:
                 d[k] = v
                 self.logger.debug(
-                    f"The pressure parameter {option}:{k} was set to "
-                    f"default value: {v}.")
+                    f"The pressure parameter {option}:{k} was set to default value: {v}."
+                )
         return d
 
     def _check_mandatory(self):
@@ -399,28 +382,29 @@ class AuxiliaryHandler():
         time_key = self.dataframe_parameters.get("time_key")
         datetime_key = self.dataframe_parameters.get("datetime_key")
         general_instruction = (
-            " Give either the time_key or the datetime_key in "
-            "dataframe_parameters!")
+            " Give either the time_key or the datetime_key in dataframe_parameters!"
+        )
         if (time_key == "") and (datetime_key == ""):
-            raise RuntimeError(
-                "None of time_key and datetime_key are given!"
-                + general_instruction)
+            raise RuntimeError("None of time_key and datetime_key are given!" + general_instruction)
         elif (time_key != "") and (datetime_key != ""):
             raise RuntimeError(
-                "time_key and datetime_key can not be given at the same time!"
-                + general_instruction)
+                "time_key and datetime_key can not be given at the same time!" + general_instruction
+            )
 
         # filename not empty
-        joined_filename = "".join([
-            self.filename_parameters["basename"],
-            self.filename_parameters["time_format"],
-            self.filename_parameters["ending"]
-        ])
+        joined_filename = "".join(
+            [
+                self.filename_parameters["basename"],
+                self.filename_parameters["time_format"],
+                self.filename_parameters["ending"],
+            ]
+        )
         if joined_filename == "":
             raise RuntimeError(
                 "No filename is given! Give the start, time format (optional) "
                 "and ending of your filename as filename_parameters: "
-                "basename, time_format and ending.")
+                "basename, time_format and ending."
+            )
 
     def _append_dtype_to_csv_kwargs(self):
         """Return extended csv_kwargs to make sure the date and time column
@@ -447,15 +431,13 @@ class CoordHandler(AuxiliaryHandler):
         "max_interpolation_time": 0.167,  # 10 min in hours
     }
 
-    def __init__(
-            self, coord_type_file, coord_path, dates, logger,
-            static_coords=None):
+    def __init__(self, coord_type_file, coord_path, dates, logger, static_coords=None):
         super().__init__(
             description_file=coord_type_file,
             data_path=coord_path,
             dates=dates,
             logger=logger,
-            )
+        )
         self.static_coords = static_coords
         for key in ["latitude_key", "longitude_key", "altitude_key"]:
             dataframe_key = self.dataframe_parameters.get(key)
@@ -466,7 +448,7 @@ class CoordHandler(AuxiliaryHandler):
         """Create dataframe and optinoally add static column."""
         df = self.create_df()
         for coord_type in ["latitude", "longitude", "altitude"]:
-            if self.dataframe_parameters.get(coord_type+"_key") is None:
+            if self.dataframe_parameters.get(coord_type + "_key") is None:
                 df = self.add_static_coord(df, coord_type)
         self.coord_df = df
 
@@ -474,18 +456,19 @@ class CoordHandler(AuxiliaryHandler):
         """Use static coordinates if one of the coordinates is not given."""
         if self.static_coords is None:
             raise RuntimeError(
-                f"Give static coords if no {coord_type} key is present in "
-                "your coord data")
+                f"Give static coords if no {coord_type} key is present in your coord data"
+            )
         static_coord = self.static_coords[coord_type[0:3]]
-        static_coord_column = [static_coord]*len(df)
+        static_coord_column = [static_coord] * len(df)
         df[f"static_{coord_type}"] = static_coord_column
-        self.dataframe_parameters[coord_type+"_key"] = "static_" + coord_type
+        self.dataframe_parameters[coord_type + "_key"] = "static_" + coord_type
 
         self.logger.warning(
             f"No {coord_type} is given for the mobile coordinates. "
             f"The static {coord_type} of {static_coord} km is used"
             " for all interferograms. Make sure that this altitude is "
-            "representative for all observations.")
+            "representative for all observations."
+        )
         return df
 
     def get_coords_at(self, utc_time):
@@ -514,9 +497,8 @@ class CoordHandler(AuxiliaryHandler):
         """
         coords = []
         for coord_name in ["latitude", "longitude", "altitude"]:
-            data_key = self.dataframe_parameters[coord_name+"_key"]
-            coord_value = self.interpolate_data_at(
-                self.coord_df, utc_time, data_key)
+            data_key = self.dataframe_parameters[coord_name + "_key"]
+            coord_value = self.interpolate_data_at(self.coord_df, utc_time, data_key)
             if coord_value is None:
                 return None
             coords.append(coord_value)
@@ -528,20 +510,20 @@ class CoordHandler(AuxiliaryHandler):
         if len(df) == 0:
             return None
         for coord_name in ["latitude", "longitude", "altitude"]:
-            data_key = self.dataframe_parameters[coord_name+"_key"]
+            data_key = self.dataframe_parameters[coord_name + "_key"]
             coord_value = df[data_key].mean()
             coords.append(coord_value)
         return coords
 
     def _apply_altitude_factor(self, coords):
-        return [coords[0], coords[1], coords[2]*self.altitude_factor]
+        return [coords[0], coords[1], coords[2] * self.altitude_factor]
 
     def _get_timeslice(self, utc_time):
         # TODO: does the utc_time refer to the beginning?
         time_slice = slice(
             pd.Timestamp(utc_time),
-            pd.Timestamp(utc_time) + pd.Timedelta("60s")  # measurement period
-            )
+            pd.Timestamp(utc_time) + pd.Timedelta("60s"),  # measurement period
+        )
         df = self.coord_df.set_index(self.parsed_dtcol).sort_index()
 
         return df[time_slice]
@@ -560,8 +542,7 @@ class PressureHandler(AuxiliaryHandler):
 
     parsed_dtcol = "parsed_datetime"
 
-    def __init__(
-            self, pressure_type_file, pressure_path, dates, logger):
+    def __init__(self, pressure_type_file, pressure_path, dates, logger):
         """
         Initialize the Pressure Handler.
         Parameters:
@@ -578,14 +559,15 @@ class PressureHandler(AuxiliaryHandler):
             data_path=pressure_path,
             dates=dates,
             logger=logger,
-            )
+        )
 
         # check if pressure key is given
         pressure_key = self.dataframe_parameters.get("pressure_key")
         if pressure_key == "":
             raise RuntimeError(
                 "The key of the pressure column in the pressure file must be "
-                "given as dataframe_parameters: pressure_key")
+                "given as dataframe_parameters: pressure_key"
+            )
 
         # For a later read in of the pressure data frame it makes sense to only
         # read in the columns needed. In case of large meteo files, this can
@@ -616,10 +598,8 @@ class PressureHandler(AuxiliaryHandler):
         p_key = df_args["pressure_key"]
         df_print = self.p_df[[self.parsed_dtcol, p_key]]
         self.logger.debug(
-            "Created pressure DataFrame:\n\n"
-            "# start of self.p_df #\n"
-            f"{df_print.head()}\n"
-            )
+            f"Created pressure DataFrame:\n\n# start of self.p_df #\n{df_print.head()}\n"
+        )
 
     def get_pressure_at(self, utc_time):
         """Return the interpolated pressure at a given time.
@@ -647,8 +627,7 @@ class PressureHandler(AuxiliaryHandler):
                 "Please note that the pressure is interpolated by "
                 "PROFFASTpylot. Consider to average your pressure data over a "
                 "longer time period."
-
-                )
+            )
 
     def _filter_pressure(self, date=None):
         """
@@ -665,10 +644,8 @@ class PressureHandler(AuxiliaryHandler):
             replace_val = np.nan
         else:
             replace_val = float(self.data_parameters["default_value"])
-        self.p_df[p_key] = np.where(
-            self.p_df[p_key] > maxVal, replace_val, self.p_df[p_key])
-        self.p_df[p_key] = np.where(
-            self.p_df[p_key] < minVal, replace_val, self.p_df[p_key])
+        self.p_df[p_key] = np.where(self.p_df[p_key] > maxVal, replace_val, self.p_df[p_key])
+        self.p_df[p_key] = np.where(self.p_df[p_key] < minVal, replace_val, self.p_df[p_key])
         self.p_df = self.p_df.dropna(subset=[p_key])
 
     def _apply_pressure_offset_and_factor(self):
